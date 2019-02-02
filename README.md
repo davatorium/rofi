@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ca0310962a7c4b829d0c57f1ab023531)](https://app.codacy.com/app/DaveDavenport/rofi?utm_source=github.com&utm_medium=referral&utm_content=DaveDavenport/rofi&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/DaveDavenport/rofi.svg?branch=master)](https://travis-ci.org/DaveDavenport/rofi)
 [![codecov.io](https://codecov.io/github/DaveDavenport/rofi/coverage.svg?branch=master)](https://codecov.io/github/DaveDavenport/rofi?branch=master)
 [![Issues](https://img.shields.io/github/issues/DaveDavenport/rofi.svg)](https://github.com/DaveDavenport/rofi/issues)
