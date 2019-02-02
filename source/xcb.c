@@ -1018,7 +1018,11 @@ static int take_keyboard ( xcb_window_t w, int iters )
         if ( ( ++i ) > iters ) {
             break;
         }
-        usleep ( 1000 );
+        struct timespec del = {
+             .tv_sec  = 0,
+             .tv_nsec =  1000000
+        };
+        nanosleep ( &del, NULL );
     }
     return 0;
 }
