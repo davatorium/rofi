@@ -42,23 +42,23 @@
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
-        printf ( "Test %3i passed (%s)\n", ++test, # a ); \
+        printf ( "Test %3u passed (%s)\n", ++test, # a ); \
 }
 
 #define TASSERTE( a, b )    {                                                            \
         if ( ( a ) == ( b ) ) {                                                          \
-            printf ( "Test %i passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
+            printf ( "Test %u passed (%s == %s) (%d == %d)\n", ++test, # a, # b, a, b ); \
         }else {                                                                          \
-            printf ( "Test %i failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
+            printf ( "Test %u failed (%s == %s) (%d != %d)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \
 }
 
 #define TASSERTW( a, b )    {                                                                            \
         if ( ( a ) == ( b ) ) {                                                                          \
-            printf ( "Test %i passed (%s == %s) (%p == %p)\n", ++test, # a, # b, (void *)a, (void *)b ); \
+            printf ( "Test %u passed (%s == %s) (%p == %p)\n", ++test, # a, # b, (void *)a, (void *)b ); \
         }else {                                                                                          \
-            printf ( "Test %i failed (%s == %s) (%p != %p)\n", ++test, # a, # b, (void *)a, (void *)b ); \
+            printf ( "Test %u failed (%s == %s) (%p != %p)\n", ++test, # a, # b, (void *)a, (void *)b ); \
             abort ( );                                                                                   \
         }                                                                                                \
 }
@@ -106,12 +106,12 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         wid1->parent = WIDGET(b);
         box_add ( b , WIDGET( wid1 ), TRUE );
         // Widget not enabled.  no width allocated.
-        TASSERTE ( wid1->h, 0);
-        TASSERTE ( wid1->w, 0 );
+        TASSERTE ( wid1->h, 0u );
+        TASSERTE ( wid1->w, 0u );
         widget_enable ( WIDGET ( wid1 ) );
         widget_update ( WIDGET ( b ) ) ;
         // Widget enabled.  so width allocated.
-        TASSERTE ( wid1->h, 20);
+        TASSERTE ( wid1->h, 20 );
         TASSERTE ( wid1->w, 100 );
         widget *wid2 = g_malloc0(sizeof(widget));
         wid2->parent = WIDGET (b) ;
