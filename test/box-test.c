@@ -106,8 +106,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
         wid1->parent = WIDGET(b);
         box_add ( b , WIDGET( wid1 ), TRUE );
         // Widget not enabled.  no width allocated.
-        TASSERTE ( wid1->h, 0u );
-        TASSERTE ( wid1->w, 0u );
+        TASSERTE ( wid1->h, 0 );
+        TASSERTE ( wid1->w, 0 );
         widget_enable ( WIDGET ( wid1 ) );
         widget_update ( WIDGET ( b ) ) ;
         // Widget enabled.  so width allocated.
