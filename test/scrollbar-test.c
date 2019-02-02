@@ -43,14 +43,14 @@
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
-        printf ( "Test %3i passed (%s)\n", ++test, # a ); \
+        printf ( "Test %3u passed (%s)\n", ++test, # a ); \
 }
 
 #define TASSERTE( a, b )    {                                                            \
         if ( ( a ) == ( b ) ) {                                                          \
-            printf ( "Test %i passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
+            printf ( "Test %u passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
         }else {                                                                          \
-            printf ( "Test %i failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
+            printf ( "Test %u failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \
 }

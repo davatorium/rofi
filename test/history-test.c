@@ -37,7 +37,7 @@ static int test = 0;
 
 #define TASSERT( a )    {                                \
         assert ( a );                                    \
-        printf ( "Test %i passed (%s)\n", ++test, # a ); \
+        printf ( "Test %u passed (%s)\n", ++test, # a ); \
 }
 
 const char *file = "text";
