@@ -33,7 +33,7 @@
 #include <history.h>
 #include <string.h>
 
-static int test = 0;
+static unsigned int test = 0;
 
 #define TASSERT( a )    {                                \
         assert ( a );                                    \
