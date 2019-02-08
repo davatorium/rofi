@@ -218,6 +218,8 @@ static XrmOption xrmOptions[] = {
       "Hide the prefix mode prefix on the combi view.", CONFIG_DEFAULT },
     { xrm_Char, "matching-negate-char",     { .charc= &config.matching_negate_char            }, NULL,
       "Set the character used to negate the matching. ('\\0' to disable)", CONFIG_DEFAULT },
+    { xrm_String, "cache-dir",               { .str = &config.cache_dir                       }, NULL,
+      "Directory where history and temporary files are stored.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

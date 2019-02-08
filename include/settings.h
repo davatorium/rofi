@@ -181,6 +181,9 @@ typedef struct
     gboolean       combi_hide_mode_prefix;
 
     char           matching_negate_char;
+
+    /** Cache directory. */
+    char           *cache_dir;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

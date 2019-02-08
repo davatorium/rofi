@@ -175,6 +175,11 @@ Filter the list by setting text in input bar to *filter*
 
 Load an alternative configuration file.
 
+`-cache-dir` *filename*
+
+Directory that is used to place temporary files, like history.
+
+
 `-scroll-method` *method*
 
 Select the scrolling method. 0: Per page, 1: continuous.

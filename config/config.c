@@ -156,4 +156,6 @@ Settings config = {
     .combi_hide_mode_prefix = FALSE,
 
     .matching_negate_char   = '-',
+
+    .cache_dir              = NULL,
 };
