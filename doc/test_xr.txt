@@ -122,6 +122,8 @@ rofi.scroll-method:                  0
 ! rofi.combi-hide-mode-prefix:         false
 ! "Set the character used to negate the matching. ('\0' to disable)" Set from: Default
 ! rofi.matching-negate-char:           -
+! "Directory where history and temporary files are stored." Set from: Default
+! rofi.cache-dir:                      
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/rofi.pid
 ! "Paste primary selection" Set from: File
