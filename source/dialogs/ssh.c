@@ -74,7 +74,7 @@ typedef struct _SshEntry {
 } SshEntry;
 
 /**
- * @param host The host to connect too
+ * @param entry The host to connect too
  *
  * SSH into the selected host.
  *
@@ -108,7 +108,7 @@ static int execshssh ( const SshEntry *entry)
 }
 
 /**
- * @param host The host to connect too
+ * @param entry The host to connect too
  *
  * SSH into the selected host, if successful update history.
  */

@@ -1273,6 +1273,19 @@ char *helper_string_replace_if_exists ( char * string, ... )
     g_hash_table_destroy ( h );
     return retv;
 }
+/**
+ * @param string The string with elements to be replaced
+ * @param h      Hash table with set of {key}, value that will be replaced, terminated by  a NULL
+ *
+ * Items {key} are replaced by the value if '{key}' is passed as key/value pair, otherwise removed from string.
+ * If the {key} is in between []  all the text between [] are removed if {key}
+ * is not found. Otherwise key is replaced and [ & ] removed.
+ *
+ * This allows for optional replacement, f.e.   '{ssh-client} [-t  {title}] -e
+ * "{cmd}"' the '-t {title}' is only there if {title} is set.
+ *
+ * @returns a new string with the keys replaced.
+ */
 char *helper_string_replace_if_exists_v ( char * string, GHashTable *h )
 {
     GError     *error = NULL;
@@ -1283,7 +1296,7 @@ char *helper_string_replace_if_exists_v ( char * string, GHashTable *h )
     // Free regex.
     g_regex_unref ( reg );
     // Throw error if shell parsing fails.
-    if ( error ) {
+    if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string, error->message );
         rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
