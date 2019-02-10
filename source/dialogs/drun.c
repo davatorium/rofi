@@ -578,7 +578,11 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
     DRunModeEntry *da = (DRunModeEntry *) a;
     DRunModeEntry *db = (DRunModeEntry *) b;
 
-    return db->sort_index - da->sort_index;
+    if ( da->sort_index < 0 && db->sort_index < 0 ) {
+        return g_utf8_collate ( da->name, db->name );
+    } else {
+        return db->sort_index - da->sort_index;
+    }
 }
 
 static void get_apps ( DRunModePrivateData *pd )
@@ -757,15 +761,37 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     DRunModeEntry *dr = &( pd->entry_list[selected_line] );
     gchar *cats = NULL;
     if ( dr->categories ){
-        cats = g_strjoinv(",", dr->categories);
+        char *tcats = g_strjoinv(",", dr->categories);
+        if ( tcats ) {
+            cats = g_markup_escape_text ( tcats, -1 );
+            g_free (tcats);
+        }
     }
+    // Needed for display.
+    char *egn = NULL;
+    char *en = NULL;
+    char *ec = NULL;
+    if ( dr->generic_name ) {
+        egn = g_markup_escape_text ( dr->generic_name, -1 );
+    }
+    if ( dr->name ) {
+        en = g_markup_escape_text ( dr->name, -1 );
+    }
+    if ( dr->comment ) {
+        ec = g_markup_escape_text ( dr->comment , -1 );
+    }
+
+
     char *retv = helper_string_replace_if_exists ( config.drun_display_format,
-            "{generic}", dr->generic_name,
-            "{name}", dr->name,
-            "{comment}", dr->comment,
+            "{generic}", egn,
+            "{name}", en,
+            "{comment}", ec,
             "{exec}", dr->exec,
             "{categories}", cats,
             NULL);
+    g_free ( egn );
+    g_free ( en );
+    g_free ( ec );
     g_free(cats);
     return retv;
 }
