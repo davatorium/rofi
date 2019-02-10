@@ -1288,11 +1288,14 @@ char *helper_string_replace_if_exists ( char * string, ... )
  */
 char *helper_string_replace_if_exists_v ( char * string, GHashTable *h )
 {
-    GError     *error = NULL;
+    GError  *error = NULL;
+    char    *res   = NULL;
 
     // Replace hits within {-\w+}.
-    GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", 0, 0, NULL );
-    char   *res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb2, h, NULL );
+    GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", 0, 0, &error );
+    if ( error == NULL ){
+        res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb2, h, &error );
+    }
     // Free regex.
     g_regex_unref ( reg );
     // Throw error if shell parsing fails.
