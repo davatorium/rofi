@@ -409,7 +409,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         pd->entry_list[pd->cmd_list_length].sort_index = INT_MIN;
     }
     else {
-        pd->entry_list[pd->cmd_list_length].sort_index = -pd->cmd_list_length;
+        pd->entry_list[pd->cmd_list_length].sort_index = -nl;
     }
     pd->entry_list[pd->cmd_list_length].icon_size      = 0;
     pd->entry_list[pd->cmd_list_length].icon_fetch_uid = 0;
