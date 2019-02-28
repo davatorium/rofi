@@ -74,6 +74,8 @@ typedef struct
     char                   *message;
     char                   *prompt;
     gboolean               do_markup;
+
+    GPtrArray              *args_history;
 } ScriptModePrivateData;
 
 static void parse_entry_extras ( G_GNUC_UNUSED Mode *sw, ScriptEntry *entry, char *buffer, size_t length )
@@ -126,18 +128,23 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
     }
 }
 
-static ScriptEntry *get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
+static ScriptEntry *get_script_output ( Mode *sw, char *command, unsigned int *length )
 {
+    ScriptModePrivateData *pd        = (ScriptModePrivateData *) sw->private_data;
     int    fd     = -1;
     GError *error = NULL;
     ScriptEntry *retv = NULL;
     char   **argv = NULL;
     int    argc   = 0;
+
     *length = 0;
+
     if ( g_shell_parse_argv ( command, &argc, &argv, &error ) ) {
-        argv           = g_realloc ( argv, ( argc + 2 ) * sizeof ( char* ) );
-        argv[argc]     = g_strdup ( arg );
-        argv[argc + 1] = NULL;
+        argv           = g_realloc ( argv, ( argc + pd->args_history->len + 1 ) * sizeof ( char* ) );
+        guint i;
+        for ( i = 0 ; i < pd->args_history->len ; ++i )
+            argv[argc + i] = g_strdup ( g_ptr_array_index ( pd->args_history, pd->args_history->len - i - 1 ) );
+        argv[argc + i] = NULL;
         g_spawn_async_with_pipes ( NULL, argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &fd, NULL, &error );
     }
     if ( error != NULL ) {
@@ -193,7 +200,9 @@ static ScriptEntry *get_script_output ( Mode *sw, char *command, char *arg, unsi
 
 static ScriptEntry *execute_executor ( Mode *sw, char *result, unsigned int *length )
 {
-    ScriptEntry *retv = get_script_output ( sw, sw->ed, result, length );
+    ScriptModePrivateData *rmpd = (ScriptModePrivateData *) sw->private_data;
+    g_ptr_array_add ( rmpd->args_history, g_strdup ( result ) );
+    ScriptEntry *retv = get_script_output ( sw, sw->ed, length );
     return retv;
 }
 
@@ -212,7 +221,8 @@ static int script_mode_init ( Mode *sw )
     if ( sw->private_data == NULL ) {
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
-        pd->cmd_list     = get_script_output ( sw, (char *) sw->ed, NULL, &( pd->cmd_list_length ) );
+        pd->args_history = g_ptr_array_new ();
+        pd->cmd_list     = get_script_output ( sw, (char *) sw->ed, &( pd->cmd_list_length ) );
     }
     return TRUE;
 }
@@ -282,6 +292,9 @@ static void script_mode_destroy ( Mode *sw )
             g_free ( rmpd->cmd_list[i].entry );
             g_free ( rmpd->cmd_list[i].icon_name );
         }
+
+        g_ptr_array_add ( rmpd->args_history, NULL );
+        g_strfreev ( (gchar **) g_ptr_array_free ( rmpd->args_history, FALSE ) );
         g_free ( rmpd->cmd_list );
         g_free ( rmpd->message );
         g_free ( rmpd->prompt );

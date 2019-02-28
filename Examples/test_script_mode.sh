@@ -1,14 +1,28 @@
 #!/usr/bin/env bash
 
-if [ x"$@" = x"quit" ]
+if [ x"$1" = x"quit" ]
 then
     exit 0
 fi
 
-if [ "$@" ]
+if [ "$4" ]
 then
-    # Override the previously set prompt.
-    echo -en "\x00prompt\x1fChange prompt\n"
+    exit 0
+elif [ "$3" ]
+then
+    echo -en "\x00prompt\x1fsubsubsubmenu $3 $2 $1\n"
+    echo "quit"
+elif [ "$2" ]
+then
+    echo -en "\x00prompt\x1fsubsubmenu $2 $1\n"
+    for a in {20..25}
+    do
+        echo "$a"
+    done
+    echo "quit"
+elif [ "$1" ]
+then
+    echo -en "\x00prompt\x1fsubmenu $1\n"
     for a in {1..10}
     do
         echo "$a"
