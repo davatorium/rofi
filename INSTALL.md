@@ -229,3 +229,11 @@ echo 'x11-misc/rofi ~x86' >> /etc/portage/package.accept_keywords
 for i386.
 
 To install it, simply issue `emerge rofi`.
+
+### openSUSE
+
+On both openSUSE Leap and openSUSE Tumbleweed rofi can be installed using:
+
+```
+sudo zypper install rofi
+```
