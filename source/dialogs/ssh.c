@@ -56,6 +56,23 @@
 #include "history.h"
 #include "dialogs/ssh.h"
 
+
+typedef struct _SshEntry {
+    char *hostname;
+    int  port;
+} SshEntry;
+/**
+ * The internal data structure holding the private data of the SSH Mode.
+ */
+typedef struct
+{
+    GList *user_known_hosts;
+    /** List if available ssh hosts.*/
+    SshEntry *hosts_list;
+    /** Length of the #hosts_list.*/
+    unsigned int hosts_list_length;
+} SSHModePrivateData;
+
 /**
  * Name of the history file where previously chosen hosts are stored.
  */
@@ -67,11 +84,6 @@
  */
 #define SSH_TOKEN_DELIM    "= \t\r\n"
 
-
-typedef struct _SshEntry {
-    char *hostname;
-    int  port;
-} SshEntry;
 
 /**
  * @param entry The host to connect too
@@ -127,7 +139,7 @@ static void exec_ssh ( const SshEntry *entry )
     char *path = g_build_filename ( cache_dir, SSH_CACHE_FILE, NULL );
     // TODO update.
     if ( entry->port > 0 ) {
-        char *store = g_strdup_printf("%s:%d", entry->hostname, entry->port ); 
+        char *store = g_strdup_printf("%s:%d", entry->hostname, entry->port );
         history_set ( path, store );
         g_free ( store );
     } else {
@@ -159,9 +171,8 @@ static void delete_ssh ( const char *host )
  *
  * @returns updated list of hosts.
  */
-static SshEntry *read_known_hosts_file ( SshEntry * retv, unsigned int *length )
+static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsigned int *length )
 {
-    char *path = g_build_filename ( g_get_home_dir (), ".ssh", "known_hosts", NULL );
     FILE *fd   = fopen ( path, "r" );
     if ( fd != NULL ) {
         char   *buffer       = NULL;
@@ -173,7 +184,6 @@ static SshEntry *read_known_hosts_file ( SshEntry * retv, unsigned int *length )
             // Find start.
             if ( *start == '#' || *start == '@' ){
                 // skip comments or cert-authority or revoked items.
-                printf("Comment.\n");
                 continue;
             }
             if ( *start == '|' ) {
@@ -214,7 +224,7 @@ static SshEntry *read_known_hosts_file ( SshEntry * retv, unsigned int *length )
                     // Add this host name to the list.
                     retv                           = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( SshEntry ) );
                     retv[( *length )].hostname     = g_strdup ( start );
-                    retv[( *length )].port         = port; 
+                    retv[( *length )].port         = port;
                     retv[( *length ) + 1].hostname = NULL;
                     retv[( *length ) + 1].port     = 0;
                     ( *length )++;
@@ -228,9 +238,10 @@ static SshEntry *read_known_hosts_file ( SshEntry * retv, unsigned int *length )
         if ( fclose ( fd ) != 0 ) {
             g_warning ( "Failed to close hosts file: '%s'", g_strerror ( errno ) );
         }
+    } else {
+        g_debug ( "Failed to open KnownHostFile: '%s'", path );
     }
 
-    g_free ( path );
     return retv;
 }
 
@@ -308,7 +319,15 @@ static SshEntry *read_hosts_file ( SshEntry * retv, unsigned int *length )
     return retv;
 }
 
-static void parse_ssh_config_file ( const char *filename, SshEntry **retv, unsigned int *length, unsigned int num_favorites )
+static void add_known_hosts_file ( SSHModePrivateData *pd, const char *token )
+{
+    GList *item = g_list_find_custom ( pd->user_known_hosts, token, g_str_equal );
+    if ( item == NULL ) {
+        pd->user_known_hosts = g_list_append ( pd->user_known_hosts, g_strdup ( token ) );
+    }
+}
+
+static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename, SshEntry **retv, unsigned int *length, unsigned int num_favorites )
 {
     FILE *fd = fopen ( filename, "r" );
 
@@ -324,7 +343,6 @@ static void parse_ssh_config_file ( const char *filename, SshEntry **retv, unsig
             // The keyword is separated from its arguments by whitespace OR by
             // optional whitespace and a '=' character.
             char *token = strtok_r ( buffer, SSH_TOKEN_DELIM, &strtok_pointer );
-
             // Skip empty lines and comment lines. Also skip lines where the
             // keyword is not "Host".
             if ( !token || *token == '#' ) {
@@ -348,13 +366,19 @@ static void parse_ssh_config_file ( const char *filename, SshEntry **retv, unsig
 
                 if ( glob ( full_path, 0, NULL, &globbuf ) == 0 ) {
                     for ( size_t iter = 0; iter < globbuf.gl_pathc; iter++ ) {
-                        parse_ssh_config_file ( globbuf.gl_pathv[iter], retv, length, num_favorites );
+                        parse_ssh_config_file ( pd, globbuf.gl_pathv[iter], retv, length, num_favorites );
                     }
                 }
                 globfree ( &globbuf );
 
                 g_free ( full_path );
                 g_free ( path );
+            }
+            else if ( g_strcmp0 ( token, "UserKnownHostsFile" ) == 0 ) {
+                while ( ( token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer ) ) ) {
+                    g_debug("Found extra UserKnownHostsFile: %s", token);
+                    add_known_hosts_file ( pd, token );
+                }
             }
             else if ( g_strcmp0 ( token, "Host" ) == 0 ) {
                 // Now we know that this is a "Host" line.
@@ -414,7 +438,7 @@ static void parse_ssh_config_file ( const char *filename, SshEntry **retv, unsig
  *
  * @return an array of strings containing all the hosts.
  */
-static SshEntry * get_ssh (  unsigned int *length )
+static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
 {
     SshEntry *retv        = NULL;
     unsigned int num_favorites = 0;
@@ -433,7 +457,7 @@ static SshEntry * get_ssh (  unsigned int *length )
         char *portstr = strchr ( h[i], ':' );
         if ( portstr != NULL ) {
             *portstr = '\0';
-            port = atoi ( &(portstr[1]) ); 
+            port = atoi ( &(portstr[1]) );
         }
         retv[i].hostname = h[i];
         retv[i].port = port;
@@ -443,32 +467,28 @@ static SshEntry * get_ssh (  unsigned int *length )
     g_free ( path );
     num_favorites = ( *length );
 
+    const char *hd = g_get_home_dir ();
+    path = g_build_filename ( hd, ".ssh", "config", NULL );
+    parse_ssh_config_file ( pd, path, &retv, length, num_favorites );
+
     if ( config.parse_known_hosts == TRUE ) {
-        retv = read_known_hosts_file ( retv, length );
+        char *path = g_build_filename ( g_get_home_dir (), ".ssh", "known_hosts", NULL );
+        retv = read_known_hosts_file ( path, retv, length );
+        g_free ( path );
+        for ( GList *iter = g_list_first ( pd->user_known_hosts); iter; iter = g_list_next ( iter ) ) {
+            retv = read_known_hosts_file ( (const char*)iter->data, retv, length );
+        }
     }
     if ( config.parse_hosts == TRUE ) {
         retv = read_hosts_file ( retv, length );
     }
 
-    const char *hd = g_get_home_dir ();
-    path = g_build_filename ( hd, ".ssh", "config", NULL );
 
-    parse_ssh_config_file ( path, &retv, length, num_favorites );
     g_free ( path );
 
     return retv;
 }
 
-/**
- * The internal data structure holding the private data of the SSH Mode.
- */
-typedef struct
-{
-    /** List if available ssh hosts.*/
-    SshEntry *hosts_list;
-    /** Length of the #hosts_list.*/
-    unsigned int hosts_list_length;
-} SSHModePrivateData;
 
 /**
  * @param sw Object handle to the SSH Mode object
@@ -481,7 +501,7 @@ static int ssh_mode_init ( Mode *sw )
     if ( mode_get_private_data ( sw ) == NULL ) {
         SSHModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
-        pd->hosts_list = get_ssh ( &( pd->hosts_list_length ) );
+        pd->hosts_list = get_ssh ( pd, &( pd->hosts_list_length ) );
     }
     return TRUE;
 }
@@ -510,6 +530,7 @@ static void ssh_mode_destroy ( Mode *sw )
         for ( unsigned int i = 0; i < rmpd->hosts_list_length; i++ ){
             g_free( rmpd->hosts_list[i].hostname );
         }
+        g_list_free_full ( rmpd->user_known_hosts, g_free );
         g_free ( rmpd->hosts_list );
         g_free ( rmpd );
         mode_set_private_data ( sw, NULL );
