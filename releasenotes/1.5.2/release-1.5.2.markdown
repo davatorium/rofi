@@ -32,7 +32,7 @@ To fix this they have been changed.
 
 The `sort` option is now used to enable/disable sorting. (This can also be changed at run-time using the hotkey)
 
-The `sort-method` allows you to set the sorting method. Currently it supports **normal** (levenshtein) and **fzf**.
+The `sorting-method` allows you to set the sorting method. Currently it supports **normal** (levenshtein) and **fzf**.
 
 ## Documentation updates
 
