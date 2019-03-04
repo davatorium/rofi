@@ -321,9 +321,12 @@ static SshEntry *read_hosts_file ( SshEntry * retv, unsigned int *length )
 
 static void add_known_hosts_file ( SSHModePrivateData *pd, const char *token )
 {
-    GList *item = g_list_find_custom ( pd->user_known_hosts, token, g_str_equal );
+    GList *item = g_list_find_custom ( pd->user_known_hosts, token, (GCompareFunc)g_strcmp0 );
     if ( item == NULL ) {
+        g_debug("Add '%s' to UserKnownHost list", token);
         pd->user_known_hosts = g_list_append ( pd->user_known_hosts, g_strdup ( token ) );
+    } else {
+        g_debug("File '%s' already in UserKnownHostsFile list", token);
     }
 }
 
@@ -476,7 +479,9 @@ static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
         retv = read_known_hosts_file ( path, retv, length );
         g_free ( path );
         for ( GList *iter = g_list_first ( pd->user_known_hosts); iter; iter = g_list_next ( iter ) ) {
-            retv = read_known_hosts_file ( (const char*)iter->data, retv, length );
+            char *path = rofi_expand_path ( (const char *)iter->data);
+            retv = read_known_hosts_file ( (const char*)path, retv, length );
+            g_free (path);
         }
     }
     if ( config.parse_hosts == TRUE ) {
