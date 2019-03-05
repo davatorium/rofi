@@ -63,7 +63,7 @@
     color: @magenta;
     background-color: @transparent;
     spacing: 0;
-    children:  [vertb, mainbox];
+    children:  [mainbox];
     orientation: horizontal;
 }
 

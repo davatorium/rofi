@@ -503,10 +503,8 @@ void rofi_view_free ( RofiViewState *state )
     g_free ( state->distance );
     // Free the switcher boxes.
     // When state is free'ed we should no longer need these.
-    if ( config.sidebar_mode == TRUE ) {
-        g_free ( state->modi );
-        state->num_modi = 0;
-    }
+    g_free ( state->modi );
+    state->num_modi = 0;
     g_free ( state );
 }
 
@@ -1557,7 +1555,11 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     if ( strcmp ( name, "mainbox" ) == 0 ) {
         wid = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *) parent_widget, WIDGET ( wid ), TRUE );
-        defaults = "inputbar,message,listview,sidebar";
+        if ( config.sidebar_mode ) {
+            defaults = "inputbar,message,listview,sidebar";
+        } else {
+            defaults = "inputbar,message,listview";
+        }
     }
     /**
      * INPUTBAR
@@ -1649,18 +1651,16 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
             g_error ( "Sidebar widget can only be added once to the layout." );
             return;
         }
-        if ( config.sidebar_mode ) {
-            state->sidebar_bar = box_create ( parent_widget, name, ROFI_ORIENTATION_HORIZONTAL );
-            box_add ( (box *) parent_widget, WIDGET ( state->sidebar_bar ), FALSE );
-            state->num_modi = rofi_get_num_enabled_modi ();
-            state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
-            for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-                const Mode * mode = rofi_get_mode ( j );
-                state->modi[j] = textbox_create ( WIDGET ( state->sidebar_bar ), WIDGET_TYPE_SIDEBAR_MODI, "button", TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
-                                                  mode_get_display_name ( mode  ), 0.5, 0.5 );
-                box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
-                widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );
-            }
+        state->sidebar_bar = box_create ( parent_widget, name, ROFI_ORIENTATION_HORIZONTAL );
+        box_add ( (box *) parent_widget, WIDGET ( state->sidebar_bar ), FALSE );
+        state->num_modi = rofi_get_num_enabled_modi ();
+        state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+            const Mode * mode = rofi_get_mode ( j );
+            state->modi[j] = textbox_create ( WIDGET ( state->sidebar_bar ), WIDGET_TYPE_SIDEBAR_MODI, "button", TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+                    mode_get_display_name ( mode  ), 0.5, 0.5 );
+            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
+            widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );
         }
     }
     else if (  g_ascii_strncasecmp ( name, "textbox", 7 ) == 0 ) {
@@ -1922,7 +1922,7 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     if ( state->prompt ) {
         rofi_view_update_prompt ( state );
     }
-    if ( config.sidebar_mode && state->sidebar_bar ) {
+    if ( state->sidebar_bar ) {
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
             textbox_font ( state->modi[j], ( mode == state->sw ) ? HIGHLIGHT : NORMAL );
