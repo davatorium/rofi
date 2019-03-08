@@ -139,7 +139,7 @@ static void exec_ssh ( const SshEntry *entry )
     char *path = g_build_filename ( cache_dir, SSH_CACHE_FILE, NULL );
     // TODO update.
     if ( entry->port > 0 ) {
-        char *store = g_strdup_printf("%s:%d", entry->hostname, entry->port );
+        char *store = g_strdup_printf("%s\x1F%d", entry->hostname, entry->port );
         history_set ( path, store );
         g_free ( store );
     } else {
@@ -205,7 +205,7 @@ static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsi
                 if ( start[0] == '[' ) {
                     start++;
                     char *end = strchr ( start, ']');
-                    if ( end[1] == ':' ){
+                    if ( end[1] == '\x1F' ){
                         *end  = '\0';
                         port = atoi ( &(end[2]) );
                     }
@@ -457,7 +457,7 @@ static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
     retv = malloc ( (*length)*sizeof(SshEntry));
     for ( unsigned int i = 0; i < (*length); i++ ){
         int port = 0;
-        char *portstr = strchr ( h[i], ':' );
+        char *portstr = strchr ( h[i], '\x1F' );
         if ( portstr != NULL ) {
             *portstr = '\0';
             port = atoi ( &(portstr[1]) );
