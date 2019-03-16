@@ -179,6 +179,9 @@ typedef struct
     gboolean       combi_hide_mode_prefix;
 
     char           matching_negate_char;
+
+    /** Include all windows in the list  */
+    gboolean       all_windows;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

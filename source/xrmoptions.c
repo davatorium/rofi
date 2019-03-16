@@ -216,6 +216,8 @@ static XrmOption xrmOptions[] = {
       "Hide the prefix mode prefix on the combi view.", CONFIG_DEFAULT },
     { xrm_Char, "matching-negate-char",     { .charc= &config.matching_negate_char            }, NULL,
       "Set the character used to negate the matching. ('\\0' to disable)", CONFIG_DEFAULT },
+    { xrm_Boolean, "all-windows",           { .snum = &config.all_windows                     }, NULL,
+      "Show all windows in the list, including minimized.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

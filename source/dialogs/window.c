@@ -521,7 +521,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         current_desktop = 0;
     }
 
-    if (1) {
+    if (config.all_windows) {
       nwins = all_windows(wins, 100);
     }
     else {
