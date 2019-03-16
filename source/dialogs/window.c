@@ -464,6 +464,40 @@ static const char * _window_name_list_entry  ( const char *str, uint32_t length,
     }
     return &str[offset];
 }
+static int all_windows(xcb_window_t *wins, int size) {
+  xcb_query_tree_reply_t *reply;
+  int current_window = 0;
+  if ((reply = xcb_query_tree_reply(xcb->connection,
+                                    xcb_query_tree(xcb->connection, xcb->screen->root),
+                                    NULL))) {
+    xcb_window_t *children = xcb_query_tree_children(reply);
+    for (int i = 0; i < xcb_query_tree_children_length(reply) && current_window < size; i++) {
+      xcb_generic_error_t* e = 0;
+      xcb_get_property_reply_t* reply =
+        xcb_get_property_reply(xcb->connection,
+                               xcb_get_property(xcb->connection,
+                                                0,
+                                                children[i],
+                                                netatoms[WM_STATE],
+                                                XCB_ATOM_ANY,
+                                                0,
+                                                10),
+                               &e);
+      if (reply) {
+        if (reply->value_len) {
+          uint32_t wm_state = *((uint32_t*)xcb_get_property_value(reply));
+          if (wm_state == XCB_ICCCM_WM_STATE_NORMAL ||
+              wm_state == XCB_ICCCM_WM_STATE_ICONIC) {
+            wins[current_window++] = children[i];
+          }
+        }
+        free(reply);
+      }
+    }
+    free(reply);
+  }
+  return current_window;
+}
 static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 {
     ModeModePrivateData *pd = (ModeModePrivateData *) mode_get_private_data ( sw );
@@ -487,21 +521,27 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         current_desktop = 0;
     }
 
-    c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, 0 );
-    xcb_ewmh_get_windows_reply_t clients;
-    if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
+    if (1) {
+      nwins = all_windows(wins, 100);
+    }
+    else {
+      c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, 0 );
+      xcb_ewmh_get_windows_reply_t clients;
+      if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
         nwins = MIN ( 100, clients.windows_len );
         memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
         xcb_ewmh_get_windows_reply_wipe ( &clients );
-    }
-    else {
+      }
+      else {
         c = xcb_ewmh_get_client_list ( &xcb->ewmh, xcb->screen_nbr );
         if  ( xcb_ewmh_get_client_list_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
-            nwins = MIN ( 100, clients.windows_len );
-            memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
-            xcb_ewmh_get_windows_reply_wipe ( &clients );
+          nwins = MIN ( 100, clients.windows_len );
+          memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
+          xcb_ewmh_get_windows_reply_wipe ( &clients );
         }
+      }
     }
+
     if (  nwins > 0 ) {
         int i;
         // windows we actually display. May be slightly different to _NET_CLIENT_LIST_STACKING
