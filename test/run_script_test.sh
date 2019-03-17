@@ -17,7 +17,7 @@ xdotool key Return
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
-OUTPUT=$(cat output.txt | tr '\n' ' ')
+OUTPUT=$( tr '\n' ' ' < output.txt )
 echo ${OUTPUT}
 if [ "${OUTPUT}" != 'noot ' ]
 then

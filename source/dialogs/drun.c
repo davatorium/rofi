@@ -260,7 +260,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
 /**
  * This function absorbs/freeś path, so this is no longer available afterwards.
  */
-static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename, char *action )
+static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename, const char *action )
 {
     int parse_action = ( config.drun_show_actions && action != DRUN_GROUP_NAME );
     // Create ID on stack.
@@ -277,7 +277,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     // Check if item is on disabled list.
     if ( g_hash_table_contains ( pd->disabled_entries, id ) && !parse_action ) {
         g_debug ( "[%s] [%s] Skipping, was previously seen.", id, path );
-        return TRUE;
+        return ;
     }
     GKeyFile *kf    = g_key_file_new ();
     GError   *error = NULL;
@@ -287,14 +287,14 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         g_debug ( "[%s] [%s] Failed to parse desktop file because: %s.", id, path, error->message );
         g_error_free ( error );
         g_key_file_free ( kf );
-        return FALSE;
+        return ;
     }
 
     if ( g_key_file_has_group ( kf, action ) == FALSE ) {
         // No type? ignore.
         g_debug ( "[%s] [%s] Invalid desktop file: No %s group", id, path, action );
         g_key_file_free ( kf );
-        return FALSE;
+        return ;
     }
     // Skip non Application entries.
     gchar *key = g_key_file_get_string ( kf, DRUN_GROUP_NAME, "Type", NULL );
@@ -302,13 +302,13 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         // No type? ignore.
         g_debug ( "[%s] [%s] Invalid desktop file: No type indicated", id, path );
         g_key_file_free ( kf );
-        return FALSE;
+        return ;
     }
     if ( g_strcmp0 ( key, "Application" ) ) {
         g_debug ( "[%s] [%s] Skipping desktop file: Not of type application (%s)", id, path, key );
         g_free ( key );
         g_key_file_free ( kf );
-        return FALSE;
+        return ;
     }
     g_free ( key );
 
@@ -316,7 +316,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
     if ( !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Name", NULL ) ) {
         g_debug ( "[%s] [%s] Invalid desktop file: no 'Name' key present.", id, path );
         g_key_file_free ( kf );
-        return FALSE;
+        return ;
     }
 
     // Skip hidden entries.
@@ -324,7 +324,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         g_debug ( "[%s] [%s] Adding desktop file to disabled list: 'Hidden' key is true", id, path );
         g_key_file_free ( kf );
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
-        return FALSE;
+        return ;
     }
     if ( pd->current_desktop_list ) {
         gboolean show = TRUE;
@@ -359,7 +359,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
             g_debug ( "[%s] [%s] Adding desktop file to disabled list: 'OnlyShowIn'/'NotShowIn' keys don't match current desktop", id, path );
             g_key_file_free ( kf );
             g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
-            return FALSE;
+            return ;
         }
     }
     // Skip entries that have NoDisplay set.
@@ -367,13 +367,13 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         g_debug ( "[%s] [%s] Adding desktop file to disabled list: 'NoDisplay' key is true", id, path );
         g_key_file_free ( kf );
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
-        return FALSE;
+        return ;
     }
     // We need Exec, don't support DBusActivatable
     if ( !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
         g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present.", id, path );
         g_key_file_free ( kf );
-        return FALSE;
+        return ;
     }
 
     if ( g_key_file_has_key ( kf, DRUN_GROUP_NAME, "TryExec", NULL ) ) {
@@ -383,7 +383,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
             if ( fp == NULL ) {
                 g_free ( te );
                 g_key_file_free ( kf );
-                return FALSE;
+                return ;
             }
             g_free ( fp );
         }
@@ -391,7 +391,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
             if ( g_file_test ( te, G_FILE_TEST_IS_EXECUTABLE ) == FALSE ) {
                 g_free ( te );
                 g_key_file_free ( kf );
-                return FALSE;
+                return ;
             }
         }
         g_free ( te );
@@ -409,7 +409,7 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         pd->entry_list[pd->cmd_list_length].sort_index = INT_MIN;
     }
     else {
-        pd->entry_list[pd->cmd_list_length].sort_index = -pd->cmd_list_length;
+        pd->entry_list[pd->cmd_list_length].sort_index = -nl;
     }
     pd->entry_list[pd->cmd_list_length].icon_size      = 0;
     pd->entry_list[pd->cmd_list_length].icon_fetch_uid = 0;
@@ -464,13 +464,12 @@ static gboolean read_desktop_file ( DRunModePrivateData *pd, const char *root, c
         char  **actions      = g_key_file_get_string_list ( kf, DRUN_GROUP_NAME, "Actions", &actions_length, NULL );
         for ( gsize iter = 0; iter < actions_length; iter++ ) {
             char *new_action = g_strdup_printf ( "Desktop Action %s", actions[iter] );
-            if ( !read_desktop_file ( pd, root, path, basename, new_action ) ) {
-                g_free ( new_action );
-            }
+            read_desktop_file ( pd, root, path, basename, new_action );
+            g_free ( new_action );
         }
         g_strfreev ( actions );
     }
-    return TRUE;
+    return ;
 }
 
 /**
@@ -579,7 +578,11 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
     DRunModeEntry *da = (DRunModeEntry *) a;
     DRunModeEntry *db = (DRunModeEntry *) b;
 
-    return db->sort_index - da->sort_index;
+    if ( da->sort_index < 0 && db->sort_index < 0 ) {
+        return g_utf8_collate ( da->name, db->name );
+    } else {
+        return db->sort_index - da->sort_index;
+    }
 }
 
 static void get_apps ( DRunModePrivateData *pd )
@@ -758,15 +761,37 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     DRunModeEntry *dr = &( pd->entry_list[selected_line] );
     gchar *cats = NULL;
     if ( dr->categories ){
-        cats = g_strjoinv(",", dr->categories);
+        char *tcats = g_strjoinv(",", dr->categories);
+        if ( tcats ) {
+            cats = g_markup_escape_text ( tcats, -1 );
+            g_free (tcats);
+        }
     }
+    // Needed for display.
+    char *egn = NULL;
+    char *en = NULL;
+    char *ec = NULL;
+    if ( dr->generic_name ) {
+        egn = g_markup_escape_text ( dr->generic_name, -1 );
+    }
+    if ( dr->name ) {
+        en = g_markup_escape_text ( dr->name, -1 );
+    }
+    if ( dr->comment ) {
+        ec = g_markup_escape_text ( dr->comment , -1 );
+    }
+
+
     char *retv = helper_string_replace_if_exists ( config.drun_display_format,
-            "{generic}", dr->generic_name,
-            "{name}", dr->name,
-            "{comment}", dr->comment,
+            "{generic}", egn,
+            "{name}", en,
+            "{comment}", ec,
             "{exec}", dr->exec,
             "{categories}", cats,
             NULL);
+    g_free ( egn );
+    g_free ( en );
+    g_free ( ec );
     g_free(cats);
     return retv;
 }

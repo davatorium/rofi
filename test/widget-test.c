@@ -41,7 +41,7 @@
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
-        printf ( "Test %3i passed (%s)\n", ++test, # a ); \
+        printf ( "Test %3u passed (%s)\n", ++test, # a ); \
 }
 gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, G_GNUC_UNUSED char **error )
 {

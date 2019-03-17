@@ -776,13 +776,6 @@ int main ( int argc, char *argv[] )
         g_free ( base_name );
     }
     TICK ();
-    // Get the path to the cache dir.
-    cache_dir = g_get_user_cache_dir ();
-
-    if ( g_mkdir_with_parents ( cache_dir, 0700 ) < 0 ) {
-        g_warning ( "Failed to create cache directory: %s", g_strerror ( errno ) );
-        return EXIT_FAILURE;
-    }
 
     // Create pid file path.
     const char *path = g_get_user_runtime_dir ();
@@ -882,6 +875,18 @@ int main ( int argc, char *argv[] )
     TICK_N ( "Load cmd config " );
 
     parse_keys_abe ( bindings );
+
+    // Get the path to the cache dir.
+    cache_dir = g_get_user_cache_dir ();
+
+    if ( config.cache_dir != NULL ) {
+        cache_dir = config.cache_dir;
+    }
+
+    if ( g_mkdir_with_parents ( cache_dir, 0700 ) < 0 ) {
+        g_warning ( "Failed to create cache directory: %s", g_strerror ( errno ) );
+        return EXIT_FAILURE;
+    }
 
     /** dirty hack for dmenu compatibility */
     char *windowid = NULL;

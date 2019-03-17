@@ -82,8 +82,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_normal_single_cs )
 {
     config.matching_method = MM_NORMAL;
-    rofi_int_matcher **tokens = NULL; 
-    tokens = helper_tokenize ( "noot", TRUE );
+    rofi_int_matcher **tokens = helper_tokenize ( "noot", TRUE );
 
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
@@ -100,9 +99,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_normal_multiple_ci )
 {
     config.matching_method = MM_NORMAL;
-    rofi_int_matcher **tokens = NULL; 
-
-    tokens = helper_tokenize ( "no ot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "no ot", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -116,8 +113,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_normal_single_ci_negate )
 {
     config.matching_method = MM_NORMAL;
-    rofi_int_matcher **tokens = NULL; 
-    tokens = helper_tokenize ( "-noot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "-noot", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , TRUE );
@@ -130,9 +126,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_normal_multiple_ci_negate )
 {
     config.matching_method = MM_NORMAL;
-    rofi_int_matcher **tokens = NULL; 
-
-    tokens = helper_tokenize ( "-noot aap", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "-noot aap", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , TRUE );
@@ -146,8 +140,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_glob_single_ci )
 {
     config.matching_method = MM_GLOB;
-    rofi_int_matcher **tokens = NULL;
-    tokens = helper_tokenize ( "noot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "noot", FALSE );
 
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
@@ -164,8 +157,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_glob_single_cs )
 {
     config.matching_method = MM_GLOB;
-    rofi_int_matcher **tokens = NULL;
-    tokens = helper_tokenize ( "noot", TRUE );
+    rofi_int_matcher **tokens = helper_tokenize ( "noot", TRUE );
 
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
@@ -182,8 +174,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_glob_multiple_ci )
 {
     config.matching_method = MM_GLOB;
-    rofi_int_matcher **tokens = NULL;
-    tokens = helper_tokenize ( "no ot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "no ot", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -196,9 +187,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_glob_single_ci_question )
 {
     config.matching_method = MM_GLOB;
-    rofi_int_matcher **tokens = NULL;
-
-    tokens = helper_tokenize ( "n?ot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "n?ot", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -211,8 +200,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_glob_single_ci_star )
 {
     config.matching_method = MM_GLOB;
-    rofi_int_matcher **tokens = NULL;
-    tokens = helper_tokenize ( "n*ot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "n*ot", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -225,9 +213,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_glob_multiple_ci_star )
 {
     config.matching_method = MM_GLOB;
-    rofi_int_matcher **tokens = NULL;
-
-    tokens = helper_tokenize ( "n* ot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "n* ot", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -241,8 +227,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_fuzzy_single_ci )
 {
     config.matching_method = MM_FUZZY;
-    rofi_int_matcher **tokens = NULL;
-    tokens = helper_tokenize ( "noot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "noot", FALSE );
 
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
@@ -259,9 +244,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_fuzzy_single_cs )
 {
     config.matching_method = MM_FUZZY;
-    rofi_int_matcher **tokens = NULL;
-
-    tokens = helper_tokenize ( "noot", TRUE );
+    rofi_int_matcher **tokens = helper_tokenize ( "noot", TRUE );
 
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
@@ -277,9 +260,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_fuzzy_multiple_ci )
 {
     config.matching_method = MM_FUZZY;
-    rofi_int_matcher **tokens = NULL;
-
-    tokens = helper_tokenize ( "no ot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "no ot", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -300,8 +281,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_fuzzy_single_ci_split )
 {
     config.matching_method = MM_FUZZY;
-    rofi_int_matcher **tokens = NULL;
-    tokens = helper_tokenize ( "ont", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "ont", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , FALSE);
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -313,9 +293,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_fuzzy_multiple_ci_split )
 {
     config.matching_method = MM_FUZZY;
-    rofi_int_matcher **tokens = NULL;
-
-    tokens = helper_tokenize ( "o n t", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "o n t", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -329,8 +307,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_regex_single_ci )
 {
     config.matching_method = MM_REGEX;
-    rofi_int_matcher **tokens = NULL;
-    tokens = helper_tokenize ( "noot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "noot", FALSE );
 
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
@@ -347,9 +324,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_regex_single_cs )
 {
     config.matching_method = MM_REGEX;
-    rofi_int_matcher **tokens = NULL;
-
-    tokens = helper_tokenize ( "noot", TRUE );
+    rofi_int_matcher **tokens = helper_tokenize ( "noot", TRUE );
 
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
@@ -365,9 +340,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_regex_multiple_ci )
 {
     config.matching_method = MM_REGEX;
-    rofi_int_matcher **tokens = NULL;
-
-    tokens = helper_tokenize ( "no ot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "no ot", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -380,9 +353,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_regex_single_ci_dq )
 {
     config.matching_method = MM_REGEX;
-    rofi_int_matcher **tokens = NULL;
-
-    tokens = helper_tokenize ( "n.?ot", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "n.?ot", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -395,8 +366,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_regex_single_two_char )
 {
     config.matching_method = MM_REGEX;
-    rofi_int_matcher **tokens = NULL;
-    tokens = helper_tokenize ( "n[oa]{2}t", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "n[oa]{2}t", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
@@ -410,9 +380,7 @@ END_TEST
 START_TEST ( test_tokenizer_match_regex_single_two_word_till_end )
 {
     config.matching_method = MM_REGEX;
-    rofi_int_matcher **tokens = NULL;
-
-    tokens = helper_tokenize ( "^(aap|noap)\\sMie.*", FALSE );
+    rofi_int_matcher **tokens = helper_tokenize ( "^(aap|noap)\\sMie.*", FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , FALSE );
     ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , TRUE);
     ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );

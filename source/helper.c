@@ -71,39 +71,14 @@ static int        stored_argc = 0;
 /** copy of the argv pointer for use in the commandline argument parser */
 static char       **stored_argv = NULL;
 
+char *helper_string_replace_if_exists_v ( char * string, GHashTable *h );
+
 void cmd_set_arguments ( int argc, char **argv )
 {
     stored_argc = argc;
     stored_argv = argv;
 }
 
-/**
- * @param info To Match information on.
- * @param res  The string being generated.
- * @param data User data
- *
- * Replace the entries. This function gets called by g_regex_replace_eval.
- *
- * @returns TRUE to stop replacement, FALSE to continue
- */
-static gboolean helper_eval_cb ( const GMatchInfo *info, GString *res, gpointer data )
-{
-    gchar *match;
-    // Get the match
-    match = g_match_info_fetch ( info, 0 );
-    if ( match != NULL ) {
-        // Lookup the match, so we can replace it.
-        gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
-        if ( r != NULL ) {
-            // Append the replacement to the string.
-            g_string_append ( res, r );
-        }
-        // Free match.
-        g_free ( match );
-    }
-    // Continue replacement.
-    return FALSE;
-}
 
 int helper_parse_setup ( char * string, char ***output, int *length, ... )
 {
@@ -129,11 +104,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     }
     va_end ( ap );
 
-    // Replace hits within {-\w+}.
-    GRegex *reg = g_regex_new ( "{[-\\w]+}", 0, 0, NULL );
-    char   *res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb, h, NULL );
-    // Free regex.
-    g_regex_unref ( reg );
+    char *res = helper_string_replace_if_exists_v ( string, h );
     // Destroy key-value storage.
     g_hash_table_destroy ( h );
     // Parse the string into shell arguments.
@@ -1283,12 +1254,11 @@ static gboolean helper_eval_cb2 ( const GMatchInfo *info, GString *res, gpointer
 
 char *helper_string_replace_if_exists ( char * string, ... )
 {
-    GError     *error = NULL;
     GHashTable *h;
     h = g_hash_table_new ( g_str_hash, g_str_equal );
-    // Add list from variable arguments.
     va_list ap;
     va_start ( ap, string );
+    // Add list from variable arguments.
     while ( 1 ) {
         char * key = va_arg ( ap, char * );
         if ( key == (char *) 0 ) {
@@ -1297,17 +1267,39 @@ char *helper_string_replace_if_exists ( char * string, ... )
         char *value = va_arg ( ap, char * );
         g_hash_table_insert ( h, key, value );
     }
+    char *retv = helper_string_replace_if_exists_v ( string, h );
     va_end ( ap );
-
-    // Replace hits within {-\w+}.
-    GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", 0, 0, NULL );
-    char   *res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb2, h, NULL );
-    // Free regex.
-    g_regex_unref ( reg );
     // Destroy key-value storage.
     g_hash_table_destroy ( h );
+    return retv;
+}
+/**
+ * @param string The string with elements to be replaced
+ * @param h      Hash table with set of {key}, value that will be replaced, terminated by  a NULL
+ *
+ * Items {key} are replaced by the value if '{key}' is passed as key/value pair, otherwise removed from string.
+ * If the {key} is in between []  all the text between [] are removed if {key}
+ * is not found. Otherwise key is replaced and [ & ] removed.
+ *
+ * This allows for optional replacement, f.e.   '{ssh-client} [-t  {title}] -e
+ * "{cmd}"' the '-t {title}' is only there if {title} is set.
+ *
+ * @returns a new string with the keys replaced.
+ */
+char *helper_string_replace_if_exists_v ( char * string, GHashTable *h )
+{
+    GError  *error = NULL;
+    char    *res   = NULL;
+
+    // Replace hits within {-\w+}.
+    GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", 0, 0, &error );
+    if ( error == NULL ){
+        res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb2, h, &error );
+    }
+    // Free regex.
+    g_regex_unref ( reg );
     // Throw error if shell parsing fails.
-    if ( error ) {
+    if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string, error->message );
         rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );

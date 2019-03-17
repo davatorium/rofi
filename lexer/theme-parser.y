@@ -199,6 +199,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_COL_HWB                        "hwb colorscheme"
 %token T_COL_CMYK                       "cmyk colorscheme"
 
+%token T_VAR_START                      "Variable"
+%token T_VAR_CLOSE                      "Variable close"
 %token T_PARENT_LEFT                    "Parent left ('(')"
 %token T_PARENT_RIGHT                   "Parent right (')')"
 %token T_COMMA                          "comma separator (',')"
@@ -228,6 +230,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <list>           t_entry_name_path
 %type <list>           t_entry_name_path_selectors
 %type <property>       t_property
+%type <property>       t_property_element
 %type <property_list>  t_property_list
 %type <property_list>  t_property_list_optional
 %type <colorval>       t_property_color
@@ -337,6 +340,8 @@ t_config_property
 #endif
         g_free(error);
     }
+    // We don't keep any reference to this after this point, so the property can be free'ed.
+    rofi_theme_property_free ( $1 );
 }
 
 /**
@@ -359,85 +364,86 @@ t_property_list:
 ;
 
 t_property
-:   t_property_name T_PSEP T_INHERIT T_PCLOSE {
-        $$ = rofi_theme_property_create ( P_INHERIT );
-        $$->name = $1;
-    }
-|   t_property_name T_PSEP T_INT T_PCLOSE  {
-        $$ = rofi_theme_property_create ( P_INTEGER );
-        $$->name = $1;
-        $$->value.i = $3;
-    }
-|   t_property_name T_PSEP T_DOUBLE T_PCLOSE {
-        $$ = rofi_theme_property_create ( P_DOUBLE );
-        $$->name = $1;
-        $$->value.f = $3;
-    }
-|   t_property_name T_PSEP T_STRING T_PCLOSE {
-        $$ = rofi_theme_property_create ( P_STRING );
-        $$->name = $1;
-        $$->value.s = $3;
-    }
-|   t_property_name T_PSEP T_LINK T_PCLOSE {
+: t_property_name T_PSEP t_property_element T_PCLOSE {
+    $$ = $3;
+    $$->name = $1;
+   }
+|   t_property_name T_PSEP T_VAR_START T_ELEMENT T_VAR_CLOSE T_PCLOSE{
         $$ = rofi_theme_property_create ( P_LINK );
         $$->name = $1;
-        $$->value.link.name = $3;
+        $$->value.link.name = $4;
     }
-|   t_property_name T_PSEP T_BOOLEAN T_PCLOSE {
+|   t_property_name T_PSEP T_VAR_START T_ELEMENT T_COMMA t_property_element T_VAR_CLOSE T_PCLOSE{
+        $$ = rofi_theme_property_create ( P_LINK );
+        $$->name = $1;
+        $$->value.link.name = $4;
+        $$->value.link.def_value = $6;
+    }
+
+t_property_element
+:   T_INHERIT {
+        $$ = rofi_theme_property_create ( P_INHERIT );
+    }
+|   T_INT {
+        $$ = rofi_theme_property_create ( P_INTEGER );
+        $$->value.i = $1;
+    }
+|   T_DOUBLE {
+        $$ = rofi_theme_property_create ( P_DOUBLE );
+        $$->value.f = $1;
+    }
+|   T_STRING {
+        $$ = rofi_theme_property_create ( P_STRING );
+        $$->value.s = $1;
+    }
+|   T_LINK {
+        $$ = rofi_theme_property_create ( P_LINK );
+        $$->value.link.name = $1;
+    }
+|   T_BOOLEAN {
         $$ = rofi_theme_property_create ( P_BOOLEAN );
-        $$->name = $1;
-        $$->value.b = $3;
+        $$->value.b = $1;
     }
-|  t_property_name T_PSEP t_property_distance T_PCLOSE {
+|  t_property_distance {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->name = $1;
-        $$->value.padding = (RofiPadding){ $3, $3, $3, $3 };
+        $$->value.padding = (RofiPadding){ $1, $1, $1, $1 };
 }
-|  t_property_name T_PSEP t_property_distance_zero t_property_distance_zero T_PCLOSE {
+|  t_property_distance_zero t_property_distance_zero {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->name = $1;
-        $$->value.padding = (RofiPadding){ $3, $4, $3, $4 };
+        $$->value.padding = (RofiPadding){ $1, $2, $1, $2 };
 }
-|  t_property_name T_PSEP t_property_distance_zero t_property_distance_zero t_property_distance_zero T_PCLOSE {
+|  t_property_distance_zero t_property_distance_zero t_property_distance_zero {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->name = $1;
-        $$->value.padding = (RofiPadding){ $3, $4, $5, $4 };
+        $$->value.padding = (RofiPadding){ $1, $2, $3, $2 };
 }
-|  t_property_name T_PSEP t_property_distance_zero t_property_distance_zero t_property_distance_zero t_property_distance_zero T_PCLOSE {
+|  t_property_distance_zero t_property_distance_zero t_property_distance_zero t_property_distance_zero {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->name = $1;
-        $$->value.padding = (RofiPadding){ $3, $4, $5, $6 };
+        $$->value.padding = (RofiPadding){ $1, $2, $3, $4 };
 }
-| t_property_name T_PSEP t_property_position T_PCLOSE{
+| t_property_position {
         $$ = rofi_theme_property_create ( P_POSITION );
-        $$->name = $1;
-        $$->value.i = $3;
+        $$->value.i = $1;
 }
-| t_property_name T_PSEP t_property_highlight_styles t_property_color T_PCLOSE {
+| t_property_highlight_styles t_property_color {
         $$ = rofi_theme_property_create ( P_HIGHLIGHT );
-        $$->name = $1;
-        $$->value.highlight.style = $3|ROFI_HL_COLOR;
-        $$->value.highlight.color = $4;
+        $$->value.highlight.style = $1|ROFI_HL_COLOR;
+        $$->value.highlight.color = $2;
 }
-| t_property_name T_PSEP t_property_highlight_styles T_PCLOSE {
+| t_property_highlight_styles {
         $$ = rofi_theme_property_create ( P_HIGHLIGHT );
-        $$->name = $1;
-        $$->value.highlight.style = $3;
+        $$->value.highlight.style = $1;
 }
-| t_property_name T_PSEP t_property_color T_PCLOSE {
+| t_property_color {
         $$ = rofi_theme_property_create ( P_COLOR );
-        $$->name = $1;
-        $$->value.color = $3;
+        $$->value.color = $1;
 }
-| t_property_name T_PSEP T_LIST_OPEN t_property_element_list_optional T_LIST_CLOSE T_PCLOSE {
+| T_LIST_OPEN t_property_element_list_optional T_LIST_CLOSE {
         $$ = rofi_theme_property_create ( P_LIST );
-        $$->name = $1;
-        $$->value.list = $4;
+        $$->value.list = $2;
 }
-| t_property_name T_PSEP t_property_orientation T_PCLOSE {
+| t_property_orientation {
         $$ = rofi_theme_property_create ( P_ORIENTATION );
-        $$->name = $1;
-        $$->value.i = $3;
+        $$->value.i = $1;
 }
 ;
 

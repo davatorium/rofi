@@ -141,6 +141,8 @@ static XrmOption xrmOptions[] = {
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
     { xrm_Boolean, "disable-history",        { .num  = &config.disable_history                }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
+    { xrm_String,  "ignored-prefixes",       { .str  = &config.ignored_prefixes               }, NULL,
+      "Programs ignored for history", CONFIG_DEFAULT },
     { xrm_Boolean, "sort",                   { .num  = &config.sort                           }, NULL,
       "Use sorting", CONFIG_DEFAULT },
     { xrm_String,  "sorting-method",         { .str  = &config.sorting_method                 }, NULL,
@@ -218,6 +220,8 @@ static XrmOption xrmOptions[] = {
       "Set the character used to negate the matching. ('\\0' to disable)", CONFIG_DEFAULT },
     { xrm_Boolean, "all-windows",           { .snum = &config.all_windows                     }, NULL,
       "Show all windows in the list, including minimized.", CONFIG_DEFAULT },
+    { xrm_String, "cache-dir",               { .str = &config.cache_dir                       }, NULL,
+      "Directory where history and temporary files are stored.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

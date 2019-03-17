@@ -36,6 +36,7 @@
  *
  * This uses the following options from the #config object:
  * * #Settings::disable_history
+ * * #Settings::ignored_prefixes
  *
  * @{
  */

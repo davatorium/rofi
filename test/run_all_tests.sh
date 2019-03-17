@@ -45,5 +45,5 @@ for test in "${tests[@]}"; do
         exit ${ret}
     fi
     echo "PASS"
-    display=$(( ${display} + 1 ))
+    display=$(( display + 1 ))
 done

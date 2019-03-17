@@ -108,6 +108,8 @@ typedef struct
     unsigned int   fixed_num_lines;
     /** Do not use history */
     unsigned int   disable_history;
+    /** Programs ignored for history */
+    char           * ignored_prefixes;
     /** Toggle to enable sorting. */
     unsigned int   sort;
     /** Sorting method. */
@@ -182,6 +184,9 @@ typedef struct
 
     /** Include all windows in the list  */
     gboolean       all_windows;
+
+    /** Cache directory. */
+    char           *cache_dir;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

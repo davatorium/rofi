@@ -176,7 +176,7 @@ typedef enum
     WL_SOUTH_WEST = WL_SOUTH | WL_WEST,
 } WindowLocation;
 
-typedef union
+typedef union _PropertyValue
 {
     /** integer */
     int         i;
@@ -197,6 +197,8 @@ typedef union
         char            *name;
         /** Cached looked up ref */
         struct Property *ref;
+        /** Property default */
+        struct Property *def_value;
     }                       link;
     /** Highlight Style */
     RofiHighlightColorStyle highlight;
