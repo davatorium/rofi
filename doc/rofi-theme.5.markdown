@@ -512,7 +512,7 @@ The current widgets available in **rofi**:
     * `listview`: The listview.
        * `scrollbar`: the listview scrollbar
        * `element`: the entries in the listview
-    * `sidebar`: the main horizontal @box packing the buttons.
+    * `mode-switcher`: the main horizontal @box packing the buttons.
       * `button`: the buttons @textbox for each mode
     * `message`: The container holding the textbox.
       * `textbox`: the message textbox
@@ -700,7 +700,7 @@ The current layout of **rofi** is structured as follows:
 | | |-----------------------------------------------------------------------------|  |
 | |                                                                               |  |
 | | |---------------------------------------------------------------------------| |  |
-| | |  sidebar {BOX:horizontal}                                                 | |  |
+| | |  mode-switcher {BOX:horizontal}                                           | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |
 | | | | Button        |   | Button        |  | Button       | | Button        | | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |
@@ -739,13 +739,13 @@ The following widgets are fixed, as they provide core **rofi** functionality:
  * case-indicator
  * message
  * listview
- * sidebar
+ * mode-switcher
 
 The following keywords are defined and can be used to automatically pack a subset of the widgets.
 These are used in the default theme as depicted in the figure above.
 
  * mainbox
-   Packs: `inputbar, message, listview, sidebar`
+   Packs: `inputbar, message, listview, mode-switcher`
  * inputbar
    Packs: `prompt,entry,case-indicator`
 

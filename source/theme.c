@@ -897,7 +897,7 @@ void rofi_theme_convert_old ( void )
         if ( g_strcmp0 ( config.separator_style, "none" ) == 0 ) {
             const char *const str = "#listview { border: 0px; }";
             rofi_theme_parse_string ( str );
-            const char *const str2 = "#sidebar { border: 0px; }";
+            const char *const str2 = "#mode-switcher { border: 0px; }";
             rofi_theme_parse_string ( str2 );
             const char *const str3 = "#message { border: 0px; }";
             rofi_theme_parse_string ( str3 );
@@ -905,7 +905,7 @@ void rofi_theme_convert_old ( void )
         else if  ( g_strcmp0 ( config.separator_style, "solid" ) == 0 ) {
             const char *const str = "#listview { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str );
-            const char *const str2 = "#sidebar { border: 2px solid 0px 0px 0px; }";
+            const char *const str2 = "#mode-switcher { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str2 );
             const char *const str3 = "#message { border: 2px solid 0px 0px 0px; }";
             rofi_theme_parse_string ( str3 );

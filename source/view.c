@@ -1366,7 +1366,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
     case SCOPE_MOUSE_LISTVIEW_ELEMENT:
     case SCOPE_MOUSE_EDITBOX:
     case SCOPE_MOUSE_SCROLLBAR:
-    case SCOPE_MOUSE_SIDEBAR_MODI:
+    case SCOPE_MOUSE_MODE_SWITCHER:
     {
         gint   x = state->mouse.x, y = state->mouse.y;
         widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), scope, x, y );
@@ -1556,7 +1556,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         wid = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *) parent_widget, WIDGET ( wid ), TRUE );
         if ( config.sidebar_mode ) {
-            defaults = "inputbar,message,listview,sidebar";
+            defaults = "inputbar,message,listview,mode-switcher";
         } else {
             defaults = "inputbar,message,listview";
         }
@@ -1644,11 +1644,11 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         listview_set_max_lines ( state->list_view, state->num_lines );
     }
     /**
-     * SIDEBAR
+     * MODE SWITCHER
      */
-    else if ( strcmp ( name, "sidebar" ) == 0 ) {
+    else if ( strcmp ( name, "mode-switcher" ) == 0 ) {
         if ( state->sidebar_bar != NULL ) {
-            g_error ( "Sidebar widget can only be added once to the layout." );
+            g_error ( "Mode-switcher can only be added once to the layout." );
             return;
         }
         state->sidebar_bar = box_create ( parent_widget, name, ROFI_ORIENTATION_HORIZONTAL );
@@ -1657,7 +1657,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
-            state->modi[j] = textbox_create ( WIDGET ( state->sidebar_bar ), WIDGET_TYPE_SIDEBAR_MODI, "button", TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+            state->modi[j] = textbox_create ( WIDGET ( state->sidebar_bar ), WIDGET_TYPE_MODE_SWITCHER, "button", TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
                     mode_get_display_name ( mode  ), 0.5, 0.5 );
             box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
             widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );

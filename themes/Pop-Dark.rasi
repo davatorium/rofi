@@ -96,7 +96,7 @@
     text-color: @alternate-active-foreground;
     background-color: @alternate-active-background;
 }
-#sidebar {
+#mode-switcher {
     border: 1px dash 0px 0px ;
 }
 #button selected {

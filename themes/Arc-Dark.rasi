@@ -106,7 +106,7 @@
     handle-width: 8px ;
     padding:      0;
 }
-#sidebar {
+#mode-switcher {
     border:       2px 0px 0px ;
     border-color: @separatorcolor;
 }
