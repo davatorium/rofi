@@ -519,11 +519,11 @@ if ( queue == NULL ){
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{VAR_START}{S_T_PARENT_LEFT}        {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(PROPERTIES_VAR);
-    return T_VAR_START;
+    return T_PARENT_LEFT;
 }
 <PROPERTIES_VAR>{S_T_PARENT_RIGHT} {
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
-    return T_VAR_CLOSE;
+    return T_PARENT_RIGHT;
 }
 <PROPERTIES_VAR>{COMMA} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
@@ -534,10 +534,10 @@ if ( queue == NULL ){
     // Pop 2.
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
-    return T_VAR_CLOSE;
+    return T_PARENT_RIGHT;
 }
-<PROPERTIES,PROPERTIES_ENV>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
-<PROPERTIES,PROPERTIES_ENV>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>{COMMA}            { return T_COMMA;          }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LIST_OPEN}        {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );

@@ -199,8 +199,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_COL_HWB                        "hwb colorscheme"
 %token T_COL_CMYK                       "cmyk colorscheme"
 
-%token T_VAR_START                      "Variable"
-%token T_VAR_CLOSE                      "Variable close"
 %token T_PARENT_LEFT                    "Parent left ('(')"
 %token T_PARENT_RIGHT                   "Parent right (')')"
 %token T_COMMA                          "comma separator (',')"
@@ -368,12 +366,12 @@ t_property
     $$ = $3;
     $$->name = $1;
    }
-|   t_property_name T_PSEP T_VAR_START T_ELEMENT T_VAR_CLOSE T_PCLOSE{
+|   t_property_name T_PSEP T_PARENT_LEFT T_ELEMENT T_PARENT_RIGHT T_PCLOSE{
         $$ = rofi_theme_property_create ( P_LINK );
         $$->name = $1;
         $$->value.link.name = $4;
     }
-|   t_property_name T_PSEP T_VAR_START T_ELEMENT T_COMMA t_property_element T_VAR_CLOSE T_PCLOSE{
+|   t_property_name T_PSEP T_PARENT_LEFT T_ELEMENT T_COMMA t_property_element T_PARENT_RIGHT T_PCLOSE{
         $$ = rofi_theme_property_create ( P_LINK );
         $$->name = $1;
         $$->value.link.name = $4;
