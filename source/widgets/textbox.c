@@ -207,9 +207,9 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
         tb->widget.trigger_action = textbox_editable_trigger_action;
     }
 
-    tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align", xalign );
+    tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align", yalign );
     tb->yalign = MAX ( 0, MIN ( 1.0, tb->yalign ) );
-    tb->xalign = rofi_theme_get_double ( WIDGET ( tb ), "horizontal-align", yalign );
+    tb->xalign = rofi_theme_get_double ( WIDGET ( tb ), "horizontal-align", xalign );
     tb->xalign = MAX ( 0, MIN ( 1.0, tb->xalign ) );
 
     return tb;
