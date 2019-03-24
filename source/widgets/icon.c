@@ -157,7 +157,7 @@ icon * icon_create ( widget *parent, const char *name )
     }
     b->yalign = rofi_theme_get_double ( WIDGET ( b ), "vertical-align", 0.5 );
     b->yalign = MAX ( 0, MIN ( 1.0, b->yalign ) );
-    b->xalign = rofi_theme_get_double ( WIDGET ( b ), "vertical-align", 0.5 );
+    b->xalign = rofi_theme_get_double ( WIDGET ( b ), "horizontal-align", 0.5 );
     b->xalign = MAX ( 0, MIN ( 1.0, b->xalign ) );
 
     return b;
