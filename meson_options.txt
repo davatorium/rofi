@@ -1,4 +1,4 @@
 option('drun', type: 'boolean', value: true, description: 'Desktop file mode')
 option('window', type: 'boolean', value: true, description: 'Window switcher mode')
 option('timings', type: 'boolean', value: false, description: 'Timings output')
-option('check', type: 'boolean', value: true, description: 'Build and run libcheck-based tests')
+option('check', type: 'feature', description: 'Build and run libcheck-based tests')
