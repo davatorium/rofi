@@ -192,7 +192,7 @@ apt install rofi
 
 #### Ubuntu 16.04 Xenial
 
-**Please note that the latest version of rofi in Ubuntu 16.04 is extremely outdated (v0.15.11)** 
+**Please note that the latest version of rofi in Ubuntu 16.04 is extremely outdated (v0.15.11)**
 
 This will cause issues with newer scripts (i.e. with clerk) and misses important updates and bug-fixes.
 Newer versions of Rofi however requires versions of xcb-util-xrm and libxkbcommon that are not available in the 16.04 repositories.
