@@ -4,6 +4,7 @@ This guide explains how to install rofi using its build system and how you can m
 
 Rofi uses autotools (GNU Build system), for more information see
 [here](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html).
+You can also use [Meson](https://mesonbuild.com/) as an alternative.
 
 ## DEPENDENCY
 
@@ -43,6 +44,8 @@ On debian based systems, the developer packages are in the form of: `<package>-d
 `<package>-devel`.
 
 ## Install from a release
+
+### Autotools
 
 Create a build directory and enter it:
 
@@ -105,18 +108,28 @@ From this point, use the same steps you use for a release.
 ## Options for configure
 
 When you run the configure step there are several options you can configure.
-You can see the full list with `./configure --help`.
+For Autotools, you can see the full list with `./configure --help`.
+For Meson, before the initial setup, you can see rofi options in `meson_options.txt` and Meson options with `meson setup --help`.
+After the initial setup, use `meson configure build`.
 
 The most useful one to set the installation prefix:
 
 ```
+# Autotools
 ../configure --prefix=<installation path>
+
+# Meson
+meson setup build --prefix <installation path>
 ```
 
 f.e.
 
 ```
+# Autotools
 ../configure --prefix=/usr/
+
+# Meson
+meson setup build --prefix /usr
 ```
 
 ### Install locally
@@ -124,7 +137,11 @@ f.e.
 or to install locally:
 
 ```
+# Autotools
 ../configure --prefix=${HOME}/.local/
+
+# Meson
+meson setup build --prefix ${HOME}/.local
 ```
 
 
@@ -137,7 +154,11 @@ When you run make you can tweak the build process a little.
 Show the commands called:
 
 ```
+# Autotools
 make V=1
+
+# Meson
+ninja -C build -v
 ```
 
 ### Debug build
@@ -145,7 +166,11 @@ make V=1
 Compile with debug symbols and no optimization, this is useful for making backtraces:
 
 ```
+# Autotools
 make CFLAGS="-O0 -g3" clean rofi
+
+# Meson
+meson configure build --debug
 ```
 
 ### Get a backtrace
@@ -156,7 +181,11 @@ The best way to go is to enable core file. (ulimit -c unlimited in bash) then ma
 can then load the core in GDB.
 
 ```
+# Autotools
 gdb rofi core
+
+# Meson (because it uses a separate build directory)
+gdb build/rofi core
 ```
 
 > Where the core file is located and what its exact name is different on each distributions. Please consult the
