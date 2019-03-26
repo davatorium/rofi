@@ -1,5 +1,4 @@
 option('enable-drun', type: 'boolean', value: true, description: 'Desktop file mode')
 option('enable-window', type: 'boolean', value: true, description: 'Window switcher mode')
 option('enable-timings', type: 'boolean', value: false, description: 'Timings output')
-option('enable-asan', type: 'boolean', value: false, description: 'Address sanitizer')
 option('enable-check', type: 'boolean', value: true, description: 'Build and run libcheck-based tests')

@@ -22,12 +22,6 @@ flags = [
     '-Wunreachable-code',
     '-Werror=missing-prototypes',
 ]
-if get_option('enable-asan')
-    flags += [
-        '-fsanitize=address',
-        '-fno-omit-frame-pointer',
-    ]
-endif
 foreach f : flags
     if c_compiler.has_argument(f)
         add_project_arguments(f, language: 'c')
