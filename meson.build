@@ -58,7 +58,7 @@ deps += [
     dependency('libstartup-notification-1.0'),
 ]
 
-check = dependency('check', version: '>= 0.11.0', required: get_option('enable-check'))
+check = dependency('check', version: '>= 0.11.0', required: get_option('check'))
 
 header_conf = configuration_data()
 header_conf.set_quoted('PACKAGE_NAME', meson.project_name())
@@ -73,9 +73,9 @@ header_conf.set('_GNU_SOURCE', true)
 
 header_conf.set('USE_NK_GIT_VERSION', true)
 
-header_conf.set('ENABLE_DRUN', get_option('enable-drun'))
-header_conf.set('WINDOW_MODE', get_option('enable-window'))
-header_conf.set('TIMINGS', get_option('enable-timings'))
+header_conf.set('ENABLE_DRUN', get_option('drun'))
+header_conf.set('WINDOW_MODE', get_option('window'))
+header_conf.set('TIMINGS', get_option('timings'))
 
 header_conf.set_quoted('MANPAGE_PATH', join_paths(get_option('prefix'), get_option('mandir')))
 header_conf.set_quoted('SYSCONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir')))
