@@ -19,7 +19,6 @@ doxyfile = configure_file(
     input: 'rofi.doxy.in',
     output: 'rofi.doxy',
     configuration: doxy_conf,
-    install: false,
 )
 
 doxygen = find_program('doxygen', required: false)
