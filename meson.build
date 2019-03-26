@@ -28,14 +28,18 @@ foreach f : flags
     endif
 endforeach
 
-plugindir = join_paths(get_option('prefix'), get_option('libdir'), meson.project_name())
-themedir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name(), 'themes')
+plugindir = join_paths(get_option('libdir'), meson.project_name())
+themedir = join_paths(get_option('datadir'), meson.project_name(), 'themes')
 
-deps = [
+plugins_deps = [
     dependency('glib-2.0', version: '>= 2.40'),
-    dependency('gio-unix-2.0'),
     dependency('gmodule-2.0'),
     dependency('cairo'),
+]
+
+deps = [
+    plugins_deps,
+    dependency('gio-unix-2.0'),
     dependency('pango'),
     dependency('pangocairo'),
     dependency('xkbcommon'),
@@ -79,8 +83,8 @@ header_conf.set('TIMINGS', get_option('timings'))
 
 header_conf.set_quoted('MANPAGE_PATH', join_paths(get_option('prefix'), get_option('mandir')))
 header_conf.set_quoted('SYSCONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir')))
-header_conf.set_quoted('PLUGIN_PATH', plugindir)
-header_conf.set_quoted('THEME_DIR', themedir)
+header_conf.set_quoted('PLUGIN_PATH', join_paths(get_option('prefix'), plugindir))
+header_conf.set_quoted('THEME_DIR', join_paths(get_option('prefix'), themedir))
 
 config_h = configure_file(output: 'config.h', configuration: header_conf)
 
@@ -248,20 +252,17 @@ install_data(
 )
 
 pkg = import('pkgconfig')
-pkgconfig_conf = configuration_data()
-pkgconfig_conf.set('prefix', get_option('prefix'))
-pkgconfig_conf.set('exec_prefix', '${prefix}')
-pkgconfig_conf.set('VERSION', meson.project_version())
-pkgconfig_conf.set('libdir',  join_paths('${prefix}',get_option('libdir')))
-pkgconfig_conf.set('includedir',  join_paths('${prefix}',get_option('includedir')))
 
-configure_file(
-    input: 'pkgconfig/rofi.pc.in',
-    output: 'rofi.pc',
-    configuration: pkgconfig_conf,
-    install_dir: join_paths(get_option('libdir'), 'pkgconfig'),
+pkg.generate(
+    filebase: 'rofi',
+    name: 'rofi',
+    version: meson.project_version(),
+    description: 'Header files for rofi plugins',
+    variables: [
+        'pluginsdir=@0@'.format(join_paths('${libdir}', meson.project_name())),
+    ],
+    requires_private: plugins_deps,
 )
-
 
 
 test('history test', executable('history.test', [
