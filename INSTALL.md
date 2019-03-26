@@ -44,10 +44,16 @@ On debian based systems, the developer packages are in the form of: `<package>-d
 
 ## Install from a release
 
+Create a build directory and enter it:
+
+```
+mkdir build && cd build
+```
+
 Check dependencies and configure build system:
 
 ```
-./configure
+../configure
 ```
 
 Build Rofi:
@@ -71,72 +77,46 @@ The GitHub Pages version of these directions may be out of date.  Please use
 
 [master-install]: https://github.com/DaveDavenport/rofi/blob/master/INSTALL.md#install-a-checkout-from-git
 
-Make a checkout:
+If you don't have a checkout:
 
 ```
-git clone https://github.com/DaveDavenport/rofi
+git clone --recursive https://github.com/DaveDavenport/rofi
 cd rofi/
 ```
 
-
-Pull in dependencies
+If you already have a checkout:
 
 ```
+cd rofi/
+git pull
 git submodule update --init
 ```
 
-Generate build system:
+For Autotools you have an extra step, to generate build system:
 
 ```
 autoreconf -i
 ```
 
-Create a build directory:
+From this point, use the same steps you use for a release.
 
-```
-mkdir build
-```
-
-Enter build directory:
-
-```
-cd build
-```
-
-Check dependencies and configure build system:
-
-```
-../configure
-```
-
-Build rofi:
-
-```
-make
-```
-
-The actual install, execute as root (if needed):
-
-```
-make install
-```
 
 
 ## Options for configure
 
-When you run the configure step there are several you can configure. (To see the full list type
-`./configure --help` ).
+When you run the configure step there are several options you can configure.
+You can see the full list with `./configure --help`.
 
 The most useful one to set the installation prefix:
 
 ```
-./configure --prefix=<installation path>
+../configure --prefix=<installation path>
 ```
 
 f.e.
 
 ```
-./configure --prefix=/usr/
+../configure --prefix=/usr/
 ```
 
 ### Install locally
@@ -144,7 +124,7 @@ f.e.
 or to install locally:
 
 ```
-./configure --prefix=${HOME}/.local/
+../configure --prefix=${HOME}/.local/
 ```
 
 
