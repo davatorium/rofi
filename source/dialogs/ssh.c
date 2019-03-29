@@ -206,8 +206,17 @@ static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsi
                     start++;
                     char *end = strchr ( start, ']');
                     if ( end[1] == '\x1F' ){
+                        GError *error = NULL;
                         *end  = '\0';
-                        port = atoi ( &(end[2]) );
+                        gint64 number = 0;
+                        if ( g_ascii_string_to_signed ( &(end[2]), 10, 0, 65536, &number, &error) ) {
+                            // Safe, as we indicated limits.
+                            port = number;
+                        } else {
+                            g_warning ( "Failed to parse port number: %s: %s",
+                                    &(end[2]), error?(error->message):"Not a number" );
+                            g_error_free ( error );
+                        }
                     }
                 }
                 // Is this host name already in the list?
@@ -459,8 +468,16 @@ static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
         int port = 0;
         char *portstr = strchr ( h[i], '\x1F' );
         if ( portstr != NULL ) {
+            GError *error = NULL;
             *portstr = '\0';
-            port = atoi ( &(portstr[1]) );
+            gint64 number = 0;
+            if ( g_ascii_string_to_signed ( &(portstr[1]), 10, 0, 65536, &number, &error) ) {
+                port = number;
+            } else {
+                g_warning ( "Failed to parse port number: %s: %s",
+                        &(portstr[1]), error?(error->message):"Not a number" );
+                g_error_free ( error );
+            }
         }
         retv[i].hostname = h[i];
         retv[i].port = port;
