@@ -98,10 +98,10 @@ rofi.threads:                        8
 ! rofi.scrollbar-width:                8
 ! "Scrolling method. (0: Page, 1: Centered)" Set from: File
 rofi.scroll-method:                  0
-! "Background to use for fake transparency. (background or screenshot)" Set from: Default
+! "Background to use for fake transparency. (background or screenshot) *DEPRECATED*" Set from: Default
 ! rofi.fake-background:                screenshot
-! "Window Format. w (desktop name), t (title), n (name), r (role), c (class) *DEPRECATED*" Set from: Default
-! rofi.window-format:                  {w}    {i}{c}   {t}
+! "Window Format. w (desktop name), t (title), n (name), r (role), c (class)" Set from: Default
+! rofi.window-format:                  {w}    {c}   {t}
 ! "Click outside the window to exit" Set from: Default
 ! rofi.click-to-exit:                  true
 ! "Indicate how it match by underlining it." Set from: Default
