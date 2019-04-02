@@ -49,6 +49,7 @@
 #include "helper.h"
 #include "xrmoptions.h"
 #include "view.h"
+#include "rofi-icon-fetcher.h"
 
 static inline unsigned int bitget ( uint32_t *array, unsigned int index )
 {
@@ -64,6 +65,11 @@ static inline void bittoggle ( uint32_t *array, unsigned int index )
     *v ^= 1 << bit;
 }
 
+typedef struct {
+    char     *string;
+    char     *icon_name;
+    uint32_t icon_fetch_uid;
+} DmenuModeEntry ;
 typedef struct
 {
     /** Settings */
@@ -81,7 +87,7 @@ typedef struct
     unsigned int           num_selected_list;
     unsigned int           do_markup;
     // List with entries.
-    char                   **cmd_list;
+    DmenuModeEntry         *cmd_list;
     unsigned int           cmd_list_real_length;
     unsigned int           cmd_list_length;
     unsigned int           only_selected;
@@ -105,13 +111,33 @@ static void async_close_callback ( GObject *source_object, GAsyncResult *res, G_
 
 static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
 {
+    gsize data_len = len;
     if ( ( pd->cmd_list_length + 2 ) > pd->cmd_list_real_length ) {
         pd->cmd_list_real_length = MAX ( pd->cmd_list_real_length * 2, 512 );
-        pd->cmd_list             = g_realloc ( pd->cmd_list, ( pd->cmd_list_real_length ) * sizeof ( char* ) );
+        pd->cmd_list             = g_realloc ( pd->cmd_list, ( pd->cmd_list_real_length ) * sizeof ( DmenuModeEntry ) );
     }
-    char *utfstr = rofi_force_utf8 ( data, len );
-    pd->cmd_list[pd->cmd_list_length]     = utfstr;
-    pd->cmd_list[pd->cmd_list_length + 1] = NULL;
+    // Init.
+    pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
+    pd->cmd_list[pd->cmd_list_length].icon_name      = NULL;
+    char *end = strchr(data, '\0');
+    if ( end != NULL ) {
+        data_len = end-data;
+        // Go into extra parsing.
+        gsize length_key = data_len+1;
+        while ( length_key <= len && data [length_key] != '\x1f' ) {
+            length_key++;
+        }
+        if ( length_key < len ) {
+            data[length_key] ='\0';
+            char * value = data + length_key+1;
+            if ( strcasecmp(&data[data_len+1], "icon" ) == 0 ) {
+                pd->cmd_list[pd->cmd_list_length].icon_name = g_strdup(value);
+            }
+        }
+    }
+    char *utfstr = rofi_force_utf8 ( data, data_len );
+    pd->cmd_list[pd->cmd_list_length].string     = utfstr;
+    pd->cmd_list[pd->cmd_list_length + 1].string = NULL;
 
     pd->cmd_list_length++;
 }
@@ -233,7 +259,7 @@ static char *get_display_data ( const Mode *data, unsigned int index, int *state
 {
     Mode                 *sw    = (Mode *) data;
     DmenuModePrivateData *pd    = (DmenuModePrivateData *) mode_get_private_data ( sw );
-    char                 **retv = (char * *) pd->cmd_list;
+    DmenuModeEntry    *retv = (DmenuModeEntry *) pd->cmd_list;
     for ( unsigned int i = 0; i < pd->num_active_list; i++ ) {
         if ( index >= pd->active_list[i].start && index <= pd->active_list[i].stop ) {
             *state |= ACTIVE;
@@ -250,7 +276,7 @@ static char *get_display_data ( const Mode *data, unsigned int index, int *state
     if ( pd->do_markup ) {
         *state |= MARKUP;
     }
-    return get_entry ? dmenu_format_output_string ( pd, retv[index] ) : NULL;
+    return get_entry ? dmenu_format_output_string ( pd, retv[index].string ) : NULL;
 }
 
 static void dmenu_mode_free ( Mode *sw )
@@ -276,8 +302,9 @@ static void dmenu_mode_free ( Mode *sw )
         }
 
         for ( size_t i = 0; i < pd->cmd_list_length; i++ ) {
-            if ( pd->cmd_list[i] ) {
-                free ( pd->cmd_list[i] );
+            if ( pd->cmd_list[i].string ) {
+                g_free ( pd->cmd_list[i].string );
+                g_free ( pd->cmd_list[i].icon_name );
             }
         }
         g_free ( pd->cmd_list );
@@ -373,7 +400,7 @@ static int dmenu_mode_init ( Mode *sw )
 static int dmenu_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
-    return helper_token_match ( tokens, rmpd->cmd_list[index] );
+    return helper_token_match ( tokens, rmpd->cmd_list[index].string );
 }
 static char *dmenu_get_message ( const Mode *sw )
 {
@@ -382,6 +409,20 @@ static char *dmenu_get_message ( const Mode *sw )
         return g_strdup ( pd->message );
     }
     return NULL;
+}
+static cairo_surface_t *dmenu_get_icon ( const Mode *sw, unsigned int selected_line, int height )
+{
+    DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
+    g_return_val_if_fail ( pd->cmd_list != NULL, NULL );
+    DmenuModeEntry *dr = &( pd->cmd_list[selected_line] );
+    if ( dr->icon_name == NULL ) {
+        return NULL;
+    }
+    if ( dr->icon_fetch_uid > 0 ) {
+        return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
+    }
+    dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->icon_name, height );
+    return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
 }
 
 #include "mode-private.h"
@@ -396,6 +437,7 @@ Mode dmenu_mode =
     ._destroy           = dmenu_mode_free,
     ._token_match       = dmenu_token_match,
     ._get_display_value = get_display_data,
+    ._get_icon          = dmenu_get_icon,
     ._get_completion    = NULL,
     ._preprocess_input  = NULL,
     ._get_message       = dmenu_get_message,
@@ -422,20 +464,20 @@ static void dmenu_finish ( RofiViewState *state, int retv )
 
 static void dmenu_print_results ( DmenuModePrivateData *pd, const char *input )
 {
-    char **cmd_list = pd->cmd_list;
+    DmenuModeEntry *cmd_list = pd->cmd_list;
     int  seen       = FALSE;
     if ( pd->selected_list != NULL ) {
         for ( unsigned int st = 0; st < pd->cmd_list_length; st++ ) {
             if ( bitget ( pd->selected_list, st ) ) {
                 seen = TRUE;
-                rofi_output_formatted_line ( pd->format, cmd_list[st], st, input );
+                rofi_output_formatted_line ( pd->format, cmd_list[st].string, st, input );
             }
         }
     }
     if ( !seen ) {
         const char *cmd = input;
         if ( pd->selected_line != UINT32_MAX ) {
-            cmd = cmd_list[pd->selected_line];
+            cmd = cmd_list[pd->selected_line].string;
         }
         rofi_output_formatted_line ( pd->format, cmd, pd->selected_line, input );
     }
@@ -446,7 +488,7 @@ static void dmenu_finalize ( RofiViewState *state )
     int                  retv            = FALSE;
     DmenuModePrivateData *pd             = (DmenuModePrivateData *) rofi_view_get_mode ( state )->private_data;
     unsigned int         cmd_list_length = pd->cmd_list_length;
-    char                 **cmd_list      = pd->cmd_list;
+    DmenuModeEntry       *cmd_list      = pd->cmd_list;
 
     char                 *input = g_strdup ( rofi_view_get_user_input ( state ) );
     pd->selected_line = rofi_view_get_selected_line ( state );;
@@ -483,7 +525,7 @@ static void dmenu_finalize ( RofiViewState *state )
                     rofi_view_set_overlay ( state, NULL );
                 }
             }
-            else if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line] != NULL ) {
+            else if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line].string != NULL ) {
                 dmenu_print_results ( pd, input );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
@@ -508,7 +550,7 @@ static void dmenu_finalize ( RofiViewState *state )
     // We normally do not want to restart the loop.
     restart = FALSE;
     // Normal mode
-    if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line] != NULL ) {
+    if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line].string != NULL ) {
         if ( ( mretv & MENU_CUSTOM_ACTION ) && pd->multi_select ) {
             restart = TRUE;
             if ( pd->selected_list == NULL ) {
@@ -581,7 +623,7 @@ int dmenu_switcher_dialog ( void )
     }
     char         *input          = NULL;
     unsigned int cmd_list_length = pd->cmd_list_length;
-    char         **cmd_list      = pd->cmd_list;
+    DmenuModeEntry *cmd_list     = pd->cmd_list;
 
     pd->only_selected = FALSE;
     pd->multi_select  = FALSE;
@@ -599,7 +641,7 @@ int dmenu_switcher_dialog ( void )
         }
     }
     if ( config.auto_select && cmd_list_length == 1 ) {
-        rofi_output_formatted_line ( pd->format, cmd_list[0], 0, config.filter );
+        rofi_output_formatted_line ( pd->format, cmd_list[0].string, 0, config.filter );
         return TRUE;
     }
     if ( find_arg ( "-password" ) >= 0 ) {
@@ -614,7 +656,7 @@ int dmenu_switcher_dialog ( void )
         rofi_int_matcher **tokens = helper_tokenize ( select, config.case_sensitive );
         unsigned int     i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( helper_token_match ( tokens, cmd_list[i] ) ) {
+            if ( helper_token_match ( tokens, cmd_list[i].string ) ) {
                 pd->selected_line = i;
                 break;
             }
@@ -625,8 +667,8 @@ int dmenu_switcher_dialog ( void )
         rofi_int_matcher **tokens = helper_tokenize ( config.filter ? config.filter : "", config.case_sensitive );
         unsigned int     i        = 0;
         for ( i = 0; i < cmd_list_length; i++ ) {
-            if ( tokens == NULL || helper_token_match ( tokens, cmd_list[i] ) ) {
-                rofi_output_formatted_line ( pd->format, cmd_list[i], i, config.filter );
+            if ( tokens == NULL || helper_token_match ( tokens, cmd_list[i].string ) ) {
+                rofi_output_formatted_line ( pd->format, cmd_list[i].string, i, config.filter );
             }
         }
         helper_tokenize_free ( tokens );
