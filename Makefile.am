@@ -125,6 +125,7 @@ SOURCES=\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
 	include/dialogs/help-keys.h\
+	include/dialogs/dmenuscriptshared.h\
 	resources/resources.c\
 	resources/resources.h
 
