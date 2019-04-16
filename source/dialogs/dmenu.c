@@ -665,7 +665,7 @@ int dmenu_switcher_dialog ( void )
     find_arg_str (  "-p", &( dmenu_mode.display_name ) );
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, menu_flags, dmenu_finalize );
     // @TODO we should do this better.
-    if ( async && ( pd->cancel != NULL ) ) {
+    if ( find_arg("-no-loading-overlay") == -1 && async && ( pd->cancel != NULL ) ) {
         rofi_view_set_overlay ( state, "Loading.. " );
     }
     rofi_view_set_selected_line ( state, pd->selected_line );
@@ -695,4 +695,5 @@ void print_dmenu_options ( void )
     print_help_msg ( "-sync", "", "Force dmenu to first read all input data, then show dialog.", NULL, is_term );
     print_help_msg ( "-async-pre-read", "[number]", "Read several entries blocking before switching to async mode", "25", is_term );
     print_help_msg ( "-w", "windowid", "Position over window with X11 windowid.", NULL, is_term );
+    print_help_msg ( "-no-loading-overlay", "", "Disables the loading overlay.", NULL, is_term);
 }
