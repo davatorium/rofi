@@ -119,7 +119,7 @@ inputbar {
     spacing:    0px ;
     text-color: var(normal-foreground);
     padding:    1px ;
-    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+    children:   [ prompt,textbox-prompt-colon,entry,overlay,case-indicator ];
 }
 case-indicator {
     spacing:    0;
