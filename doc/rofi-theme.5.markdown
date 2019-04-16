@@ -736,6 +736,7 @@ The following widgets are fixed, as they provide core **rofi** functionality:
 
  * prompt
  * entry
+ * overlay
  * case-indicator
  * message
  * listview
@@ -754,7 +755,7 @@ To specify children, set the `children`
 property (this always happens on the `box` child, see example below):
 
 ```
-children: [prompt,entry,case-indicator];
+children: [prompt,entry,overlay,case-indicator];
 ```
 
 The theme needs to be updated to match the hierarchy specified.
