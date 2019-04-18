@@ -52,7 +52,7 @@ Below is a list of the different modes:
 
 ## Window Switcher
 
-![Window List](https://davedavenport.github.io/rofi/images/rofi/window-list.png)
+![Window List](https://davatorium.github.io/rofi/images/rofi/window-list.png)
 
 The window switcher shows the following informations in columns (can be customized):
 
@@ -68,7 +68,7 @@ Window mode features:
 
 ## Application launcher
 
-![run mode](https://davedavenport.github.io/rofi/images/rofi/run-dialog.png)
+![run mode](https://davatorium.github.io/rofi/images/rofi/run-dialog.png)
 
 The run mode allows users to quickly search for and launch a program.
 
@@ -90,7 +90,7 @@ Drun mode features:
 
 ## SSH launcher
 
-![SSH Launcher](https://davedavenport.github.io/rofi/images/rofi/ssh-dialog.png)
+![SSH Launcher](https://davatorium.github.io/rofi/images/rofi/ssh-dialog.png)
 
 Quickly `ssh` into remote machines. Parses `~/.ssh/config` to find hosts.
 
@@ -115,7 +115,7 @@ rofi -combi-modi window,drun -show combi -modi combi
 
 ## dmenu replacement
 
-![DMENU replacement (running teiler)](https://davedavenport.github.io/rofi/images/rofi/dmenu-replacement.png)
+![DMENU replacement (running teiler)](https://davatorium.github.io/rofi/images/rofi/dmenu-replacement.png)
 
 Drop in dmenu replacement. (Screenshot shows rofi used by
 [teiler](https://github.com/carnager/teiler) ).
