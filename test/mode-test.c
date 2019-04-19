@@ -135,12 +135,23 @@ END_TEST
 
 START_TEST(test_mode_result)
 {
-    char res[] = "";
-    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_NEXT, &res,0), NEXT_DIALOG);
-    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_PREVIOUS, &res,0), PREVIOUS_DIALOG);
-    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|1, &res,0), 1);
-    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|2, &res,0), 2);
+    char *res;
 
+    res = NULL;
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_NEXT, &res,0), NEXT_DIALOG);
+    g_free ( res );
+
+    res = NULL;
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_PREVIOUS, &res,0), PREVIOUS_DIALOG);
+    g_free ( res );
+
+    res = NULL;
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|1, &res,0), 1);
+    g_free ( res );
+
+    res = NULL;
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|2, &res,0), 2);
+    g_free ( res );
 }
 END_TEST
 
