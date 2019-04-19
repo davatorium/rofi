@@ -50,6 +50,11 @@ static gboolean distance_compare ( RofiDistance d, RofiDistance e )
     return d.type == e.type && d.distance == e.distance && d.style == e.style;
 }
 
+static gpointer rofi_g_list_strdup ( gconstpointer data, G_GNUC_UNUSED gpointer user_data )
+{
+    return g_strdup ( data );
+}
+
 ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *name )
 {
     for ( unsigned int i = 0; i < base->num_widgets; i++ ) {
@@ -86,7 +91,7 @@ Property* rofi_theme_property_copy ( Property *p )
         retv->value.s = g_strdup ( p->value.s );
         break;
     case P_LIST:
-        retv->value.list = g_list_copy_deep ( p->value.list, (GCopyFunc) g_strdup, NULL );
+        retv->value.list = g_list_copy_deep ( p->value.list, rofi_g_list_strdup, NULL );
         break;
     case P_LINK:
         retv->value.link.name = g_strdup ( p->value.link.name );
@@ -725,7 +730,7 @@ GList *rofi_theme_get_list ( const widget *widget, const char * property, const 
             }
         }
         else if ( p->type == P_LIST ) {
-            return g_list_copy_deep ( p->value.list, (GCopyFunc) g_strdup, NULL );
+            return g_list_copy_deep ( p->value.list, rofi_g_list_strdup, NULL );
         }
     }
     char **r = defaults ? g_strsplit ( defaults, ",", 0 ) : NULL;
