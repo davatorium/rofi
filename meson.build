@@ -4,7 +4,6 @@ project('rofi', 'c',
     license: [ 'MIT' ],
     default_options: [
         'c_std=c99',
-        'warning_level=3',
     ],
 )
 
@@ -21,6 +20,7 @@ flags = [
     '-Winline',
     '-Wunreachable-code',
     '-Werror=missing-prototypes',
+    '-Wno-inline', # A bit too noisy with Bison…
 ]
 foreach f : flags
     if c_compiler.has_argument(f)
