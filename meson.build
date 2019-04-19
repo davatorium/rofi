@@ -31,8 +31,11 @@ endforeach
 plugindir = join_paths(get_option('libdir'), meson.project_name())
 themedir = join_paths(get_option('datadir'), meson.project_name(), 'themes')
 
+glib_min_major=2
+glib_min_minor=40
+glib_min_version='@0@.@1@'.format(glib_min_major, glib_min_minor)
 plugins_deps = [
-    dependency('glib-2.0', version: '>= 2.40'),
+    dependency('glib-2.0', version: '>= @0@'.format(glib_min_version)),
     dependency('gmodule-2.0'),
     dependency('cairo'),
 ]
@@ -76,6 +79,9 @@ header_conf.set('THEME_CONVERTER', true)
 header_conf.set('_GNU_SOURCE', true)
 
 header_conf.set('USE_NK_GIT_VERSION', true)
+
+header_conf.set('GLIB_VERSION_MIN_REQUIRED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
+header_conf.set('GLIB_VERSION_MAX_ALLOWED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
 
 header_conf.set('ENABLE_DRUN', get_option('drun'))
 header_conf.set('WINDOW_MODE', get_option('window'))
