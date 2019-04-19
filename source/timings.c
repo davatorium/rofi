@@ -25,6 +25,7 @@
  *
  */
 
+#include "config.h"
 #include <stdio.h>
 #include "rofi.h"
 #include "timings.h"
