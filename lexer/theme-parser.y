@@ -296,8 +296,7 @@ t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optio
         for ( GList *iter = g_list_first ( (GList*)liter->data ); iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_name ( widget, iter->data );
         }
-        g_list_foreach ( (GList*)liter->data, (GFunc)g_free , NULL );
-        g_list_free ( (GList*)liter->data );
+        g_list_free_full ( (GList*)liter->data, g_free );
         widget->set = TRUE;
         rofi_theme_widget_add_properties ( widget, $4);
     }

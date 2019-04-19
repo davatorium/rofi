@@ -694,8 +694,7 @@ gboolean rofi_theme_parse_file ( const char *file )
         }
     }
     // Free up.
-    g_list_foreach ( imported_files, (GFunc)g_free, NULL);
-    g_list_free ( imported_files );
+    g_list_free_full ( imported_files, g_free );
     g_queue_free ( file_queue );
     imported_files = NULL;
     file_queue = NULL;
@@ -730,8 +729,7 @@ gboolean rofi_theme_parse_string ( const char *string )
         }
     }
     // Free up.
-    g_list_foreach ( imported_files, (GFunc)g_free, NULL);
-    g_list_free ( imported_files );
+    g_list_free_full ( imported_files, g_free );
     imported_files = NULL;
     g_queue_free ( file_queue );
     file_queue = NULL;
