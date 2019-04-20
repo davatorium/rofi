@@ -205,17 +205,19 @@ static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsi
                 if ( start[0] == '[' ) {
                     start++;
                     char *end = strchr ( start, ']');
-                    if ( end[1] == '\x1F' ){
-                        GError *error = NULL;
+                    if ( end[1] == ':' ){
                         *end  = '\0';
-                        gint64 number = 0;
-                        if ( g_ascii_string_to_signed ( &(end[2]), 10, 0, 65536, &number, &error) ) {
-                            // Safe, as we indicated limits.
-                            port = number;
+                        errno = 0;
+                        gchar *endptr = NULL;
+                        gint64 number = g_ascii_strtoll ( &(end[2]), &endptr, 10);
+                        if ( errno != 0  ) { 
+                            g_warning ( "Failed to parse port number: %s.", &(end[2]) );
+                        } else if ( endptr == &(end[2])) {
+                            g_warning ( "Failed to parse port number: %s, invalid number.", &(end[2]) );
+                        } else if ( number < 0 || number > 65535 ) { 
+                            g_warning ( "Failed to parse port number: %s, out of range.", &(end[2]) );
                         } else {
-                            g_warning ( "Failed to parse port number: %s: %s",
-                                    &(end[2]), error?(error->message):"Not a number" );
-                            g_error_free ( error );
+                            port = number;
                         }
                     }
                 }
@@ -468,16 +470,19 @@ static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
         int port = 0;
         char *portstr = strchr ( h[i], '\x1F' );
         if ( portstr != NULL ) {
-            GError *error = NULL;
             *portstr = '\0';
-            gint64 number = 0;
-            if ( g_ascii_string_to_signed ( &(portstr[1]), 10, 0, 65536, &number, &error) ) {
-                port = number;
+            errno = 0;
+            gchar *endptr= NULL;
+            gint64 number = g_ascii_strtoll ( &(portstr[1]), &endptr, 10);
+            if ( errno != 0  ) { 
+                g_warning ( "Failed to parse port number: %s.", &(portstr[1]) );
+            } else if ( endptr == &(portstr[1])) {
+                g_warning ( "Failed to parse port number: %s, invalid number.", &(portstr[1]) );
+            } else if ( number < 0 || number > 65535 ) { 
+                g_warning ( "Failed to parse port number: %s, out of range.", &(portstr[1]) );
             } else {
-                g_warning ( "Failed to parse port number: %s: %s",
-                        &(portstr[1]), error?(error->message):"Not a number" );
-                g_error_free ( error );
-            }
+                port = number;
+            } 
         }
         retv[i].hostname = h[i];
         retv[i].port = port;
