@@ -362,8 +362,8 @@ static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename
             if ( !token || *token == '#' ) {
                 continue;
             }
-
-            if ( g_strcmp0 ( token, "Include" ) == 0 ) {
+            char *low_token = g_ascii_strdown(token, -1);
+            if ( g_strcmp0 ( low_token, "include" ) == 0 ) {
                 token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer );
                 g_debug ( "Found Include: %s", token );
                 gchar *path      = rofi_expand_path ( token );
@@ -388,13 +388,13 @@ static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename
                 g_free ( full_path );
                 g_free ( path );
             }
-            else if ( g_strcmp0 ( token, "UserKnownHostsFile" ) == 0 ) {
+            else if ( g_strcmp0 ( low_token, "userknownhostsfile" ) == 0 ) {
                 while ( ( token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer ) ) ) {
                     g_debug("Found extra UserKnownHostsFile: %s", token);
                     add_known_hosts_file ( pd, token );
                 }
             }
-            else if ( g_strcmp0 ( token, "Host" ) == 0 ) {
+            else if ( g_strcmp0 ( low_token, "host" ) == 0 ) {
                 // Now we know that this is a "Host" line.
                 // The "Host" keyword is followed by one more host names separated
                 // by whitespace; while host names may be quoted with double quotes
@@ -434,6 +434,7 @@ static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename
                     ( *length )++;
                 }
             }
+            g_free ( low_token );
         }
         if ( buffer != NULL ) {
             free ( buffer );
