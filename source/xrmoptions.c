@@ -113,6 +113,8 @@ static XrmOption xrmOptions[] = {
 
     { xrm_Boolean, "show-icons",             { .snum = &config.show_icons                     }, NULL,
       "Whether to load and show icons", CONFIG_DEFAULT },
+    { xrm_Boolean, "show-duplicates",        { .snum = &config.show_duplicates                }, NULL,
+      "Whether to show duplicate .desktop entries", CONFIG_DEFAULT },
 
     { xrm_String,  "terminal",               { .str  = &config.terminal_emulator              }, NULL,
       "Terminal to use", CONFIG_DEFAULT },
