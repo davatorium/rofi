@@ -275,7 +275,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     }
 
     // Check if item is on disabled list.
-    if ( g_hash_table_contains ( pd->disabled_entries, id ) && !parse_action ) {
+    if ( g_hash_table_contains ( pd->disabled_entries, id ) && !parse_action && !config.show_duplicates ) {
         g_debug ( "[%s] [%s] Skipping, was previously seen.", id, path );
         return ;
     }
