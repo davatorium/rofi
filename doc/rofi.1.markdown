@@ -597,6 +597,7 @@ Allows the output of dmenu to be customized (N is the total number of input entr
   * 'i' index (0 - (N-1))
   * 'd' index (1 - N)
   * 'q' quote string
+  * 'p' Selected string stripped from pango markup (Needs to be a valid string)
   * 'f' filter string (user input)
   * 'F' quoted filter string (user input)
 

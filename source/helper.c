@@ -1180,6 +1180,16 @@ void rofi_output_formatted_line ( const char *format, const char *string, int se
         else if ( format[i] == 's' ) {
             fputs ( string, stdout );
         }
+        else if ( format[i] == 'p' ) {
+            char *esc = NULL;
+            pango_parse_markup(string, -1, 0, NULL, &esc, NULL, NULL);
+            if ( esc ){
+                fputs ( esc, stdout );
+                g_free ( esc );
+            } else {
+                fputs ( "invalid string" , stdout );
+            }
+        }
         else if ( format[i] == 'q' ) {
             char *quote = g_shell_quote ( string );
             fputs ( quote, stdout );
