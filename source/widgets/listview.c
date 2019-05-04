@@ -109,6 +109,8 @@ struct _listview
 
     char                        *listview_name;
 
+
+    PangoEllipsizeMode          emode;
     /** Barview */
     struct
     {
@@ -532,6 +534,7 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
     lv->widget.get_desired_height = listview_get_desired_height;
     lv->eh                        = eh;
 
+    lv->emode     = PANGO_ELLIPSIZE_END;
     lv->scrollbar = scrollbar_create ( WIDGET ( lv ), "scrollbar" );
     // Calculate height of an element.
     //
@@ -828,5 +831,23 @@ void listview_set_fixed_num_lines ( listview *lv )
 {
     if ( lv  ) {
         lv->fixed_num_lines = TRUE;
+    }
+}
+
+void listview_toggle_ellipsizing ( listview *lv )
+{
+    if ( lv ) {
+        PangoEllipsizeMode mode =  lv->emode;
+        if ( mode == PANGO_ELLIPSIZE_START ) { 
+            mode = PANGO_ELLIPSIZE_MIDDLE;
+        } else if ( mode == PANGO_ELLIPSIZE_MIDDLE ) {
+            mode = PANGO_ELLIPSIZE_END;
+        } else if ( mode == PANGO_ELLIPSIZE_END ) {
+            mode = PANGO_ELLIPSIZE_START;
+        }
+        lv->emode = mode;
+        for ( unsigned int i = 0; i < lv->cur_elements; i++ ) {
+            textbox_set_ellipsize ( lv->boxes[i], mode );
+        }
     }
 }

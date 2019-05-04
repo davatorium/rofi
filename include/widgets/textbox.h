@@ -68,6 +68,7 @@ typedef struct
     double           xalign;
 
     PangoFontMetrics *metrics;
+    PangoEllipsizeMode emode;
     int              left_offset;
     //
     const char       *theme_name;
@@ -334,5 +335,13 @@ int textbox_get_desired_width ( widget *wid );
  * Move the cursor to the end of the string.
  */
 void textbox_cursor_end ( textbox *tb );
+
+/**
+ * @param tb  Handle to the textbox
+ * @param mode The PangoEllipsizeMode to use displaying the text in the textbox
+ *
+ * Set the ellipsizing mode used on the string.
+ */
+void textbox_set_ellipsize ( textbox *tb, PangoEllipsizeMode mode );
 /*@}*/
 #endif //ROFI_TEXTBOX_H

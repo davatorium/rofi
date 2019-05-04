@@ -177,6 +177,7 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     tb->widget.get_desired_height = textbox_get_desired_height;
     tb->widget.get_desired_width  = textbox_get_desired_width;
     tb->flags                     = flags;
+    tb->emode                     = PANGO_ELLIPSIZE_END;
 
     tb->changed = FALSE;
 
@@ -362,7 +363,9 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_MIDDLE );
         }
         else if ( ( tb->flags & TB_WRAP ) != TB_WRAP ) {
-            pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_END );
+            pango_layout_set_ellipsize ( tb->layout, tb->emode );
+        } else {
+            pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_NONE );
         }
     }
 
@@ -949,4 +952,18 @@ int textbox_get_desired_width ( widget *wid )
     // Restore.
     pango_layout_set_width ( tb->layout, old_width );
     return width + padding + offset;
+}
+
+
+void textbox_set_ellipsize ( textbox *tb, PangoEllipsizeMode mode )
+{
+    if ( tb )
+    {
+        tb->emode = mode;
+        if ( ( tb->flags & TB_WRAP ) != TB_WRAP ) {
+            // Store the mode.
+            pango_layout_set_ellipsize ( tb->layout, tb->emode );
+            widget_queue_redraw ( WIDGET ( tb ) );
+        }
+    }
 }

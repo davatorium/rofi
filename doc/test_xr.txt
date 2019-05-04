@@ -190,6 +190,8 @@ rofi.kb-row-last:                    End,KP_End
 rofi.kb-row-select:                  Control+space
 ! "Take a screenshot of the rofi window" Set from: File
 rofi.kb-screenshot:                  Alt+S
+! "Toggle between ellipsize modes for displayed data" Set from: Default
+! rofi.kb-ellipsize:                   Alt+period
 ! "Toggle case sensitivity" Set from: File
 rofi.kb-toggle-case-sensitivity:     grave,dead_grave
 ! "Toggle sort" Set from: File

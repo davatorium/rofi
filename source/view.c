@@ -1149,6 +1149,11 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
     case SCREENSHOT:
         rofi_capture_screenshot ( );
         break;
+    case CHANGE_ELLIPSIZE:
+        if ( state->list_view ) {
+            listview_toggle_ellipsizing ( state->list_view );
+        }
+        break;
     case TOGGLE_SORT:
         if ( state->case_indicator != NULL ) {
             config.sort     = !config.sort;
