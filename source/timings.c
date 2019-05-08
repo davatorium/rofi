@@ -38,21 +38,21 @@ void rofi_timings_init ( void )
 {
     global_timer = g_timer_new ();
     double now = g_timer_elapsed ( global_timer, NULL );
-    g_debug ( "%4.6f (%2.6f): Started\n", now, 0.0 );
+    g_debug ( "%4.6f (%2.6f): Started", now, 0.0 );
 }
 
 void rofi_timings_tick ( const char *file, char const *str, int line, char const *msg )
 {
     double now = g_timer_elapsed ( global_timer, NULL );
 
-    g_debug ( "%4.6f (%2.6f): %s:%s:%-3d %s\n", now, now - global_timer_last, file, str, line, msg );
+    g_debug ( "%4.6f (%2.6f): %s:%s:%-3d %s", now, now - global_timer_last, file, str, line, msg );
     global_timer_last = now;
 }
 
 void rofi_timings_quit ( void )
 {
         double now = g_timer_elapsed ( global_timer, NULL );
-        g_debug ( "%4.6f (%2.6f): Stopped\n", now, 0.0 );
+        g_debug ( "%4.6f (%2.6f): Stopped", now, 0.0 );
         g_timer_destroy ( global_timer );
 }
 
