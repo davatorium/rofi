@@ -210,11 +210,11 @@ static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsi
                         errno = 0;
                         gchar *endptr = NULL;
                         gint64 number = g_ascii_strtoll ( &(end[2]), &endptr, 10);
-                        if ( errno != 0  ) { 
+                        if ( errno != 0  ) {
                             g_warning ( "Failed to parse port number: %s.", &(end[2]) );
                         } else if ( endptr == &(end[2])) {
                             g_warning ( "Failed to parse port number: %s, invalid number.", &(end[2]) );
-                        } else if ( number < 0 || number > 65535 ) { 
+                        } else if ( number < 0 || number > 65535 ) {
                             g_warning ( "Failed to parse port number: %s, out of range.", &(end[2]) );
                         } else {
                             port = number;
@@ -303,6 +303,7 @@ static SshEntry *read_hosts_file ( SshEntry * retv, unsigned int *length )
                                 retv = g_realloc ( retv,
                                                    ( ( *length ) + 2 ) * sizeof ( char* ) );
                                 retv[( *length )].hostname     = g_strdup ( token );
+                                retv[( *length )].port         = 0;
                                 retv[( *length ) + 1].hostname = NULL;
                                 ( *length )++;
                             }
@@ -428,8 +429,9 @@ static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename
                     }
 
                     // Add this host name to the list.
-                    ( *retv )                  = g_realloc ( ( *retv ), ( ( *length ) + 2 ) * sizeof ( SshEntry ) );
+                    ( *retv )                           = g_realloc ( ( *retv ), ( ( *length ) + 2 ) * sizeof ( SshEntry ) );
                     ( *retv )[( *length )].hostname     = g_strdup ( token );
+                    ( *retv )[( *length )].port         = 0;
                     ( *retv )[( *length ) + 1].hostname = NULL;
                     ( *length )++;
                 }
@@ -475,15 +477,15 @@ static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
             errno = 0;
             gchar *endptr= NULL;
             gint64 number = g_ascii_strtoll ( &(portstr[1]), &endptr, 10);
-            if ( errno != 0  ) { 
+            if ( errno != 0  ) {
                 g_warning ( "Failed to parse port number: %s.", &(portstr[1]) );
             } else if ( endptr == &(portstr[1])) {
                 g_warning ( "Failed to parse port number: %s, invalid number.", &(portstr[1]) );
-            } else if ( number < 0 || number > 65535 ) { 
+            } else if ( number < 0 || number > 65535 ) {
                 g_warning ( "Failed to parse port number: %s, out of range.", &(portstr[1]) );
             } else {
                 port = number;
-            } 
+            }
         }
         retv[i].hostname = h[i];
         retv[i].port = port;
