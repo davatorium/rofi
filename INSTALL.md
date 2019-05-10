@@ -73,6 +73,28 @@ make install
 
 The default installation prefix is: `/usr/local/` use `./configure --prefix={prefix}` to install into another location.
 
+### Meson
+
+Check dependencies and configure build system:
+
+```
+meson setup build
+```
+
+Build Rofi:
+
+```
+ninja -C build
+```
+
+The actual install, execute as root (if needed):
+
+```
+ninja -C build install
+```
+
+The default installation prefix is: `/usr/local/` use `meson setup build --prefix={prefix}` to install into another location.
+
 ## Install a checkout from git
 
 The GitHub Pages version of these directions may be out of date.  Please use
@@ -171,6 +193,7 @@ make CFLAGS="-O0 -g3" clean rofi
 
 # Meson
 meson configure build --debug
+ninja -C build
 ```
 
 ### Get a backtrace
