@@ -312,11 +312,6 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
 #else
     printf ( "\t* drun    %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
 #endif
-#ifdef TIMINGS
-    printf ( "\t* timings %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
-#else
-    printf ( "\t* timings %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
-#endif
 #ifdef ENABLE_GCOV
     printf ( "\t* gcov    %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
 #else

@@ -85,11 +85,6 @@ dnl ---------------------------------------------------------------------
 AC_ARG_ENABLE([windowmode], AS_HELP_STRING([--disable-windowmode],[Disable window mode]))
 AS_IF([ test "x$enable_windowmode" != "xno"], [AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])])
 
-dnl ---------------------------------------------------------------------
-dnl Output timing information
-dnl ---------------------------------------------------------------------
-AC_ARG_ENABLE([timings], AS_HELP_STRING([--enable-timings],[Enable timing output]))
-AS_IF( [ test "x$enable_timings" = "xyes"], [AC_DEFINE([TIMINGS],[1], [Enable timings output])])
 
 dnl ---------------------------------------------------------------------
 dnl Check for C functions.

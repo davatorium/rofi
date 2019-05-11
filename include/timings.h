@@ -34,7 +34,6 @@
  * @ingroup HELPERS
  * @{
  */
-#ifdef TIMINGS
 /**
  * Init the timestamping mechanism .
  * implementation.
@@ -93,6 +92,5 @@ void rofi_timings_quit ( void );
  */
 #define TICK_N( a )
 
-#endif // TIMINGS
 /*@}*/
 #endif // ROFI_TIMINGS_H
