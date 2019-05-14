@@ -105,7 +105,7 @@ Mode * rofi_collect_modi_search ( const char *name );
     " * Output of -dump-xresource\n"                                   \
     " * Steps to reproduce\n"                                          \
     " * The version of rofi you are running\n\n"                       \
-    " <i>https://github.com/DaveDavenport/rofi/</i>"
+    " <i>https://github.com/davatorium/rofi/</i>"
 /** Indicates if ERROR_MSG uses pango markup */
 #define ERROR_MSG_MARKUP    TRUE
 /*@}*/

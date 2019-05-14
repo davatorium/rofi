@@ -1,10 +1,10 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ca0310962a7c4b829d0c57f1ab023531)](https://app.codacy.com/app/Davatorium/rofi?utm_source=github.com&utm_medium=referral&utm_content=Davatorium/rofi&utm_campaign=Badge_Grade_Settings)
-[![Build Status](https://travis-ci.org/Davatorium/rofi.svg?branch=master)](https://travis-ci.org/Davatorium/rofi)
-[![codecov.io](https://codecov.io/github/Davatorium/rofi/coverage.svg?branch=master)](https://codecov.io/github/Davatorium/rofi?branch=master)
-[![Issues](https://img.shields.io/github/issues/Davatorium/rofi.svg)](https://github.com/Davatorium/rofi/issues)
-[![Forks](https://img.shields.io/github/forks/Davatorium/rofi.svg)](https://github.com/Davatorium/rofi/network)
-[![Stars](https://img.shields.io/github/stars/Davatorium/rofi.svg)](https://github.com/Davatorium/rofi/stargazers)
-[![Downloads](https://img.shields.io/github/downloads/Davatorium/rofi/total.svg)](https://github.com/Davatorium/rofi/releases)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ca0310962a7c4b829d0c57f1ab023531)](https://app.codacy.com/app/davatorium/rofi?utm_source=github.com&utm_medium=referral&utm_content=davatorium/rofi&utm_campaign=Badge_Grade_Settings)
+[![Build Status](https://travis-ci.org/davatorium/rofi.svg?branch=master)](https://travis-ci.org/davatorium/rofi)
+[![codecov.io](https://codecov.io/github/davatorium/rofi/coverage.svg?branch=master)](https://codecov.io/github/davatorium/rofi?branch=master)
+[![Issues](https://img.shields.io/github/issues/davatorium/rofi.svg)](https://github.com/davatorium/rofi/issues)
+[![Forks](https://img.shields.io/github/forks/davatorium/rofi.svg)](https://github.com/davatorium/rofi/network)
+[![Stars](https://img.shields.io/github/stars/davatorium/rofi.svg)](https://github.com/davatorium/rofi/stargazers)
+[![Downloads](https://img.shields.io/github/downloads/davatorium/rofi/total.svg)](https://github.com/davatorium/rofi/releases)
 [![Coverity](https://scan.coverity.com/projects/3850/badge.svg)](https://scan.coverity.com/projects/davedavenport-rofi)
 [![Forum](https://img.shields.io/badge/forum-online-green.svg)](https://reddit.com/r/qtools/)
 
@@ -242,11 +242,11 @@ to disable it:
 
 # Manpage
 
-For more detailed information, please see the [manpage](doc/rofi.1.markdown), the [wiki](https://github.com/DaveDavenport/rofi/wiki), or the [forum](https://reddit.com/r/qtools/).
+For more detailed information, please see the [manpage](doc/rofi.1.markdown), the [wiki](https://github.com/davatorium/rofi/wiki), or the [forum](https://reddit.com/r/qtools/).
 
 # Installation
 
-Please see the [installation guide](https://github.com/DaveDavenport/rofi/blob/next/INSTALL.md) for instructions on how to
+Please see the [installation guide](https://github.com/davatorium/rofi/blob/next/INSTALL.md) for instructions on how to
 install **Rofi**.
 
 # What is rofi not?
