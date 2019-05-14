@@ -1,5 +1,7 @@
 v1.5.3: (unreleased)
 	- Rename sidebar widget to mode-switcher and allow configuration from theme.
+	- Timing: Moving timing output to glib debug system.
+	- SSH: Fix unitialized variable issue.
 	- SSH: resolve ':' conflict in history entries.
 	- RASI Lexer: Fix nested () in variable default field.
 	- USABILITY: When mode not found, show in gui not just on commandline.
