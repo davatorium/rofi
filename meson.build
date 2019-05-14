@@ -254,6 +254,7 @@ install_data(
     'themes/sidebar.rasi',
     'themes/solarized.rasi',
     'themes/solarized_alternate.rasi',
+    'themes/fancy.rasi',
     install_dir: themedir
 )
 

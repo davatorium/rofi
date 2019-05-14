@@ -232,7 +232,8 @@ theme_DATA=\
 		   themes/purple.rasi\
 		   themes/sidebar.rasi\
 		   themes/solarized.rasi\
-		   themes/solarized_alternate.rasi
+		   themes/solarized_alternate.rasi\
+		   themes/fancy.rasi
 
 ##
 # Extra DIST
