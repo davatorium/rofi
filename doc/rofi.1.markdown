@@ -283,6 +283,13 @@ The different fields are:
 
     Default: *all*
 
+`-matching-negate-char` *char*
+
+Set the character used to negate the query (i.e. if it does **not** match the next keyword ).
+Set to '\x0' to disable.
+
+    Default: '-'
+
 
 ### Layout
 
