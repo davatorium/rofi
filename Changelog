@@ -1,4 +1,5 @@
 v1.5.3: (unreleased)
+	- Update manpage with missing entry. (#937)
 	- Rename sidebar widget to mode-switcher and allow configuration from theme.
 	- Timing: Moving timing output to glib debug system.
 	- SSH: Fix unitialized variable issue.
