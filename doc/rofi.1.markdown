@@ -922,10 +922,6 @@ Run **rofi** full monitor width at the top of the monitor like a dropdown menu:
 
     rofi -show run -width 100 -location 1 -lines 5 -bw 2 -yoffset -2
 
-Get a colored list of available wi-fi networks:
-
-    tty-pipe nmcli device wifi | out2html -p | rofi -dmenu -markup-rows
-
 Pop up a text message claiming that this is the end:
 
     rofi -e "This is the end"
