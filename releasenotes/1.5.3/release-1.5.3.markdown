@@ -23,7 +23,7 @@ echo -en "Firefox\0icon\x1ffirefox\ngimp\0icon\x1fgimp" | rofi -dmenu -no-config
 
 
 The entries are separated by a `\n` newline (normal dmenu behaviour).
-The extra parameters can be added after a `\0` null character, the key and value are separated by a `\x2f` unit
+The extra parameters can be added after a `\0` null character, the key and value are separated by a `\x1f` unit
 separator character.
 
 
