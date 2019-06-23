@@ -112,11 +112,11 @@ int main ( int argc, char ** argv )
     TASSERT ( levenshtein ( "aap", g_utf8_strlen ( "aap", -1), "aap", g_utf8_strlen ( "aap", -1) ) == 0 );
     TASSERT ( levenshtein ( "aap", g_utf8_strlen ( "aap", -1), "aap ", g_utf8_strlen ( "aap ", -1) ) == 1 );
     TASSERT ( levenshtein ( "aap ", g_utf8_strlen ( "aap ", -1), "aap", g_utf8_strlen ( "aap", -1) ) == 1 );
-    TASSERTE ( levenshtein ( "aap", g_utf8_strlen ( "aap", -1), "aap noot", g_utf8_strlen ( "aap noot", -1) ), 5 );
-    TASSERTE ( levenshtein ( "aap", g_utf8_strlen ( "aap", -1), "noot aap", g_utf8_strlen ( "noot aap", -1) ), 5 );
-    TASSERTE ( levenshtein ( "aap", g_utf8_strlen ( "aap", -1), "noot aap mies", g_utf8_strlen ( "noot aap mies", -1) ), 10 );
-    TASSERTE ( levenshtein ( "noot aap mies", g_utf8_strlen ( "noot aap mies", -1), "aap", g_utf8_strlen ( "aap", -1) ), 10 );
-    TASSERTE ( levenshtein ( "otp", g_utf8_strlen ( "otp", -1), "noot aap", g_utf8_strlen ( "noot aap", -1) ), 5 );
+    TASSERTE ( levenshtein ( "aap", g_utf8_strlen ( "aap", -1), "aap noot", g_utf8_strlen ( "aap noot", -1) ), 5u );
+    TASSERTE ( levenshtein ( "aap", g_utf8_strlen ( "aap", -1), "noot aap", g_utf8_strlen ( "noot aap", -1) ), 5u );
+    TASSERTE ( levenshtein ( "aap", g_utf8_strlen ( "aap", -1), "noot aap mies", g_utf8_strlen ( "noot aap mies", -1) ), 10u );
+    TASSERTE ( levenshtein ( "noot aap mies", g_utf8_strlen ( "noot aap mies", -1), "aap", g_utf8_strlen ( "aap", -1) ), 10u );
+    TASSERTE ( levenshtein ( "otp", g_utf8_strlen ( "otp", -1), "noot aap", g_utf8_strlen ( "noot aap", -1) ), 5u );
     /**
      * Quick converision check.
      */

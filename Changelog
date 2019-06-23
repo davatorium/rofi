@@ -1,3 +1,22 @@
+v1.5.3: (unreleased)
+	- Update manpage with missing entry. (#937)
+	- Rename sidebar widget to mode-switcher and allow configuration from theme.
+	- Timing: Moving timing output to glib debug system.
+	- SSH: Fix unitialized variable issue.
+	- SSH: resolve ':' conflict in history entries.
+	- RASI Lexer: Fix nested () in variable default field.
+	- USABILITY: When mode not found, show in gui not just on commandline.
+	- ICON: Allow aligning image in icon widget.
+	- Meson build system: cleanups and improvements.
+	- Meson build system: add documentation (#943)
+	- Window: Fix default formatting and remove (invalid) deprecation warning.
+	- DMenu: Add support for showing icons infront of displayed list.
+	- Overlay: Fix overlay widget to correctly integrate in new theme format.
+	- Update libnkutils, libgwater.
+	- SSH: be case-insensitive when parsing keywords.
+	- DMENU: Add format option to strip pango markup from return value.
+	- ListView: allow user to change ellipsizing displayed value at run-time.
+
 v1.5.2: Procrastination in progress
 	- Clearify Check dependency. (#879)
 	- Add option to change negate character. (#877)

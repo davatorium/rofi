@@ -512,7 +512,7 @@ The current widgets available in **rofi**:
     * `listview`: The listview.
        * `scrollbar`: the listview scrollbar
        * `element`: the entries in the listview
-    * `sidebar`: the main horizontal @box packing the buttons.
+    * `mode-switcher`: the main horizontal @box packing the buttons.
       * `button`: the buttons @textbox for each mode
     * `message`: The container holding the textbox.
       * `textbox`: the message textbox
@@ -599,7 +599,7 @@ The following properties are currently supported:
 * **transparency**:    string
   Indicating if transparency should be used and what type:
   **real** - True transparency. Only works with a compositor.
-  **background-color** - Take a screenshot of the background image and use that.
+  **background** - Take a screenshot of the background image and use that.
   **screenshot** - Take a screenshot of the screen and use that.
   **Path** to png file - Use an image.
 
@@ -700,7 +700,7 @@ The current layout of **rofi** is structured as follows:
 | | |-----------------------------------------------------------------------------|  |
 | |                                                                               |  |
 | | |---------------------------------------------------------------------------| |  |
-| | |  sidebar {BOX:horizontal}                                                 | |  |
+| | |  mode-switcher {BOX:horizontal}                                           | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |
 | | | | Button        |   | Button        |  | Button       | | Button        | | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |
@@ -736,16 +736,17 @@ The following widgets are fixed, as they provide core **rofi** functionality:
 
  * prompt
  * entry
+ * overlay
  * case-indicator
  * message
  * listview
- * sidebar
+ * mode-switcher
 
 The following keywords are defined and can be used to automatically pack a subset of the widgets.
 These are used in the default theme as depicted in the figure above.
 
  * mainbox
-   Packs: `inputbar, message, listview, sidebar`
+   Packs: `inputbar, message, listview, mode-switcher`
  * inputbar
    Packs: `prompt,entry,case-indicator`
 
@@ -754,7 +755,7 @@ To specify children, set the `children`
 property (this always happens on the `box` child, see example below):
 
 ```
-children: [prompt,entry,case-indicator];
+children: [prompt,entry,overlay,case-indicator];
 ```
 
 The theme needs to be updated to match the hierarchy specified.

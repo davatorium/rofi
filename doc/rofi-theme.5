@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME" "5" "July 2018" "" ""
+.TH "ROFI\-THEME" "5" "May 2019" "" ""
 .
 .SH "NAME"
 \fBrofi\-theme\fR \- Rofi theme format files
@@ -952,7 +952,7 @@ The following properties are currently supported:
 \fBfont\fR: string The font used in the window
 .
 .IP "\(bu" 4
-\fBtransparency\fR: string Indicating if transparency should be used and what type: \fBreal\fR \- True transparency\. Only works with a compositor\. \fBbackground\-color\fR \- Take a screenshot of the background image and use that\. \fBscreenshot\fR \- Take a screenshot of the screen and use that\. \fBPath\fR to png file \- Use an image\.
+\fBtransparency\fR: string Indicating if transparency should be used and what type: \fBreal\fR \- True transparency\. Only works with a compositor\. \fBbackground\fR \- Take a screenshot of the background image and use that\. \fBscreenshot\fR \- Take a screenshot of the screen and use that\. \fBPath\fR to png file \- Use an image\.
 .
 .IP "\(bu" 4
 \fBlocation\fR: position The place of the anchor on the monitor
@@ -1098,7 +1098,7 @@ The current layout of \fBrofi\fR is structured as follows:
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
 | |                                                                               |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
-| | |  sidebar {BOX:horizontal}                                                 | |  |
+| | |  mode\-switcher {BOX:horizontal}                                           | |  |
 | | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|   |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
 | | | | Button        |   | Button        |  | Button       | | Button        | | |  |
 | | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|   |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| | |  |
@@ -1139,6 +1139,9 @@ prompt
 entry
 .
 .IP "\(bu" 4
+overlay
+.
+.IP "\(bu" 4
 case\-indicator
 .
 .IP "\(bu" 4
@@ -1148,7 +1151,7 @@ message
 listview
 .
 .IP "\(bu" 4
-sidebar
+mode\-switcher
 .
 .IP "" 0
 .
@@ -1156,7 +1159,7 @@ sidebar
 The following keywords are defined and can be used to automatically pack a subset of the widgets\. These are used in the default theme as depicted in the figure above\.
 .
 .IP "\(bu" 4
-mainbox Packs: \fBinputbar, message, listview, sidebar\fR
+mainbox Packs: \fBinputbar, message, listview, mode\-switcher\fR
 .
 .IP "\(bu" 4
 inputbar Packs: \fBprompt,entry,case\-indicator\fR
@@ -1170,7 +1173,7 @@ Any widget name starting with \fBtextbox\fR is a textbox widget, others are box 
 .
 .nf
 
-children: [prompt,entry,case\-indicator];
+children: [prompt,entry,overlay,case\-indicator];
 .
 .fi
 .

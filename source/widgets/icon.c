@@ -46,6 +46,8 @@ struct _icon
 
     uint32_t        icon_fetch_id;
 
+    double          yalign,xalign;
+
     // Source surface.
     cairo_surface_t *icon;
 };
@@ -83,9 +85,16 @@ static void icon_draw ( widget *wid, cairo_t *draw )
     int    icons = MAX ( iconh, iconw );
     double scale = (double) b->size / icons;
 
+    int lpad = widget_padding_get_left   ( WIDGET ( b ) ) ;
+    int rpad = widget_padding_get_right  ( WIDGET ( b ) ) ;
+    int tpad = widget_padding_get_top    ( WIDGET ( b ) ) ;
+    int bpad = widget_padding_get_bottom ( WIDGET ( b ) ) ;
+
     cairo_save ( draw );
 
-    cairo_translate ( draw, ( b->size - iconw * scale ) / 2.0, ( b->size - iconh * scale ) / 2.0 );
+    cairo_translate ( draw,
+            lpad + ( b->widget.w - iconw * scale - lpad -rpad )*b->xalign,
+            tpad + ( b->widget.h- iconh * scale -tpad - bpad )*b->yalign );
     cairo_scale ( draw, scale, scale );
     cairo_set_source_surface ( draw, b->icon, 0, 0 );
     cairo_paint ( draw );
@@ -146,6 +155,10 @@ icon * icon_create ( widget *parent, const char *name )
     if ( filename ) {
         b->icon_fetch_id = rofi_icon_fetcher_query ( filename, b->size );
     }
+    b->yalign = rofi_theme_get_double ( WIDGET ( b ), "vertical-align", 0.5 );
+    b->yalign = MAX ( 0, MIN ( 1.0, b->yalign ) );
+    b->xalign = rofi_theme_get_double ( WIDGET ( b ), "horizontal-align", 0.5 );
+    b->xalign = MAX ( 0, MIN ( 1.0, b->xalign ) );
 
     return b;
 }

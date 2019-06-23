@@ -180,6 +180,20 @@ void history_set ( const char *filename, const char *entry )
     if ( config.disable_history ) {
         return;
     }
+
+    // Check if program should be ignored
+    for ( char *checked_prefix = strtok ( config.ignored_prefixes, ";" ); checked_prefix != NULL; checked_prefix = strtok ( NULL, ";" ) ) {
+        // For each ignored prefix
+
+        while ( g_unichar_isspace ( g_utf8_get_char ( checked_prefix ) ) ) {
+            checked_prefix = g_utf8_next_char ( checked_prefix ); // Some users will probably want "; " as their separator for aesthetics.
+        }
+
+        if ( g_str_has_prefix ( entry, checked_prefix ) ) {
+            return;
+        }
+    }
+
     int          found  = 0;
     unsigned int curr   = 0;
     unsigned int length = 0;

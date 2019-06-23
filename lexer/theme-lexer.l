@@ -33,6 +33,7 @@
 %option bison-bridge
 
 %{
+#include "config.h"
 #include <stdio.h>
 #include <glib.h>
 #include <helper.h>
@@ -229,6 +230,8 @@ FORWARD_SLASH    \/
 LIST_OPEN        \[
 LIST_CLOSE       \]
 
+VAR_START  "var"
+
 CPP_COMMENT  "//"
 C_COMMENT_OPEN "/*"
 
@@ -241,6 +244,8 @@ CONFIGURATION (?i:configuration)
 %x INCLUDE
 %x PROPERTIES
 %x PROPERTIES_ENV
+%x PROPERTIES_VAR
+%x PROPERTIES_VAR_DEFAULT
 %x PROPERTIES_LIST
 %x NAMESTR
 %x SECTION
@@ -419,30 +424,30 @@ if ( queue == NULL ){
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_LIST>{WHITESPACE}+	; // ignore all whitespace
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST,PROPERTIES_VAR>{WHITESPACE}+	; // ignore all whitespace
 
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
-<PROPERTIES,PROPERTIES_ENV>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-<PROPERTIES,PROPERTIES_ENV>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
-<PROPERTIES,PROPERTIES_ENV>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
-<PROPERTIES,PROPERTIES_ENV>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
 
-<PROPERTIES,PROPERTIES_ENV>@{WORD}               {
-    yylval->sval = g_strdup(yytext);
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>@{WORD}               {
+    yylval->sval = g_strdup(yytext+1);
     return T_LINK;
 }
 
-<PROPERTIES,PROPERTIES_ENV>{EM}       { return T_UNIT_EM; }
-<PROPERTIES,PROPERTIES_ENV>{CH}       { return T_UNIT_CH; }
-<PROPERTIES,PROPERTIES_ENV>{PX}       { return T_UNIT_PX; }
-<PROPERTIES,PROPERTIES_ENV>{PERCENT}  { return T_PERCENT; }
-<PROPERTIES,PROPERTIES_ENV>{LS_SOLID} { return T_SOLID;   }
-<PROPERTIES,PROPERTIES_ENV>{LS_DASH}  { return T_DASH;    }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{EM}       { return T_UNIT_EM; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CH}       { return T_UNIT_CH; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PX}       { return T_UNIT_PX; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PERCENT}  { return T_PERCENT; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LS_SOLID} { return T_SOLID;   }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LS_DASH}  { return T_DASH;    }
 
-<PROPERTIES,PROPERTIES_ENV>{INHERIT}  { return T_INHERIT; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{INHERIT}  { return T_INHERIT; }
 
-<PROPERTIES,PROPERTIES_ENV>{ENV} {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ENV} {
     yytext[yyleng-1] = '\0';
     const char *val = g_getenv(yytext+2);
     if ( val ) {
@@ -468,54 +473,74 @@ if ( queue == NULL ){
   * Color parsing. It is easier to do this at lexer level.
   * Other schemes are done at yacc level.
   */
-<PROPERTIES,PROPERTIES_ENV>#{HEX}{8}       {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>#{HEX}{8}       {
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[2]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[3],yytext[4]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
     yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[7],yytext[8]);
     return T_COLOR;
 }
-<PROPERTIES,PROPERTIES_ENV>#{HEX}{6}       {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>#{HEX}{6}       {
     yylval->colorval.alpha = 1.0;
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[2]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[3],yytext[4]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
     return T_COLOR;
 }
-<PROPERTIES,PROPERTIES_ENV>#{HEX}{3}       {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>#{HEX}{3}       {
     yylval->colorval.alpha = 1.0;
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[1]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[2],yytext[2]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[3],yytext[3]);
     return T_COLOR;
 }
-<PROPERTIES,PROPERTIES_ENV>#{HEX}{4}       {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>#{HEX}{4}       {
     yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[4],yytext[4]);
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[1],yytext[1]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[2],yytext[2]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[3],yytext[3]);
     return T_COLOR;
 }
-<PROPERTIES,PROPERTIES_ENV>argb:{HEX}{8}       {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>argb:{HEX}{8}       {
     yylval->colorval.alpha = rofi_theme_parse_convert_hex(yytext[5],yytext[6]);
     yylval->colorval.red   = rofi_theme_parse_convert_hex(yytext[7],yytext[8]);
     yylval->colorval.green = rofi_theme_parse_convert_hex(yytext[9],yytext[10]);
     yylval->colorval.blue  = rofi_theme_parse_convert_hex(yytext[11],yytext[12]);
     return T_COLOR;
 }
-<PROPERTIES,PROPERTIES_ENV>argb:{HEX}{7}       {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>argb:{HEX}{7}       {
     return T_ERROR_ARGB_SPEC;
 }
  /* Color schemes */
-<PROPERTIES,PROPERTIES_ENV>{RGBA}             { return T_COL_RGBA;       }
-<PROPERTIES,PROPERTIES_ENV>{HSL}              { return T_COL_HSL;        }
-<PROPERTIES,PROPERTIES_ENV>{HWB}              { return T_COL_HWB;        }
-<PROPERTIES,PROPERTIES_ENV>{CMYK}             { return T_COL_CMYK;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{RGBA}             { return T_COL_RGBA;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{HSL}              { return T_COL_HSL;        }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{HWB}              { return T_COL_HWB;        }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CMYK}             { return T_COL_CMYK;       }
  /* Fluff */
-<PROPERTIES,PROPERTIES_ENV>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
-<PROPERTIES,PROPERTIES_ENV>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_LIST>{COMMA}            { return T_COMMA;          }
-<PROPERTIES,PROPERTIES_ENV>{LIST_OPEN}        {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{VAR_START}{S_T_PARENT_LEFT}        {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(PROPERTIES_VAR);
+    return T_PARENT_LEFT;
+}
+<PROPERTIES_VAR>{S_T_PARENT_RIGHT} {
+    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
+    return T_PARENT_RIGHT;
+}
+<PROPERTIES_VAR>{COMMA} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(PROPERTIES_VAR_DEFAULT);
+    return T_COMMA;
+}
+<PROPERTIES_VAR_DEFAULT>{S_T_PARENT_RIGHT} {
+    // Pop 2.
+    g_queue_pop_head ( queue );
+    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
+    return T_PARENT_RIGHT;
+}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>{COMMA}            { return T_COMMA;          }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LIST_OPEN}        {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(PROPERTIES_LIST);
     return T_LIST_OPEN;
@@ -524,33 +549,33 @@ if ( queue == NULL ){
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
     return T_LIST_CLOSE;
 }
-<PROPERTIES,PROPERTIES_ENV>{FORWARD_SLASH}    { return T_FORWARD_SLASH;  }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{FORWARD_SLASH}    { return T_FORWARD_SLASH;  }
  /* Position */
-<PROPERTIES,PROPERTIES_ENV>{CENTER}           { return T_POS_CENTER;     }
-<PROPERTIES,PROPERTIES_ENV>{EAST}             { return T_POS_EAST;       }
-<PROPERTIES,PROPERTIES_ENV>{WEST}             { return T_POS_WEST;       }
-<PROPERTIES,PROPERTIES_ENV>{SOUTH}            { return T_POS_SOUTH;      }
-<PROPERTIES,PROPERTIES_ENV>{NORTH}            { return T_POS_NORTH;      }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CENTER}           { return T_POS_CENTER;     }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{EAST}             { return T_POS_EAST;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{WEST}             { return T_POS_WEST;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{SOUTH}            { return T_POS_SOUTH;      }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{NORTH}            { return T_POS_NORTH;      }
  /* Highlight style */
-<PROPERTIES,PROPERTIES_ENV>{NONE}             { return T_NONE;           }
-<PROPERTIES,PROPERTIES_ENV>{BOLD}             { return T_BOLD;           }
-<PROPERTIES,PROPERTIES_ENV>{ITALIC}           { return T_ITALIC;         }
-<PROPERTIES,PROPERTIES_ENV>{UNDERLINE}        { return T_UNDERLINE;      }
-<PROPERTIES,PROPERTIES_ENV>{STRIKETHROUGH}    { return T_STRIKETHROUGH;  }
-<PROPERTIES,PROPERTIES_ENV>{SMALLCAPS}        { return T_SMALLCAPS;      }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{NONE}             { return T_NONE;           }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{BOLD}             { return T_BOLD;           }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ITALIC}           { return T_ITALIC;         }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{UNDERLINE}        { return T_UNDERLINE;      }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRIKETHROUGH}    { return T_STRIKETHROUGH;  }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{SMALLCAPS}        { return T_SMALLCAPS;      }
 
-<PROPERTIES,PROPERTIES_ENV>{ANGLE_DEG}        { return T_ANGLE_DEG;      }
-<PROPERTIES,PROPERTIES_ENV>{ANGLE_RAD}        { return T_ANGLE_RAD;      }
-<PROPERTIES,PROPERTIES_ENV>{ANGLE_GRAD}       { return T_ANGLE_GRAD;     }
-<PROPERTIES,PROPERTIES_ENV>{ANGLE_TURN}       { return T_ANGLE_TURN;     }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ANGLE_DEG}        { return T_ANGLE_DEG;      }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ANGLE_RAD}        { return T_ANGLE_RAD;      }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ANGLE_GRAD}       { return T_ANGLE_GRAD;     }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ANGLE_TURN}       { return T_ANGLE_TURN;     }
 
-<PROPERTIES,PROPERTIES_ENV>{ORIENTATION_HORI} { return ORIENTATION_HORI; }
-<PROPERTIES,PROPERTIES_ENV>{ORIENTATION_VERT} { return ORIENTATION_VERT; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ORIENTATION_HORI} { return ORIENTATION_HORI; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ORIENTATION_VERT} { return ORIENTATION_VERT; }
 
-<PROPERTIES,PROPERTIES_ENV>{COLOR_TRANSPARENT} {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{COLOR_TRANSPARENT} {
     return T_COLOR_TRANSPARENT;
 }
-<PROPERTIES,PROPERTIES_ENV>{COLOR_NAME} {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{COLOR_NAME} {
     for ( unsigned int iter = 0; iter < num_CSSColors; iter++){
         if ( strcasecmp(yytext, CSSColors[iter].name )== 0 ) {
             yylval->colorval.alpha = 1.0;
@@ -563,7 +588,7 @@ if ( queue == NULL ){
     REJECT;
 }
 
-<INITIAL,PROPERTIES_ENV><<EOF>>  {
+<INITIAL,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT><<EOF>>  {
     ParseObject *po = g_queue_pop_head ( file_queue );
     if ( po ) {
         if ( po->type == PT_FILE ){
@@ -610,7 +635,7 @@ if ( queue == NULL ){
 <SECTION>. {
     return T_ERROR_SECTION;
 }
-<PROPERTIES_LIST>{WORD} {
+<PROPERTIES_LIST,PROPERTIES_VAR>{WORD} {
     yylval->sval = g_strdup(yytext);
     return T_ELEMENT;
 }
@@ -620,7 +645,7 @@ if ( queue == NULL ){
     return T_ELEMENT;
 }
 
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_LIST>. {
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>. {
     return T_ERROR_PROPERTY;
 }
 <NAMESTR>. {
@@ -669,8 +694,7 @@ gboolean rofi_theme_parse_file ( const char *file )
         }
     }
     // Free up.
-    g_list_foreach ( imported_files, (GFunc)g_free, NULL);
-    g_list_free ( imported_files );
+    g_list_free_full ( imported_files, g_free );
     g_queue_free ( file_queue );
     imported_files = NULL;
     file_queue = NULL;
@@ -705,8 +729,7 @@ gboolean rofi_theme_parse_string ( const char *string )
         }
     }
     // Free up.
-    g_list_foreach ( imported_files, (GFunc)g_free, NULL);
-    g_list_free ( imported_files );
+    g_list_free_full ( imported_files, g_free );
     imported_files = NULL;
     g_queue_free ( file_queue );
     file_queue = NULL;

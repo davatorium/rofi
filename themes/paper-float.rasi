@@ -106,7 +106,7 @@
     background-color: #F5F5F500;
 }
 
-#sidebar {
+#mode-switcher {
     border: 2px;
     padding: 0.5em 1em;
     background-color: @grey;

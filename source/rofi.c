@@ -312,11 +312,6 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
 #else
     printf ( "\t* drun    %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
 #endif
-#ifdef TIMINGS
-    printf ( "\t* timings %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
-#else
-    printf ( "\t* timings %sdisabled%s\n", is_term ? color_red : "", is_term ? color_reset : "" );
-#endif
 #ifdef ENABLE_GCOV
     printf ( "\t* gcov    %senabled%s\n", is_term ? color_green : "", is_term ? color_reset : "" );
 #else
@@ -366,12 +361,22 @@ static void help_print_disabled_mode ( const char *mode )
 }
 static void help_print_mode_not_found ( const char *mode )
 {
-    int is_term = isatty ( fileno ( stdout ) );
-    fprintf ( stderr, "Mode %s%s%s is not found.\n",
-              is_term ? color_red : "", mode, is_term ? color_reset : "" );
-    fprintf ( stderr, "The following modi are known:\n" );
-    print_list_of_modi ( is_term );
-    printf ( "\n" );
+    GString *str = g_string_new ("");
+    g_string_printf(str, "Mode %s is not found.\nThe following modi are known:\n", mode );
+    for ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        gboolean active = FALSE;
+        for ( unsigned int j = 0; j < num_modi; j++ ) {
+            if ( modi[j] == available_modi[i] ) {
+                active = TRUE;
+                break;
+            }
+        }
+        g_string_append_printf (str, "        * %s%s\n",
+                active ? "+" : "",
+                available_modi[i]->name
+                );
+    }
+    rofi_add_error_message ( str );
 }
 static void help_print_no_arguments ( void )
 {
@@ -616,8 +621,6 @@ static gboolean setup_modi ( void )
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL; token = strtok_r ( NULL, sep, &savept ) ) {
         if ( add_mode ( token ) == -1 ) {
             help_print_mode_not_found ( token );
-            g_free ( switcher_str );
-            return TRUE;
         }
     }
     // Free string that was modified by strtok_r
@@ -639,6 +642,25 @@ static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
     // Break out of loop.
     g_main_loop_quit ( main_loop );
     return G_SOURCE_CONTINUE;
+}
+static void show_error_dialog ()
+{
+    GString *emesg = g_string_new ( "The following errors were detected when starting rofi:\n" );
+    GList   *iter  = g_list_first ( list_of_error_msgs );
+    int     index  = 0;
+    for (; iter != NULL && index < 2; iter = g_list_next ( iter ) ) {
+        GString *msg = (GString *) ( iter->data );
+        g_string_append ( emesg, "\n\n" );
+        g_string_append ( emesg, msg->str );
+        index++;
+    }
+    if ( g_list_length ( iter ) > 1 ) {
+        g_string_append_printf ( emesg, "\nThere are <b>%d</b> more errors.", g_list_length ( iter ) - 1 );
+    }
+    rofi_view_error_dialog ( emesg->str, ERROR_MSG_MARKUP );
+    g_string_free ( emesg, TRUE );
+    rofi_set_return_code ( EX_DATAERR );
+
 }
 
 static gboolean startup ( G_GNUC_UNUSED gpointer data )
@@ -662,21 +684,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     TICK_N ( "Config sanity check" );
 
     if ( list_of_error_msgs != NULL ) {
-        GString *emesg = g_string_new ( "The following errors were detected when starting rofi:\n" );
-        GList   *iter  = g_list_first ( list_of_error_msgs );
-        int     index  = 0;
-        for (; iter != NULL && index < 2; iter = g_list_next ( iter ) ) {
-            GString *msg = (GString *) ( iter->data );
-            g_string_append ( emesg, "\n\n" );
-            g_string_append ( emesg, msg->str );
-            index++;
-        }
-        if ( g_list_length ( iter ) > 1 ) {
-            g_string_append_printf ( emesg, "\nThere are <b>%d</b> more errors.", g_list_length ( iter ) - 1 );
-        }
-        rofi_view_error_dialog ( emesg->str, ERROR_MSG_MARKUP );
-        g_string_free ( emesg, TRUE );
-        rofi_set_return_code ( EX_DATAERR );
+        show_error_dialog ();
         return G_SOURCE_REMOVE;
     }
     // Dmenu mode.
@@ -715,7 +723,7 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
         }
         else {
             help_print_mode_not_found ( sname );
-            g_main_loop_quit ( main_loop );
+            show_error_dialog ();
             return G_SOURCE_REMOVE;
         }
     }
@@ -776,13 +784,6 @@ int main ( int argc, char *argv[] )
         g_free ( base_name );
     }
     TICK ();
-    // Get the path to the cache dir.
-    cache_dir = g_get_user_cache_dir ();
-
-    if ( g_mkdir_with_parents ( cache_dir, 0700 ) < 0 ) {
-        g_warning ( "Failed to create cache directory: %s", g_strerror ( errno ) );
-        return EXIT_FAILURE;
-    }
 
     // Create pid file path.
     const char *path = g_get_user_runtime_dir ();
@@ -882,6 +883,18 @@ int main ( int argc, char *argv[] )
     TICK_N ( "Load cmd config " );
 
     parse_keys_abe ( bindings );
+
+    // Get the path to the cache dir.
+    cache_dir = g_get_user_cache_dir ();
+
+    if ( config.cache_dir != NULL ) {
+        cache_dir = config.cache_dir;
+    }
+
+    if ( g_mkdir_with_parents ( cache_dir, 0700 ) < 0 ) {
+        g_warning ( "Failed to create cache directory: %s", g_strerror ( errno ) );
+        return EXIT_FAILURE;
+    }
 
     /** dirty hack for dmenu compatibility */
     char *windowid = NULL;

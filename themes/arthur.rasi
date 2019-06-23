@@ -63,7 +63,7 @@
     color: @magenta;
     background-color: @transparent;
     spacing: 0;
-    children:  [vertb, mainbox];
+    children:  [mainbox];
     orientation: horizontal;
 }
 
@@ -149,13 +149,13 @@
 
 #vertb {
     expand: false;
-    children: [ dummy0, sidebar, dummy1  ];
+    children: [ dummy0, mode-switcher, dummy1  ];
 }
 #dummy0,  dummy1 {
     expand: true;
 }
 
-#sidebar {
+#mode-switcher {
     expand: false;
     orientation: vertical;
     spacing: 0px;

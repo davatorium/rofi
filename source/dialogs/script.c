@@ -48,19 +48,15 @@
 
 #include "rofi-icon-fetcher.h"
 
-typedef struct {
-        char *entry;
-        char *icon_name;
-        uint32_t        icon_fetch_uid;
+#include "dialogs/dmenuscriptshared.h"
 
-} ScriptEntry;
 
 typedef struct
 {
     /** ID of the current script. */
     unsigned int           id;
     /** List of visible items. */
-    ScriptEntry            *cmd_list;
+    DmenuScriptEntry            *cmd_list;
     /** length list of visible items. */
     unsigned int           cmd_list_length;
 
@@ -76,7 +72,10 @@ typedef struct
     gboolean               do_markup;
 } ScriptModePrivateData;
 
-static void parse_entry_extras ( G_GNUC_UNUSED Mode *sw, ScriptEntry *entry, char *buffer, size_t length )
+/**
+ * Shared function between DMENU and Script mode.
+ */
+void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *entry, char *buffer, size_t length )
 {
     size_t               length_key = 0;//strlen ( line );
     while ( length_key <= length && buffer[length_key] != '\x1f' ) {
@@ -89,10 +88,11 @@ static void parse_entry_extras ( G_GNUC_UNUSED Mode *sw, ScriptEntry *entry, cha
             entry->icon_name = g_strdup(value);
         }
     }
-
-
-
 }
+
+/**
+ * End of shared functions.
+ */
 
 static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
 {
@@ -126,11 +126,11 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
     }
 }
 
-static ScriptEntry *get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
+static DmenuScriptEntry *get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
 {
     int    fd     = -1;
     GError *error = NULL;
-    ScriptEntry *retv = NULL;
+    DmenuScriptEntry *retv = NULL;
     char   **argv = NULL;
     int    argc   = 0;
     *length = 0;
@@ -166,14 +166,14 @@ static ScriptEntry *get_script_output ( Mode *sw, char *command, char *arg, unsi
                 else {
                     if ( actual_size < ( ( *length ) + 2 ) ) {
                         actual_size += 256;
-                        retv         = g_realloc ( retv, ( actual_size ) * sizeof ( ScriptEntry ) );
+                        retv         = g_realloc ( retv, ( actual_size ) * sizeof ( DmenuScriptEntry ) );
                     }
                     size_t buf_length = strlen(buffer)+1;
                     retv[( *length )].entry     = g_memdup ( buffer, buf_length);
                     retv[( *length )].icon_name = NULL;
                     retv[(*length)].icon_fetch_uid = 0;
                     if ( buf_length > 0 && (read_length > (ssize_t)buf_length)  ) {
-                        parse_entry_extras ( sw, &(retv[(*length)]), buffer+buf_length, read_length-buf_length);
+                        dmenuscript_parse_entry_extras ( sw, &(retv[(*length)]), buffer+buf_length, read_length-buf_length);
                     }
                     retv[( *length ) + 1].entry = NULL;
                     ( *length )++;
@@ -191,9 +191,9 @@ static ScriptEntry *get_script_output ( Mode *sw, char *command, char *arg, unsi
     return retv;
 }
 
-static ScriptEntry *execute_executor ( Mode *sw, char *result, unsigned int *length )
+static DmenuScriptEntry *execute_executor ( Mode *sw, char *result, unsigned int *length )
 {
-    ScriptEntry *retv = get_script_output ( sw, sw->ed, result, length );
+    DmenuScriptEntry *retv = get_script_output ( sw, sw->ed, result, length );
     return retv;
 }
 
@@ -238,7 +238,7 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
 {
     ScriptModePrivateData *rmpd      = (ScriptModePrivateData *) sw->private_data;
     ModeMode              retv       = MODE_EXIT;
-    ScriptEntry           *new_list  = NULL;
+    DmenuScriptEntry           *new_list  = NULL;
     unsigned int          new_length = 0;
 
     if ( ( mretv & MENU_NEXT ) ) {
@@ -324,7 +324,7 @@ static cairo_surface_t *script_get_icon ( const Mode *sw, unsigned int selected_
 {
     ScriptModePrivateData *pd = (ScriptModePrivateData *) mode_get_private_data ( sw );
     g_return_val_if_fail ( pd->cmd_list != NULL, NULL );
-    ScriptEntry *dr = &( pd->cmd_list[selected_line] );
+    DmenuScriptEntry *dr = &( pd->cmd_list[selected_line] );
     if ( dr->icon_name == NULL ) {
         return NULL;
     }

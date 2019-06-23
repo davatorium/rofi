@@ -16,7 +16,7 @@ xdotool key Return
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
-OUTPUT=$(cat output.txt | tr '\n' ' ')
+OUTPUT=$( tr '\n' ' ' < output.txt )
 if [ "${OUTPUT}" != 'noot mies ' ]
 then
     echo "Got: '${OUTPUT}' expected 'noot mies '"

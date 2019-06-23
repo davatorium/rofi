@@ -1,4 +1,4 @@
-AC_INIT([rofi], [1.5.2], [https://github.com/DaveDavenport/rofi/],[],[https://reddit.com/r/qtools/])
+AC_INIT([rofi], [1.5.3], [https://github.com/davatorium/rofi/],[],[https://reddit.com/r/qtools/])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
@@ -85,11 +85,6 @@ dnl ---------------------------------------------------------------------
 AC_ARG_ENABLE([windowmode], AS_HELP_STRING([--disable-windowmode],[Disable window mode]))
 AS_IF([ test "x$enable_windowmode" != "xno"], [AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])])
 
-dnl ---------------------------------------------------------------------
-dnl Output timing information
-dnl ---------------------------------------------------------------------
-AC_ARG_ENABLE([timings], AS_HELP_STRING([--enable-timings],[Enable timing output]))
-AS_IF( [ test "x$enable_timings" = "xyes"], [AC_DEFINE([TIMINGS],[1], [Enable timings output])])
 
 dnl ---------------------------------------------------------------------
 dnl Check for C functions.
@@ -120,8 +115,13 @@ PKG_PROG_PKG_CONFIG
 dnl ---------------------------------------------------------------------
 dnl PKG_CONFIG based dependencies
 dnl ---------------------------------------------------------------------
+glib_min_major="2"
+glib_min_minor="40"
+glib_min_version="${glib_min_major}.${glib_min_minor}"
 NK_INIT([bindings xdg-theme])
-PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
+PKG_CHECK_MODULES([glib],     [glib-2.0 >= ${glib_min_version} gio-unix-2.0 gmodule-2.0])
+AC_DEFINE_UNQUOTED([GLIB_VERSION_MIN_REQUIRED], [(G_ENCODE_VERSION(${glib_min_major},${glib_min_minor}))], [The lower GLib version supported])
+AC_DEFINE_UNQUOTED([GLIB_VERSION_MAX_ALLOWED], [(G_ENCODE_VERSION(${glib_min_major},${glib_min_minor}))], [The highest GLib version supported])
 GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])

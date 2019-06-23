@@ -125,6 +125,7 @@ SOURCES=\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
 	include/dialogs/help-keys.h\
+	include/dialogs/dmenuscriptshared.h\
 	resources/resources.c\
 	resources/resources.h
 
@@ -231,7 +232,8 @@ theme_DATA=\
 		   themes/purple.rasi\
 		   themes/sidebar.rasi\
 		   themes/solarized.rasi\
-		   themes/solarized_alternate.rasi
+		   themes/solarized_alternate.rasi\
+		   themes/fancy.rasi
 
 ##
 # Extra DIST

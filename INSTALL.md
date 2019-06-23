@@ -4,6 +4,7 @@ This guide explains how to install rofi using its build system and how you can m
 
 Rofi uses autotools (GNU Build system), for more information see
 [here](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html).
+You can also use [Meson](https://mesonbuild.com/) as an alternative.
 
 ## DEPENDENCY
 
@@ -44,10 +45,18 @@ On debian based systems, the developer packages are in the form of: `<package>-d
 
 ## Install from a release
 
+### Autotools
+
+Create a build directory and enter it:
+
+```
+mkdir build && cd build
+```
+
 Check dependencies and configure build system:
 
 ```
-./configure
+../configure
 ```
 
 Build Rofi:
@@ -64,6 +73,28 @@ make install
 
 The default installation prefix is: `/usr/local/` use `./configure --prefix={prefix}` to install into another location.
 
+### Meson
+
+Check dependencies and configure build system:
+
+```
+meson setup build
+```
+
+Build Rofi:
+
+```
+ninja -C build
+```
+
+The actual install, execute as root (if needed):
+
+```
+ninja -C build install
+```
+
+The default installation prefix is: `/usr/local/` use `meson setup build --prefix={prefix}` to install into another location.
+
 ## Install a checkout from git
 
 The GitHub Pages version of these directions may be out of date.  Please use
@@ -71,72 +102,56 @@ The GitHub Pages version of these directions may be out of date.  Please use
 
 [master-install]: https://github.com/DaveDavenport/rofi/blob/master/INSTALL.md#install-a-checkout-from-git
 
-Make a checkout:
+If you don't have a checkout:
 
 ```
-git clone https://github.com/DaveDavenport/rofi
+git clone --recursive https://github.com/DaveDavenport/rofi
 cd rofi/
 ```
 
-
-Pull in dependencies
+If you already have a checkout:
 
 ```
+cd rofi/
+git pull
 git submodule update --init
 ```
 
-Generate build system:
+For Autotools you have an extra step, to generate build system:
 
 ```
 autoreconf -i
 ```
 
-Create a build directory:
+From this point, use the same steps you use for a release.
 
-```
-mkdir build
-```
-
-Enter build directory:
-
-```
-cd build
-```
-
-Check dependencies and configure build system:
-
-```
-../configure
-```
-
-Build rofi:
-
-```
-make
-```
-
-The actual install, execute as root (if needed):
-
-```
-make install
-```
 
 
 ## Options for configure
 
-When you run the configure step there are several you can configure. (To see the full list type
-`./configure --help` ).
+When you run the configure step there are several options you can configure.
+For Autotools, you can see the full list with `./configure --help`.
+For Meson, before the initial setup, you can see rofi options in `meson_options.txt` and Meson options with `meson setup --help`.
+After the initial setup, use `meson configure build`.
 
 The most useful one to set the installation prefix:
 
 ```
-./configure --prefix=<installation path>
+# Autotools
+../configure --prefix=<installation path>
+
+# Meson
+meson setup build --prefix <installation path>
 ```
 
 f.e.
 
 ```
-./configure --prefix=/usr/
+# Autotools
+../configure --prefix=/usr/
+
+# Meson
+meson setup build --prefix /usr
 ```
 
 ### Install locally
@@ -144,7 +159,11 @@ f.e.
 or to install locally:
 
 ```
-./configure --prefix=${HOME}/.local/
+# Autotools
+../configure --prefix=${HOME}/.local/
+
+# Meson
+meson setup build --prefix ${HOME}/.local
 ```
 
 
@@ -157,7 +176,11 @@ When you run make you can tweak the build process a little.
 Show the commands called:
 
 ```
+# Autotools
 make V=1
+
+# Meson
+ninja -C build -v
 ```
 
 ### Debug build
@@ -165,7 +188,12 @@ make V=1
 Compile with debug symbols and no optimization, this is useful for making backtraces:
 
 ```
+# Autotools
 make CFLAGS="-O0 -g3" clean rofi
+
+# Meson
+meson configure build --debug
+ninja -C build
 ```
 
 ### Get a backtrace
@@ -176,7 +204,11 @@ The best way to go is to enable core file. (ulimit -c unlimited in bash) then ma
 can then load the core in GDB.
 
 ```
+# Autotools
 gdb rofi core
+
+# Meson (because it uses a separate build directory)
+gdb build/rofi core
 ```
 
 > Where the core file is located and what its exact name is different on each distributions. Please consult the
@@ -192,7 +224,7 @@ apt install rofi
 
 #### Ubuntu 16.04 Xenial
 
-**Please note that the latest version of rofi in Ubuntu 16.04 is extremely outdated (v0.15.11)** 
+**Please note that the latest version of rofi in Ubuntu 16.04 is extremely outdated (v0.15.11)**
 
 This will cause issues with newer scripts (i.e. with clerk) and misses important updates and bug-fixes.
 Newer versions of Rofi however requires versions of xcb-util-xrm and libxkbcommon that are not available in the 16.04 repositories.
@@ -229,3 +261,11 @@ echo 'x11-misc/rofi ~x86' >> /etc/portage/package.accept_keywords
 for i386.
 
 To install it, simply issue `emerge rofi`.
+
+### openSUSE
+
+On both openSUSE Leap and openSUSE Tumbleweed rofi can be installed using:
+
+```
+sudo zypper install rofi
+```

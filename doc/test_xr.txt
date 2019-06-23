@@ -48,6 +48,8 @@ rofi.window-command:                 xkill -id {window}
 ! rofi.drun-display-format:            {name} [<span weight='light' size='small'><i>({generic})</i></span>]
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
+! "Programs ignored for history" Set from: Default
+! rofi.ignored-prefixes:               
 ! "Use sorting" Set from: Default
 ! rofi.sort:                           false
 ! "Choose the strategy used for sorting: normal (levenshtein) or fzf." Set from: Default
@@ -96,10 +98,10 @@ rofi.threads:                        8
 ! rofi.scrollbar-width:                8
 ! "Scrolling method. (0: Page, 1: Centered)" Set from: File
 rofi.scroll-method:                  0
-! "Background to use for fake transparency. (background or screenshot)" Set from: Default
+! "Background to use for fake transparency. (background or screenshot) *DEPRECATED*" Set from: Default
 ! rofi.fake-background:                screenshot
-! "Window Format. w (desktop name), t (title), n (name), r (role), c (class) *DEPRECATED*" Set from: Default
-! rofi.window-format:                  {w}    {i}{c}   {t}
+! "Window Format. w (desktop name), t (title), n (name), r (role), c (class)" Set from: Default
+! rofi.window-format:                  {w}    {c}   {t}
 ! "Click outside the window to exit" Set from: Default
 ! rofi.click-to-exit:                  true
 ! "Indicate how it match by underlining it." Set from: Default
@@ -120,6 +122,8 @@ rofi.scroll-method:                  0
 ! rofi.combi-hide-mode-prefix:         false
 ! "Set the character used to negate the matching. ('\0' to disable)" Set from: Default
 ! rofi.matching-negate-char:           -
+! "Directory where history and temporary files are stored." Set from: Default
+! rofi.cache-dir:                      
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/rofi.pid
 ! "Paste primary selection" Set from: File
@@ -186,6 +190,8 @@ rofi.kb-row-last:                    End,KP_End
 rofi.kb-row-select:                  Control+space
 ! "Take a screenshot of the rofi window" Set from: File
 rofi.kb-screenshot:                  Alt+S
+! "Toggle between ellipsize modes for displayed data" Set from: Default
+! rofi.kb-ellipsize:                   Alt+period
 ! "Toggle case sensitivity" Set from: File
 rofi.kb-toggle-case-sensitivity:     grave,dead_grave
 ! "Toggle sort" Set from: File

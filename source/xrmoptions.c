@@ -141,6 +141,8 @@ static XrmOption xrmOptions[] = {
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
     { xrm_Boolean, "disable-history",        { .num  = &config.disable_history                }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
+    { xrm_String,  "ignored-prefixes",       { .str  = &config.ignored_prefixes               }, NULL,
+      "Programs ignored for history", CONFIG_DEFAULT },
     { xrm_Boolean, "sort",                   { .num  = &config.sort                           }, NULL,
       "Use sorting", CONFIG_DEFAULT },
     { xrm_String,  "sorting-method",         { .str  = &config.sorting_method                 }, NULL,
@@ -193,9 +195,9 @@ static XrmOption xrmOptions[] = {
     { xrm_Number,  "scroll-method",          { .num  = &config.scroll_method                  }, NULL,
       "Scrolling method. (0: Page, 1: Centered)", CONFIG_DEFAULT },
     { xrm_String,  "fake-background",        { .str  = &config.fake_background                }, NULL,
-      "Background to use for fake transparency. (background or screenshot)", CONFIG_DEFAULT },
+      "Background to use for fake transparency. (background or screenshot) *DEPRECATED*", CONFIG_DEFAULT },
     { xrm_String,  "window-format",          { .str  = &config.window_format                  }, NULL,
-      "Window Format. w (desktop name), t (title), n (name), r (role), c (class) *DEPRECATED*", CONFIG_DEFAULT },
+      "Window Format. w (desktop name), t (title), n (name), r (role), c (class)", CONFIG_DEFAULT },
     { xrm_Boolean, "click-to-exit",          { .snum = &config.click_to_exit                  }, NULL,
       "Click outside the window to exit", CONFIG_DEFAULT },
     { xrm_Boolean, "show-match",             { .snum = &config.show_match                     }, NULL,
@@ -216,6 +218,8 @@ static XrmOption xrmOptions[] = {
       "Hide the prefix mode prefix on the combi view.", CONFIG_DEFAULT },
     { xrm_Char, "matching-negate-char",     { .charc= &config.matching_negate_char            }, NULL,
       "Set the character used to negate the matching. ('\\0' to disable)", CONFIG_DEFAULT },
+    { xrm_String, "cache-dir",               { .str = &config.cache_dir                       }, NULL,
+      "Directory where history and temporary files are stored.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

@@ -497,16 +497,13 @@ void rofi_view_free ( RofiViewState *state )
     // Do this here?
     // Wait for final release?
     widget_free ( WIDGET ( state->main_window ) );
-    widget_free ( WIDGET ( state->overlay ) );
 
     g_free ( state->line_map );
     g_free ( state->distance );
     // Free the switcher boxes.
     // When state is free'ed we should no longer need these.
-    if ( config.sidebar_mode == TRUE ) {
-        g_free ( state->modi );
-        state->num_modi = 0;
-    }
+    g_free ( state->modi );
+    state->num_modi = 0;
     g_free ( state );
 }
 
@@ -1007,10 +1004,6 @@ void rofi_view_update ( RofiViewState *state, gboolean qr )
     cairo_set_operator ( d, CAIRO_OPERATOR_OVER );
     widget_draw ( WIDGET ( state->main_window ), d );
 
-    if ( state->overlay ) {
-        widget_draw ( WIDGET ( state->overlay ), d );
-    }
-
     TICK_N ( "widgets" );
     cairo_surface_flush ( CacheState.edit_surf );
     if ( qr ) {
@@ -1155,6 +1148,11 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
         break;
     case SCREENSHOT:
         rofi_capture_screenshot ( );
+        break;
+    case CHANGE_ELLIPSIZE:
+        if ( state->list_view ) {
+            listview_toggle_ellipsizing ( state->list_view );
+        }
         break;
     case TOGGLE_SORT:
         if ( state->case_indicator != NULL ) {
@@ -1368,7 +1366,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
     case SCOPE_MOUSE_LISTVIEW_ELEMENT:
     case SCOPE_MOUSE_EDITBOX:
     case SCOPE_MOUSE_SCROLLBAR:
-    case SCOPE_MOUSE_SIDEBAR_MODI:
+    case SCOPE_MOUSE_MODE_SWITCHER:
     {
         gint   x = state->mouse.x, y = state->mouse.y;
         widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), scope, x, y );
@@ -1557,14 +1555,18 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     if ( strcmp ( name, "mainbox" ) == 0 ) {
         wid = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *) parent_widget, WIDGET ( wid ), TRUE );
-        defaults = "inputbar,message,listview,sidebar";
+        if ( config.sidebar_mode ) {
+            defaults = "inputbar,message,listview,mode-switcher";
+        } else {
+            defaults = "inputbar,message,listview";
+        }
     }
     /**
      * INPUTBAR
      */
     else if ( strcmp ( name, "inputbar" ) == 0 ) {
         wid      = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_HORIZONTAL );
-        defaults = "prompt,entry,case-indicator";
+        defaults = "prompt,entry,overlay,case-indicator";
         box_add ( (box *) parent_widget, WIDGET ( wid ), FALSE );
     }
     /**
@@ -1642,26 +1644,29 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         listview_set_max_lines ( state->list_view, state->num_lines );
     }
     /**
-     * SIDEBAR
+     * MODE SWITCHER
      */
-    else if ( strcmp ( name, "sidebar" ) == 0 ) {
+    else if ( strcmp ( name, "mode-switcher" ) == 0 ) {
         if ( state->sidebar_bar != NULL ) {
-            g_error ( "Sidebar widget can only be added once to the layout." );
+            g_error ( "Mode-switcher can only be added once to the layout." );
             return;
         }
-        if ( config.sidebar_mode ) {
-            state->sidebar_bar = box_create ( parent_widget, name, ROFI_ORIENTATION_HORIZONTAL );
-            box_add ( (box *) parent_widget, WIDGET ( state->sidebar_bar ), FALSE );
-            state->num_modi = rofi_get_num_enabled_modi ();
-            state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
-            for ( unsigned int j = 0; j < state->num_modi; j++ ) {
-                const Mode * mode = rofi_get_mode ( j );
-                state->modi[j] = textbox_create ( WIDGET ( state->sidebar_bar ), WIDGET_TYPE_SIDEBAR_MODI, "button", TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
-                                                  mode_get_display_name ( mode  ), 0.5, 0.5 );
-                box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
-                widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );
-            }
+        state->sidebar_bar = box_create ( parent_widget, name, ROFI_ORIENTATION_HORIZONTAL );
+        box_add ( (box *) parent_widget, WIDGET ( state->sidebar_bar ), FALSE );
+        state->num_modi = rofi_get_num_enabled_modi ();
+        state->modi     = g_malloc0 ( state->num_modi * sizeof ( textbox * ) );
+        for ( unsigned int j = 0; j < state->num_modi; j++ ) {
+            const Mode * mode = rofi_get_mode ( j );
+            state->modi[j] = textbox_create ( WIDGET ( state->sidebar_bar ), WIDGET_TYPE_MODE_SWITCHER, "button", TB_AUTOHEIGHT, ( mode == state->sw ) ? HIGHLIGHT : NORMAL,
+                    mode_get_display_name ( mode  ), 0.5, 0.5 );
+            box_add ( state->sidebar_bar, WIDGET ( state->modi[j] ), TRUE );
+            widget_set_trigger_action_handler ( WIDGET ( state->modi[j] ), textbox_sidebar_modi_trigger_action, state );
         }
+    }
+    else if ( g_ascii_strcasecmp ( name, "overlay" ) == 0 ) {
+        state->overlay = textbox_create ( WIDGET ( parent_widget ), WIDGET_TYPE_TEXTBOX_TEXT, "overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat", 0.5, 0 );
+        box_add ( (box *) parent_widget, WIDGET ( state->overlay), FALSE );
+        widget_disable ( WIDGET ( state->overlay ) );
     }
     else if (  g_ascii_strncasecmp ( name, "textbox", 7 ) == 0 ) {
         textbox *t = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0 );
@@ -1725,8 +1730,6 @@ RofiViewState *rofi_view_create ( Mode *sw,
         textbox_cursor_end ( state->text );
     }
 
-    state->overlay = textbox_create ( WIDGET ( state->main_window ), WIDGET_TYPE_TEXTBOX_TEXT, "overlay", TB_AUTOWIDTH | TB_AUTOHEIGHT, URGENT, "blaat", 0.5, 0 );
-    widget_disable ( WIDGET ( state->overlay ) );
 
     // filtered list
     state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
@@ -1896,13 +1899,6 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     }
     widget_enable ( WIDGET ( state->overlay ) );
     textbox_text ( state->overlay, text );
-    int x_offset = widget_get_width ( WIDGET ( state->list_view ) );
-    // Within padding of window.
-    x_offset += widget_get_absolute_xpos ( WIDGET ( state->list_view )  );
-    x_offset -= widget_get_width ( WIDGET ( state->overlay ) );
-    // Within the border of widget.
-    int top_offset = widget_get_absolute_ypos ( WIDGET ( state->list_view ) );
-    widget_move ( WIDGET ( state->overlay ), x_offset, top_offset );
     // We want to queue a repaint.
     rofi_view_queue_redraw ( );
 }
@@ -1922,7 +1918,7 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     if ( state->prompt ) {
         rofi_view_update_prompt ( state );
     }
-    if ( config.sidebar_mode && state->sidebar_bar ) {
+    if ( state->sidebar_bar ) {
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
             textbox_font ( state->modi[j], ( mode == state->sw ) ? HIGHLIGHT : NORMAL );

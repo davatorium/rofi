@@ -362,8 +362,8 @@ static void x11_build_monitor_layout ()
     if ( rversion ) {
         g_debug ( "Found randr version: %d.%d", rversion->major_version, rversion->minor_version );
         // Check if we are 1.5 and up.
-        if ( ( ( rversion->major_version == XCB_RANDR_MAJOR_VERSION ) && ( rversion->minor_version >= XCB_RANDR_MINOR_VERSION ) ) ||
-             ( rversion->major_version > XCB_RANDR_MAJOR_VERSION ) ) {
+        if ( ( ( rversion->major_version == RANDR_PREF_MAJOR_VERSION ) && ( rversion->minor_version >= RANDR_PREF_MINOR_VERSION ) ) ||
+             ( rversion->major_version > RANDR_PREF_MAJOR_VERSION ) ) {
             xcb_randr_get_monitors_cookie_t t       = xcb_randr_get_monitors ( xcb->connection, xcb->screen->root, 1 );
             xcb_randr_get_monitors_reply_t  *mreply = xcb_randr_get_monitors_reply ( xcb->connection, t, NULL );
             if ( mreply ) {
@@ -987,7 +987,11 @@ static int take_pointer ( xcb_window_t w, int iters )
         if ( ( ++i ) > iters ) {
             break;
         }
-        usleep ( 1000 );
+        struct timespec del = {
+             .tv_sec  = 0,
+             .tv_nsec =  1000000
+        };
+        nanosleep ( &del, NULL );
     }
     return 0;
 }
@@ -1014,7 +1018,11 @@ static int take_keyboard ( xcb_window_t w, int iters )
         if ( ( ++i ) > iters ) {
             break;
         }
-        usleep ( 1000 );
+        struct timespec del = {
+             .tv_sec  = 0,
+             .tv_nsec =  1000000
+        };
+        nanosleep ( &del, NULL );
     }
     return 0;
 }
