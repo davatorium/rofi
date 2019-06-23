@@ -1,4 +1,4 @@
-AC_INIT([rofi], [1.5.2-dev], [https://github.com/davatorium/rofi/],[],[https://reddit.com/r/qtools/])
+AC_INIT([rofi], [1.5.3], [https://github.com/davatorium/rofi/],[],[https://reddit.com/r/qtools/])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
