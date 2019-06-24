@@ -301,7 +301,7 @@ static SshEntry *read_hosts_file ( SshEntry * retv, unsigned int *length )
                             if ( !found ) {
                                 // Add this host name to the list.
                                 retv = g_realloc ( retv,
-                                                   ( ( *length ) + 2 ) * sizeof ( char* ) );
+                                                   ( ( *length ) + 2 ) * sizeof ( SshEntry ) );
                                 retv[( *length )].hostname     = g_strdup ( token );
                                 retv[( *length )].port         = 0;
                                 retv[( *length ) + 1].hostname = NULL;
