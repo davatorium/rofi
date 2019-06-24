@@ -224,8 +224,8 @@ typedef struct Property
  */
 typedef struct rofi_range_pair
 {
-    unsigned int start;
-    unsigned int stop;
+    int start;
+    int stop;
 } rofi_range_pair;
 
 /**

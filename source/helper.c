@@ -1150,6 +1150,43 @@ void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length )
         ( *length )++;
     }
 }
+
+static void parse_pair2 ( char  *input, rofi_range_pair  *item )
+{
+    int                index = 0;
+    const char * const sep   = ":";
+    for ( char *token = strsep ( &input, sep ); token != NULL; token = strsep ( &input, sep ) ) {
+        if ( index == 0 ) {
+            item->start = item->stop = (int) strtol ( token, NULL, 10 );
+            index++;
+        }
+        else {
+            if ( token[0] == '\0' ) {
+                item->stop = -1;
+            }
+            else{
+                item->stop = (int) strtol ( token, NULL, 10 );
+            }
+        }
+    }
+}
+void parse_ranges2 ( char *input, rofi_range_pair **list, unsigned int *length )
+{
+    char *endp;
+    if ( input == NULL ) {
+        return;
+    }
+    const char *const sep = ",";
+    for ( char *token = strtok_r ( input, sep, &endp ); token != NULL; token = strtok_r ( NULL, sep, &endp ) ) {
+        // Make space.
+        *list = g_realloc ( ( *list ), ( ( *length ) + 1 ) * sizeof ( struct rofi_range_pair ) );
+        // Parse a single pair.
+        parse_pair2 ( token, &( ( *list )[*length] ) );
+
+        ( *length )++;
+    }
+}
+
 /**
  * @param format The format string used. See below for possible syntax.
  * @param string The selected entry.

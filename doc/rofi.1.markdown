@@ -586,6 +586,24 @@ A range: -u 3-8
 or a set of rows: -u 0,2
 or any combination: -u 0,2-3,9
 
+`-active` *X*
+
+Active row, mark row X as active (starting at 0).
+You can specify single element: -active 3
+Mark last row: -active -1
+A range: -active 3:-2
+or a set of rows: -active 1,0,-1
+or any combination: -active 0,2:3,-9
+
+`-urgent` *X*
+
+Urgent row, mark row X as urgent (starting at 0).
+You can specify single element: -urgent 3
+Mark last row: -urgent -1
+A range: -urgent 3:-2
+or a set of rows: -urgent 1,0,-1
+or any combination: -urgent 0,2:3,-9
+
 `-only-match`
 
 Only return a selected item, do not allow custom entry.

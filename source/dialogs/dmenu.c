@@ -247,12 +247,16 @@ static char *get_display_data ( const Mode *data, unsigned int index, int *state
     DmenuModePrivateData *pd    = (DmenuModePrivateData *) mode_get_private_data ( sw );
     DmenuScriptEntry    *retv = (DmenuScriptEntry *) pd->cmd_list;
     for ( unsigned int i = 0; i < pd->num_active_list; i++ ) {
-        if ( index >= pd->active_list[i].start && index <= pd->active_list[i].stop ) {
+        unsigned int start = pd->active_list[i].start >= 0 ? pd->active_list[i].start : pd->cmd_list_length + pd->active_list[i].start;
+        unsigned int stop  = pd->active_list[i].stop  >= 0 ? pd->active_list[i].stop  : pd->cmd_list_length + pd->active_list[i].stop;
+        if ( index >= start && index <= stop ) {
             *state |= ACTIVE;
         }
     }
     for ( unsigned int i = 0; i < pd->num_urgent_list; i++ ) {
-        if ( index >= pd->urgent_list[i].start && index <= pd->urgent_list[i].stop ) {
+        unsigned int start = pd->urgent_list[i].start >= 0 ? pd->urgent_list[i].start : pd->cmd_list_length + pd->urgent_list[i].start;
+        unsigned int stop  = pd->urgent_list[i].stop  >= 0 ? pd->urgent_list[i].stop  : pd->cmd_list_length + pd->urgent_list[i].stop;
+        if ( index >= start && index <= stop ) {
             *state |= URGENT;
         }
     }
@@ -331,11 +335,25 @@ static int dmenu_mode_init ( Mode *sw )
     if ( str != NULL ) {
         parse_ranges ( str, &( pd->urgent_list ), &( pd->num_urgent_list ) );
     }
+    // -urgent [-]START[:[[-]STOP]][,[-]START[:[[-]STOP]]]...
+    // e.g. rofi -dmenu -urgent -1,3:5,7,-5:-3
+    str = NULL;
+    find_arg_str (  "-urgent", &str );
+    if ( str != NULL ) {
+        parse_ranges2 ( str, &( pd->urgent_list ), &( pd->num_urgent_list ) );
+    }
+
     // Active
     str = NULL;
     find_arg_str (  "-a", &str );
     if ( str != NULL ) {
         parse_ranges ( str, &( pd->active_list ), &( pd->num_active_list ) );
+    }
+    // Active, alt syntax. See -urgent above
+    str = NULL;
+    find_arg_str (  "-active", &str );
+    if ( str != NULL ) {
+        parse_ranges2 ( str, &( pd->active_list ), &( pd->num_active_list ) );
     }
 
     // DMENU COMPATIBILITY

@@ -329,6 +329,8 @@ cairo_surface_t *cairo_image_surface_create_from_svg ( const gchar* file, int he
  */
 void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length );
 
+void parse_ranges2 ( char *input, rofi_range_pair **list, unsigned int *length );
+
 /**
  * @param format
  * @param string

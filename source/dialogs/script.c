@@ -295,12 +295,16 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
 {
     ScriptModePrivateData *pd = sw->private_data;
     for ( unsigned int i = 0; i < pd->num_active_list; i++ ) {
-        if ( selected_line >= pd->active_list[i].start && selected_line <= pd->active_list[i].stop ) {
+        unsigned int start = pd->active_list[i].start >= 0 ? pd->active_list[i].start : pd->cmd_list_length + pd->active_list[i].start;
+        unsigned int stop  = pd->active_list[i].stop  >= 0 ? pd->active_list[i].stop  : pd->cmd_list_length + pd->active_list[i].stop;
+        if ( selected_line >= start && selected_line <= stop ) {
             *state |= ACTIVE;
         }
     }
     for ( unsigned int i = 0; i < pd->num_urgent_list; i++ ) {
-        if ( selected_line >= pd->urgent_list[i].start && selected_line <= pd->urgent_list[i].stop ) {
+        unsigned int start = pd->urgent_list[i].start >= 0 ? pd->urgent_list[i].start : pd->cmd_list_length + pd->urgent_list[i].start;
+        unsigned int stop  = pd->urgent_list[i].stop  >= 0 ? pd->urgent_list[i].stop  : pd->cmd_list_length + pd->urgent_list[i].stop;
+        if ( selected_line >= start && selected_line <= stop ) {
             *state |= URGENT;
         }
     }
