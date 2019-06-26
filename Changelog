@@ -1,4 +1,7 @@
-v1.5.3: (unreleased)
+v1.5.4: Painful tardiness
+	- SSH: Fix wrong malloc size, causing crash.
+
+v1.5.3: Time delayed progress
 	- Update manpage with missing entry. (#937)
 	- Rename sidebar widget to mode-switcher and allow configuration from theme.
 	- Timing: Moving timing output to glib debug system.
