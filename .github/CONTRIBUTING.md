@@ -23,9 +23,9 @@ It is preferred to have feature requests discussed via
 [FORUM](https://reddit.com/r/qtools/) or
 [IRC](https://webchat.freenode.net/?channels=#rofi) first.
 
-# Creating an bug report
+# Creating a bug report
 
-Before creating an bug report:
+Before creating a bug report:
 
 * Update to the latest version. Check if problem still exists.
 * Check existing bug reports, see if it is already reported.
