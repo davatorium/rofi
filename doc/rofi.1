@@ -998,13 +998,29 @@ Makes dmenu searches case\-insensitive
 \fB\-a\fR \fIX\fR
 .
 .P
-Active row, mark row X as active (starting at 0)\. You can specify single element: \-a 3 A range: \-a 3\-8 or a set of rows: \-a 0,2 or any combination: \-a 0,2\-3,9
+Active row, mark \fIX\fR as active. Where \fIX\fR is a comma-separated list of python(1)-style indices and ranges, e.g.
+indices start at \fB0\fR, \fB\-1\fR refers to the last row with \fB\-2\fR preceding it, ranges are left-open and right-close, and so on. You can specify:
+.
+.IP "\(bu" 4
+A single row: \'\fB5\fR\'
+.
+.IP "\(bu" 4
+A range of (last 3) rows: \'\fB\-3:\fR\'
+.
+.IP "\(bu" 4
+4 rows starting from row 7: \'\fB7:11\fR\' (or in legacy notation: \'\fB7\-10\fR\')
+.
+.IP "\(bu" 4
+A set of rows: \'\fB2,0,\-9\fR\'
+.
+.IP "\(bu" 4
+Or any combination: \'\fB\5,-3:,7:11,2,0,\-9\fR\'
 .
 .P
 \fB\-u\fR \fIX\fR
 .
 .P
-Urgent row, mark row X as urgent (starting at 0)\. You can specify single element: \-u 3 A range: \-u 3\-8 or a set of rows: \-u 0,2 or any combination: \-u 0,2\-3,9
+Urgent row, mark \fIX\fR as urgent\. See \fB\-a\fR option\ for details.
 .
 .P
 \fB\-only\-match\fR
