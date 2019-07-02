@@ -1117,20 +1117,29 @@ cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int he
 
 static void parse_pair ( char  *input, rofi_range_pair  *item )
 {
-    int                index = 0;
-    const char * const sep   = "-";
-    for ( char *token = strsep ( &input, sep ); token != NULL; token = strsep ( &input, sep ) ) {
+    // Skip leading blanks.
+    while ( input != NULL && isblank(*input) )
+        ++input;
+
+    const char *sep[] = { "-", ":" };
+    int         pythonic = ( strchr(input, ':') || input[0] == '-' ) ? 1 : 0;
+    int         index = 0;
+
+    for (  char *token = strsep ( &input, sep[pythonic] ); token != NULL; token = strsep ( &input, sep[pythonic] ) ) {
         if ( index == 0 ) {
-            item->start = item->stop = (unsigned int) strtoul ( token, NULL, 10 );
+            item->start = item->stop = (int) strtol ( token, NULL, 10 );
             index++;
+            continue;
         }
-        else {
-            if ( token[0] == '\0' ) {
-                item->stop = 0xFFFFFFFF;
-            }
-            else{
-                item->stop = (unsigned int) strtoul ( token, NULL, 10 );
-            }
+
+        if ( token[0] == '\0' ) {
+            item->stop = -1;
+            continue;
+        }
+
+        item->stop = (int) strtol ( token, NULL, 10 );
+        if ( pythonic ) {
+            --item->stop;
         }
     }
 }

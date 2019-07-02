@@ -572,19 +572,17 @@ Makes dmenu searches case-insensitive
 
 `-a` *X*
 
-Active row, mark row X as active (starting at 0).
-You can specify single element: -a 3
-A range: -a 3-8
-or a set of rows: -a 0,2
-or any combination: -a 0,2-3,9
+Active row, mark *X* as active. Where *X* is a comma-separated list of python(1)-style indices and ranges, e.g.  indices start at 0, -1 refers to the last row with -2 preceding it, ranges are left-open and right-close, and so on. You can specify:
+
+  * A single row: '5'
+  * A range of (last 3) rows: '-3:'
+  * 4 rows starting from row 7: '7:11' (or in legacy notation: '7-10')
+  * A set of rows: '2,0,-9'
+  * Or any combination: '5,-3:,7:11,2,0,-9'
 
 `-u` *X*
 
-Urgent row, mark row X as urgent (starting at 0).
-You can specify single element: -u 3
-A range: -u 3-8
-or a set of rows: -u 0,2
-or any combination: -u 0,2-3,9
+Urgent row, mark *X* as urgent. See `-a` option for details.
 
 `-only-match`
 

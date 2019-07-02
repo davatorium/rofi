@@ -247,12 +247,16 @@ static char *get_display_data ( const Mode *data, unsigned int index, int *state
     DmenuModePrivateData *pd    = (DmenuModePrivateData *) mode_get_private_data ( sw );
     DmenuScriptEntry    *retv = (DmenuScriptEntry *) pd->cmd_list;
     for ( unsigned int i = 0; i < pd->num_active_list; i++ ) {
-        if ( index >= pd->active_list[i].start && index <= pd->active_list[i].stop ) {
+        unsigned int start = pd->active_list[i].start >= 0 ? pd->active_list[i].start : pd->cmd_list_length + pd->active_list[i].start;
+        unsigned int stop  = pd->active_list[i].stop  >= 0 ? pd->active_list[i].stop  : pd->cmd_list_length + pd->active_list[i].stop;
+        if ( index >= start && index <= stop ) {
             *state |= ACTIVE;
         }
     }
     for ( unsigned int i = 0; i < pd->num_urgent_list; i++ ) {
-        if ( index >= pd->urgent_list[i].start && index <= pd->urgent_list[i].stop ) {
+        unsigned int start = pd->urgent_list[i].start >= 0 ? pd->urgent_list[i].start : pd->cmd_list_length + pd->urgent_list[i].start;
+        unsigned int stop  = pd->urgent_list[i].stop  >= 0 ? pd->urgent_list[i].stop  : pd->cmd_list_length + pd->urgent_list[i].stop;
+        if ( index >= start && index <= stop ) {
             *state |= URGENT;
         }
     }
