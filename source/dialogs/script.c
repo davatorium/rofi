@@ -291,19 +291,26 @@ static void script_mode_destroy ( Mode *sw )
         sw->private_data = NULL;
     }
 }
+inline unsigned int get_index ( unsigned int length, int index )
+{
+    if ( index >= 0 ) return index;
+    if ( ((unsigned int)-index) <= length ) return (length+index);
+    // Out of range.
+    return UINT_MAX;
+}
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **list, int get_entry )
 {
     ScriptModePrivateData *pd = sw->private_data;
     for ( unsigned int i = 0; i < pd->num_active_list; i++ ) {
-        unsigned int start = pd->active_list[i].start >= 0 ? pd->active_list[i].start : pd->cmd_list_length + pd->active_list[i].start;
-        unsigned int stop  = pd->active_list[i].stop  >= 0 ? pd->active_list[i].stop  : pd->cmd_list_length + pd->active_list[i].stop;
+        unsigned int start = get_index ( pd->cmd_list_length, pd->active_list[i].start );
+        unsigned int stop  = get_index ( pd->cmd_list_length, pd->active_list[i].stop );
         if ( selected_line >= start && selected_line <= stop ) {
             *state |= ACTIVE;
         }
     }
     for ( unsigned int i = 0; i < pd->num_urgent_list; i++ ) {
-        unsigned int start = pd->urgent_list[i].start >= 0 ? pd->urgent_list[i].start : pd->cmd_list_length + pd->urgent_list[i].start;
-        unsigned int stop  = pd->urgent_list[i].stop  >= 0 ? pd->urgent_list[i].stop  : pd->cmd_list_length + pd->urgent_list[i].stop;
+        unsigned int start = get_index ( pd->cmd_list_length, pd->urgent_list[i].start );
+        unsigned int stop  = get_index ( pd->cmd_list_length, pd->urgent_list[i].stop );
         if ( selected_line >= start && selected_line <= stop ) {
             *state |= URGENT;
         }
