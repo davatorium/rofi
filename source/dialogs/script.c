@@ -291,7 +291,7 @@ static void script_mode_destroy ( Mode *sw )
         sw->private_data = NULL;
     }
 }
-inline unsigned int get_index ( unsigned int length, int index )
+static inline unsigned int get_index ( unsigned int length, int index )
 {
     if ( index >= 0 ) return index;
     if ( ((unsigned int)-index) <= length ) return (length+index);

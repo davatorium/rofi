@@ -241,7 +241,7 @@ static gchar * dmenu_format_output_string ( const DmenuModePrivateData *pd, cons
     return retv ? retv : g_strdup ( "" );
 }
 
-inline unsigned int get_index ( unsigned int length, int index )
+static inline unsigned int get_index ( unsigned int length, int index )
 {
     if ( index >= 0 ) return index;
     if ( ((unsigned int)-index) <= length ) return (length+index);
