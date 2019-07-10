@@ -224,6 +224,7 @@ Current the following methods are supported.
 * **regex**: match a regex input
 * **glob**: match a glob pattern
 * **fuzzy**: do a fuzzy match
+* **all_kb_layouts**: normal with non-sensitivity to keyboard layout
 
    Default: *normal*
 
