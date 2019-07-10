@@ -391,6 +391,86 @@ START_TEST ( test_tokenizer_match_regex_single_two_word_till_end )
 }
 END_TEST
 
+START_TEST ( test_tokenizer_match_all_lt_single_ci )
+{
+    config.matching_method = MM_ALL_KB_LAYOUTS;
+    rofi_int_matcher **tokens = helper_tokenize ( "noot", FALSE );
+
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nootap mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap Noot mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "Nooaap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "noOTap mies") , TRUE );
+
+    helper_tokenize_free ( tokens );
+}
+END_TEST
+
+START_TEST ( test_tokenizer_match_all_lt_single_cs )
+{
+    config.matching_method = MM_ALL_KB_LAYOUTS;
+    rofi_int_matcher **tokens = helper_tokenize ( "noot", TRUE );
+
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nootap mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap Noot mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "Nooaap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "noOTap mies") , FALSE );
+    helper_tokenize_free ( tokens );
+}
+END_TEST
+
+START_TEST ( test_tokenizer_match_all_lt_multiple_ci )
+{
+    config.matching_method = MM_ALL_KB_LAYOUTS;
+    rofi_int_matcher **tokens = helper_tokenize ( "no ot", FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nootap mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "noap miesot") , TRUE );
+    helper_tokenize_free ( tokens );
+
+    tokens = helper_tokenize ( "n ot", FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nootap mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "noap miesot") , TRUE);
+    helper_tokenize_free ( tokens );
+}
+END_TEST
+
+START_TEST ( test_tokenizer_match_all_lt_single_ci_split )
+{
+    config.matching_method = MM_ALL_KB_LAYOUTS;
+    rofi_int_matcher **tokens = helper_tokenize ( "ont", FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , FALSE);
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nootap nmiest") , FALSE );
+    helper_tokenize_free ( tokens );
+}
+END_TEST
+
+START_TEST ( test_tokenizer_match_all_lt_multiple_ci_split )
+{
+    config.matching_method = MM_ALL_KB_LAYOUTS;
+    rofi_int_matcher **tokens = helper_tokenize ( "o n t", FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap noot mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "aap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nooaap mies") , FALSE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "nootap mies") , TRUE );
+    ck_assert_int_eq ( helper_token_match ( tokens, "noap miesot") , TRUE);
+    ck_assert_int_eq ( helper_token_match ( tokens, "ot nap mies") , TRUE);
+    helper_tokenize_free ( tokens );
+}
+END_TEST
+
 static Suite * helper_tokenizer_suite (void)
 {
     Suite *s;
@@ -441,6 +521,15 @@ static Suite * helper_tokenizer_suite (void)
         tcase_add_test(tc_regex, test_tokenizer_match_regex_single_two_word_till_end);
         tcase_add_test(tc_regex, test_tokenizer_match_regex_multiple_ci);
         suite_add_tcase(s, tc_regex);
+    }
+    {
+        TCase *tc_all_layaut = tcase_create ("AllLayout");
+        tcase_add_test(tc_all_layaut, test_tokenizer_match_all_lt_single_ci);
+        tcase_add_test(tc_all_layaut, test_tokenizer_match_all_lt_single_cs);
+        tcase_add_test(tc_all_layaut, test_tokenizer_match_all_lt_single_ci_split);
+        tcase_add_test(tc_all_layaut, test_tokenizer_match_all_lt_multiple_ci);
+        tcase_add_test(tc_all_layaut, test_tokenizer_match_all_lt_multiple_ci_split);
+        suite_add_tcase(s, tc_all_layaut);
     }
 
 

@@ -884,7 +884,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         for ( gint32 by = 0; by < 31; ++by ) {
             for ( gint8 bi = 0; bi < 7; ++bi ) {
                 if ( kne->keys[by] & ( 1 << bi ) ) {
-                    // X11 keycodes starts at 8
+                    // X11 keycodes starts at 8
                     nk_bindings_seat_handle_key ( xcb->bindings_seat, NULL, ( 8 * by + bi ) + 8, NK_BINDINGS_KEY_STATE_PRESSED );
                 }
             }
@@ -1178,6 +1178,9 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
         g_warning ( "Failed to get Keymap for current keyboard device." );
         return FALSE;
     }
+
+    kbl_charmap_load_from_keymap(keymap);
+
     struct xkb_state *state = xkb_x11_state_new_from_device ( keymap, xcb->connection, xcb->xkb.device_id );
     if ( state == NULL ) {
         g_warning ( "Failed to get state object for current keyboard device." );
@@ -1357,6 +1360,7 @@ void display_cleanup ( void )
     xcb->connection = NULL;
     xcb->screen     = NULL;
     xcb->screen_nbr = 0;
+    kbl_charmap_cleanup ();
 }
 
 void x11_disable_decoration ( xcb_window_t window )
@@ -1383,3 +1387,4 @@ void x11_disable_decoration ( xcb_window_t window )
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
 }
+
