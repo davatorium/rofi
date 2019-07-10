@@ -37,10 +37,10 @@
  */
 typedef enum
 {
-    MM_NORMAL = 0,
-    MM_REGEX  = 1,
-    MM_GLOB   = 2,
-    MM_FUZZY  = 3,
+    MM_NORMAL         = 0,
+    MM_REGEX          = 1,
+    MM_GLOB           = 2,
+    MM_FUZZY          = 3,
     MM_ALL_KB_LAYOUTS = 4
 } MatchingMethod;
 

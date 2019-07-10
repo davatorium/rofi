@@ -127,7 +127,8 @@ SOURCES=\
 	include/dialogs/help-keys.h\
 	include/dialogs/dmenuscriptshared.h\
 	resources/resources.c\
-	resources/resources.h
+	resources/resources.h\
+	source/keyb-layout.c
 
 rofi_SOURCES=\
 			 lexer/theme-parser.y\
@@ -349,7 +350,8 @@ helper_pidfile_SOURCES=\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
-					   test/helper-pidfile.c
+					   test/helper-pidfile.c\
+					   source/keyb-layout.c
 
 widget_test_LDADD=$(textbox_test_LDADD)
 widget_test_CFLAGS=$(textbox_test_CFLAGS)
@@ -364,7 +366,8 @@ widget_test_SOURCES=\
 			config/config.c\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
-			test/widget-test.c
+			test/widget-test.c\
+			source/keyb-layout.c
 
 box_test_LDADD=$(textbox_test_LDADD)
 box_test_CFLAGS=$(textbox_test_CFLAGS)
@@ -418,7 +421,8 @@ textbox_test_SOURCES=\
 	include/xrmoptions.h\
 	include/helper.h\
 	include/helper-theme.h\
-	test/textbox-test.c
+	test/textbox-test.c\
+	source/keyb-layout.c
 
 if USE_CHECK
 theme_parser_test_CFLAGS=${helper_test_CFLAGS} $(check_CFLAGS)
@@ -442,7 +446,8 @@ theme_parser_test_SOURCES=\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	source/css-colors.c\
-	test/theme-parser-test.c
+	test/theme-parser-test.c\
+	source/keyb-layout.c
 endif
 
 helper_test_SOURCES=\
@@ -457,7 +462,8 @@ helper_test_SOURCES=\
 	source/xrmoptions.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
-	test/helper-test.c
+	test/helper-test.c\
+	source/keyb-layout.c
 
 
 helper_test_CFLAGS=\
@@ -499,7 +505,8 @@ helper_expand_SOURCES=\
 	source/xrmoptions.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
-	test/helper-expand.c
+	test/helper-expand.c\
+	source/keyb-layout.c
 
 helper_expand_CFLAGS=${helper_test_CFLAGS}
 
@@ -520,7 +527,8 @@ helper_config_cmdline_parser_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
-	test/helper-config-cmdline-parser.c
+	test/helper-config-cmdline-parser.c\
+	source/keyb-layout.c
 
 
 if USE_CHECK
@@ -537,7 +545,8 @@ mode_test_SOURCES=\
 				  source/xrmoptions.c\
 				  source/keyb.c\
 				  include/mode.h\
-				  include/mode-private.h
+				  include/mode-private.h\
+				  source/keyb-layout.c
 helper_tokenize_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
 helper_tokenize_LDADD=$(textbox_test_LDADD) $(check_LIBS)
 helper_tokenize_SOURCES=\
@@ -552,7 +561,8 @@ helper_tokenize_SOURCES=\
 					   include/helper-theme.h\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
-					   test/helper-tokenize.c
+					   test/helper-tokenize.c\
+					   source/keyb-layout.c
 
 endif
 

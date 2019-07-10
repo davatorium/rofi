@@ -80,7 +80,6 @@ void cmd_set_arguments ( int argc, char **argv )
     stored_argv = argv;
 }
 
-
 int helper_parse_setup ( char * string, char ***output, int *length, ... )
 {
     GError     *error = NULL;
@@ -187,9 +186,9 @@ static gchar *all_kb_layouts_to_regex ( const char * input )
     gchar   *iter;
     for ( iter = input; iter && *iter != '\0'; iter = g_utf8_next_char ( iter ) ) {
         gchar *kblchs = kbl_charmap_for_char ( iter );
-        gchar *r = g_regex_escape_string ( kblchs, -1 );
+        gchar *r      = g_regex_escape_string ( kblchs, -1 );
 
-        g_string_append_printf( str, "[%s]",  r);
+        g_string_append_printf ( str, "[%s]", r );
         g_free ( kblchs );
         g_free ( r );
     }
@@ -198,7 +197,6 @@ static gchar *all_kb_layouts_to_regex ( const char * input )
     g_string_free ( str, FALSE );
     return retv;
 }
-
 
 // Macro for quickly generating regex for matching.
 static inline GRegex * R ( const char *s, int case_sensitive  )
@@ -1145,12 +1143,13 @@ cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int he
 static void parse_pair ( char  *input, rofi_range_pair  *item )
 {
     // Skip leading blanks.
-    while ( input != NULL && isblank(*input) )
+    while ( input != NULL && isblank ( *input ) ) {
         ++input;
+    }
 
-    const char *sep[] = { "-", ":" };
-    int         pythonic = ( strchr(input, ':') || input[0] == '-' ) ? 1 : 0;
-    int         index = 0;
+    const char *sep[]   = { "-", ":" };
+    int        pythonic = ( strchr ( input, ':' ) || input[0] == '-' ) ? 1 : 0;
+    int        index    = 0;
 
     for (  char *token = strsep ( &input, sep[pythonic] ); token != NULL; token = strsep ( &input, sep[pythonic] ) ) {
         if ( index == 0 ) {
@@ -1218,12 +1217,13 @@ void rofi_output_formatted_line ( const char *format, const char *string, int se
         }
         else if ( format[i] == 'p' ) {
             char *esc = NULL;
-            pango_parse_markup(string, -1, 0, NULL, &esc, NULL, NULL);
-            if ( esc ){
+            pango_parse_markup ( string, -1, 0, NULL, &esc, NULL, NULL );
+            if ( esc ) {
                 fputs ( esc, stdout );
                 g_free ( esc );
-            } else {
-                fputs ( "invalid string" , stdout );
+            }
+            else {
+                fputs ( "invalid string", stdout );
             }
         }
         else if ( format[i] == 'q' ) {
@@ -1251,15 +1251,14 @@ void rofi_output_formatted_line ( const char *format, const char *string, int se
     fflush ( stdout );
 }
 
-
 static gboolean helper_eval_cb2 ( const GMatchInfo *info, GString *res, gpointer data )
 {
     gchar *match;
     // Get the match
-    int num_match = g_match_info_get_match_count(info);
+    int   num_match = g_match_info_get_match_count ( info );
     // Just {text} This is inside () 5.
     if ( num_match == 5 ) {
-        match = g_match_info_fetch ( info, 4);
+        match = g_match_info_fetch ( info, 4 );
         if ( match != NULL ) {
             // Lookup the match, so we can replace it.
             gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
@@ -1273,21 +1272,21 @@ static gboolean helper_eval_cb2 ( const GMatchInfo *info, GString *res, gpointer
     }
     // {} with [] guard around it.
     else if ( num_match == 4 ) {
-        match = g_match_info_fetch ( info, 2);
+        match = g_match_info_fetch ( info, 2 );
         if ( match != NULL ) {
             // Lookup the match, so we can replace it.
             gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
             if ( r != NULL ) {
                 // Add (optional) prefix
-                gchar *prefix = g_match_info_fetch (info, 1);
+                gchar *prefix = g_match_info_fetch ( info, 1 );
                 g_string_append ( res, prefix );
-                g_free (prefix );
+                g_free ( prefix );
                 // Append the replacement to the string.
                 g_string_append ( res, r );
                 // Add (optional) postfix
-                gchar *post = g_match_info_fetch (info, 3);
+                gchar *post = g_match_info_fetch ( info, 3 );
                 g_string_append ( res, post );
-                g_free (post );
+                g_free ( post );
             }
             // Free match.
             g_free ( match );
@@ -1302,7 +1301,7 @@ char *helper_string_replace_if_exists ( char * string, ... )
 {
     GHashTable *h;
     h = g_hash_table_new ( g_str_hash, g_str_equal );
-    va_list ap;
+    va_list    ap;
     va_start ( ap, string );
     // Add list from variable arguments.
     while ( 1 ) {
@@ -1334,12 +1333,12 @@ char *helper_string_replace_if_exists ( char * string, ... )
  */
 char *helper_string_replace_if_exists_v ( char * string, GHashTable *h )
 {
-    GError  *error = NULL;
-    char    *res   = NULL;
+    GError *error = NULL;
+    char   *res   = NULL;
 
     // Replace hits within {-\w+}.
     GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", 0, 0, &error );
-    if ( error == NULL ){
+    if ( error == NULL ) {
         res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb2, h, &error );
     }
     // Free regex.

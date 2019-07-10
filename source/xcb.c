@@ -988,8 +988,8 @@ static int take_pointer ( xcb_window_t w, int iters )
             break;
         }
         struct timespec del = {
-             .tv_sec  = 0,
-             .tv_nsec =  1000000
+            .tv_sec  = 0,
+            .tv_nsec = 1000000
         };
         nanosleep ( &del, NULL );
     }
@@ -1019,8 +1019,8 @@ static int take_keyboard ( xcb_window_t w, int iters )
             break;
         }
         struct timespec del = {
-             .tv_sec  = 0,
-             .tv_nsec =  1000000
+            .tv_sec  = 0,
+            .tv_nsec = 1000000
         };
         nanosleep ( &del, NULL );
     }
@@ -1179,7 +1179,11 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
         return FALSE;
     }
 
-    kbl_charmap_load_from_keymap(keymap);
+    char *matching_str;
+    find_arg_str (  "-matching", &matching_str );
+    if ( g_strcmp0 ( matching_str, "all_kb_layouts" ) == 0 ) {
+        kbl_charmap_load_from_keymap ( keymap );
+    }
 
     struct xkb_state *state = xkb_x11_state_new_from_device ( keymap, xcb->connection, xcb->xkb.device_id );
     if ( state == NULL ) {
@@ -1387,4 +1391,3 @@ void x11_disable_decoration ( xcb_window_t window )
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
 }
-
