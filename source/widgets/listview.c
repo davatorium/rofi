@@ -163,7 +163,7 @@ static void listview_create_row ( listview *lv, _listview_row *row )
 {
     TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
     row->box  = box_create ( WIDGET ( lv ), "element",ROFI_ORIENTATION_HORIZONTAL );
-    GList *list = rofi_theme_get_list ( WIDGET(row->box), "children", "element-icon,element-textbox");
+    GList *list = rofi_theme_get_list ( WIDGET(row->box), "children", "element-icon,element-text");
 
     row->textbox = NULL;
     row->icon    = NULL;
