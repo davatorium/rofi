@@ -29,8 +29,10 @@
 #include <glib.h>
 #include <widgets/widget.h>
 #include <widgets/textbox.h>
-#include <widgets/listview.h>
 #include <widgets/scrollbar.h>
+#include <widgets/icon.h>
+#include <widgets/box.h>
+#include <widgets/listview.h>
 
 #include "settings.h"
 #include "theme.h"
@@ -57,6 +59,12 @@ typedef enum
     LEFT_TO_RIGHT = 0,
     RIGHT_TO_LEFT = 1
 } MoveDirection;
+
+typedef struct {
+   box *box;
+   textbox *textbox;
+   icon  *icon;
+} _listview_row;
 
 struct _listview
 {
@@ -95,7 +103,7 @@ struct _listview
 
     ScrollType                  scroll_type;
 
-    textbox                     **boxes;
+    _listview_row               * boxes;
     scrollbar                   *scrollbar;
 
     listview_update_callback    callback;
@@ -119,13 +127,70 @@ struct _listview
     } barview;
 };
 
+const char *const listview_theme_prop_names[][3] = {
+    /** Normal row */
+    { "normal.normal", "selected.normal", "alternate.normal" },
+    /** Urgent row */
+    { "normal.urgent", "selected.urgent", "alternate.urgent" },
+    /** Active row */
+    { "normal.active", "selected.active", "alternate.active" },
+};
+
+static void listview_set_style ( widget *w, TextBoxFontType tbft )
+{
+    TextBoxFontType t = tbft & STATE_MASK;
+    if ( w == NULL ) {
+        return;
+    }
+    // ACTIVE has priority over URGENT if both set.
+    if ( t == ( URGENT | ACTIVE ) ) {
+        t = ACTIVE;
+    }
+    switch ( ( tbft & FMOD_MASK ) )
+    {
+    case HIGHLIGHT:
+        widget_set_state ( w, listview_theme_prop_names[t][1] );
+        break;
+    case ALT:
+        widget_set_state ( w, listview_theme_prop_names[t][2] );
+        break;
+    default:
+        widget_set_state ( w, listview_theme_prop_names[t][0] );
+        break;
+    }
+}
+static void listview_create_row ( listview *lv, _listview_row *row )
+{
+    TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
+    row->box  = box_create ( WIDGET ( lv ), "element",ROFI_ORIENTATION_HORIZONTAL );
+    GList *list = rofi_theme_get_list ( WIDGET(row->box), "children", "element-icon,element-textbox");
+    for ( GList *iter = g_list_first(list); iter != NULL;iter = g_list_next(iter)){
+        if ( strcasecmp((char *)iter->data, "element-icon") == 0 ) {
+            row->icon = icon_create ( WIDGET ( row->box ), "element-icon" ); 
+            box_add ( row->box, WIDGET ( row->icon ), FALSE);
+        } else if ( strcasecmp ((char *)iter->data, "element-text") == 0 ){
+            row->textbox= textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_LISTVIEW_ELEMENT, "element-text", TB_AUTOHEIGHT|flags, NORMAL, "DDD", 0, 0 );
+            box_add ( row->box, WIDGET ( row->textbox ), TRUE);
+        }
+    }
+    g_list_free_full ( list, g_free );
+}
+
+
+static void listview_set_state ( _listview_row r, TextBoxFontType type )
+{
+    listview_set_style ( WIDGET(r.box), type);
+    listview_set_style ( WIDGET(r.textbox), type);
+    listview_set_style ( WIDGET(r.icon), type);
+    widget_queue_redraw ( WIDGET( r.box  ) );
+}
 static int listview_get_desired_height ( widget *wid );
 
 static void listview_free ( widget *wid )
 {
     listview *lv = (listview *) wid;
     for ( unsigned int i = 0; i < lv->cur_elements; i++ ) {
-        widget_free ( WIDGET ( lv->boxes [i] ) );
+        widget_free ( WIDGET ( lv->boxes [i].box ) );
     }
     g_free ( lv->boxes );
 
@@ -200,7 +265,8 @@ static void update_element ( listview *lv, unsigned int tb, unsigned int index, 
     type = ( index ) == lv->selected ? HIGHLIGHT : type;
 
     if ( lv->callback ) {
-        lv->callback ( lv->boxes[tb], index, lv->udata, type, full );
+        lv->callback ( lv->boxes[tb].textbox, lv->boxes[tb].icon, index, lv->udata, &type, full );
+        listview_set_state ( lv->boxes[tb], type);
     }
 }
 
@@ -226,16 +292,18 @@ static void barview_draw ( widget *wid, cairo_t *draw )
             if ( lv->barview.direction == LEFT_TO_RIGHT ) {
                 for ( unsigned int i = 0; i < max && width > 0; i++ ) {
                     update_element ( lv, i, i + offset, TRUE );
-                    int twidth = textbox_get_desired_width ( WIDGET ( lv->boxes[i] ) );
+                    int twidth = textbox_get_desired_width ( WIDGET ( lv->boxes[i].textbox ) );
                     if ( twidth >= width ) {
                         if ( !first ) {
                             break;
                         }
                         twidth = width;
                     }
-                    textbox_moveresize ( lv->boxes[i], left_offset, top_offset, twidth, lv->element_height );
+                    //textbox_moveresize ( lv->boxes[i].textbox, left_offset, top_offset, twidth, lv->element_height );
+                    widget_move ( WIDGET(lv->boxes[i].box), left_offset, top_offset);
+                    widget_resize ( WIDGET (lv->boxes[i].box), twidth, lv->element_height);
 
-                    widget_draw ( WIDGET ( lv->boxes[i] ), draw );
+                    widget_draw ( WIDGET ( lv->boxes[i].box ), draw );
                     width       -= twidth + spacing_hori;
                     left_offset += twidth + spacing_hori;
                     first        = FALSE;
@@ -245,7 +313,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
             else {
                 for ( unsigned int i = 0; i < lv->cur_elements && width > 0 && i <= offset; i++ ) {
                     update_element ( lv, i, offset - i, TRUE );
-                    int twidth = textbox_get_desired_width ( WIDGET ( lv->boxes[i] ) );
+                    int twidth = textbox_get_desired_width ( WIDGET ( lv->boxes[i].textbox ) );
                     if ( twidth >= width ) {
                         if ( !first ) {
                             break;
@@ -253,9 +321,11 @@ static void barview_draw ( widget *wid, cairo_t *draw )
                         twidth = width;
                     }
                     right_offset -= twidth;
-                    textbox_moveresize ( lv->boxes[i], right_offset, top_offset, twidth, lv->element_height );
+                    //textbox_moveresize ( lv->boxes[i].textbox, right_offset, top_offset, twidth, lv->element_height );
+                    widget_move ( WIDGET(lv->boxes[i].box), left_offset, top_offset);
+                    widget_resize ( WIDGET (lv->boxes[i].box), twidth, lv->element_height);
 
-                    widget_draw ( WIDGET ( lv->boxes[i] ), draw );
+                    widget_draw ( WIDGET ( lv->boxes[i].box ), draw );
                     width        -= twidth + spacing_hori;
                     right_offset -= spacing_hori;
                     first         = FALSE;
@@ -264,7 +334,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
                 offset         -= lv->barview.cur_visible - 1;
                 lv->last_offset = offset;
                 for  ( unsigned int i = 0; i < ( lv->barview.cur_visible / 2 ); i++ ) {
-                    void * temp = lv->boxes[i];
+                    _listview_row  temp = lv->boxes[i];
                     int  sw     = lv->barview.cur_visible - i - 1;
                     lv->boxes[i]  = lv->boxes[sw];
                     lv->boxes[sw] = temp;
@@ -275,7 +345,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
         else {
             for ( unsigned int i = 0; i < lv->barview.cur_visible; i++ ) {
                 update_element ( lv, i, i + offset, FALSE );
-                widget_draw ( WIDGET ( lv->boxes[i] ), draw );
+                widget_draw ( WIDGET ( lv->boxes[i].box ), draw );
             }
         }
     }
@@ -326,22 +396,26 @@ static void listview_draw ( widget *wid, cairo_t *draw )
                 unsigned int ex = left_offset + ( ( i ) / lv->max_rows ) * ( element_width + spacing_hori );
                 if ( lv->reverse ) {
                     unsigned int ey = wid->h - ( widget_padding_get_bottom ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert ) ) - lv->element_height;
-                    textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
+                    //textbox_moveresize ( lv->boxes[i].textbox, ex, ey, element_width, lv->element_height );
+                    widget_move ( WIDGET(lv->boxes[i].box), ex, ey);
+                    widget_resize ( WIDGET (lv->boxes[i].box), element_width, lv->element_height);
                 }
                 else {
                     unsigned int ey = top_offset + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert );
-                    textbox_moveresize ( lv->boxes[i], ex, ey, element_width, lv->element_height );
+                    //textbox_moveresize ( lv->boxes[i].textbox, ex, ey, element_width, lv->element_height );
+                    widget_move ( WIDGET(lv->boxes[i].box), ex, ey);
+                    widget_resize ( WIDGET (lv->boxes[i].box), element_width, lv->element_height);
                 }
 
                 update_element ( lv, i, i + offset, TRUE );
-                widget_draw ( WIDGET ( lv->boxes[i] ), draw );
+                widget_draw ( WIDGET ( lv->boxes[i].box ), draw );
             }
             lv->rchanged = FALSE;
         }
         else {
             for ( unsigned int i = 0; i < max; i++ ) {
                 update_element ( lv, i, i + offset, FALSE );
-                widget_draw ( WIDGET ( lv->boxes[i] ), draw );
+                widget_draw ( WIDGET ( lv->boxes[i].box ), draw );
             }
         }
     }
@@ -359,6 +433,9 @@ static void _listview_draw ( widget *wid, cairo_t *draw )
         barview_draw ( wid, draw );
     }
 }
+/**
+ * State names used for theming.
+ */
 static void listview_recompute_elements ( listview *lv )
 {
     unsigned int newne = 0;
@@ -374,15 +451,25 @@ static void listview_recompute_elements ( listview *lv )
         lv->cur_columns = lv->menu_columns;
     }
     for ( unsigned int i = newne; i < lv->cur_elements; i++ ) {
-        widget_free ( WIDGET ( lv->boxes[i] ) );
+        widget_free ( WIDGET ( lv->boxes[i].box ) );
     }
-    lv->boxes = g_realloc ( lv->boxes, newne * sizeof ( textbox* ) );
+    lv->boxes = g_realloc ( lv->boxes, newne * sizeof ( _listview_row ) );
     if ( newne > 0   ) {
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
-            TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
-            flags       |= ( ( config.show_icons ) ? TB_ICON : 0 );
-            lv->boxes[i] = textbox_create ( WIDGET ( lv ), WIDGET_TYPE_LISTVIEW_ELEMENT, "element", flags, NORMAL, "", 0, 0 );
-            widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i] ), listview_element_trigger_action, lv );
+            listview_create_row ( lv, &(lv->boxes[i]) );
+#if 0
+            lv->boxes[i].box = box_create ( WIDGET (lv), "element",ROFI_ORIENTATION_HORIZONTAL );
+            if ( config.show_icons ) {
+                lv->boxes[i].icon = icon_create ( WIDGET (lv->boxes[i].box), "element-icon" ); 
+                box_add ( lv->boxes[i].box, WIDGET ( lv->boxes[i].icon), FALSE);
+            } else {
+                lv->boxes[i].icon = NULL;
+            }
+            lv->boxes[i].textbox = textbox_create ( WIDGET ( lv->boxes[i].box ), WIDGET_TYPE_LISTVIEW_ELEMENT, "element-text", flags, NORMAL, "", 0, 0 );
+            box_add ( lv->boxes[i].box, WIDGET ( lv->boxes[i].textbox ), TRUE);
+#endif
+            widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i].textbox ), listview_element_trigger_action, lv );
+            listview_set_state ( lv->boxes[i], NORMAL);
         }
     }
     lv->rchanged     = TRUE;
@@ -461,7 +548,7 @@ static widget *listview_find_mouse_target ( widget *wid, WidgetType type, gint x
     unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
     unsigned int i;
     for ( i = 0; i < max && target == NULL; i++ ) {
-        widget *w = WIDGET ( lv->boxes[i] );
+        widget *w = WIDGET ( lv->boxes[i].textbox );
         if ( widget_intersect ( w, x, y ) ) {
             rx     = x - widget_get_x_pos ( w );
             ry     = y - widget_get_y_pos ( w );
@@ -498,7 +585,7 @@ static WidgetTriggerActionResult listview_element_trigger_action ( widget *wid, 
     listview     *lv = (listview *) user_data;
     unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
     unsigned int i;
-    for ( i = 0; i < max && WIDGET ( lv->boxes[i] ) != wid; i++ ) {
+    for ( i = 0; i < max && WIDGET ( lv->boxes[i].textbox ) != wid; i++ ) {
     }
     if ( i == max ) {
         return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
@@ -538,9 +625,10 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
     lv->scrollbar = scrollbar_create ( WIDGET ( lv ), "scrollbar" );
     // Calculate height of an element.
     //
-    textbox *tb = textbox_create ( WIDGET ( lv ), WIDGET_TYPE_LISTVIEW_ELEMENT, "element", 0, NORMAL, "", 0, 0 );
-    lv->element_height = textbox_get_estimated_height ( tb, lv->eh );
-    widget_free ( WIDGET ( tb ) );
+    _listview_row row;
+    listview_create_row ( lv, &row);
+    lv->element_height = widget_get_desired_height ( WIDGET(row.box) );
+    widget_free ( WIDGET ( row.box ) );
 
     lv->callback = cb;
     lv->udata    = udata;
@@ -847,7 +935,7 @@ void listview_toggle_ellipsizing ( listview *lv )
         }
         lv->emode = mode;
         for ( unsigned int i = 0; i < lv->cur_elements; i++ ) {
-            textbox_set_ellipsize ( lv->boxes[i], mode );
+            textbox_set_ellipsize ( lv->boxes[i].textbox, mode );
         }
     }
 }

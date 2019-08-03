@@ -29,6 +29,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include <glib.h>
 #include "widgets/textbox.h"
+#include "widgets/icon.h"
 #include "widgets/listview.h"
 #include "widgets/scrollbar.h"
 

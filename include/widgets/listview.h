@@ -61,7 +61,7 @@ typedef enum
  *
  * Update callback, this is called to set the value of each (visible) element.
  */
-typedef void ( *listview_update_callback )( textbox *tb, unsigned int entry, void *udata, TextBoxFontType type, gboolean full );
+typedef void ( *listview_update_callback )( textbox *tb,icon *ico,  unsigned int entry, void *udata, TextBoxFontType *type, gboolean full );
 
 /**
  * Callback when a element is activated.
