@@ -186,10 +186,6 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
 
     textbox_initialize_font ( tb );
 
-    if ( ( tb->flags & TB_ICON ) != TB_ICON ) {
-        tb->left_offset = 0;
-    }
-
     if ( ( flags & TB_WRAP ) == TB_WRAP ) {
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
     }
@@ -334,20 +330,6 @@ void textbox_text ( textbox *tb, const char *text )
     widget_queue_redraw ( WIDGET ( tb ) );
 }
 
-void textbox_icon ( textbox *tb, cairo_surface_t *icon )
-{
-    // Add our reference to the surface.
-    if ( icon != NULL ) {
-        cairo_surface_reference ( icon );
-    }
-    if ( tb->icon ) {
-        // If we overwrite an old one, destroy the reference we hold.
-        cairo_surface_destroy ( tb->icon );
-    }
-    tb->icon = icon;
-
-    widget_queue_redraw ( WIDGET ( tb ) );
-}
 
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
@@ -402,10 +384,6 @@ static void textbox_free ( widget *wid )
     }
     g_free ( tb->text );
 
-    if ( tb->icon ) {
-        cairo_surface_destroy ( tb->icon );
-        tb->icon = NULL;
-    }
     if ( tb->layout != NULL ) {
         g_object_unref ( tb->layout );
     }
@@ -439,21 +417,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
     y += top;
 
-    // draw Icon
-    if ( ( tb->flags & TB_ICON ) == TB_ICON && tb->icon != NULL ) {
-        int iconheight = tb->left_offset;
-        cairo_save ( draw );
-
-        int    iconh = cairo_image_surface_get_height ( tb->icon );
-        int    iconw = cairo_image_surface_get_width ( tb->icon );
-        int    icons = MAX ( iconh, iconw );
-        double scale = (double) iconheight / icons;
-        cairo_translate ( draw, x + ( iconheight - iconw * scale ) / 2.0, y + ( iconheight - iconh * scale ) / 2.0 );
-        cairo_scale ( draw, scale, scale );
-        cairo_set_source_surface ( draw, tb->icon, 0, 0 );
-        cairo_paint ( draw );
-        cairo_restore ( draw );
-    }
     x += offset;
 
     if ( tb->xalign > 0.001 ) {

@@ -947,11 +947,11 @@ static void update_callback ( textbox *t,icon *ico, unsigned int index, void *ud
         else{
             list = pango_attr_list_new ();
         }
-        int             icon_height = widget_get_desired_height( WIDGET(ico) );
-
-        cairo_surface_t *icon = mode_get_icon ( state->sw, state->line_map[index], icon_height );
-        //textbox_icon ( t, icon );
-        icon_set_surface ( ico, icon );
+        if( ico ) {
+            int             icon_height = widget_get_desired_height( WIDGET(ico) );
+            cairo_surface_t *icon = mode_get_icon ( state->sw, state->line_map[index], icon_height );
+            icon_set_surface ( ico, icon );
+        }
 
         if ( state->tokens && config.show_match ) {
             RofiHighlightColorStyle th = { ROFI_HL_BOLD | ROFI_HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };

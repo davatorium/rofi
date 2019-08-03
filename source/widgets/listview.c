@@ -164,10 +164,16 @@ static void listview_create_row ( listview *lv, _listview_row *row )
     TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
     row->box  = box_create ( WIDGET ( lv ), "element",ROFI_ORIENTATION_HORIZONTAL );
     GList *list = rofi_theme_get_list ( WIDGET(row->box), "children", "element-icon,element-textbox");
+
+    row->textbox = NULL;
+    row->icon    = NULL;
+
     for ( GList *iter = g_list_first(list); iter != NULL;iter = g_list_next(iter)){
         if ( strcasecmp((char *)iter->data, "element-icon") == 0 ) {
-            row->icon = icon_create ( WIDGET ( row->box ), "element-icon" ); 
-            box_add ( row->box, WIDGET ( row->icon ), FALSE);
+            if ( config.show_icons ) {
+                row->icon = icon_create ( WIDGET ( row->box ), "element-icon" ); 
+                box_add ( row->box, WIDGET ( row->icon ), FALSE);
+            }
         } else if ( strcasecmp ((char *)iter->data, "element-text") == 0 ){
             row->textbox= textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_LISTVIEW_ELEMENT, "element-text", TB_AUTOHEIGHT|flags, NORMAL, "DDD", 0, 0 );
             box_add ( row->box, WIDGET ( row->textbox ), TRUE);
@@ -181,7 +187,9 @@ static void listview_set_state ( _listview_row r, TextBoxFontType type )
 {
     listview_set_style ( WIDGET(r.box), type);
     listview_set_style ( WIDGET(r.textbox), type);
-    listview_set_style ( WIDGET(r.icon), type);
+    if ( r.icon ) {
+        listview_set_style ( WIDGET(r.icon), type);
+    }
     widget_queue_redraw ( WIDGET( r.box  ) );
 }
 static int listview_get_desired_height ( widget *wid );
@@ -457,17 +465,6 @@ static void listview_recompute_elements ( listview *lv )
     if ( newne > 0   ) {
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             listview_create_row ( lv, &(lv->boxes[i]) );
-#if 0
-            lv->boxes[i].box = box_create ( WIDGET (lv), "element",ROFI_ORIENTATION_HORIZONTAL );
-            if ( config.show_icons ) {
-                lv->boxes[i].icon = icon_create ( WIDGET (lv->boxes[i].box), "element-icon" ); 
-                box_add ( lv->boxes[i].box, WIDGET ( lv->boxes[i].icon), FALSE);
-            } else {
-                lv->boxes[i].icon = NULL;
-            }
-            lv->boxes[i].textbox = textbox_create ( WIDGET ( lv->boxes[i].box ), WIDGET_TYPE_LISTVIEW_ELEMENT, "element-text", flags, NORMAL, "", 0, 0 );
-            box_add ( lv->boxes[i].box, WIDGET ( lv->boxes[i].textbox ), TRUE);
-#endif
             widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i].textbox ), listview_element_trigger_action, lv );
             listview_set_state ( lv->boxes[i], NORMAL);
         }
