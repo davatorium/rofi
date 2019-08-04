@@ -86,6 +86,7 @@ struct _listview
     unsigned int                max_elements;
 
     //
+    gboolean                    fixed_columns;
     unsigned int                cur_columns;
     unsigned int                req_elements;
     unsigned int                cur_elements;
@@ -451,7 +452,7 @@ static void listview_recompute_elements ( listview *lv )
     if ( lv->max_rows == 0 ) {
         return;
     }
-    if ( lv->req_elements < lv->max_elements ) {
+    if ( lv->fixed_columns && lv->req_elements < lv->max_elements ) {
         newne           = lv->req_elements;
         lv->cur_columns = ( lv->req_elements + ( lv->max_rows - 1 ) ) / lv->max_rows;
     }
@@ -638,6 +639,7 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic", TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );
     lv->cycle           = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
+    lv->fixed_columns   = rofi_theme_get_boolean ( WIDGET ( lv ), "fixed-columns", FALSE );
 
     lv->type = rofi_theme_get_orientation ( WIDGET ( lv ), "layout", ROFI_ORIENTATION_VERTICAL );
     if ( lv->type == LISTVIEW ) {
