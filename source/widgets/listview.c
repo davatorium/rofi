@@ -452,7 +452,7 @@ static void listview_recompute_elements ( listview *lv )
     if ( lv->max_rows == 0 ) {
         return;
     }
-    if ( lv->fixed_columns && lv->req_elements < lv->max_elements ) {
+    if ( !(lv->fixed_columns) && lv->req_elements < lv->max_elements ) {
         newne           = lv->req_elements;
         lv->cur_columns = ( lv->req_elements + ( lv->max_rows - 1 ) ) / lv->max_rows;
     }
