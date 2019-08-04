@@ -66,7 +66,6 @@ typedef struct
 
     PangoFontMetrics *metrics;
     PangoEllipsizeMode emode;
-    int              left_offset;
     //
     const char       *theme_name;
 } textbox;
