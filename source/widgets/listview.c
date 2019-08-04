@@ -163,6 +163,7 @@ static void listview_create_row ( listview *lv, _listview_row *row )
 {
     TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
     row->box  = box_create ( WIDGET ( lv ), "element",ROFI_ORIENTATION_HORIZONTAL );
+    widget_set_type ( WIDGET(row->box), WIDGET_TYPE_LISTVIEW_ELEMENT);
     GList *list = rofi_theme_get_list ( WIDGET(row->box), "children", "element-icon,element-text");
 
     row->textbox = NULL;
@@ -175,7 +176,7 @@ static void listview_create_row ( listview *lv, _listview_row *row )
                 box_add ( row->box, WIDGET ( row->icon ), FALSE);
             }
         } else if ( strcasecmp ((char *)iter->data, "element-text") == 0 ){
-            row->textbox= textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_LISTVIEW_ELEMENT, "element-text", TB_AUTOHEIGHT|flags, NORMAL, "DDD", 0, 0 );
+            row->textbox= textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT|flags, NORMAL, "DDD", 0, 0 );
             box_add ( row->box, WIDGET ( row->textbox ), TRUE);
         }
     }
@@ -465,7 +466,7 @@ static void listview_recompute_elements ( listview *lv )
     if ( newne > 0   ) {
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             listview_create_row ( lv, &(lv->boxes[i]) );
-            widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i].textbox ), listview_element_trigger_action, lv );
+            widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i].box ), listview_element_trigger_action, lv );
             listview_set_state ( lv->boxes[i], NORMAL);
         }
     }
@@ -545,7 +546,7 @@ static widget *listview_find_mouse_target ( widget *wid, WidgetType type, gint x
     unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
     unsigned int i;
     for ( i = 0; i < max && target == NULL; i++ ) {
-        widget *w = WIDGET ( lv->boxes[i].textbox );
+        widget *w = WIDGET ( lv->boxes[i].box );
         if ( widget_intersect ( w, x, y ) ) {
             rx     = x - widget_get_x_pos ( w );
             ry     = y - widget_get_y_pos ( w );
@@ -582,7 +583,7 @@ static WidgetTriggerActionResult listview_element_trigger_action ( widget *wid, 
     listview     *lv = (listview *) user_data;
     unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
     unsigned int i;
-    for ( i = 0; i < max && WIDGET ( lv->boxes[i].textbox ) != wid; i++ ) {
+    for ( i = 0; i < max && WIDGET ( lv->boxes[i].box) != wid; i++ ) {
     }
     if ( i == max ) {
         return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
