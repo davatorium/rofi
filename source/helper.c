@@ -1035,8 +1035,18 @@ char *helper_get_theme_path ( const char *file )
     else {
         filename = g_strconcat ( file, ".rasi", NULL );
     }
-    // Check config directory.
+    // Check config's themes directory.
     const char *cpath = g_get_user_config_dir ();
+    if ( cpath ) {
+        char *themep = g_build_filename ( cpath, "rofi", "themes", filename, NULL );
+        g_debug ( "Opening theme, testing: %s\n", themep );
+        if ( themep && g_file_test ( themep, G_FILE_TEST_EXISTS ) ) {
+            g_free ( filename );
+            return themep;
+        }
+        g_free ( themep );
+    }
+    // Check config directory.
     if ( cpath ) {
         char *themep = g_build_filename ( cpath, "rofi", filename, NULL );
         g_debug ( "Opening theme, testing: %s\n", themep );
