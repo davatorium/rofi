@@ -895,6 +895,9 @@ int textbox_get_estimated_height ( const textbox *tb, int eh )
 }
 int textbox_get_desired_width ( widget *wid )
 {
+    if ( wid == NULL ) {
+        return 0;
+    }
     textbox      *tb    = (textbox *) wid;
     unsigned int offset = ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
     if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
