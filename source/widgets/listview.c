@@ -309,7 +309,6 @@ static void barview_draw ( widget *wid, cairo_t *draw )
                         }
                         twidth = width;
                     }
-                    //textbox_moveresize ( lv->boxes[i].textbox, left_offset, top_offset, twidth, lv->element_height );
                     widget_move ( WIDGET(lv->boxes[i].box), left_offset, top_offset);
                     widget_resize ( WIDGET (lv->boxes[i].box), twidth, lv->element_height);
 
@@ -331,7 +330,6 @@ static void barview_draw ( widget *wid, cairo_t *draw )
                         twidth = width;
                     }
                     right_offset -= twidth;
-                    //textbox_moveresize ( lv->boxes[i].textbox, right_offset, top_offset, twidth, lv->element_height );
                     widget_move ( WIDGET(lv->boxes[i].box), left_offset, top_offset);
                     widget_resize ( WIDGET (lv->boxes[i].box), twidth, lv->element_height);
 
@@ -406,13 +404,11 @@ static void listview_draw ( widget *wid, cairo_t *draw )
                 unsigned int ex = left_offset + ( ( i ) / lv->max_rows ) * ( element_width + spacing_hori );
                 if ( lv->reverse ) {
                     unsigned int ey = wid->h - ( widget_padding_get_bottom ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert ) ) - lv->element_height;
-                    //textbox_moveresize ( lv->boxes[i].textbox, ex, ey, element_width, lv->element_height );
                     widget_move ( WIDGET(lv->boxes[i].box), ex, ey);
                     widget_resize ( WIDGET (lv->boxes[i].box), element_width, lv->element_height);
                 }
                 else {
                     unsigned int ey = top_offset + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert );
-                    //textbox_moveresize ( lv->boxes[i].textbox, ex, ey, element_width, lv->element_height );
                     widget_move ( WIDGET(lv->boxes[i].box), ex, ey);
                     widget_resize ( WIDGET (lv->boxes[i].box), element_width, lv->element_height);
                 }
