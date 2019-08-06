@@ -453,7 +453,7 @@ static void listview_recompute_elements ( listview *lv )
         lv->cur_columns = ( lv->req_elements + ( lv->max_rows - 1 ) ) / lv->max_rows;
     }
     else {
-        newne           = lv->max_elements;
+        newne           = MIN( lv->req_elements, lv->max_elements);
         lv->cur_columns = lv->menu_columns;
     }
     for ( unsigned int i = newne; i < lv->cur_elements; i++ ) {
