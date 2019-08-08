@@ -928,15 +928,16 @@ inline static void rofi_view_nav_last ( RofiViewState * state )
     listview_set_selected ( state->list_view, -1 );
 }
 
-static void update_callback ( textbox *t, unsigned int index, void *udata, TextBoxFontType type, gboolean full )
+static void update_callback ( textbox *t,icon *ico, unsigned int index, void *udata, TextBoxFontType *type, gboolean full )
 {
     RofiViewState *state = (RofiViewState *) udata;
     if ( full ) {
         GList *add_list = NULL;
         int   fstate    = 0;
         char  *text     = mode_get_display_value ( state->sw, state->line_map[index], &fstate, &add_list, TRUE );
-        type |= fstate;
-        textbox_font ( t, type );
+        (*type) |= fstate;
+        // TODO needed for markup.
+        textbox_font ( t, *type );
         // Move into list view.
         textbox_text ( t, text );
         PangoAttrList *list = textbox_get_pango_attributes ( t );
@@ -946,10 +947,11 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
         else{
             list = pango_attr_list_new ();
         }
-        int             icon_height = textbox_get_font_height ( t );
-
-        cairo_surface_t *icon = mode_get_icon ( state->sw, state->line_map[index], icon_height );
-        textbox_icon ( t, icon );
+        if( ico ) {
+            int             icon_height = widget_get_desired_height( WIDGET(ico) );
+            cairo_surface_t *icon = mode_get_icon ( state->sw, state->line_map[index], icon_height );
+            icon_set_surface ( ico, icon );
+        }
 
         if ( state->tokens && config.show_match ) {
             RofiHighlightColorStyle th = { ROFI_HL_BOLD | ROFI_HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };
@@ -967,8 +969,9 @@ static void update_callback ( textbox *t, unsigned int index, void *udata, TextB
     else {
         int fstate = 0;
         mode_get_display_value ( state->sw, state->line_map[index], &fstate, NULL, FALSE );
-        type |= fstate;
-        textbox_font ( t, type );
+        (*type) |= fstate;
+        // TODO needed for markup.
+        textbox_font ( t, *type );
     }
 }
 

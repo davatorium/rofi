@@ -107,10 +107,6 @@ static int box_get_desired_height ( widget *wid )
                 continue;
             }
             active_widgets++;
-            if ( child->expand == TRUE ) {
-                height += widget_get_desired_height ( child );
-                continue;
-            }
             height += widget_get_desired_height ( child );
         }
         if ( active_widgets > 0 ) {
