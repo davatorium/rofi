@@ -173,7 +173,7 @@ static void listview_create_row ( listview *lv, _listview_row *row )
     for ( GList *iter = g_list_first(list); iter != NULL;iter = g_list_next(iter)){
         if ( strcasecmp((char *)iter->data, "element-icon") == 0 ) {
             if ( config.show_icons ) {
-                row->icon = icon_create ( WIDGET ( row->box ), "element-icon" ); 
+                row->icon = icon_create ( WIDGET ( row->box ), "element-icon" );
                 box_add ( row->box, WIDGET ( row->icon ), FALSE);
             }
         } else if ( strcasecmp ((char *)iter->data, "element-text") == 0 ){
