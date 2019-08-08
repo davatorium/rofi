@@ -34,6 +34,7 @@
 #include <string.h>
 #include <widgets/scrollbar.h>
 #include <widgets/textbox.h>
+#include <widgets/icon.h>
 #include <widgets/listview.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>

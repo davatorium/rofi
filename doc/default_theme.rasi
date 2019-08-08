@@ -31,33 +31,9 @@
     active-background:           var(background);
     selected-active-background:  var(blue);
 }
-window {
-    background-color: var(background);
-    border:           1;
-    padding:          5;
-}
-mainbox {
-    border:  0;
-    padding: 0;
-}
-message {
-    border:       2px dash 0px 0px ;
-    border-color: var(separatorcolor);
-    padding:      1px ;
-}
-textbox {
-    text-color: var(foreground);
-}
-listview {
-    fixed-height: 0;
-    border:       2px dash 0px 0px ;
-    border-color: var(separatorcolor);
-    spacing:      2px ;
-    scrollbar:    true;
-    padding:      2px 0px 0px ;
-}
 element {
     border:  0;
+    spacing: 5px ;
     padding: 1px ;
 }
 element normal.normal {
