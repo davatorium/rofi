@@ -2,39 +2,39 @@
  * rofi -dump-theme output.
  **/
 * {
-    selected-normal-foreground:  var(lightbg);
-    foreground:                  rgba ( 0, 43, 54, 100 % );
-    normal-foreground:           var(foreground);
-    alternate-normal-background: var(lightbg);
     red:                         rgba ( 220, 50, 47, 100 % );
-    selected-urgent-foreground:  var(background);
-    blue:                        rgba ( 38, 139, 210, 100 % );
+    selected-active-foreground:  var(background);
+    lightfg:                     rgba ( 88, 104, 117, 100 % );
+    separatorcolor:              var(foreground);
     urgent-foreground:           var(red);
     alternate-urgent-background: var(lightbg);
-    active-foreground:           var(blue);
     lightbg:                     rgba ( 238, 232, 213, 100 % );
-    selected-active-foreground:  var(background);
-    alternate-active-background: var(lightbg);
-    background:                  rgba ( 253, 246, 227, 100 % );
-    alternate-normal-foreground: var(foreground);
-    normal-background:           var(background);
-    lightfg:                     rgba ( 88, 104, 117, 100 % );
-    selected-normal-background:  var(lightfg);
-    border-color:                var(foreground);
-    spacing:                     2;
-    separatorcolor:              var(foreground);
-    urgent-background:           var(background);
-    selected-urgent-background:  var(red);
-    alternate-urgent-foreground: var(red);
     background-color:            rgba ( 0, 0, 0, 0 % );
-    alternate-active-foreground: var(blue);
-    active-background:           var(background);
+    border-color:                var(foreground);
+    normal-background:           var(background);
+    selected-urgent-background:  var(red);
+    alternate-active-background: var(lightbg);
+    spacing:                     2;
+    blue:                        rgba ( 38, 139, 210, 100 % );
+    alternate-normal-foreground: var(foreground);
+    urgent-background:           var(background);
+    selected-normal-foreground:  var(lightbg);
+    active-foreground:           var(blue);
+    background:                  rgba ( 253, 246, 227, 100 % );
     selected-active-background:  var(blue);
+    active-background:           var(background);
+    selected-normal-background:  var(lightfg);
+    alternate-normal-background: var(lightbg);
+    foreground:                  rgba ( 0, 43, 54, 100 % );
+    selected-urgent-foreground:  var(background);
+    normal-foreground:           var(foreground);
+    alternate-urgent-foreground: var(red);
+    alternate-active-foreground: var(blue);
 }
 element {
-    border:  0;
-    spacing: 5px ;
     padding: 1px ;
+    spacing: 5px ;
+    border:  0;
 }
 element normal.normal {
     background-color: var(normal-background);
@@ -72,16 +72,24 @@ element alternate.active {
     background-color: var(alternate-active-background);
     text-color:       var(alternate-active-foreground);
 }
+element-text {
+    background-color: rgba ( 0, 0, 0, 0 % );
+    text-color:       inherit;
+}
+element-icon {
+    background-color: rgba ( 0, 0, 0, 0 % );
+    text-color:       inherit;
+}
 scrollbar {
     width:        4px ;
+    padding:      0;
+    handle-width: 8px ;
     border:       0;
     handle-color: var(normal-foreground);
-    handle-width: 8px ;
-    padding:      0;
 }
 mode-switcher {
-    border:       2px dash 0px 0px ;
     border-color: var(separatorcolor);
+    border:       2px dash 0px 0px ;
 }
 button {
     spacing:    0;
@@ -92,9 +100,9 @@ button selected {
     text-color:       var(selected-normal-foreground);
 }
 inputbar {
+    padding:    1px ;
     spacing:    0px ;
     text-color: var(normal-foreground);
-    padding:    1px ;
     children:   [ prompt,textbox-prompt-colon,entry,overlay,case-indicator ];
 }
 case-indicator {
@@ -110,12 +118,23 @@ prompt {
     text-color: var(normal-foreground);
 }
 textbox-prompt-colon {
+    margin:     0px 0.3000em 0.0000em 0.0000em ;
     expand:     false;
     str:        ":";
-    margin:     0px 0.3000em 0.0000em 0.0000em ;
     text-color: inherit;
 }
 error-message {
     background-color: rgba ( 0, 0, 0, 0 % );
     text-color:       var(normal-foreground);
+}
+window {
+    padding: 5;
+    border:  1;
+}
+listview {
+    scrollbar: true;
+    spacing:   2px ;
+}
+message {
+    padding: 1px ;
 }
