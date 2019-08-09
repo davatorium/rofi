@@ -398,7 +398,20 @@ static int dmenu_mode_init ( Mode *sw )
 static int dmenu_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
-    return helper_token_match ( tokens, rmpd->cmd_list[index].entry );
+    if ( rmpd->do_markup) {
+        /** Strip out the markup when matching. */
+        char *esc = NULL;
+        pango_parse_markup(rmpd->cmd_list[index].entry, -1, 0, NULL, &esc, NULL, NULL);
+        if ( esc ) {
+            int retv = helper_token_match ( tokens, esc);
+            g_free (esc);
+            return retv;
+        }
+        return FALSE;
+
+    } else {
+        return helper_token_match ( tokens, rmpd->cmd_list[index].entry );
+    }
 }
 static char *dmenu_get_message ( const Mode *sw )
 {
