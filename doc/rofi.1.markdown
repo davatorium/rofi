@@ -233,6 +233,10 @@ Note: glob matching might be slow for larger lists
 
 Tokenize the input.
 
+`-drun-categories` *category*,*category*
+
+Only show desktop files that are present in the listed categories.
+
 `-drun-match-fields` *field1*,*field2*,...
 
 When using drun, match only with the specified Desktop entry fields.

@@ -118,6 +118,8 @@ typedef struct
     char           * sorting_method;
     /** Desktop entries to match in drun */
     char           * drun_match_fields;
+    /** Only show entries in this category */
+    char           * drun_categories;
     /** Desktop entry show actions */
     unsigned int   drun_show_actions;
     /** Desktop entry show */

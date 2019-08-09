@@ -138,6 +138,9 @@ struct _DRunModePrivateData
     unsigned int  disabled_entries_length;
     unsigned int  expected_line_height;
 
+
+    char **show_categories;
+
     // Theme
     const gchar   *icon_theme;
     // DE
@@ -256,6 +259,19 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     g_free ( wmclass );
     g_free ( exec_path );
     g_free ( str );
+}
+
+
+static gboolean rofi_strv_contains ( const char * const *categories, const char *const *field )
+{
+    for ( int i = 0; categories && categories[i] ; i++ ){
+        for ( int j = 0; field[j] ; j++ ){
+            if ( g_str_equal ( categories[i], field[j] ) ) {
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
 }
 /**
  * This function absorbs/freeś path, so this is no longer available afterwards.
@@ -397,6 +413,16 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_free ( te );
     }
 
+    char **categories = NULL;
+    if ( pd->show_categories ) {
+        categories = g_key_file_get_locale_string_list ( kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL );
+        if (  !rofi_strv_contains( (const char * const *)categories, (const char *const *)pd->show_categories ) ){
+            g_strfreev(categories);
+            g_key_file_free ( kf );
+            return ;
+        }
+    }
+
     size_t nl = ( ( pd->cmd_list_length ) + 1 );
     if ( nl >= pd->cmd_list_length_actual ) {
         pd->cmd_list_length_actual += 256;
@@ -430,11 +456,18 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     gchar *gn = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
     if ( matching_entry_fields[DRUN_MATCH_FIELD_CATEGORIES].enabled ) {
-        pd->entry_list[pd->cmd_list_length].categories = g_key_file_get_locale_string_list ( kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL );
+        if ( categories ) {
+            pd->entry_list[pd->cmd_list_length].categories = categories;
+            categories = NULL;
+        } else {
+            pd->entry_list[pd->cmd_list_length].categories = g_key_file_get_locale_string_list ( kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL );
+        }
     }
     else {
         pd->entry_list[pd->cmd_list_length].categories = NULL;
     }
+    g_strfreev(categories);
+
     pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
 
     if ( matching_entry_fields[DRUN_MATCH_FIELD_COMMENT].enabled ) {
@@ -668,6 +701,10 @@ static int drun_mode_init ( Mode *sw )
     const char *current_desktop = g_getenv ( "XDG_CURRENT_DESKTOP" );
     pd->current_desktop_list = current_desktop ? g_strsplit ( current_desktop, ":", 0 ) : NULL;
 
+    if ( config.drun_categories && *(config.drun_categories) ){
+        pd->show_categories = g_strsplit(config.drun_categories, ",",0);
+    }
+
     drun_mode_parse_entry_fields ();
     get_apps ( pd );
     return TRUE;
@@ -741,6 +778,7 @@ static void drun_mode_destroy ( Mode *sw )
         g_free ( rmpd->entry_list );
 
         g_strfreev ( rmpd->current_desktop_list );
+        g_strfreev ( rmpd->show_categories );
         g_free ( rmpd );
         mode_set_private_data ( sw, NULL );
     }

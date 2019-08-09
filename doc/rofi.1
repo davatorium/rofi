@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI" "1" "June 2019" "" ""
+.TH "ROFI" "1" "August 2019" "" ""
 .
 .SH "NAME"
 \fBrofi\fR \- A window switcher, application launcher, ssh dialog and dmenu replacement
@@ -399,6 +399,12 @@ Note: glob matching might be slow for larger lists
 .
 .P
 Tokenize the input\.
+.
+.P
+\fB\-drun\-categories\fR \fIcategory\fR,\fIcategory\fR
+.
+.P
+Only show desktop files that are present in the listed categories\.
 .
 .P
 \fB\-drun\-match\-fields\fR \fIfield1\fR,\fIfield2\fR,\.\.\.
@@ -998,29 +1004,30 @@ Makes dmenu searches case\-insensitive
 \fB\-a\fR \fIX\fR
 .
 .P
-Active row, mark \fIX\fR as active. Where \fIX\fR is a comma-separated list of python(1)-style indices and ranges, e.g.
-indices start at \fB0\fR, \fB\-1\fR refers to the last row with \fB\-2\fR preceding it, ranges are left-open and right-close, and so on. You can specify:
+Active row, mark \fIX\fR as active\. Where \fIX\fR is a comma\-separated list of python(1)\-style indices and ranges, e\.g\. indices start at 0, \-1 refers to the last row with \-2 preceding it, ranges are left\-open and right\-close, and so on\. You can specify:
 .
 .IP "\(bu" 4
-A single row: \'\fB5\fR\'
+A single row: \'5\'
 .
 .IP "\(bu" 4
-A range of (last 3) rows: \'\fB\-3:\fR\'
+A range of (last 3) rows: \'\-3:\'
 .
 .IP "\(bu" 4
-4 rows starting from row 7: \'\fB7:11\fR\' (or in legacy notation: \'\fB7\-10\fR\')
+4 rows starting from row 7: \'7:11\' (or in legacy notation: \'7\-10\')
 .
 .IP "\(bu" 4
-A set of rows: \'\fB2,0,\-9\fR\'
+A set of rows: \'2,0,\-9\'
 .
 .IP "\(bu" 4
-Or any combination: \'\fB\5,-3:,7:11,2,0,\-9\fR\'
+Or any combination: \'5,\-3:,7:11,2,0,\-9\'
+.
+.IP "" 0
 .
 .P
 \fB\-u\fR \fIX\fR
 .
 .P
-Urgent row, mark \fIX\fR as urgent\. See \fB\-a\fR option\ for details.
+Urgent row, mark \fIX\fR as urgent\. See \fB\-a\fR option for details\.
 .
 .P
 \fB\-only\-match\fR

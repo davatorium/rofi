@@ -42,6 +42,8 @@ rofi.window-command:                 xkill -id {window}
 ! rofi.icon-theme:                     
 ! "Desktop entry fields to match in drun" Set from: Default
 ! rofi.drun-match-fields:              name,generic,exec,categories
+! "Only show Desktop entry from these categories" Set from: Default
+! rofi.drun-categories:                
 ! "Desktop entry show actions." Set from: Default
 ! rofi.drun-show-actions:              false
 ! "DRUN format string. (Supports: generic,name,comment,exec,categories)" Set from: Default

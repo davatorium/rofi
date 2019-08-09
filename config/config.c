@@ -118,6 +118,7 @@ Settings config = {
     .matching_method = MM_NORMAL,
     /** Desktop entry fields to match*/
     .drun_match_fields      = "name,generic,exec,categories",
+    .drun_categories           = NULL,
     /**  Desktop format display */
     .drun_display_format  = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]",
     /** Desktop entry show actions */
