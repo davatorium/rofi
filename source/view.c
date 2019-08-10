@@ -790,9 +790,7 @@ void __create_window ( MenuFlags menu_flags )
 
     TICK_N ( "setup window fullscreen" );
     // Set the WM_NAME
-    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box_window, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, 4, "rofi" );
-    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, box_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, 4, "rofi" );
-
+    rofi_view_set_window_title ( "rofi" );
     const char wm_class_name[] = "rofi\0Rofi";
     xcb_icccm_set_wm_class ( xcb->connection, box_window, sizeof ( wm_class_name ), wm_class_name );
 
@@ -1715,6 +1713,13 @@ RofiViewState *rofi_view_create ( Mode *sw,
     // Request the lines to show.
     state->num_lines = mode_get_num_entries ( sw );
 
+    if ( state->sw ) {
+        char * title = g_strdup_printf ( "rofi - %s", mode_get_display_name (state->sw ) );
+        rofi_view_set_window_title ( title );
+        g_free ( title );
+    } else {
+        rofi_view_set_window_title ( "rofi" );
+    }
     TICK_N ( "Startup notification" );
 
     // Get active monitor size.
@@ -1921,6 +1926,13 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     if ( state->prompt ) {
         rofi_view_update_prompt ( state );
     }
+    if ( state->sw ) {
+        char * title = g_strdup_printf ( "rofi - %s", mode_get_display_name (state->sw ) );
+        rofi_view_set_window_title ( title );
+        g_free ( title );
+    } else {
+        rofi_view_set_window_title ( "rofi" );
+    }
     if ( state->sidebar_bar ) {
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
             const Mode * mode = rofi_get_mode ( j );
@@ -1937,4 +1949,11 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
 xcb_window_t rofi_view_get_window ( void )
 {
     return CacheState.main_window;
+}
+
+void rofi_view_set_window_title ( const char * title )
+{
+    ssize_t len = strlen(title);
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, CacheState.main_window, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, len, title );
+    xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, CacheState.main_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, len, title );
 }

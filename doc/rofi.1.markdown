@@ -662,6 +662,10 @@ Reads the first 25 entries blocking, then switches to async mode. This makes it 
 
 *default*: 25
 
+`-window-title` *title*
+
+Set name used for the window title. Will be shown as Rofi - *title*
+
 ### Message dialog
 
 `-e` *message*

@@ -53,6 +53,12 @@
 
 #include "dialogs/dmenuscriptshared.h"
 
+
+static int dmenu_mode_init ( Mode *sw );
+static int dmenu_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index );
+static cairo_surface_t *dmenu_get_icon ( const Mode *sw, unsigned int selected_line, int height );
+static char *dmenu_get_message ( const Mode *sw );
+
 static inline unsigned int bitget ( uint32_t *array, unsigned int index )
 {
     uint32_t bit = index % 32;
@@ -315,6 +321,27 @@ static void dmenu_mode_free ( Mode *sw )
     }
 }
 
+#include "mode-private.h"
+/** dmenu Mode object. */
+Mode dmenu_mode =
+{
+    .name               = "dmenu",
+    .cfg_name_key       = "display-combi",
+    ._init              = dmenu_mode_init,
+    ._get_num_entries   = dmenu_mode_get_num_entries,
+    ._result            = NULL,
+    ._destroy           = dmenu_mode_free,
+    ._token_match       = dmenu_token_match,
+    ._get_display_value = get_display_data,
+    ._get_icon          = dmenu_get_icon,
+    ._get_completion    = NULL,
+    ._preprocess_input  = NULL,
+    ._get_message       = dmenu_get_message,
+    .private_data       = NULL,
+    .free               = NULL,
+    .display_name       = "dmenu"
+};
+
 static int dmenu_mode_init ( Mode *sw )
 {
     if ( mode_get_private_data ( sw ) != NULL ) {
@@ -352,6 +379,12 @@ static int dmenu_mode_init ( Mode *sw )
 
     // DMENU COMPATIBILITY
     find_arg_uint (  "-l", &( config.menu_lines ) );
+
+    str = NULL;
+    find_arg_str ( "-window-title", &str );
+    if ( str ) {
+        dmenu_mode.display_name = str;
+    }
 
     /**
      * Dmenu compatibility.
@@ -436,26 +469,6 @@ static cairo_surface_t *dmenu_get_icon ( const Mode *sw, unsigned int selected_l
     return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
 }
 
-#include "mode-private.h"
-/** dmenu Mode object. */
-Mode dmenu_mode =
-{
-    .name               = "dmenu",
-    .cfg_name_key       = "display-combi",
-    ._init              = dmenu_mode_init,
-    ._get_num_entries   = dmenu_mode_get_num_entries,
-    ._result            = NULL,
-    ._destroy           = dmenu_mode_free,
-    ._token_match       = dmenu_token_match,
-    ._get_display_value = get_display_data,
-    ._get_icon          = dmenu_get_icon,
-    ._get_completion    = NULL,
-    ._preprocess_input  = NULL,
-    ._get_message       = dmenu_get_message,
-    .private_data       = NULL,
-    .free               = NULL,
-    .display_name       = "dmenu"
-};
 
 static void dmenu_finish ( RofiViewState *state, int retv )
 {
@@ -709,6 +722,7 @@ void print_dmenu_options ( void )
     print_help_msg ( "-u", "[list]", "List of row indexes to mark urgent", NULL, is_term );
     print_help_msg ( "-a", "[list]", "List of row indexes to mark active", NULL, is_term );
     print_help_msg ( "-l", "[integer] ", "Number of rows to display", NULL, is_term );
+    print_help_msg ( "-window-title", "[string] ", "Set the dmenu window title", NULL, is_term );
     print_help_msg ( "-i", "", "Set filter to be case insensitive", NULL, is_term );
     print_help_msg ( "-only-match", "", "Force selection or custom entry", NULL, is_term );
     print_help_msg ( "-no-custom", "", "Don't accept custom entry", NULL, is_term );
