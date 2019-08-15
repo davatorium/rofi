@@ -149,7 +149,8 @@ icon * icon_create ( widget *parent, const char *name )
     b->widget.get_desired_height = icon_get_desired_height;
     b->widget.get_desired_width  = icon_get_desired_width;
 
-    b->size = rofi_theme_get_integer ( WIDGET ( b ), "size", b->size );
+    RofiDistance d = rofi_theme_get_distance ( WIDGET (b), "size" , b->size );
+    b->size = distance_get_pixel ( d, ROFI_ORIENTATION_VERTICAL );
 
     const char * filename = rofi_theme_get_string ( WIDGET ( b ), "filename", NULL );
     if ( filename ) {
