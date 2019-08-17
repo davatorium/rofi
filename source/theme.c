@@ -97,7 +97,7 @@ Property* rofi_theme_property_copy ( Property *p )
         retv->value.link.name = g_strdup ( p->value.link.name );
         retv->value.link.ref  = NULL;
         if ( p->value.link.def_value ){
-            retv->value.link.def_value = rofi_theme_property_copy(p->value.link.def_value); 
+            retv->value.link.def_value = rofi_theme_property_copy(p->value.link.def_value);
         }
         break;
     default:
@@ -149,6 +149,15 @@ static void rofi_theme_insert_listview_backwards_fix ( void )
 
 
     rofi_theme_widget_add_properties ( tt, table);
+
+
+    RofiDistance dsize = (RofiDistance){1.2, ROFI_PU_CH, ROFI_HL_SOLID };
+    Property *pts = rofi_theme_property_create ( P_PADDING );
+    pts->value.padding.top = pts->value.padding.right = pts->value.padding.bottom = pts->value.padding.left = dsize;
+    pts->name = g_strdup ( "size" );
+    g_hash_table_replace ( table, pts->name, pts );
+
+
     rofi_theme_widget_add_properties ( ti, table);
 
     /** Add spacing between icon and text. */
@@ -208,6 +217,10 @@ static void rofi_theme_print_distance ( RofiDistance d )
     else if ( d.type == ROFI_PU_PERCENT ) {
         printf_double ( d.distance );
         fputs ( "%% ", stdout );
+    }
+    else if ( d.type == ROFI_PU_CH ) {
+        printf_double ( d.distance );
+        fputs ( "ch ", stdout );
     }
     else {
         printf_double ( d.distance );
