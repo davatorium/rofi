@@ -233,7 +233,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_MEDIA_SEP                      "-"
 
 %type <sval>           t_entry
-%type <sval>           t_entry_my
 %type <theme>          t_entry_list
 %type <theme>           t_media_entry_list
 %type <list>           t_entry_name_path
@@ -355,47 +354,47 @@ t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optio
         g_hash_table_destroy ( $3 );
     }
 }
-| T_MEDIA T_PARENT_LEFT T_MEDIA_MIN T_MEDIA_SEP T_MEDIA_WIDTH T_PSEP t_property_distance  T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
+| T_MEDIA T_PARENT_LEFT T_MEDIA_MIN T_MEDIA_SEP T_MEDIA_WIDTH T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
     ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, "min-width" );
     widget->set = TRUE;
     widget->media = g_malloc0(sizeof(ThemeMedia));
     widget->media->type = THEME_MEDIA_TYPE_MIN_WIDTH;
     widget->media->value = $7;
-    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
-        ThemeWidget *d = $10->widgets[i];
+    for ( unsigned int i = 0; i < $11->num_widgets;i++) {
+        ThemeWidget *d = $11->widgets[i];
         rofi_theme_parse_merge_widgets(widget, d);
     }
 }
-| T_MEDIA T_PARENT_LEFT T_MEDIA_MIN T_MEDIA_SEP T_MEDIA_HEIGHT T_PSEP t_property_distance  T_PARENT_RIGHT T_BOPEN t_media_entry_list  T_BCLOSE {
+| T_MEDIA T_PARENT_LEFT T_MEDIA_MIN T_MEDIA_SEP T_MEDIA_HEIGHT T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_media_entry_list  T_BCLOSE {
     ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, "min-height" );
     widget->set = TRUE;
     widget->media = g_malloc0(sizeof(ThemeMedia));
     widget->media->type = THEME_MEDIA_TYPE_MIN_HEIGHT;
     widget->media->value = $7;
-    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
-        ThemeWidget *d = $10->widgets[i];
+    for ( unsigned int i = 0; i < $11->num_widgets;i++) {
+        ThemeWidget *d = $11->widgets[i];
         rofi_theme_parse_merge_widgets(widget, d);
     }
 }
-| T_MEDIA T_PARENT_LEFT T_MEDIA_MAX T_MEDIA_SEP T_MEDIA_WIDTH T_PSEP t_property_distance  T_PARENT_RIGHT T_BOPEN t_media_entry_list  T_BCLOSE {
+| T_MEDIA T_PARENT_LEFT T_MEDIA_MAX T_MEDIA_SEP T_MEDIA_WIDTH T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_media_entry_list  T_BCLOSE {
     ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, "max-width" );
     widget->set = TRUE;
     widget->media = g_malloc0(sizeof(ThemeMedia));
     widget->media->type = THEME_MEDIA_TYPE_MAX_WIDTH;
     widget->media->value = $7;
-    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
-        ThemeWidget *d = $10->widgets[i];
+    for ( unsigned int i = 0; i < $11->num_widgets;i++) {
+        ThemeWidget *d = $11->widgets[i];
         rofi_theme_parse_merge_widgets(widget, d);
     }
 }
-| T_MEDIA T_PARENT_LEFT T_MEDIA_MAX T_MEDIA_SEP T_MEDIA_HEIGHT T_PSEP t_property_distance  T_PARENT_RIGHT T_BOPEN t_media_entry_list  T_BCLOSE {
+| T_MEDIA T_PARENT_LEFT T_MEDIA_MAX T_MEDIA_SEP T_MEDIA_HEIGHT T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_media_entry_list  T_BCLOSE {
     ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, "max-height");
     widget->set = TRUE;
     widget->media = g_malloc0(sizeof(ThemeMedia));
     widget->media->type = THEME_MEDIA_TYPE_MAX_HEIGHT;
     widget->media->value = $7;
-    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
-        ThemeWidget *d = $10->widgets[i];
+    for ( unsigned int i = 0; i < $11->num_widgets;i++) {
+        ThemeWidget *d = $11->widgets[i];
         rofi_theme_parse_merge_widgets(widget, d);
     }
 }

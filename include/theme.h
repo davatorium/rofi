@@ -43,7 +43,7 @@ typedef enum {
 
 typedef struct ThemeMedia {
     ThemeMediaType type;
-    RofiDistance value;
+    int value;
 } ThemeMedia;
 
 /**

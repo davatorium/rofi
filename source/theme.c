@@ -1049,7 +1049,7 @@ void  rofi_theme_parse_process_conditionals ( void )
                 {
                     case THEME_MEDIA_TYPE_MIN_WIDTH:
                         {
-                            int w = distance_get_pixel ( widget->media->value,ROFI_ORIENTATION_HORIZONTAL);
+                            int w = widget->media->value;
                             if ( mon.w >= w ){
                                 printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
@@ -1060,7 +1060,7 @@ void  rofi_theme_parse_process_conditionals ( void )
                         }
                     case THEME_MEDIA_TYPE_MAX_WIDTH:
                         {
-                            int w = distance_get_pixel ( widget->media->value,ROFI_ORIENTATION_HORIZONTAL);
+                            int w = widget->media->value;
                             if ( mon.w < w ){
                                 printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
@@ -1071,7 +1071,7 @@ void  rofi_theme_parse_process_conditionals ( void )
                         }
                     case THEME_MEDIA_TYPE_MIN_HEIGHT:
                         {
-                            int h = distance_get_pixel ( widget->media->value,ROFI_ORIENTATION_VERTICAL );
+                            int h = widget->media->value;
                             if ( mon.h >= h ){
                                 printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
@@ -1082,7 +1082,7 @@ void  rofi_theme_parse_process_conditionals ( void )
                         }
                     case THEME_MEDIA_TYPE_MAX_HEIGHT:
                         {
-                            int h = distance_get_pixel ( widget->media->value,ROFI_ORIENTATION_VERTICAL);
+                            int h =  widget->media->value;
                             if ( mon.h < h ){
                                 printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
