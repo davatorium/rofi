@@ -32,6 +32,20 @@
 #include <widgets/widget.h>
 #include "rofi-types.h"
 
+
+typedef enum {
+    THEME_MEDIA_TYPE_MIN_WIDTH,
+    THEME_MEDIA_TYPE_MAX_WIDTH,
+    THEME_MEDIA_TYPE_MIN_HEIGHT,
+    THEME_MEDIA_TYPE_MAX_HEIGHT,
+} ThemeMediaType;
+
+
+typedef struct ThemeMedia {
+    ThemeMediaType type;
+    RofiDistance value;
+} ThemeMedia;
+
 /**
  * ThemeWidget.
  */
@@ -42,6 +56,8 @@ typedef struct ThemeWidget
 
     unsigned int       num_widgets;
     struct ThemeWidget **widgets;
+
+    ThemeMedia         *media;
 
     GHashTable         *properties;
 
@@ -323,4 +339,10 @@ char *helper_get_theme_path ( const char *file );
  * @returns full path to file.
  */
 char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file );
+
+/**
+ * Process conditionals.
+ */
+void rofi_theme_parse_process_conditionals ( void );
+void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child );
 #endif

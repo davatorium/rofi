@@ -172,6 +172,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_POS_NORTH                      "North"
 %token T_POS_SOUTH                      "South"
 
+%token T_MEDIA                          "@media"
+
 %token T_NONE                           "None"
 %token T_BOLD                           "Bold"
 %token T_ITALIC                         "Italic"
@@ -223,8 +225,17 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 
 %token T_INHERIT                        "Inherit"
 
+%token T_MEDIA_WIDTH                    "Width"
+%token T_MEDIA_HEIGHT                   "Height"
+
+%token T_MEDIA_MIN                      "Min"
+%token T_MEDIA_MAX                      "Max"
+%token T_MEDIA_SEP                      "-"
+
 %type <sval>           t_entry
+%type <sval>           t_entry_my
 %type <theme>          t_entry_list
+%type <theme>           t_media_entry_list
 %type <list>           t_entry_name_path
 %type <list>           t_entry_name_path_selectors
 %type <property>       t_property
@@ -280,6 +291,38 @@ t_entry_list:
    }
 ;
 
+t_media_entry_list:
+t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE {
+    ThemeWidget *widget = $$ = g_slice_new0 ( ThemeWidget );
+    for ( GList *liter = g_list_first ( $2); liter; liter = g_list_next ( liter ) ) {
+        for ( GList *iter = g_list_first ( (GList*)liter->data ); widget && iter ; iter = g_list_next ( iter ) ) {
+            widget = rofi_theme_find_or_create_name ( widget, iter->data );
+        }
+        g_list_free_full ( (GList*)liter->data, g_free );
+        widget->set = TRUE;
+        rofi_theme_widget_add_properties ( widget, $4);
+    }
+    if ( $4 ) {
+        g_hash_table_destroy ( $4 );
+    }
+    g_list_free ( $2 );
+}
+| t_media_entry_list t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE {
+    ThemeWidget *widget = $$ = $1 ;
+    for ( GList *liter = g_list_first ( $3); liter; liter = g_list_next ( liter ) ) {
+        for ( GList *iter = g_list_first ( (GList*)liter->data ); widget && iter ; iter = g_list_next ( iter ) ) {
+            widget = rofi_theme_find_or_create_name ( widget, iter->data );
+        }
+        g_list_free_full ( (GList*)liter->data, g_free );
+        widget->set = TRUE;
+        rofi_theme_widget_add_properties ( widget, $5);
+    }
+    if ( $5 ) {
+        g_hash_table_destroy ( $5 );
+    }
+    g_list_free ( $3 );
+};
+
 /**
  * Small dummy object to make the prefix optional.
  */
@@ -293,7 +336,7 @@ t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optio
 {
     for ( GList *liter = g_list_first ( $2); liter; liter = g_list_next ( liter ) ) {
         ThemeWidget *widget = rofi_theme;
-        for ( GList *iter = g_list_first ( (GList*)liter->data ); iter ; iter = g_list_next ( iter ) ) {
+        for ( GList *iter = g_list_first ( (GList*)liter->data ); widget && iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_name ( widget, iter->data );
         }
         g_list_free_full ( (GList*)liter->data, g_free );
@@ -310,6 +353,50 @@ t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optio
     rofi_theme_widget_add_properties ( rofi_theme, $3);
     if ( $3 ) {
         g_hash_table_destroy ( $3 );
+    }
+}
+| T_MEDIA T_PARENT_LEFT T_MEDIA_MIN T_MEDIA_SEP T_MEDIA_WIDTH T_PSEP t_property_distance  T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, "min-width" );
+    widget->set = TRUE;
+    widget->media = g_malloc0(sizeof(ThemeMedia));
+    widget->media->type = THEME_MEDIA_TYPE_MIN_WIDTH;
+    widget->media->value = $7;
+    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
+        ThemeWidget *d = $10->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+}
+| T_MEDIA T_PARENT_LEFT T_MEDIA_MIN T_MEDIA_SEP T_MEDIA_HEIGHT T_PSEP t_property_distance  T_PARENT_RIGHT T_BOPEN t_media_entry_list  T_BCLOSE {
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, "min-height" );
+    widget->set = TRUE;
+    widget->media = g_malloc0(sizeof(ThemeMedia));
+    widget->media->type = THEME_MEDIA_TYPE_MIN_HEIGHT;
+    widget->media->value = $7;
+    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
+        ThemeWidget *d = $10->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+}
+| T_MEDIA T_PARENT_LEFT T_MEDIA_MAX T_MEDIA_SEP T_MEDIA_WIDTH T_PSEP t_property_distance  T_PARENT_RIGHT T_BOPEN t_media_entry_list  T_BCLOSE {
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, "max-width" );
+    widget->set = TRUE;
+    widget->media = g_malloc0(sizeof(ThemeMedia));
+    widget->media->type = THEME_MEDIA_TYPE_MAX_WIDTH;
+    widget->media->value = $7;
+    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
+        ThemeWidget *d = $10->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+}
+| T_MEDIA T_PARENT_LEFT T_MEDIA_MAX T_MEDIA_SEP T_MEDIA_HEIGHT T_PSEP t_property_distance  T_PARENT_RIGHT T_BOPEN t_media_entry_list  T_BCLOSE {
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, "max-height");
+    widget->set = TRUE;
+    widget->media = g_malloc0(sizeof(ThemeMedia));
+    widget->media->type = THEME_MEDIA_TYPE_MAX_HEIGHT;
+    widget->media->value = $7;
+    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
+        ThemeWidget *d = $10->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
     }
 }
 ;

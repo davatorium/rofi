@@ -1021,3 +1021,81 @@ char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file
 
     return filename;
 }
+
+
+void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child )
+{
+    g_assert ( parent != NULL );
+    g_assert ( child != NULL );
+
+
+    ThemeWidget *w = rofi_theme_find_or_create_name ( parent, child->name);
+    rofi_theme_widget_add_properties ( w, child->properties);
+    for ( unsigned int i =0; i < child->num_widgets; i++) {
+        rofi_theme_parse_merge_widgets ( w, child->widgets[i]);
+    }
+}
+
+void  rofi_theme_parse_process_conditionals ( void )
+{
+    workarea mon;
+    monitor_active ( &mon );
+    if ( rofi_theme == NULL ) return;
+    for ( unsigned int i = 0; i < rofi_theme->num_widgets; i++ ) {
+            ThemeWidget *widget = rofi_theme->widgets[i];
+            if ( widget->media != NULL ) {
+                printf("merge conditional.\n");
+                switch ( widget->media->type )
+                {
+                    case THEME_MEDIA_TYPE_MIN_WIDTH:
+                        {
+                            int w = distance_get_pixel ( widget->media->value,ROFI_ORIENTATION_HORIZONTAL);
+                            if ( mon.w >= w ){
+                                printf("merge accepted\n");
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MAX_WIDTH:
+                        {
+                            int w = distance_get_pixel ( widget->media->value,ROFI_ORIENTATION_HORIZONTAL);
+                            if ( mon.w < w ){
+                                printf("merge accepted\n");
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MIN_HEIGHT:
+                        {
+                            int h = distance_get_pixel ( widget->media->value,ROFI_ORIENTATION_VERTICAL );
+                            if ( mon.h >= h ){
+                                printf("merge accepted\n");
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MAX_HEIGHT:
+                        {
+                            int h = distance_get_pixel ( widget->media->value,ROFI_ORIENTATION_VERTICAL);
+                            if ( mon.h < h ){
+                                printf("merge accepted\n");
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            break;
+                        }
+                }
+            }
+    }
+}
