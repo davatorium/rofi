@@ -1095,6 +1095,17 @@ void  rofi_theme_parse_process_conditionals ( void )
                             }
                             break;
                         }
+                    case THEME_MEDIA_TYPE_MON_ID:
+                        {
+                            printf("monitor id: %d %d\n", mon.monitor_id, widget->media->value);
+                            if ( mon.monitor_id == widget->media->value ){
+                                printf("merge accepted\n");
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
                     default:
                         {
                             break;

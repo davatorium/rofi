@@ -191,6 +191,8 @@ EAST       (?i:east)
 WEST       (?i:west)
 
 
+MONITOR_ID (?i:monitor-id)
+
 WIDTH (?i:width)
 HEIGHT (?i:height)
 
@@ -645,6 +647,9 @@ if ( queue == NULL ){
 }
 <MEDIA_CONTENT>{WIDTH} {
     return T_MEDIA_WIDTH;
+}
+<MEDIA_CONTENT>{MONITOR_ID} {
+    return T_MEDIA_MONITOR_ID;
 }
 <MEDIA_CONTENT>{HEIGHT} {
     return T_MEDIA_HEIGHT;
