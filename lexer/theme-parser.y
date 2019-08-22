@@ -306,6 +306,24 @@ t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optio
     }
     g_list_free ( $2 );
 }
+| T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
+    ThemeWidget *widget = $$ = g_slice_new0( ThemeWidget ) ;
+    widget = rofi_theme_find_or_create_name ( widget, "*" );
+    widget->set = TRUE;
+    rofi_theme_widget_add_properties ( widget, $3);
+    if ( $3 ) {
+        g_hash_table_destroy ( $3 );
+    }
+}
+| t_media_entry_list T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
+    ThemeWidget *widget = $$ = $1 ;
+    widget = rofi_theme_find_or_create_name ( widget, "*" );
+    widget->set = TRUE;
+    rofi_theme_widget_add_properties ( widget, $4);
+    if ( $4 ) {
+        g_hash_table_destroy ( $4 );
+    }
+}
 | t_media_entry_list t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE {
     ThemeWidget *widget = $$ = $1 ;
     for ( GList *liter = g_list_first ( $3); liter; liter = g_list_next ( liter ) ) {

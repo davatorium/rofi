@@ -1028,6 +1028,10 @@ void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child )
     g_assert ( parent != NULL );
     g_assert ( child != NULL );
 
+    if ( parent == rofi_theme && g_strcmp0(child->name, "*") == 0 ){
+        rofi_theme_widget_add_properties ( parent, child->properties);
+        return;
+    }
 
     ThemeWidget *w = rofi_theme_find_or_create_name ( parent, child->name);
     rofi_theme_widget_add_properties ( w, child->properties);
