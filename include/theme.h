@@ -39,6 +39,7 @@ typedef enum {
     THEME_MEDIA_TYPE_MIN_HEIGHT,
     THEME_MEDIA_TYPE_MAX_HEIGHT,
     THEME_MEDIA_TYPE_MON_ID,
+    THEME_MEDIA_TYPE_INVALID,
 } ThemeMediaType;
 
 
@@ -346,4 +347,5 @@ char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file
  */
 void rofi_theme_parse_process_conditionals ( void );
 void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child );
+ThemeMediaType rofi_theme_parse_media_type ( const char *type );
 #endif

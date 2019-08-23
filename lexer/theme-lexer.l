@@ -190,15 +190,6 @@ SOUTH      (?i:south)
 EAST       (?i:east)
 WEST       (?i:west)
 
-
-MONITOR_ID (?i:monitor-id)
-
-WIDTH (?i:width)
-HEIGHT (?i:height)
-
-MIN (?:min)
-MAX (?:max)
-
  /* Line Style */
 NONE          (?i:none)
 BOLD          (?i:bold)
@@ -645,23 +636,9 @@ if ( queue == NULL ){
     BEGIN(MEDIA_CONTENT);
     return T_PARENT_LEFT;
 }
-<MEDIA_CONTENT>{WIDTH} {
-    return T_MEDIA_WIDTH;
-}
-<MEDIA_CONTENT>{MONITOR_ID} {
-    return T_MEDIA_MONITOR_ID;
-}
-<MEDIA_CONTENT>{HEIGHT} {
-    return T_MEDIA_HEIGHT;
-}
-<MEDIA_CONTENT>{MIN} {
-    return T_MEDIA_MIN;
-}
-<MEDIA_CONTENT>{MAX} {
-    return T_MEDIA_MAX;
-}
-<MEDIA_CONTENT>"-" {
-    return T_MEDIA_SEP;
+<MEDIA_CONTENT>{WORD} {
+    yylval->sval = g_strdup(yytext);
+    return T_STRING;
 }
 <MEDIA_CONTENT>":" {
     return T_PSEP;
