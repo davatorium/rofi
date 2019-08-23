@@ -1048,14 +1048,12 @@ void  rofi_theme_parse_process_conditionals ( void )
     for ( unsigned int i = 0; i < rofi_theme->num_widgets; i++ ) {
             ThemeWidget *widget = rofi_theme->widgets[i];
             if ( widget->media != NULL ) {
-                printf("merge conditional.\n");
                 switch ( widget->media->type )
                 {
                     case THEME_MEDIA_TYPE_MIN_WIDTH:
                         {
                             int w = widget->media->value;
                             if ( mon.w >= w ){
-                                printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
                                     rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
                                 }
@@ -1066,7 +1064,6 @@ void  rofi_theme_parse_process_conditionals ( void )
                         {
                             int w = widget->media->value;
                             if ( mon.w < w ){
-                                printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
                                     rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
                                 }
@@ -1077,7 +1074,6 @@ void  rofi_theme_parse_process_conditionals ( void )
                         {
                             int h = widget->media->value;
                             if ( mon.h >= h ){
-                                printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
                                     rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
                                 }
@@ -1088,7 +1084,6 @@ void  rofi_theme_parse_process_conditionals ( void )
                         {
                             int h =  widget->media->value;
                             if ( mon.h < h ){
-                                printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
                                     rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
                                 }
@@ -1097,9 +1092,7 @@ void  rofi_theme_parse_process_conditionals ( void )
                         }
                     case THEME_MEDIA_TYPE_MON_ID:
                         {
-                            printf("monitor id: %d %d\n", mon.monitor_id, (int)widget->media->value);
                             if ( mon.monitor_id == widget->media->value ){
-                                printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
                                     rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
                                 }
@@ -1110,7 +1103,6 @@ void  rofi_theme_parse_process_conditionals ( void )
                         {
                             double r =  widget->media->value;
                             if ( (mon.w/(double)mon.h) >= r ){
-                                printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
                                     rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
                                 }
@@ -1121,7 +1113,6 @@ void  rofi_theme_parse_process_conditionals ( void )
                         {
                             double r =  widget->media->value;
                             if ( (mon.w/(double)mon.h) < r ){
-                                printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
                                     rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
                                 }

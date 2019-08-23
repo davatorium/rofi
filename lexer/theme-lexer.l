@@ -631,7 +631,6 @@ if ( queue == NULL ){
 }
 
 <MEDIA>{S_T_PARENT_LEFT} {
-    printf("push parent: %d %d\n", YY_START, MEDIA_CONTENT);
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(MEDIA_CONTENT);
     return T_PARENT_LEFT;
@@ -646,7 +645,6 @@ if ( queue == NULL ){
 <MEDIA_CONTENT>{S_T_PARENT_RIGHT} {
     int  id = GPOINTER_TO_INT(g_queue_pop_head ( queue ));
     BEGIN(id);
-    printf("closing parent: %d %d\n",id, MEDIA);
     return T_PARENT_RIGHT;
 }
 <MEDIA>"\{" {
