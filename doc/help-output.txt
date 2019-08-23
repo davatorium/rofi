@@ -27,6 +27,7 @@ DMENU command line options:
 	-u [list]                              List of row indexes to mark urgent
 	-a [list]                              List of row indexes to mark active
 	-l [integer]                           Number of rows to display
+	-window-title [string]                 Set the dmenu window title
 	-i                                     Set filter to be case insensitive
 	-only-match                            Force selection or custom entry
 	-no-custom                             Don't accept custom entry

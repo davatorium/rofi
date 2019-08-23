@@ -94,6 +94,8 @@ typedef struct
     char            *generic_name;
     /* Categories */
     char            **categories;
+    /* Keywords */
+    char            **keywords;
     /* Comments */
     char            *comment;
 
@@ -116,6 +118,7 @@ typedef enum
     DRUN_MATCH_FIELD_GENERIC,
     DRUN_MATCH_FIELD_EXEC,
     DRUN_MATCH_FIELD_CATEGORIES,
+    DRUN_MATCH_FIELD_KEYWORDS,
     DRUN_MATCH_FIELD_COMMENT,
     DRUN_MATCH_NUM_FIELDS,
 } DRunMatchingFields;
@@ -125,6 +128,7 @@ static DRunEntryField matching_entry_fields[DRUN_MATCH_NUM_FIELDS] = {
     { .entry_field_name = "generic",    .enabled = TRUE,  },
     { .entry_field_name = "exec",       .enabled = TRUE,  },
     { .entry_field_name = "categories", .enabled = TRUE,  },
+    { .entry_field_name = "keywords",   .enabled = TRUE,  },
     { .entry_field_name = "comment",    .enabled = FALSE, }
 };
 
@@ -455,6 +459,13 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     pd->entry_list[pd->cmd_list_length].action = DRUN_GROUP_NAME;
     gchar *gn = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "GenericName", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].generic_name = gn;
+
+    if ( matching_entry_fields[DRUN_MATCH_FIELD_KEYWORDS].enabled ) {
+            pd->entry_list[pd->cmd_list_length].keywords = g_key_file_get_locale_string_list ( kf, DRUN_GROUP_NAME, "Keywords", NULL, NULL, NULL );
+    } else {
+        pd->entry_list[pd->cmd_list_length].keywords = NULL;
+    }
+
     if ( matching_entry_fields[DRUN_MATCH_FIELD_CATEGORIES].enabled ) {
         if ( categories ) {
             pd->entry_list[pd->cmd_list_length].categories = categories;
@@ -727,6 +738,7 @@ static void drun_entry_clear ( DRunModeEntry *e )
         g_free ( e->action );
     }
     g_strfreev ( e->categories );
+    g_strfreev ( e->keywords );
     g_key_file_free ( e->key_file );
 }
 
@@ -801,6 +813,14 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
             g_free (tcats);
         }
     }
+    gchar *keywords= NULL;
+    if ( dr->keywords ){
+        char *tkeyw= g_strjoinv(",", dr->keywords);
+        if ( tkeyw ) {
+            keywords = g_markup_escape_text ( tkeyw, -1 );
+            g_free (tkeyw);
+        }
+    }
     // Needed for display.
     char *egn = NULL;
     char *en = NULL;
@@ -822,6 +842,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
             "{comment}", ec,
             "{exec}", dr->exec,
             "{categories}", cats,
+            "{keywords}", keywords,
             NULL);
     g_free ( egn );
     g_free ( en );
@@ -888,6 +909,15 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
                 // Match against category.
                 if ( test == tokens[j]->invert ) {
                     gchar **list = rmpd->entry_list[index].categories;
+                    for ( int iter = 0; test == tokens[j]->invert && list && list[iter]; iter++ ) {
+                        test = helper_token_match ( ftokens, list[iter] );
+                    }
+                }
+            }
+            if ( matching_entry_fields[DRUN_MATCH_FIELD_KEYWORDS].enabled ) {
+                // Match against category.
+                if ( test == tokens[j]->invert ) {
+                    gchar **list = rmpd->entry_list[index].keywords;
                     for ( int iter = 0; test == tokens[j]->invert && list && list[iter]; iter++ ) {
                         test = helper_token_match ( ftokens, list[iter] );
                     }

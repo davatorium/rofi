@@ -41,7 +41,7 @@ rofi.window-command:                 xkill -id {window}
 ! "Theme to use to look for icons" Set from: Default
 ! rofi.icon-theme:                     
 ! "Desktop entry fields to match in drun" Set from: Default
-! rofi.drun-match-fields:              name,generic,exec,categories
+! rofi.drun-match-fields:              name,generic,exec,categories,keywords
 ! "Only show Desktop entry from these categories" Set from: Default
 ! rofi.drun-categories:                
 ! "Desktop entry show actions." Set from: Default
