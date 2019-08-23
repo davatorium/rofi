@@ -39,13 +39,15 @@ typedef enum {
     THEME_MEDIA_TYPE_MIN_HEIGHT,
     THEME_MEDIA_TYPE_MAX_HEIGHT,
     THEME_MEDIA_TYPE_MON_ID,
+    THEME_MEDIA_TYPE_MIN_ASPECT_RATIO,
+    THEME_MEDIA_TYPE_MAX_ASPECT_RATIO,
     THEME_MEDIA_TYPE_INVALID,
 } ThemeMediaType;
 
 
 typedef struct ThemeMedia {
     ThemeMediaType type;
-    int value;
+    double value;
 } ThemeMedia;
 
 /**

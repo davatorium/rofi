@@ -1097,8 +1097,30 @@ void  rofi_theme_parse_process_conditionals ( void )
                         }
                     case THEME_MEDIA_TYPE_MON_ID:
                         {
-                            printf("monitor id: %d %d\n", mon.monitor_id, widget->media->value);
+                            printf("monitor id: %d %d\n", mon.monitor_id, (int)widget->media->value);
                             if ( mon.monitor_id == widget->media->value ){
+                                printf("merge accepted\n");
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MIN_ASPECT_RATIO:
+                        {
+                            double r =  widget->media->value;
+                            if ( (mon.w/(double)mon.h) >= r ){
+                                printf("merge accepted\n");
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MAX_ASPECT_RATIO:
+                        {
+                            double r =  widget->media->value;
+                            if ( (mon.w/(double)mon.h) < r ){
                                 printf("merge accepted\n");
                                 for ( unsigned int x =0; x < widget->num_widgets; x++) {
                                     rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
@@ -1128,6 +1150,10 @@ ThemeMediaType rofi_theme_parse_media_type ( const char *type )
         return THEME_MEDIA_TYPE_MAX_WIDTH;
     } else if ( g_strcmp0 ( type, "max-height")  == 0 ) {
         return THEME_MEDIA_TYPE_MAX_HEIGHT;
+    } else if ( g_strcmp0 ( type, "min-aspect-ratio") == 0 ) {
+        return THEME_MEDIA_TYPE_MIN_ASPECT_RATIO;
+    } else if ( g_strcmp0 ( type, "max-aspect-ratio") == 0 ) {
+        return THEME_MEDIA_TYPE_MAX_ASPECT_RATIO;
     }
     return THEME_MEDIA_TYPE_INVALID;
 }
