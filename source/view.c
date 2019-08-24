@@ -1647,7 +1647,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     /**
      * MODE SWITCHER
      */
-    else if ( strcmp ( name, "mode-switcher" ) == 0 ) {
+    else if ( strcmp ( name, "mode-switcher" ) == 0 || strcmp ( name, "sidebar" ) == 0 ) {
         if ( state->sidebar_bar != NULL ) {
             g_error ( "Mode-switcher can only be added once to the layout." );
             return;
