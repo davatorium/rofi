@@ -1503,6 +1503,38 @@ static int rofi_view_calculate_height ( RofiViewState *state )
     return widget_get_desired_height ( main_window );
 }
 
+static WidgetTriggerActionResult textbox_button_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data )
+{
+    RofiViewState *state = ( RofiViewState *) user_data;
+    switch ( action )
+    {
+    case MOUSE_CLICK_DOWN:
+        {
+            const char * type = rofi_theme_get_string ( wid, "action", "ok" );
+            ( state->selected_line ) = state->line_map[listview_get_selected ( state->list_view )];
+            if ( strcmp(type, "ok") == 0 ) {
+                state->retv        = MENU_OK;
+            } else if ( strcmp ( type, "ok|alternate" ) == 0 ) {
+                state->retv        = MENU_CUSTOM_ACTION|MENU_OK;
+            } else if ( strcmp ( type, "custom") ) {
+                state->retv        = MENU_CUSTOM_INPUT;
+            } else if ( strcmp ( type, "custom|alternate" ) == 0 ) {
+                state->retv        = MENU_CUSTOM_ACTION|MENU_CUSTOM_INPUT;
+            } else {
+                g_warning("Invalid action specified.");
+                return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
+            }
+            state->quit        = TRUE;
+            state->skip_absorb = TRUE;
+            return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
+        }
+    case MOUSE_CLICK_UP:
+    case MOUSE_DCLICK_DOWN:
+    case MOUSE_DCLICK_UP:
+        break;
+    }
+    return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
+}
 static WidgetTriggerActionResult textbox_sidebar_modi_trigger_action ( widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data )
 {
     RofiViewState *state = ( RofiViewState *) user_data;
@@ -1647,7 +1679,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     /**
      * MODE SWITCHER
      */
-    else if ( strcmp ( name, "mode-switcher" ) == 0 ) {
+    else if ( strcmp ( name, "mode-switcher" ) == 0 || strcmp ( name, "sidebar" ) == 0 ) {
         if ( state->sidebar_bar != NULL ) {
             g_error ( "Mode-switcher can only be added once to the layout." );
             return;
@@ -1672,6 +1704,11 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     else if (  g_ascii_strncasecmp ( name, "textbox", 7 ) == 0 ) {
         textbox *t = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0 );
         box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
+    }
+    else if (  g_ascii_strncasecmp ( name, "button", 6 ) == 0 ) {
+        textbox *t = textbox_create ( parent_widget, WIDGET_TYPE_EDITBOX, name, TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0 );
+        box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
+        widget_set_trigger_action_handler ( WIDGET ( t ), textbox_button_trigger_action, state );
     }
     else if (  g_ascii_strncasecmp ( name, "icon", 4 ) == 0 ) {
         icon *t = icon_create ( parent_widget, name );
