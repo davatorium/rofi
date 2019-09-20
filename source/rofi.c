@@ -999,6 +999,9 @@ int main ( int argc, char *argv[] )
     }
     TICK_N ( "Setup late Display" );
 
+    rofi_theme_parse_process_conditionals ();
+    TICK_N ( "Theme setup" );
+
     // Setup signal handling sources.
     // SIGINT
     g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );

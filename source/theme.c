@@ -1021,3 +1021,131 @@ char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file
 
     return filename;
 }
+
+
+void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child )
+{
+    g_assert ( parent != NULL );
+    g_assert ( child != NULL );
+
+    if ( parent == rofi_theme && g_strcmp0(child->name, "*") == 0 ){
+        rofi_theme_widget_add_properties ( parent, child->properties);
+        return;
+    }
+
+    ThemeWidget *w = rofi_theme_find_or_create_name ( parent, child->name);
+    rofi_theme_widget_add_properties ( w, child->properties);
+    for ( unsigned int i =0; i < child->num_widgets; i++) {
+        rofi_theme_parse_merge_widgets ( w, child->widgets[i]);
+    }
+}
+
+void  rofi_theme_parse_process_conditionals ( void )
+{
+    workarea mon;
+    monitor_active ( &mon );
+    if ( rofi_theme == NULL ) return;
+    for ( unsigned int i = 0; i < rofi_theme->num_widgets; i++ ) {
+            ThemeWidget *widget = rofi_theme->widgets[i];
+            if ( widget->media != NULL ) {
+                switch ( widget->media->type )
+                {
+                    case THEME_MEDIA_TYPE_MIN_WIDTH:
+                        {
+                            int w = widget->media->value;
+                            if ( mon.w >= w ){
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MAX_WIDTH:
+                        {
+                            int w = widget->media->value;
+                            if ( mon.w < w ){
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MIN_HEIGHT:
+                        {
+                            int h = widget->media->value;
+                            if ( mon.h >= h ){
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MAX_HEIGHT:
+                        {
+                            int h =  widget->media->value;
+                            if ( mon.h < h ){
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MON_ID:
+                        {
+                            if ( mon.monitor_id == widget->media->value ){
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MIN_ASPECT_RATIO:
+                        {
+                            double r =  widget->media->value;
+                            if ( (mon.w/(double)mon.h) >= r ){
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    case THEME_MEDIA_TYPE_MAX_ASPECT_RATIO:
+                        {
+                            double r =  widget->media->value;
+                            if ( (mon.w/(double)mon.h) < r ){
+                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
+                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                                }
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            break;
+                        }
+                }
+            }
+    }
+}
+
+
+ThemeMediaType rofi_theme_parse_media_type ( const char *type )
+{
+    if ( g_strcmp0( type, "monitor-id" ) == 0 ) {
+        return THEME_MEDIA_TYPE_MON_ID;
+    } else if ( g_strcmp0 ( type, "min-width")  == 0 ) {
+        return THEME_MEDIA_TYPE_MIN_WIDTH;
+    } else if ( g_strcmp0 ( type, "min-height")  == 0 ) {
+        return THEME_MEDIA_TYPE_MIN_HEIGHT;
+    } else if ( g_strcmp0 ( type, "max-width")  == 0 ) {
+        return THEME_MEDIA_TYPE_MAX_WIDTH;
+    } else if ( g_strcmp0 ( type, "max-height")  == 0 ) {
+        return THEME_MEDIA_TYPE_MAX_HEIGHT;
+    } else if ( g_strcmp0 ( type, "min-aspect-ratio") == 0 ) {
+        return THEME_MEDIA_TYPE_MIN_ASPECT_RATIO;
+    } else if ( g_strcmp0 ( type, "max-aspect-ratio") == 0 ) {
+        return THEME_MEDIA_TYPE_MAX_ASPECT_RATIO;
+    }
+    return THEME_MEDIA_TYPE_INVALID;
+}
+

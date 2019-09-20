@@ -239,6 +239,8 @@ C_COMMENT_OPEN "/*"
 INCLUDE    "@import"
 THEME "@theme"
 
+MEDIA "@media"
+
 CONFIGURATION (?i:configuration)
 
 %x INCLUDE
@@ -250,6 +252,8 @@ CONFIGURATION (?i:configuration)
 %x NAMESTR
 %x SECTION
 %x DEFAULTS
+%x MEDIA
+%x MEDIA_CONTENT
 %%
 
 %{
@@ -424,13 +428,13 @@ if ( queue == NULL ){
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST,PROPERTIES_VAR>{WHITESPACE}+	; // ignore all whitespace
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST,PROPERTIES_VAR,MEDIA_CONTENT>{WHITESPACE}+	; // ignore all whitespace
 
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>@{WORD}               {
@@ -440,7 +444,7 @@ if ( queue == NULL ){
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{EM}       { return T_UNIT_EM; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CH}       { return T_UNIT_CH; }
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PX}       { return T_UNIT_PX; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PX}       { return T_UNIT_PX; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PERCENT}  { return T_PERCENT; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LS_SOLID} { return T_SOLID;   }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LS_DASH}  { return T_DASH;    }
@@ -619,6 +623,50 @@ if ( queue == NULL ){
         yylloc->last_line ++;
 };
 
+
+<INITIAL>{MEDIA} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(MEDIA);
+    return T_MEDIA;
+}
+
+<MEDIA>{S_T_PARENT_LEFT} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(MEDIA_CONTENT);
+    return T_PARENT_LEFT;
+}
+<MEDIA_CONTENT>{WORD} {
+    yylval->sval = g_strdup(yytext);
+    return T_STRING;
+}
+<MEDIA_CONTENT>":" {
+    return T_PSEP;
+}
+<MEDIA_CONTENT>{S_T_PARENT_RIGHT} {
+    int  id = GPOINTER_TO_INT(g_queue_pop_head ( queue ));
+    BEGIN(id);
+    return T_PARENT_RIGHT;
+}
+<MEDIA>"\{" {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(INITIAL);
+    return T_BOPEN;
+}
+
+<INITIAL>"\}" {
+    g_queue_pop_head ( queue );
+    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
+    return T_BCLOSE;
+}
+<MEDIA>{WHITESPACE}+	; // ignore all whitespace
+
+
+<MEDIA,MEDIA_CONTENT>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"found: |%s|\n", yytext);
+    return T_ERROR;
+}
+
  /**
   * If we just encounter a word, we assume it is a Widget name.
   * This makes include,theme, configuration a reserved keyword.
@@ -630,9 +678,13 @@ if ( queue == NULL ){
     return T_NAME_ELEMENT;
 }
 <INITIAL>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"initial found: |%s|\n", yytext);
     return T_ERROR;
 }
 <SECTION>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"section found: |%s|\n", yytext);
     return T_ERROR_SECTION;
 }
 <PROPERTIES_LIST,PROPERTIES_VAR>{WORD} {
@@ -646,9 +698,13 @@ if ( queue == NULL ){
 }
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"prop found: |%s|\n", yytext);
     return T_ERROR_PROPERTY;
 }
 <NAMESTR>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"namestr found: |%s|\n", yytext);
     return T_ERROR_NAMESTRING;
 }
 %%
