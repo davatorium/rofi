@@ -1,1233 +1,1664 @@
-.TH "ROFI" "" "August 2019" "" ""
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "ROFI" "1" "August 2019" "" ""
+.
 .SH "NAME"
-\fBROFI\fR
-.SH NAME
-.P
-\fBrofi\fR \- A window switcher,  application launcher, ssh dialog and dmenu replacement
-.SH SYNOPSIS
-.P
+\fBrofi\fR \- A window switcher, application launcher, ssh dialog and dmenu replacement
+.
+.SH "SYNOPSIS"
 \fBrofi\fR [ \-show \fImode\fR ]|[ \-dmenu ]|[ \-e \fImsg\fR ] [ CONFIGURATION ]
-.SH DESCRIPTION
+.
+.SH "DESCRIPTION"
+\fBrofi\fR is an X11 pop\-up window switcher, run dialog, dmenu replacement, and more\. It focuses on being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to filter, tokenized search and more\.
+.
+.SH "USAGE"
+\fBrofi\fR\'s main functionality is to assist in your workflow, allowing you to quickly switch between windows, start applications or log into a remote machine via ssh\. There are different \fImodi\fR for different types of actions\.
+.
 .P
-\fBrofi\fR is an X11 pop\-up window switcher, run dialog, dmenu replacement, and more\. It focuses on
-being fast to use and have minimal distraction\. It supports keyboard and mouse navigation, type to
-filter, tokenized search and more\.
-.SH USAGE
-.P
-\fBrofi\fR\|'s main functionality is to assist in your workflow, allowing you to quickly switch
-between windows, start applications or log into a remote machine via ssh\. There are different \fImodi\fR for different types of
-actions\.
-.P
-\fBrofi\fR can also function as (drop\-in) replacement for \fBdmenu(1)\fR\|\.
-.SS Running rofi
-.P
-To launch \fBrofi\fR directly in a certain mode, specify a mode with \fBrofi \-show <mode>\fP\|\.
-To show the run dialog:
-.P
-.RS 2
+\fBrofi\fR can also function as (drop\-in) replacement for \fBdmenu(1)\fR\.
+.
+.SS "Running rofi"
+To launch \fBrofi\fR directly in a certain mode, specify a mode with \fBrofi \-show <mode>\fR\. To show the run dialog:
+.
+.IP "" 4
+.
 .nf
+
 rofi \-show run
+.
 .fi
-.RE
-.SS Emulating dmenu
+.
+.IP "" 0
+.
+.SS "Emulating dmenu"
+\fBrofi\fR can emulate \fBdmenu(1)\fR (a dynamic menu for X) when launched with the \fB\-dmenu\fR flag\.
+.
 .P
-\fBrofi\fR can emulate \fBdmenu(1)\fR (a dynamic menu for X) when launched with the \fB\-dmenu\fP flag\.
+The website for \fBdmenu\fR can be found here \fIhttp://tools\.suckless\.org/dmenu/\fR\.
+.
 .P
-The website for \fBdmenu\fP can be found here \fIhttp://tools\.suckless\.org/dmenu/\fR\|\.
-.P
-\fBrofi\fR does not aim to be 100% compatible with dmenu\. There are simply too many different flavors of dmenu\.
-The idea is that the basic usage command\-line flags are obeyed, theme\-related flags are not\.
-Besides, \fBrofi\fR offers some extended features (like multi\-select, highlighting, message bar, extra key bindings)\.
-.SS Display Error message
-.P
+\fBrofi\fR does not aim to be 100% compatible with dmenu\. There are simply too many different flavors of dmenu\. The idea is that the basic usage command\-line flags are obeyed, theme\-related flags are not\. Besides, \fBrofi\fR offers some extended features (like multi\-select, highlighting, message bar, extra key bindings)\.
+.
+.SS "Display Error message"
 \fBrofi\fR error dialog can also be called from the command line\.
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-e "my message"
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Markup support can be enabled, see CONFIGURATION options\.
-.SH CONFIGURATION
-.P
+.
+.SH "CONFIGURATION"
 There are currently three methods of setting configuration options (evaluated in order below):
-.RS 0
-.IP \(bu 2
-System configuration file (for example \fB/etc/rofi\.conf\fP)\.
-.IP \(bu 2
-Xresources: A method of storing key values in the Xserver\. See
-here \fIhttps://en\.wikipedia\.org/wiki/X_resources\fR for more information\.
-.IP \(bu 2
+.
+.IP "\(bu" 4
+System configuration file (for example \fB/etc/rofi\.conf\fR)\.
+.
+.IP "\(bu" 4
+Xresources: A method of storing key values in the Xserver\. See here \fIhttps://en\.wikipedia\.org/wiki/X_resources\fR for more information\.
+.
+.IP "\(bu" 4
 Rasi theme file: The new \fItheme\fR format can be used to set configuration values\.
-.IP \(bu 2
-Configuration File: This uses the same format as the Xresources file\.
-By default it looks in \fBXDG_USER_CONFIG_DIR\fP/rofi/config, but can be overridden on commandline\.
-By default XDG_USER_CONFIG_DIR defaults to \fB$HOME/\.config\fP\|\. (See \fBrofi \-h\fP for current location)\.
-This is the recommended way of configuring \fBrofi\fR\|\.
-.IP \(bu 2
-Command\-line options: Arguments passed to \fBrofi\fR\|\.
+.
+.IP "\(bu" 4
+Configuration File: This uses the same format as the Xresources file\. By default it looks in \fBXDG_USER_CONFIG_DIR\fR/rofi/config, but can be overridden on commandline\. By default XDG_USER_CONFIG_DIR defaults to \fB$HOME/\.config\fR\. (See \fBrofi \-h\fR for current location)\. This is the recommended way of configuring \fBrofi\fR\.
+.
+.IP "\(bu" 4
+Command\-line options: Arguments passed to \fBrofi\fR\.
+.
+.IP "" 0
+.
+.P
+\fBTIP\fR: To get a template config file run: \fBrofi \-dump\-xresources > rofi\-example\.config\fR\. \fBNOTE\fR: In version 1\.4\.0 we support configuration in a new format, a config for this can be generated by: \fBrofi \-dump\-config > config\.rasi\fR \fBNOTE\fR: If you want to use the new configuration format, the config file should be named \fBconfig\.rasi\fR\.
+.
+.P
+The Xresources file expects options starting with \fBrofi\.\fR followed by its name\. An example to set the number of lines:
+.
+.IP "" 4
+.
+.nf
 
-.RE
-.P
-\fBTIP\fR: To get a template config file run: \fBrofi \-dump\-xresources > rofi\-example\.config\fP\|\.
-\fBNOTE\fR: In version 1\.4\.0 we support configuration in a new format, a config for this can be generated by: \fBrofi
-\-dump\-config > config\.rasi\fP
-\fBNOTE\fR: If you want to use the new configuration format, the config file should be named \fBconfig\.rasi\fP\|\.
-.P
-The Xresources file expects options starting with \fBrofi\.\fP followed by its name\. An example to set the number of lines:
-.P
-.RS 2
-.nf
 rofi\.lines: 10
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-Command line options override settings from Xresources file\. The same option set as argument — prefixed with a '\-':
-.P
-.RS 2
+Command line options override settings from Xresources file\. The same option set as argument — prefixed with a \'\-\':
+.
+.IP "" 4
+.
 .nf
+
 rofi \-lines 10
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 To get a list of available options formatted as Xresources entries, run:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-dump\-xresources
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 The configuration system supports the following types:
-.RS 0
-.IP \(bu 2
+.
+.IP "\(bu" 4
 string
-.IP \(bu 2
+.
+.IP "\(bu" 4
 integer (signed and unsigned)
-.IP \(bu 2
+.
+.IP "\(bu" 4
 char
-.IP \(bu 2
+.
+.IP "\(bu" 4
 Boolean
-
-.RE
+.
+.IP "" 0
+.
 .P
 Boolean options have a non\-default command\-line syntax\. Example to enable option X:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 \-X
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 To disable option X:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 \-no\-X
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Below is a list of the most important options:
-.SS General
+.
+.SS "General"
+\fB\-help\fR
+.
 .P
-\fB\-help\fP
+The help option shows the full list of commandline options and the current set value\. These include dynamic (run\-time generated) options\.
+.
 .P
-The help option shows the full list of commandline options and the current set value\.
-These include dynamic (run\-time generated) options\.
+\fB\-dump\-xresources\fR
+.
 .P
-\fB\-dump\-xresources\fP
+Dump the current active configuration in Xresources format to the command\-line\. This does not validate all passed values (for example, colors)\.
+.
 .P
-Dump the current active configuration in Xresources format to the command\-line\.
-This does not validate all passed values (for example, colors)\.
-.P
-\fB\-threads\fP \fInum\fR
+\fB\-threads\fR \fInum\fR
+.
 .P
 Specify the number of threads \fBrofi\fR should use:
-.RS 0
-.IP \(bu 2
+.
+.IP "\(bu" 4
 0: Autodetect the number of supported hardware threads\.
-.IP \(bu 2
+.
+.IP "\(bu" 4
 1: Disable threading
-.IP \(bu 2
+.
+.IP "\(bu" 4
 2\.\.N: Specify the maximum number of threads to use in the thread pool\.
-
-.RE
+.
+.IP "" 0
+.
 .P
-\fB\-dmenu\fP
+\fB\-dmenu\fR
+.
 .P
-Run \fBrofi\fR in dmenu mode\. This allows for interactive scripts\.
-In \fBdmenu\fP mode, \fBrofi\fR reads from STDIN, and output to STDOUT\.
-A simple example, displaying three pre\-defined options:
-.P
-.RS 2
+Run \fBrofi\fR in dmenu mode\. This allows for interactive scripts\. In \fBdmenu\fR mode, \fBrofi\fR reads from STDIN, and output to STDOUT\. A simple example, displaying three pre\-defined options:
+.
+.IP "" 4
+.
 .nf
-echo \-e "Option #1\\nOption #2\\nOption #3" | rofi \-dmenu
+
+echo \-e "Option #1\enOption #2\enOption #3" | rofi \-dmenu
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Or get the options from a script:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 ~/my_script\.sh | rofi \-dmenu
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-\fB\-show\fP \fImode\fR
+\fB\-show\fR \fImode\fR
+.
 .P
-Open \fBrofi\fR in a certain mode\. Available modes are \fBwindow\fP, \fBrun\fP, \fBdrun\fP, \fBssh\fP, \fBcombi\fP\|\.
-The special argument \fBkeys\fP can be used to open a searchable list of supported key bindings
-(see \fIKEY BINDINGS\fR)
+Open \fBrofi\fR in a certain mode\. Available modes are \fBwindow\fR, \fBrun\fR, \fBdrun\fR, \fBssh\fR, \fBcombi\fR\. The special argument \fBkeys\fR can be used to open a searchable list of supported key bindings (see \fIKEY BINDINGS\fR)
+.
 .P
 To show the run\-dialog:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-show run
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-\fB\-modi\fP \fImode1,mode1\fR
+\fB\-modi\fR \fImode1,mode1\fR
+.
 .P
-Specify an ordered, comma\-separated list of modes to enable\.
-Enabled modes can be changed at runtime\. Default key is Ctrl+Tab\.
-If no modes are specified, all modes will be enabled\.
-To only show the run and ssh launcher:
-.P
-.RS 2
+Specify an ordered, comma\-separated list of modes to enable\. Enabled modes can be changed at runtime\. Default key is Ctrl+Tab\. If no modes are specified, all modes will be enabled\. To only show the run and ssh launcher:
+.
+.IP "" 4
+.
 .nf
+
 rofi \-modi "run,ssh" \-show run
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-Custom modes can be added using the internal 'script' mode\. Each mode has two parameters:
-.P
-.RS 2
+Custom modes can be added using the internal \'script\' mode\. Each mode has two parameters:
+.
+.IP "" 4
+.
 .nf
+
 <name>:<script>
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-Example: Have a mode 'Workspaces' using the \fBi3_switch_workspaces\.sh\fP script:
-.P
-.RS 2
+Example: Have a mode \'Workspaces\' using the \fBi3_switch_workspaces\.sh\fR script:
+.
+.IP "" 4
+.
 .nf
+
 rofi \-modi "window,run,ssh,Workspaces:i3_switch_workspaces\.sh" \-show Workspaces
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-Notes: The I3 Window manager does not like commas in the command when specifying an exec command\.
-For that case '#' can be used as an separator\.
+Notes: The I3 Window manager does not like commas in the command when specifying an exec command\. For that case \'#\' can be used as an separator\.
+.
 .P
-\fB\-case\-sensitive\fP
+\fB\-case\-sensitive\fR
+.
 .P
-Start in case sensitive mode\.
-This option can be changed at run\-time using the \fB\-kb\-toggle\-case\-sensitivity\fP key binding\.
+Start in case sensitive mode\. This option can be changed at run\-time using the \fB\-kb\-toggle\-case\-sensitivity\fR key binding\.
+.
 .P
-\fB\-cycle\fP
+\fB\-cycle\fR
+.
 .P
-Cycle through the result list\. Default is 'true'\.
+Cycle through the result list\. Default is \'true\'\.
+.
 .P
-\fB\-filter\fP \fIfilter\fR
+\fB\-filter\fR \fIfilter\fR
+.
 .P
 Filter the list by setting text in input bar to \fIfilter\fR
+.
 .P
-\fB\-config\fP \fIfilename\fR
+\fB\-config\fR \fIfilename\fR
+.
 .P
 Load an alternative configuration file\.
+.
 .P
-\fB\-cache\-dir\fP \fIfilename\fR
+\fB\-cache\-dir\fR \fIfilename\fR
+.
 .P
 Directory that is used to place temporary files, like history\.
+.
 .P
-\fB\-scroll\-method\fP \fImethod\fR
+\fB\-scroll\-method\fR \fImethod\fR
+.
 .P
 Select the scrolling method\. 0: Per page, 1: continuous\.
+.
 .P
-\fB\-[no\-]show\-match\fP
+\fB\-[no\-]show\-match\fR
+.
 .P
 Show the indicator that shows what part of the string is matched\.
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 Default: *true*
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-\fB\-no\-lazy\-grab\fP
+\fB\-no\-lazy\-grab\fR
+.
 .P
 Disables lazy grab, this forces the keyboard being grabbed before gui is shown\.
+.
 .P
-\fB\-no\-plugins\fP
+\fB\-no\-plugins\fR
+.
 .P
 Disable plugin loading\.
+.
 .P
-\fB\-plugin\-path\fP \fIdirectory\fR
+\fB\-plugin\-path\fR \fIdirectory\fR
+.
 .P
 Specify the directory where \fBrofi\fR should look for plugins\.
+.
 .P
-\fB\-show\-icons\fP
+\fB\-show\-icons\fR
+.
 .P
 Show application icons in drun and window modes\.
+.
 .P
-\fB\-icon\-theme\fP
+\fB\-icon\-theme\fR
+.
 .P
-Specify icon theme to be used\.
-If not specified default theme from DE is used, \fIAdwaita\fR and \fIgnome\fR themes act as
-fallback themes\.
-.SS Matching
+Specify icon theme to be used\. If not specified default theme from DE is used, \fIAdwaita\fR and \fIgnome\fR themes act as fallback themes\.
+.
+.SS "Matching"
+\fB\-matching\fR \fImethod\fR
+.
 .P
-\fB\-matching\fP \fImethod\fR
-.P
-Specify the matching algorithm used\.
-Current the following methods are supported\.
-.RS 0
-.IP \(bu 2
+Specify the matching algorithm used\. Current the following methods are supported\.
+.
+.IP "\(bu" 4
 \fBnormal\fR: match the int string
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBregex\fR: match a regex input
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBglob\fR: match a glob pattern
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBfuzzy\fR: do a fuzzy match
- Default: \fInormal\fR
-
-.RE
+.
+.IP
+Default: \fInormal\fR
+.
+.IP "" 0
+.
 .P
 Note: glob matching might be slow for larger lists
+.
 .P
-\fB\-tokenize\fP
+\fB\-tokenize\fR
+.
 .P
 Tokenize the input\.
+.
 .P
-\fB\-drun\-categories\fP \fIcategory\fR,\fIcategory\fR
+\fB\-drun\-categories\fR \fIcategory\fR,\fIcategory\fR
+.
 .P
 Only show desktop files that are present in the listed categories\.
+.
 .P
-\fB\-drun\-match\-fields\fP \fIfield1\fR,\fIfield2\fR,\.\.\.
+\fB\-drun\-match\-fields\fR \fIfield1\fR,\fIfield2\fR,\.\.\.
+.
 .P
-When using drun, match only with the specified Desktop entry fields\.
-The different fields are:
-.RS 0
-.IP \(bu 2
-\fBname\fR: the application's name
-.IP \(bu 2
-\fBgeneric\fR: the application's generic name
-.IP \(bu 2
-\fBexec\fR: the application's  executable
-.IP \(bu 2
-\fBcategories\fR: the application's categories
-.IP \(bu 2
+When using drun, match only with the specified Desktop entry fields\. The different fields are:
+.
+.IP "\(bu" 4
+\fBname\fR: the application\'s name
+.
+.IP "\(bu" 4
+\fBgeneric\fR: the application\'s generic name
+.
+.IP "\(bu" 4
+\fBexec\fR: the application\'s executable
+.
+.IP "\(bu" 4
+\fBcategories\fR: the application\'s categories
+.
+.IP "\(bu" 4
 \fBcomment\fR: the application comment
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBall\fR: all of the above
-  Default: \fIname,generic,exec,categories\fR
-
-.RE
+.
+.IP
+Default: \fIname,generic,exec,categories\fR
+.
+.IP "" 0
+.
 .P
-\fB\-drun\-display\-format\fP
+\fB\-drun\-display\-format\fR
+.
 .P
 The format string for the drun dialog:
-.RS 0
-.IP \(bu 2
-\fBname\fR: the application's name
-.IP \(bu 2
-\fBgeneric\fR: the application's generic name
-.IP \(bu 2
-\fBexec\fR: the application's  executable
-.IP \(bu 2
-\fBcategories\fR: the application's categories
-.IP \(bu 2
+.
+.IP "\(bu" 4
+\fBname\fR: the application\'s name
+.
+.IP "\(bu" 4
+\fBgeneric\fR: the application\'s generic name
+.
+.IP "\(bu" 4
+\fBexec\fR: the application\'s executable
+.
+.IP "\(bu" 4
+\fBcategories\fR: the application\'s categories
+.
+.IP "\(bu" 4
 \fBcomment\fR: the application comment
-
-.RE
+.
+.IP "" 0
+.
 .P
 Pango markup can be used to formatting the output\.
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
-Default: {name} [<span weight='light' size='small'><i>({generic})</i></span>]
+
+Default: {name} [<span weight=\'light\' size=\'small\'><i>({generic})</i></span>]
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-Note: Only fields enabled in \fB\-drun\-match\-fields\fP can be used in the format string\.
+Note: Only fields enabled in \fB\-drun\-match\-fields\fR can be used in the format string\.
+.
 .P
-\fB\-[no\-]drun\-show\-actions\fP
+\fB\-[no\-]drun\-show\-actions\fR
+.
 .P
 Show actions present in the Desktop files\.
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
-Default: false
-.fi
-.RE
-.P
-\fB\-window\-match\-fields\fP \fIfield1\fR,\fIfield2\fR,\.\.\.
-.P
-When using window mode, match only with the specified fields\.
-The different fields are:
-.RS 0
-.IP \(bu 2
-\fBtitle\fR: window's title
-.IP \(bu 2
-\fBclass\fR: window's class
-.IP \(bu 2
-\fBrole\fR: window's role
-.IP \(bu 2
-\fBname\fR: window's name
-.IP \(bu 2
-\fBdesktop\fR: window's current desktop
-.IP \(bu 2
-\fBall\fR: all of the above
-  Default: \fIall\fR
 
-.RE
-.P
-\fB\-matching\-negate\-char\fP \fIchar\fR
-.P
-Set the character used to negate the query (i\.e\. if it does \fBnot\fR match the next keyword )\.
-Set to '\\x0' to disable\.
-.P
-.RS 2
-.nf
-Default: '\-'
+Default: false
+.
 .fi
-.RE
-.SS Layout
+.
+.IP "" 0
+.
 .P
-Most of the following options are \fBdeprecated\fR and should not be used\. Please use the new theme format to customize
-\fBrofi\fR\|\. More information about the new format can be found in the \fBrofi\-theme(5)\fR manpage\.
+\fB\-window\-match\-fields\fR \fIfield1\fR,\fIfield2\fR,\.\.\.
+.
 .P
-\fB\-lines\fP
+When using window mode, match only with the specified fields\. The different fields are:
+.
+.IP "\(bu" 4
+\fBtitle\fR: window\'s title
+.
+.IP "\(bu" 4
+\fBclass\fR: window\'s class
+.
+.IP "\(bu" 4
+\fBrole\fR: window\'s role
+.
+.IP "\(bu" 4
+\fBname\fR: window\'s name
+.
+.IP "\(bu" 4
+\fBdesktop\fR: window\'s current desktop
+.
+.IP "\(bu" 4
+\fBall\fR: all of the above
+.
+.IP
+Default: \fIall\fR
+.
+.IP "" 0
+.
+.P
+\fB\-matching\-negate\-char\fR \fIchar\fR
+.
+.P
+Set the character used to negate the query (i\.e\. if it does \fBnot\fR match the next keyword )\. Set to \'\ex0\' to disable\.
+.
+.IP "" 4
+.
+.nf
+
+Default: \'\-\'
+.
+.fi
+.
+.IP "" 0
+.
+.SS "Layout"
+Most of the following options are \fBdeprecated\fR and should not be used\. Please use the new theme format to customize \fBrofi\fR\. More information about the new format can be found in the \fBrofi\-theme(5)\fR manpage\.
+.
+.P
+\fB\-lines\fR
+.
 .P
 Maximum number of lines to show before scrolling\.
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-lines 25
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Default: \fI15\fR
+.
 .P
-\fB\-columns\fP
+\fB\-columns\fR
+.
 .P
 Number of columns to show before scrolling\.
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-columns 2
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Default: \fI1\fR
+.
 .P
-\fB\-width\fP [value]
+\fB\-width\fR [value]
+.
 .P
-Set width of menu\. \fB[value]\fP is specified in percentage\.
-.P
-.RS 2
+Set width of menu\. \fB[value]\fR is specified in percentage\.
+.
+.IP "" 4
+.
 .nf
+
 rofi \-width 60
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-If \fB[value]\fP is larger then 100, size is set in pixels\. Example to span a full\-HD monitor:
-.P
-.RS 2
+If \fB[value]\fR is larger then 100, size is set in pixels\. Example to span a full\-HD monitor:
+.
+.IP "" 4
+.
 .nf
+
 rofi \-width 1920
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-If \fB[value]\fP is negative, it tries to estimates a character width\. To show 30 characters in a row:
-.P
-.RS 2
+If \fB[value]\fR is negative, it tries to estimates a character width\. To show 30 characters in a row:
+.
+.IP "" 4
+.
 .nf
+
 rofi \-width \-30
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Character width is a rough estimate, and might not be correct, but should work for most monospaced fonts\.
+.
 .P
 Default: \fI50\fR
+.
 .P
-\fB\-location\fP
+\fB\-location\fR
+.
 .P
 Specify where the window should be located\. The numbers map to the following locations on screen:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
   1 2 3
   8 0 4
   7 6 5
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Default: \fI0\fR
+.
 .P
-\fB\-fixed\-num\-lines\fP
+\fB\-fixed\-num\-lines\fR
+.
 .P
-Keep a fixed number of visible lines (See the \fB\-lines\fP option\.)
+Keep a fixed number of visible lines (See the \fB\-lines\fR option\.)
+.
 .P
-\fB\-padding\fP
+\fB\-padding\fR
+.
 .P
 Define the inner margin of the window\.
+.
 .P
 Default: \fI5\fR
+.
 .P
-\fB\-fullscreen\fP
+\fB\-fullscreen\fR
+.
 .P
 Use the full\-screen height and width\.
+.
 .P
-\fB\-sidebar\-mode\fP
+\fB\-sidebar\-mode\fR
+.
 .P
-Open in sidebar\-mode\. In this mode a list of all enabled modes is shown at the bottom\.
-(See \fB\-modi\fP option)
-To show sidebar, use:
-.P
-.RS 2
+Open in sidebar\-mode\. In this mode a list of all enabled modes is shown at the bottom\. (See \fB\-modi\fR option) To show sidebar, use:
+.
+.IP "" 4
+.
 .nf
+
 rofi \-show run \-sidebar\-mode \-lines 0
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-\fB\-auto\-select\fP
+\fB\-auto\-select\fR
+.
 .P
 When one entry is left, automatically select it\.
+.
 .P
-\fB\-m\fP \fInum\fR
+\fB\-m\fR \fInum\fR
+.
 .P
-\fB\-m\fP \fIname\fR
+\fB\-m\fR \fIname\fR
+.
 .P
-\fB\-monitor\fP \fInum\fR
+\fB\-monitor\fR \fInum\fR
+.
 .P
-\fB\-monitor\fP \fIname\fR
+\fB\-monitor\fR \fIname\fR
+.
 .P
-Select monitor to display \fBrofi\fR on\.
-It accepts as input: \fIprimary\fR (if primary output is set), the \fIxrandr\fR output name, or integer number (in order of
-detection)\. Negative numbers are handled differently:
-.RS 0
-.IP \(bu 2
+Select monitor to display \fBrofi\fR on\. It accepts as input: \fIprimary\fR (if primary output is set), the \fIxrandr\fR output name, or integer number (in order of detection)\. Negative numbers are handled differently:
+.
+.IP "\(bu" 4
 \fB\-1\fR: the currently focused monitor\.
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fB\-2\fR: the currently focused window (that is, \fBrofi\fR will be displayed on top of the focused window)\.
-.IP \(bu 2
-\fB\-3\fR: Position at mouse (overrides the location setting to get normal context menu
-behavior\.)
-.IP \(bu 2
+.
+.IP "\(bu" 4
+\fB\-3\fR: Position at mouse (overrides the location setting to get normal context menu behavior\.)
+.
+.IP "\(bu" 4
 \fB\-4\fR: the monitor with the focused window\.
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fB\-5\fR: the monitor that shows the mouse pointer\.
+.
+.IP
 Default: \fI\-5\fR
-
-.RE
+.
+.IP "" 0
+.
 .P
-See \fBrofi \-h\fP output for the detected monitors, their position, and size\.
+See \fBrofi \-h\fR output for the detected monitors, their position, and size\.
+.
 .P
-\fB\-theme\fP \fIfilename\fR
+\fB\-theme\fR \fIfilename\fR
+.
 .P
 Path to the new theme file format\. This overrides the old theme settings\.
+.
 .P
-\fB\-theme\-str\fP \fIstring\fR
+\fB\-theme\-str\fR \fIstring\fR
+.
 .P
 Allow theme parts to be specified on the command line as an override\.
+.
 .P
 For example:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
-rofi \-theme\-str '#window { fullscreen: true; }'
+
+rofi \-theme\-str \'#window { fullscreen: true; }\'
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 This option can be specified multiple times\.
+.
 .P
-\fB\-dpi\fP  \fInumber\fR
+\fB\-dpi\fR \fInumber\fR
+.
 .P
-Override the default DPI setting\.
-If set to \fB0\fP, it tries to auto\-detect based on X11 screen size (similar to i3 and GTK)\.
-If set to \fB1\fP, it tries to auto\-detect based on the size of the monitor that rofi is displayed on (similar to latest Qt 5)\.
-.SS PATTERN setting
-.P
-\fB\-terminal\fP
+Override the default DPI setting\. If set to \fB0\fR, it tries to auto\-detect based on X11 screen size (similar to i3 and GTK)\. If set to \fB1\fR, it tries to auto\-detect based on the size of the monitor that rofi is displayed on (similar to latest Qt 5)\.
+.
+.SS "PATTERN setting"
+\fB\-terminal\fR
+.
 .P
 Specify which terminal to start\.
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-terminal xterm
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-Pattern: \fI{terminal}\fR
-Default: \fIx\-terminal\-emulator\fR
+Pattern: \fI{terminal}\fR Default: \fIx\-terminal\-emulator\fR
+.
 .P
-\fB\-ssh\-client\fP \fIclient\fR
+\fB\-ssh\-client\fR \fIclient\fR
+.
 .P
 Override the used ssh client\.
+.
 .P
-Pattern: \fI{ssh\-client}\fR
-Default: \fIssh\fR
-.SS SSH settings
+Pattern: \fI{ssh\-client}\fR Default: \fIssh\fR
+.
+.SS "SSH settings"
+\fB\-ssh\-command\fR \fIcmd\fR
+.
 .P
-\fB\-ssh\-command\fP \fIcmd\fR
+Set the command to execute when starting a ssh session\. The pattern \fI{host}\fR is replaced by the selected ssh entry\.
+.
 .P
-Set the command to execute when starting a ssh session\.
-The pattern \fI{host}\fR is replaced by the selected ssh entry\.
+Pattern: \fI{ssh\-client}\fR Default: \fI{terminal} \-e {ssh\-client} {host}\fR
+.
 .P
-Pattern: \fI{ssh\-client}\fR
-Default: \fI{terminal} \-e {ssh\-client} {host}\fR
+\fB\-parse\-hosts\fR
+.
 .P
-\fB\-parse\-hosts\fP
-.P
-Parse the \fB/etc/hosts\fP file for entries\.
+Parse the \fB/etc/hosts\fR file for entries\.
+.
 .P
 Default: \fIdisabled\fR
+.
 .P
-\fB\-parse\-known\-hosts\fP
-\fB\-no\-parse\-known\-hosts\fP
+\fB\-parse\-known\-hosts\fR \fB\-no\-parse\-known\-hosts\fR
+.
 .P
-Parse the \fB~/\.ssh/known_hosts\fP file for entries\.
+Parse the \fB~/\.ssh/known_hosts\fR file for entries\.
+.
 .P
 Default: \fIenabled\fR
-.SS Run settings
+.
+.SS "Run settings"
+\fB\-run\-command\fR \fIcmd\fR
+.
 .P
-\fB\-run\-command\fP \fIcmd\fR
-.P
-Set command (\fI{cmd}\fR) to execute when running an application\.
-See \fIPATTERN\fR\|\.
+Set command (\fI{cmd}\fR) to execute when running an application\. See \fIPATTERN\fR\.
+.
 .P
 Default: \fI{cmd}\fR
+.
 .P
-\fB\-run\-shell\-command\fP \fIcmd\fR
+\fB\-run\-shell\-command\fR \fIcmd\fR
+.
 .P
-Set command to execute when running an application in a shell\.
-See \fIPATTERN\fR\|\.
+Set command to execute when running an application in a shell\. See \fIPATTERN\fR\.
+.
 .P
 Default: \fI{terminal} \-e {cmd}\fR
+.
 .P
-\fB\-run\-list\-command\fP \fIcmd\fR
+\fB\-run\-list\-command\fR \fIcmd\fR
+.
 .P
-If set, use an external tool to generate list of executable commands\. Uses \fBrun\-command\fP\|\.
+If set, use an external tool to generate list of executable commands\. Uses \fBrun\-command\fR\.
+.
 .P
 Default: \fI{cmd}\fR
-.SS Window switcher settings
-.P
-\fB\-window\-format\fP \fIformat\fR
+.
+.SS "Window switcher settings"
+\fB\-window\-format\fR \fIformat\fR
+.
 .P
 Format what is being displayed for windows\.
+.
 .P
 \fIformat\fR: {field[:len]}
+.
 .P
 \fIfield\fR:
-.RS 0
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBw\fR: desktop name
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBt\fR: title of window
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBn\fR: name
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBr\fR: role
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBc\fR: class
-
-.RE
+.
+.IP "" 0
+.
 .P
-\fIlen\fR: maximum field length (0 for auto\-size)\. If length and window \fIwidth\fR are negative, field length is \fIwidth \- len\fR\|\.
-if length is positive, the entry will be truncated or padded to fill that length\.
+\fIlen\fR: maximum field length (0 for auto\-size)\. If length and window \fIwidth\fR are negative, field length is \fIwidth \- len\fR\. if length is positive, the entry will be truncated or padded to fill that length\.
+.
 .P
-default: {w}  {c}   {t}
+default: {w} {c} {t}
+.
 .P
-\fB\-window\-command\fP \fIcmd\fR
+\fB\-window\-command\fR \fIcmd\fR
+.
 .P
-Set command to execute on selected window for a custom action\.
-See \fIPATTERN\fR\|\.
+Set command to execute on selected window for a custom action\. See \fIPATTERN\fR\.
+.
 .P
-Default: *"wmctrl \-i \-R {window}"*
-.SS Combi settings
+Default: \fI"wmctrl \-i \-R {window}"\fR
+.
+.SS "Combi settings"
+\fB\-combi\-modi\fR \fImode1,mode2\fR
+.
 .P
-\fB\-combi\-modi\fP \fImode1,mode2\fR
-.P
-The modi to combine in combi mode\.
-For syntax to see \fB\-modi\fP\|\.
-To get one merge view, of \fBwindow\fP,\fBrun\fP, and \fBssh\fP:
-.P
-.RS 2
+The modi to combine in combi mode\. For syntax to see \fB\-modi\fR\. To get one merge view, of \fBwindow\fR,\fBrun\fR, and \fBssh\fR:
+.
+.IP "" 4
+.
 .nf
+
 rofi \-show combi \-combi\-modi "window,run,ssh" \-modi combi
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-Notes: The I3 Window manager does not like commas in the command when specifying an exec command\.
-For that case '#' can be used as a separator\.
-.SS History and Sorting
-.P
-\fB\-disable\-history\fP
-\fB\-no\-disable\-history\fP (re\-enable history)
+Notes: The I3 Window manager does not like commas in the command when specifying an exec command\. For that case \'#\' can be used as a separator\.
+.
+.SS "History and Sorting"
+\fB\-disable\-history\fR \fB\-no\-disable\-history\fR (re\-enable history)
+.
 .P
 Disable history
+.
 .P
-\fB\-sort\fP to enable
-\fB\-no\-sort\fP to disable
+\fB\-sort\fR to enable \fB\-no\-sort\fR to disable
+.
 .P
-Enable, disable sorting\.
-This setting can be changed at runtime (see \fB\-kb\-toggle\-sort\fP)\.
+Enable, disable sorting\. This setting can be changed at runtime (see \fB\-kb\-toggle\-sort\fR)\.
+.
 .P
-\fB\-sorting\-method\fP 'method'  to specify the sorting method\.
+\fB\-sorting\-method\fR \'method\' to specify the sorting method\.
+.
 .P
 There are 2 sorting method:
-.RS 0
-.IP \(bu 2
+.
+.IP "\(bu" 4
 levenshtein (Default)
-.IP \(bu 2
+.
+.IP "\(bu" 4
 fzf sorting\.
+.
+.IP "" 0
+.
+.SS "Dmenu specific"
+\fB\-sep\fR \fIseparator\fR
+.
+.P
+Separator for dmenu\. Example: To show a list of \'a\' to \'e\' with \'|\' as a separator:
+.
+.IP "" 4
+.
+.nf
 
-.RE
-.SS Dmenu specific
-.P
-\fB\-sep\fP \fIseparator\fR
-.P
-Separator for dmenu\. Example: To show a list of 'a' to 'e' with '|' as a separator:
-.P
-.RS 2
-.nf
-echo "a|b|c|d|e" | rofi \-sep '|' \-dmenu
+echo "a|b|c|d|e" | rofi \-sep \'|\' \-dmenu
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-\fB\-p\fP \fIprompt\fR
+\fB\-p\fR \fIprompt\fR
+.
 .P
-Specify the prompt to show in dmenu mode\. For example, select 'monkey', a,b,c,d, or e\.
-.P
-.RS 2
+Specify the prompt to show in dmenu mode\. For example, select \'monkey\', a,b,c,d, or e\.
+.
+.IP "" 4
+.
 .nf
-echo "a|b|c|d|e" | rofi \-sep '|' \-dmenu \-p "monkey:"
+
+echo "a|b|c|d|e" | rofi \-sep \'|\' \-dmenu \-p "monkey:"
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Default: \fIdmenu\fR
+.
 .P
-\fB\-selected\-row\fP \fIselected row\fR
+\fB\-selected\-row\fR \fIselected row\fR
+.
 .P
 Select a certain row\.
+.
 .P
 Default: \fI0\fR
+.
 .P
-\fB\-l\fP \fInumber of lines to show\fR
+\fB\-l\fR \fInumber of lines to show\fR
+.
 .P
 Maximum number of lines the menu may show before scrolling\.
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-lines 25
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Default: \fI15\fR
+.
 .P
-\fB\-i\fP
+\fB\-i\fR
+.
 .P
 Makes dmenu searches case\-insensitive
+.
 .P
-\fB\-a\fP \fIX\fR
+\fB\-a\fR \fIX\fR
+.
 .P
-Active row, mark \fIX\fR as active\. Where \fIX\fR is a comma\-separated list of python(1)\-style indices and ranges, e\.g\.  indices start at 0, \-1 refers to the last row with \-2 preceding it, ranges are left\-open and right\-close, and so on\. You can specify:
-.RS 0
-.IP \(bu 2
-A single row: '5'
-.IP \(bu 2
-A range of (last 3) rows: '\-3:'
-.IP \(bu 2
-4 rows starting from row 7: '7:11' (or in legacy notation: '7\-10')
-.IP \(bu 2
-A set of rows: '2,0,\-9'
-.IP \(bu 2
-Or any combination: '5,\-3:,7:11,2,0,\-9'
-
-.RE
+Active row, mark \fIX\fR as active\. Where \fIX\fR is a comma\-separated list of python(1)\-style indices and ranges, e\.g\. indices start at 0, \-1 refers to the last row with \-2 preceding it, ranges are left\-open and right\-close, and so on\. You can specify:
+.
+.IP "\(bu" 4
+A single row: \'5\'
+.
+.IP "\(bu" 4
+A range of (last 3) rows: \'\-3:\'
+.
+.IP "\(bu" 4
+4 rows starting from row 7: \'7:11\' (or in legacy notation: \'7\-10\')
+.
+.IP "\(bu" 4
+A set of rows: \'2,0,\-9\'
+.
+.IP "\(bu" 4
+Or any combination: \'5,\-3:,7:11,2,0,\-9\'
+.
+.IP "" 0
+.
 .P
-\fB\-u\fP \fIX\fR
+\fB\-u\fR \fIX\fR
+.
 .P
-Urgent row, mark \fIX\fR as urgent\. See \fB\-a\fP option for details\.
+Urgent row, mark \fIX\fR as urgent\. See \fB\-a\fR option for details\.
+.
 .P
-\fB\-only\-match\fP
+\fB\-only\-match\fR
+.
 .P
-Only return a selected item, do not allow custom entry\.
-This mode always returns an entry, or returns directly when no entries given\.
+Only return a selected item, do not allow custom entry\. This mode always returns an entry, or returns directly when no entries given\.
+.
 .P
-\fB\-no\-custom\fP
+\fB\-no\-custom\fR
+.
 .P
-Only return a selected item, do not allow custom entry\.
-This mode returns directly when no entries given\.
+Only return a selected item, do not allow custom entry\. This mode returns directly when no entries given\.
+.
 .P
-\fB\-format\fP \fIformat\fR
+\fB\-format\fR \fIformat\fR
+.
 .P
 Allows the output of dmenu to be customized (N is the total number of input entries):
-.RS 0
-.IP \(bu 2
-\|'s' selected string
-.IP \(bu 2
-\|'i' index (0 \- (N\-1))
-.IP \(bu 2
-\|'d' index (1 \- N)
-.IP \(bu 2
-\|'q' quote string
-.IP \(bu 2
-\|'p' Selected string stripped from pango markup (Needs to be a valid string)
-.IP \(bu 2
-\|'f' filter string (user input)
-.IP \(bu 2
-\|'F' quoted filter string (user input)
-
-.RE
+.
+.IP "\(bu" 4
+\'s\' selected string
+.
+.IP "\(bu" 4
+\'i\' index (0 \- (N\-1))
+.
+.IP "\(bu" 4
+\'d\' index (1 \- N)
+.
+.IP "\(bu" 4
+\'q\' quote string
+.
+.IP "\(bu" 4
+\'p\' Selected string stripped from pango markup (Needs to be a valid string)
+.
+.IP "\(bu" 4
+\'f\' filter string (user input)
+.
+.IP "\(bu" 4
+\'F\' quoted filter string (user input)
+.
+.IP "" 0
+.
 .P
-Default: 's'
+Default: \'s\'
+.
 .P
-\fB\-select\fP \fIstring\fR
+\fB\-select\fR \fIstring\fR
+.
 .P
 Select first line that matches the given string
+.
 .P
-\fB\-mesg\fP \fIstring\fR
+\fB\-mesg\fR \fIstring\fR
+.
 .P
-Add a message line below the filter entry box\. Supports pango markup\.
-For more information on supported markup see here \fIhttps://developer\.gnome\.org/pango/stable/PangoMarkupFormat\.html\fR
+Add a message line below the filter entry box\. Supports pango markup\. For more information on supported markup see here \fIhttps://developer\.gnome\.org/pango/stable/PangoMarkupFormat\.html\fR
+.
 .P
-\fB\-normal\-window\fP
+\fB\-normal\-window\fR
+.
 .P
 Make \fBrofi\fR react like a normal application window\. Useful for scripts like Clerk that are basically an application\.
+.
 .P
-\fB\-dump\fP
+\fB\-dump\fR
+.
 .P
-Dump the filtered list to stdout and quit\.
-This can be used to get the list as \fBrofi\fR would filter it\.
-Use together with \fB\-filter\fP command\.
+Dump the filtered list to stdout and quit\. This can be used to get the list as \fBrofi\fR would filter it\. Use together with \fB\-filter\fR command\.
+.
 .P
-\fB\-input\fP \fIfile\fR
+\fB\-input\fR \fIfile\fR
+.
 .P
 Reads from \fIfile\fR instead of stdin\.
+.
 .P
-\fB\-password\fP
+\fB\-password\fR
+.
 .P
 Hide the input text\. This should not be considered secure!
+.
 .P
-\fB\-markup\-rows\fP
+\fB\-markup\-rows\fR
+.
 .P
-Tell \fBrofi\fR that DMenu input is pango markup encoded, and should be rendered\.
-See here \fIhttps://developer\.gnome\.org/pango/stable/PangoMarkupFormat\.html\fR for details about pango markup\.
+Tell \fBrofi\fR that DMenu input is pango markup encoded, and should be rendered\. See here \fIhttps://developer\.gnome\.org/pango/stable/PangoMarkupFormat\.html\fR for details about pango markup\.
+.
 .P
-\fB\-multi\-select\fP
+\fB\-multi\-select\fR
+.
 .P
 Allow multiple lines to be selected\. Adds a small selection indicator to the left of each entry\.
+.
 .P
-\fB\-sync\fP
+\fB\-sync\fR
+.
 .P
 Force rofi mode to first read all data from stdin before showing the selection window\. This is original dmenu behavior\.
+.
 .P
-Note: the default asynchronous mode will also be automatically disabled if used with conflicting options,
-such as \fB\-dump\fP, \fB\-only\-match\fP or \fB\-auto\-select\fP\|\.
+Note: the default asynchronous mode will also be automatically disabled if used with conflicting options, such as \fB\-dump\fR, \fB\-only\-match\fR or \fB\-auto\-select\fR\.
+.
 .P
-\fB\-async\-pre\-read\fP \fInumber\fR
+\fB\-async\-pre\-read\fR \fInumber\fR
+.
 .P
-Reads the first 25 entries blocking, then switches to async mode\. This makes it feel more 'snappy'\.
+Reads the first 25 entries blocking, then switches to async mode\. This makes it feel more \'snappy\'\.
+.
 .P
 \fIdefault\fR: 25
+.
 .P
-\fB\-window\-title\fP \fItitle\fR
+\fB\-window\-title\fR \fItitle\fR
+.
 .P
 Set name used for the window title\. Will be shown as Rofi \- \fItitle\fR
-.SS Message dialog
+.
+.SS "Message dialog"
+\fB\-e\fR \fImessage\fR
+.
 .P
-\fB\-e\fP \fImessage\fR
-.P
-Pops up a message dialog (used internally for showing errors) with \fImessage\fR\|\.
-Message can be multi\-line\.
-.SS Other
-.P
-\fB\-pid\fP \fIpath\fR
+Pops up a message dialog (used internally for showing errors) with \fImessage\fR\. Message can be multi\-line\.
+.
+.SS "Other"
+\fB\-pid\fR \fIpath\fR
+.
 .P
 Make \fBrofi\fR create a pid file and check this on startup\. The pid file prevents multiple \fBrofi\fR instances from running simultaneously\. This is useful when running \fBrofi\fR from a key\-binding daemon\.
+.
 .P
-\fB\-fake\-transparency\fP
+\fB\-fake\-transparency\fR
+.
 .P
 Enable fake transparency\. This only works with transparent background color in the theme\.
+.
 .P
-\fB\-fake\-background\fP
+\fB\-fake\-background\fR
+.
 .P
-Select what to use as background for fake transparency\. This can be 'background', 'screenshot' or a path to an image
-file (currently only supports png)\.
+Select what to use as background for fake transparency\. This can be \'background\', \'screenshot\' or a path to an image file (currently only supports png)\.
+.
 .P
-\fB\-display\-{mode}\fP \fIstring\fR
+\fB\-display\-{mode}\fR \fIstring\fR
+.
 .P
 Set the name to use for mode\. This is used as prompt and in combi\-browser\.
+.
 .P
-\fB\-click\-to\-exit\fP
-\fB\-no\-click\-to\-exit\fP
+\fB\-click\-to\-exit\fR \fB\-no\-click\-to\-exit\fR
+.
 .P
 Click the mouse outside of the \fBrofi\fR window to exit\.
+.
 .P
 Default: \fIenabled\fR
-.SS Debug
-.P
-\fB\-no\-config\fP
+.
+.SS "Debug"
+\fB\-no\-config\fR
+.
 .P
 Disable parsing of configuration\. This runs rofi in \fIstock\fR mode\.
+.
 .P
-\fB\-no\-plugins\fP
+\fB\-no\-plugins\fR
+.
 .P
 Disables the loading of plugins\.
+.
 .P
 To get a trace with (lots of) debug information, set the following environment variable when executing \fBrofi\fR:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 G_MESSAGES_DEBUG=all
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 The trace can be filtered by only outputting the relevant domains, for example:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 G_MESSAGES_DEBUG=Dialogs\.DRun
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 For more information on debugging, see the wiki \fIhttps://github\.com/DaveDavenport/rofi/wiki/Debugging%20Rofi\fR
-.SH PATTERN
-.P
+.
+.SH "PATTERN"
 To launch commands (for example, when using the ssh launcher), the user can enter the used command\-line\. The following keys can be used that will be replaced at runtime:
-.RS 0
-.IP \(bu 2
-\fB{host}\fP: the host to connect to
-.IP \(bu 2
-\fB{terminal}\fP: the configured terminal (see \-terminal\-emulator)
-.IP \(bu 2
-\fB{ssh\-client}\fP: the configured ssh client (see \-ssh\-client)
-.IP \(bu 2
-\fB{cmd}\fP: the command to execute
-.IP \(bu 2
-\fB{window}\fP: the window ID of the selected window (in \fBwindow\-command\fP)
-
-.RE
-.SH DMENU REPLACEMENT
-.P
-If \fBargv[0]\fP (calling command) is dmenu, \fBrofi\fR will start in dmenu mode\.
-This way it can be used as a drop\-in replacement for dmenu\. Just copy or symlink \fBrofi\fR to dmenu in \fB$PATH\fP\|\.
-.P
-.RS 2
+.
+.IP "\(bu" 4
+\fB{host}\fR: the host to connect to
+.
+.IP "\(bu" 4
+\fB{terminal}\fR: the configured terminal (see \-terminal\-emulator)
+.
+.IP "\(bu" 4
+\fB{ssh\-client}\fR: the configured ssh client (see \-ssh\-client)
+.
+.IP "\(bu" 4
+\fB{cmd}\fR: the command to execute
+.
+.IP "\(bu" 4
+\fB{window}\fR: the window ID of the selected window (in \fBwindow\-command\fR)
+.
+.IP "" 0
+.
+.SH "DMENU REPLACEMENT"
+If \fBargv[0]\fR (calling command) is dmenu, \fBrofi\fR will start in dmenu mode\. This way it can be used as a drop\-in replacement for dmenu\. Just copy or symlink \fBrofi\fR to dmenu in \fB$PATH\fR\.
+.
+.IP "" 4
+.
 .nf
-ln \-s /usr/bin/rofi /usr/bin/dmenu
-.fi
-.RE
-.SH THEMING
-.P
-The theme format below describes the old (pre version 1\.4) theme format\. Please see rofi\-theme(5) manpage for an updated
-manual\.
-.P
-The theme setup allows you to specify colors per state, similar to \fBi3\fR
-Currently 3 states exist:
-.RS 0
-.IP \(bu 2
-\fBnormal\fR: normal row
-.IP \(bu 2
-\fBurgent\fR: highlighted row (urgent)
-.IP \(bu 2
-\fBactive\fR: highlighted row (active)
 
-.RE
+ln \-s /usr/bin/rofi /usr/bin/dmenu
+.
+.fi
+.
+.IP "" 0
+.
+.SH "THEMING"
+The theme format below describes the old (pre version 1\.4) theme format\. Please see rofi\-theme(5) manpage for an updated manual\.
+.
+.P
+The theme setup allows you to specify colors per state, similar to \fBi3\fR Currently 3 states exist:
+.
+.IP "\(bu" 4
+\fBnormal\fR: normal row
+.
+.IP "\(bu" 4
+\fBurgent\fR: highlighted row (urgent)
+.
+.IP "\(bu" 4
+\fBactive\fR: highlighted row (active)
+.
+.IP "" 0
+.
 .P
 For each state, the following 5 colors must be set:
-.RS 0
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBbg\fR: background color row
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBfg\fR: text color
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBbgalt\fR: background color alternating row
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBhlfg\fR: foreground color selected row
-.IP \(bu 2
+.
+.IP "\(bu" 4
 \fBhlbg\fR: background color selected row
-
-.RE
+.
+.IP "" 0
+.
 .P
-The window background and border color should be specified separately\. The key \fBcolor\-window\fP contains
-a tuple \fBbackground,border,separator\fP\|\.
-An example for \fBXresources\fP file:
-.P
-.RS 2
+The window background and border color should be specified separately\. The key \fBcolor\-window\fR contains a tuple \fBbackground,border,separator\fR\. An example for \fBXresources\fR file:
+.
+.IP "" 4
+.
 .nf
-! State:           'bg',     'fg',     'bgalt',  'hlbg',   'hlfg'
+
+! State:           \'bg\',     \'fg\',     \'bgalt\',  \'hlbg\',   \'hlfg\'
 rofi\.color\-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
 rofi\.color\-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
 rofi\.color\-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
 
-!                  'background', 'border', 'separator'
+!                  \'background\', \'border\', \'separator\'
 rofi\.color\-window: #fdf6e3,      #002b36,  #002b36
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Same settings can also be specified on command\-line:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-color\-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
+.
 .fi
-.RE
-.SH COLORS
-.P
-RGB colors can be specified by either their X11 name or hexadecimal notation\.
-For example:
-.P
-.RS 2
+.
+.IP "" 0
+.
+.SH "COLORS"
+RGB colors can be specified by either their X11 name or hexadecimal notation\. For example:
+.
+.IP "" 4
+.
 .nf
+
 white
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Or:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 #FFFFFF
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-ARGB colors are also supported\. These can be used to create a transparent window if (1) your Xserver supports TrueColor, and (2) you are running a composite manager\.
-For example:
-    argb:FF444444
+ARGB colors are also supported\. These can be used to create a transparent window if (1) your Xserver supports TrueColor, and (2) you are running a composite manager\. For example: argb:FF444444
+.
 .P
 Or:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 #FF444444
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 The first two fields specify the alpha level\. This determines the amount of transparency (00 everything, FF nothing)\. The other fields represent the actual color, in hex\.
+.
 .P
-Transparency can be used within \fBrofi\fR, for example if the selected background color is 50% transparent, the background color
-of the window will be visible through it\.
-.SH KEY BINDINGS
-.P
+Transparency can be used within \fBrofi\fR, for example if the selected background color is 50% transparent, the background color of the window will be visible through it\.
+.
+.SH "KEY BINDINGS"
 \fBrofi\fR has the following key bindings:
-.RS 0
-.IP \(bu 2
-\fBCtrl\-v, Insert\fP: Paste from clipboard
-.IP \(bu 2
-\fBCtrl\-Shift\-v, Shift\-Insert\fP: Paste primary selection
-.IP \(bu 2
-\fBCtrl\-u\fP: Clear the line
-.IP \(bu 2
-\fBCtrl\-a\fP: Beginning of line
-.IP \(bu 2
-\fBCtrl\-e\fP: End of line
-.IP \(bu 2
-\fBCtrl\-f, Right\fP: Forward one character
-.IP \(bu 2
-\fBAlt\-f, Ctrl\-Right\fP: Forward one word
-.IP \(bu 2
-\fBCtrl\-b, Left\fP: Back one character
-.IP \(bu 2
-\fBAlt\-b, Ctrl\-Left\fP: Back one word
-.IP \(bu 2
-\fBCtrl\-d, Delete\fP: Delete character
-.IP \(bu 2
-\fBCtrl\-Alt\-d\fP: Delete word
-.IP \(bu 2
-\fBCtrl\-h, Backspace, Shift\-Backspace\fP: Backspace (delete previous character)
-.IP \(bu 2
-\fBCtrl\-Alt\-h\fP: Delete previous word
-.IP \(bu 2
-\fBCtrl\-j,Ctrl\-m,Enter\fP: Accept entry
-.IP \(bu 2
-\fBCtrl\-n,Down\fP: Select next entry
-.IP \(bu 2
-\fBCtrl\-p,Up\fP: Select previous entry
-.IP \(bu 2
-\fBPage Up\fP: Go to previous page
-.IP \(bu 2
-\fBPage Down\fP: Go to next page
-.IP \(bu 2
-\fBCtrl\-Page Up\fP: Go to previous column
-.IP \(bu 2
-\fBCtrl\-Page Down\fP: Go to next column
-.IP \(bu 2
-\fBCtrl\-Enter\fP: Use entered text as a command (in \fBssh/run modi\fP)
-.IP \(bu 2
-\fBShift\-Enter\fP: Launch the application in a terminal (in run mode)
-.IP \(bu 2
-\fBShift\-Enter\fP: Return the selected entry and move to the next item while keeping \fBrofi\fR open\. (in dmenu)
-.IP \(bu 2
-\fBShift\-Right\fP: Switch to the next mode\. The list can be customized with the \fB\-switchers\fP argument\.
-.IP \(bu 2
-\fBShift\-Left\fP: Switch to the previous mode\. The list can be customized with the \fB\-switchers\fP argument\.
-.IP \(bu 2
-\fBCtrl\-Tab\fP: Switch to the next mode\. The list can be customized with the \fB\-switchers\fP argument\.
-.IP \(bu 2
-\fBCtrl\-Shift\-Tab\fP: Switch to the previous mode\. The list can be customized with the \fB\-switchers\fP argument\.
-.IP \(bu 2
-\fBCtrl\-space\fP: Set selected item as input text\.
-.IP \(bu 2
-\fBShift\-Del\fP: Delete entry from history\.
-.IP \(bu 2
-\fBgrave\fP: Toggle case sensitivity\.
-.IP \(bu 2
-\fBAlt\-grave\fP: Toggle sorting\.
-.IP \(bu 2
-\fBAlt\-Shift\-S\fP: Take a screenshot and store it in the Pictures directory\.
-
-.RE
+.
+.IP "\(bu" 4
+\fBCtrl\-v, Insert\fR: Paste from clipboard
+.
+.IP "\(bu" 4
+\fBCtrl\-Shift\-v, Shift\-Insert\fR: Paste primary selection
+.
+.IP "\(bu" 4
+\fBCtrl\-u\fR: Clear the line
+.
+.IP "\(bu" 4
+\fBCtrl\-a\fR: Beginning of line
+.
+.IP "\(bu" 4
+\fBCtrl\-e\fR: End of line
+.
+.IP "\(bu" 4
+\fBCtrl\-f, Right\fR: Forward one character
+.
+.IP "\(bu" 4
+\fBAlt\-f, Ctrl\-Right\fR: Forward one word
+.
+.IP "\(bu" 4
+\fBCtrl\-b, Left\fR: Back one character
+.
+.IP "\(bu" 4
+\fBAlt\-b, Ctrl\-Left\fR: Back one word
+.
+.IP "\(bu" 4
+\fBCtrl\-d, Delete\fR: Delete character
+.
+.IP "\(bu" 4
+\fBCtrl\-Alt\-d\fR: Delete word
+.
+.IP "\(bu" 4
+\fBCtrl\-h, Backspace, Shift\-Backspace\fR: Backspace (delete previous character)
+.
+.IP "\(bu" 4
+\fBCtrl\-Alt\-h\fR: Delete previous word
+.
+.IP "\(bu" 4
+\fBCtrl\-j,Ctrl\-m,Enter\fR: Accept entry
+.
+.IP "\(bu" 4
+\fBCtrl\-n,Down\fR: Select next entry
+.
+.IP "\(bu" 4
+\fBCtrl\-p,Up\fR: Select previous entry
+.
+.IP "\(bu" 4
+\fBPage Up\fR: Go to previous page
+.
+.IP "\(bu" 4
+\fBPage Down\fR: Go to next page
+.
+.IP "\(bu" 4
+\fBCtrl\-Page Up\fR: Go to previous column
+.
+.IP "\(bu" 4
+\fBCtrl\-Page Down\fR: Go to next column
+.
+.IP "\(bu" 4
+\fBCtrl\-Enter\fR: Use entered text as a command (in \fBssh/run modi\fR)
+.
+.IP "\(bu" 4
+\fBShift\-Enter\fR: Launch the application in a terminal (in run mode)
+.
+.IP "\(bu" 4
+\fBShift\-Enter\fR: Return the selected entry and move to the next item while keeping \fBrofi\fR open\. (in dmenu)
+.
+.IP "\(bu" 4
+\fBShift\-Right\fR: Switch to the next mode\. The list can be customized with the \fB\-switchers\fR argument\.
+.
+.IP "\(bu" 4
+\fBShift\-Left\fR: Switch to the previous mode\. The list can be customized with the \fB\-switchers\fR argument\.
+.
+.IP "\(bu" 4
+\fBCtrl\-Tab\fR: Switch to the next mode\. The list can be customized with the \fB\-switchers\fR argument\.
+.
+.IP "\(bu" 4
+\fBCtrl\-Shift\-Tab\fR: Switch to the previous mode\. The list can be customized with the \fB\-switchers\fR argument\.
+.
+.IP "\(bu" 4
+\fBCtrl\-space\fR: Set selected item as input text\.
+.
+.IP "\(bu" 4
+\fBShift\-Del\fR: Delete entry from history\.
+.
+.IP "\(bu" 4
+\fBgrave\fR: Toggle case sensitivity\.
+.
+.IP "\(bu" 4
+\fBAlt\-grave\fR: Toggle sorting\.
+.
+.IP "\(bu" 4
+\fBAlt\-Shift\-S\fR: Take a screenshot and store it in the Pictures directory\.
+.
+.IP "" 0
+.
 .P
-To get a full list of key bindings on the commandline, see \fBrofi \-h\fP\|\.
-The options starting with \fB\-kb\fP are keybindings\.
-Key bindings can be modified using the configuration systems\.
-To get a searchable list of key bindings, run \fBrofi \-show keys\fP\|\.
+To get a full list of key bindings on the commandline, see \fBrofi \-h\fR\. The options starting with \fB\-kb\fR are keybindings\. Key bindings can be modified using the configuration systems\. To get a searchable list of key bindings, run \fBrofi \-show keys\fR\.
+.
 .P
-A key binding starting with \fB!\fP will act when all keys have been released\.
-.SH Available Modi
-.SS Window
-.P
-Show a list of all the windows and allow switching between them\.
-Pressing the \fBdelete\-entry\fP binding (\fBshift\-delete\fP) will close the window\.
-Pressing the \fBaccept\-custom\fP binding (\fBcontrol\-enter\fP or \fBshift\-enter\fP) will run a command on the window\.
-(See option \fBwindow\-command\fP );
-.SS WindowCD
-.P
-Shows a list of the windows on the current desktop and allows switching between them\.
-Pressing the \fBdelete\-entry\fP binding (\fBshift\-delete\fP) will kill the window\.
-Pressing the \fBaccept\-custom\fP binding (\fBcontrol\-enter\fP or \fBshift\-enter\fP) will run a command on the window\.
-(See option \fBwindow\-command\fP );
-.SS Run
-.P
-Shows a list of executables in \fB$PATH\fR and can launch them (optional in a terminal)\.
-Pressing the \fBdelete\-entry\fP binding (\fBshift\-delete\fP) will remove this entry from the run history\.
-Pressing the \fBaccept\-custom\fP binding (\fBcontrol\-enter\fP or \fBshift\-enter\fP) will run the command in a terminal\.
-.SS DRun
-.P
-Same as the \fBrun\fR launches, but the list is created from the installed desktop files\. It automatically launches them
-in a terminal if specified in the Desktop File\.
-Pressing the \fBdelete\-entry\fP binding (\fBshift\-delete\fP) will remove this entry from the run history\.
-Pressing the \fBaccept\-custom\fP binding (\fBcontrol\-enter\fP or \fBshift\-enter\fP) with custom input (no entry matching) will run the command in a terminal\.
-.SS SSH
-.P
-Shows a list of SSH targets based on your ssh config file, and allows to quickly \fBssh\fP into them\.
-.SS Keys
-.P
+A key binding starting with \fB!\fR will act when all keys have been released\.
+.
+.SH "Available Modi"
+.
+.SS "Window"
+Show a list of all the windows and allow switching between them\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will close the window\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run a command on the window\. (See option \fBwindow\-command\fR );
+.
+.SS "WindowCD"
+Shows a list of the windows on the current desktop and allows switching between them\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will kill the window\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run a command on the window\. (See option \fBwindow\-command\fR );
+.
+.SS "Run"
+Shows a list of executables in \fB$PATH\fR and can launch them (optional in a terminal)\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will remove this entry from the run history\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) will run the command in a terminal\.
+.
+.SS "DRun"
+Same as the \fBrun\fR launches, but the list is created from the installed desktop files\. It automatically launches them in a terminal if specified in the Desktop File\. Pressing the \fBdelete\-entry\fR binding (\fBshift\-delete\fR) will remove this entry from the run history\. Pressing the \fBaccept\-custom\fR binding (\fBcontrol\-enter\fR or \fBshift\-enter\fR) with custom input (no entry matching) will run the command in a terminal\.
+.
+.SS "SSH"
+Shows a list of SSH targets based on your ssh config file, and allows to quickly \fBssh\fR into them\.
+.
+.SS "Keys"
 Shows a searchable list of key bindings\.
-.SS Script
-.P
+.
+.SS "Script"
 Allows custom scripted Modi to be added\.
-.SH FAQ
-.SS The text in the window switcher is not nicely lined out\.
-.P
+.
+.SH "FAQ"
+.
+.SS "The text in the window switcher is not nicely lined out\."
 Try using a mono\-space font\.
-.SS The window is completely black\.
-.P
-Check quotes used on the commandline: you might have used \fB“\fP ("smart quotes") instead of \fB"\fP ("machine quotes")\.
-.SS What does the icon in the top right show?
-.P
+.
+.SS "The window is completely black\."
+Check quotes used on the commandline: you might have used \fB“\fR ("smart quotes") instead of \fB"\fR ("machine quotes")\.
+.
+.SS "What does the icon in the top right show?"
 The indicator shows:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 ` ` Case insensitive and no sorting\.
 `\-` Case sensitivity enabled, no sorting\.
 `+` Case insensitive and Sorting enabled
 `±` Sorting and Case sensitivity enabled"
+.
 .fi
-.RE
-.SH EXAMPLES
-.P
+.
+.IP "" 0
+.
+.SH "EXAMPLES"
 Some basic usage examples of \fBrofi\fR:
+.
 .P
 Show the run dialog:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-modi run \-show run
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Show the the run dialog, and allow switching to Desktop File run dialog (drun):
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-modi run,drun \-show run
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Combine the run and Desktop File run dialog (drun):
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-modi combi \-show combi \-combi\-modi run,drun
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Combine the run and Desktop File run dialog (drun), and allow switching to window switcher:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-modi combi,window \-show combi \-combi\-modi run,drun
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Run \fBrofi\fR full monitor width at the top of the monitor like a dropdown menu:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-show run \-width 100 \-location 1 \-lines 5 \-bw 2 \-yoffset \-2
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Pop up a text message claiming that this is the end:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-e "This is the end"
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Pop up a text message in red, bold font claiming that this is still the end:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
-rofi \-e "<span color='red'><b>This is still the end</b></span>" \-markup
+
+rofi \-e "<span color=\'red\'><b>This is still the end</b></span>" \-markup
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
 Show all key bindings:
-.P
-.RS 2
+.
+.IP "" 4
+.
 .nf
+
 rofi \-show keys
+.
 .fi
-.RE
+.
+.IP "" 0
+.
 .P
-Use \fBqalc\fP to get a simple calculator in \fBrofi\fR:
-.P
-.RS 2
+Use \fBqalc\fR to get a simple calculator in \fBrofi\fR:
+.
+.IP "" 4
+.
 .nf
+
  rofi \-show calc \-modi "calc:qalc +u8 \-nocurrencies"
+.
 .fi
-.RE
-.SH i3
+.
+.IP "" 0
+.
+.SH "i3"
+In i3 \fIhttp://i3wm\.org/\fR you want to bind \fBrofi\fR to be launched on key release\. Otherwise, it cannot grab the keyboard\. See also the i3 manual \fIhttp://i3wm\.org/docs/userguide\.html\fR:
+.
 .P
-In i3 \fIhttp://i3wm\.org/\fR you want to bind \fBrofi\fR to be launched on key release\. Otherwise, it cannot grab the keyboard\.
-See also the i3 manual \fIhttp://i3wm\.org/docs/userguide\.html\fR:
-.P
-Some tools (such as import or xdotool) might be unable to run upon a KeyPress event, because the keyboard/pointer is
-still grabbed\. For these situations, the \fB\-\-release\fP flag can be used, as it will execute the command after the keys have
-been released\.
-.SH LICENSE
-.P
-.RS 2
+Some tools (such as import or xdotool) might be unable to run upon a KeyPress event, because the keyboard/pointer is still grabbed\. For these situations, the \fB\-\-release\fR flag can be used, as it will execute the command after the keys have been released\.
+.
+.SH "LICENSE"
+.
 .nf
+
 MIT/X11
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -1248,36 +1679,38 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE\.
+.
 .fi
-.RE
-.SH WEBSITE
-.P
+.
+.SH "WEBSITE"
 \fBrofi\fR website can be found here \fIhttps://davedavenport\.github\.io/rofi/\fR
-.SH SUPPORT
-.P
-\fBrofi\fR support can be obtained here \fIirc://irc\.freenode\.net/#rofi\fR (#rofi on irc\.freenode\.net), or via the
-forum \fIhttps://reddit\.com/r/qtools//\fR
-.SH DEBUGGING
-.P
-Please see [this](https://github\.com/DaveDavenport/rofi/wiki/Debugging Rofi) wiki entry\.
-.SH ISSUE TRACKER
-.P
+.
+.SH "SUPPORT"
+\fBrofi\fR support can be obtained here \fIirc://irc\.freenode\.net/#rofi\fR (#rofi on irc\.freenode\.net), or via the forum \fIhttps://reddit\.com/r/qtools//\fR
+.
+.SH "DEBUGGING"
+Please see this \fIhttps://github\.com/DaveDavenport/rofi/wiki/Debugging%20Rofi\fR wiki entry\.
+.
+.SH "ISSUE TRACKER"
 \fBrofi\fR issue tracker can be found here \fIhttps://github\.com/DaveDavenport/rofi/issues\fR
+.
 .P
-When creating an issue, please read this \fIhttps://github\.com/DaveDavenport/rofi/blob/master/\.github/CONTRIBUTING\.md\fR
-first\.
-.SH SEE ALSO
-.P
+When creating an issue, please read this \fIhttps://github\.com/DaveDavenport/rofi/blob/master/\.github/CONTRIBUTING\.md\fR first\.
+.
+.SH "SEE ALSO"
 rofi\-sensible\-terminal(1), dmenu(1), rofi\-theme(5), rofi\-theme\-selector(1)
-.SH AUTHOR
+.
+.SH "AUTHOR"
+Qball Cow \fIqball@gmpclient\.org\fR
+.
 .P
-Qball Cow qball@gmpclient\.org
+Rasmus Steinke \fIrasi@xssn\.at\fR
+.
 .P
-Rasmus Steinke rasi@xssn\.at
+Quentin Glidic \fIsardemff7+rofi@sardemff7\.net\fR
+.
 .P
-Quentin Glidic sardemff7+rofi@sardemff7\.net
-.P
-Original code based on work by: Sean Pringle sean\.pringle@gmail\.com
+Original code based on work by: Sean Pringle \fIsean\.pringle@gmail\.com\fR
+.
 .P
 For a full list of authors, check the AUTHORS file\.
-

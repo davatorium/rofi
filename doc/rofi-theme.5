@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ROFI\-THEME" "5" "May 2019" "" ""
+.TH "ROFI\-THEME" "5" "September 2019" "" ""
 .
 .SH "NAME"
 \fBrofi\-theme\fR \- Rofi theme format files
@@ -1167,7 +1167,25 @@ inputbar Packs: \fBprompt,entry,case\-indicator\fR
 .IP "" 0
 .
 .P
-Any widget name starting with \fBtextbox\fR is a textbox widget, others are box widgets and can pack other widgets\. To specify children, set the \fBchildren\fR property (this always happens on the \fBbox\fR child, see example below):
+Any widget name starting with \fBtextbox\fR is a textbox widget, others are box widgets and can pack other widgets\.
+.
+.P
+There are several special widgets that can be used by prefixing the name of the widget:
+.
+.TP
+\fBtextbox\fR
+This is a textbox widget\. The displayed string can be set with \fBstr\fR\.
+.
+.TP
+\fBicon\fR
+This is an icon widget\. The displayed icon can be set with \fBfilename\fR and size with \fBsize\fR\.
+.
+.TP
+\fBbutton\fR
+This is a textbox widget that can have a \'clickable\' action\. The \fBaction\fR can be set to: \fBok\fR accept entry\. \fBcustom\fR accept custom input\. \fBok|alternate\fR: accept entry and launch alternate action (for run launch in terminal)\. \fBcustom|alternate\fR: accept custom input and launch alternate action\.
+.
+.P
+To specify children, set the \fBchildren\fR property (this always happens on the \fBbox\fR child, see example below):
 .
 .IP "" 4
 .
