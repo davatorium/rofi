@@ -56,6 +56,11 @@ unsigned int test =0;
         }                                                                                \
 }
 
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
+}
+
 char * helper_get_theme_path ( const char *file )
 {
     return g_strdup ( file );
