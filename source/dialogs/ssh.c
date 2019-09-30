@@ -56,9 +56,13 @@
 #include "history.h"
 #include "dialogs/ssh.h"
 
-
+/**
+ * Holding an ssh entry.
+ */
 typedef struct _SshEntry {
+    /** SSH hostname */
     char *hostname;
+    /** SSH port number */
     int  port;
 } SshEntry;
 /**

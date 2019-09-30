@@ -127,7 +127,11 @@ struct _listview
         unsigned int  cur_visible;
     } barview;
 };
-
+/**
+ * Names used for theming the elements in the listview.
+ * Each row can have 3 modes,  normal, selected and alternate.
+ * Each row can have 3 states, normal, urgent and active.
+ */
 const char *const listview_theme_prop_names[][3] = {
     /** Normal row */
     { "normal.normal", "selected.normal", "alternate.normal" },

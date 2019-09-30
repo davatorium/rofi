@@ -43,6 +43,9 @@ typedef enum
     MM_FUZZY  = 3
 } MatchingMethod;
 
+/**
+ * Possible sorting methods for listview.
+ */
 typedef enum
 {
     SORT_NORMAL = 0,

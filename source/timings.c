@@ -25,13 +25,20 @@
  *
  */
 
+/** Log domain used by timings.*/
 #define G_LOG_DOMAIN    "Timings"
 
 #include "config.h"
 #include <stdio.h>
 #include "rofi.h"
 #include "timings.h"
+/**
+ * Timer used to calculate time stamps.
+ */
 GTimer *global_timer     = NULL;
+/**
+ * Last timestamp made.
+ */
 double global_timer_last = 0.0;
 
 void rofi_timings_init ( void )
