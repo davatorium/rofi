@@ -78,8 +78,8 @@ element-text {
 }
 element-icon {
     background-color: rgba ( 0, 0, 0, 0 % );
+    size:             1.2000ch ;
     text-color:       inherit;
-    size:             1.2ch;
 }
 window {
     background-color: var(background);
