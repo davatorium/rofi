@@ -362,14 +362,15 @@ char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file
 void rofi_theme_parse_process_conditionals ( void );
 
 /**
- * @parent Target theme tree
- * @parent child source theme three
+ * @param parent target theme tree
+ * @param child source theme three
  *
  * Merge all the settings from child into parent.
  */
 void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child );
+
 /**
- * @type the media type to parse.
+ * @param type the media type to parse.
  *
  * Returns the media type described by type.
  */

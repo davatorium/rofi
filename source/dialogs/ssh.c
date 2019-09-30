@@ -168,6 +168,7 @@ static void delete_ssh ( const char *host )
 }
 
 /**
+ * @param path Path of the known host file.
  * @param retv list of hosts
  * @param length pointer to length of list [in][out]
  *
@@ -453,11 +454,12 @@ static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename
 }
 
 /**
+ * @param pd The plugin data handle
  * @param length The number of found ssh hosts [out]
  *
  * Gets the list available SSH hosts.
  *
- * @return an array of strings containing all the hosts.
+ * @returns an array of strings containing all the hosts.
  */
 static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
 {

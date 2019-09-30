@@ -25,21 +25,22 @@
  *
  */
 
-#ifndef ROFI_TIMINGS_H
-#define ROFI_TIMINGS_H
-#include <config.h>
-
 /**
  * @defgroup TIMINGS Timings
  * @ingroup HELPERS
  * @{
  */
+#ifndef ROFI_TIMINGS_H
+#define ROFI_TIMINGS_H
+#include <config.h>
+
 /**
  * Init the timestamping mechanism .
  * implementation.
  */
 void rofi_timings_init ( void );
 /**
+ * @param file filename tick originates from
  * @param str function name.
  * @param line line number
  * @param msg message
@@ -92,5 +93,5 @@ void rofi_timings_quit ( void );
  */
 #define TICK_N( a )
 
-/*@}*/
 #endif // ROFI_TIMINGS_H
+/*@}*/
