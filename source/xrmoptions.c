@@ -223,6 +223,8 @@ static XrmOption xrmOptions[] = {
       "Set the character used to negate the matching. ('\\0' to disable)", CONFIG_DEFAULT },
     { xrm_String, "cache-dir",               { .str = &config.cache_dir                       }, NULL,
       "Directory where history and temporary files are stored.", CONFIG_DEFAULT },
+    { xrm_Boolean,  "window-thumbnail",         { .snum  = &config.window_thumbnail            }, NULL,
+      "Show window thumbnail in window switcher if availalbe.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

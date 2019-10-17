@@ -112,6 +112,7 @@ typedef struct
     cairo_surface_t                   *icon;
     gboolean                          icon_checked;
     uint32_t                          icon_fetch_uid;
+    gboolean                          thumbnail_checked;
 } client;
 
 // window lists
@@ -910,7 +911,11 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
 {
     ModeModePrivateData *rmpd = mode_get_private_data ( sw );
     client              *c    = window_client ( rmpd, rmpd->ids->array[selected_line] );
-    if ( c->icon_checked == FALSE ) {
+    if ( config.window_thumbnail && c->thumbnail_checked == FALSE ) {
+        c->icon              = x11_helper_get_screenshot_surface_window ( c->window, size );
+        c->thumbnail_checked = TRUE;
+    }
+    if ( c->icon == NULL && c->icon_checked == FALSE ) {
         c->icon         = get_net_wm_icon ( rmpd->ids->array[selected_line], size );
         c->icon_checked = TRUE;
     }

@@ -181,4 +181,13 @@ typedef enum
  */
 extern WindowManagerQuirk current_window_manager;
 
+/**
+ * @param window the window the screenshot
+ * @param size   Size of the thumbnail
+ *
+ * Creates a thumbnail of the window.
+ *
+ * @returns NULL if window was not found, or unmapped, otherwise returns a cairo_surface.
+ */
+cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size );
 #endif

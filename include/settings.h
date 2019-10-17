@@ -189,6 +189,9 @@ typedef struct
 
     /** Cache directory. */
     char           *cache_dir;
+
+    /** Window Thumbnails */
+    gboolean       window_thumbnail;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

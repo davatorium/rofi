@@ -159,4 +159,5 @@ Settings config = {
     .matching_negate_char   = '-',
 
     .cache_dir              = NULL,
+    .window_thumbnail       = FALSE,
 };
