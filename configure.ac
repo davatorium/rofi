@@ -154,11 +154,6 @@ AC_OUTPUT
 
 echo ""
 echo "-------------------------------------"
-if test x$enable_timings = xyes; then
-echo "Timing output:               Enabled"
-else
-echo "Timing output:               Disabled"
-fi
 if test x$enable_drun != xno; then
 echo "Desktop File drun dialog     Enabled"
 else
