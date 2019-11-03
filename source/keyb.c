@@ -93,7 +93,7 @@ ActionBindingEntry rofi_bindings[] =
     { .id = CUSTOM_10,               .name  = "kb-custom-10",               .binding = "Alt+0",                                .comment = "Custom keybinding 10"                                                  },
     { .id = CUSTOM_11,               .name  = "kb-custom-11",               .binding = "Alt+exclam",                           .comment = "Custom keybinding 11"                                                  },
     { .id = CUSTOM_12,               .name  = "kb-custom-12",               .binding = "Alt+at",                               .comment = "Custom keybinding 12"                                                  },
-    { .id = CUSTOM_13,               .name  = "kb-custom-13",               .binding = "Alt+numbersign",                       .comment = "Csutom keybinding 13"                                                  },
+    { .id = CUSTOM_13,               .name  = "kb-custom-13",               .binding = "Alt+numbersign",                       .comment = "Custom keybinding 13"                                                  },
     { .id = CUSTOM_14,               .name  = "kb-custom-14",               .binding = "Alt+dollar",                           .comment = "Custom keybinding 14"                                                  },
     { .id = CUSTOM_15,               .name  = "kb-custom-15",               .binding = "Alt+percent",                          .comment = "Custom keybinding 15"                                                  },
     { .id = CUSTOM_16,               .name  = "kb-custom-16",               .binding = "Alt+dead_circumflex",                  .comment = "Custom keybinding 16"                                                  },

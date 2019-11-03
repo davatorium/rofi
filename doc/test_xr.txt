@@ -226,7 +226,7 @@ rofi.kb-custom-10:                   Alt+0
 rofi.kb-custom-11:                   Alt+Shift+1
 ! "Custom keybinding 12" Set from: File
 rofi.kb-custom-12:                   Alt+at
-! "Csutom keybinding 13" Set from: File
+! "Custom keybinding 13" Set from: File
 rofi.kb-custom-13:                   Alt+numbersign
 ! "Custom keybinding 14" Set from: File
 rofi.kb-custom-14:                   Alt+dollar
