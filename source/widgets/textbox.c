@@ -198,7 +198,9 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     tb->blink_timeout = 0;
     tb->blink         = 1;
     if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
-        tb->blink_timeout         = g_timeout_add ( 1200, textbox_blink, tb );
+        if ( rofi_theme_get_boolean ( WIDGET(tb), "blink", TRUE) ) {
+            tb->blink_timeout         = g_timeout_add ( 1200, textbox_blink, tb );
+        }
         tb->widget.trigger_action = textbox_editable_trigger_action;
     }
 
