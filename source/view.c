@@ -1102,6 +1102,19 @@ static void rofi_view_refilter ( RofiViewState *state )
     }
     listview_set_num_elements ( state->list_view, state->filtered_lines );
 
+    if ( state->tb_filtered_rows ) {
+        char *r = g_strdup_printf("%u", state->filtered_lines);
+        textbox_text( state->tb_filtered_rows, r );
+        g_free(r);
+    }
+    if ( state->tb_total_rows )  {
+        char *r = g_strdup_printf("%u", state->num_lines);
+        textbox_text( state->tb_total_rows, r );
+        g_free(r);
+    }
+
+
+
     if ( config.auto_select == TRUE && state->filtered_lines == 1 && state->num_lines > 1 ) {
         ( state->selected_line ) = state->line_map[listview_get_selected ( state->list_view  )];
         state->retv              = MENU_OK;
@@ -1614,6 +1627,16 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         state->prompt = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "", 0, 0 );
         rofi_view_update_prompt ( state );
         box_add ( (box *) parent_widget, WIDGET ( state->prompt ), FALSE );
+        defaults = NULL;
+    }
+    else if ( strcmp ( name, "num-rows" ) == 0 ){
+        state->tb_total_rows = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "", 0, 0 );
+        box_add ( (box *) parent_widget, WIDGET ( state->tb_total_rows ), FALSE );
+        defaults = NULL;
+    }
+    else if ( strcmp ( name, "num-filtered-rows" ) == 0 ){
+        state->tb_filtered_rows = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOWIDTH|TB_AUTOHEIGHT, NORMAL, "", 0, 0 );
+        box_add ( (box *) parent_widget, WIDGET ( state->tb_filtered_rows), FALSE );
         defaults = NULL;
     }
     /**

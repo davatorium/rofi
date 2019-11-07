@@ -101,6 +101,12 @@ struct RofiViewState
     unsigned int     num_modi;
     /** Array of #textbox that act as buttons for switching modi */
     textbox          **modi;
+
+    /** Total rows. */
+    textbox         *tb_total_rows;
+    /** filtered rows */
+    textbox         *tb_filtered_rows;
+
     /** Settings of the menu */
     MenuFlags        menu_flags;
     /** If mouse was within view previously */

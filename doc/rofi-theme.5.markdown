@@ -741,6 +741,8 @@ The following widgets are fixed, as they provide core **rofi** functionality:
  * message
  * listview
  * mode-switcher
+ * num-rows
+ * num-filtered-rows
 
 The following keywords are defined and can be used to automatically pack a subset of the widgets.
 These are used in the default theme as depicted in the figure above.
