@@ -334,7 +334,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
                         twidth = width;
                     }
                     right_offset -= twidth;
-                    widget_move ( WIDGET(lv->boxes[i].box), left_offset, top_offset);
+                    widget_move ( WIDGET(lv->boxes[i].box), right_offset, top_offset);
                     widget_resize ( WIDGET (lv->boxes[i].box), twidth, lv->element_height);
 
                     widget_draw ( WIDGET ( lv->boxes[i].box ), draw );
