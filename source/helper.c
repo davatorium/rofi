@@ -432,6 +432,13 @@ PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, r
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
+
+                        if ( th.color.alpha < 1.0 ){
+                            pa = pango_attr_foreground_alpha_new(th.color.alpha*65535);
+                            pa->start_index = start;
+                            pa->end_index   = end;
+                            pango_attr_list_insert ( retv, pa );
+                        }
                     }
                 }
                 g_match_info_next ( gmi, NULL );
