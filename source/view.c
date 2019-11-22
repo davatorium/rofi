@@ -763,6 +763,7 @@ void __create_window ( MenuFlags menu_flags )
     // Tell textbox to use this context.
     textbox_set_pango_context ( font, p );
     // cleanup
+    TICK_N ( "cleanup font configure" );
     g_object_unref ( p );
     cairo_font_options_destroy ( fo );
 
