@@ -804,7 +804,7 @@ void textbox_set_pango_context ( const char *font, PangoContext *p )
 {
     g_assert ( p_metrics == NULL );
     p_context = g_object_ref ( p );
-    p_metrics = pango_context_get_metrics ( p_context, NULL, NULL );
+    p_metrics = pango_context_get_metrics ( p_context, NULL, pango_language_get_default () );
     TBFontConfig *tbfc = g_malloc0 ( sizeof ( TBFontConfig ) );
     tbfc->metrics = p_metrics;
     tbfc->height  = pango_font_metrics_get_ascent ( tbfc->metrics ) + pango_font_metrics_get_descent ( tbfc->metrics );
