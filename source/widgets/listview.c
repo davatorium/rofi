@@ -356,7 +356,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
         }
         else {
             for ( unsigned int i = 0; i < lv->barview.cur_visible; i++ ) {
-                update_element ( lv, i, i + offset, FALSE );
+                update_element ( lv, i, i + offset, TRUE);
                 widget_draw ( WIDGET ( lv->boxes[i].box ), draw );
             }
         }
@@ -424,7 +424,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
         }
         else {
             for ( unsigned int i = 0; i < max; i++ ) {
-                update_element ( lv, i, i + offset, FALSE );
+                update_element ( lv, i, i + offset, TRUE );
                 widget_draw ( WIDGET ( lv->boxes[i].box ), draw );
             }
         }
