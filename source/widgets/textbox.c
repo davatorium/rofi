@@ -189,6 +189,9 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     }
 
     const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text );
+    if ( !txt ){
+        txt = rofi_theme_get_string ( WIDGET  ( tb ), "content", text );
+    }
     textbox_text ( tb, txt ? txt : "" );
     textbox_cursor_end ( tb );
 
