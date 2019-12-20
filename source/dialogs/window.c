@@ -469,9 +469,8 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 {
     ModeModePrivateData *pd = (ModeModePrivateData *) mode_get_private_data ( sw );
     // find window list
-    int                 nwins = 0;
-    xcb_window_t        *wins = NULL;
     xcb_window_t        curr_win_id;
+    int found = 0;
 
     // Create cache
 
@@ -489,21 +488,21 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     }
 
     c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, 0 );
-    xcb_ewmh_get_windows_reply_t clients;
+    xcb_ewmh_get_windows_reply_t clients = {0,};
     if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
-        nwins = clients.windows_len;
-        wins = g_memdup(clients.windows, (nwins)*sizeof(xcb_window_t));
-        xcb_ewmh_get_windows_reply_wipe ( &clients );
+        found = 1;
     }
     else {
         c = xcb_ewmh_get_client_list ( &xcb->ewmh, xcb->screen_nbr );
         if  ( xcb_ewmh_get_client_list_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
-            nwins = clients.windows_len;
-            wins = g_memdup(clients.windows, (nwins)*sizeof(xcb_window_t));
-            xcb_ewmh_get_windows_reply_wipe ( &clients );
+            found = 1;
         }
     }
-    if (  nwins > 0 ) {
+    if ( ! found ) {
+        return;
+    }
+
+    if (  clients.windows_len > 0 ) {
         int i;
         // windows we actually display. May be slightly different to _NET_CLIENT_LIST_STACKING
         // if we happen to have a window destroyed while we're working...
@@ -516,8 +515,8 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
             has_names = TRUE;
         }
         // calc widths of fields
-        for ( i = nwins - 1; i > -1; i-- ) {
-            client *c = window_client ( pd, wins[i] );
+        for ( i = clients.windows_len - 1; i > -1; i-- ) {
+            client *c = window_client ( pd, clients.windows[i] );
             if ( ( c != NULL )
                  && !c->xattr.override_redirect
                  && !client_has_window_type ( c, xcb->ewmh._NET_WM_WINDOW_TYPE_DOCK )
@@ -586,7 +585,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
             xcb_ewmh_get_utf8_strings_reply_wipe ( &names );
         }
     }
-    g_free ( wins );
+    xcb_ewmh_get_windows_reply_wipe ( &clients );
 }
 static int window_mode_init ( Mode *sw )
 {
