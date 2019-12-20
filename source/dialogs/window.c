@@ -470,7 +470,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     ModeModePrivateData *pd = (ModeModePrivateData *) mode_get_private_data ( sw );
     // find window list
     int                 nwins = 0;
-    xcb_window_t        wins[100];
+    xcb_window_t        *wins = NULL;
     xcb_window_t        curr_win_id;
 
     // Create cache
@@ -491,15 +491,15 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, 0 );
     xcb_ewmh_get_windows_reply_t clients;
     if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
-        nwins = MIN ( 100, clients.windows_len );
-        memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
+        nwins = clients.windows_len;
+        wins = g_memdup(clients.windows, (nwins)*sizeof(xcb_window_t));
         xcb_ewmh_get_windows_reply_wipe ( &clients );
     }
     else {
         c = xcb_ewmh_get_client_list ( &xcb->ewmh, xcb->screen_nbr );
         if  ( xcb_ewmh_get_client_list_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
-            nwins = MIN ( 100, clients.windows_len );
-            memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
+            nwins = clients.windows_len;
+            wins = g_memdup(clients.windows, (nwins)*sizeof(xcb_window_t));
             xcb_ewmh_get_windows_reply_wipe ( &clients );
         }
     }
@@ -586,6 +586,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
             xcb_ewmh_get_utf8_strings_reply_wipe ( &names );
         }
     }
+    g_free ( wins );
 }
 static int window_mode_init ( Mode *sw )
 {
