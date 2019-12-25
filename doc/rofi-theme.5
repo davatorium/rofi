@@ -1471,6 +1471,42 @@ rofi \-dump\-theme
 .fi
 .RE
 
+.SH Media support
+.PP
+Parts of the theme can be conditionally loaded, like the CSS \fB\fC@media\fR option.
+
+.PP
+.RS
+
+.nf
+@media ( min\-width: 120px ) {
+
+}
+
+.fi
+.RE
+
+.PP
+It supports the following keys as constraint:
+
+.RS
+.IP \(bu 2
+\fB\fCmin\-width\fR:         load when width is bigger then value.
+.IP \(bu 2
+\fB\fCmax\-width\fR:         load when width is smaller then value.
+.IP \(bu 2
+\fB\fCmin\-height\fR:        load when height is bigger then value.
+.IP \(bu 2
+\fB\fCmax\-height\fR:        load when height is smaller then value.
+.IP \(bu 2
+\fB\fCmin\-aspect\-ratio\fR   load when aspect ratio is over value.
+.IP \(bu 2
+\fB\fCmax\-aspect\_ratio\fR:  load when aspect ratio is under value.
+.IP \(bu 2
+\fB\fCmonitor\-id\fR:        The monitor id, see rofi \-help for id's.
+
+.RE
+
 .SH EXAMPLES
 .PP
 Several examples are installed together with \fBrofi\fP\&. These can be found in \fB\fC{datadir}/rofi/themes/\fR, where

@@ -933,6 +933,29 @@ To print the current theme, run:
 rofi -dump-theme
 ```
 
+## Media support
+
+Parts of the theme can be conditionally loaded, like the CSS `@media` option.
+
+```
+@media ( min-width: 120px ) {
+
+}
+```
+
+It supports the following keys as constraint:
+
+ * `min-width`:         load when width is bigger then value.
+ * `max-width`:         load when width is smaller then value.
+ * `min-height`:        load when height is bigger then value.
+ * `max-height`:        load when height is smaller then value.
+ * `min-aspect-ratio`   load when aspect ratio is over value.
+ * `max-aspect_ratio`:  load when aspect ratio is under value.
+ * `monitor-id`:        The monitor id, see rofi -help for id's.
+
+
+
+
 
 ## EXAMPLES
 
