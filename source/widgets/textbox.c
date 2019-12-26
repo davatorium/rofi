@@ -192,6 +192,10 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     if ( !txt ){
         txt = rofi_theme_get_string ( WIDGET  ( tb ), "content", text );
     }
+    const char *placeholder = rofi_theme_get_string ( WIDGET(tb), "placeholder", NULL);
+    if ( placeholder){
+        tb->placeholder = placeholder;
+    }
     textbox_text ( tb, txt ? txt : "" );
     textbox_cursor_end ( tb );
 
@@ -264,6 +268,13 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
 static void __textbox_update_pango_text ( textbox *tb )
 {
     pango_layout_set_attributes ( tb->layout, NULL );
+    if ( tb->placeholder && (tb->text == NULL || tb->text[0] == 0) )
+    {
+        tb->show_placeholder = TRUE;
+        pango_layout_set_text ( tb->layout, tb->placeholder, -1 );
+        return;
+    }
+    tb->show_placeholder = FALSE;
     if ( ( tb->flags & TB_PASSWORD ) == TB_PASSWORD ) {
         size_t l = g_utf8_strlen ( tb->text, -1 );
         char   string [l + 1];
@@ -430,6 +441,9 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
     cairo_set_source_rgb ( draw, 0.0, 0.0, 0.0 );
     rofi_theme_get_color ( WIDGET ( tb ), "text-color", draw );
+    if ( tb->show_placeholder ) {
+        rofi_theme_get_color ( WIDGET ( tb ), "placeholder-color", draw );
+    }
     // draw the cursor
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
         // We want to place the cursor based on the text shown.

@@ -639,18 +639,20 @@ The following properties are currently supported:
 
 ### textbox:
 
-* **background-color**:       color
-* **border-color**:     the color used for the border around the widget.
-* **font**:             the font used by this textbox (string).
-* **str**:              the string to display by this textbox (string).
-* **vertical-align**:   vertical alignment of the text (`0` top, `1` bottom).
-* **horizontal-align**: horizontal alignment of the text (`0` left, `1` right).
-* **text-color**:       the text color to use.
-* **highlight**:        text style {color}.
+* **background-color**:  color
+* **border-color**:      the color used for the border around the widget.
+* **font**:              the font used by this textbox (string).
+* **str**:               the string to display by this textbox (string).
+* **vertical-align**:    vertical alignment of the text (`0` top, `1` bottom).
+* **horizontal-align**:  horizontal alignment of the text (`0` left, `1` right).
+* **text-color**:        the text color to use.
+* **highlight**:         text style {color}.
     color is optional, multiple highlight styles can be added like: bold underline italic #000000;
-* **width**:            override the desired width for the textbox.
-* **content**:          Set the displayed text (String). 
-* **blink**:            Enable/Disable blinking on an input textbox (Boolean).
+* **width**:             override the desired width for the textbox.
+* **content**:           Set the displayed text (String).
+* **placeholder**:       Set the displayed text (String) when nothing is entered.
+* **placeholder-color**: Color of the placeholder text.
+* **blink**:             Enable/Disable blinking on an input textbox (Boolean).
 
 ### listview:
 * **columns**:         integer

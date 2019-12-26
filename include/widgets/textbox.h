@@ -53,6 +53,8 @@ typedef struct
     unsigned long    flags;
     short            cursor;
     char             *text;
+    const char       *placeholder;
+    int              show_placeholder;
     PangoLayout      *layout;
     int              tbft;
     int              markup;
