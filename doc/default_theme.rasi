@@ -138,6 +138,8 @@ case-indicator {
 entry {
     spacing:    0;
     text-color: var(normal-foreground);
+    placeholder-color: grey;
+    placeholder: "Type to filter";
 }
 prompt {
     spacing:    0;
