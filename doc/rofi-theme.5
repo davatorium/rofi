@@ -1511,6 +1511,53 @@ It supports the following keys as constraint:
 
 .RE
 
+.SH Multiple file handling
+.PP
+The rasi file format offers two methods of including other files.
+This can be used to modify existing themes, or have multiple variations on a theme.
+
+.RS
+.IP \(bu 2
+import:  Import and parse a second file.
+.IP \(bu 2
+theme:   Discard theme, and load file as a fresh theme.
+
+.RE
+
+.PP
+Syntax:
+
+.PP
+.RS
+
+.nf
+@import "myfile"
+@theme "mytheme"
+
+.fi
+.RE
+
+.PP
+The specified file can either by \fIname\fP, \fIfilename\fP,\fIfull path\fP\&.
+
+.PP
+If a filename is provided, it will try to resolve it in the following order:
+
+.RS
+.IP \(bu 2
+\fB\fC${XDG\_CONFIG\_HOME}/rofi/themes/\fR
+.IP \(bu 2
+\fB\fC${XDG\_CONFIG\_HOME}/rofi/\fR
+.IP \(bu 2
+\fB\fC${XDG\_DATA\_HOME}/rofi/themes/\fR
+.IP \(bu 2
+\fB\fC${INSTALL PREFIX}/share/rofi/themes/\fR
+
+.RE
+
+.PP
+A name is resolved as a filename by appending the \fB\fC\&.rasi\fR extension.
+
 .SH EXAMPLES
 .PP
 Several examples are installed together with \fBrofi\fP\&. These can be found in \fB\fC{datadir}/rofi/themes/\fR, where

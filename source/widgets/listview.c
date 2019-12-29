@@ -404,8 +404,22 @@ static void listview_draw ( widget *wid, cairo_t *draw )
                 width -= widget_get_width ( WIDGET ( lv->scrollbar ) );
             }
             unsigned int element_width = ( width ) / lv->cur_columns;
+
+            int d = lv->widget.w - (element_width+spacing_hori)*(lv->cur_columns-1)-element_width;
+            if ( lv->cur_columns > 1)
+            {
+                int diff = d/(lv->cur_columns-1);
+                if ( diff >= 1 ){
+                    spacing_hori+=1;
+                    d -= lv->cur_columns-1;
+                }
+            }
             for ( unsigned int i = 0; i < max; i++ ) {
                 unsigned int ex = left_offset + ( ( i ) / lv->max_rows ) * ( element_width + spacing_hori );
+
+                if ( (i)/lv->max_rows == (lv->cur_columns-1) ) {
+                    ex+=d;
+                }
                 if ( lv->reverse ) {
                     unsigned int ey = wid->h - ( widget_padding_get_bottom ( wid ) + ( ( i ) % lv->max_rows ) * ( lv->element_height + spacing_vert ) ) - lv->element_height;
                     widget_move ( WIDGET(lv->boxes[i].box), ex, ey);
@@ -421,6 +435,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
                 widget_draw ( WIDGET ( lv->boxes[i].box ), draw );
             }
             lv->rchanged = FALSE;
+
         }
         else {
             for ( unsigned int i = 0; i < max; i++ ) {
@@ -926,7 +941,7 @@ void listview_toggle_ellipsizing ( listview *lv )
 {
     if ( lv ) {
         PangoEllipsizeMode mode =  lv->emode;
-        if ( mode == PANGO_ELLIPSIZE_START ) { 
+        if ( mode == PANGO_ELLIPSIZE_START ) {
             mode = PANGO_ELLIPSIZE_MIDDLE;
         } else if ( mode == PANGO_ELLIPSIZE_MIDDLE ) {
             mode = PANGO_ELLIPSIZE_END;

@@ -956,6 +956,31 @@ It supports the following keys as constraint:
  * `monitor-id`:        The monitor id, see rofi -help for id's.
 
 
+## Multiple file handling
+
+The rasi file format offers two methods of including other files.
+This can be used to modify existing themes, or have multiple variations on a theme.
+
+ * import:  Import and parse a second file.
+ * theme:   Discard theme, and load file as a fresh theme.
+
+Syntax:
+
+```
+@import "myfile"
+@theme "mytheme"
+```
+
+The specified file can either by *name*, *filename*,*full path*.
+
+If a filename is provided, it will try to resolve it in the following order:
+
+ * `${XDG_CONFIG_HOME}/rofi/themes/`
+ * `${XDG_CONFIG_HOME}/rofi/`
+ * `${XDG_DATA_HOME}/rofi/themes/`
+ * `${INSTALL PREFIX}/share/rofi/themes/` 
+
+A name is resolved as a filename by appending the `.rasi` extension.
 
 
 
