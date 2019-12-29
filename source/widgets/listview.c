@@ -186,7 +186,7 @@ static void listview_create_row ( listview *lv, _listview_row *row )
             row->textbox= textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT|flags, NORMAL, "DDD", 0, 0 );
             box_add ( row->box, WIDGET ( row->textbox ), TRUE);
         } else if ( strcasecmp ( (char*)iter->data, "element-index" ) == 0 ){
-            row->index= textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT|flags, NORMAL, " ", 0, 0 );
+            row->index= textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT, NORMAL, " ", 0, 0 );
             box_add ( row->box, WIDGET ( row->index ), FALSE);
         }
     }
