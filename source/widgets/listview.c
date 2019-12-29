@@ -424,7 +424,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
             }
             unsigned int element_width = ( width ) / lv->cur_columns;
 
-            int d = lv->widget.w - (element_width+spacing_hori)*(lv->cur_columns-1)-element_width;
+            int d = width - (element_width+spacing_hori)*(lv->cur_columns-1)-element_width;
             if ( lv->cur_columns > 1)
             {
                 int diff = d/(lv->cur_columns-1);
