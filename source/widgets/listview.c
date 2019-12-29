@@ -63,6 +63,7 @@ typedef enum
 typedef struct {
    box *box;
    textbox *textbox;
+   textbox *index;
    icon  *icon;
 } _listview_row;
 
@@ -173,6 +174,7 @@ static void listview_create_row ( listview *lv, _listview_row *row )
 
     row->textbox = NULL;
     row->icon    = NULL;
+    row->index   = NULL;
 
     for ( GList *iter = g_list_first(list); iter != NULL;iter = g_list_next(iter)){
         if ( strcasecmp((char *)iter->data, "element-icon") == 0 ) {
@@ -183,6 +185,9 @@ static void listview_create_row ( listview *lv, _listview_row *row )
         } else if ( strcasecmp ((char *)iter->data, "element-text") == 0 ){
             row->textbox= textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT|flags, NORMAL, "DDD", 0, 0 );
             box_add ( row->box, WIDGET ( row->textbox ), TRUE);
+        } else if ( strcasecmp ( (char*)iter->data, "element-index" ) == 0 ){
+            row->index= textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT|flags, NORMAL, " ", 0, 0 );
+            box_add ( row->box, WIDGET ( row->index ), FALSE);
         }
     }
     g_list_free_full ( list, g_free );
@@ -192,7 +197,12 @@ static void listview_create_row ( listview *lv, _listview_row *row )
 static void listview_set_state ( _listview_row r, TextBoxFontType type )
 {
     listview_set_style ( WIDGET(r.box), type);
-    listview_set_style ( WIDGET(r.textbox), type);
+    if ( r.textbox ) {
+        listview_set_style ( WIDGET(r.textbox), type);
+    }
+    if ( r.index ) {
+        listview_set_style ( WIDGET(r.index), type);
+    }
     if ( r.icon ) {
         listview_set_style ( WIDGET(r.icon), type);
     }
@@ -278,6 +288,15 @@ static void update_element ( listview *lv, unsigned int tb, unsigned int index, 
     TextBoxFontType type = ( index & 1 ) == 0 ? NORMAL : ALT;
     type = ( index ) == lv->selected ? HIGHLIGHT : type;
 
+    if ( lv->boxes[tb].index ) {
+        if ( index < 10 ) {
+            char str[2] = "0";
+            str[0] = ((index+1)%10)+'0';
+            textbox_text( lv->boxes[tb].index, str );
+        } else {
+            textbox_text( lv->boxes[tb].index, " " );
+        }
+    }
     if ( lv->callback ) {
         lv->callback ( lv->boxes[tb].textbox, lv->boxes[tb].icon, index, lv->udata, &type, full );
         listview_set_state ( lv->boxes[tb], type);

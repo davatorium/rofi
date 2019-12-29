@@ -518,6 +518,7 @@ The current widgets available in **rofi**:
        * `scrollbar`: the listview scrollbar
        * `element`: a box in the listview holding the entries
        * `element-icon`: the widget in the listview's entry showing the (optional) icon
+       * `element-index`: the widget in the listview's entry keybindable index (1,2,3..0) 
        * `element-text`: the widget in the listview's entry showing the text.
     * `mode-switcher`: the main horizontal @box packing the buttons.
       * `button`: the buttons @textbox for each mode
