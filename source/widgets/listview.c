@@ -37,6 +37,8 @@
 #include "settings.h"
 #include "theme.h"
 
+#include "timings.h"
+
 /** Default spacing between the elements in the listview. */
 #define DEFAULT_SPACING    2
 
@@ -516,10 +518,14 @@ void listview_set_num_elements ( listview *lv, unsigned int rows )
     if ( lv == NULL ) {
         return;
     }
+    TICK_N(__FUNCTION__);
     lv->req_elements = rows;
     listview_set_selected ( lv, lv->selected );
+    TICK_N("Set selected");
     listview_recompute_elements ( lv );
+    TICK_N("recompute elements");
     widget_queue_redraw ( WIDGET ( lv ) );
+    TICK_N("queue redraw");
 }
 
 unsigned int listview_get_selected ( listview *lv )
