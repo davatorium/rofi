@@ -290,8 +290,10 @@ static void update_element ( listview *lv, unsigned int tb, unsigned int index, 
 
     if ( lv->boxes[tb].index ) {
         if ( index < 10 ) {
-            char str[2] = "0";
-            str[0] = ((index+1)%10)+'0';
+            char str[2]  = {
+                ((index+1)%10)+'0',
+                '\0'
+            };
             textbox_text( lv->boxes[tb].index, str );
         } else {
             textbox_text( lv->boxes[tb].index, " " );
