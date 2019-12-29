@@ -1030,10 +1030,12 @@ static void rofi_view_refilter ( RofiViewState *state )
         _rofi_view_reload_row ( state );
         state->reload = FALSE;
     }
+    TICK_N ("Filter reload rows");
     if ( state->tokens ) {
         helper_tokenize_free ( state->tokens );
         state->tokens = NULL;
     }
+    TICK_N ("Filter tokenize");
     if ( state->text && strlen ( state->text->text ) > 0 ) {
         unsigned int j        = 0;
         gchar        *pattern = mode_preprocess_input ( state->sw, state->text->text );
@@ -1100,6 +1102,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         }
         state->filtered_lines = state->num_lines;
     }
+    TICK_N ("Filter matching done");
     listview_set_num_elements ( state->list_view, state->filtered_lines );
 
     if ( state->tb_filtered_rows ) {
@@ -1112,6 +1115,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         textbox_text( state->tb_total_rows, r );
         g_free(r);
     }
+    TICK_N ("Update filter lines");
 
 
 
@@ -1120,6 +1124,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         state->retv              = MENU_OK;
         state->quit              = TRUE;
     }
+
     // Size the window.
     int height = rofi_view_calculate_height ( state );
     if ( height != state->height ) {
@@ -1128,6 +1133,7 @@ static void rofi_view_refilter ( RofiViewState *state )
         rofi_view_window_update_size ( state );
         g_debug ( "Resize based on re-filter" );
     }
+    TICK_N ("Filter resize window based on window ");
     state->refilter = FALSE;
     TICK_N ( "Filter done" );
 }
