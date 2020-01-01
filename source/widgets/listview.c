@@ -420,13 +420,13 @@ static void listview_draw ( widget *wid, cairo_t *draw )
         // Set new x/y position.
         unsigned int max = MIN ( lv->cur_elements, lv->req_elements - offset );
         if ( lv->rchanged ) {
-            unsigned int width = lv->widget.w - spacing_hori * ( lv->cur_columns - 1 );
+            unsigned int width = lv->widget.w;
             width -= widget_padding_get_padding_width ( wid );
             if ( widget_enabled ( WIDGET ( lv->scrollbar ) ) ) {
                 width -= spacing_hori;
                 width -= widget_get_width ( WIDGET ( lv->scrollbar ) );
             }
-            unsigned int element_width = ( width ) / lv->cur_columns;
+            unsigned int element_width = ( width - spacing_hori * ( lv->cur_columns - 1 )) / lv->cur_columns;
 
             int d = width - (element_width+spacing_hori)*(lv->cur_columns-1)-element_width;
             if ( lv->cur_columns > 1)
