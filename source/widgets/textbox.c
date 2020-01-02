@@ -441,10 +441,18 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
     cairo_set_source_rgb ( draw, 0.0, 0.0, 0.0 );
     rofi_theme_get_color ( WIDGET ( tb ), "text-color", draw );
+
     if ( tb->show_placeholder ) {
         rofi_theme_get_color ( WIDGET ( tb ), "placeholder-color", draw );
     }
+    // Set ARGB
+    // We need to set over, otherwise subpixel hinting wont work.
+    cairo_move_to ( draw, x, top );
+    pango_cairo_show_layout ( draw, tb->layout );
+
+
     // draw the cursor
+    rofi_theme_get_color ( WIDGET ( tb ), "text-color", draw );
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
         // We want to place the cursor based on the text shown.
         const char     *text = pango_layout_get_text ( tb->layout );
@@ -462,10 +470,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_fill ( draw );
     }
 
-    // Set ARGB
-    // We need to set over, otherwise subpixel hinting wont work.
-    cairo_move_to ( draw, x, top );
-    pango_cairo_show_layout ( draw, tb->layout );
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
         cairo_arc ( draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
