@@ -1,193 +1,180 @@
-.TH ROFI\-THEME 5 rofi\-theme
-.SH NAME
-.PP
-\fBrofi\-theme\fP \- Rofi theme format files
-
-.SH DESCRIPTION
-.PP
-The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed. From a very
-static drawing of lines and text to a nice structured form of packing widgets. This change made it possible to provide a
-more flexible theme framework. The old theme format and config file are not flexible enough to expose these options in a
-user\-friendly way. Therefor, a new file format has been created, replacing the old one.
-
-.SH FORMAT SPECIFICATION
-.SH Encoding
-.PP
-The encoding of the file is utf\-8. Both unix (\fB\fC\\n\fR) and windows (\fB\fC\\r\\n\fR) newlines format are supported. But unix is
-preferred.
-
-.SH Comments
-.PP
-C and C++ file comments are supported.
-
-.RS
-.IP \(bu 2
-Anything after  \fB\fC//\fR and before a newline is considered a comment.
-.IP \(bu 2
-Everything between \fB\fC/*\fR and \fB\fC*/\fR is a comment.
-
-.RE
-
-.PP
-Comments can be nested and the C comments can be inline.
-
-.PP
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "ROFI\-THEME" "5" "January 2020" "" ""
+.
+.SH "NAME"
+\fBrofi\-theme\fR \- Rofi theme format files
+.
+.SH "DESCRIPTION"
+The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed\. From a very static drawing of lines and text to a nice structured form of packing widgets\. This change made it possible to provide a more flexible theme framework\. The old theme format and config file are not flexible enough to expose these options in a user\-friendly way\. Therefor, a new file format has been created, replacing the old one\.
+.
+.SH "FORMAT SPECIFICATION"
+.
+.SH "Encoding"
+The encoding of the file is utf\-8\. Both unix (\fB\en\fR) and windows (\fB\er\en\fR) newlines format are supported\. But unix is preferred\.
+.
+.SH "Comments"
+C and C++ file comments are supported\.
+.
+.IP "\(bu" 4
+Anything after \fB//\fR and before a newline is considered a comment\.
+.
+.IP "\(bu" 4
+Everything between \fB/*\fR and \fB*/\fR is a comment\.
+.
+.IP "" 0
+.
+.P
+Comments can be nested and the C comments can be inline\.
+.
+.P
 The following is valid:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
-// Magic comment.
+
+// Magic comment\.
 property: /* comment */ value;
-
+.
 .fi
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.P
 However, this is not:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 prop/*comment*/erty: value;
-
+.
 .fi
-.RE
-
-.SH White space
-.PP
-White space and newlines, like comments, are ignored by the parser.
-
-.PP
+.
+.IP "" 0
+.
+.SH "White space"
+White space and newlines, like comments, are ignored by the parser\.
+.
+.P
 This:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 property: name;
-
+.
 .fi
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.P
 Is identical to:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
      property             :
 name
 
 ;
-
+.
 .fi
-.RE
-
-.SH File extension
-.PP
-The preferred file extension for the new theme format is \fBrasi\fP\&. This is an
-abbreviation for \fBr\fPofi \fBa\fPdvanced \fBs\fPtyle \fBi\fPnformation.
-
-.SH Basic Structure
-.PP
-Each element has a section with defined properties. Global properties can be defined in section \fB\fC* { }\fR\&.
-Sub\-section names begin with a hash symbol \fB\fC#\fR\&.
-
-.PP
-It is advised to define the \fIglobal properties section\fP on top of the file to
-make inheritance of properties clearer.
-
-.PP
-.RS
-
+.
+.IP "" 0
+.
+.SH "File extension"
+The preferred file extension for the new theme format is \fBrasi\fR\. This is an abbreviation for \fBr\fRofi \fBa\fRdvanced \fBs\fRtyle \fBi\fRnformation\.
+.
+.SH "Basic Structure"
+Each element has a section with defined properties\. Global properties can be defined in section \fB* { }\fR\. Sub\-section names begin with a hash symbol \fB#\fR\.
+.
+.P
+It is advised to define the \fIglobal properties section\fR on top of the file to make inheritance of properties clearer\.
+.
+.IP "" 4
+.
 .nf
+
 /* Global properties section */
 * {
     // list of properties
 }
 
-/* Element theme section. */
+/* Element theme section\. */
 {element path} {
     // list of properties
 }
-{elements... } {
+{elements\.\.\. } {
     // list of properties
 }
-
+.
 .fi
-.RE
-
-.PP
-If there are multiple sections with the same name, they are merged. Duplicate properties are overwritten and the last
-parsed entry kept.
-
-.SH Global properties section
-.PP
-A theme can have one or more global properties sections. If there is more than one,
-they will be merged.
-
-.PP
-The global properties section denotes the defaults for each element.
-Each property of this section can be referenced with \fB\fC@{identifier}\fR
-(See Properties section)
-
-.PP
-A global properties section is indicated with a \fB\fC*\fR as element path.
-
-.SH Element theme section
-.PP
-A theme can have multiple element theme sections.
-
-.PP
-The element path can consist of multiple names separated by whitespace or dots.
-Each element may contain any number of letters, numbers and \fB\fC\-\fR\&'s.
-The first element in the element path should always start with a \fB\fC#\fR\&.
-Multiple elements can be specified by a \fB\fC,\fR\&.
-
-.PP
+.
+.IP "" 0
+.
+.P
+If there are multiple sections with the same name, they are merged\. Duplicate properties are overwritten and the last parsed entry kept\.
+.
+.SH "Global properties section"
+A theme can have one or more global properties sections\. If there is more than one, they will be merged\.
+.
+.P
+The global properties section denotes the defaults for each element\. Each property of this section can be referenced with \fB@{identifier}\fR (See Properties section)
+.
+.P
+A global properties section is indicated with a \fB*\fR as element path\.
+.
+.SH "Element theme section"
+A theme can have multiple element theme sections\.
+.
+.P
+The element path can consist of multiple names separated by whitespace or dots\. Each element may contain any number of letters, numbers and \fB\-\fR\'s\. The first element in the element path should always start with a \fB#\fR\. Multiple elements can be specified by a \fB,\fR\.
+.
+.P
 This is a valid element name:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
-element normal.normal {
+
+element normal\.normal {
     background\-color: blue;
 }
 button {
     background\-color: blue;
 }
-
+.
 .fi
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.P
 And is identical to:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 element normal normal, button {
     background\-color: blue;
 }
-
+.
 .fi
-.RE
-
-.PP
-Each section inherits the global properties. Properties can be explicitly inherited from their parent with the
-\fB\fCinherit\fR keyword.
-In the following example:
-
-.PP
-.RS
-
+.
+.IP "" 0
+.
+.P
+Each section inherits the global properties\. Properties can be explicitly inherited from their parent with the \fBinherit\fR keyword\. In the following example:
+.
+.IP "" 4
+.
 .nf
+
 window {
  a: 1;
  b: 2;
@@ -198,500 +185,507 @@ mainbox {
     b: 4;
     c: 8;
 }
-
+.
 .fi
-.RE
-
-.PP
-The element \fB\fCmainbox\fR will have the following set of properties (if \fB\fCmainbox\fR is a child of \fB\fCwindow\fR):
-
-.PP
-.RS
-
+.
+.IP "" 0
+.
+.P
+The element \fBmainbox\fR will have the following set of properties (if \fBmainbox\fR is a child of \fBwindow\fR):
+.
+.IP "" 4
+.
 .nf
+
 a: 1;
 b: 4;
 c: 8;
-
+.
 .fi
-.RE
-
-.PP
-If multiple sections are defined with the same name, they are merged by the
-parser. If multiple properties with the same name are defined in one section,
-the last encountered property is used.
-
-.SH Properties Format
-.PP
+.
+.IP "" 0
+.
+.P
+If multiple sections are defined with the same name, they are merged by the parser\. If multiple properties with the same name are defined in one section, the last encountered property is used\.
+.
+.SH "Properties Format"
 The properties in a section consist of:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 {identifier}: {value};
-
+.
 .fi
-.RE
-
-.PP
-Both fields are mandatory for a property.
-
-.PP
-The \fB\fCidentifier\fR names the specified property. Identifiers can consist of any
-combination of numbers, letters and '\-'. It must not contain any whitespace.
-The structure of the \fB\fCvalue\fR defines the type of the property. The current
-parser does not define or enforce a certain type of a particular \fB\fCidentifier\fR\&.
-When used, values with the wrong type that cannot be converted are ignored.
-
-.PP
+.
+.IP "" 0
+.
+.P
+Both fields are mandatory for a property\.
+.
+.P
+The \fBidentifier\fR names the specified property\. Identifiers can consist of any combination of numbers, letters and \'\-\'\. It must not contain any whitespace\. The structure of the \fBvalue\fR defines the type of the property\. The current parser does not define or enforce a certain type of a particular \fBidentifier\fR\. When used, values with the wrong type that cannot be converted are ignored\.
+.
+.P
 The current theme format supports different types:
-
-.RS
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a string
-.IP \(bu 2
+.
+.IP "\(bu" 4
 an integer number
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a fractional number
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a boolean value
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a color
-.IP \(bu 2
+.
+.IP "\(bu" 4
 text style
-.IP \(bu 2
+.
+.IP "\(bu" 4
 line style
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a distance
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a padding
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a border
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a position
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a reference
-.IP \(bu 2
+.
+.IP "\(bu" 4
 an orientation
-.IP \(bu 2
+.
+.IP "\(bu" 4
 a list of keywords
-.IP \(bu 2
+.
+.IP "\(bu" 4
 an environment variable
-.IP \(bu 2
+.
+.IP "\(bu" 4
 Inherit
-
-.RE
-
-.PP
-Some of these types are a combination of other types.
-
-.SH String
-.RS
-.IP \(bu 2
-Format:  \fB\fC"[:print:]+"\fR
-
-.RE
-
-.PP
-A string is always surrounded by double quotes (\fB\fC"\fR). Between the quotes there can be any printable character.
-
-.PP
+.
+.IP "" 0
+.
+.P
+Some of these types are a combination of other types\.
+.
+.SH "String"
+.
+.IP "\(bu" 4
+Format: \fB"[:print:]+"\fR
+.
+.IP "" 0
+.
+.P
+A string is always surrounded by double quotes (\fB"\fR)\. Between the quotes there can be any printable character\.
+.
+.P
 For example:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 font: "Awasome 12";
-
+.
 .fi
-.RE
-
-.PP
-The string must be valid UTF\-8.
-
-.SH Integer
-.RS
-.IP \(bu 2
-Format: \fB\fC[\-+]?[:digit:]+\fR
-
-.RE
-
-.PP
-An integer may contain any number.
-
-.PP
+.
+.IP "" 0
+.
+.P
+The string must be valid UTF\-8\.
+.
+.SH "Integer"
+.
+.IP "\(bu" 4
+Format: \fB[\-+]?[:digit:]+\fR
+.
+.IP "" 0
+.
+.P
+An integer may contain any number\.
+.
+.P
 For examples:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 lines: 12;
-
+.
 .fi
-.RE
-
-.SH Real
-.RS
-.IP \(bu 2
-Format: \fB\fC[\-+]?[:digit:]+(\\.[:digit:]+)?\fR
-
-.RE
-
-.PP
-A real is an integer with an optional fraction.
-
-.PP
+.
+.IP "" 0
+.
+.SH "Real"
+.
+.IP "\(bu" 4
+Format: \fB[\-+]?[:digit:]+(\e\.[:digit:]+)?\fR
+.
+.IP "" 0
+.
+.P
+A real is an integer with an optional fraction\.
+.
+.P
 For example:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
-real: 3.4;
 
+real: 3\.4;
+.
 .fi
-.RE
-
-.PP
-The following is not valid: \fB\fC\&.3\fR, \fB\fC3.\fR or scientific notation: \fB\fC3.4e\-3\fR\&.
-
-.SH Boolean
-.RS
-.IP \(bu 2
-Format: \fB\fC(true|false)\fR
-
-.RE
-
-.PP
-Boolean value is either \fB\fCtrue\fR or \fB\fCfalse\fR\&. This is case\-\&sensitive.
-
-.PP
+.
+.IP "" 0
+.
+.P
+The following is not valid: \fB\.3\fR, \fB3\.\fR or scientific notation: \fB3\.4e\-3\fR\.
+.
+.SH "Boolean"
+.
+.IP "\(bu" 4
+Format: \fB(true|false)\fR
+.
+.IP "" 0
+.
+.P
+Boolean value is either \fBtrue\fR or \fBfalse\fR\. This is case\-sensitive\.
+.
+.P
 For example:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 dynamic: false;
-
+.
 .fi
-.RE
-
-.SH Color
-.PP
-\fBrofi\fP supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
-
-.RS
-.IP \(bu 2
-Format: \fB\fC#{HEX}{3}\fR (rgb)
-.IP \(bu 2
-Format: \fB\fC#{HEX}{4}\fR (rgba)
-.IP \(bu 2
-Format: \fB\fC#{HEX}{6}\fR (rrggbb)
-.IP \(bu 2
-Format: \fB\fC#{HEX}{8}\fR (rrggbbaa)
-.IP \(bu 2
-Format: \fB\fCrgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])\fR
-.IP \(bu 2
-Format: \fB\fCrgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])\fR
-.IP \(bu 2
-Format: \fB\fChsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])\fR
-.IP \(bu 2
-Format: \fB\fChwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])\fR
-.IP \(bu 2
-Format: \fB\fCcmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])\fR
-.IP \(bu 2
-Format: \fB\fC{named\-color} [ / {PERCENTAGE} ]\fR
-
-.RE
-
-.PP
-The white\-space format proposed in CSS4 is also supported.
-
-.PP
+.
+.IP "" 0
+.
+.SH "Color"
+\fBrofi\fR supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
+.
+.IP "\(bu" 4
+Format: \fB#{HEX}{3}\fR (rgb)
+.
+.IP "\(bu" 4
+Format: \fB#{HEX}{4}\fR (rgba)
+.
+.IP "\(bu" 4
+Format: \fB#{HEX}{6}\fR (rrggbb)
+.
+.IP "\(bu" 4
+Format: \fB#{HEX}{8}\fR (rrggbbaa)
+.
+.IP "\(bu" 4
+Format: \fBrgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])\fR
+.
+.IP "\(bu" 4
+Format: \fBrgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])\fR
+.
+.IP "\(bu" 4
+Format: \fBhsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])\fR
+.
+.IP "\(bu" 4
+Format: \fBhwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])\fR
+.
+.IP "\(bu" 4
+Format: \fBcmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])\fR
+.
+.IP "\(bu" 4
+Format: \fB{named\-color} [ / {PERCENTAGE} ]\fR
+.
+.IP "" 0
+.
+.P
+The white\-space format proposed in CSS4 is also supported\.
+.
+.P
 The different values are:
-
-.RS
-.IP \(bu 2
-\fB\fC{HEX}\fR is a hexadecimal number ('0\-9a\-f' case insensitive).
-.IP \(bu 2
-\fB\fC{INTEGER}\fR value can be between 0 and 255 or 0\-100 when representing percentage.
-.IP \(bu 2
-\fB\fC{ANGLE}\fR is the angle on the color wheel, can be in \fB\fCdeg\fR, \fB\fCrad\fR, \fB\fCgrad\fR or \fB\fCturn\fR\&. When no unit is specified, degrees is assumed.
-.IP \(bu 2
-\fB\fC{PERCENTAGE}\fR can be between 0\-1.0, or 0%\-100%
-.IP \(bu 2
-
-.PP
-\fB\fC{named\-color}\fR is one of the following colors:
-.PP
-AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
-BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan,
-DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki, DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed,
-DarkSalmon, DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise, DarkViolet, DeepPink, DeepSkyBlue,
-DimGray, DimGrey, DodgerBlue, FireBrick, FloralWhite, ForestGreen, Fuchsia, Gainsboro, GhostWhite, Gold, GoldenRod,
-Gray, Grey, Green, GreenYellow, HoneyDew, HotPink, IndianRed, Indigo, Ivory, Khaki, Lavender, LavenderBlush, LawnGreen,
-LemonChiffon, LightBlue, LightCoral, LightCyan, LightGoldenRodYellow, LightGray, LightGrey, LightGreen, LightPink,
-LightSalmon, LightSeaGreen, LightSkyBlue, LightSlateGray, LightSlateGrey, LightSteelBlue, LightYellow, Lime, LimeGreen,
-Linen, Magenta, Maroon, MediumAquaMarine, MediumBlue, MediumOrchid, MediumPurple, MediumSeaGreen, MediumSlateBlue,
-MediumSpringGreen, MediumTurquoise, MediumVioletRed, MidnightBlue, MintCream, MistyRose, Moccasin, NavajoWhite, Navy,
-OldLace, Olive, OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen, PaleTurquoise, PaleVioletRed,
-PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown,
-Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen,
-SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen,transparent
-
-.RE
-
-.PP
+.
+.IP "\(bu" 4
+\fB{HEX}\fR is a hexadecimal number (\'0\-9a\-f\' case insensitive)\.
+.
+.IP "\(bu" 4
+\fB{INTEGER}\fR value can be between 0 and 255 or 0\-100 when representing percentage\.
+.
+.IP "\(bu" 4
+\fB{ANGLE}\fR is the angle on the color wheel, can be in \fBdeg\fR, \fBrad\fR, \fBgrad\fR or \fBturn\fR\. When no unit is specified, degrees is assumed\.
+.
+.IP "\(bu" 4
+\fB{PERCENTAGE}\fR can be between 0\-1\.0, or 0%\-100%
+.
+.IP "\(bu" 4
+\fB{named\-color}\fR is one of the following colors:
+.
+.IP
+AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown, BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan, DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki, DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed, DarkSalmon, DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise, DarkViolet, DeepPink, DeepSkyBlue, DimGray, DimGrey, DodgerBlue, FireBrick, FloralWhite, ForestGreen, Fuchsia, Gainsboro, GhostWhite, Gold, GoldenRod, Gray, Grey, Green, GreenYellow, HoneyDew, HotPink, IndianRed, Indigo, Ivory, Khaki, Lavender, LavenderBlush, LawnGreen, LemonChiffon, LightBlue, LightCoral, LightCyan, LightGoldenRodYellow, LightGray, LightGrey, LightGreen, LightPink, LightSalmon, LightSeaGreen, LightSkyBlue, LightSlateGray, LightSlateGrey, LightSteelBlue, LightYellow, Lime, LimeGreen, Linen, Magenta, Maroon, MediumAquaMarine, MediumBlue, MediumOrchid, MediumPurple, MediumSeaGreen, MediumSlateBlue, MediumSpringGreen, MediumTurquoise, MediumVioletRed, MidnightBlue, MintCream, MistyRose, Moccasin, NavajoWhite, Navy, OldLace, Olive, OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen, PaleTurquoise, PaleVioletRed, PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown, Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen, SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen,transparent
+.
+.IP "" 0
+.
+.P
 For example:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 background\-color: #FF0000;
-border\-color: rgba(0,0,1, 0.5);
+border\-color: rgba(0,0,1, 0\.5);
 text\-color: SeaGreen;
-
+.
 .fi
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.P
 or
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 background\-color: transparent;
 text\-color: Black;
-
+.
 .fi
-.RE
-
-.SH Text style
-.RS
-.IP \(bu 2
-Format: \fB\fC(bold|italic|underline|strikethrough|none)\fR
-
-.RE
-
-.PP
-Text style indicates how the highlighted text is emphasized. \fB\fCNone\fR indicates that no emphasis
-should be applied.
-
-.RS
-.IP \(bu 2
-\fB\fCbold\fR: make the text thicker then the surrounding text.
-.IP \(bu 2
-\fB\fCitalic\fR: put the highlighted text in script type (slanted).
-.IP \(bu 2
-\fB\fCunderline\fR: put a line under the highlighted text.
-.IP \(bu 2
-\fB\fCstrikethrough\fR: put a line through the highlighted text.
-.IP \(bu 2
-\fB\fCsmall caps\fR: emphasise the text using capitalization.
-
-.RE
-
-.PP
-.RS
-
-.PP
-For some reason \fB\fCsmall caps\fR does not work on some systems.
-.RE
-
-.SH Line style
-.RS
-.IP \(bu 2
-Format: \fB\fC(dash|solid)\fR
-
-.RE
-
-.PP
-Indicates how a line should be drawn.
-It currently supports:
- * \fB\fCdash\fR:  a dashed line, where the gap is the same width as the dash
- * \fB\fCsolid\fR: a solid line
-
-.SH Distance
-.RS
-.IP \(bu 2
-Format: \fB\fC{Integer}px\fR
-.IP \(bu 2
-Format: \fB\fC{Real}em\fR
-.IP \(bu 2
-Format: \fB\fC{Real}ch\fR
-.IP \(bu 2
-Format: \fB\fC{Real}%\fR
-
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.SH "Text style"
+.
+.IP "\(bu" 4
+Format: \fB(bold|italic|underline|strikethrough|none)\fR
+.
+.IP "" 0
+.
+.P
+Text style indicates how the highlighted text is emphasized\. \fBNone\fR indicates that no emphasis should be applied\.
+.
+.IP "\(bu" 4
+\fBbold\fR: make the text thicker then the surrounding text\.
+.
+.IP "\(bu" 4
+\fBitalic\fR: put the highlighted text in script type (slanted)\.
+.
+.IP "\(bu" 4
+\fBunderline\fR: put a line under the highlighted text\.
+.
+.IP "\(bu" 4
+\fBstrikethrough\fR: put a line through the highlighted text\.
+.
+.IP "\(bu" 4
+\fBsmall caps\fR: emphasise the text using capitalization\.
+.
+.IP "" 0
+.
+.SH "Line style"
+.
+.IP "\(bu" 4
+Format: \fB(dash|solid)\fR
+.
+.IP "" 0
+.
+.P
+Indicates how a line should be drawn\. It currently supports: * \fBdash\fR: a dashed line, where the gap is the same width as the dash * \fBsolid\fR: a solid line
+.
+.SH "Distance"
+.
+.IP "\(bu" 4
+Format: \fB{Integer}px\fR
+.
+.IP "\(bu" 4
+Format: \fB{Real}em\fR
+.
+.IP "\(bu" 4
+Format: \fB{Real}ch\fR
+.
+.IP "\(bu" 4
+Format: \fB{Real}%\fR
+.
+.IP "" 0
+.
+.P
 A distance can be specified in 3 different units:
-
-.RS
-.IP \(bu 2
-\fB\fCpx\fR: Screen pixels.
-.IP \(bu 2
-\fB\fCem\fR: Relative to text height.
-.IP \(bu 2
-\fB\fCch\fR: Relative to width of a single number.
-.IP \(bu 2
-\fB\fC%\fR:  Percentage of the \fBmonitor\fP size.
-
-.RE
-
-.PP
-Distances used in the horizontal direction use the monitor width. Distances in
-the vertical direction use the monitor height.
-For example:
-
-.PP
-.RS
-
+.
+.IP "\(bu" 4
+\fBpx\fR: Screen pixels\.
+.
+.IP "\(bu" 4
+\fBem\fR: Relative to text height\.
+.
+.IP "\(bu" 4
+\fBch\fR: Relative to width of a single number\.
+.
+.IP "\(bu" 4
+\fB%\fR: Percentage of the \fBmonitor\fR size\.
+.
+.IP "" 0
+.
+.P
+Distances used in the horizontal direction use the monitor width\. Distances in the vertical direction use the monitor height\. For example:
+.
+.IP "" 4
+.
 .nf
+
    padding: 10%;
-
+.
 .fi
-.RE
-
-.PP
-On a full\-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left
-and right side and 108 pixels on the top and bottom.
-
-.SH Padding
-.RS
-.IP \(bu 2
-Format: \fB\fC{Integer}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Distance}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Distance} {Distance}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Distance} {Distance} {Distance}\fR
-
-.RE
-
-.PP
-If no unit is specified, pixels are assumed.
-
-.PP
+.
+.IP "" 0
+.
+.P
+On a full\-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left and right side and 108 pixels on the top and bottom\.
+.
+.SH "Padding"
+.
+.IP "\(bu" 4
+Format: \fB{Integer}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance} {Distance} {Distance}\fR
+.
+.IP "" 0
+.
+.P
+If no unit is specified, pixels are assumed\.
+.
+.P
 The different number of fields in the formats are parsed like:
-
-.RS
-.IP \(bu 2
-1 field: \fB\fCall\fR
-.IP \(bu 2
-2 fields: \fB\fCtop\&bottom\fR \fB\fCleft\&right\fR
-.IP \(bu 2
-3 fields: \fB\fCtop\fR, \fB\fCleft\&right\fR, \fB\fCbottom\fR
-.IP \(bu 2
-4 fields: \fB\fCtop\fR, \fB\fCright\fR, \fB\fCbottom\fR, \fB\fCleft\fR
-
-.RE
-
-.SH Border
-.RS
-.IP \(bu 2
-Format: \fB\fC{Integer}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Distance}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Distance} {Distance}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Distance} {Distance} {Distance}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Line style}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Line style} {Distance} {Line style}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}\fR
-.IP \(bu 2
-Format: \fB\fC{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}\fR
-
-.RE
-
-.PP
-Borders are identical to padding, except that each distance field has a line
-style property.
-
-.PP
-.RS
-
-.PP
-When no unit is specified, pixels are assumed.
-.RE
-
-.SH Position
-.PP
-Indicate a place on the window/monitor.
-
-.RS
-.IP \(bu 2
-
-.PP
-Format: \fB\fC(center|east|north|west|south|north east|north west|south west|south east)\fR
-.PP
-.RS
-
+.
+.IP "\(bu" 4
+1 field: \fBall\fR
+.
+.IP "\(bu" 4
+2 fields: \fBtop&bottom\fR \fBleft&right\fR
+.
+.IP "\(bu" 4
+3 fields: \fBtop\fR, \fBleft&right\fR, \fBbottom\fR
+.
+.IP "\(bu" 4
+4 fields: \fBtop\fR, \fBright\fR, \fBbottom\fR, \fBleft\fR
+.
+.IP "" 0
+.
+.SH "Border"
+.
+.IP "\(bu" 4
+Format: \fB{Integer}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Distance} {Distance} {Distance}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Line style}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Line style} {Distance} {Line style}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}\fR
+.
+.IP "\(bu" 4
+Format: \fB{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}\fR
+.
+.IP "" 0
+.
+.P
+Borders are identical to padding, except that each distance field has a line style property\.
+.
+.SH "Position"
+Indicate a place on the window/monitor\.
+.
+.IP "\(bu" 4
+Format: \fB(center|east|north|west|south|north east|north west|south west|south east)\fR
+.
+.IP "" 0
+.
+.IP "" 4
+.
 .nf
+
 
 north west   |    north    |  north east
 \-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
-  west   |   center    |  east
+      west   |   center    |  east
 \-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
 south west   |    south    |  south east
-
+.
 .fi
-.RE
-
-.RE
-
-.SH Visibility
-.PP
+.
+.IP "" 0
+.
+.SH "Visibility"
 It is possible to hide widgets:
-
-.PP
-inputbar {
-    enabled: false;
-}
-
-.SH Reference
-.RS
-.IP \(bu 2
-Format: \fB\fC@{PROPERTY NAME}\fR
-
-.RE
-
-.PP
-A reference can point to another reference. Currently, the maximum number of redirects is 20.
-A property always refers to another property. It cannot be used for a subpart of the property.
-For example, this is not valid:
-
-.PP
-.RS
-
+.
+.P
+inputbar { enabled: false; }
+.
+.SH "Reference"
+.
+.IP "\(bu" 4
+Format: \fB@{PROPERTY NAME}\fR
+.
+.IP "" 0
+.
+.P
+A reference can point to another reference\. Currently, the maximum number of redirects is 20\. A property always refers to another property\. It cannot be used for a subpart of the property\. For example, this is not valid:
+.
+.IP "" 4
+.
 .nf
+
 highlight: bold @pink;
-
+.
 .fi
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.P
 But this is:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 * {
     myhigh: bold #FAA;
 }
@@ -699,445 +693,427 @@ But this is:
 window {
     highlight: @myhigh;
 }
-
+.
 .fi
-.RE
-
-.SH Orientation
-.RS
-.IP \(bu 2
-Format: \fB\fC(horizontal|vertical)\fR
-
-.RE
-
-.PP
-Specify the orientation of the widget.
-
-.SH List of keywords
-.RS
-.IP \(bu 2
-Format: \fB\fC[ keyword, keyword ]\fR
-
-.RE
-
-.PP
-A list starts with a '[' and ends with a ']'. The entries in the list are comma\-separated.
-The \fB\fCkeyword\fR in the list refers to an widget name.
-
-.SH Environment variable
-.RS
-.IP \(bu 2
-Format: \fB\fC${:alnum:}\fR
-
-.RE
-
-.PP
-This will parse the environment variable as the property value. (that then can be any of the above types).
-The environment variable should be an alphanumeric string without white\-space.
-
-.PP
-.RS
-
+.
+.IP "" 0
+.
+.SH "Orientation"
+.
+.IP "\(bu" 4
+Format: \fB(horizontal|vertical)\fR
+.
+.IP "" 0
+.
+.P
+Specify the orientation of the widget\.
+.
+.SH "List of keywords"
+.
+.IP "\(bu" 4
+Format: \fB[ keyword, keyword ]\fR
+.
+.IP "" 0
+.
+.P
+A list starts with a \'[\' and ends with a \']\'\. The entries in the list are comma\-separated\. The \fBkeyword\fR in the list refers to an widget name\.
+.
+.SH "Environment variable"
+.
+.IP "\(bu" 4
+Format: \fB${:alnum:}\fR
+.
+.IP "" 0
+.
+.P
+This will parse the environment variable as the property value\. (that then can be any of the above types)\. The environment variable should be an alphanumeric string without white\-space\.
+.
+.IP "" 4
+.
 .nf
+
 * {
     background\-color: ${BG};
 }
-
+.
 .fi
-.RE
-
-.SH Inherit
-.RS
-.IP \(bu 2
-Format: \fB\fCinherit\fR
-
-.RE
-
-.PP
-Inherits the property from its parent widget.
-
-.PP
-.RS
-
+.
+.IP "" 0
+.
+.SH "Inherit"
+.
+.IP "\(bu" 4
+Format: \fBinherit\fR
+.
+.IP "" 0
+.
+.P
+Inherits the property from its parent widget\.
+.
+.IP "" 4
+.
 .nf
+
 mainbox {
     border\-color: inherit;
 }
-
+.
 .fi
-.RE
-
-.SH ELEMENTS PATHS
-.PP
-Element paths exists of two parts, the first part refers to the actual widget by name.
-Some widgets have an extra state.
-
-.PP
+.
+.IP "" 0
+.
+.SH "ELEMENTS PATHS"
+Element paths exists of two parts, the first part refers to the actual widget by name\. Some widgets have an extra state\.
+.
+.P
 For example:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 element selected {
 }
-
+.
 .fi
-.RE
-
-.PP
-Here \fB\fCelement selected\fR is the name of the widget, \fB\fCselected\fR is the state of the widget.
-
-.PP
-The difference between dots and spaces is purely cosmetic. These are all the same:
-
-.PP
-.RS
-
+.
+.IP "" 0
+.
+.P
+Here \fBelement selected\fR is the name of the widget, \fBselected\fR is the state of the widget\.
+.
+.P
+The difference between dots and spaces is purely cosmetic\. These are all the same:
+.
+.IP "" 4
+.
 .nf
-element .selected {
 
-element.selected {
+element \.selected {
+
+element\.selected {
 }
 element selected {
 }
-
+.
 .fi
-.RE
+.
+.IP "" 0
+.
+.SH "SUPPORTED ELEMENT PATH"
+.
+.SH "Name"
+The current widgets available in \fBrofi\fR:
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fBoverlay\fR: the overlay widget\.
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fBbox\fR: the horizontal @box packing the widgets
+.
+.IP "\(bu" 4
+\fBcase\-indicator\fR: the case/sort indicator @textbox
+.
+.IP "\(bu" 4
+\fBprompt\fR: the prompt @textbox
+.
+.IP "\(bu" 4
+\fBentry\fR: the main entry @textbox
+.
+.IP "\(bu" 4
+\fBnum\-rows\fR: Shows the total number of rows\.
+.
+.IP "\(bu" 4
+\fBnum\-filtered\-rows\fR: Shows the total number of rows after filtering\.
+.
+.IP "" 0
 
-.SH SUPPORTED ELEMENT PATH
-.SH Name
-.PP
-The current widgets available in \fBrofi\fP:
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fBscrollbar\fR: the listview scrollbar
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fBelement\-icon\fR: the widget in the listview\'s entry showing the (optional) icon
+.
+.IP "\(bu" 4
+\fBelement\-index\fR: the widget in the listview\'s entry keybindable index (1,2,3\.\.0)
+.
+.IP "\(bu" 4
+\fBelement\-text\fR: the widget in the listview\'s entry showing the text\.
+.
+.IP "" 0
 
-.RS
-.IP \(bu 2
-\fB\fCwindow\fR
+.
+.IP "" 0
 
-.RS
-.IP \(bu 2
-\fB\fCoverlay\fR: the overlay widget.
-.IP \(bu 2
-\fB\fCmainbox\fR: The mainbox box.
-.IP \(bu 2
-\fB\fCinputbar\fR: The input bar box.
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fBbutton\fR: the buttons @textbox for each mode
+.
+.IP "" 0
 
-.RS
-.IP \(bu 2
-\fB\fCbox\fR: the horizontal @box packing the widgets
-.IP \(bu 2
-\fB\fCcase\-indicator\fR: the case/sort indicator @textbox
-.IP \(bu 2
-\fB\fCprompt\fR: the prompt @textbox
-.IP \(bu 2
-\fB\fCentry\fR: the main entry @textbox
-.IP \(bu 2
-\fB\fCnum\-rows\fR: Shows the total number of rows.
-.IP \(bu 2
-\fB\fCnum\-filtered\-rows\fR: Shows the total number of rows after filtering.
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+\fBtextbox\fR: the message textbox
+.
+.IP "" 0
 
-.RE
-.IP \(bu 2
-\fB\fClistview\fR: The listview.
+.
+.IP "" 0
 
-.RS
-.IP \(bu 2
-\fB\fCscrollbar\fR: the listview scrollbar
-.IP \(bu 2
-\fB\fCelement\fR: a box in the listview holding the entries
+.
+.IP "" 0
 
-.RS
-.IP \(bu 2
-\fB\fCelement\-icon\fR: the widget in the listview's entry showing the (optional) icon
-.IP \(bu 2
-\fB\fCelement\-index\fR: the widget in the listview's entry keybindable index (1,2,3..0)
-.IP \(bu 2
-\fB\fCelement\-text\fR: the widget in the listview's entry showing the text.
-
-.RE
-
-.RE
-.IP \(bu 2
-\fB\fCmode\-switcher\fR: the main horizontal @box packing the buttons.
-
-.RS
-.IP \(bu 2
-\fB\fCbutton\fR: the buttons @textbox for each mode
-
-.RE
-.IP \(bu 2
-\fB\fCmessage\fR: The container holding the textbox.
-
-.RS
-.IP \(bu 2
-\fB\fCtextbox\fR: the message textbox
-
-.RE
-
-.RE
-
-.RE
-
-.PP
-Note that these path names match the default theme. Themes that provide a custom layout will have different
-elements, and structure.
-
-.SH State
-.PP
+.
+.IP "" 0
+.
+.P
+Note that these path names match the default theme\. Themes that provide a custom layout will have different elements, and structure\.
+.
+.SH "State"
 State: State of widget
-
-.PP
-Optional flag(s) indicating state of the widget, used for theming.
-
-.PP
-These are appended after the name or class of the widget.
-
-.SS Example:
-.PP
-\fB\fCbutton selected.normal { }\fR
-
-.PP
-\fB\fCelement selected.urgent { }\fR
-
-.PP
+.
+.P
+Optional flag(s) indicating state of the widget, used for theming\.
+.
+.P
+These are appended after the name or class of the widget\.
+.
+.SS "Example:"
+\fBbutton selected\.normal { }\fR
+.
+.P
+\fBelement selected\.urgent { }\fR
+.
+.P
 Currently only the entrybox and scrollbar have states:
-
-.SS Entrybox:
-.PP
-\fB\fC{visible modifier}.{state}\fR
-
-.PP
-Where \fB\fCvisible modifier\fR can be:
- * normal: no modification
- * selected: the entry is selected/highlighted by user
- * alternate: the entry is at an alternating row (uneven row)
-
-.PP
-Where \fB\fCstate\fR is:
- * normal: no modification
- * urgent: this entry is marked urgent
- * active: this entry is marked active
-
-.PP
-These can be mixed.
-
-.PP
+.
+.SS "Entrybox:"
+\fB{visible modifier}\.{state}\fR
+.
+.P
+Where \fBvisible modifier\fR can be: * normal: no modification * selected: the entry is selected/highlighted by user * alternate: the entry is at an alternating row (uneven row)
+.
+.P
+Where \fBstate\fR is: * normal: no modification * urgent: this entry is marked urgent * active: this entry is marked active
+.
+.P
+These can be mixed\.
+.
+.P
 Example:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
-nametotextbox selected.active {
+
+nametotextbox selected\.active {
     background\-color: #003642;
     text\-color: #008ed4;
 }
-
+.
 .fi
-.RE
-
-.PP
-Sets all selected textboxes marked active to the given text and background color.
-Note that a state modifies the original element, it therefore contains all the properties of that element.
-
-.SS Scrollbar
-.PP
-The scrollbar uses the \fB\fChandle\fR state when drawing the small scrollbar handle.
-This allows the colors used for drawing the handle to be set independently.
-
-.SH SUPPORTED PROPERTIES
-.PP
+.
+.IP "" 0
+.
+.P
+Sets all selected textboxes marked active to the given text and background color\. Note that a state modifies the original element, it therefore contains all the properties of that element\.
+.
+.SS "Scrollbar"
+The scrollbar uses the \fBhandle\fR state when drawing the small scrollbar handle\. This allows the colors used for drawing the handle to be set independently\.
+.
+.SH "SUPPORTED PROPERTIES"
 The following properties are currently supported:
-
-.SS all widgets:
-.RS
-.IP \(bu 2
-\fBenabled\fP:         enable/disable the widget
-.IP \(bu 2
-\fBpadding\fP:         padding
-Padding on the inside of the widget
-.IP \(bu 2
-\fBmargin\fP:          padding
-Margin on the outside of the widget
-.IP \(bu 2
-\fBborder\fP:          border
-Border around the widget (between padding and margin)/
-.IP \(bu 2
-\fBborder\-radius\fP:    padding
-Sets a radius on the corners of the borders.
-.IP \(bu 2
-\fBbackground\-color\fP:      color
-Background color
-.IP \(bu 2
-\fBborder\-color\fP:      color
-Color of the border
-
-.RE
-
-.SS window:
-.RS
-.IP \(bu 2
-
-.PP
-\fBfont\fP:            string
-The font used in the window
-.IP \(bu 2
-
-.PP
-\fBtransparency\fP:    string
-Indicating if transparency should be used and what type:
-\fBreal\fP \- True transparency. Only works with a compositor.
-\fBbackground\fP \- Take a screenshot of the background image and use that.
-\fBscreenshot\fP \- Take a screenshot of the screen and use that.
-\fBPath\fP to png file \- Use an image.
-.IP \(bu 2
-
-.PP
-\fBlocation\fP:       position
-The place of the anchor on the monitor
-.IP \(bu 2
-
-.PP
-\fBanchor\fP:         anchor
-The anchor position on the window
-.IP \(bu 2
-
-.PP
-\fBfullscreen\fP:     boolean
-Window is fullscreen.
-.IP \(bu 2
-
-.PP
-\fBwidth\fP:          distance
-The width of the window
-.IP \(bu 2
-
-.PP
-\fBx\-offset\fP:  distance
-.IP \(bu 2
-
-.PP
-\fBy\-offset\fP:  distance
-The offset of the window to the anchor point, allowing you to push the window left/right/up/down
-
-.RE
-
-.SS scrollbar:
-.RS
-.IP \(bu 2
-\fBbackground\-color\fP:    color
-.IP \(bu 2
-\fBhandle\-width\fP:        distance
-.IP \(bu 2
-\fBhandle\-color\fP:        color
-.IP \(bu 2
-\fBborder\-color\fP:        color
-
-.RE
-
-.SS box:
-.RS
-.IP \(bu 2
-\fBorientation\fP:      orientation
-    Set the direction the elements are packed.
-.IP \(bu 2
-\fBspacing\fP:         distance
-    Distance between the packed elements.
-
-.RE
-
-.SS textbox:
-.RS
-.IP \(bu 2
-\fBbackground\-color\fP:  color
-.IP \(bu 2
-\fBborder\-color\fP:      the color used for the border around the widget.
-.IP \(bu 2
-\fBfont\fP:              the font used by this textbox (string).
-.IP \(bu 2
-\fBstr\fP:               the string to display by this textbox (string).
-.IP \(bu 2
-\fBvertical\-align\fP:    vertical alignment of the text (\fB\fC0\fR top, \fB\fC1\fR bottom).
-.IP \(bu 2
-\fBhorizontal\-align\fP:  horizontal alignment of the text (\fB\fC0\fR left, \fB\fC1\fR right).
-.IP \(bu 2
-\fBtext\-color\fP:        the text color to use.
-.IP \(bu 2
-\fBhighlight\fP:         text style {color}.
-color is optional, multiple highlight styles can be added like: bold underline italic #000000;
-.IP \(bu 2
-\fBwidth\fP:             override the desired width for the textbox.
-.IP \(bu 2
-\fBcontent\fP:           Set the displayed text (String).
-.IP \(bu 2
-\fBplaceholder\fP:       Set the displayed text (String) when nothing is entered.
-.IP \(bu 2
-\fBplaceholder\-color\fP: Color of the placeholder text.
-.IP \(bu 2
-\fBblink\fP:             Enable/Disable blinking on an input textbox (Boolean).
-
-.RE
-
-.SS listview:
-.RS
-.IP \(bu 2
-\fBcolumns\fP:         integer
-Number of columns to show (at least 1)
-.IP \(bu 2
-\fBfixed\-height\fP:    boolean
-Always show \fB\fClines\fR rows, even if fewer elements are available.
-.IP \(bu 2
-\fBdynamic\fP:         boolean
-\fB\fCTrue\fR if the size should change when filtering the list, \fB\fCFalse\fR if it should keep the original height.
-.IP \(bu 2
-\fBscrollbar\fP:       boolean
-If the scrollbar should be enabled/disabled.
-.IP \(bu 2
-\fBscrollbar\-width\fP: distance
-Width of the scrollbar
-.IP \(bu 2
-\fBcycle\fP:           boolean
-When navigating, it should wrap around
-.IP \(bu 2
-\fBspacing\fP:         distance
-Spacing between the elements (both vertical and horizontal)
-.IP \(bu 2
-\fBlines\fP:           integer
-Number of rows to show in the list view.
-.IP \(bu 2
-\fBlayout\fP:           orientation
-Indicate how elements are stacked. Horizontal implements the dmenu style.
-.IP \(bu 2
-\fBreverse\fP:         boolean
-Reverse the ordering (top down to bottom up).
-.IP \(bu 2
-\fBfixed\-columns\fP:    boolean
-Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.
-
-.RE
-
-.PP
-Each element is a \fB\fCbox\fR called \fB\fCelement\fR\&. Each \fB\fCelement\fR can contain an \fB\fCelement\-icon\fR and \fB\fCelement\-text\fR\&.
-
-.SH Layout
-.PP
-The new format allows the layout of the \fBrofi\fP window to be tweaked extensively.
-For each widget, the themer can specify padding, margin, border, font, and more.
-It even allows, as an advanced feature, to pack widgets in a custom structure.
-
-.SS Basic structure
-.PP
-The whole view is made out of boxes that pack other boxes or widgets.
-The box can be vertical or horizontal. This is loosely inspired by GTK
-\[la]http://gtk.org/\[ra]\&.
-
-.PP
-The current layout of \fBrofi\fP is structured as follows:
-
-.PP
-.RS
-
+.
+.SS "all widgets:"
+.
+.IP "\(bu" 4
+\fBenabled\fR: enable/disable the widget
+.
+.IP "\(bu" 4
+\fBpadding\fR: padding Padding on the inside of the widget
+.
+.IP "\(bu" 4
+\fBmargin\fR: padding Margin on the outside of the widget
+.
+.IP "\(bu" 4
+\fBborder\fR: border Border around the widget (between padding and margin)/
+.
+.IP "\(bu" 4
+\fBborder\-radius\fR: padding Sets a radius on the corners of the borders\.
+.
+.IP "\(bu" 4
+\fBbackground\-color\fR: color Background color
+.
+.IP "\(bu" 4
+\fBborder\-color\fR: color Color of the border
+.
+.IP "" 0
+.
+.SS "window:"
+.
+.IP "\(bu" 4
+\fBfont\fR: string The font used in the window
+.
+.IP "\(bu" 4
+\fBtransparency\fR: string Indicating if transparency should be used and what type: \fBreal\fR \- True transparency\. Only works with a compositor\. \fBbackground\fR \- Take a screenshot of the background image and use that\. \fBscreenshot\fR \- Take a screenshot of the screen and use that\. \fBPath\fR to png file \- Use an image\.
+.
+.IP "\(bu" 4
+\fBlocation\fR: position The place of the anchor on the monitor
+.
+.IP "\(bu" 4
+\fBanchor\fR: anchor The anchor position on the window
+.
+.IP "\(bu" 4
+\fBfullscreen\fR: boolean Window is fullscreen\.
+.
+.IP "\(bu" 4
+\fBwidth\fR: distance The width of the window
+.
+.IP "\(bu" 4
+\fBx\-offset\fR: distance
+.
+.IP "\(bu" 4
+\fBy\-offset\fR: distance The offset of the window to the anchor point, allowing you to push the window left/right/up/down
+.
+.IP "" 0
+.
+.SS "scrollbar:"
+.
+.IP "\(bu" 4
+\fBbackground\-color\fR: color
+.
+.IP "\(bu" 4
+\fBhandle\-width\fR: distance
+.
+.IP "\(bu" 4
+\fBhandle\-color\fR: color
+.
+.IP "\(bu" 4
+\fBborder\-color\fR: color
+.
+.IP "" 0
+.
+.SS "box:"
+.
+.IP "\(bu" 4
+\fBorientation\fR: orientation Set the direction the elements are packed\.
+.
+.IP "\(bu" 4
+\fBspacing\fR: distance Distance between the packed elements\.
+.
+.IP "" 0
+.
+.SS "textbox:"
+.
+.IP "\(bu" 4
+\fBbackground\-color\fR: color
+.
+.IP "\(bu" 4
+\fBborder\-color\fR: the color used for the border around the widget\.
+.
+.IP "\(bu" 4
+\fBfont\fR: the font used by this textbox (string)\.
+.
+.IP "\(bu" 4
+\fBstr\fR: the string to display by this textbox (string)\.
+.
+.IP "\(bu" 4
+\fBvertical\-align\fR: vertical alignment of the text (\fB0\fR top, \fB1\fR bottom)\.
+.
+.IP "\(bu" 4
+\fBhorizontal\-align\fR: horizontal alignment of the text (\fB0\fR left, \fB1\fR right)\.
+.
+.IP "\(bu" 4
+\fBtext\-color\fR: the text color to use\.
+.
+.IP "\(bu" 4
+\fBhighlight\fR: text style {color}\. color is optional, multiple highlight styles can be added like: bold underline italic #000000;
+.
+.IP "\(bu" 4
+\fBwidth\fR: override the desired width for the textbox\.
+.
+.IP "\(bu" 4
+\fBcontent\fR: Set the displayed text (String)\.
+.
+.IP "\(bu" 4
+\fBplaceholder\fR: Set the displayed text (String) when nothing is entered\.
+.
+.IP "\(bu" 4
+\fBplaceholder\-color\fR: Color of the placeholder text\.
+.
+.IP "\(bu" 4
+\fBblink\fR: Enable/Disable blinking on an input textbox (Boolean)\.
+.
+.IP "" 0
+.
+.SS "listview:"
+.
+.IP "\(bu" 4
+\fBcolumns\fR: integer Number of columns to show (at least 1)
+.
+.IP "\(bu" 4
+\fBfixed\-height\fR: boolean Always show \fBlines\fR rows, even if fewer elements are available\.
+.
+.IP "\(bu" 4
+\fBdynamic\fR: boolean \fBTrue\fR if the size should change when filtering the list, \fBFalse\fR if it should keep the original height\.
+.
+.IP "\(bu" 4
+\fBscrollbar\fR: boolean If the scrollbar should be enabled/disabled\.
+.
+.IP "\(bu" 4
+\fBscrollbar\-width\fR: distance Width of the scrollbar
+.
+.IP "\(bu" 4
+\fBcycle\fR: boolean When navigating, it should wrap around
+.
+.IP "\(bu" 4
+\fBspacing\fR: distance Spacing between the elements (both vertical and horizontal)
+.
+.IP "\(bu" 4
+\fBlines\fR: integer Number of rows to show in the list view\.
+.
+.IP "\(bu" 4
+\fBlayout\fR: orientation Indicate how elements are stacked\. Horizontal implements the dmenu style\.
+.
+.IP "\(bu" 4
+\fBreverse\fR: boolean Reverse the ordering (top down to bottom up)\.
+.
+.IP "\(bu" 4
+\fBfixed\-columns\fR: boolean Do not reduce the number of columns shown when number of visible elements is not enough to fill them all\.
+.
+.IP "" 0
+.
+.P
+Each element is a \fBbox\fR called \fBelement\fR\. Each \fBelement\fR can contain an \fBelement\-icon\fR and \fBelement\-text\fR\.
+.
+.SH "Layout"
+The new format allows the layout of the \fBrofi\fR window to be tweaked extensively\. For each widget, the themer can specify padding, margin, border, font, and more\. It even allows, as an advanced feature, to pack widgets in a custom structure\.
+.
+.SS "Basic structure"
+The whole view is made out of boxes that pack other boxes or widgets\. The box can be vertical or horizontal\. This is loosely inspired by GTK \fIhttp://gtk\.org/\fR\.
+.
+.P
+The current layout of \fBrofi\fR is structured as follows:
+.
+.IP "" 4
+.
 .nf
+
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
 | window {BOX:vertical}                                                              |
 | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
@@ -1168,24 +1144,15 @@ The current layout of \fBrofi\fP is structured as follows:
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
 | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
-
-
-
+.
 .fi
-.RE
-
-.PP
-.RS
-
-.PP
-ci is the case\-indicator
-.RE
-
-.SS Error message structure
-.PP
-.RS
-
+.
+.IP "" 0
+.
+.SS "Error message structure"
+.
 .nf
+
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
 | window {BOX:vertical}                                                             |
 | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
@@ -1195,102 +1162,96 @@ ci is the case\-indicator
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |  |
 | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
-
-
-
+.
 .fi
-.RE
-
-.SS Advanced layout
-.PP
-The layout of \fBrofi\fP can be tweaked by packing the 'fixed' widgets in a custom structure.
-
-.PP
-The following widgets are fixed, as they provide core \fBrofi\fP functionality:
-
-.RS
-.IP \(bu 2
+.
+.SS "Advanced layout"
+The layout of \fBrofi\fR can be tweaked by packing the \'fixed\' widgets in a custom structure\.
+.
+.P
+The following widgets are fixed, as they provide core \fBrofi\fR functionality:
+.
+.IP "\(bu" 4
 prompt
-.IP \(bu 2
+.
+.IP "\(bu" 4
 entry
-.IP \(bu 2
+.
+.IP "\(bu" 4
 overlay
-.IP \(bu 2
+.
+.IP "\(bu" 4
 case\-indicator
-.IP \(bu 2
+.
+.IP "\(bu" 4
 message
-.IP \(bu 2
+.
+.IP "\(bu" 4
 listview
-.IP \(bu 2
+.
+.IP "\(bu" 4
 mode\-switcher
-.IP \(bu 2
+.
+.IP "\(bu" 4
 num\-rows
-.IP \(bu 2
+.
+.IP "\(bu" 4
 num\-filtered\-rows
-
-.RE
-
-.PP
-The following keywords are defined and can be used to automatically pack a subset of the widgets.
-These are used in the default theme as depicted in the figure above.
-
-.RS
-.IP \(bu 2
-mainbox
-Packs: \fB\fCinputbar, message, listview, mode\-switcher\fR
-.IP \(bu 2
-inputbar
-Packs: \fB\fCprompt,entry,case\-indicator\fR
-
-.RE
-
-.PP
-Any widget name starting with \fB\fCtextbox\fR is a textbox widget, others are box widgets and can pack other widgets.
-
-.PP
+.
+.IP "" 0
+.
+.P
+The following keywords are defined and can be used to automatically pack a subset of the widgets\. These are used in the default theme as depicted in the figure above\.
+.
+.IP "\(bu" 4
+mainbox Packs: \fBinputbar, message, listview, mode\-switcher\fR
+.
+.IP "\(bu" 4
+inputbar Packs: \fBprompt,entry,case\-indicator\fR
+.
+.IP "" 0
+.
+.P
+Any widget name starting with \fBtextbox\fR is a textbox widget, others are box widgets and can pack other widgets\.
+.
+.P
 There are several special widgets that can be used by prefixing the name of the widget:
-
-.RS
-.IP \(bu 2
-\fB\fCtextbox\fR:
-This is a textbox widget. The displayed string can be set with \fB\fCstr\fR\&.
-.IP \(bu 2
-\fB\fCicon\fR:
-This is an icon widget. The displayed icon can be set with \fB\fCfilename\fR and size with \fB\fCsize\fR\&.
-.IP \(bu 2
-\fB\fCbutton\fR:
-This is a textbox widget that can have a 'clickable' action.
-The \fB\fCaction\fR can be set to:
-\fB\fCok\fR accept entry.
-\fB\fCcustom\fR accept custom input.
-\fB\fCok|alternate\fR: accept entry and launch alternate action (for run launch in terminal).
-\fB\fCcustom|alternate\fR: accept custom input and launch alternate action.
-
-.RE
-
-.PP
-To specify children, set the \fB\fCchildren\fR
-property (this always happens on the \fB\fCbox\fR child, see example below):
-
-.PP
-.RS
-
+.
+.TP
+\fBtextbox\fR
+This is a textbox widget\. The displayed string can be set with \fBstr\fR\.
+.
+.TP
+\fBicon\fR
+This is an icon widget\. The displayed icon can be set with \fBfilename\fR and size with \fBsize\fR\.
+.
+.TP
+\fBbutton\fR
+This is a textbox widget that can have a \'clickable\' action\. The \fBaction\fR can be set to: \fBok\fR accept entry\. \fBcustom\fR accept custom input\. \fBok|alternate\fR: accept entry and launch alternate action (for run launch in terminal)\. \fBcustom|alternate\fR: accept custom input and launch alternate action\.
+.
+.P
+To specify children, set the \fBchildren\fR property (this always happens on the \fBbox\fR child, see example below):
+.
+.IP "" 4
+.
 .nf
+
 children: [prompt,entry,overlay,case\-indicator];
-
+.
 .fi
-.RE
-
-.PP
-The theme needs to be updated to match the hierarchy specified.
-
-.PP
+.
+.IP "" 0
+.
+.P
+The theme needs to be updated to match the hierarchy specified\.
+.
+.P
 Below is an example of a theme emulating dmenu:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 * {
     background\-color:      Black;
     text\-color:            White;
@@ -1328,18 +1289,18 @@ element {
 element selected {
     background\-color: SteelBlue;
 }
-
+.
 .fi
-.RE
-
-.SS Padding and margin
-.PP
-Just like CSS, \fBrofi\fP uses the box model for each widget.
-
-.PP
-.RS
-
+.
+.IP "" 0
+.
+.SS "Padding and margin"
+Just like CSS, \fBrofi\fR uses the box model for each widget\.
+.
+.IP "" 4
+.
 .nf
+
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
 | margin                                                            |
 |  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
@@ -1352,44 +1313,41 @@ Just like CSS, \fBrofi\fP uses the box model for each widget.
 |  | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
 |  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
-
+.
 .fi
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.P
 Explanation of the different parts:
-
-.RS
-.IP \(bu 2
-Content \- The content of the widget.
-.IP \(bu 2
-Padding \- Clears an area around the widget.
-The padding shows the background color of the widget.
-.IP \(bu 2
-Border \- A border that goes around the padding and content.
-The border use the border\-color of the widget.
-.IP \(bu 2
-Margin \- Clears an area outside the border.
-The margin is transparent.
-
-.RE
-
-.PP
-The box model allows us to add a border around elements, and to define space between elements.
-
-.PP
-The size of each margin, border, and padding can be set.
-For the border, a linestyle and radius can be set.
-
-.SS Spacing
-.PP
-Widgets that can pack more then one child widget (currently box and listview) have the \fB\fCspacing\fR property.
-This property sets the distance between the packed widgets (both horizontally and vertically).
-
-.PP
-.RS
-
+.
+.IP "\(bu" 4
+Content \- The content of the widget\.
+.
+.IP "\(bu" 4
+Padding \- Clears an area around the widget\. The padding shows the background color of the widget\.
+.
+.IP "\(bu" 4
+Border \- A border that goes around the padding and content\. The border use the border\-color of the widget\.
+.
+.IP "\(bu" 4
+Margin \- Clears an area outside the border\. The margin is transparent\.
+.
+.IP "" 0
+.
+.P
+The box model allows us to add a border around elements, and to define space between elements\.
+.
+.P
+The size of each margin, border, and padding can be set\. For the border, a linestyle and radius can be set\.
+.
+.SS "Spacing"
+Widgets that can pack more then one child widget (currently box and listview) have the \fBspacing\fR property\. This property sets the distance between the packed widgets (both horizontally and vertically)\.
+.
+.IP "" 4
+.
 .nf
+
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
 |  |\-\-\-\-\-\-\-\-| s |\-\-\-\-\-\-\-\-| s |\-\-\-\-\-\-\-|  |
 |  | child  | p | child  | p | child |  |
@@ -1399,18 +1357,18 @@ This property sets the distance between the packed widgets (both horizontally an
 |  |        | n |        | n |       |  |
 |  |\-\-\-\-\-\-\-\-| g |\-\-\-\-\-\-\-\-| g |\-\-\-\-\-\-\-|  |
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
-
+.
 .fi
-.RE
-
-.SS Advanced box packing
-.PP
+.
+.IP "" 0
+.
+.SS "Advanced box packing"
 More dynamic spacing can be achieved by adding dummy widgets, for example to make one widget centered:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
 |  |\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-|  |
 |  | dummy     |  | child  |  | dummy     |  |
@@ -1420,155 +1378,160 @@ More dynamic spacing can be achieved by adding dummy widgets, for example to mak
 |  |           |  |        |  |           |  |
 |  |\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-|  |
 |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
-
+.
 .fi
-.RE
-
-.PP
-If both dummy widgets are set to expand, \fB\fCchild\fR will be centered. Depending on the \fB\fCexpand\fR flag of child the
-remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets
-(expand disabled).
-
-.SH DEBUGGING
-.PP
+.
+.IP "" 0
+.
+.P
+If both dummy widgets are set to expand, \fBchild\fR will be centered\. Depending on the \fBexpand\fR flag of child the remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets (expand disabled)\.
+.
+.SH "DEBUGGING"
 To get debug information from the parser, run rofi like:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
-G\_MESSAGES\_DEBUG=Parser rofi \-show run
 
+G_MESSAGES_DEBUG=Parser rofi \-show run
+.
 .fi
-.RE
-
-.PP
-Syntax errors are shown in a popup and printed out to command line with the above command.
-
-.PP
+.
+.IP "" 0
+.
+.P
+Syntax errors are shown in a popup and printed out to command line with the above command\.
+.
+.P
 To see the elements queried during running, run:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
-G\_MESSAGES\_DEBUG=Theme rofi \-show run
 
+G_MESSAGES_DEBUG=Theme rofi \-show run
+.
 .fi
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.P
 To test minor changes, part of the theme can be passed on the command line, for example to set it to full\-screen:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
-rofi \-theme\-str '#window { fullscreen:true;}' \-show run
 
+rofi \-theme\-str \'#window { fullscreen:true;}\' \-show run
+.
 .fi
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.P
 To print the current theme, run:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 rofi \-dump\-theme
-
+.
 .fi
-.RE
-
-.SH Media support
-.PP
-Parts of the theme can be conditionally loaded, like the CSS \fB\fC@media\fR option.
-
-.PP
-.RS
-
+.
+.IP "" 0
+.
+.SH "Media support"
+Parts of the theme can be conditionally loaded, like the CSS \fB@media\fR option\.
+.
+.IP "" 4
+.
 .nf
+
 @media ( min\-width: 120px ) {
 
 }
-
+.
 .fi
-.RE
-
-.PP
+.
+.IP "" 0
+.
+.P
 It supports the following keys as constraint:
-
-.RS
-.IP \(bu 2
-\fB\fCmin\-width\fR:         load when width is bigger then value.
-.IP \(bu 2
-\fB\fCmax\-width\fR:         load when width is smaller then value.
-.IP \(bu 2
-\fB\fCmin\-height\fR:        load when height is bigger then value.
-.IP \(bu 2
-\fB\fCmax\-height\fR:        load when height is smaller then value.
-.IP \(bu 2
-\fB\fCmin\-aspect\-ratio\fR   load when aspect ratio is over value.
-.IP \(bu 2
-\fB\fCmax\-aspect\_ratio\fR:  load when aspect ratio is under value.
-.IP \(bu 2
-\fB\fCmonitor\-id\fR:        The monitor id, see rofi \-help for id's.
-
-.RE
-
-.SH Multiple file handling
-.PP
-The rasi file format offers two methods of including other files.
-This can be used to modify existing themes, or have multiple variations on a theme.
-
-.RS
-.IP \(bu 2
-import:  Import and parse a second file.
-.IP \(bu 2
-theme:   Discard theme, and load file as a fresh theme.
-
-.RE
-
-.PP
+.
+.IP "\(bu" 4
+\fBmin\-width\fR: load when width is bigger then value\.
+.
+.IP "\(bu" 4
+\fBmax\-width\fR: load when width is smaller then value\.
+.
+.IP "\(bu" 4
+\fBmin\-height\fR: load when height is bigger then value\.
+.
+.IP "\(bu" 4
+\fBmax\-height\fR: load when height is smaller then value\.
+.
+.IP "\(bu" 4
+\fBmin\-aspect\-ratio\fR load when aspect ratio is over value\.
+.
+.IP "\(bu" 4
+\fBmax\-aspect_ratio\fR: load when aspect ratio is under value\.
+.
+.IP "\(bu" 4
+\fBmonitor\-id\fR: The monitor id, see rofi \-help for id\'s\.
+.
+.IP "" 0
+.
+.SH "Multiple file handling"
+The rasi file format offers two methods of including other files\. This can be used to modify existing themes, or have multiple variations on a theme\.
+.
+.IP "\(bu" 4
+import: Import and parse a second file\.
+.
+.IP "\(bu" 4
+theme: Discard theme, and load file as a fresh theme\.
+.
+.IP "" 0
+.
+.P
 Syntax:
-
-.PP
-.RS
-
+.
+.IP "" 4
+.
 .nf
+
 @import "myfile"
 @theme "mytheme"
-
+.
 .fi
-.RE
-
-.PP
-The specified file can either by \fIname\fP, \fIfilename\fP,\fIfull path\fP\&.
-
-.PP
+.
+.IP "" 0
+.
+.P
+The specified file can either by \fIname\fR, \fIfilename\fR,\fIfull path\fR\.
+.
+.P
 If a filename is provided, it will try to resolve it in the following order:
-
-.RS
-.IP \(bu 2
-\fB\fC${XDG\_CONFIG\_HOME}/rofi/themes/\fR
-.IP \(bu 2
-\fB\fC${XDG\_CONFIG\_HOME}/rofi/\fR
-.IP \(bu 2
-\fB\fC${XDG\_DATA\_HOME}/rofi/themes/\fR
-.IP \(bu 2
-\fB\fC${INSTALL PREFIX}/share/rofi/themes/\fR
-
-.RE
-
-.PP
-A name is resolved as a filename by appending the \fB\fC\&.rasi\fR extension.
-
-.SH EXAMPLES
-.PP
-Several examples are installed together with \fBrofi\fP\&. These can be found in \fB\fC{datadir}/rofi/themes/\fR, where
-\fB\fC{datadir}\fR is the install path of \fBrofi\fP data. When installed using a package manager, this is usually: \fB\fC/usr/share/\fR\&.
-
-.SH SEE ALSO
-.PP
+.
+.IP "\(bu" 4
+\fB${XDG_CONFIG_HOME}/rofi/themes/\fR
+.
+.IP "\(bu" 4
+\fB${XDG_CONFIG_HOME}/rofi/\fR
+.
+.IP "\(bu" 4
+\fB${XDG_DATA_HOME}/rofi/themes/\fR
+.
+.IP "\(bu" 4
+\fB${INSTALL PREFIX}/share/rofi/themes/\fR
+.
+.IP "" 0
+.
+.P
+A name is resolved as a filename by appending the \fB\.rasi\fR extension\.
+.
+.SH "EXAMPLES"
+Several examples are installed together with \fBrofi\fR\. These can be found in \fB{datadir}/rofi/themes/\fR, where \fB{datadir}\fR is the install path of \fBrofi\fR data\. When installed using a package manager, this is usually: \fB/usr/share/\fR\.
+.
+.SH "SEE ALSO"
 rofi(1)
