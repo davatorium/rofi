@@ -189,7 +189,7 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     }
 
     const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text );
-    if ( !txt ){
+    if ( txt == NULL  || (*txt) == '\0' ){
         txt = rofi_theme_get_string ( WIDGET  ( tb ), "content", text );
     }
     const char *placeholder = rofi_theme_get_string ( WIDGET(tb), "placeholder", NULL);
