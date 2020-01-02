@@ -976,6 +976,13 @@ int main ( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
     if ( find_arg ( "-upgrade-config") >= 0 ) {
+
+        setup_modi();
+
+        for ( unsigned int i = 0; i < num_modi; i++ ) {
+            mode_init ( modi[i] );
+        }
+
         const char *cpath = g_get_user_config_dir ();
         if ( cpath ) {
             char *fcpath = g_build_filename ( cpath, "rofi", NULL );
