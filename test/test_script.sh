@@ -4,7 +4,7 @@ if [ -z "$1" ]
 then
     echo "aap"
     echo "noot"
-    echo "mies"
+    echo -ne "mies\0meta\x1fzoom\n"
 else
     echo $1 > output.txt
 fi
