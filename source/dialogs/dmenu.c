@@ -122,6 +122,7 @@ static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
     // Init.
     pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
     pd->cmd_list[pd->cmd_list_length].icon_name      = NULL;
+    pd->cmd_list[pd->cmd_list_length].meta           = NULL;
     char *end = strchr(data, '\0');
     if ( end != NULL ) {
         data_len = end-data;
@@ -309,6 +310,7 @@ static void dmenu_mode_free ( Mode *sw )
             if ( pd->cmd_list[i].entry ) {
                 g_free ( pd->cmd_list[i].entry );
                 g_free ( pd->cmd_list[i].icon_name );
+                g_free ( pd->cmd_list[i].meta );
             }
         }
         g_free ( pd->cmd_list );
