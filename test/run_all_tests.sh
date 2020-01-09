@@ -7,6 +7,7 @@ tests=(
     run_dmenu_custom_test
     run_run_test
     run_script_test
+    run_script_meta_test
     run_issue_256
     run_issue_275
     run_dmenu_empty
