@@ -637,8 +637,11 @@ static gboolean setup_modi ( void )
  **/
 void rofi_quit_main_loop ( void )
 {
-    rofi_view_hide();
-    //g_main_loop_quit ( main_loop );
+    if ( find_arg ( "-daemon") ) {
+        rofi_view_hide();
+    } else {
+        g_main_loop_quit ( main_loop );
+    }
 }
 
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )

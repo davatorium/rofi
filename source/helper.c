@@ -508,6 +508,12 @@ int create_pid_file ( const char *pidfile )
     if ( retv != 0 ) {
         g_warning ( "Failed to set lock on pidfile: Rofi already running?" );
         g_warning ( "Got error: %d %s", retv, g_strerror ( errno ) );
+        char buffer[32];
+        if (read ( fd, buffer, 32) > 0 ){
+            printf("%s\r\n", buffer);
+            pid_t pid = strtol ( buffer, NULL, 10);
+            kill (pid, SIGUSR1);
+        }
         remove_pid_file ( fd );
         return -1;
     }
