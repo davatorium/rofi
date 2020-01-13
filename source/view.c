@@ -1432,6 +1432,7 @@ void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y )
 
 void rofi_view_maybe_update ( RofiViewState *state )
 {
+    if ( state == NULL ) return;
     if ( rofi_view_get_completed ( state ) ) {
         // This menu is done.
         rofi_view_finalize ( state );

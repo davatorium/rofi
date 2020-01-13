@@ -195,7 +195,7 @@ static void run_switcher ( ModeMode mode )
         rofi_view_set_active ( state );
     }
     if ( rofi_view_get_active () == NULL ) {
-        g_main_loop_quit ( main_loop  );
+        //g_main_loop_quit ( main_loop  );
     }
 }
 void process_result ( RofiViewState *state )
@@ -637,13 +637,39 @@ static gboolean setup_modi ( void )
  **/
 void rofi_quit_main_loop ( void )
 {
-    g_main_loop_quit ( main_loop );
+    rofi_view_hide();
+    //g_main_loop_quit ( main_loop );
 }
 
 static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
 {
     // Break out of loop.
     g_main_loop_quit ( main_loop );
+    return G_SOURCE_CONTINUE;
+}
+
+static gboolean main_loop_signal_handler_usr1 ( G_GNUC_UNUSED gpointer data )
+{
+    printf("USR1 signal\r\n" );
+    // Break out of loop.
+    char *sname = NULL;
+    if ( find_arg_str ( "-show", &sname ) == TRUE ) {
+        int index = switcher_get ( sname );
+        if ( index < 0 ) {
+            // Add it to the list
+            index = add_mode ( sname );
+            // Complain
+            if ( index >= 0 ) {
+                help_print_disabled_mode ( sname );
+            }
+            // Run it anyway if found.
+        }
+        if ( index >= 0 ) {
+            display_late_setup ();
+            run_switcher ( index );
+        }
+
+    }
     return G_SOURCE_CONTINUE;
 }
 static void show_error_dialog ()
@@ -1068,6 +1094,7 @@ int main ( int argc, char *argv[] )
     // Setup signal handling sources.
     // SIGINT
     g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
+    g_unix_signal_add ( SIGUSR1, main_loop_signal_handler_usr1, NULL );
 
     g_idle_add ( startup, NULL );
 

@@ -1284,6 +1284,7 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
 
 static void x11_create_visual_and_colormap ( void )
 {
+    if ( visual != NULL || depth != NULL ) return;
     xcb_depth_t          *root_depth = NULL;
     xcb_depth_iterator_t depth_iter;
     for ( depth_iter = xcb_screen_allowed_depths_iterator ( xcb->screen ); depth_iter.rem; xcb_depth_next ( &depth_iter ) ) {
