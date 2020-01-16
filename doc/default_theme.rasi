@@ -125,11 +125,21 @@ button selected {
     background-color: var(selected-normal-background);
     text-color:       var(selected-normal-foreground);
 }
+
+num-filtered-rows, num-rows {
+    text-color: grey;
+    expand: false;
+}
+textbox-num-sep {
+    text-color: grey;
+    expand: false;
+    str: "/";
+}
 inputbar {
     padding:    1px ;
     spacing:    0px ;
     text-color: var(normal-foreground);
-    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+    children:   [ prompt,textbox-prompt-colon,entry, num-filtered-rows, textbox-num-sep, num-rows, case-indicator ];
 }
 case-indicator {
     spacing:    0;
