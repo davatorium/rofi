@@ -192,6 +192,10 @@ typedef struct
 
     /** Window Thumbnails */
     gboolean       window_thumbnail;
+
+    /** drun cache */
+    gboolean       drun_use_desktop_cache;
+    gboolean       drun_reload_desktop_cache;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

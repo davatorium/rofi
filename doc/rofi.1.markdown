@@ -676,6 +676,14 @@ Message can be multi-line.
 
 ### Other
 
+`-drun-use-desktop-cache`
+
+Build and use a cache with the content of desktop files. Usable for systems with slow harddrives.
+
+`-drun-reload-desktop-cache`
+
+If `drun-use-desktop-cache` is enbled, rebuild  a cache with the content of desktop files.
+
 `-pid` *path*
 
 Make **rofi** create a pid file and check this on startup. The pid file prevents multiple **rofi** instances from running simultaneously. This is useful when running **rofi** from a key-binding daemon.

@@ -56,6 +56,7 @@
 #include "rofi-icon-fetcher.h"
 
 #define DRUN_CACHE_FILE    "rofi3.druncache"
+#define DRUN_DESKTOP_CACHE_FILE    "rofi-drun-desktop.cache"
 
 char *DRUN_GROUP_NAME = "Desktop Entry";
 
@@ -66,7 +67,6 @@ typedef struct _DRunModePrivateData DRunModePrivateData;
  */
 typedef struct
 {
-    thread_state        st;
     DRunModePrivateData *pd;
     /* category */
     char                *action;
@@ -231,6 +231,23 @@ static void exec_cmd_entry ( DRunModeEntry *e )
     if ( str == NULL ) {
         g_warning ( "Nothing to execute after processing: %s.", e->exec );;
         return;
+    }
+
+    if ( e->key_file == NULL ) {
+        GKeyFile *kf = g_key_file_new ();
+        GError   *error = NULL;
+        gboolean res    = g_key_file_load_from_file ( kf, e->path, 0, &error );
+        if ( res )
+        {
+            e->key_file = kf;
+        }
+        else {
+            g_warning ( "[%s] [%s] Failed to parse desktop file because: %s.", e->app_id, e->path, error->message );
+            g_error_free ( error );
+            g_key_file_free ( kf );
+
+            return;
+        }
     }
 
     const gchar *fp        = g_strstrip ( str );
@@ -629,39 +646,216 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
     }
 }
 
-static void get_apps ( DRunModePrivateData *pd )
-{
-    TICK_N ( "Get Desktop apps (start)" );
+/*******************************************
+ * Cache voodoo                            *
+ *******************************************/
 
-    gchar *dir;
-    // First read the user directory.
-    dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
-    walk_dir ( pd, dir, dir );
-    g_free ( dir );
-    TICK_N ( "Get Desktop apps (user dir)" );
-    // Then read thee system data dirs.
-    const gchar * const * sys = g_get_system_data_dirs ();
-    for ( const gchar * const *iter = sys; *iter != NULL; ++iter ) {
-        gboolean unique = TRUE;
-        // Stupid duplicate detection, better then walking dir.
-        for ( const gchar *const *iterd = sys; iterd != iter; ++iterd ) {
-            if ( g_strcmp0 ( *iter, *iterd ) == 0 ) {
-                unique = FALSE;
-            }
-        }
-        // Check, we seem to be getting empty string...
-        if ( unique && ( **iter ) != '\0' ) {
-            dir = g_build_filename ( *iter, "applications", NULL );
-            walk_dir ( pd, dir, dir );
-            g_free ( dir );
+#define CACHE_VERSION 1
+static void drun_write_str ( FILE *fd, const char *str )
+{
+    size_t l =  (str == NULL? 0 : strlen(str));
+    fwrite ( &l, sizeof(l),1, fd );
+    // Only write string if it is not NULL or empty.
+    if ( l > 0 ) {
+        // Also writeout terminating '\0'
+        fwrite ( str, 1, l+1, fd );
+    }
+}
+static void drun_read_string ( FILE *fd, char **str )
+{
+    size_t l = 0;
+
+    if ( fread ( &l, sizeof(l), 1, fd ) != 1 ){
+        g_warning( "Failed to read entry, cache corrupt?" );
+        return;
+    }
+    (*str) = NULL;
+    if ( l > 0 ) {
+        // Include \0
+        l++;
+        (*str) = g_malloc(l);
+        if ( fread ( (*str), 1, l, fd ) != l ){
+            g_warning( "Failed to read entry, cache corrupt?" );
         }
     }
-    TICK_N ( "Get Desktop apps (system dirs)" );
-    get_apps_history ( pd );
+}
+static void drun_write_strv ( FILE *fd, char **str )
+{
+    guint vl = (str == NULL? 0 : g_strv_length ( str ));
+    fwrite ( &vl, sizeof(vl),1, fd );
+    for ( guint index = 0; index < vl ; index++ ) {
+        drun_write_str ( fd, str[index] );
+    }
+}
+static void drun_read_stringv ( FILE *fd, char ***str )
+{
+    guint vl = 0;
+    (*str) = NULL;
+    if ( fread ( &vl, sizeof(vl), 1, fd ) != 1 ){
+        g_warning( "Failed to read entry, cache corrupt?" );
+        return;
+    }
+    if ( vl > 0 ){
+        // Include terminating NULL entry.
+        (*str) = g_malloc0((vl+1)*sizeof(**str));
+        for ( guint index = 0; index < vl; index++ ) {
+            drun_read_string ( fd, &((*str)[index]));
+        }
+    }
+}
 
-    g_qsort_with_data ( pd->entry_list, pd->cmd_list_length, sizeof ( DRunModeEntry ), drun_int_sort_list, NULL );
+static void write_cache ( DRunModePrivateData *pd, const char *cache_file )
+{
+    if ( cache_file == NULL || config.drun_use_desktop_cache == FALSE ) return;
+    TICK_N ( "DRUN Write CACHE: start" );
 
-    TICK_N ( "Sorting done." );
+    FILE *fd = fopen ( cache_file, "w" );
+    if ( fd == NULL ){
+        g_warning ( "Failed to write to cache file" );
+        return;
+    }
+    uint8_t version = CACHE_VERSION;
+    fwrite ( &version, sizeof(version),1, fd );
+
+    fwrite ( &(pd->cmd_list_length), sizeof(pd->cmd_list_length),1,fd );
+    for ( unsigned int index = 0; index < pd->cmd_list_length; index ++ )
+    {
+        DRunModeEntry *entry = & ( pd->entry_list[index] );
+
+        drun_write_str ( fd, entry->action );
+        drun_write_str ( fd, entry->root );
+        drun_write_str ( fd, entry->path );
+        drun_write_str ( fd, entry->app_id );
+        drun_write_str ( fd, entry->desktop_id );
+        drun_write_str ( fd, entry->icon_name );
+        drun_write_str ( fd, entry->exec );
+        drun_write_str ( fd, entry->name );
+        drun_write_str ( fd, entry->generic_name );
+
+        drun_write_strv ( fd, entry->categories );
+        drun_write_strv ( fd, entry->keywords );
+
+        drun_write_str ( fd, entry->comment );
+
+    }
+
+    fclose ( fd) ;
+    TICK_N ( "DRUN Write CACHE: end" );
+}
+
+
+/**
+ * Read cache file. returns FALSE when success.
+ */
+static gboolean drun_read_cache ( DRunModePrivateData *pd, const char *cache_file )
+{
+    if ( cache_file == NULL || config.drun_use_desktop_cache == FALSE ) return TRUE;
+
+    if ( config.drun_reload_desktop_cache ) {
+        return TRUE;
+    }
+    TICK_N ( "DRUN Read CACHE: start" );
+    FILE *fd = fopen ( cache_file, "r" );
+    if ( fd == NULL ) {
+        TICK_N ( "DRUN Read CACHE: stop" );
+        return TRUE;
+    }
+
+    // Read version.
+    uint8_t version = 0;
+
+    if ( fread ( &version, sizeof(version),1, fd ) != 1 )
+    {
+        fclose ( fd );
+        g_warning ( "Cache corrupt, ignoring." );
+        TICK_N ( "DRUN Read CACHE: stop" );
+        return FALSE;
+    }
+
+    if ( version != CACHE_VERSION ) {
+        fclose ( fd );
+        g_warning ( "Cache file wrong version, ignoring." );
+        TICK_N ( "DRUN Read CACHE: stop" );
+        return FALSE;
+    }
+
+    if ( fread ( &(pd->cmd_list_length), sizeof(pd->cmd_list_length),1,fd ) != 1 ){
+        fclose ( fd );
+        g_warning ( "Cache corrupt, ignoring." );
+        TICK_N ( "DRUN Read CACHE: stop" );
+        return FALSE;
+    }
+    // set actual length to length;
+    pd->cmd_list_length_actual = pd->cmd_list_length;
+
+    pd->entry_list = g_malloc0 ( pd->cmd_list_length_actual * sizeof ( *( pd->entry_list ) ));
+
+    for ( unsigned int index = 0; index < pd->cmd_list_length; index++ )
+    {
+        DRunModeEntry *entry = & ( pd->entry_list[index] );
+
+        drun_read_string ( fd, &(entry->action) );
+        drun_read_string ( fd, &(entry->root) );
+        drun_read_string ( fd, &(entry->path) );
+        drun_read_string ( fd, &(entry->app_id) );
+        drun_read_string ( fd, &(entry->desktop_id) );
+        drun_read_string ( fd, &(entry->icon_name) );
+        drun_read_string ( fd, &(entry->exec) );
+        drun_read_string ( fd, &(entry->name) );
+        drun_read_string ( fd, &(entry->generic_name) );
+
+        drun_read_stringv ( fd, &(entry->categories) );
+        drun_read_stringv ( fd, &(entry->keywords) );
+
+        drun_read_string ( fd, &(entry->comment) );
+    }
+
+
+    fclose ( fd );
+    TICK_N ( "DRUN Read CACHE: stop" );
+    return FALSE;
+}
+
+static void get_apps ( DRunModePrivateData *pd )
+{
+    char *cache_file = g_build_filename ( cache_dir, DRUN_DESKTOP_CACHE_FILE, NULL );
+    TICK_N ( "Get Desktop apps (start)" );
+    if ( drun_read_cache ( pd, cache_file ) )
+    {
+
+        gchar *dir;
+        // First read the user directory.
+        dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
+        walk_dir ( pd, dir, dir );
+        g_free ( dir );
+        TICK_N ( "Get Desktop apps (user dir)" );
+        // Then read thee system data dirs.
+        const gchar * const * sys = g_get_system_data_dirs ();
+        for ( const gchar * const *iter = sys; *iter != NULL; ++iter ) {
+            gboolean unique = TRUE;
+            // Stupid duplicate detection, better then walking dir.
+            for ( const gchar *const *iterd = sys; iterd != iter; ++iterd ) {
+                if ( g_strcmp0 ( *iter, *iterd ) == 0 ) {
+                    unique = FALSE;
+                }
+            }
+            // Check, we seem to be getting empty string...
+            if ( unique && ( **iter ) != '\0' ) {
+                dir = g_build_filename ( *iter, "applications", NULL );
+                walk_dir ( pd, dir, dir );
+                g_free ( dir );
+            }
+        }
+        TICK_N ( "Get Desktop apps (system dirs)" );
+        get_apps_history ( pd );
+
+        g_qsort_with_data ( pd->entry_list, pd->cmd_list_length, sizeof ( DRunModeEntry ), drun_int_sort_list, NULL );
+
+        TICK_N ( "Sorting done." );
+
+        write_cache ( pd, cache_file );
+    }
+    g_free ( cache_file );
 }
 
 static void drun_mode_parse_entry_fields ()
@@ -739,7 +933,9 @@ static void drun_entry_clear ( DRunModeEntry *e )
     }
     g_strfreev ( e->categories );
     g_strfreev ( e->keywords );
-    g_key_file_free ( e->key_file );
+    if ( e->key_file ) {
+        g_key_file_free ( e->key_file );
+    }
 }
 
 static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
