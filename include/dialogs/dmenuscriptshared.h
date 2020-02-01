@@ -8,6 +8,8 @@ typedef struct {
     char     *icon_name;
     /** Async icon fetch handler. */
     uint32_t icon_fetch_uid;
+    /** Hidden meta keywords. */
+    char     *meta;
 } DmenuScriptEntry;
 /**
  * @param sw Unused

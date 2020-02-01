@@ -87,6 +87,9 @@ void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *
         if ( strcasecmp(buffer, "icon" ) == 0 ) {
             entry->icon_name = g_strdup(value);
         }
+        if ( strcasecmp(buffer, "meta" ) == 0 ) {
+            entry->meta = g_strdup(value);
+        }
     }
 }
 
@@ -171,6 +174,7 @@ static DmenuScriptEntry *get_script_output ( Mode *sw, char *command, char *arg,
                     size_t buf_length = strlen(buffer)+1;
                     retv[( *length )].entry     = g_memdup ( buffer, buf_length);
                     retv[( *length )].icon_name = NULL;
+                    retv[( *length )].meta      = NULL;
                     retv[(*length)].icon_fetch_uid = 0;
                     if ( buf_length > 0 && (read_length > (ssize_t)buf_length)  ) {
                         dmenuscript_parse_entry_extras ( sw, &(retv[(*length)]), buffer+buf_length, read_length-buf_length);
@@ -264,6 +268,7 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
         for ( unsigned int i = 0; i < rmpd->cmd_list_length; i++ ){
             g_free ( rmpd->cmd_list[i].entry );
             g_free ( rmpd->cmd_list[i].icon_name );
+            g_free ( rmpd->cmd_list[i].meta );
         }
         g_free ( rmpd->cmd_list );
 
@@ -281,6 +286,7 @@ static void script_mode_destroy ( Mode *sw )
         for ( unsigned int i = 0; i < rmpd->cmd_list_length; i++ ){
             g_free ( rmpd->cmd_list[i].entry );
             g_free ( rmpd->cmd_list[i].icon_name );
+            g_free ( rmpd->cmd_list[i].meta );
         }
         g_free ( rmpd->cmd_list );
         g_free ( rmpd->message );
@@ -324,7 +330,22 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
 static int script_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     ScriptModePrivateData *rmpd = sw->private_data;
-    return helper_token_match ( tokens, rmpd->cmd_list[index].entry );
+    int match = 1;
+    if ( tokens ) {
+       for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
+           rofi_int_matcher *ftokens[2] = { tokens[j], NULL };
+           int test = 0;
+           test = helper_token_match ( ftokens, rmpd->cmd_list[index].entry );
+           if ( test == tokens[j]->invert && rmpd->cmd_list[index].meta ) {
+              test = helper_token_match ( ftokens, rmpd->cmd_list[index].meta);
+           }
+
+           if ( test == 0 ) {
+              match = 0;
+           }
+       }
+    }
+    return match;
 }
 static char *script_get_message ( const Mode *sw )
 {
