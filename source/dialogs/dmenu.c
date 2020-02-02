@@ -554,6 +554,10 @@ static void dmenu_finalize ( RofiViewState *state )
                 }
             }
             else if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line].entry != NULL ) {
+                if ( cmd_list[pd->selected_line].nonselectable == TRUE ) {
+                    g_free ( input );
+                    return;
+                }
                 dmenu_print_results ( pd, input );
                 retv = TRUE;
                 if ( ( mretv & MENU_QUICK_SWITCH ) ) {
@@ -579,6 +583,11 @@ static void dmenu_finalize ( RofiViewState *state )
     restart = FALSE;
     // Normal mode
     if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line].entry != NULL ) {
+        // Check if entry is non-selectable.
+        if ( cmd_list[pd->selected_line].nonselectable == TRUE ) {
+            g_free ( input );
+            return;
+        }
         if ( ( mretv & MENU_CUSTOM_ACTION ) && pd->multi_select ) {
             restart = TRUE;
             if ( pd->selected_list == NULL ) {

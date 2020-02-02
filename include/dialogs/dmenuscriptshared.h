@@ -11,6 +11,8 @@ typedef struct
     uint32_t icon_fetch_uid;
     /** Hidden meta keywords. */
     char     *meta;
+    /** non-selectable */
+    gboolean nonselectable;
 } DmenuScriptEntry;
 /**
  * @param sw Unused

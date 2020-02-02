@@ -85,8 +85,11 @@ void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *
         if ( strcasecmp ( buffer, "icon" ) == 0 ) {
             entry->icon_name = g_strdup ( value );
         }
-        if ( strcasecmp ( buffer, "meta" ) == 0 ) {
+        else if ( strcasecmp ( buffer, "meta" ) == 0 ) {
             entry->meta = g_strdup ( value );
+        }
+        else if ( strcasecmp ( buffer, "nonselectable" ) == 0 ) {
+            entry->nonselectable = strcasecmp ( value, "true" ) == 0;
         }
     }
 }
@@ -244,7 +247,7 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
     unsigned int          new_length = 0;
 
     if ( ( mretv & MENU_NEXT ) ) {
-        retv = NEXT_DIALOG;
+        retv = RELOAD_DIALOG;;
     }
     else if ( ( mretv & MENU_PREVIOUS ) ) {
         retv = PREVIOUS_DIALOG;
@@ -253,6 +256,9 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line].entry != NULL ) {
+        if ( rmpd->cmd_list[selected_line].nonselectable ) {
+            return FALSE;
+        }
         script_mode_reset_highlight ( sw );
         new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length );
     }
