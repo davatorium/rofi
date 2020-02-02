@@ -470,7 +470,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     ModeModePrivateData *pd = (ModeModePrivateData *) mode_get_private_data ( sw );
     // find window list
     xcb_window_t        curr_win_id;
-    int found = 0;
+    int                 found = 0;
 
     // Create cache
 
@@ -488,7 +488,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     }
 
     c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, 0 );
-    xcb_ewmh_get_windows_reply_t clients = {0,};
+    xcb_ewmh_get_windows_reply_t clients = { 0, };
     if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
         found = 1;
     }
@@ -498,7 +498,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
             found = 1;
         }
     }
-    if ( ! found ) {
+    if ( !found ) {
         return;
     }
 

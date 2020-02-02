@@ -115,11 +115,11 @@ NkBindings *bindings = NULL;
 GMainLoop *main_loop = NULL;
 
 /** Flag indicating we are in dmenu mode. */
-static int dmenu_mode = FALSE;
+static int      dmenu_mode = FALSE;
 /** Rofi's return code */
-int        return_code = EXIT_SUCCESS;
+int             return_code = EXIT_SUCCESS;
 
-static gboolean    old_config_format = FALSE;
+static gboolean old_config_format = FALSE;
 
 void process_result ( RofiViewState *state );
 
@@ -364,8 +364,8 @@ static void help_print_disabled_mode ( const char *mode )
 }
 static void help_print_mode_not_found ( const char *mode )
 {
-    GString *str = g_string_new ("");
-    g_string_printf(str, "Mode %s is not found.\nThe following modi are known:\n", mode );
+    GString *str = g_string_new ( "" );
+    g_string_printf ( str, "Mode %s is not found.\nThe following modi are known:\n", mode );
     for ( unsigned int i = 0; i < num_available_modi; i++ ) {
         gboolean active = FALSE;
         for ( unsigned int j = 0; j < num_modi; j++ ) {
@@ -374,10 +374,10 @@ static void help_print_mode_not_found ( const char *mode )
                 break;
             }
         }
-        g_string_append_printf (str, "        * %s%s\n",
-                active ? "+" : "",
-                available_modi[i]->name
-                );
+        g_string_append_printf ( str, "        * %s%s\n",
+                                 active ? "+" : "",
+                                 available_modi[i]->name
+                                 );
     }
     rofi_add_error_message ( str );
 }
@@ -663,7 +663,6 @@ static void show_error_dialog ()
     rofi_view_error_dialog ( emesg->str, ERROR_MSG_MARKUP );
     g_string_free ( emesg, TRUE );
     rofi_set_return_code ( EX_DATAERR );
-
 }
 
 static gboolean startup ( G_GNUC_UNUSED gpointer data )
@@ -852,11 +851,12 @@ int main ( int argc, char *argv[] )
 
     if ( find_arg ( "-no-config" ) < 0 ) {
         gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.rasi", NULL );
-        g_debug ( "Testing: %s", etc);
+        g_debug ( "Testing: %s", etc );
         if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
-            g_debug ( "Parsing: %s", etc);
+            g_debug ( "Parsing: %s", etc );
             rofi_theme_parse_file ( etc );
-        } else {
+        }
+        else {
             // Load distro default settings
             gchar *xetc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
             if ( g_file_test ( xetc, G_FILE_TEST_IS_REGULAR ) ) {
@@ -896,7 +896,7 @@ int main ( int argc, char *argv[] )
     TICK_N ( "Load cmd config " );
 
     if ( old_config_format ) {
-        g_warning ( "The old Xresources based configuration format is deprecated.");
+        g_warning ( "The old Xresources based configuration format is deprecated." );
         g_warning ( "Please upgrade: rofi -upgrade-config." );
     }
     parse_keys_abe ( bindings );
@@ -975,9 +975,8 @@ int main ( int argc, char *argv[] )
         cleanup ();
         return EXIT_SUCCESS;
     }
-    if ( find_arg ( "-upgrade-config") >= 0 ) {
-
-        setup_modi();
+    if ( find_arg ( "-upgrade-config" ) >= 0 ) {
+        setup_modi ();
 
         for ( unsigned int i = 0; i < num_modi; i++ ) {
             mode_init ( modi[i] );
@@ -986,7 +985,7 @@ int main ( int argc, char *argv[] )
         const char *cpath = g_get_user_config_dir ();
         if ( cpath ) {
             char *fcpath = g_build_filename ( cpath, "rofi", NULL );
-            if ( !g_file_test ( fcpath, G_FILE_TEST_IS_DIR ) && g_mkdir_with_parents ( fcpath, 0700) < 0 ) {
+            if ( !g_file_test ( fcpath, G_FILE_TEST_IS_DIR ) && g_mkdir_with_parents ( fcpath, 0700 ) < 0 ) {
                 g_warning ( "Failed to create rofi configuration directory: %s", fcpath );
                 cleanup ();
                 g_free ( fcpath );
@@ -1000,20 +999,21 @@ int main ( int argc, char *argv[] )
                 g_free ( fcpath );
                 return EXIT_FAILURE;
             }
-            FILE *fd = fopen(fcpath, "w" );
+            FILE *fd = fopen ( fcpath, "w" );
             if ( fd == NULL ) {
-                g_warning ( "Failed to open new rofi configuration file: %s: %s", fcpath , strerror(errno));
+                g_warning ( "Failed to open new rofi configuration file: %s: %s", fcpath, strerror ( errno ) );
                 cleanup ();
                 g_free ( fcpath );
                 return EXIT_FAILURE;
             }
             config_parse_dump_config_rasi_format ( fd, TRUE );
-            fprintf(stdout, "\n***** Generated configuration file in: %s *****\n", fcpath );
+            fprintf ( stdout, "\n***** Generated configuration file in: %s *****\n", fcpath );
 
             fflush ( fd );
             fclose ( fd );
-            g_free( fcpath );
-        } else {
+            g_free ( fcpath );
+        }
+        else {
             g_warning ( "Failed to get user configuration directory." );
             cleanup ();
             return EXIT_FAILURE;

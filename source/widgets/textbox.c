@@ -156,7 +156,7 @@ static void textbox_initialize_font ( textbox *tb )
         if ( tbfc ) {
             // Update for used font.
             pango_layout_set_font_description ( tb->layout, tbfc->pfd );
-            tb->metrics     = tbfc->metrics;
+            tb->metrics = tbfc->metrics;
         }
     }
 }
@@ -189,11 +189,11 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     }
 
     const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text );
-    if ( txt == NULL  || (*txt) == '\0' ){
+    if ( txt == NULL || ( *txt ) == '\0' ) {
         txt = rofi_theme_get_string ( WIDGET  ( tb ), "content", text );
     }
-    const char *placeholder = rofi_theme_get_string ( WIDGET(tb), "placeholder", NULL);
-    if ( placeholder){
+    const char *placeholder = rofi_theme_get_string ( WIDGET ( tb ), "placeholder", NULL );
+    if ( placeholder ) {
         tb->placeholder = placeholder;
     }
     textbox_text ( tb, txt ? txt : "" );
@@ -205,8 +205,8 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     tb->blink_timeout = 0;
     tb->blink         = 1;
     if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
-        if ( rofi_theme_get_boolean ( WIDGET(tb), "blink", TRUE) ) {
-            tb->blink_timeout         = g_timeout_add ( 1200, textbox_blink, tb );
+        if ( rofi_theme_get_boolean ( WIDGET ( tb ), "blink", TRUE ) ) {
+            tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
         }
         tb->widget.trigger_action = textbox_editable_trigger_action;
     }
@@ -268,8 +268,7 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
 static void __textbox_update_pango_text ( textbox *tb )
 {
     pango_layout_set_attributes ( tb->layout, NULL );
-    if ( tb->placeholder && (tb->text == NULL || tb->text[0] == 0) )
-    {
+    if ( tb->placeholder && ( tb->text == NULL || tb->text[0] == 0 ) ) {
         tb->show_placeholder = TRUE;
         pango_layout_set_text ( tb->layout, tb->placeholder, -1 );
         return;
@@ -344,7 +343,6 @@ void textbox_text ( textbox *tb, const char *text )
     widget_queue_redraw ( WIDGET ( tb ) );
 }
 
-
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
@@ -360,7 +358,8 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
         }
         else if ( ( tb->flags & TB_WRAP ) != TB_WRAP ) {
             pango_layout_set_ellipsize ( tb->layout, tb->emode );
-        } else {
+        }
+        else {
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_NONE );
         }
     }
@@ -450,7 +449,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     cairo_move_to ( draw, x, top );
     pango_cairo_show_layout ( draw, tb->layout );
 
-
     // draw the cursor
     rofi_theme_get_color ( WIDGET ( tb ), "text-color", draw );
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
@@ -469,7 +467,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_rectangle ( draw, x + cursor_x, y + cursor_y, cursor_width, cursor_height );
         cairo_fill ( draw );
     }
-
 
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
         cairo_arc ( draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
@@ -941,11 +938,9 @@ int textbox_get_desired_width ( widget *wid )
     return width + padding + offset;
 }
 
-
 void textbox_set_ellipsize ( textbox *tb, PangoEllipsizeMode mode )
 {
-    if ( tb )
-    {
+    if ( tb ) {
         tb->emode = mode;
         if ( ( tb->flags & TB_WRAP ) != TB_WRAP ) {
             // Store the mode.

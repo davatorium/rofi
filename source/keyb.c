@@ -77,7 +77,7 @@ ActionBindingEntry rofi_bindings[] =
     { .id = ROW_LAST,                .name  = "kb-row-last",                .binding = "End,KP_End",                           .comment = "Go to the last entry"                                                  },
     { .id = ROW_SELECT,              .name  = "kb-row-select",              .binding = "Control+space",                        .comment = "Set selected item as input text"                                       },
     { .id = SCREENSHOT,              .name  = "kb-screenshot",              .binding = "Alt+S",                                .comment = "Take a screenshot of the rofi window"                                  },
-    { .id = CHANGE_ELLIPSIZE,        .name  = "kb-ellipsize",               .binding = "Alt+period",                                .comment = "Toggle between ellipsize modes for displayed data"                     },
+    { .id = CHANGE_ELLIPSIZE,        .name  = "kb-ellipsize",               .binding = "Alt+period",                           .comment = "Toggle between ellipsize modes for displayed data"                     },
     { .id = TOGGLE_CASE_SENSITIVITY, .name  = "kb-toggle-case-sensitivity", .binding = "grave,dead_grave",                     .comment = "Toggle case sensitivity"                                               },
     { .id = TOGGLE_SORT,             .name  = "kb-toggle-sort",             .binding = "Alt+grave",                            .comment = "Toggle sort"                                                           },
     { .id = CANCEL,                  .name  = "kb-cancel",                  .binding = "Escape,Control+g,Control+bracketleft", .comment = "Quit rofi"                                                             },

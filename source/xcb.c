@@ -99,72 +99,74 @@ static xcb_visualtype_t *root_visual = NULL;
 xcb_atom_t              netatoms[NUM_NETATOMS];
 const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 
-static xcb_visualtype_t * lookup_visual (xcb_screen_t   *s, xcb_visualid_t  visual)
+static xcb_visualtype_t * lookup_visual ( xcb_screen_t   *s, xcb_visualid_t visual )
 {
     xcb_depth_iterator_t d;
-    d = xcb_screen_allowed_depths_iterator (s);
-    for (; d.rem; xcb_depth_next (&d)) {
-        xcb_visualtype_iterator_t v = xcb_depth_visuals_iterator (d.data);
-        for (; v.rem; xcb_visualtype_next (&v)) {
-            if (v.data->visual_id == visual)
+    d = xcb_screen_allowed_depths_iterator ( s );
+    for (; d.rem; xcb_depth_next ( &d ) ) {
+        xcb_visualtype_iterator_t v = xcb_depth_visuals_iterator ( d.data );
+        for (; v.rem; xcb_visualtype_next ( &v ) ) {
+            if ( v.data->visual_id == visual ) {
                 return v.data;
+            }
         }
     }
     return 0;
 }
 
-
 cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size )
 {
     xcb_get_geometry_cookie_t cookie;
-    xcb_get_geometry_reply_t *reply;
+    xcb_get_geometry_reply_t  *reply;
 
-    cookie = xcb_get_geometry(xcb->connection, window);
-    reply = xcb_get_geometry_reply(xcb->connection, cookie, NULL);
+    cookie = xcb_get_geometry ( xcb->connection, window );
+    reply  = xcb_get_geometry_reply ( xcb->connection, cookie, NULL );
     if ( reply == NULL ) {
         return NULL;
     }
 
-    xcb_get_window_attributes_cookie_t  attributesCookie = xcb_get_window_attributes (xcb->connection, window);
-    xcb_get_window_attributes_reply_t  *attributes       = xcb_get_window_attributes_reply (xcb->connection,
-            attributesCookie,
-            NULL );
-    if ( attributes == NULL ||  ( attributes->map_state != XCB_MAP_STATE_VIEWABLE ) ) {
-        free(reply);
-        if ( attributes ) free(attributes);
+    xcb_get_window_attributes_cookie_t attributesCookie = xcb_get_window_attributes ( xcb->connection, window );
+    xcb_get_window_attributes_reply_t  *attributes      = xcb_get_window_attributes_reply ( xcb->connection,
+                                                                                            attributesCookie,
+                                                                                            NULL );
+    if ( attributes == NULL || ( attributes->map_state != XCB_MAP_STATE_VIEWABLE ) ) {
+        free ( reply );
+        if ( attributes ) {
+            free ( attributes );
+        }
         return NULL;
     }
     // Create a cairo surface for the window.
-    xcb_visualtype_t * vt = lookup_visual(xcb->screen, attributes->visual);
+    xcb_visualtype_t * vt = lookup_visual ( xcb->screen, attributes->visual );
     free ( attributes );
 
-    cairo_surface_t *t = cairo_xcb_surface_create ( xcb->connection, window, vt , reply->width, reply->height );
+    cairo_surface_t *t = cairo_xcb_surface_create ( xcb->connection, window, vt, reply->width, reply->height );
 
     if ( cairo_surface_status ( t ) != CAIRO_STATUS_SUCCESS ) {
-        cairo_surface_destroy(t);
-        free(reply);
+        cairo_surface_destroy ( t );
+        free ( reply );
         return NULL;
     }
 
     // Scale the image, as we don't want to keep large one around.
-    int max = MAX(reply->width, reply->height);
-    double scale = (double)size/ max;
+    int             max   = MAX ( reply->width, reply->height );
+    double          scale = (double) size / max;
 
-    cairo_surface_t *s2 = cairo_surface_create_similar_image ( t, CAIRO_FORMAT_ARGB32, reply->width*scale,reply->height*scale );
+    cairo_surface_t *s2 = cairo_surface_create_similar_image ( t, CAIRO_FORMAT_ARGB32, reply->width * scale, reply->height * scale );
     free ( reply );
 
     if ( cairo_surface_status ( s2 ) != CAIRO_STATUS_SUCCESS ) {
-        cairo_surface_destroy ( t ) ;
+        cairo_surface_destroy ( t );
         return NULL;
     }
     // Paint it in.
-    cairo_t *d = cairo_create (s2);
+    cairo_t *d = cairo_create ( s2 );
     cairo_scale ( d, scale, scale );
     cairo_set_source_surface ( d, t, 0, 0 );
-    cairo_paint ( d);
-    cairo_destroy(d);
+    cairo_paint ( d );
+    cairo_destroy ( d );
 
-    cairo_surface_destroy(t);
+    cairo_surface_destroy ( t );
     return s2;
 }
 /**
@@ -1056,8 +1058,8 @@ static int take_pointer ( xcb_window_t w, int iters )
             break;
         }
         struct timespec del = {
-             .tv_sec  = 0,
-             .tv_nsec =  1000000
+            .tv_sec  = 0,
+            .tv_nsec = 1000000
         };
         nanosleep ( &del, NULL );
     }
@@ -1087,8 +1089,8 @@ static int take_keyboard ( xcb_window_t w, int iters )
             break;
         }
         struct timespec del = {
-             .tv_sec  = 0,
-             .tv_nsec =  1000000
+            .tv_sec  = 0,
+            .tv_nsec = 1000000
         };
         nanosleep ( &del, NULL );
     }

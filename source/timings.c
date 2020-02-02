@@ -35,7 +35,7 @@
 /**
  * Timer used to calculate time stamps.
  */
-GTimer *global_timer     = NULL;
+GTimer *global_timer = NULL;
 /**
  * Last timestamp made.
  */
@@ -58,8 +58,7 @@ void rofi_timings_tick ( const char *file, char const *str, int line, char const
 
 void rofi_timings_quit ( void )
 {
-        double now = g_timer_elapsed ( global_timer, NULL );
-        g_debug ( "%4.6f (%2.6f): Stopped", now, 0.0 );
-        g_timer_destroy ( global_timer );
+    double now = g_timer_elapsed ( global_timer, NULL );
+    g_debug ( "%4.6f (%2.6f): Stopped", now, 0.0 );
+    g_timer_destroy ( global_timer );
 }
-

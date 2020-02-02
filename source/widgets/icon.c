@@ -46,7 +46,7 @@ struct _icon
 
     uint32_t        icon_fetch_id;
 
-    double          yalign,xalign;
+    double          yalign, xalign;
 
     // Source surface.
     cairo_surface_t *icon;
@@ -85,16 +85,16 @@ static void icon_draw ( widget *wid, cairo_t *draw )
     int    icons = MAX ( iconh, iconw );
     double scale = (double) b->size / icons;
 
-    int lpad = widget_padding_get_left   ( WIDGET ( b ) ) ;
-    int rpad = widget_padding_get_right  ( WIDGET ( b ) ) ;
-    int tpad = widget_padding_get_top    ( WIDGET ( b ) ) ;
-    int bpad = widget_padding_get_bottom ( WIDGET ( b ) ) ;
+    int    lpad = widget_padding_get_left   ( WIDGET ( b ) );
+    int    rpad = widget_padding_get_right  ( WIDGET ( b ) );
+    int    tpad = widget_padding_get_top    ( WIDGET ( b ) );
+    int    bpad = widget_padding_get_bottom ( WIDGET ( b ) );
 
     cairo_save ( draw );
 
     cairo_translate ( draw,
-            lpad + ( b->widget.w - iconw * scale - lpad -rpad )*b->xalign,
-            tpad + ( b->widget.h- iconh * scale -tpad - bpad )*b->yalign );
+                      lpad + ( b->widget.w - iconw * scale - lpad - rpad ) * b->xalign,
+                      tpad + ( b->widget.h - iconh * scale - tpad - bpad ) * b->yalign );
     cairo_scale ( draw, scale, scale );
     cairo_set_source_surface ( draw, b->icon, 0, 0 );
     cairo_paint ( draw );
@@ -149,7 +149,7 @@ icon * icon_create ( widget *parent, const char *name )
     b->widget.get_desired_height = icon_get_desired_height;
     b->widget.get_desired_width  = icon_get_desired_width;
 
-    RofiDistance d = rofi_theme_get_distance ( WIDGET (b), "size" , b->size );
+    RofiDistance d = rofi_theme_get_distance ( WIDGET ( b ), "size", b->size );
     b->size = distance_get_pixel ( d, ROFI_ORIENTATION_VERTICAL );
 
     const char * filename = rofi_theme_get_string ( WIDGET ( b ), "filename", NULL );

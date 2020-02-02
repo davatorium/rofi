@@ -142,7 +142,6 @@ void widget_move ( widget *widget, short x, short y );
  */
 WidgetType widget_type ( widget *widget );
 
-
 /**
  * @param widget Handle to widget
  * @param type The widget type.

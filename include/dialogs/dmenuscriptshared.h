@@ -1,7 +1,8 @@
 #ifndef ROFI_DIALOGS_DMENU_SCRIPT_SHARED_H
 #define ROFI_DIALOGS_DMENU_SCRIPT_SHARED_H
 
-typedef struct {
+typedef struct
+{
     /** Entry content. (visible part) */
     char     *entry;
     /** Icon name to display. */

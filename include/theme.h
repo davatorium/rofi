@@ -35,7 +35,8 @@
 /**
  * Describe the media constraint type.
  */
-typedef enum {
+typedef enum
+{
     /** Minimum width constraint. */
     THEME_MEDIA_TYPE_MIN_WIDTH,
     /** Maximum width constraint. */
@@ -57,9 +58,10 @@ typedef enum {
 /**
  * Theme Media description.
  */
-typedef struct ThemeMedia {
+typedef struct ThemeMedia
+{
     ThemeMediaType type;
-    double value;
+    double         value;
 } ThemeMedia;
 
 /**

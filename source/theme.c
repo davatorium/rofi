@@ -96,8 +96,8 @@ Property* rofi_theme_property_copy ( Property *p )
     case P_LINK:
         retv->value.link.name = g_strdup ( p->value.link.name );
         retv->value.link.ref  = NULL;
-        if ( p->value.link.def_value ){
-            retv->value.link.def_value = rofi_theme_property_copy(p->value.link.def_value);
+        if ( p->value.link.def_value ) {
+            retv->value.link.def_value = rofi_theme_property_copy ( p->value.link.def_value );
         }
         break;
     default:
@@ -129,49 +129,44 @@ void rofi_theme_property_free ( Property *p )
  */
 static void rofi_theme_insert_listview_backwards_fix ( void )
 {
-    GHashTable *table= g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) rofi_theme_property_free );
-    ThemeWidget *t = rofi_theme_find_or_create_name ( rofi_theme, "element" );
-    ThemeWidget *tt = rofi_theme_find_or_create_name ( rofi_theme, "element-text" );
-    ThemeWidget *ti = rofi_theme_find_or_create_name ( rofi_theme, "element-icon" );
+    GHashTable  *table = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) rofi_theme_property_free );
+    ThemeWidget *t     = rofi_theme_find_or_create_name ( rofi_theme, "element" );
+    ThemeWidget *tt    = rofi_theme_find_or_create_name ( rofi_theme, "element-text" );
+    ThemeWidget *ti    = rofi_theme_find_or_create_name ( rofi_theme, "element-icon" );
 
     // Inherit text color
     Property *ptc = rofi_theme_property_create ( P_INHERIT );
-    ptc->name = g_strdup("text-color");
+    ptc->name = g_strdup ( "text-color" );
     g_hash_table_replace ( table, ptc->name, ptc );
     // Transparent background
     Property *ptb = rofi_theme_property_create ( P_COLOR );
-    ptb->name = g_strdup("background-color");
+    ptb->name              = g_strdup ( "background-color" );
     ptb->value.color.red   = 0.0;
     ptb->value.color.green = 0.0;
     ptb->value.color.blue  = 0.0;
     ptb->value.color.alpha = 0.0;
     g_hash_table_replace ( table, ptb->name, ptb );
 
+    rofi_theme_widget_add_properties ( tt, table );
 
-    rofi_theme_widget_add_properties ( tt, table);
-
-
-    RofiDistance dsize = (RofiDistance){1.2, ROFI_PU_CH, ROFI_HL_SOLID };
-    Property *pts = rofi_theme_property_create ( P_PADDING );
+    RofiDistance dsize = (RofiDistance){ 1.2, ROFI_PU_CH, ROFI_HL_SOLID };
+    Property     *pts  = rofi_theme_property_create ( P_PADDING );
     pts->value.padding.top = pts->value.padding.right = pts->value.padding.bottom = pts->value.padding.left = dsize;
-    pts->name = g_strdup ( "size" );
+    pts->name              = g_strdup ( "size" );
     g_hash_table_replace ( table, pts->name, pts );
 
-
-    rofi_theme_widget_add_properties ( ti, table);
+    rofi_theme_widget_add_properties ( ti, table );
 
     /** Add spacing between icon and text. */
     g_hash_table_destroy ( table );
-    table= g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) rofi_theme_property_free );
-    Property *psp = rofi_theme_property_create ( P_PADDING );
-    psp->name           = g_strdup( "spacing" );
-    RofiDistance d = (RofiDistance){5, ROFI_PU_PX, ROFI_HL_SOLID };
-    psp->value.padding  = (RofiPadding){d,d,d,d};
+    table = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) rofi_theme_property_free );
+    Property     *psp = rofi_theme_property_create ( P_PADDING );
+    psp->name = g_strdup ( "spacing" );
+    RofiDistance d = (RofiDistance){ 5, ROFI_PU_PX, ROFI_HL_SOLID };
+    psp->value.padding = (RofiPadding){ d, d, d, d };
     g_hash_table_replace ( table, psp->name, psp );
-    rofi_theme_widget_add_properties ( t, table);
+    rofi_theme_widget_add_properties ( t, table );
     g_hash_table_destroy ( table );
-
-
 }
 
 void rofi_theme_reset ( void )
@@ -247,102 +242,102 @@ static void int_rofi_theme_print_property ( Property *p )
 {
     switch ( p->type )
     {
-        case P_LIST:
-            printf ( "[ " );
-            for ( GList *iter = p->value.list; iter != NULL; iter = g_list_next ( iter ) ) {
-                printf ( "%s", (char *) ( iter->data ) );
-                if ( iter->next != NULL ) {
-                    printf ( "," );
-                }
+    case P_LIST:
+        printf ( "[ " );
+        for ( GList *iter = p->value.list; iter != NULL; iter = g_list_next ( iter ) ) {
+            printf ( "%s", (char *) ( iter->data ) );
+            if ( iter->next != NULL ) {
+                printf ( "," );
             }
-            printf ( " ]" );
-            break;
-        case P_ORIENTATION:
-            printf ( "%s", ( p->value.i == ROFI_ORIENTATION_HORIZONTAL ) ? "horizontal" : "vertical" );
-            break;
-        case P_HIGHLIGHT:
-            if ( p->value.highlight.style & ROFI_HL_BOLD ) {
-                printf ( "bold " );
-            }
-            if ( p->value.highlight.style & ROFI_HL_UNDERLINE ) {
-                printf ( "underline " );
-            }
-            if ( p->value.highlight.style & ROFI_HL_STRIKETHROUGH ) {
-                printf ( "strikethrough " );
-            }
-            if ( p->value.highlight.style & ROFI_HL_ITALIC ) {
-                printf ( "italic " );
-            }
-            if ( p->value.highlight.style & ROFI_HL_COLOR ) {
-                printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
-                        ( p->value.highlight.color.red * 255.0 ),
-                        ( p->value.highlight.color.green * 255.0 ),
-                        ( p->value.highlight.color.blue * 255.0 ),
-                        ( p->value.highlight.color.alpha * 100.0 ) );
-            }
-            break;
-        case P_POSITION:
-            printf ( "%s", WindowLocationStr[p->value.i] );
-            break;
-        case P_STRING:
-            printf ( "\"%s\"", p->value.s );
-            break;
-        case P_INTEGER:
-            printf ( "%d", p->value.i );
-            break;
-        case P_DOUBLE:
-            printf ( "%.2f", p->value.f );
-            break;
-        case P_BOOLEAN:
-            printf ( "%s", p->value.b ? "true" : "false" );
-            break;
-        case P_COLOR:
+        }
+        printf ( " ]" );
+        break;
+    case P_ORIENTATION:
+        printf ( "%s", ( p->value.i == ROFI_ORIENTATION_HORIZONTAL ) ? "horizontal" : "vertical" );
+        break;
+    case P_HIGHLIGHT:
+        if ( p->value.highlight.style & ROFI_HL_BOLD ) {
+            printf ( "bold " );
+        }
+        if ( p->value.highlight.style & ROFI_HL_UNDERLINE ) {
+            printf ( "underline " );
+        }
+        if ( p->value.highlight.style & ROFI_HL_STRIKETHROUGH ) {
+            printf ( "strikethrough " );
+        }
+        if ( p->value.highlight.style & ROFI_HL_ITALIC ) {
+            printf ( "italic " );
+        }
+        if ( p->value.highlight.style & ROFI_HL_COLOR ) {
             printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
-                    ( p->value.color.red * 255.0 ),
-                    ( p->value.color.green * 255.0 ),
-                    ( p->value.color.blue * 255.0 ),
-                    ( p->value.color.alpha * 100.0 ) );
-            break;
-        case P_PADDING:
-            if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
-                    distance_compare ( p->value.padding.left, p->value.padding.right ) &&
-                    distance_compare ( p->value.padding.left, p->value.padding.top ) ) {
-                rofi_theme_print_distance ( p->value.padding.left );
-            }
-            else if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
-                    distance_compare ( p->value.padding.left, p->value.padding.right ) ) {
-                rofi_theme_print_distance ( p->value.padding.top );
-                rofi_theme_print_distance ( p->value.padding.left );
-            }
-            else if ( !distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
-                    distance_compare ( p->value.padding.left, p->value.padding.right ) ) {
-                rofi_theme_print_distance ( p->value.padding.top );
-                rofi_theme_print_distance ( p->value.padding.left );
-                rofi_theme_print_distance ( p->value.padding.bottom );
-            }
-            else {
-                rofi_theme_print_distance ( p->value.padding.top );
-                rofi_theme_print_distance ( p->value.padding.right );
-                rofi_theme_print_distance ( p->value.padding.bottom );
-                rofi_theme_print_distance ( p->value.padding.left );
-            }
-            break;
-        case P_LINK:
-            if ( p->value.link.def_value) {
-                printf( "var( %s, ", p->value.link.name );
-                int_rofi_theme_print_property ( p->value.link.def_value );
-                printf (")");
-            }else {
-                printf ( "var(%s)", p->value.link.name );
-            }
-            break;
-        case P_INHERIT:
-            printf ( "inherit" );
-            break;
-        default:
-            break;
+                     ( p->value.highlight.color.red * 255.0 ),
+                     ( p->value.highlight.color.green * 255.0 ),
+                     ( p->value.highlight.color.blue * 255.0 ),
+                     ( p->value.highlight.color.alpha * 100.0 ) );
+        }
+        break;
+    case P_POSITION:
+        printf ( "%s", WindowLocationStr[p->value.i] );
+        break;
+    case P_STRING:
+        printf ( "\"%s\"", p->value.s );
+        break;
+    case P_INTEGER:
+        printf ( "%d", p->value.i );
+        break;
+    case P_DOUBLE:
+        printf ( "%.2f", p->value.f );
+        break;
+    case P_BOOLEAN:
+        printf ( "%s", p->value.b ? "true" : "false" );
+        break;
+    case P_COLOR:
+        printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
+                 ( p->value.color.red * 255.0 ),
+                 ( p->value.color.green * 255.0 ),
+                 ( p->value.color.blue * 255.0 ),
+                 ( p->value.color.alpha * 100.0 ) );
+        break;
+    case P_PADDING:
+        if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
+             distance_compare ( p->value.padding.left, p->value.padding.right ) &&
+             distance_compare ( p->value.padding.left, p->value.padding.top ) ) {
+            rofi_theme_print_distance ( p->value.padding.left );
+        }
+        else if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
+                  distance_compare ( p->value.padding.left, p->value.padding.right ) ) {
+            rofi_theme_print_distance ( p->value.padding.top );
+            rofi_theme_print_distance ( p->value.padding.left );
+        }
+        else if ( !distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
+                  distance_compare ( p->value.padding.left, p->value.padding.right ) ) {
+            rofi_theme_print_distance ( p->value.padding.top );
+            rofi_theme_print_distance ( p->value.padding.left );
+            rofi_theme_print_distance ( p->value.padding.bottom );
+        }
+        else {
+            rofi_theme_print_distance ( p->value.padding.top );
+            rofi_theme_print_distance ( p->value.padding.right );
+            rofi_theme_print_distance ( p->value.padding.bottom );
+            rofi_theme_print_distance ( p->value.padding.left );
+        }
+        break;
+    case P_LINK:
+        if ( p->value.link.def_value ) {
+            printf ( "var( %s, ", p->value.link.name );
+            int_rofi_theme_print_property ( p->value.link.def_value );
+            printf ( ")" );
+        }
+        else {
+            printf ( "var(%s)", p->value.link.name );
+        }
+        break;
+    case P_INHERIT:
+        printf ( "inherit" );
+        break;
+    default:
+        break;
     }
-
 }
 
 static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p )
@@ -518,7 +513,7 @@ static void rofi_theme_resolve_link_property ( Property *p, int depth )
 {
     // Set name, remove '@' prefix.
     const char *name = p->value.link.name;// + (*(p->value.link.name)== '@'?1:0;
-    g_info ( "Resolving link to %s", p->value.link.name);
+    g_info ( "Resolving link to %s", p->value.link.name );
     if ( depth > 20 ) {
         g_warning ( "Found more then 20 redirects for property. Stopping." );
         p->value.link.ref = p;
@@ -527,7 +522,7 @@ static void rofi_theme_resolve_link_property ( Property *p, int depth )
 
     if ( rofi_theme->properties && g_hash_table_contains ( rofi_theme->properties, name ) ) {
         Property *pr = g_hash_table_lookup ( rofi_theme->properties, name );
-        g_info ("Resolving link %s found: %s", p->value.link.name, pr->name);
+        g_info ( "Resolving link %s found: %s", p->value.link.name, pr->name );
         if ( pr->type == P_LINK ) {
             if ( pr->value.link.ref == NULL ) {
                 rofi_theme_resolve_link_property ( pr, depth + 1 );
@@ -543,7 +538,7 @@ static void rofi_theme_resolve_link_property ( Property *p, int depth )
         }
     }
     // No found and we have default value.
-    if ( p->value.link.def_value ){
+    if ( p->value.link.def_value ) {
         p->value.link.ref = p->value.link.def_value;
         return;
     }
@@ -1022,21 +1017,20 @@ char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file
     return filename;
 }
 
-
 void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child )
 {
     g_assert ( parent != NULL );
     g_assert ( child != NULL );
 
-    if ( parent == rofi_theme && g_strcmp0(child->name, "*") == 0 ){
-        rofi_theme_widget_add_properties ( parent, child->properties);
+    if ( parent == rofi_theme && g_strcmp0 ( child->name, "*" ) == 0 ) {
+        rofi_theme_widget_add_properties ( parent, child->properties );
         return;
     }
 
-    ThemeWidget *w = rofi_theme_find_or_create_name ( parent, child->name);
-    rofi_theme_widget_add_properties ( w, child->properties);
-    for ( unsigned int i =0; i < child->num_widgets; i++) {
-        rofi_theme_parse_merge_widgets ( w, child->widgets[i]);
+    ThemeWidget *w = rofi_theme_find_or_create_name ( parent, child->name );
+    rofi_theme_widget_add_properties ( w, child->properties );
+    for ( unsigned int i = 0; i < child->num_widgets; i++ ) {
+        rofi_theme_parse_merge_widgets ( w, child->widgets[i] );
     }
 }
 
@@ -1044,108 +1038,114 @@ void  rofi_theme_parse_process_conditionals ( void )
 {
     workarea mon;
     monitor_active ( &mon );
-    if ( rofi_theme == NULL ) return;
+    if ( rofi_theme == NULL ) {
+        return;
+    }
     for ( unsigned int i = 0; i < rofi_theme->num_widgets; i++ ) {
-            ThemeWidget *widget = rofi_theme->widgets[i];
-            if ( widget->media != NULL ) {
-                switch ( widget->media->type )
-                {
-                    case THEME_MEDIA_TYPE_MIN_WIDTH:
-                        {
-                            int w = widget->media->value;
-                            if ( mon.w >= w ){
-                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
-                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
-                                }
-                            }
-                            break;
-                        }
-                    case THEME_MEDIA_TYPE_MAX_WIDTH:
-                        {
-                            int w = widget->media->value;
-                            if ( mon.w < w ){
-                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
-                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
-                                }
-                            }
-                            break;
-                        }
-                    case THEME_MEDIA_TYPE_MIN_HEIGHT:
-                        {
-                            int h = widget->media->value;
-                            if ( mon.h >= h ){
-                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
-                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
-                                }
-                            }
-                            break;
-                        }
-                    case THEME_MEDIA_TYPE_MAX_HEIGHT:
-                        {
-                            int h =  widget->media->value;
-                            if ( mon.h < h ){
-                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
-                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
-                                }
-                            }
-                            break;
-                        }
-                    case THEME_MEDIA_TYPE_MON_ID:
-                        {
-                            if ( mon.monitor_id == widget->media->value ){
-                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
-                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
-                                }
-                            }
-                            break;
-                        }
-                    case THEME_MEDIA_TYPE_MIN_ASPECT_RATIO:
-                        {
-                            double r =  widget->media->value;
-                            if ( (mon.w/(double)mon.h) >= r ){
-                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
-                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
-                                }
-                            }
-                            break;
-                        }
-                    case THEME_MEDIA_TYPE_MAX_ASPECT_RATIO:
-                        {
-                            double r =  widget->media->value;
-                            if ( (mon.w/(double)mon.h) < r ){
-                                for ( unsigned int x =0; x < widget->num_widgets; x++) {
-                                    rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
-                                }
-                            }
-                            break;
-                        }
-                    default:
-                        {
-                            break;
-                        }
+        ThemeWidget *widget = rofi_theme->widgets[i];
+        if ( widget->media != NULL ) {
+            switch ( widget->media->type )
+            {
+            case THEME_MEDIA_TYPE_MIN_WIDTH:
+            {
+                int w = widget->media->value;
+                if ( mon.w >= w ) {
+                    for ( unsigned int x = 0; x < widget->num_widgets; x++ ) {
+                        rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                    }
                 }
+                break;
             }
+            case THEME_MEDIA_TYPE_MAX_WIDTH:
+            {
+                int w = widget->media->value;
+                if ( mon.w < w ) {
+                    for ( unsigned int x = 0; x < widget->num_widgets; x++ ) {
+                        rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                    }
+                }
+                break;
+            }
+            case THEME_MEDIA_TYPE_MIN_HEIGHT:
+            {
+                int h = widget->media->value;
+                if ( mon.h >= h ) {
+                    for ( unsigned int x = 0; x < widget->num_widgets; x++ ) {
+                        rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                    }
+                }
+                break;
+            }
+            case THEME_MEDIA_TYPE_MAX_HEIGHT:
+            {
+                int h = widget->media->value;
+                if ( mon.h < h ) {
+                    for ( unsigned int x = 0; x < widget->num_widgets; x++ ) {
+                        rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                    }
+                }
+                break;
+            }
+            case THEME_MEDIA_TYPE_MON_ID:
+            {
+                if ( mon.monitor_id == widget->media->value ) {
+                    for ( unsigned int x = 0; x < widget->num_widgets; x++ ) {
+                        rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                    }
+                }
+                break;
+            }
+            case THEME_MEDIA_TYPE_MIN_ASPECT_RATIO:
+            {
+                double r = widget->media->value;
+                if ( ( mon.w / (double) mon.h ) >= r ) {
+                    for ( unsigned int x = 0; x < widget->num_widgets; x++ ) {
+                        rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                    }
+                }
+                break;
+            }
+            case THEME_MEDIA_TYPE_MAX_ASPECT_RATIO:
+            {
+                double r = widget->media->value;
+                if ( ( mon.w / (double) mon.h ) < r ) {
+                    for ( unsigned int x = 0; x < widget->num_widgets; x++ ) {
+                        rofi_theme_parse_merge_widgets ( rofi_theme, widget->widgets[x] );
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+        }
     }
 }
 
-
 ThemeMediaType rofi_theme_parse_media_type ( const char *type )
 {
-    if ( g_strcmp0( type, "monitor-id" ) == 0 ) {
+    if ( g_strcmp0 ( type, "monitor-id" ) == 0 ) {
         return THEME_MEDIA_TYPE_MON_ID;
-    } else if ( g_strcmp0 ( type, "min-width")  == 0 ) {
+    }
+    else if ( g_strcmp0 ( type, "min-width" ) == 0 ) {
         return THEME_MEDIA_TYPE_MIN_WIDTH;
-    } else if ( g_strcmp0 ( type, "min-height")  == 0 ) {
+    }
+    else if ( g_strcmp0 ( type, "min-height" ) == 0 ) {
         return THEME_MEDIA_TYPE_MIN_HEIGHT;
-    } else if ( g_strcmp0 ( type, "max-width")  == 0 ) {
+    }
+    else if ( g_strcmp0 ( type, "max-width" ) == 0 ) {
         return THEME_MEDIA_TYPE_MAX_WIDTH;
-    } else if ( g_strcmp0 ( type, "max-height")  == 0 ) {
+    }
+    else if ( g_strcmp0 ( type, "max-height" ) == 0 ) {
         return THEME_MEDIA_TYPE_MAX_HEIGHT;
-    } else if ( g_strcmp0 ( type, "min-aspect-ratio") == 0 ) {
+    }
+    else if ( g_strcmp0 ( type, "min-aspect-ratio" ) == 0 ) {
         return THEME_MEDIA_TYPE_MIN_ASPECT_RATIO;
-    } else if ( g_strcmp0 ( type, "max-aspect-ratio") == 0 ) {
+    }
+    else if ( g_strcmp0 ( type, "max-aspect-ratio" ) == 0 ) {
         return THEME_MEDIA_TYPE_MAX_ASPECT_RATIO;
     }
     return THEME_MEDIA_TYPE_INVALID;
 }
-

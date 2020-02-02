@@ -337,7 +337,6 @@ void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length );
  */
 void rofi_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter );
 
-
 /**
  * @param string The string with elements to be replaced
  * @param ...    Set of {key}, value that will be replaced, terminated by  a NULL

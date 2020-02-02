@@ -107,7 +107,7 @@ void widget_move ( widget *widget, short x, short y )
 void widget_set_type ( widget *widget, WidgetType type )
 {
     if ( widget == NULL ) {
-        return ;
+        return;
     }
     widget->type = type;
 }

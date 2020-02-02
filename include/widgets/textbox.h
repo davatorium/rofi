@@ -49,27 +49,27 @@
  */
 typedef struct
 {
-    widget           widget;
-    unsigned long    flags;
-    short            cursor;
-    char             *text;
-    const char       *placeholder;
-    int              show_placeholder;
-    PangoLayout      *layout;
-    int              tbft;
-    int              markup;
-    int              changed;
+    widget             widget;
+    unsigned long      flags;
+    short              cursor;
+    char               *text;
+    const char         *placeholder;
+    int                show_placeholder;
+    PangoLayout        *layout;
+    int                tbft;
+    int                markup;
+    int                changed;
 
-    int              blink;
-    guint            blink_timeout;
+    int                blink;
+    guint              blink_timeout;
 
-    double           yalign;
-    double           xalign;
+    double             yalign;
+    double             xalign;
 
-    PangoFontMetrics *metrics;
+    PangoFontMetrics   *metrics;
     PangoEllipsizeMode emode;
     //
-    const char       *theme_name;
+    const char         *theme_name;
 } textbox;
 
 /**
