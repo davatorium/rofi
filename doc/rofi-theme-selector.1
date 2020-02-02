@@ -1,47 +1,44 @@
-.\" generated with Ronn/v0.7.3
-.\" http://github.com/rtomayko/ronn/tree/0.7.3
-.
-.TH "ROFI\-THEME\-SELECTOR" "1" "December 2019" "" ""
-.
-.SH "NAME"
-\fBrofi\-theme\-selector\fR \- Preview and apply themes for \fBrofi\fR
-.
-.SH "DESCRIPTION"
-\fBrofi\-theme\-selector\fR is a bash/rofi script to preview and apply themes for \fBrofi\fR\. It\'s part of any installation of \fBrofi\fR\.
-.
-.SH "USAGE"
-.
-.SS "Running rofi\-theme\-selector"
-\fBrofi\-theme\-selector\fR shows a list of all available themes in a \fBrofi\fR window\. It lets you preview each theme with the Enter key and apply the theme to your \fBrofi\fR configuration file with Alt+a\.
-.
-.SH "Theme directories"
-\fBrofi\-theme\-selector\fR searches the following directories for themes:
-.
-.IP "\(bu" 4
+.TH rofi\-theme\-selector 1 rofi\-theme\-selector
+.SH NAME
+.PP
+\fBrofi\-theme\-selector\fP \- Preview and apply themes for \fBrofi\fP
+
+.SH DESCRIPTION
+.PP
+\fBrofi\-theme\-selector\fP is a bash/rofi script to preview and apply themes for \fBrofi\fP\&.
+It's part of any installation of \fBrofi\fP\&.
+
+.SH USAGE
+.SS Running rofi\-theme\-selector
+.PP
+\fBrofi\-theme\-selector\fP shows a list of all available themes in a \fBrofi\fP window.
+It lets you preview each theme with the Enter key and apply the theme to your
+\fBrofi\fP configuration file with Alt+a.
+
+.SH Theme directories
+.PP
+\fBrofi\-theme\-selector\fP searches the following directories for themes:
+
+.RS
+.IP \(bu 2
 ${PREFIX}/share/rofi/themes
-.
-.IP "\(bu" 4
-$XDG_CONFIG_HOME/rofi/themes
-.
-.IP "\(bu" 4
-$XDG_DATA_HOME/share/rofi/themes
-.
-.IP "" 0
-.
-.P
-${PREFIX} reflects the install location of rofi\. In most cases this will be "/usr"\.
-.
-.br
-$XDG_CONFIG_HOME is normally unset\. Default path is "$HOME/\.config"\.
-.
-.br
-$XDG_DATA_HOME is normally unset\. Default path is "$HOME/\.local/share"\.
-.
-.SH "SEE ALSO"
+.IP \(bu 2
+$XDG\_CONFIG\_HOME/rofi/themes
+.IP \(bu 2
+$XDG\_DATA\_HOME/share/rofi/themes
+
+.RE
+
+.PP
+${PREFIX} reflects the install location of rofi. In most cases this will be "/usr".<br>
+$XDG\_CONFIG\_HOME is normally unset. Default path is "$HOME/.config".<br>
+$XDG\_DATA\_HOME is normally unset. Default path is "$HOME/.local/share".
+
+.SH SEE ALSO
+.PP
 rofi(1)
-.
-.SH "AUTHORS"
-Qball Cow qball@gmpclient\.org
-.
-.br
-Rasmus Steinke rasi@xssn\.at
+
+.SH AUTHORS
+.PP
+Qball Cow qball@gmpclient.org<br>
+Rasmus Steinke rasi@xssn.at

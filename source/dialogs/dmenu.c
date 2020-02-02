@@ -436,20 +436,37 @@ static int dmenu_mode_init ( Mode *sw )
 static int dmenu_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     DmenuModePrivateData *rmpd = (DmenuModePrivateData *) mode_get_private_data ( sw );
+    /** Strip out the markup when matching. */
+    char                 *esc = NULL;
     if ( rmpd->do_markup ) {
-        /** Strip out the markup when matching. */
-        char *esc = NULL;
         pango_parse_markup ( rmpd->cmd_list[index].entry, -1, 0, NULL, &esc, NULL, NULL );
-        if ( esc ) {
-            int retv = helper_token_match ( tokens, esc );
-            g_free ( esc );
-            return retv;
-        }
-        return FALSE;
     }
     else {
-        return helper_token_match ( tokens, rmpd->cmd_list[index].entry );
+        esc = rmpd->cmd_list[index].entry;
     }
+    if ( esc ) {
+        //        int retv = helper_token_match ( tokens, esc );
+        int match = 1;
+        if ( tokens ) {
+            for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
+                rofi_int_matcher *ftokens[2] = { tokens[j], NULL };
+                int              test        = 0;
+                test = helper_token_match ( ftokens, esc );
+                if ( test == tokens[j]->invert && rmpd->cmd_list[index].meta ) {
+                    test = helper_token_match ( ftokens, rmpd->cmd_list[index].meta );
+                }
+
+                if ( test == 0 ) {
+                    match = 0;
+                }
+            }
+        }
+        if ( rmpd->do_markup ) {
+            g_free ( esc );
+        }
+        return match;
+    }
+    return FALSE;
 }
 static char *dmenu_get_message ( const Mode *sw )
 {
