@@ -34,6 +34,7 @@
 #include <string.h>
 #include <widgets/scrollbar.h>
 #include <widgets/textbox.h>
+#include <widgets/icon.h>
 #include <widgets/listview.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
@@ -53,6 +54,11 @@ unsigned int test =0;
             printf ( "Test %u failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \
+}
+
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
 }
 
 char * helper_get_theme_path ( const char *file )

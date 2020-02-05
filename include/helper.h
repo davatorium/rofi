@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -336,7 +336,6 @@ void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length );
  * @param filter
  */
 void rofi_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter );
-
 
 /**
  * @param string The string with elements to be replaced

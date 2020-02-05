@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -33,6 +33,38 @@
 #include "rofi-types.h"
 
 /**
+ * Describe the media constraint type.
+ */
+typedef enum
+{
+    /** Minimum width constraint. */
+    THEME_MEDIA_TYPE_MIN_WIDTH,
+    /** Maximum width constraint. */
+    THEME_MEDIA_TYPE_MAX_WIDTH,
+    /** Minimum height constraint. */
+    THEME_MEDIA_TYPE_MIN_HEIGHT,
+    /** Maximum height constraint. */
+    THEME_MEDIA_TYPE_MAX_HEIGHT,
+    /** Monitor id constraint. */
+    THEME_MEDIA_TYPE_MON_ID,
+    /** Minimum aspect ratio constraint. */
+    THEME_MEDIA_TYPE_MIN_ASPECT_RATIO,
+    /** Maximum aspect ratio constraint. */
+    THEME_MEDIA_TYPE_MAX_ASPECT_RATIO,
+    /** Invalid entry. */
+    THEME_MEDIA_TYPE_INVALID,
+} ThemeMediaType;
+
+/**
+ * Theme Media description.
+ */
+typedef struct ThemeMedia
+{
+    ThemeMediaType type;
+    double         value;
+} ThemeMedia;
+
+/**
  * ThemeWidget.
  */
 typedef struct ThemeWidget
@@ -42,6 +74,8 @@ typedef struct ThemeWidget
 
     unsigned int       num_widgets;
     struct ThemeWidget **widgets;
+
+    ThemeMedia         *media;
 
     GHashTable         *properties;
 
@@ -323,4 +357,24 @@ char *helper_get_theme_path ( const char *file );
  * @returns full path to file.
  */
 char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file );
+
+/**
+ * Process conditionals.
+ */
+void rofi_theme_parse_process_conditionals ( void );
+
+/**
+ * @param parent target theme tree
+ * @param child source theme three
+ *
+ * Merge all the settings from child into parent.
+ */
+void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child );
+
+/**
+ * @param type the media type to parse.
+ *
+ * Returns the media type described by type.
+ */
+ThemeMediaType rofi_theme_parse_media_type ( const char *type );
 #endif

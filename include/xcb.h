@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -181,4 +181,13 @@ typedef enum
  */
 extern WindowManagerQuirk current_window_manager;
 
+/**
+ * @param window the window the screenshot
+ * @param size   Size of the thumbnail
+ *
+ * Creates a thumbnail of the window.
+ *
+ * @returns NULL if window was not found, or unmapped, otherwise returns a cairo_surface.
+ */
+cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size );
 #endif

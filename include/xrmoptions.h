@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -167,10 +167,11 @@ char ** config_parser_return_display_help ( unsigned int *length );
 gboolean config_parse_set_property ( const Property *p, char **error );
 
 /**
+ * @param out The destination.
  * @param changes Only print the changed options.
  *
  * @brief Dump configuration in rasi format.
  */
-void config_parse_dump_config_rasi_format ( gboolean changes );
+void config_parse_dump_config_rasi_format ( FILE *out, gboolean changes );
 /* @}*/
 #endif

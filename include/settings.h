@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -44,6 +44,9 @@ typedef enum
     MM_ALL_KB_LAYOUTS = 4
 } MatchingMethod;
 
+/**
+ * Possible sorting methods for listview.
+ */
 typedef enum
 {
     SORT_NORMAL = 0,
@@ -119,6 +122,8 @@ typedef struct
     char           * sorting_method;
     /** Desktop entries to match in drun */
     char           * drun_match_fields;
+    /** Only show entries in this category */
+    char           * drun_categories;
     /** Desktop entry show actions */
     unsigned int   drun_show_actions;
     /** Desktop entry show */
@@ -185,6 +190,13 @@ typedef struct
 
     /** Cache directory. */
     char           *cache_dir;
+
+    /** Window Thumbnails */
+    gboolean       window_thumbnail;
+
+    /** drun cache */
+    gboolean       drun_use_desktop_cache;
+    gboolean       drun_reload_desktop_cache;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

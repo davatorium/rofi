@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -112,6 +112,7 @@ typedef struct
     cairo_surface_t                   *icon;
     gboolean                          icon_checked;
     uint32_t                          icon_fetch_uid;
+    gboolean                          thumbnail_checked;
 } client;
 
 // window lists
@@ -468,9 +469,8 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
 {
     ModeModePrivateData *pd = (ModeModePrivateData *) mode_get_private_data ( sw );
     // find window list
-    int                 nwins = 0;
-    xcb_window_t        wins[100];
     xcb_window_t        curr_win_id;
+    int                 found = 0;
 
     // Create cache
 
@@ -488,21 +488,21 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     }
 
     c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, 0 );
-    xcb_ewmh_get_windows_reply_t clients;
+    xcb_ewmh_get_windows_reply_t clients = { 0, };
     if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
-        nwins = MIN ( 100, clients.windows_len );
-        memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
-        xcb_ewmh_get_windows_reply_wipe ( &clients );
+        found = 1;
     }
     else {
         c = xcb_ewmh_get_client_list ( &xcb->ewmh, xcb->screen_nbr );
         if  ( xcb_ewmh_get_client_list_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
-            nwins = MIN ( 100, clients.windows_len );
-            memcpy ( wins, clients.windows, nwins * sizeof ( xcb_window_t ) );
-            xcb_ewmh_get_windows_reply_wipe ( &clients );
+            found = 1;
         }
     }
-    if (  nwins > 0 ) {
+    if ( !found ) {
+        return;
+    }
+
+    if (  clients.windows_len > 0 ) {
         int i;
         // windows we actually display. May be slightly different to _NET_CLIENT_LIST_STACKING
         // if we happen to have a window destroyed while we're working...
@@ -515,8 +515,8 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
             has_names = TRUE;
         }
         // calc widths of fields
-        for ( i = nwins - 1; i > -1; i-- ) {
-            client *c = window_client ( pd, wins[i] );
+        for ( i = clients.windows_len - 1; i > -1; i-- ) {
+            client *c = window_client ( pd, clients.windows[i] );
             if ( ( c != NULL )
                  && !c->xattr.override_redirect
                  && !client_has_window_type ( c, xcb->ewmh._NET_WM_WINDOW_TYPE_DOCK )
@@ -585,6 +585,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
             xcb_ewmh_get_utf8_strings_reply_wipe ( &names );
         }
     }
+    xcb_ewmh_get_windows_reply_wipe ( &clients );
 }
 static int window_mode_init ( Mode *sw )
 {
@@ -910,7 +911,11 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
 {
     ModeModePrivateData *rmpd = mode_get_private_data ( sw );
     client              *c    = window_client ( rmpd, rmpd->ids->array[selected_line] );
-    if ( c->icon_checked == FALSE ) {
+    if ( config.window_thumbnail && c->thumbnail_checked == FALSE ) {
+        c->icon              = x11_helper_get_screenshot_surface_window ( c->window, size );
+        c->thumbnail_checked = TRUE;
+    }
+    if ( c->icon == NULL && c->icon_checked == FALSE ) {
         c->icon         = get_net_wm_icon ( rmpd->ids->array[selected_line], size );
         c->icon_checked = TRUE;
     }

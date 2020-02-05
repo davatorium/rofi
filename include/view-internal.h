@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -30,9 +30,9 @@
 #include "widgets/container.h"
 #include "widgets/widget.h"
 #include "widgets/textbox.h"
-#include "widgets/listview.h"
 #include "widgets/box.h"
 #include "widgets/icon.h"
+#include "widgets/listview.h"
 #include "keyb.h"
 #include "xcb.h"
 #include "theme.h"
@@ -101,6 +101,12 @@ struct RofiViewState
     unsigned int     num_modi;
     /** Array of #textbox that act as buttons for switching modi */
     textbox          **modi;
+
+    /** Total rows. */
+    textbox          *tb_total_rows;
+    /** filtered rows */
+    textbox          *tb_filtered_rows;
+
     /** Settings of the menu */
     MenuFlags        menu_flags;
     /** If mouse was within view previously */

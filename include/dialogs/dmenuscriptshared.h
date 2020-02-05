@@ -1,13 +1,18 @@
 #ifndef ROFI_DIALOGS_DMENU_SCRIPT_SHARED_H
 #define ROFI_DIALOGS_DMENU_SCRIPT_SHARED_H
 
-typedef struct {
+typedef struct
+{
     /** Entry content. (visible part) */
     char     *entry;
     /** Icon name to display. */
     char     *icon_name;
     /** Async icon fetch handler. */
     uint32_t icon_fetch_uid;
+    /** Hidden meta keywords. */
+    char     *meta;
+    /** non-selectable */
+    gboolean nonselectable;
 } DmenuScriptEntry;
 /**
  * @param sw Unused

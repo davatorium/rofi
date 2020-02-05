@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -107,10 +107,6 @@ static int box_get_desired_height ( widget *wid )
                 continue;
             }
             active_widgets++;
-            if ( child->expand == TRUE ) {
-                height += widget_get_desired_height ( child );
-                continue;
-            }
             height += widget_get_desired_height ( child );
         }
         if ( active_widgets > 0 ) {
@@ -364,5 +360,8 @@ static void box_update ( widget *wid  )
     case ROFI_ORIENTATION_HORIZONTAL:
     default:
         hori_calculate_size ( b );
+    }
+    if ( wid->parent ) {
+        widget_update ( wid->parent );
     }
 }

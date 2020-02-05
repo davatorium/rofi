@@ -63,6 +63,12 @@ unsigned int test =0;
         }                                                                                                \
 }
 
+
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
+}
+
 gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, G_GNUC_UNUSED char **error )
 {
     return FALSE;

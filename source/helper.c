@@ -3,7 +3,7 @@
  *
  * MIT/X11 License
  * Copyright © 2012 Sean Pringle <sean.pringle@gmail.com>
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -454,6 +454,13 @@ PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, r
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
+
+                        if ( th.color.alpha < 1.0 ) {
+                            pa              = pango_attr_foreground_alpha_new ( th.color.alpha * 65535 );
+                            pa->start_index = start;
+                            pa->end_index   = end;
+                            pango_attr_list_insert ( retv, pa );
+                        }
                     }
                 }
                 g_match_info_next ( gmi, NULL );
@@ -1060,8 +1067,18 @@ char *helper_get_theme_path ( const char *file )
     else {
         filename = g_strconcat ( file, ".rasi", NULL );
     }
-    // Check config directory.
+    // Check config's themes directory.
     const char *cpath = g_get_user_config_dir ();
+    if ( cpath ) {
+        char *themep = g_build_filename ( cpath, "rofi", "themes", filename, NULL );
+        g_debug ( "Opening theme, testing: %s\n", themep );
+        if ( themep && g_file_test ( themep, G_FILE_TEST_EXISTS ) ) {
+            g_free ( filename );
+            return themep;
+        }
+        g_free ( themep );
+    }
+    // Check config directory.
     if ( cpath ) {
         char *themep = g_build_filename ( cpath, "rofi", filename, NULL );
         g_debug ( "Opening theme, testing: %s\n", themep );

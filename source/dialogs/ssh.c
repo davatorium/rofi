@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -56,9 +56,14 @@
 #include "history.h"
 #include "dialogs/ssh.h"
 
-
-typedef struct _SshEntry {
+/**
+ * Holding an ssh entry.
+ */
+typedef struct _SshEntry
+{
+    /** SSH hostname */
     char *hostname;
+    /** SSH port number */
     int  port;
 } SshEntry;
 /**
@@ -66,9 +71,9 @@ typedef struct _SshEntry {
  */
 typedef struct
 {
-    GList *user_known_hosts;
+    GList        *user_known_hosts;
     /** List if available ssh hosts.*/
-    SshEntry *hosts_list;
+    SshEntry     *hosts_list;
     /** Length of the #hosts_list.*/
     unsigned int hosts_list_length;
 } SSHModePrivateData;
@@ -84,7 +89,6 @@ typedef struct
  */
 #define SSH_TOKEN_DELIM    "= \t\r\n"
 
-
 /**
  * @param entry The host to connect too
  *
@@ -92,18 +96,18 @@ typedef struct
  *
  * @returns FALSE On failure, TRUE on success
  */
-static int execshssh ( const SshEntry *entry)
+static int execshssh ( const SshEntry *entry )
 {
-    char **args = NULL;
-    int  argsv  = 0;
+    char  **args   = NULL;
+    int   argsv    = 0;
     gchar *portstr = NULL;
     if ( entry->port > 0 ) {
-        portstr = g_strdup_printf("%d", entry->port);
+        portstr = g_strdup_printf ( "%d", entry->port );
     }
     helper_parse_setup ( config.ssh_command, &args, &argsv,
-            "{host}", entry->hostname,
-            "{port}", portstr,
-            (char *) 0 );
+                         "{host}", entry->hostname,
+                         "{port}", portstr,
+                         (char *) 0 );
     g_free ( portstr );
 
     gsize l     = strlen ( "Connecting to '' via rofi" ) + strlen ( entry->hostname ) + 1;
@@ -126,7 +130,7 @@ static int execshssh ( const SshEntry *entry)
  */
 static void exec_ssh ( const SshEntry *entry )
 {
-    if ( !(entry->hostname )|| !(entry->hostname[0]) ) {
+    if ( !( entry->hostname ) || !( entry->hostname[0] ) ) {
         return;
     }
 
@@ -139,10 +143,11 @@ static void exec_ssh ( const SshEntry *entry )
     char *path = g_build_filename ( cache_dir, SSH_CACHE_FILE, NULL );
     // TODO update.
     if ( entry->port > 0 ) {
-        char *store = g_strdup_printf("%s\x1F%d", entry->hostname, entry->port );
+        char *store = g_strdup_printf ( "%s\x1F%d", entry->hostname, entry->port );
         history_set ( path, store );
         g_free ( store );
-    } else {
+    }
+    else {
         history_set ( path, entry->hostname );
     }
     g_free ( path );
@@ -164,6 +169,7 @@ static void delete_ssh ( const char *host )
 }
 
 /**
+ * @param path Path of the known host file.
  * @param retv list of hosts
  * @param length pointer to length of list [in][out]
  *
@@ -173,16 +179,16 @@ static void delete_ssh ( const char *host )
  */
 static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsigned int *length )
 {
-    FILE *fd   = fopen ( path, "r" );
+    FILE *fd = fopen ( path, "r" );
     if ( fd != NULL ) {
         char   *buffer       = NULL;
         size_t buffer_length = 0;
         // Reading one line per time.
         while ( getline ( &buffer, &buffer_length, fd ) > 0 ) {
             // Strip whitespace.
-            char *start = g_strstrip(&(buffer[0]));
+            char *start = g_strstrip ( &( buffer[0] ) );
             // Find start.
-            if ( *start == '#' || *start == '@' ){
+            if ( *start == '#' || *start == '@' ) {
                 // skip comments or cert-authority or revoked items.
                 continue;
             }
@@ -191,32 +197,34 @@ static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsi
                 continue;
             }
             // Find end of hostname set.
-            char *end  = strstr ( start, " " );
+            char *end = strstr ( start, " " );
             if ( end == NULL  ) {
                 // Something is wrong.
                 continue;
             }
             *end = '\0';
             char *sep = start;
-            start = strsep(&sep,", " );
-            while (  start )
-            {
+            start = strsep ( &sep, ", " );
+            while (  start ) {
                 int port = 0;
                 if ( start[0] == '[' ) {
                     start++;
-                    char *end = strchr ( start, ']');
-                    if ( end[1] == ':' ){
+                    char *end = strchr ( start, ']' );
+                    if ( end[1] == ':' ) {
                         *end  = '\0';
                         errno = 0;
-                        gchar *endptr = NULL;
-                        gint64 number = g_ascii_strtoll ( &(end[2]), &endptr, 10);
+                        gchar  *endptr = NULL;
+                        gint64 number  = g_ascii_strtoll ( &( end[2] ), &endptr, 10 );
                         if ( errno != 0  ) {
-                            g_warning ( "Failed to parse port number: %s.", &(end[2]) );
-                        } else if ( endptr == &(end[2])) {
-                            g_warning ( "Failed to parse port number: %s, invalid number.", &(end[2]) );
-                        } else if ( number < 0 || number > 65535 ) {
-                            g_warning ( "Failed to parse port number: %s, out of range.", &(end[2]) );
-                        } else {
+                            g_warning ( "Failed to parse port number: %s.", &( end[2] ) );
+                        }
+                        else if ( endptr == &( end[2] ) ) {
+                            g_warning ( "Failed to parse port number: %s, invalid number.", &( end[2] ) );
+                        }
+                        else if ( number < 0 || number > 65535 ) {
+                            g_warning ( "Failed to parse port number: %s, out of range.", &( end[2] ) );
+                        }
+                        else {
                             port = number;
                         }
                     }
@@ -240,7 +248,7 @@ static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsi
                     retv[( *length ) + 1].port     = 0;
                     ( *length )++;
                 }
-                start = strsep(&sep,", " );
+                start = strsep ( &sep, ", " );
             }
         }
         if ( buffer != NULL ) {
@@ -249,7 +257,8 @@ static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsi
         if ( fclose ( fd ) != 0 ) {
             g_warning ( "Failed to close hosts file: '%s'", g_strerror ( errno ) );
         }
-    } else {
+    }
+    else {
         g_debug ( "Failed to open KnownHostFile: '%s'", path );
     }
 
@@ -333,12 +342,13 @@ static SshEntry *read_hosts_file ( SshEntry * retv, unsigned int *length )
 
 static void add_known_hosts_file ( SSHModePrivateData *pd, const char *token )
 {
-    GList *item = g_list_find_custom ( pd->user_known_hosts, token, (GCompareFunc)g_strcmp0 );
+    GList *item = g_list_find_custom ( pd->user_known_hosts, token, (GCompareFunc) g_strcmp0 );
     if ( item == NULL ) {
-        g_debug("Add '%s' to UserKnownHost list", token);
+        g_debug ( "Add '%s' to UserKnownHost list", token );
         pd->user_known_hosts = g_list_append ( pd->user_known_hosts, g_strdup ( token ) );
-    } else {
-        g_debug("File '%s' already in UserKnownHostsFile list", token);
+    }
+    else {
+        g_debug ( "File '%s' already in UserKnownHostsFile list", token );
     }
 }
 
@@ -363,7 +373,7 @@ static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename
             if ( !token || *token == '#' ) {
                 continue;
             }
-            char *low_token = g_ascii_strdown(token, -1);
+            char *low_token = g_ascii_strdown ( token, -1 );
             if ( g_strcmp0 ( low_token, "include" ) == 0 ) {
                 token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer );
                 g_debug ( "Found Include: %s", token );
@@ -391,7 +401,7 @@ static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename
             }
             else if ( g_strcmp0 ( low_token, "userknownhostsfile" ) == 0 ) {
                 while ( ( token = strtok_r ( NULL, SSH_TOKEN_DELIM, &strtok_pointer ) ) ) {
-                    g_debug("Found extra UserKnownHostsFile: %s", token);
+                    g_debug ( "Found extra UserKnownHostsFile: %s", token );
                     add_known_hosts_file ( pd, token );
                 }
             }
@@ -449,15 +459,16 @@ static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename
 }
 
 /**
+ * @param pd The plugin data handle
  * @param length The number of found ssh hosts [out]
  *
  * Gets the list available SSH hosts.
  *
- * @return an array of strings containing all the hosts.
+ * @returns an array of strings containing all the hosts.
  */
 static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
 {
-    SshEntry *retv        = NULL;
+    SshEntry     *retv         = NULL;
     unsigned int num_favorites = 0;
     char         *path;
 
@@ -468,29 +479,32 @@ static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
     path = g_build_filename ( cache_dir, SSH_CACHE_FILE, NULL );
     char **h = history_get_list ( path, length );
 
-    retv = malloc ( (*length)*sizeof(SshEntry));
-    for ( unsigned int i = 0; i < (*length); i++ ){
-        int port = 0;
+    retv = malloc ( ( *length ) * sizeof ( SshEntry ) );
+    for ( unsigned int i = 0; i < ( *length ); i++ ) {
+        int  port     = 0;
         char *portstr = strchr ( h[i], '\x1F' );
         if ( portstr != NULL ) {
             *portstr = '\0';
-            errno = 0;
-            gchar *endptr= NULL;
-            gint64 number = g_ascii_strtoll ( &(portstr[1]), &endptr, 10);
+            errno    = 0;
+            gchar  *endptr = NULL;
+            gint64 number  = g_ascii_strtoll ( &( portstr[1] ), &endptr, 10 );
             if ( errno != 0  ) {
-                g_warning ( "Failed to parse port number: %s.", &(portstr[1]) );
-            } else if ( endptr == &(portstr[1])) {
-                g_warning ( "Failed to parse port number: %s, invalid number.", &(portstr[1]) );
-            } else if ( number < 0 || number > 65535 ) {
-                g_warning ( "Failed to parse port number: %s, out of range.", &(portstr[1]) );
-            } else {
+                g_warning ( "Failed to parse port number: %s.", &( portstr[1] ) );
+            }
+            else if ( endptr == &( portstr[1] ) ) {
+                g_warning ( "Failed to parse port number: %s, invalid number.", &( portstr[1] ) );
+            }
+            else if ( number < 0 || number > 65535 ) {
+                g_warning ( "Failed to parse port number: %s, out of range.", &( portstr[1] ) );
+            }
+            else {
                 port = number;
             }
         }
         retv[i].hostname = h[i];
-        retv[i].port = port;
+        retv[i].port     = port;
     }
-    g_free (h);
+    g_free ( h );
 
     g_free ( path );
     num_favorites = ( *length );
@@ -503,22 +517,20 @@ static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
         char *path = g_build_filename ( g_get_home_dir (), ".ssh", "known_hosts", NULL );
         retv = read_known_hosts_file ( path, retv, length );
         g_free ( path );
-        for ( GList *iter = g_list_first ( pd->user_known_hosts); iter; iter = g_list_next ( iter ) ) {
-            char *path = rofi_expand_path ( (const char *)iter->data);
-            retv = read_known_hosts_file ( (const char*)path, retv, length );
-            g_free (path);
+        for ( GList *iter = g_list_first ( pd->user_known_hosts ); iter; iter = g_list_next ( iter ) ) {
+            char *path = rofi_expand_path ( (const char *) iter->data );
+            retv = read_known_hosts_file ( (const char*) path, retv, length );
+            g_free ( path );
         }
     }
     if ( config.parse_hosts == TRUE ) {
         retv = read_hosts_file ( retv, length );
     }
 
-
     g_free ( path );
 
     return retv;
 }
-
 
 /**
  * @param sw Object handle to the SSH Mode object
@@ -557,8 +569,8 @@ static void ssh_mode_destroy ( Mode *sw )
 {
     SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
     if ( rmpd != NULL ) {
-        for ( unsigned int i = 0; i < rmpd->hosts_list_length; i++ ){
-            g_free( rmpd->hosts_list[i].hostname );
+        for ( unsigned int i = 0; i < rmpd->hosts_list_length; i++ ) {
+            g_free ( rmpd->hosts_list[i].hostname );
         }
         g_list_free_full ( rmpd->user_known_hosts, g_free );
         g_free ( rmpd->hosts_list );
@@ -591,7 +603,7 @@ static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned in
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK ) && rmpd->hosts_list[selected_line].hostname != NULL ) {
-        exec_ssh ( &(rmpd->hosts_list[selected_line]) );
+        exec_ssh ( &( rmpd->hosts_list[selected_line] ) );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         SshEntry entry = { .hostname = *input, .port = 0 };

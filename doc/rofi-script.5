@@ -1,0 +1,146 @@
+.TH ROFI\-SCRIPT 5 rofi\-script
+.SH NAME
+.PP
+\fBrofi script mode\fP \- Rofi format for scriptable modi.
+
+.SH DESCRIPTION
+.PP
+\fBrofi\fP supports modes that use simple scripts in the background to generate a list and process the result from user
+actions.  This provide a simple interface to make simple extensions to rofi.
+
+.SH USAGE
+.PP
+To specify a script mode, set a mode with the following syntax: "{name}:{executable}"
+
+.PP
+For example:
+
+.PP
+.RS
+
+.nf
+rofi \-show fb \-modi "fb:file\_browser.sh"
+
+.fi
+.RE
+
+.PP
+The name should be unique.
+
+.SH API
+.PP
+Rofi calls the executable without arguments on startup.  This should generate a list of options, separated by a newline
+(\fB\fC\\n\fR).
+If the user selects an option, rofi calls the executable with the text of that option as the first argument.
+If the script returns no entries, rofi quits.
+
+.PP
+A simple script would be:
+
+.PP
+.RS
+
+.nf
+#!/usr/bin/env bash
+
+if [ x"$@" = x"quit" ]
+then
+    exit 0
+fi
+echo "reload"
+echo "quit"
+
+
+.fi
+.RE
+
+.PP
+This shows two entries, reload and quit. When the quit entry is selected, rofi closes.
+
+.SH Passing mode options
+.PP
+Extra options, like setting the prompt, can be set by the script.
+Extra options are lines that start with a NULL character (\fB\fC\\0\fR) followed by a key, separator (\fB\fC\\x1f\fR) and value.
+
+.PP
+For example to set the prompt:
+
+.PP
+.RS
+
+.nf
+    echo \-en "\\0prompt\\x1fChange prompt\\n"
+
+.fi
+.RE
+
+.PP
+The following extra options exists:
+
+.RS
+.IP \(bu 2
+\fBprompt\fP:      Update the prompt text.
+.IP \(bu 2
+\fBmessage\fP:     Update the message text.
+.IP \(bu 2
+\fBmarkup\-rows\fP: If 'true' renders markup in the row.
+.IP \(bu 2
+\fBurgent\fP:      Mark rows as urgent. (for syntax see the urgent option in dmenu mode)
+.IP \(bu 2
+\fBactive\fP:      Mark rows as active. (for syntax see the active option in dmenu mode)
+
+.RE
+
+.SH Parsing row options
+.PP
+Extra options for individual rows can be set.
+The extra option can be specified following the same syntax as mode option, but following the entry.
+
+.PP
+For example:
+
+.PP
+.RS
+
+.nf
+    echo \-en "aap\\0icon\\x1ffolder\\n"
+
+.fi
+.RE
+
+.PP
+The following options are supported:
+
+.RS
+.IP \(bu 2
+\fBicon\fP: Set the icon for that row.
+.IP \(bu 2
+\fBmeta\fP: Specify invisible search terms.
+.IP \(bu 2
+\fBnonselectable\fP: If true the row cannot activated.
+
+.RE
+
+.SH SEE ALSO
+.PP
+rofi\-sensible\-terminal(1), dmenu(1), rofi\-theme(5), rofi\-theme\-selector(1)
+
+.SH AUTHOR
+.PP
+Qball Cow 
+\[la]qball@gmpclient.org\[ra]
+
+.PP
+Rasmus Steinke 
+\[la]rasi@xssn.at\[ra]
+
+.PP
+Quentin Glidic 
+\[la]sardemff7+rofi@sardemff7.net\[ra]
+
+.PP
+Original code based on work by: Sean Pringle 
+\[la]sean.pringle@gmail.com\[ra]
+
+.PP
+For a full list of authors, check the AUTHORS file.

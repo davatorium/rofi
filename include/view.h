@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -302,5 +302,9 @@ void rofi_view_get_current_monitor ( int *width, int *height );
  * Takes a screenshot.
  */
 void rofi_capture_screenshot ( void );
+/**
+ * Set the window title.
+ */
+void rofi_view_set_window_title ( const char * title  );
 /**@}*/
 #endif

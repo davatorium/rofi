@@ -64,7 +64,7 @@ name
 The preferred file extension for the new theme format is **rasi**. This is an
 abbreviation for **r**ofi **a**dvanced **s**tyle **i**nformation.
 
-## BASIC STRUCTURE
+## Basic Structure
 
 Each element has a section with defined properties. Global properties can be defined in section `* { }`.
 Sub-section names begin with a hash symbol `#`.
@@ -137,6 +137,7 @@ In the following example:
 window {
  a: 1;
  b: 2;
+ children: [ mainbox ];
 }
 mainbox {
     a: inherit;
@@ -157,7 +158,7 @@ If multiple sections are defined with the same name, they are merged by the
 parser. If multiple properties with the same name are defined in one section,
 the last encountered property is used.
 
-## PROPERTIES FORMAT
+## Properties Format
 
 The properties in a section consist of:
 
@@ -359,7 +360,7 @@ and right side and 108 pixels on the top and bottom.
 * Format: `{Distance} {Distance} {Distance}`
 * Format: `{Distance} {Distance} {Distance} {Distance}`
 
-If no unit is specified, pixels are used.
+If no unit is specified, pixels are assumed.
 
 The different number of fields in the formats are parsed like:
 
@@ -383,6 +384,8 @@ The different number of fields in the formats are parsed like:
 
 Borders are identical to padding, except that each distance field has a line
 style property.
+
+> When no unit is specified, pixels are assumed.
 
 ## Position
 
@@ -509,16 +512,21 @@ The current widgets available in **rofi**:
       * `case-indicator`: the case/sort indicator @textbox
       * `prompt`: the prompt @textbox
       * `entry`: the main entry @textbox
+      * `num-rows`: Shows the total number of rows.
+      * `num-filtered-rows`: Shows the total number of rows after filtering.
     * `listview`: The listview.
        * `scrollbar`: the listview scrollbar
-       * `element`: the entries in the listview
+       * `element`: a box in the listview holding the entries
+           * `element-icon`: the widget in the listview's entry showing the (optional) icon
+           * `element-index`: the widget in the listview's entry keybindable index (1,2,3..0)
+           * `element-text`: the widget in the listview's entry showing the text.
     * `mode-switcher`: the main horizontal @box packing the buttons.
       * `button`: the buttons @textbox for each mode
     * `message`: The container holding the textbox.
       * `textbox`: the message textbox
 
 Note that these path names match the default theme. Themes that provide a custom layout will have different
-element paths.
+elements, and structure.
 
 
 ## State
@@ -577,6 +585,7 @@ The following properties are currently supported:
 
 ###  all widgets:
 
+* **enabled**:         enable/disable the widget
 * **padding**:         padding
   Padding on the inside of the widget
 * **margin**:          padding
@@ -589,7 +598,6 @@ The following properties are currently supported:
   Background color
 * **border-color**:      color
   Color of the border
-* **index**:           integer  (This one does not inherit it value from the parent widget)
 
 ### window:
 
@@ -632,16 +640,20 @@ The following properties are currently supported:
 
 ### textbox:
 
-* **background-color**:       color
-* **border-color**:     the color used for the border around the widget.
-* **font**:             the font used by this textbox (string)
-* **str**:              the string to display by this textbox (string)
-* **vertical-align**:   vertical alignment of the text (`0` top, `1` bottom)
-* **horizontal-align**: horizontal alignment of the text (`0` left, `1` right)
-* **text-color**:       the text color to use 
-* **highlight**:        text style {color}
+* **background-color**:  color
+* **border-color**:      the color used for the border around the widget.
+* **font**:              the font used by this textbox (string).
+* **str**:               the string to display by this textbox (string).
+* **vertical-align**:    vertical alignment of the text (`0` top, `1` bottom).
+* **horizontal-align**:  horizontal alignment of the text (`0` left, `1` right).
+* **text-color**:        the text color to use.
+* **highlight**:         text style {color}.
     color is optional, multiple highlight styles can be added like: bold underline italic #000000;
-* **width**:            override the desired width for the textbox
+* **width**:             override the desired width for the textbox.
+* **content**:           Set the displayed text (String).
+* **placeholder**:       Set the displayed text (String) when nothing is entered.
+* **placeholder-color**: Color of the placeholder text.
+* **blink**:             Enable/Disable blinking on an input textbox (Boolean).
 
 ### listview:
 * **columns**:         integer
@@ -662,6 +674,12 @@ The following properties are currently supported:
     Number of rows to show in the list view.
 * **layout**:           orientation
     Indicate how elements are stacked. Horizontal implements the dmenu style.
+* **reverse**:         boolean
+    Reverse the ordering (top down to bottom up).
+* **fixed-columns**:    boolean
+    Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.
+
+Each element is a `box` called `element`. Each `element` can contain an `element-icon` and `element-text`.
 
 ## Layout
 
@@ -741,6 +759,8 @@ The following widgets are fixed, as they provide core **rofi** functionality:
  * message
  * listview
  * mode-switcher
+ * num-rows
+ * num-filtered-rows
 
 The following keywords are defined and can be used to automatically pack a subset of the widgets.
 These are used in the default theme as depicted in the figure above.
@@ -751,6 +771,21 @@ These are used in the default theme as depicted in the figure above.
    Packs: `prompt,entry,case-indicator`
 
 Any widget name starting with `textbox` is a textbox widget, others are box widgets and can pack other widgets.
+
+There are several special widgets that can be used by prefixing the name of the widget:
+
+* `textbox`:
+  This is a textbox widget. The displayed string can be set with `str`.
+* `icon`:
+  This is an icon widget. The displayed icon can be set with `filename` and size with `size`.
+* `button`:
+ This is a textbox widget that can have a 'clickable' action.
+ The `action` can be set to:
+ `ok` accept entry.
+ `custom` accept custom input.
+ `ok|alternate`: accept entry and launch alternate action (for run launch in terminal).
+ `custom|alternate`: accept custom input and launch alternate action.
+
 To specify children, set the `children`
 property (this always happens on the `box` child, see example below):
 
@@ -900,6 +935,54 @@ To print the current theme, run:
 ```
 rofi -dump-theme
 ```
+
+## Media support
+
+Parts of the theme can be conditionally loaded, like the CSS `@media` option.
+
+```
+@media ( min-width: 120px ) {
+
+}
+```
+
+It supports the following keys as constraint:
+
+ * `min-width`:         load when width is bigger then value.
+ * `max-width`:         load when width is smaller then value.
+ * `min-height`:        load when height is bigger then value.
+ * `max-height`:        load when height is smaller then value.
+ * `min-aspect-ratio`   load when aspect ratio is over value.
+ * `max-aspect_ratio`:  load when aspect ratio is under value.
+ * `monitor-id`:        The monitor id, see rofi -help for id's.
+
+
+## Multiple file handling
+
+The rasi file format offers two methods of including other files.
+This can be used to modify existing themes, or have multiple variations on a theme.
+
+ * import:  Import and parse a second file.
+ * theme:   Discard theme, and load file as a fresh theme.
+
+Syntax:
+
+```
+@import "myfile"
+@theme "mytheme"
+```
+
+The specified file can either by *name*, *filename*,*full path*.
+
+If a filename is provided, it will try to resolve it in the following order:
+
+ * `${XDG_CONFIG_HOME}/rofi/themes/`
+ * `${XDG_CONFIG_HOME}/rofi/`
+ * `${XDG_DATA_HOME}/rofi/themes/`
+ * `${INSTALL PREFIX}/share/rofi/themes/` 
+
+A name is resolved as a filename by appending the `.rasi` extension.
+
 
 
 ## EXAMPLES

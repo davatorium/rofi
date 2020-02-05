@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,6 +29,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include <glib.h>
 #include "widgets/textbox.h"
+#include "widgets/icon.h"
 #include "widgets/listview.h"
 #include "widgets/scrollbar.h"
 

@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -81,145 +81,154 @@ typedef struct
  * Currently supports string, boolean and number (signed and unsigned).
  */
 static XrmOption xrmOptions[] = {
-    { xrm_String,  "switchers",              { .str   = &config.modi                            }, NULL,
+    { xrm_String,  "switchers",                 { .str   = &config.modi                                 }, NULL,
       "", CONFIG_DEFAULT },
-    { xrm_String,  "modi",                   { .str   = &config.modi                            }, NULL,
+    { xrm_String,  "modi",                      { .str   = &config.modi                                 }, NULL,
       "Enabled modi", CONFIG_DEFAULT },
-    { xrm_SNumber, "width",                  { .snum  = &config.menu_width                      }, NULL,
+    { xrm_SNumber, "width",                     { .snum  = &config.menu_width                           }, NULL,
       "Window width", CONFIG_DEFAULT },
-    { xrm_Number,  "lines",                  { .num   = &config.menu_lines                      }, NULL,
+    { xrm_Number,  "lines",                     { .num   = &config.menu_lines                           }, NULL,
       "Number of lines", CONFIG_DEFAULT },
-    { xrm_Number,  "columns",                { .num   = &config.menu_columns                    }, NULL,
+    { xrm_Number,  "columns",                   { .num   = &config.menu_columns                         }, NULL,
       "Number of columns", CONFIG_DEFAULT },
 
-    { xrm_String,  "font",                   { .str   = &config.menu_font                       }, NULL,
+    { xrm_String,  "font",                      { .str   = &config.menu_font                            }, NULL,
       "Font to use", CONFIG_DEFAULT },
-    { xrm_Number,  "borderwidth",            { .num   = &config.menu_bw                         }, NULL,
+    { xrm_Number,  "borderwidth",               { .num   = &config.menu_bw                              }, NULL,
       "", CONFIG_DEFAULT },
-    { xrm_Number,  "bw",                     { .num   = &config.menu_bw                         }, NULL,
+    { xrm_Number,  "bw",                        { .num   = &config.menu_bw                              }, NULL,
       "Border width", CONFIG_DEFAULT },
 
-    { xrm_Number,  "location",               { .num   = &config.location                        }, NULL,
+    { xrm_Number,  "location",                  { .num   = &config.location                             }, NULL,
       "Location on screen", CONFIG_DEFAULT },
 
-    { xrm_Number,  "padding",                { .num   = &config.padding                         }, NULL,
+    { xrm_Number,  "padding",                   { .num   = &config.padding                              }, NULL,
       "Padding", CONFIG_DEFAULT },
-    { xrm_SNumber, "yoffset",                { .snum  = &config.y_offset                        }, NULL,
+    { xrm_SNumber, "yoffset",                   { .snum  = &config.y_offset                             }, NULL,
       "Y-offset relative to location", CONFIG_DEFAULT },
-    { xrm_SNumber, "xoffset",                { .snum  = &config.x_offset                        }, NULL,
+    { xrm_SNumber, "xoffset",                   { .snum  = &config.x_offset                             }, NULL,
       "X-offset relative to location", CONFIG_DEFAULT },
-    { xrm_Boolean, "fixed-num-lines",        { .num   = &config.fixed_num_lines                 }, NULL,
+    { xrm_Boolean, "fixed-num-lines",           { .num   = &config.fixed_num_lines                      }, NULL,
       "Always show number of lines", CONFIG_DEFAULT },
 
-    { xrm_Boolean, "show-icons",             { .snum  = &config.show_icons                      }, NULL,
+    { xrm_Boolean, "show-icons",                { .snum  = &config.show_icons                           }, NULL,
       "Whether to load and show icons", CONFIG_DEFAULT },
 
-    { xrm_String,  "terminal",               { .str   = &config.terminal_emulator               }, NULL,
+    { xrm_String,  "terminal",                  { .str   = &config.terminal_emulator                    }, NULL,
       "Terminal to use", CONFIG_DEFAULT },
-    { xrm_String,  "ssh-client",             { .str   = &config.ssh_client                      }, NULL,
+    { xrm_String,  "ssh-client",                { .str   = &config.ssh_client                           }, NULL,
       "Ssh client to use", CONFIG_DEFAULT },
-    { xrm_String,  "ssh-command",            { .str   = &config.ssh_command                     }, NULL,
+    { xrm_String,  "ssh-command",               { .str   = &config.ssh_command                          }, NULL,
       "Ssh command to execute", CONFIG_DEFAULT },
-    { xrm_String,  "run-command",            { .str   = &config.run_command                     }, NULL,
+    { xrm_String,  "run-command",               { .str   = &config.run_command                          }, NULL,
       "Run command to execute", CONFIG_DEFAULT },
-    { xrm_String,  "run-list-command",       { .str   = &config.run_list_command                }, NULL,
+    { xrm_String,  "run-list-command",          { .str   = &config.run_list_command                     }, NULL,
       "Command to get extra run targets", CONFIG_DEFAULT },
-    { xrm_String,  "run-shell-command",      { .str   = &config.run_shell_command               }, NULL,
+    { xrm_String,  "run-shell-command",         { .str   = &config.run_shell_command                    }, NULL,
       "Run command to execute that runs in shell", CONFIG_DEFAULT },
-    { xrm_String,  "window-command",         { .str   = &config.window_command                  }, NULL,
+    { xrm_String,  "window-command",            { .str   = &config.window_command                       }, NULL,
       "Command executed on accep-entry-custom for window modus", CONFIG_DEFAULT },
-    { xrm_String,  "window-match-fields",    { .str   = &config.window_match_fields             }, NULL,
+    { xrm_String,  "window-match-fields",       { .str   = &config.window_match_fields                  }, NULL,
       "Window fields to match in window mode", CONFIG_DEFAULT },
-    { xrm_String,  "icon-theme",             { .str   = &config.icon_theme                      }, NULL,
+    { xrm_String,  "icon-theme",                { .str   = &config.icon_theme                           }, NULL,
       "Theme to use to look for icons", CONFIG_DEFAULT },
 
-    { xrm_String,  "drun-match-fields",      { .str   = &config.drun_match_fields               }, NULL,
+    { xrm_String,  "drun-match-fields",         { .str   = &config.drun_match_fields                    }, NULL,
       "Desktop entry fields to match in drun", CONFIG_DEFAULT },
-    { xrm_Boolean, "drun-show-actions",      { .num   = &config.drun_show_actions               }, NULL,
+
+    { xrm_String,  "drun-categories",           { .str   = &config.drun_categories                      }, NULL,
+      "Only show Desktop entry from these categories", CONFIG_DEFAULT },
+    { xrm_Boolean, "drun-show-actions",         { .num   = &config.drun_show_actions                    }, NULL,
       "Desktop entry show actions.", CONFIG_DEFAULT },
-    { xrm_String,  "drun-display-format",    { .str   = &config.drun_display_format             }, NULL,
+    { xrm_String,  "drun-display-format",       { .str   = &config.drun_display_format                  }, NULL,
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
-    { xrm_Boolean, "disable-history",        { .num   = &config.disable_history                 }, NULL,
+    { xrm_Boolean, "disable-history",           { .num   = &config.disable_history                      }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
-    { xrm_String,  "ignored-prefixes",       { .str   = &config.ignored_prefixes                }, NULL,
+    { xrm_String,  "ignored-prefixes",          { .str   = &config.ignored_prefixes                     }, NULL,
       "Programs ignored for history", CONFIG_DEFAULT },
-    { xrm_Boolean, "sort",                   { .num   = &config.sort                            }, NULL,
+    { xrm_Boolean, "sort",                      { .num   = &config.sort                                 }, NULL,
       "Use sorting", CONFIG_DEFAULT },
-    { xrm_String,  "sorting-method",         { .str   = &config.sorting_method                  }, NULL,
+    { xrm_String,  "sorting-method",            { .str   = &config.sorting_method                       }, NULL,
       "Choose the strategy used for sorting: normal (levenshtein) or fzf.", CONFIG_DEFAULT },
-    { xrm_Boolean, "case-sensitive",         { .num   = &config.case_sensitive                  }, NULL,
+    { xrm_Boolean, "case-sensitive",            { .num   = &config.case_sensitive                       }, NULL,
       "Set case-sensitivity", CONFIG_DEFAULT },
-    { xrm_Boolean, "cycle",                  { .num   = &config.cycle                           }, NULL,
+    { xrm_Boolean, "cycle",                     { .num   = &config.cycle                                }, NULL,
       "Cycle through the results list", CONFIG_DEFAULT },
-    { xrm_Boolean, "sidebar-mode",           { .num   = &config.sidebar_mode                    }, NULL,
+    { xrm_Boolean, "sidebar-mode",              { .num   = &config.sidebar_mode                         }, NULL,
       "Enable sidebar-mode", CONFIG_DEFAULT },
-    { xrm_SNumber, "eh",                     { .snum  = &config.element_height                  }, NULL,
+    { xrm_SNumber, "eh",                        { .snum  = &config.element_height                       }, NULL,
       "Row height (in chars)", CONFIG_DEFAULT },
-    { xrm_Boolean, "auto-select",            { .num   = &config.auto_select                     }, NULL,
+    { xrm_Boolean, "auto-select",               { .num   = &config.auto_select                          }, NULL,
       "Enable auto select mode", CONFIG_DEFAULT },
-    { xrm_Boolean, "parse-hosts",            { .num   = &config.parse_hosts                     }, NULL,
+    { xrm_Boolean, "parse-hosts",               { .num   = &config.parse_hosts                          }, NULL,
       "Parse hosts file for ssh mode", CONFIG_DEFAULT },
-    { xrm_Boolean, "parse-known-hosts",      { .num   = &config.parse_known_hosts               }, NULL,
+    { xrm_Boolean, "parse-known-hosts",         { .num   = &config.parse_known_hosts                    }, NULL,
       "Parse known_hosts file for ssh mode", CONFIG_DEFAULT },
-    { xrm_String,  "combi-modi",             { .str   = &config.combi_modi                      }, NULL,
+    { xrm_String,  "combi-modi",                { .str   = &config.combi_modi                           }, NULL,
       "Set the modi to combine in combi mode", CONFIG_DEFAULT },
-    { xrm_String,  "matching",               { .str   = &config.matching                        }, NULL,
+    { xrm_String,  "matching",                  { .str   = &config.matching                             }, NULL,
       "Set the matching algorithm. (normal, regex, glob, fuzzy, all_kb_layouts)", CONFIG_DEFAULT },
-    { xrm_Boolean, "tokenize",               { .num   = &config.tokenize                        }, NULL,
+    { xrm_Boolean, "tokenize",                  { .num   = &config.tokenize                             }, NULL,
       "Tokenize input string", CONFIG_DEFAULT },
-    { xrm_String,  "monitor",                { .str   = &config.monitor                         }, NULL,
+    { xrm_String,  "monitor",                   { .str   = &config.monitor                              }, NULL,
       "", CONFIG_DEFAULT },
     /* Alias for dmenu compatibility. */
-    { xrm_String,  "m",                      { .str   = &config.monitor                         }, NULL,
+    { xrm_String,  "m",                         { .str   = &config.monitor                              }, NULL,
       "Monitor id to show on", CONFIG_DEFAULT },
-    { xrm_Number,  "line-margin",            { .num   = &config.line_margin                     }, NULL,
+    { xrm_Number,  "line-margin",               { .num   = &config.line_margin                          }, NULL,
       "Margin between rows *DEPRECATED*", CONFIG_DEFAULT },
-    { xrm_Number,  "line-padding",           { .num   = &config.line_padding                    }, NULL,
+    { xrm_Number,  "line-padding",              { .num   = &config.line_padding                         }, NULL,
       "Padding within rows *DEPRECATED*", CONFIG_DEFAULT },
-    { xrm_String,  "filter",                 { .str   = &config.filter                          }, NULL,
+    { xrm_String,  "filter",                    { .str   = &config.filter                               }, NULL,
       "Pre-set filter", CONFIG_DEFAULT },
-    { xrm_String,  "separator-style",        { .str   = &config.separator_style                 }, NULL,
+    { xrm_String,  "separator-style",           { .str   = &config.separator_style                      }, NULL,
       "Separator style (none, dash, solid) *DEPRECATED*", CONFIG_DEFAULT },
-    { xrm_Boolean, "hide-scrollbar",         { .num   = &config.hide_scrollbar                  }, NULL,
+    { xrm_Boolean, "hide-scrollbar",            { .num   = &config.hide_scrollbar                       }, NULL,
       "Hide scroll-bar *DEPRECATED*", CONFIG_DEFAULT },
-    { xrm_Boolean, "fullscreen",             { .num   = &config.fullscreen                      }, NULL,
+    { xrm_Boolean, "fullscreen",                { .num   = &config.fullscreen                           }, NULL,
       "Fullscreen", CONFIG_DEFAULT },
-    { xrm_Boolean, "fake-transparency",      { .num   = &config.fake_transparency               }, NULL,
+    { xrm_Boolean, "fake-transparency",         { .num   = &config.fake_transparency                    }, NULL,
       "Fake transparency *DEPRECATED*", CONFIG_DEFAULT },
-    { xrm_SNumber, "dpi",                    { .snum  = &config.dpi                             }, NULL,
+    { xrm_SNumber, "dpi",                       { .snum  = &config.dpi                                  }, NULL,
       "DPI", CONFIG_DEFAULT },
-    { xrm_Number,  "threads",                { .num   = &config.threads                         }, NULL,
+    { xrm_Number,  "threads",                   { .num   = &config.threads                              }, NULL,
       "Threads to use for string matching", CONFIG_DEFAULT },
-    { xrm_Number,  "scrollbar-width",        { .num   = &config.scrollbar_width                 }, NULL,
+    { xrm_Number,  "scrollbar-width",           { .num   = &config.scrollbar_width                      }, NULL,
       "Scrollbar width *DEPRECATED*", CONFIG_DEFAULT },
-    { xrm_Number,  "scroll-method",          { .num   = &config.scroll_method                   }, NULL,
+    { xrm_Number,  "scroll-method",             { .num   = &config.scroll_method                        }, NULL,
       "Scrolling method. (0: Page, 1: Centered)", CONFIG_DEFAULT },
-    { xrm_String,  "fake-background",        { .str   = &config.fake_background                 }, NULL,
+    { xrm_String,  "fake-background",           { .str   = &config.fake_background                      }, NULL,
       "Background to use for fake transparency. (background or screenshot) *DEPRECATED*", CONFIG_DEFAULT },
-    { xrm_String,  "window-format",          { .str   = &config.window_format                   }, NULL,
+    { xrm_String,  "window-format",             { .str   = &config.window_format                        }, NULL,
       "Window Format. w (desktop name), t (title), n (name), r (role), c (class)", CONFIG_DEFAULT },
-    { xrm_Boolean, "click-to-exit",          { .snum  = &config.click_to_exit                   }, NULL,
+    { xrm_Boolean, "click-to-exit",             { .snum  = &config.click_to_exit                        }, NULL,
       "Click outside the window to exit", CONFIG_DEFAULT },
-    { xrm_Boolean, "show-match",             { .snum  = &config.show_match                      }, NULL,
+    { xrm_Boolean, "show-match",                { .snum  = &config.show_match                           }, NULL,
       "Indicate how it match by underlining it.", CONFIG_DEFAULT },
-    { xrm_String,  "theme",                  { .str   = &config.theme                           }, NULL,
+    { xrm_String,  "theme",                     { .str   = &config.theme                                }, NULL,
       "New style theme file", CONFIG_DEFAULT },
-    { xrm_String,  "color-normal",           { .str   = &config.color_normal                    }, NULL,
+    { xrm_String,  "color-normal",              { .str   = &config.color_normal                         }, NULL,
       "Color scheme for normal row", CONFIG_DEFAULT },
-    { xrm_String,  "color-urgent",           { .str   = &config.color_urgent                    }, NULL,
+    { xrm_String,  "color-urgent",              { .str   = &config.color_urgent                         }, NULL,
       "Color scheme for urgent row", CONFIG_DEFAULT },
-    { xrm_String,  "color-active",           { .str   = &config.color_active                    }, NULL,
+    { xrm_String,  "color-active",              { .str   = &config.color_active                         }, NULL,
       "Color scheme for active row", CONFIG_DEFAULT },
-    { xrm_String,  "color-window",           { .str   = &config.color_window                    }, NULL,
+    { xrm_String,  "color-window",              { .str   = &config.color_window                         }, NULL,
       "Color scheme window", CONFIG_DEFAULT },
-    { xrm_Number,  "max-history-size",       { .num   = &config.max_history_size                }, NULL,
+    { xrm_Number,  "max-history-size",          { .num   = &config.max_history_size                     }, NULL,
       "Max history size (WARNING: can cause slowdowns when set to high).", CONFIG_DEFAULT },
-    { xrm_Boolean, "combi-hide-mode-prefix", { .snum  = &config.combi_hide_mode_prefix          }, NULL,
+    { xrm_Boolean, "combi-hide-mode-prefix",    { .snum  = &config.combi_hide_mode_prefix               }, NULL,
       "Hide the prefix mode prefix on the combi view.", CONFIG_DEFAULT },
-    { xrm_Char,    "matching-negate-char",   { .charc = &config.matching_negate_char            }, NULL,
+    { xrm_Char,    "matching-negate-char",      { .charc = &config.matching_negate_char                 }, NULL,
       "Set the character used to negate the matching. ('\\0' to disable)", CONFIG_DEFAULT },
-    { xrm_String,  "cache-dir",              { .str   = &config.cache_dir                       }, NULL,
+    { xrm_String,  "cache-dir",                 { .str   = &config.cache_dir                            }, NULL,
       "Directory where history and temporary files are stored.", CONFIG_DEFAULT },
+    { xrm_Boolean, "window-thumbnail",          { .snum  = &config.window_thumbnail                     }, NULL,
+      "Show window thumbnail in window switcher if availalbe.", CONFIG_DEFAULT },
+    { xrm_Boolean, "drun-use-desktop-cache",    { .snum  = &config.drun_use_desktop_cache               }, NULL,
+      "DRUN: build and use a cache with desktop file content.", CONFIG_DEFAULT },
+    { xrm_Boolean, "drun-reload-desktop-cache", { .snum  = &config.drun_reload_desktop_cache            }, NULL,
+      "DRUN: If enabled, reload the cache with desktop file content.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */
@@ -570,53 +579,53 @@ void config_parse_xresource_dump ( void )
     }
 }
 
-static void config_parse_dump_config_option ( XrmOption *option )
+static void config_parse_dump_config_option ( FILE *out, XrmOption *option )
 {
     if ( option->type == xrm_Char || option->source == CONFIG_DEFAULT ) {
-        printf ( "/*" );
+        fprintf ( out, "/*" );
     }
-    printf ( "\t%s: ", option->name );
+    fprintf ( out, "\t%s: ", option->name );
     switch ( option->type )
     {
     case xrm_Number:
-        printf ( "%u", *( option->value.num ) );
+        fprintf ( out, "%u", *( option->value.num ) );
         break;
     case xrm_SNumber:
-        printf ( "%i", *( option->value.snum ) );
+        fprintf ( out, "%i", *( option->value.snum ) );
         break;
     case xrm_String:
         if ( ( *( option->value.str ) ) != NULL ) {
             // TODO should this be escaped?
-            printf ( "\"%s\"", *( option->value.str ) );
+            fprintf ( out, "\"%s\"", *( option->value.str ) );
         }
         break;
     case xrm_Boolean:
-        printf ( "%s", ( *( option->value.num ) == TRUE ) ? "true" : "false" );
+        fprintf ( out, "%s", ( *( option->value.num ) == TRUE ) ? "true" : "false" );
         break;
     case xrm_Char:
         // TODO
         if ( *( option->value.charc ) > 32 && *( option->value.charc ) < 127 ) {
-            printf ( "'%c'", *( option->value.charc ) );
+            fprintf ( out, "'%c'", *( option->value.charc ) );
         }
         else {
-            printf ( "'\\x%02X'", *( option->value.charc ) );
+            fprintf ( out, "'\\x%02X'", *( option->value.charc ) );
         }
-        printf ( " /* unsupported */" );
+        fprintf ( out, " /* unsupported */" );
         break;
     default:
         break;
     }
 
-    printf ( ";" );
+    fprintf ( out, ";" );
     if ( option->type == xrm_Char || option->source == CONFIG_DEFAULT ) {
-        printf ( "*/" );
+        fprintf ( out, "*/" );
     }
-    printf ( "\n" );
+    fprintf ( out, "\n" );
 }
 
-void config_parse_dump_config_rasi_format ( gboolean changes )
+void config_parse_dump_config_rasi_format ( FILE *out, gboolean changes )
 {
-    printf ( "configuration {\n" );
+    fprintf ( out, "configuration {\n" );
 
     unsigned int entries = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
     for ( unsigned int i = 0; i < entries; ++i ) {
@@ -627,16 +636,16 @@ void config_parse_dump_config_rasi_format ( gboolean changes )
             }
         }
         if ( !changes || xrmOptions[i].source != CONFIG_DEFAULT ) {
-            config_parse_dump_config_option ( &( xrmOptions[i] ) );
+            config_parse_dump_config_option ( out, &( xrmOptions[i] ) );
         }
     }
     for ( unsigned int i = 0; i < num_extra_options; i++ ) {
         if ( !changes || extra_options[i].source != CONFIG_DEFAULT ) {
-            config_parse_dump_config_option ( &( extra_options[i] ) );
+            config_parse_dump_config_option ( out, &( extra_options[i] ) );
         }
     }
 
-    printf ( "}\n" );
+    fprintf ( out, "}\n" );
 }
 
 static void print_option_string ( XrmOption *xo, int is_term )

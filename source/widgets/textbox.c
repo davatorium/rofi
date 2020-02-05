@@ -3,7 +3,7 @@
  *
  * MIT/X11 License
  * Copyright © 2012 Sean Pringle <sean.pringle@gmail.com>
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -135,7 +135,6 @@ static void textbox_initialize_font ( textbox *tb )
 {
     tb->metrics = p_metrics;
     const char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
-    tb->left_offset = textbox_get_estimated_char_height ();
     if ( font ) {
         TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
         if ( tbfc == NULL ) {
@@ -157,8 +156,7 @@ static void textbox_initialize_font ( textbox *tb )
         if ( tbfc ) {
             // Update for used font.
             pango_layout_set_font_description ( tb->layout, tbfc->pfd );
-            tb->metrics     = tbfc->metrics;
-            tb->left_offset = ( tbfc->height ) / (double) PANGO_SCALE;
+            tb->metrics = tbfc->metrics;
         }
     }
 }
@@ -186,15 +184,18 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
 
     textbox_initialize_font ( tb );
 
-    if ( ( tb->flags & TB_ICON ) != TB_ICON ) {
-        tb->left_offset = 0;
-    }
-
     if ( ( flags & TB_WRAP ) == TB_WRAP ) {
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
     }
 
     const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text );
+    if ( txt == NULL || ( *txt ) == '\0' ) {
+        txt = rofi_theme_get_string ( WIDGET  ( tb ), "content", text );
+    }
+    const char *placeholder = rofi_theme_get_string ( WIDGET ( tb ), "placeholder", NULL );
+    if ( placeholder ) {
+        tb->placeholder = placeholder;
+    }
     textbox_text ( tb, txt ? txt : "" );
     textbox_cursor_end ( tb );
 
@@ -204,7 +205,9 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     tb->blink_timeout = 0;
     tb->blink         = 1;
     if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
-        tb->blink_timeout         = g_timeout_add ( 1200, textbox_blink, tb );
+        if ( rofi_theme_get_boolean ( WIDGET ( tb ), "blink", TRUE ) ) {
+            tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
+        }
         tb->widget.trigger_action = textbox_editable_trigger_action;
     }
 
@@ -265,6 +268,12 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
 static void __textbox_update_pango_text ( textbox *tb )
 {
     pango_layout_set_attributes ( tb->layout, NULL );
+    if ( tb->placeholder && ( tb->text == NULL || tb->text[0] == 0 ) ) {
+        tb->show_placeholder = TRUE;
+        pango_layout_set_text ( tb->layout, tb->placeholder, -1 );
+        return;
+    }
+    tb->show_placeholder = FALSE;
     if ( ( tb->flags & TB_PASSWORD ) == TB_PASSWORD ) {
         size_t l = g_utf8_strlen ( tb->text, -1 );
         char   string [l + 1];
@@ -334,25 +343,10 @@ void textbox_text ( textbox *tb, const char *text )
     widget_queue_redraw ( WIDGET ( tb ) );
 }
 
-void textbox_icon ( textbox *tb, cairo_surface_t *icon )
-{
-    // Add our reference to the surface.
-    if ( icon != NULL ) {
-        cairo_surface_reference ( icon );
-    }
-    if ( tb->icon ) {
-        // If we overwrite an old one, destroy the reference we hold.
-        cairo_surface_destroy ( tb->icon );
-    }
-    tb->icon = icon;
-
-    widget_queue_redraw ( WIDGET ( tb ) );
-}
-
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
-    unsigned int offset = tb->left_offset * 1.2 + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
+    unsigned int offset = ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
         w = textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( WIDGET ( tb ) ) + offset;
@@ -364,7 +358,8 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
         }
         else if ( ( tb->flags & TB_WRAP ) != TB_WRAP ) {
             pango_layout_set_ellipsize ( tb->layout, tb->emode );
-        } else {
+        }
+        else {
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_NONE );
         }
     }
@@ -402,10 +397,6 @@ static void textbox_free ( widget *wid )
     }
     g_free ( tb->text );
 
-    if ( tb->icon ) {
-        cairo_surface_destroy ( tb->icon );
-        tb->icon = NULL;
-    }
     if ( tb->layout != NULL ) {
         g_object_unref ( tb->layout );
     }
@@ -419,7 +410,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         return;
     }
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset * 1.2 + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
+    unsigned int offset = ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
@@ -439,21 +430,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
     y += top;
 
-    // draw Icon
-    if ( ( tb->flags & TB_ICON ) == TB_ICON && tb->icon != NULL ) {
-        int iconheight = tb->left_offset;
-        cairo_save ( draw );
-
-        int    iconh = cairo_image_surface_get_height ( tb->icon );
-        int    iconw = cairo_image_surface_get_width ( tb->icon );
-        int    icons = MAX ( iconh, iconw );
-        double scale = (double) iconheight / icons;
-        cairo_translate ( draw, x + ( iconheight - iconw * scale ) / 2.0, y + ( iconheight - iconh * scale ) / 2.0 );
-        cairo_scale ( draw, scale, scale );
-        cairo_set_source_surface ( draw, tb->icon, 0, 0 );
-        cairo_paint ( draw );
-        cairo_restore ( draw );
-    }
     x += offset;
 
     if ( tb->xalign > 0.001 ) {
@@ -464,7 +440,17 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
     cairo_set_source_rgb ( draw, 0.0, 0.0, 0.0 );
     rofi_theme_get_color ( WIDGET ( tb ), "text-color", draw );
+
+    if ( tb->show_placeholder ) {
+        rofi_theme_get_color ( WIDGET ( tb ), "placeholder-color", draw );
+    }
+    // Set ARGB
+    // We need to set over, otherwise subpixel hinting wont work.
+    cairo_move_to ( draw, x, top );
+    pango_cairo_show_layout ( draw, tb->layout );
+
     // draw the cursor
+    rofi_theme_get_color ( WIDGET ( tb ), "text-color", draw );
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
         // We want to place the cursor based on the text shown.
         const char     *text = pango_layout_get_text ( tb->layout );
@@ -482,13 +468,8 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_fill ( draw );
     }
 
-    // Set ARGB
-    // We need to set over, otherwise subpixel hinting wont work.
-    cairo_move_to ( draw, x, top );
-    pango_cairo_show_layout ( draw, tb->layout );
-
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
-        cairo_arc ( draw, tb->left_offset * 1.2 + DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
+        cairo_arc ( draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
         cairo_fill ( draw );
     }
 }
@@ -934,8 +915,11 @@ int textbox_get_estimated_height ( const textbox *tb, int eh )
 }
 int textbox_get_desired_width ( widget *wid )
 {
+    if ( wid == NULL ) {
+        return 0;
+    }
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset * 1.2 + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
+    unsigned int offset = ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
     if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
     }
@@ -954,11 +938,9 @@ int textbox_get_desired_width ( widget *wid )
     return width + padding + offset;
 }
 
-
 void textbox_set_ellipsize ( textbox *tb, PangoEllipsizeMode mode )
 {
-    if ( tb )
-    {
+    if ( tb ) {
         tb->emode = mode;
         if ( ( tb->flags & TB_WRAP ) != TB_WRAP ) {
             // Store the mode.

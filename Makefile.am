@@ -177,10 +177,12 @@ dist_man1_MANS=\
 	doc/rofi-sensible-terminal.1
 
 dist_man5_MANS=\
-	doc/rofi-theme.5
+	doc/rofi-theme.5\
+	doc/rofi-script.5
 
 EXTRA_DIST += \
 	doc/rofi-theme.5.markdown \
+	doc/rofi-script.5.markdown \
 	doc/rofi-theme-selector.1.markdown \
 	doc/rofi.1.markdown
 
@@ -258,10 +260,11 @@ EXTRA_DIST+=\
 ##
 
 
-update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown
-	ronn --roff $(top_srcdir)/doc/rofi.1.markdown
-	ronn --roff $(top_srcdir)/doc/rofi-theme-selector.1.markdown
-	ronn --roff $(top_srcdir)/doc/rofi-theme.5.markdown
+update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown
+	go-md2man -in $(top_srcdir)/doc/rofi.1.markdown -out $(top_srcdir)/doc/rofi.1
+	go-md2man -in $(top_srcdir)/doc/rofi-theme-selector.1.markdown -out $(top_srcdir)/doc/rofi-theme-selector.1
+	go-md2man -in $(top_srcdir)/doc/rofi-theme.5.markdown -out $(top_srcdir)/doc/rofi-theme.5
+	go-md2man -in $(top_srcdir)/doc/rofi-script.5.markdown -out $(top_srcdir)/doc/rofi-script.5
 
 ##
 # Rofi test program

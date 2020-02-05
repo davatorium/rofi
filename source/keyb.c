@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -77,7 +77,7 @@ ActionBindingEntry rofi_bindings[] =
     { .id = ROW_LAST,                .name  = "kb-row-last",                .binding = "End,KP_End",                           .comment = "Go to the last entry"                                                  },
     { .id = ROW_SELECT,              .name  = "kb-row-select",              .binding = "Control+space",                        .comment = "Set selected item as input text"                                       },
     { .id = SCREENSHOT,              .name  = "kb-screenshot",              .binding = "Alt+S",                                .comment = "Take a screenshot of the rofi window"                                  },
-    { .id = CHANGE_ELLIPSIZE,        .name  = "kb-ellipsize",               .binding = "Alt+period",                                .comment = "Toggle between ellipsize modes for displayed data"                     },
+    { .id = CHANGE_ELLIPSIZE,        .name  = "kb-ellipsize",               .binding = "Alt+period",                           .comment = "Toggle between ellipsize modes for displayed data"                     },
     { .id = TOGGLE_CASE_SENSITIVITY, .name  = "kb-toggle-case-sensitivity", .binding = "grave,dead_grave",                     .comment = "Toggle case sensitivity"                                               },
     { .id = TOGGLE_SORT,             .name  = "kb-toggle-sort",             .binding = "Alt+grave",                            .comment = "Toggle sort"                                                           },
     { .id = CANCEL,                  .name  = "kb-cancel",                  .binding = "Escape,Control+g,Control+bracketleft", .comment = "Quit rofi"                                                             },
@@ -93,7 +93,7 @@ ActionBindingEntry rofi_bindings[] =
     { .id = CUSTOM_10,               .name  = "kb-custom-10",               .binding = "Alt+0",                                .comment = "Custom keybinding 10"                                                  },
     { .id = CUSTOM_11,               .name  = "kb-custom-11",               .binding = "Alt+exclam",                           .comment = "Custom keybinding 11"                                                  },
     { .id = CUSTOM_12,               .name  = "kb-custom-12",               .binding = "Alt+at",                               .comment = "Custom keybinding 12"                                                  },
-    { .id = CUSTOM_13,               .name  = "kb-custom-13",               .binding = "Alt+numbersign",                       .comment = "Csutom keybinding 13"                                                  },
+    { .id = CUSTOM_13,               .name  = "kb-custom-13",               .binding = "Alt+numbersign",                       .comment = "Custom keybinding 13"                                                  },
     { .id = CUSTOM_14,               .name  = "kb-custom-14",               .binding = "Alt+dollar",                           .comment = "Custom keybinding 14"                                                  },
     { .id = CUSTOM_15,               .name  = "kb-custom-15",               .binding = "Alt+percent",                          .comment = "Custom keybinding 15"                                                  },
     { .id = CUSTOM_16,               .name  = "kb-custom-16",               .binding = "Alt+dead_circumflex",                  .comment = "Custom keybinding 16"                                                  },

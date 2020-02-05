@@ -49,29 +49,27 @@
  */
 typedef struct
 {
-    widget           widget;
-    unsigned long    flags;
-    short            cursor;
-    char             *text;
-    PangoLayout      *layout;
-    int              tbft;
-    int              markup;
-    int              changed;
+    widget             widget;
+    unsigned long      flags;
+    short              cursor;
+    char               *text;
+    const char         *placeholder;
+    int                show_placeholder;
+    PangoLayout        *layout;
+    int                tbft;
+    int                markup;
+    int                changed;
 
-    cairo_surface_t  *icon; // AA TODO - pass in icons for a textbox line if needed
-    int              icon_index;
+    int                blink;
+    guint              blink_timeout;
 
-    int              blink;
-    guint            blink_timeout;
+    double             yalign;
+    double             xalign;
 
-    double           yalign;
-    double           xalign;
-
-    PangoFontMetrics *metrics;
+    PangoFontMetrics   *metrics;
     PangoEllipsizeMode emode;
-    int              left_offset;
     //
-    const char       *theme_name;
+    const char         *theme_name;
 } textbox;
 
 /**
@@ -86,7 +84,6 @@ typedef enum
     TB_WRAP       = 1 << 21,
     TB_PASSWORD   = 1 << 22,
     TB_INDICATOR  = 1 << 23,
-    TB_ICON       = 1 << 24,
 } TextboxFlags;
 /**
  * Flags indicating current state of the textbox.
@@ -146,14 +143,6 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft );
  * Set the text to show. Cursor is moved to end (if visible)
  */
 void textbox_text ( textbox *tb, const char *text );
-
-/**
- * @param tb  Handle to the textbox
- * @param icon The icon to show on the textbox
- *
- * Set the text to show. Cursor is moved to end (if visible)
- */
-void textbox_icon ( textbox *tb, cairo_surface_t *icon );
 
 /**
  * @param tb Handle to the textbox
@@ -296,14 +285,6 @@ void textbox_set_pango_context ( const char *font, PangoContext *p );
  * Sets list as active pango attributes.
  */
 void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
-
-/**
- * @param tb Handle to the textbox
- * @param index character index to draw the icon at. -1 for no icon
- *
- * Sets the character index where the icon should be drawn
- */
-void textbox_set_icon_index ( textbox *tb, int index );
 
 /**
  * @param tb Handle to the textbox

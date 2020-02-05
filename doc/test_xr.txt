@@ -41,7 +41,9 @@ rofi.window-command:                 xkill -id {window}
 ! "Theme to use to look for icons" Set from: Default
 ! rofi.icon-theme:                     
 ! "Desktop entry fields to match in drun" Set from: Default
-! rofi.drun-match-fields:              name,generic,exec,categories
+! rofi.drun-match-fields:              name,generic,exec,categories,keywords
+! "Only show Desktop entry from these categories" Set from: Default
+! rofi.drun-categories:                
 ! "Desktop entry show actions." Set from: Default
 ! rofi.drun-show-actions:              false
 ! "DRUN format string. (Supports: generic,name,comment,exec,categories)" Set from: Default
@@ -124,6 +126,8 @@ rofi.scroll-method:                  0
 ! rofi.matching-negate-char:           -
 ! "Directory where history and temporary files are stored." Set from: Default
 ! rofi.cache-dir:                      
+! "Show window thumbnail in window switcher if availalbe." Set from: Default
+! rofi.window-thumbnail:               false
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/rofi.pid
 ! "Paste primary selection" Set from: File
@@ -222,7 +226,7 @@ rofi.kb-custom-10:                   Alt+0
 rofi.kb-custom-11:                   Alt+Shift+1
 ! "Custom keybinding 12" Set from: File
 rofi.kb-custom-12:                   Alt+at
-! "Csutom keybinding 13" Set from: File
+! "Custom keybinding 13" Set from: File
 rofi.kb-custom-13:                   Alt+numbersign
 ! "Custom keybinding 14" Set from: File
 rofi.kb-custom-14:                   Alt+dollar
