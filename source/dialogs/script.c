@@ -258,7 +258,7 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line].entry != NULL ) {
         if ( rmpd->cmd_list[selected_line].nonselectable ) {
-            return FALSE;
+            return RELOAD_DIALOG;
         }
         script_mode_reset_highlight ( sw );
         new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length );
