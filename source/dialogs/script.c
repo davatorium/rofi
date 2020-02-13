@@ -248,7 +248,7 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
     unsigned int          new_length = 0;
 
     if ( ( mretv & MENU_NEXT ) ) {
-        retv = RELOAD_DIALOG;;
+        retv = NEXT_DIALOG;
     }
     else if ( ( mretv & MENU_PREVIOUS ) ) {
         retv = PREVIOUS_DIALOG;
