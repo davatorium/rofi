@@ -177,6 +177,7 @@ static DmenuScriptEntry *get_script_output ( Mode *sw, char *command, char *arg,
                     retv[( *length )].icon_name      = NULL;
                     retv[( *length )].meta           = NULL;
                     retv[( *length )].icon_fetch_uid = 0;
+                    retv[( *length )].nonselectable  = FALSE;
                     if ( buf_length > 0 && ( read_length > (ssize_t) buf_length )  ) {
                         dmenuscript_parse_entry_extras ( sw, &( retv[( *length )] ), buffer + buf_length, read_length - buf_length );
                     }
