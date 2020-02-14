@@ -165,6 +165,7 @@ rofi_LDADD=\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
 	$(librsvg_LIBS)\
+	$(libjpeg_LIBS)\
 	$(LIBS)
 
 ##
@@ -321,6 +322,7 @@ textbox_test_CFLAGS=\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(librsvg_CFLAGS)\
+	$(libjpeg_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\

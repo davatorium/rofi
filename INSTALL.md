@@ -34,6 +34,7 @@ You can also use [Meson](https://mesonbuild.com/) as an alternative.
 * libstartup-notification-1.0
 * libxkbcommon >= 0.4.1
 * libxkbcommon-x11
+* libjpeg
 * libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-randr libxcb-xinerama)
 * xcb-util
 * xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
