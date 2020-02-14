@@ -249,6 +249,7 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
                 cairo_t *d = cairo_create ( surface );
                 cairo_scale ( d, scale, scale );
                 cairo_set_source_surface ( d, icon_surf, 0.0,0.0);
+                cairo_pattern_set_filter (cairo_get_source (d), CAIRO_FILTER_FAST);
                 cairo_paint ( d );
 
                 cairo_destroy ( d );
