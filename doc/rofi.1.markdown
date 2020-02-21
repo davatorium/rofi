@@ -250,7 +250,7 @@ The different fields are:
 * **comment**: the application comment
 * **all**: all of the above
 
-    Default: *name,generic,exec,categories*
+    Default: *name,generic,exec,categories,keywords*
 
 `-drun-display-format`
 
