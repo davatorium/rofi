@@ -921,7 +921,7 @@ Show the run dialog:
 
     rofi -modi run -show run
 
-Show the the run dialog, and allow switching to Desktop File run dialog (drun):
+Show the run dialog, and allow switching to Desktop File run dialog (drun):
 
     rofi -modi run,drun -show run
 
