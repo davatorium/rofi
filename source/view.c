@@ -1894,6 +1894,12 @@ RofiViewState *rofi_view_create ( Mode *sw,
     xcb_map_window ( xcb->connection, CacheState.main_window );
     widget_queue_redraw ( WIDGET ( state->main_window ) );
     xcb_flush ( xcb->connection );
+
+    /* When Override Redirect, the WM will not let us know we can take focus, so just steal it */
+    if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) ) {
+        rofi_xcb_set_input_focus(CacheState.main_window);
+    }
+
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_complete ( xcb->sncontext );
     }
@@ -1946,6 +1952,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 void rofi_view_hide ( void )
 {
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
+        rofi_xcb_revert_input_focus();
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
         display_early_cleanup ();
     }

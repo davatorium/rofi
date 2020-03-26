@@ -127,6 +127,9 @@ typedef struct _workarea
  */
 int monitor_active ( workarea *mon );
 
+void rofi_xcb_set_input_focus(xcb_window_t w);
+void rofi_xcb_revert_input_focus(void);
+
 /**
  * Depth of visual
  */
