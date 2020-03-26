@@ -84,6 +84,7 @@ void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, 
     X ( WM_WINDOW_ROLE ),         \
     X ( _XROOTPMAP_ID ),          \
     X ( _MOTIF_WM_HINTS ),        \
+    X ( WM_TAKE_FOCUS ),          \
     X ( ESETROOT_PMAP_ID )
 
 /** enumeration of the atoms. */

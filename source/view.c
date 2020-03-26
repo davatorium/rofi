@@ -846,6 +846,11 @@ void __create_window ( MenuFlags menu_flags )
         window_set_atom_prop (  box_window, xcb->ewmh._NET_WM_STATE, atoms, sizeof ( atoms ) / sizeof ( xcb_atom_t ) );
     }
 
+    xcb_atom_t protocols[] = {
+        netatoms[WM_TAKE_FOCUS]
+    };
+    xcb_icccm_set_wm_protocols ( xcb->connection, box_window, xcb->ewmh.WM_PROTOCOLS, G_N_ELEMENTS ( protocols ), protocols );
+
     TICK_N ( "setup window fullscreen" );
     // Set the WM_NAME
     rofi_view_set_window_title ( "rofi" );
