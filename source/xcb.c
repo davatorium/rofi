@@ -891,6 +891,18 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
 
     switch ( event->response_type & ~0x80 )
     {
+    case XCB_CLIENT_MESSAGE:
+    {
+        xcb_client_message_event_t *cme = (xcb_client_message_event_t *) event;
+        xcb_atom_t atom = cme->data.data32[0];
+        xcb_timestamp_t time = cme->data.data32[1];
+        if ( atom == netatoms[WM_TAKE_FOCUS] )
+        {
+            xcb_set_input_focus ( xcb->connection, XCB_INPUT_FOCUS_NONE, cme->window, time );
+            xcb_flush ( xcb->connection );
+        }
+        break;
+    }
     case XCB_EXPOSE:
         rofi_view_frame_callback ();
         break;
