@@ -1047,6 +1047,32 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
     return G_SOURCE_CONTINUE;
 }
 
+void rofi_xcb_set_input_focus ( xcb_window_t w )
+{
+    xcb_generic_error_t *error;
+    xcb_get_input_focus_reply_t *freply;
+    xcb_get_input_focus_cookie_t fcookie = xcb_get_input_focus ( xcb->connection );
+    freply = xcb_get_input_focus_reply ( xcb->connection, fcookie, &error );
+    if ( error != NULL ) {
+        g_warning ( "Could not get input focus (error %d), will revert focus to best effort", error->error_code );
+        free ( error );
+        xcb->focus_revert = 0;
+    } else {
+        xcb->focus_revert = freply->focus;
+    }
+    xcb_set_input_focus ( xcb->connection, XCB_INPUT_FOCUS_POINTER_ROOT, w, XCB_CURRENT_TIME );
+    xcb_flush ( xcb->connection );
+}
+
+void rofi_xcb_revert_input_focus (void)
+{
+    if ( xcb->focus_revert == 0 )
+        return;
+
+    xcb_set_input_focus ( xcb->connection, XCB_INPUT_FOCUS_POINTER_ROOT, xcb->focus_revert, XCB_CURRENT_TIME );
+    xcb_flush ( xcb->connection );
+}
+
 static int take_pointer ( xcb_window_t w, int iters )
 {
     int i = 0;
