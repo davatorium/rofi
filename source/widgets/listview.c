@@ -668,6 +668,13 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
     //
     _listview_row row;
     listview_create_row ( lv, &row );
+    // FIXME: hack to scale hight correctly.
+    if ( lv->eh > 1 && row.textbox ) {
+	char buff[lv->eh*2+1] ;
+	memset( buff, '\0', lv->eh*2+1);
+	for ( unsigned int i = 0; i < lv->eh; i++) { buff[i] ='\n'; };
+	textbox_text( row.textbox, buff);
+    }
     lv->element_height = widget_get_desired_height ( WIDGET ( row.box ) );
     widget_free ( WIDGET ( row.box ) );
 

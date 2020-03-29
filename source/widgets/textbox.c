@@ -97,7 +97,7 @@ static int textbox_get_desired_height ( widget *wid )
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
     }
-    int height = textbox_get_height ( tb );
+    int height = textbox_get_estimated_height ( tb, pango_layout_get_line_count ( tb->layout ) );
     return height;
 }
 
@@ -852,7 +852,7 @@ int _textbox_get_height ( widget *wid )
 {
     textbox *tb = (textbox *) wid;
     if ( tb->flags & TB_AUTOHEIGHT ) {
-        return textbox_get_height ( tb );
+        return textbox_get_estimated_height ( tb, pango_layout_get_line_count ( tb->layout ) );
     }
     return tb->widget.h;
 }
