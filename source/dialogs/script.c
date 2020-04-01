@@ -68,6 +68,7 @@ typedef struct
     char                   *message;
     char                   *prompt;
     gboolean               do_markup;
+	char 				   delim;
 } ScriptModePrivateData;
 
 /**
@@ -127,11 +128,15 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
         else if ( strcasecmp ( line, "active" ) == 0 ) {
             parse_ranges ( value, &( pd->active_list ), &( pd->num_active_list ) );
         }
+        else if ( strcasecmp ( line, "delim" ) == 0 ) {
+            pd->delim = helper_parse_char ( value );
+        }
     }
 }
 
 static DmenuScriptEntry *get_script_output ( Mode *sw, char *command, char *arg, unsigned int *length )
 {
+    ScriptModePrivateData *pd        = (ScriptModePrivateData *) sw->private_data;
     int              fd     = -1;
     GError           *error = NULL;
     DmenuScriptEntry *retv  = NULL;
@@ -159,9 +164,9 @@ static DmenuScriptEntry *get_script_output ( Mode *sw, char *command, char *arg,
             size_t  buffer_length = 0;
             ssize_t read_length   = 0;
             size_t  actual_size   = 0;
-            while ( ( read_length = getline ( &buffer, &buffer_length, inp ) ) > 0 ) {
+            while ( ( read_length = getdelim ( &buffer, &buffer_length, pd->delim, inp ) ) > 0 ) {
                 // Filter out line-end.
-                if ( buffer[read_length - 1] == '\n' ) {
+                if ( buffer[read_length - 1] == pd->delim ) {
                     buffer[read_length - 1] = '\0';
                 }
                 if ( buffer[0] == '\0' ) {
@@ -217,6 +222,7 @@ static int script_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+		pd->delim        = '\n';
         sw->private_data = (void *) pd;
         pd->cmd_list     = get_script_output ( sw, (char *) sw->ed, NULL, &( pd->cmd_list_length ) );
     }
