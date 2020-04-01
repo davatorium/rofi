@@ -64,6 +64,7 @@ The following extra options exists:
  * **markup-rows**: If 'true' renders markup in the row.
  * **urgent**:      Mark rows as urgent. (for syntax see the urgent option in dmenu mode)
  * **active**:      Mark rows as active. (for syntax see the active option in dmenu mode)
+ * **delim**:       Set the delimiter for for next rows. Default is '\n' and this option should finish with this.
 
 ## Parsing row options
 
