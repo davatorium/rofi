@@ -46,6 +46,19 @@ echo "quit"
 
 This shows two entries, reload and quit. When the quit entry is selected, rofi closes.
 
+## Environment
+
+Rofi sets the following environment variable when executing the script:
+
+### `ROFI_RETV`
+
+An integer number with the current state:
+
+ * **0**: Initial call of script.
+ * **1**: Selected an entry.
+ * **2**: Selected a custom entry.
+ * **10-28**: Custom keybinding 1-19
+
 ## Passing mode options
 
 Extra options, like setting the prompt, can be set by the script.

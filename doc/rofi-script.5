@@ -57,6 +57,22 @@ echo "quit"
 .PP
 This shows two entries, reload and quit. When the quit entry is selected, rofi closes.
 
+.SH Environment
+.PP
+Rofi sets the following environment variable when executing the script:
+
+.SS \fB\fCROFI\_RETV\fR
+.PP
+An integer number with the current state:
+.IP \(bu 2
+\fB0\fP: Initial call of script.
+.IP \(bu 2
+\fB1\fP: Selected an entry.
+.IP \(bu 2
+\fB2\fP: Selected a custom entry.
+.IP \(bu 2
+\fB10\-28\fP: Custom keybinding 1\-19
+
 .SH Passing mode options
 .PP
 Extra options, like setting the prompt, can be set by the script.
