@@ -199,6 +199,7 @@ static DmenuScriptEntry *get_script_output ( Mode *sw, char *command, char *arg,
             }
         }
     }
+    g_strfreev ( argv );
     return retv;
 }
 
