@@ -268,7 +268,11 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
     else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
         //retv = 1+( mretv & MENU_LOWER_MASK );
         script_mode_reset_highlight ( sw );
-        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length,10+( mretv & MENU_LOWER_MASK ) );
+        if ( selected_line != UINT32_MAX ) {
+            new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length,10+( mretv & MENU_LOWER_MASK ) );
+        } else {
+            new_list = execute_executor ( sw, *input, &new_length,10+( mretv & MENU_LOWER_MASK ) );
+        }
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line].entry != NULL ) {
         if ( rmpd->cmd_list[selected_line].nonselectable ) {
