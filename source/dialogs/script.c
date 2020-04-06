@@ -77,10 +77,11 @@ typedef struct
 void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *entry, char *buffer, size_t length )
 {
     size_t length_key = 0;              //strlen ( line );
-    while ( length_key <= length && buffer[length_key] != '\x1f' ) {
+    while ( length_key < length && buffer[length_key] != '\x1f' ) {
         length_key++;
     }
-    if ( length_key < length ) {
+    // Should be not last character in buffer.
+    if ( length_key < (length-1) ) {
         buffer[length_key] = '\0';
         char *value = buffer + length_key + 1;
         if ( strcasecmp ( buffer, "icon" ) == 0 ) {

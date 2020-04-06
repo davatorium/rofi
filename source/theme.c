@@ -1158,3 +1158,20 @@ ThemeMediaType rofi_theme_parse_media_type ( const char *type )
     }
     return THEME_MEDIA_TYPE_INVALID;
 }
+
+
+gboolean rofi_theme_has_property ( const widget *widget, const char *property )
+{
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property    *p   = rofi_theme_find_property ( wid, P_STRING, property, FALSE );
+    if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_has_property ( widget->parent, property );
+            }
+            return FALSE;
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
