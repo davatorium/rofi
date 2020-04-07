@@ -81,7 +81,7 @@ void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *
         length_key++;
     }
     // Should be not last character in buffer.
-    if ( length_key < (length-1) ) {
+    if ( (length_key+1) < (length) ) {
         buffer[length_key] = '\0';
         char *value = buffer + length_key + 1;
         if ( strcasecmp ( buffer, "icon" ) == 0 ) {
@@ -104,7 +104,7 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
 {
     ScriptModePrivateData *pd        = (ScriptModePrivateData *) sw->private_data;
     ssize_t               length_key = 0;//strlen ( line );
-    while ( length_key <= length && line[length_key] != '\x1f' ) {
+    while ( length_key < length && line[length_key] != '\x1f' ) {
         length_key++;
     }
 
