@@ -6,7 +6,11 @@ then
 fi
 
 # Override the previously set prompt.
-echo -en "\x00delim\x1f\\x1\n"
+# We only want to do this on first call of script.
+if [ $ROFI_RETV = 0 ]
+then
+    echo -en "\x00delim\x1f\\x1\n"
+fi
 echo -en "\x00prompt\x1fChange prompt\x1"
 for a in {1..10}
 do

@@ -108,7 +108,7 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
         length_key++;
     }
 
-    if ( length_key < length ) {
+    if ( (length_key+1) < length ) {
         line[length_key] = '\0';
         char *value = line + length_key + 1;
         if ( strcasecmp ( line, "message" ) == 0 ) {
