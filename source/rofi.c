@@ -557,6 +557,7 @@ static void rofi_collect_modi ( void )
 #endif
     rofi_collect_modi_add ( &combi_mode );
     rofi_collect_modi_add ( &help_keys_mode );
+    rofi_collect_modi_add ( &file_browser_mode );
 
     if ( find_arg ( "-no-plugins" ) < 0 ) {
         find_arg_str ( "-plugin-path", &( config.plugin_path ) );

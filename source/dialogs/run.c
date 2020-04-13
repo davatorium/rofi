@@ -51,6 +51,7 @@
 #include "helper.h"
 #include "history.h"
 #include "dialogs/run.h"
+#include "dialogs/filebrowser.h"
 
 #include "mode-private.h"
 
@@ -70,6 +71,9 @@ typedef struct
     char         **cmd_list;
     /** Length of the #cmd_list. */
     unsigned int cmd_list_length;
+    /** Current mode. */
+    gboolean     file_complete;
+    uint32_t     selected_line;
 } RunModePrivateData;
 
 /**
@@ -360,6 +364,12 @@ static void run_mode_destroy ( Mode *sw )
 static unsigned int run_mode_get_num_entries ( const Mode *sw )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+
+    if ( rmpd->file_complete ){
+        return file_browser_mode._get_num_entries(&file_browser_mode);
+    }
+
+
     return rmpd->cmd_list_length;
 }
 
@@ -393,19 +403,47 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
         run_mode_destroy ( sw );
         run_mode_init ( sw );
     }
+    else if ( ( mretv& MENU_COMPLETE) ) {
+        retv = RELOAD_DIALOG;
+        mode_init ( &file_browser_mode );
+        if ( rmpd->file_complete == FALSE ) {
+            retv = RESET_DIALOG;
+            rmpd->selected_line = selected_line;
+        } else {
+            
+        }
+        rmpd->file_complete =  ! ( rmpd->file_complete );
+    }
     return retv;
 }
 
-static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **list, int get_entry )
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, GList **list, int get_entry )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+    if ( rmpd->file_complete ){
+        return file_browser_mode._get_display_value (&file_browser_mode, selected_line, state, list, get_entry );
+    }
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 
 static int run_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+
+    if ( rmpd->file_complete ){
+        return file_browser_mode._token_match (&file_browser_mode, tokens, index );
+    }
+
     return helper_token_match ( tokens, rmpd->cmd_list[index] );
+}
+static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )
+{
+    const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+    if ( rmpd->file_complete ){
+        return file_browser_mode._get_icon (&file_browser_mode, selected_line, height );
+    }
+
+    return NULL;
 }
 
 #include "mode-private.h"
@@ -419,7 +457,7 @@ Mode run_mode =
     ._destroy           = run_mode_destroy,
     ._token_match       = run_token_match,
     ._get_display_value = _get_display_value,
-    ._get_icon          = NULL,
+    ._get_icon          = _get_icon,
     ._get_completion    = NULL,
     ._preprocess_input  = NULL,
     .private_data       = NULL,

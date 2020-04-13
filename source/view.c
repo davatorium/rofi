@@ -1190,6 +1190,17 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
         ( state->selected_line ) = 0;
         state->quit              = TRUE;
         break;
+    case MODE_COMPLETE:
+        {
+            unsigned int selected = listview_get_selected ( state->list_view );
+            state->selected_line = UINT32_MAX;
+            if ( selected < state->filtered_lines ) {
+                state->selected_line     = state->line_map[selected];
+            }
+            state->retv              = MENU_COMPLETE;
+            state->quit              = TRUE;
+            break;
+        }
     // Toggle case sensitivity.
     case TOGGLE_CASE_SENSITIVITY:
         if ( state->case_indicator != NULL ) {

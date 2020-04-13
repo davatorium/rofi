@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,23 +25,19 @@
  *
  */
 
-#ifndef ROFI_DIALOGS_DIALOGS_H
-#define ROFI_DIALOGS_DIALOGS_H
+#ifndef ROFI_DIALOG_FILE_BROWSER_H
+#define ROFI_DIALOG_FILE_BROWSER_H
 
 /**
- * @defgroup MODES Modes
+ * @defgroup FileBrowserMode FileBrowser
+ * @ingroup MODES
+ *
+ *
+ * @{
  */
-/**
- * List of available dialogs.
- */
+/** #Mode object representing the run dialog. */
+extern Mode file_browser_mode;
 
-#include "dialogs/run.h"
-#include "dialogs/ssh.h"
-#include "dialogs/drun.h"
-#include "dialogs/dmenu.h"
-#include "dialogs/script.h"
-#include "dialogs/window.h"
-#include "dialogs/combi.h"
-#include "dialogs/help-keys.h"
-#include "dialogs/filebrowser.h"
-#endif // ROFI_DIALOGS_DIALOGS_H
+Mode *create_new_file_browser (void);
+/*@}*/
+#endif // ROFI_DIALOG_FILE_BROWSER_H

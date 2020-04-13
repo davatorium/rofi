@@ -88,6 +88,7 @@ SOURCES=\
 	source/dialogs/combi.c\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
+	source/dialogs/filebrowser.c\
 	source/dialogs/help-keys.c\
 	include/display.h\
 	include/xcb.h\
@@ -119,6 +120,7 @@ SOURCES=\
 	include/dialogs/ssh.h\
 	include/dialogs/run.h\
 	include/dialogs/drun.h\
+	include/dialogs/filebrowser.h\
 	include/dialogs/dmenu.h\
 	include/dialogs/combi.h\
 	include/dialogs/script.h\

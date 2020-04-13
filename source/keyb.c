@@ -66,6 +66,7 @@ ActionBindingEntry rofi_bindings[] =
     { .id = DELETE_ENTRY,            .name  = "kb-delete-entry",            .binding = "Shift+Delete",                         .comment = "Delete entry from history"                                             },
     { .id = MODE_NEXT,               .name  = "kb-mode-next",               .binding = "Shift+Right,Control+Tab",              .comment = "Switch to the next mode."                                              },
     { .id = MODE_PREVIOUS,           .name  = "kb-mode-previous",           .binding = "Shift+Left,Control+ISO_Left_Tab",      .comment = "Switch to the previous mode."                                          },
+    { .id = MODE_COMPLETE,           .name  = "kb-mode-complete",           .binding = "Control+l",                            .comment = "Start mode complete."                                          },
     { .id = ROW_LEFT,                .name  = "kb-row-left",                .binding = "Control+Page_Up",                      .comment = "Go to the previous column"                                             },
     { .id = ROW_RIGHT,               .name  = "kb-row-right",               .binding = "Control+Page_Down",                    .comment = "Go to the next column"                                                 },
     { .id = ROW_UP,                  .name  = "kb-row-up",                  .binding = "Up,Control+p,ISO_Left_Tab",            .comment = "Select previous entry"                                                 },
