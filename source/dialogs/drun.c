@@ -234,7 +234,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         g_warning ( "Nothing to execute after processing: %s.", e->exec );;
         return;
     }
-    g_debug ( "Parsed into command: %s into %s.", e->exec, str );
+    g_debug ( "Parsed command: |%s| into |%s|.", e->exec, str );
 
     if ( e->key_file == NULL ) {
         GKeyFile *kf    = g_key_file_new ();
