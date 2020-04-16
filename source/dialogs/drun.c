@@ -181,6 +181,9 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
         case 'v':
         case 'm':
             break;
+        case '%':
+            g_string_append(res, "%");
+            break;
         case 'k':
             if ( e->e->path ) {
                 char *esc = g_shell_quote ( e->e->path );
@@ -209,7 +212,7 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
 static void exec_cmd_entry ( DRunModeEntry *e )
 {
     GError *error = NULL;
-    GRegex *reg   = g_regex_new ( "%[a-zA-Z]", 0, 0, &error );
+    GRegex *reg   = g_regex_new ( "%[a-zA-Z%]", 0, 0, &error );
     if ( error != NULL ) {
         g_warning ( "Internal error, failed to create regex: %s.", error->message );
         g_error_free ( error );
@@ -231,6 +234,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         g_warning ( "Nothing to execute after processing: %s.", e->exec );;
         return;
     }
+    g_debug ( "Parsed command: |%s| into |%s|.", e->exec, str );
 
     if ( e->key_file == NULL ) {
         GKeyFile *kf    = g_key_file_new ();
