@@ -86,6 +86,7 @@ typedef struct
     char         *old_input;
 
     Mode         *completer;
+    char         *old_completer_input;
 } RunModePrivateData;
 
 /**
@@ -390,6 +391,7 @@ static void run_mode_destroy ( Mode *sw )
         }
         g_free ( rmpd->cmd_list );
         g_free ( rmpd->old_input );
+        g_free ( rmpd->old_completer_input );
         mode_destroy ( rmpd->completer );
         g_free ( rmpd );
         sw->private_data = NULL;
@@ -419,7 +421,8 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
         retv = RELOAD_DIALOG;
 
         if ( ( mretv& (MENU_COMPLETE)) ) {
-            if ( *input ) g_free (*input);
+            g_free ( rmpd->old_completer_input );
+            rmpd->old_completer_input = *input;
             *input = NULL;
             if ( rmpd->selected_line < rmpd->cmd_list_length ) {
                 (*input) = g_strdup ( rmpd->old_input );
@@ -479,7 +482,7 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
             rmpd->old_input = g_strdup ( *input );
 
             if ( *input ) g_free (*input);
-            *input = NULL;
+            *input = g_strdup ( rmpd->old_completer_input );
 
             rmpd->file_complete =  TRUE;
         }
