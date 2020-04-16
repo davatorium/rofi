@@ -74,6 +74,9 @@ typedef struct
     /** Current mode. */
     gboolean     file_complete;
     uint32_t     selected_line;
+    char         *old_input;
+
+    Mode         *completer;
 } RunModePrivateData;
 
 /**
@@ -347,6 +350,7 @@ static int run_mode_init ( Mode *sw )
         RunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
         pd->cmd_list     = get_apps ( &( pd->cmd_list_length ) );
+        pd->completer    = create_new_file_browser ();
     }
 
     return TRUE;
@@ -356,6 +360,8 @@ static void run_mode_destroy ( Mode *sw )
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
         g_strfreev ( rmpd->cmd_list );
+        g_free ( rmpd->old_input );
+        mode_destroy ( rmpd->completer );
         g_free ( rmpd );
         sw->private_data = NULL;
     }
@@ -366,7 +372,7 @@ static unsigned int run_mode_get_num_entries ( const Mode *sw )
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
 
     if ( rmpd->file_complete ){
-        return file_browser_mode._get_num_entries(&file_browser_mode);
+        return rmpd->completer->_get_num_entries( rmpd->completer );
     }
 
 
@@ -379,6 +385,40 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     ModeMode           retv  = MODE_EXIT;
 
     gboolean           run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
+    if ( rmpd->file_complete == TRUE ) {
+
+        retv = RELOAD_DIALOG;
+
+
+
+        if ( ( mretv& (MENU_COMPLETE)) ) {
+            if ( *input ) g_free (*input);
+            *input = NULL;
+            if ( rmpd->selected_line < rmpd->cmd_list_length ) {
+                (*input) = g_strdup ( rmpd->old_input );
+            }
+            rmpd->file_complete = FALSE;
+        } else if ( (mretv&MENU_CANCEL) ) {
+            retv = MODE_EXIT;
+        } else {
+            char *path = NULL;
+            retv = file_browser_mode_completer ( rmpd->completer, mretv, input, selected_line, &path );
+            if ( retv == MODE_EXIT ) {
+                if ( path == NULL )
+                {
+                    exec_cmd ( rmpd->cmd_list[rmpd->selected_line], run_in_term );
+                } else {
+                    char *arg= g_strdup_printf ( "%s '%s'",  rmpd->cmd_list[rmpd->selected_line], path);
+                    printf("Comnad: %s\r\n", arg);
+                    exec_cmd ( arg, run_in_term );
+                    g_free(arg);
+                }
+
+            }
+            g_free (path);
+        }
+        return retv;
+    }
 
     if ( mretv & MENU_NEXT ) {
         retv = NEXT_DIALOG;
@@ -405,14 +445,16 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     }
     else if ( ( mretv& MENU_COMPLETE) ) {
         retv = RELOAD_DIALOG;
-        mode_init ( &file_browser_mode );
-        if ( rmpd->file_complete == FALSE ) {
-            retv = RESET_DIALOG;
+        mode_init ( rmpd->completer );
             rmpd->selected_line = selected_line;
-        } else {
-            
-        }
-        rmpd->file_complete =  ! ( rmpd->file_complete );
+
+            g_free ( rmpd->old_input );
+            rmpd->old_input = g_strdup ( *input );
+
+            if ( *input ) g_free (*input);
+            *input = NULL;
+
+        rmpd->file_complete =  TRUE;
     }
     return retv;
 }
@@ -421,7 +463,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     if ( rmpd->file_complete ){
-        return file_browser_mode._get_display_value (&file_browser_mode, selected_line, state, list, get_entry );
+        return rmpd->completer->_get_display_value (rmpd->completer, selected_line, state, list, get_entry );
     }
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
@@ -431,7 +473,7 @@ static int run_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
 
     if ( rmpd->file_complete ){
-        return file_browser_mode._token_match (&file_browser_mode, tokens, index );
+        return rmpd->completer->_token_match (rmpd->completer, tokens, index );
     }
 
     return helper_token_match ( tokens, rmpd->cmd_list[index] );
@@ -440,7 +482,7 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
     if ( rmpd->file_complete ){
-        return file_browser_mode._get_icon (&file_browser_mode, selected_line, height );
+        return rmpd->completer->_get_icon (rmpd->completer, selected_line, height );
     }
 
     return NULL;

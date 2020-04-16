@@ -214,6 +214,16 @@ void process_result ( RofiViewState *state )
         MenuReturn   mretv         = rofi_view_get_return_value ( state );
         char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
         ModeMode     retv          = mode_result ( sw, mretv, &input, selected_line );
+        {
+            if ( state->text ){
+                if ( input == NULL ) {
+                    textbox_text ( state->text, "" );
+                } else  if ( strcmp ( rofi_view_get_user_input ( state ), input ) != 0 ) {
+                    textbox_text ( state->text, input );
+                    textbox_cursor_end ( state->text );
+                }
+            }
+        }
         g_free ( input );
 
         ModeMode mode = curr_switcher;

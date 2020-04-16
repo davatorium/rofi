@@ -342,3 +342,62 @@ Mode *create_new_file_browser (void )
     return sw;
 }
 
+
+ModeMode file_browser_mode_completer ( Mode *sw, int mretv, char **input, unsigned int selected_line, char **path )
+{
+    ModeMode           retv  = MODE_EXIT;
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+    if ( mretv & MENU_NEXT ) {
+        retv = NEXT_DIALOG;
+    } else if ( mretv & MENU_PREVIOUS ) {
+        retv = PREVIOUS_DIALOG;
+    } else if ( mretv & MENU_QUICK_SWITCH ) {
+        retv = ( mretv & MENU_LOWER_MASK );
+    } else if ( ( mretv & MENU_OK ) ) {
+        if ( selected_line < pd->array_length )
+        {
+            if ( pd->array[selected_line].type == UP ) {
+                GFile *new = g_file_get_parent ( pd->current_dir );
+               if ( new ){
+                   g_object_unref ( pd->current_dir );
+                   pd->current_dir = new;
+                   free_list (pd);
+                   get_file_browser ( sw );
+                   return RESET_DIALOG;
+               }
+            } else if ( pd->array[selected_line].type == DIRECTORY ) {
+                GFile *new = g_file_new_for_path ( pd->array[selected_line].path );
+                g_object_unref ( pd->current_dir );
+                pd->current_dir = new;
+                free_list (pd);
+                get_file_browser ( sw );
+                return RESET_DIALOG;
+            } else if ( pd->array[selected_line].type == RFILE ) {
+                *path = g_strescape ( pd->array[selected_line].path,NULL );
+                return MODE_EXIT;
+            }
+        }
+        retv = RELOAD_DIALOG;
+    } else if ( (mretv&MENU_CUSTOM_INPUT) && *input ) {
+        char *p = rofi_expand_path ( *input );
+        char *dir = g_filename_from_utf8 ( p, -1, NULL, NULL, NULL );
+        g_free (p);
+        if ( g_file_test ( dir, G_FILE_TEST_EXISTS )  )
+        {
+            if ( g_file_test ( dir, G_FILE_TEST_IS_DIR ) ){
+                g_object_unref ( pd->current_dir );
+                pd->current_dir = g_file_new_for_path ( dir );
+                g_free ( dir );
+                free_list (pd);
+                get_file_browser ( sw );
+                return RESET_DIALOG;
+            }
+
+        }
+        g_free ( dir );
+        retv = RELOAD_DIALOG;
+    } else if ( ( mretv & MENU_ENTRY_DELETE ) == MENU_ENTRY_DELETE ) {
+        retv = RELOAD_DIALOG;
+    }
+    return retv;
+}
