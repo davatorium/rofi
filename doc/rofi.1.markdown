@@ -672,6 +672,11 @@ Reads the first 25 entries blocking, then switches to async mode. This makes it 
 
 Set name used for the window title. Will be shown as Rofi - *title*
 
+`-keep-right`
+
+Set ellipsize mode to start. So end of string is visible.
+
+
 ### Message dialog
 
 `-e` *message*
