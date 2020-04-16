@@ -80,10 +80,6 @@ typedef struct
     char                *desktop_id;
     /* Icon stuff */
     char                *icon_name;
-    /* Icon size is used to indicate what size is requested by the gui.
-     * secondary it indicates if the request for a lookup has been issued (0 not issued )
-     */
-    int             icon_size;
     /* Surface holding the icon. */
     cairo_surface_t *icon;
     /* Executable */
@@ -459,7 +455,6 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     else {
         pd->entry_list[pd->cmd_list_length].sort_index = -nl;
     }
-    pd->entry_list[pd->cmd_list_length].icon_size      = 0;
     pd->entry_list[pd->cmd_list_length].icon_fetch_uid = 0;
     pd->entry_list[pd->cmd_list_length].root           = g_strdup ( root );
     pd->entry_list[pd->cmd_list_length].path           = g_strdup ( path );
