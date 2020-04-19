@@ -69,7 +69,8 @@ Markup support can be enabled, see CONFIGURATION options.
 .PP
 There are currently three methods of setting configuration options (evaluated in order below):
 .IP \(bu 2
-System configuration file (for example \fB\fC/etc/rofi.rasi\fR or old format \fB\fC/etc/rofi.conf\fR).
+System configuration file  (for example \fB\fC/etc/rofi.rasi\fR or old format \fB\fC/etc/rofi.conf\fR).
+It checks XDG\_CONFIG\_DIRS  and SYSCONFDIR passed at compile time.
 .IP \(bu 2
 Xresources: A method of storing key values in the Xserver. See
 here
