@@ -54,7 +54,8 @@ Markup support can be enabled, see CONFIGURATION options.
 There are currently three methods of setting configuration options (evaluated in order below):
 
  * System configuration file  (for example `/etc/rofi.rasi` or old format `/etc/rofi.conf`).
-   It checks XDG_CONFIG_DIRS  and SYSCONFDIR passed at compile time.
+   It first checks XDG_CONFIG_DIRS  and then SYSCONFDIR (that is passed at compile time).
+   It loads the first config file it finds, it does not merge multiple system configuration files.
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
  * Rasi theme file: The new *theme* format can be used to set configuration values.
