@@ -504,6 +504,7 @@ static gboolean rofi_collect_modi_add ( Mode *mode )
 
 static void rofi_collect_modi_dir ( const char *base_dir )
 {
+    g_debug ( "Looking into: %s for plugins", base_dir );
     GDir *dir = g_dir_open ( base_dir, 0, NULL );
     if ( dir ) {
         const char *dn = NULL;
@@ -512,6 +513,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                 continue;
             }
             char    *fn  = g_build_filename ( base_dir, dn, NULL );
+            g_debug ( "Trying to open: %s plugin", fn );
             GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL );
             if ( mod ) {
                 Mode *m = NULL;
@@ -562,6 +564,15 @@ static void rofi_collect_modi ( void )
         find_arg_str ( "-plugin-path", &( config.plugin_path ) );
         g_debug ( "Parse plugin path: %s", config.plugin_path );
         rofi_collect_modi_dir ( config.plugin_path );
+        /* ROFI_PLUGIN_PATH */
+        const char *path = g_getenv("ROFI_PLUGIN_PATH");
+        if ( path != NULL ) {
+            gchar ** paths = g_strsplit ( path, ":", -1 );
+            for ( unsigned int i = 0; paths[i]; i++ ) {
+                rofi_collect_modi_dir ( paths[i] );
+            }
+            g_strfreev ( paths );
+        }
     }
 }
 
