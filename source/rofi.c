@@ -916,6 +916,7 @@ int main ( int argc, char *argv[] )
         }
         // Load in config from X resources.
         config_parse_xresource_options ( xcb );
+
         if ( config_path_new && g_file_test ( config_path_new, G_FILE_TEST_IS_REGULAR ) ) {
             if ( rofi_theme_parse_file ( config_path_new ) ) {
                 rofi_theme_free ( rofi_theme );
@@ -925,8 +926,10 @@ int main ( int argc, char *argv[] )
         else {
             g_free ( config_path_new );
             config_path_new = NULL;
-            config_parse_xresource_options_file ( config_path );
-            old_config_format = TRUE;
+            if ( g_file_test ( xetc, G_FILE_TEST_IS_REGULAR ) ) {
+                config_parse_xresource_options_file ( config_path );
+                old_config_format = TRUE;
+            }
         }
     }
     find_arg_str ( "-theme", &( config.theme ) );
