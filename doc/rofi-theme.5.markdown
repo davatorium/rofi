@@ -992,4 +992,4 @@ Several examples are installed together with **rofi**. These can be found in `{d
 
 ## SEE ALSO
 
-rofi(1)
+rofi(1), rofi-script(5), rofi-theme-selector(1)
