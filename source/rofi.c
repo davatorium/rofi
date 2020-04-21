@@ -191,6 +191,13 @@ static void run_switcher ( ModeMode mode )
     }
     curr_switcher = mode;
     RofiViewState * state = rofi_view_create ( modi[mode], config.filter, 0, process_result );
+
+    // User can pre-select a row.
+    if ( find_arg ( "-selected-row" ) >= 0 ){
+	unsigned int sr = 0;
+	find_arg_uint (  "-selected-row", &(sr) );
+	rofi_view_set_selected_line ( state, sr );
+    }
     if ( state ) {
         rofi_view_set_active ( state );
     }
@@ -282,7 +289,7 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-show", "[mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
     print_help_msg ( "-no-lazy-grab", "", "Disable lazy grab that, when fail to grab keyboard, does not block but retry later.", NULL, is_term );
     print_help_msg ( "-no-plugins", "", "Disable loading of external plugins.", NULL, is_term );
-    print_help_msg ( "-plugin-path", "", "Directory used to search for rofi plugins.", NULL, is_term );
+    print_help_msg ( "-plugin-path", "", "Directory used to search for rofi plugins. *DEPRECATED*", NULL, is_term );
     print_help_msg ( "-dump-config", "", "Dump the current configuration in rasi format and exit.", NULL, is_term );
     print_help_msg ( "-upgrade-config", "", "Upgrade the old-style configuration fiel in the new rasi format and exit.", NULL, is_term );
     print_help_msg ( "-dump-theme", "", "Dump the current theme in rasi format and exit.", NULL, is_term );
@@ -497,6 +504,7 @@ static gboolean rofi_collect_modi_add ( Mode *mode )
 
 static void rofi_collect_modi_dir ( const char *base_dir )
 {
+    g_debug ( "Looking into: %s for plugins", base_dir );
     GDir *dir = g_dir_open ( base_dir, 0, NULL );
     if ( dir ) {
         const char *dn = NULL;
@@ -505,6 +513,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
                 continue;
             }
             char    *fn  = g_build_filename ( base_dir, dn, NULL );
+            g_debug ( "Trying to open: %s plugin", fn );
             GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL );
             if ( mod ) {
                 Mode *m = NULL;
@@ -555,6 +564,15 @@ static void rofi_collect_modi ( void )
         find_arg_str ( "-plugin-path", &( config.plugin_path ) );
         g_debug ( "Parse plugin path: %s", config.plugin_path );
         rofi_collect_modi_dir ( config.plugin_path );
+        /* ROFI_PLUGIN_PATH */
+        const char *path = g_getenv("ROFI_PLUGIN_PATH");
+        if ( path != NULL ) {
+            gchar ** paths = g_strsplit ( path, ":", -1 );
+            for ( unsigned int i = 0; paths[i]; i++ ) {
+                rofi_collect_modi_dir ( paths[i] );
+            }
+            g_strfreev ( paths );
+        }
     }
 }
 
@@ -850,24 +868,55 @@ int main ( int argc, char *argv[] )
     TICK_N ( "Setup abe" );
 
     if ( find_arg ( "-no-config" ) < 0 ) {
-        gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.rasi", NULL );
-        g_debug ( "Testing: %s", etc );
-        if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
-            g_debug ( "Parsing: %s", etc );
-            rofi_theme_parse_file ( etc );
-        }
-        else {
-            // Load distro default settings
-            gchar *xetc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
-            if ( g_file_test ( xetc, G_FILE_TEST_IS_REGULAR ) ) {
-                config_parse_xresource_options_file ( xetc );
-                old_config_format = TRUE;
+        // Load distro default settings
+        gboolean found_system = FALSE;
+        const char * const * dirs = g_get_system_config_dirs();
+        if ( dirs )
+        {
+            for ( unsigned int i =0;  !found_system &&  dirs[i]; i++ ) {
+                /** New format. */
+                gchar *etc = g_build_filename ( dirs[i], "rofi.rasi", NULL );
+                g_debug ( "Look for default config file: %s", etc );
+                if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
+                    g_debug ( "Parsing: %s", etc );
+                    rofi_theme_parse_file ( etc );
+                    found_system  = TRUE;
+                } else {
+                    /** Old format. */
+                    gchar *xetc = g_build_filename ( dirs[i], "rofi.conf", NULL );
+                    g_debug ( "Look for default config file: %s", xetc );
+                    if ( g_file_test ( xetc, G_FILE_TEST_IS_REGULAR ) ) {
+                        config_parse_xresource_options_file ( xetc );
+                        old_config_format = TRUE;
+                        found_system  = TRUE;
+                    }
+                    g_free ( xetc );
+                }
+                g_free ( etc );
             }
-            g_free ( xetc );
         }
-        g_free ( etc );
+        if ( ! found_system  ) {
+            /** New format. */
+            gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.rasi", NULL );
+            g_debug ( "Look for default config file: %s", etc );
+            if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
+                g_debug ( "Look for default config file: %s", etc );
+                rofi_theme_parse_file ( etc );
+            } else {
+                /** Old format. */
+                gchar *xetc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
+                g_debug ( "Look for default config file: %s", xetc );
+                if ( g_file_test ( xetc, G_FILE_TEST_IS_REGULAR ) ) {
+                    config_parse_xresource_options_file ( xetc );
+                    old_config_format = TRUE;
+                }
+                g_free ( xetc );
+            }
+            g_free ( etc );
+        }
         // Load in config from X resources.
         config_parse_xresource_options ( xcb );
+
         if ( config_path_new && g_file_test ( config_path_new, G_FILE_TEST_IS_REGULAR ) ) {
             if ( rofi_theme_parse_file ( config_path_new ) ) {
                 rofi_theme_free ( rofi_theme );
@@ -877,8 +926,10 @@ int main ( int argc, char *argv[] )
         else {
             g_free ( config_path_new );
             config_path_new = NULL;
-            config_parse_xresource_options_file ( config_path );
-            old_config_format = TRUE;
+            if ( g_file_test ( config_path, G_FILE_TEST_IS_REGULAR ) ) {
+                config_parse_xresource_options_file ( config_path );
+                old_config_format = TRUE;
+            }
         }
     }
     find_arg_str ( "-theme", &( config.theme ) );

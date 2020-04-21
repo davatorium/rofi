@@ -53,7 +53,9 @@ Markup support can be enabled, see CONFIGURATION options.
 
 There are currently three methods of setting configuration options (evaluated in order below):
 
- * System configuration file (for example `/etc/rofi.rasi` or old format `/etc/rofi.conf`).
+ * System configuration file  (for example `/etc/rofi.rasi` or old format `/etc/rofi.conf`).
+   It first checks XDG_CONFIG_DIRS  and then SYSCONFDIR (that is passed at compile time).
+   It loads the first config file it finds, it does not merge multiple system configuration files.
  * Xresources: A method of storing key values in the Xserver. See
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
  * Rasi theme file: The new *theme* format can be used to set configuration values.
@@ -251,7 +253,7 @@ The different fields are:
 * **comment**: the application comment
 * **all**: all of the above
 
-    Default: *name,generic,exec,categories*
+    Default: *name,generic,exec,categories,keywords*
 
 `-drun-display-format`
 
@@ -368,6 +370,11 @@ To show sidebar, use:
 
     rofi -show run -sidebar-mode -lines 0
 
+`-eh` *number*
+
+Set row height (in chars)
+Default: *1*
+
 `-auto-select`
 
 When one entry is left, automatically select it.
@@ -415,6 +422,12 @@ This option can be specified multiple times.
 Override the default DPI setting.
 If set to `0`, it tries to auto-detect based on X11 screen size (similar to i3 and GTK).
 If set to `1`, it tries to auto-detect based on the size of the monitor that rofi is displayed on (similar to latest Qt 5).
+
+`-selected-row` *selected row*
+
+Select a certain row.
+
+Default: *0*
 
 ### PATTERN setting
 
@@ -558,12 +571,6 @@ Specify the prompt to show in dmenu mode. For example, select 'monkey', a,b,c,d,
 
 Default: *dmenu*
 
-`-selected-row` *selected row*
-
-Select a certain row.
-
-Default: *0*
-
 `-l` *number of lines to show*
 
 Maximum number of lines the menu may show before scrolling.
@@ -667,6 +674,11 @@ Reads the first 25 entries blocking, then switches to async mode. This makes it 
 `-window-title` *title*
 
 Set name used for the window title. Will be shown as Rofi - *title*
+
+`-keep-right`
+
+Set ellipsize mode to start. So end of string is visible.
+
 
 ### Message dialog
 
@@ -922,7 +934,7 @@ Show the run dialog:
 
     rofi -modi run -show run
 
-Show the the run dialog, and allow switching to Desktop File run dialog (drun):
+Show the run dialog, and allow switching to Desktop File run dialog (drun):
 
     rofi -modi run,drun -show run
 
@@ -1008,7 +1020,7 @@ first.
 
 ## SEE ALSO
 
-rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-theme-selector(1)
+rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-script(5), rofi-theme-selector(1)
 
 ## AUTHOR
 

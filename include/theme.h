@@ -249,6 +249,16 @@ double rofi_theme_get_double (  const widget *widget, const char *property, doub
  */
 void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d );
 
+
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ *
+ * Check if a rofi theme has a property set.
+ *
+ */
+gboolean rofi_theme_has_property ( const widget *widget, const char *property );
+
 /**
  * @param widget   The widget to query
  * @param property The property to query.

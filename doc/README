@@ -1,4 +1,0 @@
-Update manpage using ronn [https://github.com/rtomayko/ronn]
-
-    ronn --roff --pipe rofi-manpage.markdown > rofi.1
-

@@ -1988,6 +1988,11 @@ void rofi_view_clear_input ( RofiViewState *state )
     }
 }
 
+void rofi_view_ellipsize_start ( RofiViewState *state )
+{
+    listview_set_ellipsize_start ( state->list_view );
+}
+
 void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
 {
     state->sw = mode;

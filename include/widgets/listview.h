@@ -241,9 +241,17 @@ void listview_set_max_lines ( listview *lv, unsigned int max_lines );
 /**
  * @param lv Handler to the listview object.
  *
- * Set ellipsize modee.
+ * Set ellipsize mode.
  */
 void listview_toggle_ellipsizing ( listview *lv );
+
+/**
+ * @param lv Handler to the listview object.
+ *
+ * Set ellipsize mode to start.
+ */
+
+void listview_set_ellipsize_start ( listview *lv );
 /* @} */
 
 #endif // ROFI_LISTVIEW_H

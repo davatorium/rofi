@@ -26,7 +26,7 @@ The name should be unique.
 ## API
 
 Rofi calls the executable without arguments on startup.  This should generate a list of options, separated by a newline
-(`\n`).
+(`\n`) (This can be changed by the script).
 If the user selects an option, rofi calls the executable with the text of that option as the first argument.
 If the script returns no entries, rofi quits.
 
@@ -46,6 +46,19 @@ echo "quit"
 
 This shows two entries, reload and quit. When the quit entry is selected, rofi closes.
 
+## Environment
+
+Rofi sets the following environment variable when executing the script:
+
+### `ROFI_RETV`
+
+An integer number with the current state:
+
+ * **0**: Initial call of script.
+ * **1**: Selected an entry.
+ * **2**: Selected a custom entry.
+ * **10-28**: Custom keybinding 1-19
+
 ## Passing mode options
 
 Extra options, like setting the prompt, can be set by the script.
@@ -64,6 +77,7 @@ The following extra options exists:
  * **markup-rows**: If 'true' renders markup in the row.
  * **urgent**:      Mark rows as urgent. (for syntax see the urgent option in dmenu mode)
  * **active**:      Mark rows as active. (for syntax see the active option in dmenu mode)
+ * **delim**:       Set the delimiter for for next rows. Default is '\n' and this option should finish with this. Only call this on first call of script, it is remembered for consecutive calls.
 
 ## Parsing row options
 
@@ -86,7 +100,7 @@ The following options are supported:
 
 ## SEE ALSO
 
-rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-theme-selector(1)
+rofi(1), rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-theme-selector(1)
 
 ## AUTHOR
 

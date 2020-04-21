@@ -97,7 +97,7 @@ static int textbox_get_desired_height ( widget *wid )
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
     }
-    int height = textbox_get_height ( tb );
+    int height = textbox_get_estimated_height ( tb, pango_layout_get_line_count ( tb->layout ) );
     return height;
 }
 
@@ -852,7 +852,7 @@ int _textbox_get_height ( widget *wid )
 {
     textbox *tb = (textbox *) wid;
     if ( tb->flags & TB_AUTOHEIGHT ) {
-        return textbox_get_height ( tb );
+        return textbox_get_estimated_height ( tb, pango_layout_get_line_count ( tb->layout ) );
     }
     return tb->widget.h;
 }
@@ -911,7 +911,7 @@ double textbox_get_estimated_ch ( void )
 int textbox_get_estimated_height ( const textbox *tb, int eh )
 {
     int height = pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics );
-    return ( eh * height ) / PANGO_SCALE + widget_padding_get_padding_height ( WIDGET ( tb ) );
+    return ceil(( eh * height ) / (double)PANGO_SCALE) + widget_padding_get_padding_height ( WIDGET ( tb ) );
 }
 int textbox_get_desired_width ( widget *wid )
 {

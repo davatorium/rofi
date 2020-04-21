@@ -156,7 +156,11 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
 
     if ( input[0][0] == '!' ) {
         int     switcher = -1;
-        char    *eob     = strchrnul ( input[0], ' ' );
+        // Implement strchrnul behaviour.
+        char    *eob     = g_utf8_strchr ( input[0], -1,' ' );
+        if ( eob == NULL ) {
+            eob = &(input[0][strlen(input[0])]);
+        }
         ssize_t bang_len = g_utf8_pointer_to_offset ( input[0], eob ) - 1;
         if ( bang_len > 0 ) {
             for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
@@ -277,7 +281,12 @@ static char * combi_preprocess_input ( Mode *sw, const char *input )
         pd->switchers[i].disable = FALSE;
     }
     if ( input != NULL && input[0] == '!' ) {
-        char    *eob     = strchrnul ( input, ' ' );
+        // Implement strchrnul behaviour.
+        const char    *eob     = g_utf8_strchr ( input, -1, ' ' );
+        if ( eob == NULL ) {
+            // Set it to end.
+            eob = &(input[strlen(input)]);
+        }
         ssize_t bang_len = g_utf8_pointer_to_offset ( input, eob ) - 1;
         if ( bang_len > 0 ) {
             for ( unsigned i = 0; i < pd->num_switchers; i++ ) {

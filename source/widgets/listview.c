@@ -668,6 +668,13 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
     //
     _listview_row row;
     listview_create_row ( lv, &row );
+    // FIXME: hack to scale hight correctly.
+    if ( lv->eh > 1 && row.textbox ) {
+        char buff[lv->eh*2+1] ;
+        memset( buff, '\0', lv->eh*2+1);
+        for ( unsigned int i = 0; i < (lv->eh-1); i++) { buff[i*2] = 'a'; buff[i*2+1] ='\n'; };
+        textbox_text( row.textbox, buff);
+    }
     lv->element_height = widget_get_desired_height ( WIDGET ( row.box ) );
     widget_free ( WIDGET ( row.box ) );
 
@@ -961,6 +968,16 @@ void listview_set_fixed_num_lines ( listview *lv )
 {
     if ( lv  ) {
         lv->fixed_num_lines = TRUE;
+    }
+}
+
+void listview_set_ellipsize_start ( listview *lv )
+{
+    if ( lv ) {
+        lv->emode = PANGO_ELLIPSIZE_START;
+        for ( unsigned int i = 0; i < lv->cur_elements; i++ ) {
+            textbox_set_ellipsize ( lv->boxes[i].textbox, lv->emode );
+        }
     }
 }
 

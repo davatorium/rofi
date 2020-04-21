@@ -855,6 +855,15 @@ gboolean rofi_theme_is_empty ( void )
     if ( rofi_theme->properties == NULL && rofi_theme->num_widgets == 0 ) {
         return TRUE;
     }
+    if ( rofi_theme->num_widgets == 3 ) {
+      // HACK: check for default added elements.
+      for ( unsigned int i = 0; i < rofi_theme->num_widgets;i++) {
+        if ( strncmp ( rofi_theme->widgets[i]->name, "element", 7) != 0 ){
+          return FALSE;
+        }
+      }
+      return TRUE;
+    }
 
     return FALSE;
 }
@@ -1148,4 +1157,21 @@ ThemeMediaType rofi_theme_parse_media_type ( const char *type )
         return THEME_MEDIA_TYPE_MAX_ASPECT_RATIO;
     }
     return THEME_MEDIA_TYPE_INVALID;
+}
+
+
+gboolean rofi_theme_has_property ( const widget *widget, const char *property )
+{
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property    *p   = rofi_theme_find_property ( wid, P_STRING, property, FALSE );
+    if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_has_property ( widget->parent, property );
+            }
+            return FALSE;
+        }
+        return TRUE;
+    }
+    return FALSE;
 }
