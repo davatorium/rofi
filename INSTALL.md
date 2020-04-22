@@ -20,6 +20,7 @@ You can also use [Meson](https://mesonbuild.com/) as an alternative.
 * check (Can be disabled using the `--disable-check` configure flag)
   check is used for build-time tests and does not affect functionality.
 * Developer packages of the external libraries
+* glib-compile-resources
 
 ### External libraries
 
