@@ -47,7 +47,8 @@
 void yyerror ( YYLTYPE *yylloc, const char *, const char * );
 static gboolean distance_compare ( RofiDistance d, RofiDistance e )
 {
-    return d.type == e.type && d.distance == e.distance && d.style == e.style;
+    // TODO UPDATE
+    return d.base.type == e.base.type && d.base.distance == e.base.distance && d.style == e.style;
 }
 
 static gpointer rofi_g_list_strdup ( gconstpointer data, G_GNUC_UNUSED gpointer user_data )
@@ -80,6 +81,26 @@ Property *rofi_theme_property_create ( PropertyType type )
     retv->type = type;
     return retv;
 }
+
+static RofiDistanceUnit  *rofi_theme_property_copy_distance_unit ( RofiDistanceUnit *unit )
+{
+    RofiDistanceUnit *retv = g_malloc0( sizeof(RofiDistanceUnit) );
+    *retv  = *unit;
+    if ( unit->modifier ) {
+            retv->modifier = rofi_theme_property_copy_distance_unit ( unit->modifier );
+    }
+    return retv;
+}
+RofiDistance rofi_theme_property_copy_distance  ( RofiDistance const distance )
+{
+    RofiDistance retv = distance;
+    if ( distance.base.modifier )
+    {
+        retv.base.modifier = rofi_theme_property_copy_distance_unit ( distance.base.modifier );
+    }
+    return retv;
+}
+
 Property* rofi_theme_property_copy ( Property *p )
 {
     Property *retv = rofi_theme_property_create ( p->type );
@@ -100,10 +121,35 @@ Property* rofi_theme_property_copy ( Property *p )
             retv->value.link.def_value = rofi_theme_property_copy ( p->value.link.def_value );
         }
         break;
+    case P_PADDING:
+        {
+            retv->value = p->value;
+            retv->value.padding.top    = rofi_theme_property_copy_distance ( p->value.padding.top);
+            retv->value.padding.left   = rofi_theme_property_copy_distance ( p->value.padding.left);
+            retv->value.padding.bottom = rofi_theme_property_copy_distance ( p->value.padding.bottom);
+            retv->value.padding.right  = rofi_theme_property_copy_distance ( p->value.padding.right);
+            break;
+        }
     default:
         retv->value = p->value;
     }
     return retv;
+}
+
+static void rofi_theme_distance_unit_property_free ( RofiDistanceUnit *unit )
+{
+    if ( unit->modifier ) {
+        rofi_theme_distance_unit_property_free ( unit->modifier );
+        unit->modifier = NULL;
+    }
+    g_free (unit);
+}
+static void rofi_theme_distance_property_free ( RofiDistance *distance )
+{
+    if ( distance->base.modifier ) {
+        rofi_theme_distance_unit_property_free ( distance->base.modifier );
+        distance->base.modifier = NULL;
+    }
 }
 
 void rofi_theme_property_free ( Property *p )
@@ -120,6 +166,12 @@ void rofi_theme_property_free ( Property *p )
         if ( p->value.link.def_value ) {
             rofi_theme_property_free ( p->value.link.def_value );
         }
+    }
+    if ( p->type == P_PADDING) {
+        rofi_theme_distance_property_free( &(p->value.padding.top));
+        rofi_theme_distance_property_free( &(p->value.padding.right));
+        rofi_theme_distance_property_free( &(p->value.padding.bottom));
+        rofi_theme_distance_property_free( &(p->value.padding.left));
     }
     g_slice_free ( Property, p );
 }
@@ -149,7 +201,7 @@ static void rofi_theme_insert_listview_backwards_fix ( void )
 
     rofi_theme_widget_add_properties ( tt, table );
 
-    RofiDistance dsize = (RofiDistance){ 1.2, ROFI_PU_CH, ROFI_HL_SOLID };
+    RofiDistance dsize = (RofiDistance){ .base = {1.2, ROFI_PU_CH, ROFI_DISTANCE_MODIFIER_NONE, NULL}, .style = ROFI_HL_SOLID };
     Property     *pts  = rofi_theme_property_create ( P_PADDING );
     pts->value.padding.top = pts->value.padding.right = pts->value.padding.bottom = pts->value.padding.left = dsize;
     pts->name              = g_strdup ( "size" );
@@ -162,7 +214,7 @@ static void rofi_theme_insert_listview_backwards_fix ( void )
     table = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) rofi_theme_property_free );
     Property     *psp = rofi_theme_property_create ( P_PADDING );
     psp->name = g_strdup ( "spacing" );
-    RofiDistance d = (RofiDistance){ 5, ROFI_PU_PX, ROFI_HL_SOLID };
+    RofiDistance d = (RofiDistance){ .base = {5, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL}, .style = ROFI_HL_SOLID };
     psp->value.padding = (RofiPadding){ d, d, d, d };
     g_hash_table_replace ( table, psp->name, psp );
     rofi_theme_widget_add_properties ( t, table );
@@ -206,19 +258,19 @@ inline static void printf_double ( double d )
 }
 static void rofi_theme_print_distance ( RofiDistance d )
 {
-    if ( d.type == ROFI_PU_PX ) {
-        printf ( "%upx ", (unsigned int) d.distance );
+    if ( d.base.type == ROFI_PU_PX ) {
+        printf ( "%upx ", (unsigned int) d.base.distance );
     }
-    else if ( d.type == ROFI_PU_PERCENT ) {
-        printf_double ( d.distance );
+    else if ( d.base.type == ROFI_PU_PERCENT ) {
+        printf_double ( d.base.distance );
         fputs ( "%% ", stdout );
     }
-    else if ( d.type == ROFI_PU_CH ) {
-        printf_double ( d.distance );
+    else if ( d.base.type == ROFI_PU_CH ) {
+        printf_double ( d.base.distance );
         fputs ( "ch ", stdout );
     }
     else {
-        printf_double ( d.distance );
+        printf_double ( d.base.distance );
         fputs ( "em ", stdout );
     }
     if ( d.style == ROFI_HL_DASH ) {
@@ -636,17 +688,17 @@ RofiDistance rofi_theme_get_distance ( const widget *widget, const char *propert
             if ( widget->parent ) {
                 return rofi_theme_get_distance ( widget->parent, property, def );
             }
-            return (RofiDistance){ def, ROFI_PU_PX, ROFI_HL_SOLID };
+            return (RofiDistance){ .base = {def, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL}, .style = ROFI_HL_SOLID };
         }
         if ( p->type == P_INTEGER ) {
-            return (RofiDistance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
+            return (RofiDistance){ .base = { p->value.i, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL}, .style = ROFI_HL_SOLID };
         }
         else {
             return p->value.padding.left;
         }
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
-    return (RofiDistance){ def, ROFI_PU_PX, ROFI_HL_SOLID };
+    return (RofiDistance){ .base = {def, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL}, .style = ROFI_HL_SOLID };
 }
 
 int rofi_theme_get_boolean ( const widget *widget, const char *property, int def )
@@ -762,7 +814,7 @@ RofiPadding rofi_theme_get_padding ( const widget *widget, const char *property,
             pad = p->value.padding;
         }
         else {
-            RofiDistance d = (RofiDistance){ p->value.i, ROFI_PU_PX, ROFI_HL_SOLID };
+            RofiDistance d = (RofiDistance){ .base = {p->value.i, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL}, .style = ROFI_HL_SOLID };
             return (RofiPadding){ d, d, d, d };
         }
     }
@@ -813,27 +865,49 @@ RofiHighlightColorStyle rofi_theme_get_highlight ( widget *widget, const char *p
     return th;
 }
 
-int distance_get_pixel ( RofiDistance d, RofiOrientation ori )
+
+static int distance_unit_get_pixel ( RofiDistanceUnit *unit, RofiOrientation ori )
 {
-    if ( d.type == ROFI_PU_EM ) {
-        return d.distance * textbox_get_estimated_char_height ();
+    int val = unit->distance;
+
+
+    if ( unit->type == ROFI_PU_EM ) {
+        val = unit->distance * textbox_get_estimated_char_height ();
     }
-    else if ( d.type == ROFI_PU_CH ) {
-        return d.distance * textbox_get_estimated_ch ();
+    else if ( unit->type == ROFI_PU_CH ) {
+        val = unit->distance * textbox_get_estimated_ch ();
     }
-    else if ( d.type == ROFI_PU_PERCENT ) {
+    else if ( unit->type == ROFI_PU_PERCENT ) {
         if ( ori == ROFI_ORIENTATION_VERTICAL ) {
             int height = 0;
             rofi_view_get_current_monitor ( NULL, &height );
-            return ( d.distance * height ) / ( 100.0 );
+            val = ( unit->distance * height ) / ( 100.0 );
         }
         else {
             int width = 0;
             rofi_view_get_current_monitor ( &width, NULL );
-            return ( d.distance * width ) / ( 100.0 );
+            val = ( unit->distance * width ) / ( 100.0 );
         }
     }
-    return d.distance;
+    if ( unit->modifier ) {
+        switch ( unit->modifier->modtype)
+        {
+            case ROFI_DISTANCE_MODIFIER_ADD:
+                val += distance_unit_get_pixel ( unit->modifier, ori);
+                break;
+            case ROFI_DISTANCE_MODIFIER_SUBTRACT:
+                val -= distance_unit_get_pixel ( unit->modifier, ori);
+                break;
+            default:
+                break;
+        }
+    }
+    return val;
+}
+
+int distance_get_pixel ( RofiDistance d, RofiOrientation ori )
+{
+    return distance_unit_get_pixel ( &(d.base), ori);
 }
 
 void distance_get_linestyle ( RofiDistance d, cairo_t *draw )
