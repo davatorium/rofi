@@ -68,8 +68,12 @@ Markup support can be enabled, see CONFIGURATION options.
 .SH CONFIGURATION
 .PP
 There are currently three methods of setting configuration options (evaluated in order below):
+
+.RS
 .IP \(bu 2
-System configuration file (for example \fB\fC/etc/rofi.rasi\fR or old format \fB\fC/etc/rofi.conf\fR).
+System configuration file  (for example \fB\fC/etc/rofi.rasi\fR or old format \fB\fC/etc/rofi.conf\fR).
+It first checks XDG\_CONFIG\_DIRS  and then SYSCONFDIR (that is passed at compile time).
+It loads the first config file it finds, it does not merge multiple system configuration files.
 .IP \(bu 2
 Xresources: A method of storing key values in the Xserver. See
 here
@@ -83,6 +87,8 @@ By default XDG\_USER\_CONFIG\_DIR defaults to \fB\fC$HOME/.config\fR\&. (See \fB
 This is the recommended way of configuring \fBrofi\fP\&.
 .IP \(bu 2
 Command\-line options: Arguments passed to \fBrofi\fP\&.
+
+.RE
 
 .PP
 \fBTIP\fP: To get a template config file run: \fB\fCrofi \-dump\-xresources > rofi\-example.config\fR\&.
@@ -129,6 +135,8 @@ rofi \-dump\-xresources
 
 .PP
 The configuration system supports the following types:
+
+.RS
 .IP \(bu 2
 string
 .IP \(bu 2
@@ -137,6 +145,8 @@ integer (signed and unsigned)
 char
 .IP \(bu 2
 Boolean
+
+.RE
 
 .PP
 Boolean options have a non\-default command\-line syntax. Example to enable option X:
@@ -185,12 +195,16 @@ This does not validate all passed values (for example, colors).
 
 .PP
 Specify the number of threads \fBrofi\fP should use:
+
+.RS
 .IP \(bu 2
 0: Autodetect the number of supported hardware threads.
 .IP \(bu 2
 1: Disable threading
 .IP \(bu 2
 2..N: Specify the maximum number of threads to use in the thread pool.
+
+.RE
 
 .PP
 \fB\fC\-dmenu\fR
@@ -378,6 +392,8 @@ fallback themes.
 .PP
 Specify the matching algorithm used.
 Current the following methods are supported.
+
+.RS
 .IP \(bu 2
 \fBnormal\fP: match the int string
 .IP \(bu 2
@@ -386,6 +402,8 @@ Current the following methods are supported.
 \fBglob\fP: match a glob pattern
 .IP \(bu 2
 \fBfuzzy\fP: do a fuzzy match
+
+.RE
 
 .PP
 Default: \fInormal\fP
@@ -411,6 +429,8 @@ Only show desktop files that are present in the listed categories.
 .PP
 When using drun, match only with the specified Desktop entry fields.
 The different fields are:
+
+.RS
 .IP \(bu 2
 \fBname\fP: the application's name
 .IP \(bu 2
@@ -428,11 +448,15 @@ The different fields are:
 .PP
 Default: \fIname,generic,exec,categories,keywords\fP
 
+.RE
+
 .PP
 \fB\fC\-drun\-display\-format\fR
 
 .PP
 The format string for the drun dialog:
+
+.RS
 .IP \(bu 2
 \fBname\fP: the application's name
 .IP \(bu 2
@@ -443,6 +467,8 @@ The format string for the drun dialog:
 \fBcategories\fP: the application's categories
 .IP \(bu 2
 \fBcomment\fP: the application comment
+
+.RE
 
 .PP
 Pango markup can be used to formatting the output.
@@ -480,6 +506,8 @@ Default: false
 .PP
 When using window mode, match only with the specified fields.
 The different fields are:
+
+.RS
 .IP \(bu 2
 \fBtitle\fP: window's title
 .IP \(bu 2
@@ -496,6 +524,8 @@ The different fields are:
 \fBall\fP: all of the above
 .PP
 Default: \fIall\fP
+
+.RE
 
 .PP
 \fB\fC\-matching\-negate\-char\fR \fIchar\fP
@@ -686,6 +716,8 @@ When one entry is left, automatically select it.
 Select monitor to display \fBrofi\fP on.
 It accepts as input: \fIprimary\fP (if primary output is set), the \fIxrandr\fP output name, or integer number (in order of
 detection). Negative numbers are handled differently:
+
+.RS
 .IP \(bu 2
 \fB\-1\fP: the currently focused monitor.
 .IP \(bu 2
@@ -701,6 +733,8 @@ behavior.)
 \fB\-5\fP: the monitor that shows the mouse pointer.
 .PP
 Default: \fI\-5\fP
+
+.RE
 
 .PP
 See \fB\fCrofi \-h\fR output for the detected monitors, their position, and size.
@@ -852,6 +886,8 @@ Format what is being displayed for windows.
 
 .PP
 \fIfield\fP:
+
+.RS
 .IP \(bu 2
 \fBw\fP: desktop name
 .IP \(bu 2
@@ -862,6 +898,8 @@ Format what is being displayed for windows.
 \fBr\fP: role
 .IP \(bu 2
 \fBc\fP: class
+
+.RE
 
 .PP
 \fIlen\fP: maximum field length (0 for auto\-size). If length and window \fIwidth\fP are negative, field length is \fIwidth \- len\fP\&.
@@ -923,10 +961,14 @@ This setting can be changed at runtime (see \fB\fC\-kb\-toggle\-sort\fR).
 
 .PP
 There are 2 sorting method:
+
+.RS
 .IP \(bu 2
 levenshtein (Default)
 .IP \(bu 2
 fzf sorting.
+
+.RE
 
 .SS Dmenu specific
 .PP
@@ -991,6 +1033,8 @@ Makes dmenu searches case\-insensitive
 
 .PP
 Active row, mark \fIX\fP as active. Where \fIX\fP is a comma\-separated list of python(1)\-style indices and ranges, e.g.  indices start at 0, \-1 refers to the last row with \-2 preceding it, ranges are left\-open and right\-close, and so on. You can specify:
+
+.RS
 .IP \(bu 2
 A single row: '5'
 .IP \(bu 2
@@ -1001,6 +1045,8 @@ A range of (last 3) rows: '\-3:'
 A set of rows: '2,0,\-9'
 .IP \(bu 2
 Or any combination: '5,\-3:,7:11,2,0,\-9'
+
+.RE
 
 .PP
 \fB\fC\-u\fR \fIX\fP
@@ -1027,6 +1073,8 @@ This mode returns directly when no entries given.
 
 .PP
 Allows the output of dmenu to be customized (N is the total number of input entries):
+
+.RS
 .IP \(bu 2
 \&'s' selected string
 .IP \(bu 2
@@ -1041,6 +1089,8 @@ Allows the output of dmenu to be customized (N is the total number of input entr
 \&'f' filter string (user input)
 .IP \(bu 2
 \&'F' quoted filter string (user input)
+
+.RE
 
 .PP
 Default: 's'
@@ -1123,6 +1173,12 @@ Reads the first 25 entries blocking, then switches to async mode. This makes it 
 
 .PP
 Set name used for the window title. Will be shown as Rofi \- \fItitle\fP
+
+.PP
+\fB\fC\-keep\-right\fR
+
+.PP
+Set ellipsize mode to start. So end of string is visible.
 
 .SS Message dialog
 .PP
@@ -1224,6 +1280,8 @@ For more information on debugging, see the wiki
 .SH PATTERN
 .PP
 To launch commands (for example, when using the ssh launcher), the user can enter the used command\-line. The following keys can be used that will be replaced at runtime:
+
+.RS
 .IP \(bu 2
 \fB\fC{host}\fR: the host to connect to
 .IP \(bu 2
@@ -1234,6 +1292,8 @@ To launch commands (for example, when using the ssh launcher), the user can ente
 \fB\fC{cmd}\fR: the command to execute
 .IP \(bu 2
 \fB\fC{window}\fR: the window ID of the selected window (in \fB\fCwindow\-command\fR)
+
+.RE
 
 .SH DMENU REPLACEMENT
 .PP
@@ -1257,6 +1317,8 @@ manual.
 .PP
 The theme setup allows you to specify colors per state, similar to \fBi3\fP
 Currently 3 states exist:
+
+.RS
 .IP \(bu 2
 \fBnormal\fP: normal row
 .IP \(bu 2
@@ -1264,8 +1326,12 @@ Currently 3 states exist:
 .IP \(bu 2
 \fBactive\fP: highlighted row (active)
 
+.RE
+
 .PP
 For each state, the following 5 colors must be set:
+
+.RS
 .IP \(bu 2
 \fBbg\fP: background color row
 .IP \(bu 2
@@ -1276,6 +1342,8 @@ For each state, the following 5 colors must be set:
 \fBhlfg\fP: foreground color selected row
 .IP \(bu 2
 \fBhlbg\fP: background color selected row
+
+.RE
 
 .PP
 The window background and border color should be specified separately. The key \fB\fCcolor\-window\fR contains
@@ -1362,6 +1430,8 @@ of the window will be visible through it.
 .SH KEY BINDINGS
 .PP
 \fBrofi\fP has the following key bindings:
+
+.RS
 .IP \(bu 2
 \fB\fCCtrl\-v, Insert\fR: Paste from clipboard
 .IP \(bu 2
@@ -1426,6 +1496,8 @@ of the window will be visible through it.
 \fB\fCAlt\-grave\fR: Toggle sorting.
 .IP \(bu 2
 \fB\fCAlt\-Shift\-S\fR: Take a screenshot and store it in the Pictures directory.
+
+.RE
 
 .PP
 To get a full list of key bindings on the commandline, see \fB\fCrofi \-h\fR\&.
@@ -1683,7 +1755,7 @@ first.
 
 .SH SEE ALSO
 .PP
-rofi\-sensible\-terminal(1), dmenu(1), rofi\-theme(5), rofi\-theme\-selector(1)
+rofi\-sensible\-terminal(1), dmenu(1), rofi\-theme(5), rofi\-script(5), rofi\-theme\-selector(1)
 
 .SH AUTHOR
 .PP

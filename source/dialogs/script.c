@@ -69,6 +69,8 @@ typedef struct
     char                   *prompt;
     gboolean               do_markup;
 	char 				   delim;
+    /** no custom */
+    gboolean               no_custom;
 } ScriptModePrivateData;
 
 /**
@@ -131,6 +133,8 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
         }
         else if ( strcasecmp ( line, "delim" ) == 0 ) {
             pd->delim = helper_parse_char ( value );
+        } else if ( strcasecmp ( line, "no-custom" ) == 0 ) {
+            pd->no_custom = ( strcasecmp ( value, "true") == 0 );
         }
     }
 }
@@ -272,7 +276,11 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
         if ( selected_line != UINT32_MAX ) {
             new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length,10+( mretv & MENU_LOWER_MASK ) );
         } else {
-            new_list = execute_executor ( sw, *input, &new_length,10+( mretv & MENU_LOWER_MASK ) );
+            if ( rmpd->no_custom == FALSE ) {
+                new_list = execute_executor ( sw, *input, &new_length,10+( mretv & MENU_LOWER_MASK ) );
+            } else {
+                return RELOAD_DIALOG;
+            }
         }
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line].entry != NULL ) {
@@ -283,8 +291,12 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
         new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 1 );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        script_mode_reset_highlight ( sw );
-        new_list = execute_executor ( sw, *input, &new_length, 2 );
+        if ( rmpd->no_custom == FALSE ) {
+            script_mode_reset_highlight ( sw );
+            new_list = execute_executor ( sw, *input, &new_length, 2 );
+        } else {
+            return RELOAD_DIALOG;
+        }
     }
 
     // If a new list was generated, use that an loop around.
