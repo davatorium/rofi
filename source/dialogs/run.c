@@ -532,6 +532,22 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
 
     return NULL;
 }
+static char *run_get_message ( const Mode *sw )
+{
+    RunModePrivateData *pd = sw->private_data;
+    if ( pd->file_complete ) {
+        if ( pd->selected_line < pd->cmd_list_length ) {
+            char *msg =  mode_get_message ( pd->completer);
+            if (msg ){
+                char *retv = g_strdup_printf("File complete for: %s\n%s", pd->cmd_list[pd->selected_line].entry, msg);
+                g_free (msg);
+                return retv;
+            }
+            return  g_strdup_printf("File complete for: %s", pd->cmd_list[pd->selected_line].entry);
+        }
+    }
+    return NULL;
+}
 
 #include "mode-private.h"
 Mode run_mode =
@@ -543,6 +559,7 @@ Mode run_mode =
     ._result            = run_mode_result,
     ._destroy           = run_mode_destroy,
     ._token_match       = run_token_match,
+    ._get_message       = run_get_message,
     ._get_display_value = _get_display_value,
     ._get_icon          = _get_icon,
     ._get_completion    = NULL,
