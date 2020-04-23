@@ -266,6 +266,10 @@ static void rofi_theme_print_distance_unit ( RofiDistanceUnit *unit )
         fputs ( " + ", stdout );
     } else if ( unit->modtype == ROFI_DISTANCE_MODIFIER_SUBTRACT ) {
         fputs ( " - ", stdout );
+    } else if ( unit->modtype == ROFI_DISTANCE_MODIFIER_DIVIDE ) {
+        fputs ( " / ", stdout );
+    } else if ( unit->modtype == ROFI_DISTANCE_MODIFIER_MULTIPLY) {
+        fputs ( " * ", stdout );
     }
 
     if ( unit->type == ROFI_PU_PX ) {
@@ -289,7 +293,13 @@ static void rofi_theme_print_distance_unit ( RofiDistanceUnit *unit )
 }
 static void rofi_theme_print_distance ( RofiDistance d )
 {
+    if ( d.base.modifier ){
+        fputs( "calc( ", stdout );
+    }
     rofi_theme_print_distance_unit ( &(d.base) );
+    if ( d.base.modifier ){
+        fputs( ")", stdout );
+    }
     if ( d.style == ROFI_HL_DASH ) {
         printf ( "dash " );
     }
@@ -915,6 +925,17 @@ static int distance_unit_get_pixel ( RofiDistanceUnit *unit, RofiOrientation ori
             case ROFI_DISTANCE_MODIFIER_SUBTRACT:
                 val -= distance_unit_get_pixel ( unit->modifier, ori);
                 break;
+            case ROFI_DISTANCE_MODIFIER_MULTIPLY:
+                val *= distance_unit_get_pixel ( unit->modifier, ori);
+                break;
+            case ROFI_DISTANCE_MODIFIER_DIVIDE:
+                {
+                    int v = distance_unit_get_pixel ( unit->modifier, ori);
+                    if ( v != 0 ) {
+                        val /= v;
+                    }
+                    break;
+                }
             default:
                 break;
         }

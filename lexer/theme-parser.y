@@ -213,6 +213,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 
 %token T_MODIFIER_ADD                     "Add ('+')"
 %token T_MODIFIER_SUBTRACT                "Subtract ('-')"
+%token T_MODIFIER_DIVIDE                  "Divide ('/')"
+%token T_MODIFIER_MULTIPLY                "Multiply ('*')"
 
 %token T_CALC                           "calc"
 
@@ -610,6 +612,7 @@ t_property_distance_zero
     $$.base.distance = (double) $1;
     $$.base.type     = ROFI_PU_PX;
     $$.base.modifier = NULL;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
     $$.style    = $2;
 }
 | t_property_distance { $$ = $1;}
@@ -617,7 +620,9 @@ t_property_distance_zero
 
 t_property_distance_modifier_type
 : T_MODIFIER_ADD { $$ = ROFI_DISTANCE_MODIFIER_ADD; }
-| T_MODIFIER_SUBTRACT { $$ = ROFI_DISTANCE_MODIFIER_SUBTRACT; };
+| T_MODIFIER_SUBTRACT { $$ = ROFI_DISTANCE_MODIFIER_SUBTRACT; }
+| T_MODIFIER_DIVIDE { $$ = ROFI_DISTANCE_MODIFIER_DIVIDE; }
+| T_MODIFIER_MULTIPLY { $$ = ROFI_DISTANCE_MODIFIER_MULTIPLY; };
 
 
 /** Distance. */
@@ -626,6 +631,13 @@ t_property_distance_unit
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->distance = (double)$2;
     $$->type     = $3;
+    $$->modifier = NULL;
+    $$->modtype = $1;
+}
+| t_property_distance_modifier_type T_INT {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = (double)$2;
+    $$->type     = T_UNIT_PX;
     $$->modifier = NULL;
     $$->modtype = $1;
 }
@@ -641,6 +653,13 @@ t_property_distance_unit
     $$->distance = (double)$2;
     $$->type     = $3;
     $$->modifier = $4;
+    $$->modtype = $1;
+}
+| t_property_distance_modifier_type T_INT t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = (double)$2;
+    $$->type     = T_UNIT_PX;
+    $$->modifier = $3;
     $$->modtype = $1;
 }
 | t_property_distance_modifier_type T_DOUBLE t_property_unit t_property_distance_unit {
@@ -688,6 +707,13 @@ t_property_distance
     $$.base.modifier = $5;
     $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
     $$.style    = $7;
+}
+| T_CALC T_PARENT_LEFT T_INT t_property_distance_unit T_PARENT_RIGHT t_property_line_style {
+    $$.base.distance = (double)$3;
+    $$.base.type     = T_UNIT_PX;
+    $$.base.modifier = $4;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
+    $$.style    = $6;
 }
 | T_CALC T_PARENT_LEFT T_DOUBLE t_property_unit t_property_distance_unit T_PARENT_RIGHT t_property_line_style {
     $$.base.distance = (double)$3;
