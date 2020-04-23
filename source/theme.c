@@ -84,7 +84,7 @@ Property *rofi_theme_property_create ( PropertyType type )
 
 static RofiDistanceUnit  *rofi_theme_property_copy_distance_unit ( RofiDistanceUnit *unit )
 {
-    RofiDistanceUnit *retv = g_malloc0( sizeof(RofiDistanceUnit) );
+    RofiDistanceUnit *retv = g_slice_new0( RofiDistanceUnit );
     *retv  = *unit;
     if ( unit->modifier ) {
             retv->modifier = rofi_theme_property_copy_distance_unit ( unit->modifier );
@@ -142,7 +142,7 @@ static void rofi_theme_distance_unit_property_free ( RofiDistanceUnit *unit )
         rofi_theme_distance_unit_property_free ( unit->modifier );
         unit->modifier = NULL;
     }
-    g_free (unit);
+    g_slice_free ( RofiDistanceUnit, unit);
 }
 static void rofi_theme_distance_property_free ( RofiDistance *distance )
 {
@@ -239,6 +239,9 @@ void rofi_theme_free ( ThemeWidget *widget )
         g_hash_table_destroy ( widget->properties );
         widget->properties = NULL;
     }
+    if ( widget->media ) {
+        g_slice_free ( ThemeMedia, widget->media );
+    }
     for ( unsigned int i = 0; i < widget->num_widgets; i++ ) {
         rofi_theme_free ( widget->widgets[i] );
     }
@@ -256,23 +259,37 @@ inline static void printf_double ( double d )
     g_ascii_formatd ( buf, G_ASCII_DTOSTR_BUF_SIZE, "%.4lf", d );
     fputs ( buf, stdout );
 }
-static void rofi_theme_print_distance ( RofiDistance d )
+
+static void rofi_theme_print_distance_unit ( RofiDistanceUnit *unit )
 {
-    if ( d.base.type == ROFI_PU_PX ) {
-        printf ( "%upx ", (unsigned int) d.base.distance );
+    if ( unit->modtype == ROFI_DISTANCE_MODIFIER_ADD ) {
+        fputs ( " + ", stdout );
+    } else if ( unit->modtype == ROFI_DISTANCE_MODIFIER_SUBTRACT ) {
+        fputs ( " - ", stdout );
     }
-    else if ( d.base.type == ROFI_PU_PERCENT ) {
-        printf_double ( d.base.distance );
-        fputs ( "%% ", stdout );
+
+    if ( unit->type == ROFI_PU_PX ) {
+        printf ( "%upx ", (unsigned int) unit->distance );
     }
-    else if ( d.base.type == ROFI_PU_CH ) {
-        printf_double ( d.base.distance );
+    else if ( unit->type == ROFI_PU_PERCENT ) {
+        printf_double ( unit->distance );
+        fputs ( "% ", stdout );
+    }
+    else if ( unit->type == ROFI_PU_CH ) {
+        printf_double ( unit->distance );
         fputs ( "ch ", stdout );
     }
     else {
-        printf_double ( d.base.distance );
+        printf_double ( unit->distance );
         fputs ( "em ", stdout );
     }
+    if ( unit->modifier ) {
+        rofi_theme_print_distance_unit ( unit->modifier );
+    }
+}
+static void rofi_theme_print_distance ( RofiDistance d )
+{
+    rofi_theme_print_distance_unit ( &(d.base) );
     if ( d.style == ROFI_HL_DASH ) {
         printf ( "dash " );
     }
