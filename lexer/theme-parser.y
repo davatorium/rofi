@@ -214,6 +214,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_MODIFIER_ADD                     "Add ('+')"
 %token T_MODIFIER_SUBTRACT                "Subtract ('-')"
 
+%token T_CALC                           "calc"
+
 %token T_BOPEN                          "bracket open ('{')"
 %token T_BCLOSE                         "bracket close ('}')"
 %token T_PSEP                           "property separator (':')"
@@ -666,19 +668,33 @@ t_property_distance
     $$.base.modifier = NULL;
     $$.style    = $3;
 }
-| T_INT t_property_unit t_property_distance_unit t_property_line_style {
-    $$.base.distance = (double)$1;
-    $$.base.type     = $2;
-    $$.base.modifier = $3;
+| T_CALC T_PARENT_LEFT T_INT t_property_unit T_PARENT_RIGHT t_property_line_style {
+    $$.base.distance = (double)$3;
+    $$.base.type     = $4;
+    $$.base.modifier = NULL;
     $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.style    = $4;
+    $$.style    = $6;
 }
-| T_DOUBLE t_property_unit t_property_distance_unit t_property_line_style {
-    $$.base.distance = (double)$1;
-    $$.base.type     = $2;
-    $$.base.modifier = $3;
+| T_CALC T_PARENT_LEFT T_DOUBLE t_property_unit T_PARENT_RIGHT t_property_line_style {
+    $$.base.distance = (double)$3;
+    $$.base.type     = $4;
+    $$.base.modifier = NULL;
     $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.style    = $4;
+    $$.style    = $6;
+}
+| T_CALC T_PARENT_LEFT T_INT t_property_unit t_property_distance_unit T_PARENT_RIGHT t_property_line_style {
+    $$.base.distance = (double)$3;
+    $$.base.type     = $4;
+    $$.base.modifier = $5;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
+    $$.style    = $7;
+}
+| T_CALC T_PARENT_LEFT T_DOUBLE t_property_unit t_property_distance_unit T_PARENT_RIGHT t_property_line_style {
+    $$.base.distance = (double)$3;
+    $$.base.type     = $4;
+    $$.base.modifier = $5;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
+    $$.style    = $7;
 };
 
 /** distance unit. px, em, % */
