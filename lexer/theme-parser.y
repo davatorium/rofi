@@ -211,10 +211,10 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_LIST_OPEN                      "List open ('[')"
 %token T_LIST_CLOSE                     "List close (']')"
 
-%token T_MODIFIER_ADD                     "Add ('+')"
-%token T_MODIFIER_SUBTRACT                "Subtract ('-')"
-%token T_MODIFIER_DIVIDE                  "Divide ('/')"
-%token T_MODIFIER_MULTIPLY                "Multiply ('*')"
+%token T_MODIFIER_ADD                   "Add ('+')"
+%token T_MODIFIER_SUBTRACT              "Subtract ('-')"
+%token T_MODIFIER_DIVIDE                "Divide ('/')"
+%token T_MODIFIER_MULTIPLY              "Multiply ('*')"
 
 %token T_CALC                           "calc"
 
@@ -671,6 +671,12 @@ t_property_distance_unit_math
     $$->left  = $1;
     $$->right = $3;
     $$->modtype = ROFI_DISTANCE_MODIFIER_DIVIDE;
+}
+| t_property_distance_unit_math T_PERCENT t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left  = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MODULO;
 }
 | t_property_distance_unit {
     $$ = $1;

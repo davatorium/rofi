@@ -290,6 +290,8 @@ static void rofi_theme_print_distance_unit ( RofiDistanceUnit *unit )
         fputs ( " / ", stdout );
     } else if ( unit->modtype == ROFI_DISTANCE_MODIFIER_MULTIPLY) {
         fputs ( " * ", stdout );
+    } else if ( unit->modtype == ROFI_DISTANCE_MODIFIER_MODULO) {
+        fputs ( " % ", stdout );
     } 
     if ( unit->right )
         rofi_theme_print_distance_unit ( unit->right );
@@ -965,6 +967,15 @@ static int distance_unit_get_pixel ( RofiDistanceUnit *unit, RofiOrientation ori
                     return a/b;
                 }
                 return a;
+            }
+        case ROFI_DISTANCE_MODIFIER_MODULO:
+            {
+                int a = distance_unit_get_pixel ( unit->left, ori);
+                int b = distance_unit_get_pixel ( unit->right, ori);
+                if ( b != 0 ) {
+                    return a%b;
+                }
+                return 0;
             }
         default:
             break;

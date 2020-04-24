@@ -366,6 +366,7 @@ It supports the following operations:
 * `-`: Subtract
 * `/`: Divide
 * `*`: Multiply
+* `%`: Multiply
 
 It uses the C precedence ordering.
 
