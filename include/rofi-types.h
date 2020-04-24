@@ -96,6 +96,7 @@ typedef enum
     ROFI_DISTANCE_MODIFIER_SUBTRACT,
     ROFI_DISTANCE_MODIFIER_DIVIDE,
     ROFI_DISTANCE_MODIFIER_MULTIPLY,
+    ROFI_DISTANCE_MODIFIER_GROUP,
 } RofiDistanceModifier;
 
 typedef struct RofiDistanceUnit 
@@ -109,7 +110,10 @@ typedef struct RofiDistanceUnit
     RofiDistanceModifier modtype;
 
     /** Modifier */
-    struct RofiDistanceUnit *modifier;
+    struct RofiDistanceUnit *left;
+
+    /** Modifier */
+    struct RofiDistanceUnit *right;
 
 } RofiDistanceUnit;
 

@@ -259,8 +259,9 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <sval>           t_property_name
 %type <distance>       t_property_distance
 %type <distance>       t_property_distance_zero
+%type <distance_unit>  t_property_distance_unit_math
+%type <distance_unit>  t_property_distance_unit_math2
 %type <distance_unit>  t_property_distance_unit
-%type <ival>           t_property_distance_modifier_type
 %type <ival>           t_property_unit
 %type <wloc>           t_property_position
 %type <wloc>           t_property_position_ew
@@ -611,71 +612,97 @@ t_property_distance_zero
 : T_INT t_property_line_style {
     $$.base.distance = (double) $1;
     $$.base.type     = ROFI_PU_PX;
-    $$.base.modifier = NULL;
+    $$.base.left     = NULL;
+    $$.base.right    = NULL;
     $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
     $$.style    = $2;
 }
 | t_property_distance { $$ = $1;}
 ;
 
-t_property_distance_modifier_type
-: T_MODIFIER_ADD { $$ = ROFI_DISTANCE_MODIFIER_ADD; }
-| T_MODIFIER_SUBTRACT { $$ = ROFI_DISTANCE_MODIFIER_SUBTRACT; }
-| T_MODIFIER_DIVIDE { $$ = ROFI_DISTANCE_MODIFIER_DIVIDE; }
-| T_MODIFIER_MULTIPLY { $$ = ROFI_DISTANCE_MODIFIER_MULTIPLY; };
-
-
 /** Distance. */
 t_property_distance_unit
-: t_property_distance_modifier_type T_INT t_property_unit {
+: T_INT t_property_unit {
     $$ = g_slice_new0(RofiDistanceUnit);
-    $$->distance = (double)$2;
-    $$->type     = $3;
-    $$->modifier = NULL;
-    $$->modtype = $1;
+    $$->distance = (double)$1;
+    $$->type     = $2;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
 }
-| t_property_distance_modifier_type T_INT {
+| T_INT {
     $$ = g_slice_new0(RofiDistanceUnit);
-    $$->distance = (double)$2;
-    $$->type     = T_UNIT_PX;
-    $$->modifier = NULL;
-    $$->modtype = $1;
+    $$->distance = (double)$1;
+    $$->type     = ROFI_PU_PX;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
 }
-| t_property_distance_modifier_type T_DOUBLE t_property_unit {
+| T_DOUBLE t_property_unit {
     $$ = g_slice_new0(RofiDistanceUnit);
-    $$->distance = (double)$2;
-    $$->type     = $3;
-    $$->modifier = NULL;
-    $$->modtype = $1;
+    $$->distance = (double)$1;
+    $$->type     = $2;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
 }
-| t_property_distance_modifier_type T_INT t_property_unit t_property_distance_unit {
+| T_PARENT_LEFT t_property_distance_unit_math2 T_PARENT_RIGHT {
     $$ = g_slice_new0(RofiDistanceUnit);
-    $$->distance = (double)$2;
-    $$->type     = $3;
-    $$->modifier = $4;
-    $$->modtype = $1;
-}
-| t_property_distance_modifier_type T_INT t_property_distance_unit {
-    $$ = g_slice_new0(RofiDistanceUnit);
-    $$->distance = (double)$2;
-    $$->type     = T_UNIT_PX;
-    $$->modifier = $3;
-    $$->modtype = $1;
-}
-| t_property_distance_modifier_type T_DOUBLE t_property_unit t_property_distance_unit {
-    $$ = g_slice_new0(RofiDistanceUnit);
-    $$->distance = (double)$2;
-    $$->type     = $3;
-    $$->modifier = $4;
-    $$->modtype =  $1;
+    $$->distance = 0;
+    $$->type     = ROFI_DISTANCE_MODIFIER_NONE;
+    $$->left     = $2;
+    $$->right    = 0;
+    $$->modtype  = ROFI_DISTANCE_MODIFIER_GROUP;
 };
+
+
+/**
+ * Multiply/divide with auto-grouping.
+ */
+t_property_distance_unit_math
+: t_property_distance_unit_math T_MODIFIER_MULTIPLY t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left  = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MULTIPLY;
+}
+| t_property_distance_unit_math T_MODIFIER_DIVIDE t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left  = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_DIVIDE;
+}
+| t_property_distance_unit {
+    $$ = $1;
+};
+
+
+/** Level 2  (+-)*/
+t_property_distance_unit_math2
+: t_property_distance_unit_math2 T_MODIFIER_ADD t_property_distance_unit_math {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_ADD;
+}
+| t_property_distance_unit_math2 T_MODIFIER_SUBTRACT t_property_distance_unit_math {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_SUBTRACT;
+}
+| t_property_distance_unit_math  {
+    $$ = $1;
+};
+
 
 t_property_distance
 /** Integer unit and line style */
 : T_INT t_property_unit t_property_line_style {
     $$.base.distance = (double)$1;
     $$.base.type     = $2;
-    $$.base.modifier = NULL;
+    $$.base.left = NULL;
+    $$.base.right = NULL;
     $$.base.modtype = ROFI_DISTANCE_MODIFIER_NONE;
     $$.style    = $3;
 }
@@ -684,43 +711,17 @@ t_property_distance
     $$.base.distance = (double)$1;
     $$.base.type     = $2;
     $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.base.modifier = NULL;
+    $$.base.left = NULL;
+    $$.base.right = NULL;
     $$.style    = $3;
 }
-| T_CALC T_PARENT_LEFT T_INT t_property_unit T_PARENT_RIGHT t_property_line_style {
-    $$.base.distance = (double)$3;
-    $$.base.type     = $4;
-    $$.base.modifier = NULL;
-    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.style    = $6;
-}
-| T_CALC T_PARENT_LEFT T_DOUBLE t_property_unit T_PARENT_RIGHT t_property_line_style {
-    $$.base.distance = (double)$3;
-    $$.base.type     = $4;
-    $$.base.modifier = NULL;
-    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.style    = $6;
-}
-| T_CALC T_PARENT_LEFT T_INT t_property_unit t_property_distance_unit T_PARENT_RIGHT t_property_line_style {
-    $$.base.distance = (double)$3;
-    $$.base.type     = $4;
-    $$.base.modifier = $5;
-    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.style    = $7;
-}
-| T_CALC T_PARENT_LEFT T_INT t_property_distance_unit T_PARENT_RIGHT t_property_line_style {
-    $$.base.distance = (double)$3;
-    $$.base.type     = T_UNIT_PX;
-    $$.base.modifier = $4;
-    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.style    = $6;
-}
-| T_CALC T_PARENT_LEFT T_DOUBLE t_property_unit t_property_distance_unit T_PARENT_RIGHT t_property_line_style {
-    $$.base.distance = (double)$3;
-    $$.base.type     = $4;
-    $$.base.modifier = $5;
-    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.style    = $7;
+| T_CALC T_PARENT_LEFT t_property_distance_unit_math2 T_PARENT_RIGHT t_property_line_style {
+    $$.base.distance = 0; 
+    $$.base.type     = ROFI_DISTANCE_MODIFIER_NONE;
+    $$.base.left = $3;
+    $$.base.right = NULL;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_GROUP;
+    $$.style    = $5;
 };
 
 /** distance unit. px, em, % */
