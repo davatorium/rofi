@@ -89,12 +89,39 @@ typedef enum
 /**
  * Structure representing a distance.
  */
-typedef struct
+typedef enum
+{
+    ROFI_DISTANCE_MODIFIER_NONE,
+    ROFI_DISTANCE_MODIFIER_ADD,
+    ROFI_DISTANCE_MODIFIER_SUBTRACT,
+    ROFI_DISTANCE_MODIFIER_DIVIDE,
+    ROFI_DISTANCE_MODIFIER_MULTIPLY,
+    ROFI_DISTANCE_MODIFIER_MODULO,
+    ROFI_DISTANCE_MODIFIER_GROUP,
+} RofiDistanceModifier;
+
+typedef struct RofiDistanceUnit 
 {
     /** Distance */
     double        distance;
     /** Unit type of the distance */
     RofiPixelUnit type;
+
+    /** Type */
+    RofiDistanceModifier modtype;
+
+    /** Modifier */
+    struct RofiDistanceUnit *left;
+
+    /** Modifier */
+    struct RofiDistanceUnit *right;
+
+} RofiDistanceUnit;
+
+typedef struct
+{
+    /** Base */
+    RofiDistanceUnit base;
     /** Style of the line (optional)*/
     RofiLineStyle style;
 } RofiDistance;

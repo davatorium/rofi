@@ -146,6 +146,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
     Property      *property;
     GHashTable    *property_list;
     RofiDistance      distance;
+    RofiDistanceUnit  *distance_unit;
 }
 
 %token <ival>     T_END              0  "end of file"
@@ -210,6 +211,13 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_LIST_OPEN                      "List open ('[')"
 %token T_LIST_CLOSE                     "List close (']')"
 
+%token T_MODIFIER_ADD                   "Add ('+')"
+%token T_MODIFIER_SUBTRACT              "Subtract ('-')"
+%token T_MODIFIER_DIVIDE                "Divide ('/')"
+%token T_MODIFIER_MULTIPLY              "Multiply ('*')"
+
+%token T_CALC                           "calc"
+
 %token T_BOPEN                          "bracket open ('{')"
 %token T_BCLOSE                         "bracket close ('}')"
 %token T_PSEP                           "property separator (':')"
@@ -251,6 +259,9 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <sval>           t_property_name
 %type <distance>       t_property_distance
 %type <distance>       t_property_distance_zero
+%type <distance_unit>  t_property_distance_unit_math
+%type <distance_unit>  t_property_distance_unit_math2
+%type <distance_unit>  t_property_distance_unit
 %type <ival>           t_property_unit
 %type <wloc>           t_property_position
 %type <wloc>           t_property_position_ew
@@ -377,7 +388,7 @@ t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optio
     gchar *name = g_strdup_printf("@media ( %s: %d )",$3, $5);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, name );
     widget->set = TRUE;
-    widget->media = g_malloc0(sizeof(ThemeMedia));
+    widget->media = g_slice_new0(ThemeMedia);
     widget->media->type = rofi_theme_parse_media_type ( $3 );
     widget->media->value = (double)$5;
     for ( unsigned int i = 0; i < $8->num_widgets;i++) {
@@ -390,7 +401,7 @@ t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optio
     gchar *name = g_strdup_printf("@media ( %s: %f )",$3, $5);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, name );
     widget->set = TRUE;
-    widget->media = g_malloc0(sizeof(ThemeMedia));
+    widget->media = g_slice_new0(ThemeMedia);
     widget->media->type = rofi_theme_parse_media_type ( $3 );
     widget->media->value = $5;
     for ( unsigned int i = 0; i < $8->num_widgets;i++) {
@@ -403,7 +414,7 @@ t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optio
     gchar *name = g_strdup_printf("@media ( %s: %d px )",$3, $5);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, name );
     widget->set = TRUE;
-    widget->media = g_malloc0(sizeof(ThemeMedia));
+    widget->media = g_slice_new0(ThemeMedia);
     widget->media->type = rofi_theme_parse_media_type ( $3 );
     widget->media->value = (double)$5;
     for ( unsigned int i = 0; i < $9->num_widgets;i++) {
@@ -503,15 +514,15 @@ t_property_element
     }
 |  t_property_distance {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->value.padding = (RofiPadding){ $1, $1, $1, $1 };
+        $$->value.padding = (RofiPadding){ $1, rofi_theme_property_copy_distance($1), rofi_theme_property_copy_distance($1), rofi_theme_property_copy_distance($1) };
 }
 |  t_property_distance_zero t_property_distance_zero {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->value.padding = (RofiPadding){ $1, $2, $1, $2 };
+        $$->value.padding = (RofiPadding){ $1, $2, rofi_theme_property_copy_distance($1), rofi_theme_property_copy_distance($2) };
 }
 |  t_property_distance_zero t_property_distance_zero t_property_distance_zero {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->value.padding = (RofiPadding){ $1, $2, $3, $2 };
+        $$->value.padding = (RofiPadding){ $1, $2, $3, rofi_theme_property_copy_distance($2) };
 }
 |  t_property_distance_zero t_property_distance_zero t_property_distance_zero t_property_distance_zero {
         $$ = rofi_theme_property_create ( P_PADDING );
@@ -599,25 +610,124 @@ t_property_highlight_style
 
 t_property_distance_zero
 : T_INT t_property_line_style {
-    $$.distance = (double) $1;
-    $$.type     = ROFI_PU_PX;
+    $$.base.distance = (double) $1;
+    $$.base.type     = ROFI_PU_PX;
+    $$.base.left     = NULL;
+    $$.base.right    = NULL;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
     $$.style    = $2;
 }
 | t_property_distance { $$ = $1;}
 ;
+
 /** Distance. */
+t_property_distance_unit
+: T_INT t_property_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = (double)$1;
+    $$->type     = $2;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
+}
+| T_INT {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = (double)$1;
+    $$->type     = ROFI_PU_PX;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
+}
+| T_DOUBLE t_property_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = (double)$1;
+    $$->type     = $2;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
+}
+| T_PARENT_LEFT t_property_distance_unit_math2 T_PARENT_RIGHT {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = 0;
+    $$->type     = ROFI_DISTANCE_MODIFIER_NONE;
+    $$->left     = $2;
+    $$->right    = 0;
+    $$->modtype  = ROFI_DISTANCE_MODIFIER_GROUP;
+};
+
+
+/**
+ * Multiply/divide with auto-grouping.
+ */
+t_property_distance_unit_math
+: t_property_distance_unit_math T_MODIFIER_MULTIPLY t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left  = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MULTIPLY;
+}
+| t_property_distance_unit_math T_MODIFIER_DIVIDE t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left  = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_DIVIDE;
+}
+| t_property_distance_unit_math T_PERCENT t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left  = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MODULO;
+}
+| t_property_distance_unit {
+    $$ = $1;
+};
+
+
+/** Level 2  (+-)*/
+t_property_distance_unit_math2
+: t_property_distance_unit_math2 T_MODIFIER_ADD t_property_distance_unit_math {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_ADD;
+}
+| t_property_distance_unit_math2 T_MODIFIER_SUBTRACT t_property_distance_unit_math {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_SUBTRACT;
+}
+| t_property_distance_unit_math  {
+    $$ = $1;
+};
+
+
 t_property_distance
 /** Integer unit and line style */
 : T_INT t_property_unit t_property_line_style {
-    $$.distance = (double)$1;
-    $$.type     = $2;
+    $$.base.distance = (double)$1;
+    $$.base.type     = $2;
+    $$.base.left = NULL;
+    $$.base.right = NULL;
+    $$.base.modtype = ROFI_DISTANCE_MODIFIER_NONE;
     $$.style    = $3;
 }
 /** Double unit and line style */
 | T_DOUBLE t_property_unit t_property_line_style {
-    $$.distance = (double)$1;
-    $$.type     = $2;
+    $$.base.distance = (double)$1;
+    $$.base.type     = $2;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
+    $$.base.left = NULL;
+    $$.base.right = NULL;
     $$.style    = $3;
+}
+| T_CALC T_PARENT_LEFT t_property_distance_unit_math2 T_PARENT_RIGHT t_property_line_style {
+    $$.base.distance = 0; 
+    $$.base.type     = ROFI_DISTANCE_MODIFIER_NONE;
+    $$.base.left = $3;
+    $$.base.right = NULL;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_GROUP;
+    $$.style    = $5;
 };
 
 /** distance unit. px, em, % */

@@ -51,7 +51,7 @@ static int scrollbar_get_desired_height ( widget *wid )
 // This should behave more like a real scrollbar.
 guint scrollbar_scroll_get_line ( const scrollbar *sb, int y )
 {
-    y -= sb->widget.border.top.distance;
+    y -= sb->widget.border.top.base.distance;
     if ( y < 0 ) {
         return 0;
     }

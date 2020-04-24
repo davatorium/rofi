@@ -387,4 +387,5 @@ void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child );
  * Returns the media type described by type.
  */
 ThemeMediaType rofi_theme_parse_media_type ( const char *type );
+RofiDistance rofi_theme_property_copy_distance  ( RofiDistance const distance );
 #endif
