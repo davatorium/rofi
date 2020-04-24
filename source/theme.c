@@ -277,7 +277,7 @@ inline static void printf_double ( double d )
 
 static void rofi_theme_print_distance_unit ( RofiDistanceUnit *unit )
 {
-    if ( unit->modtype != ROFI_DISTANCE_MODIFIER_NONE )
+    if ( unit->modtype == ROFI_DISTANCE_MODIFIER_GROUP )
         fputs("( " , stdout);
     if ( unit->left )
         rofi_theme_print_distance_unit ( unit->left );
@@ -312,7 +312,7 @@ static void rofi_theme_print_distance_unit ( RofiDistanceUnit *unit )
             fputs ( "em ", stdout );
         }
     }
-    if ( unit->modtype != ROFI_DISTANCE_MODIFIER_NONE )
+    if ( unit->modtype == ROFI_DISTANCE_MODIFIER_GROUP )
         fputs(" )" , stdout);
 }
 
@@ -975,15 +975,7 @@ static int distance_unit_get_pixel ( RofiDistanceUnit *unit, RofiOrientation ori
 
 int distance_get_pixel ( RofiDistance d, RofiOrientation ori )
 {
-    if ( d.base.modtype == ROFI_DISTANCE_MODIFIER_GROUP ){
-        rofi_theme_print_distance_unit ( &(d.base) );
-        printf("\n");
-    }
-    int val = distance_unit_get_pixel ( &(d.base), ori);
-    if ( d.base.modtype == ROFI_DISTANCE_MODIFIER_GROUP ){
-        printf("val: %d\r\n", val);
-    }
-    return val;
+    return distance_unit_get_pixel ( &(d.base), ori);
 }
 
 void distance_get_linestyle ( RofiDistance d, cairo_t *draw )
