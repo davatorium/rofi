@@ -213,7 +213,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 
 %token T_MODIFIER_ADD                   "Add ('+')"
 %token T_MODIFIER_SUBTRACT              "Subtract ('-')"
-%token T_MODIFIER_DIVIDE                "Divide ('/')"
 %token T_MODIFIER_MULTIPLY              "Multiply ('*')"
 
 %token T_CALC                           "calc"
@@ -649,7 +648,7 @@ t_property_distance_unit
 | T_PARENT_LEFT t_property_distance_unit_math2 T_PARENT_RIGHT {
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->distance = 0;
-    $$->type     = ROFI_DISTANCE_MODIFIER_NONE;
+    $$->type     = ROFI_PU_PX;
     $$->left     = $2;
     $$->right    = 0;
     $$->modtype  = ROFI_DISTANCE_MODIFIER_GROUP;
@@ -666,7 +665,7 @@ t_property_distance_unit_math
     $$->right = $3;
     $$->modtype = ROFI_DISTANCE_MODIFIER_MULTIPLY;
 }
-| t_property_distance_unit_math T_MODIFIER_DIVIDE t_property_distance_unit {
+| t_property_distance_unit_math T_FORWARD_SLASH t_property_distance_unit {
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->left  = $1;
     $$->right = $3;
@@ -723,7 +722,7 @@ t_property_distance
 }
 | T_CALC T_PARENT_LEFT t_property_distance_unit_math2 T_PARENT_RIGHT t_property_line_style {
     $$.base.distance = 0; 
-    $$.base.type     = ROFI_DISTANCE_MODIFIER_NONE;
+    $$.base.type     = ROFI_PU_PX;
     $$.base.left = $3;
     $$.base.right = NULL;
     $$.base.modtype  = ROFI_DISTANCE_MODIFIER_GROUP;

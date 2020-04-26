@@ -96,7 +96,7 @@ Settings config = {
     /** Sort the displayed list */
     .sort                      = FALSE,
     /** Use levenshtein sorting when matching */
-    .sorting_method            = SORT_NORMAL,
+    .sorting_method            = "normal",
     /** Case sensitivity of the search */
     .case_sensitive            = FALSE,
     /** Cycle through in the element list */
