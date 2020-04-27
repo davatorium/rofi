@@ -8,18 +8,17 @@ env:
     - secure: "Uodrn3x36plX2yk4+c7eimCuv7j6p6n1XCNbNEYxibRX77730eQMCVS0BvM40OgD7m5K9s2hIQaMV7EMj3qKuRmemULDVJVTgNd1fbx6t4BhYh+Hrf6FhsNcm9nFxvQQrdJAVSOwIAlrUilVFotDRt9qKqLwwZiBKIs5gBPcHQY="
 
 addons:
-  # TODO: Is this addon still actively used?
   coverity_scan:
     project:
       name: "DaveDavenport/rofi"
       description: "Build submitted via Travis CI"
     notification_email: qball@gmpclient.org
+    # TODO: What do these actually do?
     build_command_prepend: "meson setup build"
     build_command: "ninja -C build"
     branch_pattern: coverity_scan
   apt:
     packages:
-      - check
       - discount
       - doxygen
       - fluxbox
@@ -39,6 +38,7 @@ addons:
       - libxkbcommon-dev
       - libxkbcommon-x11-dev
       - ninja-build
+      #- markdown
       - python3-pip
       - python3-setuptools
       - python3-wheel
@@ -49,44 +49,98 @@ addons:
       - xterm
       - xutils-dev
 
-compiler:
-  - clang
-  - gcc
-
-# TODO: Potentially switch to coverxygen (active project with the same goal)
-# at some point in the future?
-install:
+# TODO: Potentially switch to coverxygen (active project with the same goal) at
+# some point in the future?
+before_install:
   # doxy-coverage is not packaged in Ubuntu 18.04 (Bionic), clone the helper
   # scripts manually:
   - git clone https://github.com/alobbs/doxy-coverage
-  # Ubuntu's meson version is outdated. Use pip to install a more recent
-  # release:
-  - pip3 install --user meson
-  # ~/.local/bin is not a part of $PATH by default. Update $PATH to include it:
-  - PATH="$PATH:$HOME/.local/bin"
+  # Ubuntu 18.04 ships an outdated version of check. Install a more recent
+  # version instead:
+  - curl -L https://github.com/libcheck/check/releases/download/0.14.0/check-0.14.0.tar.gz | tar xzf -
+  - cd check-0.14.0
+  - ./configure
+  - make
+  # Disable tests for non-"debug" runs:
+  #- make check
+  - sudo make install
+  - cd ..
 
-before_script:
-  # Configure the build directory with meson:
-  - meson setup build
 
-# TODO: Fix X11 tests (and check whether or not changing the user's resource
-#       limit is still required for the X11 tests).
-script:
-  # Build the project:
-  - ninja -C build
-  # Run tests:
-  - ninja -C build test
-  #- ulimit -c unlimited
-  #- ninja -C build test-x
-  - ninja -C build doc/html 2>&1 > doxygen.log
-  - test $(grep -c warning doxygen.log) -eq 0
-  - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
+# YAML anchor, ignored by Travis CI (albeit present in the JSON render):
+.autotools: &autotools
+  before_script: &autotools_before_script
+    # Generate the configure script:
+    - autoreconf --install
+    # Make the build directory:
+    - mkdir build
+    # Change into the build directory:
+    - cd build
+    # Configure the build directory
+    - ./../configure
+  # TODO: Fix X11 tests (and check whether or not changing the user's resource
+  #       limit is still required for the X11 tests).
+  script: &autotools_script # Build the project:
+    - make
+    # Run tests:
+    - make distcheck
+    # TODO: Use make to create the doxygen log!
+    # Code coverage:
+    - test $(grep -c warning doxygen.log) -eq 0
+    - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
+
+# YAML anchor, ignored by Travis CI (albeit present in the JSON render):
+.meson: &meson
+  install: &meson_install
+    # Ubuntu's meson version is outdated. Use pip to install a more recent
+    # release:
+    - pip3 install --user meson
+    # ~/.local/bin is not a part of $PATH by default. Update $PATH to include it:
+    - PATH="$PATH:$HOME/.local/bin"
+  before_script:
+    &meson_before_script # Configure the build directory with meson:
+    - meson setup build
+  # TODO: Fix X11 tests (and check whether or not changing the user's resource
+  #       limit is still required for the X11 tests).
+  script: &meson_script # Build the project:
+    - ninja -C build
+    # Run tests:
+    - ninja -C build test
+    #- ulimit -c unlimited
+    #- ninja -C build test-x
+    - ninja -C build doc/html 2>&1 > doxygen.log
+    - test $(grep -c warning doxygen.log) -eq 0
+    - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+# Travis CI doesn't propagate the compiler key to individual jobs. Define
+# a _single_ compiler for each job, as a list will only result in the first
+# compiler being used!
+
+jobs:
+  include:
+    - name: "Autotools - Clang"
+      compiler: clang
+      # Merge keys from the .autotools map:
+      <<: *autotools
+    - name: "Autotools - GCC"
+      compiler: gcc
+      # Merge keys from the .autotools map:
+      <<: *autotools
+    - name: "Meson - Clang"
+      compiler: clang
+      # Merge keys from the .meson map:
+      <<: *meson
+    - name: "Meson - GCC"
+      compiler: gcc
+      # Merge keys from the .meson map:
+      <<: *meson
 
 notifications:
   webhooks:
     urls:
       - secure: "AqDM5SkWJPSBeCiyGdXzHYLnFCML/vKxWW/0wE00ocX+97Fa5ixeU7apMJ0OMZ0ZQVXG96xVtlJ513ZSpnRYHx6FF+Ivvw5pYeZjKHqtxThEhOueW1YynYWMX7HJrA4P19ollqRLrtsJqG6x7BhVEnIyhyu9eXtgj6hiI70F0SE="
     on_success: change
+# vim: et sw=2 ts=2
