@@ -24,6 +24,7 @@ addons:
       - fluxbox
       - gdb
       - graphviz
+      - jq
       - lcov
       - libpango1.0-dev
       - libstartup-notification0-dev
@@ -38,7 +39,6 @@ addons:
       - libxkbcommon-dev
       - libxkbcommon-x11-dev
       - ninja-build
-      #- markdown
       - python3-pip
       - python3-setuptools
       - python3-wheel
@@ -61,16 +61,17 @@ before_install:
   - cd check-0.14.0
   - ./configure
   - make
-  # Disable tests for non-"debug" runs:
+  # Disable tests for non-"debug" runs (as these tests can take several minutes
+  # to complete):
   #- make check
   - sudo make install
   - sudo ldconfig
   - cd ..
 
-
 # YAML anchor, ignored by Travis CI (albeit present in the JSON render):
 .autotools: &autotools
   before_script: &autotools_before_script
+    # prettier-ignore
     # Generate the configure script:
     - autoreconf --install
     # Make the build directory:
@@ -85,9 +86,9 @@ before_install:
     - make
     # Run tests:
     - make distcheck
-    # TODO: Use make to create the doxygen log!
     # Code coverage:
     - make doxy 2>&1 > doxygen.log
+    # Check for warnings in doxygen.log:
     - test $(grep -c warning doxygen.log) -eq 0
     - ../doxy-coverage/doxy-coverage.py doc/html/xml/
 
