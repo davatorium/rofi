@@ -87,9 +87,9 @@ before_install:
     - make distcheck
     # TODO: Use make to create the doxygen log!
     # Code coverage:
-    - make doxy
+    - make doxy 2>&1 > doxygen.log
     - test $(grep -c warning doxygen.log) -eq 0
-    - ../doxy-coverage/doxy-coverage.py build/doc/html/xml/
+    - ../doxy-coverage/doxy-coverage.py doc/html/xml/
 
 # YAML anchor, ignored by Travis CI (albeit present in the JSON render):
 .meson: &meson
