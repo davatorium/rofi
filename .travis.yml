@@ -112,7 +112,7 @@ before_install:
     #- ninja -C build test-x
     - ninja -C build doc/html 2>&1 > doxygen.log
     - test $(grep -c warning doxygen.log) -eq 0
-    - ../doxy-coverage/doxy-coverage.py build/doc/html/xml/
+    - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
