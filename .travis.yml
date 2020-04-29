@@ -64,6 +64,7 @@ before_install:
   # Disable tests for non-"debug" runs:
   #- make check
   - sudo make install
+  - sudo ldconfig
   - cd ..
 
 
