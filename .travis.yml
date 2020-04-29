@@ -82,13 +82,14 @@ before_install:
   # TODO: Fix X11 tests (and check whether or not changing the user's resource
   #       limit is still required for the X11 tests).
   script: &autotools_script # Build the project:
-    - make V=1
+    - make
     # Run tests:
     - make distcheck
     # TODO: Use make to create the doxygen log!
     # Code coverage:
+    - make doxy
     - test $(grep -c warning doxygen.log) -eq 0
-    - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
+    - ../doxy-coverage/doxy-coverage.py build/doc/html/xml/
 
 # YAML anchor, ignored by Travis CI (albeit present in the JSON render):
 .meson: &meson
@@ -111,7 +112,7 @@ before_install:
     #- ninja -C build test-x
     - ninja -C build doc/html 2>&1 > doxygen.log
     - test $(grep -c warning doxygen.log) -eq 0
-    - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
+    - ../doxy-coverage/doxy-coverage.py build/doc/html/xml/
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
