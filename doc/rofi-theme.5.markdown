@@ -352,6 +352,24 @@ For example:
 On a full-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left
 and right side and 108 pixels on the top and bottom.
 
+### Calculating sizes
+
+Rofi supports some maths in calculating sizes. For this it uses the CSS syntax:
+
+```
+width: calc( 100% - 37px );
+```
+
+It supports the following operations:
+
+* `+`: Add
+* `-`: Subtract
+* `/`: Divide
+* `*`: Multiply
+* `%`: Multiply
+
+It uses the C precedence ordering.
+
 ## Padding
 
 * Format: `{Integer}`
@@ -836,6 +854,7 @@ element selected {
     background-color: SteelBlue;
 }
 ```
+
 
 ### Padding and margin
 

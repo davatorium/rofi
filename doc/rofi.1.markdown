@@ -520,6 +520,12 @@ See *PATTERN*.
 
 Default: *"wmctrl -i -R {window}"*
 
+
+`-window-thumbnail`
+
+Show window thumbnail (if available) as icon in the window switcher.
+
+
 ### Combi settings
 
 `-combi-modi` *mode1,mode2*

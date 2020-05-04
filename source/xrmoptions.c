@@ -224,7 +224,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "cache-dir",                 { .str   = &config.cache_dir                            }, NULL,
       "Directory where history and temporary files are stored.", CONFIG_DEFAULT },
     { xrm_Boolean, "window-thumbnail",          { .snum  = &config.window_thumbnail                     }, NULL,
-      "Show window thumbnail in window switcher if availalbe.", CONFIG_DEFAULT },
+      "Show window thumbnail (if available) as icon in window switcher.", CONFIG_DEFAULT },
     { xrm_Boolean, "drun-use-desktop-cache",    { .snum  = &config.drun_use_desktop_cache               }, NULL,
       "DRUN: build and use a cache with desktop file content.", CONFIG_DEFAULT },
     { xrm_Boolean, "drun-reload-desktop-cache", { .snum  = &config.drun_reload_desktop_cache            }, NULL,

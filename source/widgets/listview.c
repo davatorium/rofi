@@ -45,13 +45,10 @@
 /**
  * Orientation of the listview
  */
-typedef enum
-{
     /** Vertical (classical) list */
-    LISTVIEW = ROFI_ORIENTATION_VERTICAL,
+#define  LISTVIEW ROFI_ORIENTATION_VERTICAL
     /** Horizontal list. (barview) */
-    BARVIEW  = ROFI_ORIENTATION_HORIZONTAL,
-} ViewType;
+#define BARVIEW  ROFI_ORIENTATION_HORIZONTAL
 
 /**
  * The moving direction of the selection, this (in barview) affects the scrolling.
@@ -74,7 +71,7 @@ struct _listview
 {
     widget   widget;
 
-    ViewType type;
+    RofiOrientation type;
 
     // RChanged
     // Text needs to be repainted.
@@ -555,16 +552,10 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->max_rows     = ( spacing_vert + height ) / ( lv->element_height + spacing_vert );
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
-    if ( /*lv->scrollbar->widget.index ==*/ 0 ) {
-        widget_move ( WIDGET ( lv->scrollbar ),
-                      widget_padding_get_left ( WIDGET ( lv ) ),
-                      widget_padding_get_top  ( WIDGET ( lv ) ) );
-    }
-    else {
-        widget_move ( WIDGET ( lv->scrollbar ),
-                      lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
-                      widget_padding_get_top ( WIDGET ( lv ) ) );
-    }
+    widget_move ( WIDGET ( lv->scrollbar ),
+            lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
+            widget_padding_get_top ( WIDGET ( lv ) ) );
+
     widget_resize (  WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), height );
 
     if ( lv->type == BARVIEW ) {
