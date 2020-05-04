@@ -1004,6 +1004,10 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
         helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, (char *) 0 );
     }
 
+    if ( args == NULL ) {
+        return FALSE;
+    }
+
     if ( context != NULL ) {
         if ( context->name == NULL ) {
             context->name = args[0];
