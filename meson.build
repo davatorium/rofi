@@ -66,6 +66,13 @@ deps += [
     dependency('libstartup-notification-1.0'),
 ]
 
+wayland_client = dependency('wayland-client', required: get_option('wayland'))
+wayland_protocols = dependency('wayland-protocols', required: get_option('wayland'))
+if wayland_client.found()
+    deps += wayland_client
+    deps += wayland_protocols
+endif
+
 check = dependency('check', version: '>= 0.11.0', required: get_option('check'))
 
 header_conf = configuration_data()
@@ -206,6 +213,35 @@ theme_parser_sources = files('lexer/theme-parser.y')
 
 theme_lexer = flex.process(theme_lexer_sources)
 theme_parser = bison.process(theme_parser_sources)
+
+if get_option('wayland').enabled()
+    wayland_sys_protocols_dir = wayland_protocols.get_pkgconfig_variable('pkgdatadir')
+    wayland_scanner = find_program('wayland-scanner')
+    protocols = files(
+        wayland_sys_protocols_dir + '/stable/xdg-shell/xdg-shell.xml',
+        'protocols/wlr-layer-shell-unstable-v1.xml',
+    )
+    proto_srcs = []
+    proto_headers = []
+    foreach p : protocols
+        proto_srcs += custom_target(
+            '@0@'.format(p).underscorify() + '_protocol_c',
+            input: p,
+            output: '@BASENAME@-protocol.c',
+            command: [wayland_scanner, 'public-code', '@INPUT@', '@OUTPUT@'],
+        )
+        proto_headers += custom_target(
+            '@0@'.format(p).underscorify() + '_protocol_h',
+            input: p,
+            output: '@BASENAME@-protocol.h',
+            command: [wayland_scanner, 'client-header', '@INPUT@', '@OUTPUT@'],
+        )
+    endforeach
+
+    rofi_sources += proto_srcs
+    rofi_sources += proto_headers
+endif
+
 
 gnome = import('gnome')
 default_theme = gnome.compile_resources('resources', files('resources/resources.xml'))

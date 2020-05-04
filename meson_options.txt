@@ -1,3 +1,4 @@
 option('drun', type: 'boolean', value: true, description: 'Desktop file mode')
 option('window', type: 'boolean', value: true, description: 'Window switcher mode')
 option('check', type: 'feature', description: 'Build and run libcheck-based tests')
+option('wayland', type : 'feature', value : 'enabled', description: 'Build with wayland support')
