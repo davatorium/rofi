@@ -4,5 +4,5 @@ contact_links:
     url: https://www.reddit.com/r/qtools/
     about: Please ask and answer questions here.
   - name: Rofi IRC channel
-    url: irc://chat.freenode.net/rofi
+    url: https://webchat.freenode.net/?channels=#rofi
     about: Please ask and answer question in real time here.
