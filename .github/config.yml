@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Rofi subreddit
+    url: https://www.reddit.com/r/qtools/
+    about: Please ask and answer questions here.
+  - name: Rofi IRC channel
+    url: irc://chat.freenode.net/rofi
+    about: Please ask and answer question in real time here.
