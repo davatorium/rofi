@@ -113,7 +113,7 @@ struct _listview
 
     gboolean                    scrollbar_scroll;
 
-    xcb_timestamp_t             last_click;
+    guint32                     last_click;
     listview_mouse_activated_cb mouse_activated;
     void                        *mouse_activated_data;
 

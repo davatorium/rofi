@@ -306,7 +306,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Global options:\n" );
     print_options ();
     printf ( "\n" );
-    display_dump_monitor_layout ();
+    //display_dump_monitor_layout ();
     printf ( "\n" );
     printf ( "Detected modi:\n" );
     print_list_of_modi ( is_term );
@@ -926,7 +926,7 @@ int main ( int argc, char *argv[] )
             g_free ( etc );
         }
         // Load in config from X resources.
-        config_parse_xresource_options ( xcb );
+        // config_parse_xresource_options ( xcb );
 
         if ( config_path_new && g_file_test ( config_path_new, G_FILE_TEST_IS_REGULAR ) ) {
             if ( rofi_theme_parse_file ( config_path_new ) ) {

@@ -68,9 +68,12 @@ deps += [
 
 wayland_client = dependency('wayland-client', required: get_option('wayland'))
 wayland_protocols = dependency('wayland-protocols', required: get_option('wayland'))
+wayland_cursor = dependency('wayland-cursor', required: get_option('wayland'))
 if wayland_client.found()
     deps += wayland_client
     deps += wayland_protocols
+    deps += wayland_cursor
+    deps += subproject('libgwater/wayland').get_variable('libgwater_wayland')
 endif
 
 check = dependency('check', version: '>= 0.11.0', required: get_option('check'))
@@ -92,7 +95,9 @@ header_conf.set('GLIB_VERSION_MIN_REQUIRED', '(G_ENCODE_VERSION(@0@,@1@))'.forma
 header_conf.set('GLIB_VERSION_MAX_ALLOWED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
 
 header_conf.set('ENABLE_DRUN', get_option('drun'))
-header_conf.set('WINDOW_MODE', get_option('window'))
+#header_conf.set('WINDOW_MODE', get_option('window'))
+
+header_conf.set('ENABLE_WAYLAND', wayland_client.found())
 
 header_conf.set_quoted('MANPAGE_PATH', join_paths(get_option('prefix'), get_option('mandir')))
 header_conf.set_quoted('SYSCONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir')))
@@ -151,6 +156,8 @@ rofi_sources = files(
         'source/theme.c',
         'source/rofi-icon-fetcher.c',
         'source/css-colors.c',
+        'source/wayland/view.c',
+        'source/wayland/display.c',
         'source/widgets/box.c',
         'source/widgets/icon.c',
         'source/widgets/container.c',
@@ -165,11 +172,11 @@ rofi_sources = files(
         'source/dialogs/drun.c',
         'source/dialogs/dmenu.c',
         'source/dialogs/combi.c',
-        'source/dialogs/window.c',
+        #'source/dialogs/window.c',
         'source/dialogs/script.c',
         'source/dialogs/help-keys.c',
-        'source/xcb/display.c',
-        'source/xcb/view.c',
+        #'source/xcb/display.c',
+        #'source/xcb/view.c',
         'include/display.h',
         'include/xcb.h',
         'include/xcb-internal.h',
@@ -188,6 +195,7 @@ rofi_sources = files(
         'include/theme.h',
         'include/rofi-types.h',
         'include/css-colors.h',
+        'include/wayland-internal.h',
         'include/widgets/box.h',
         'include/widgets/icon.h',
         'include/widgets/container.h',

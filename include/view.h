@@ -313,4 +313,9 @@ void rofi_view_set_window_title ( const char * title  );
  */
 void rofi_view_ellipsize_start ( RofiViewState *state );
 /**@}*/
+
+void rofi_view_set_size ( RofiViewState * state, gint width, gint height );
+
+void rofi_view_get_size ( RofiViewState * state, gint *width, gint *height );
+
 #endif

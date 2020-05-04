@@ -125,6 +125,9 @@ struct RofiViewState
     /** Y position of the view */
     int              y;
 
+    display_buffer_pool *pool;
+    gboolean frame_callback;
+
     /** Position and target of the mouse. */
     struct
     {

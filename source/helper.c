@@ -617,6 +617,8 @@ int config_sanity_check ( void )
     }
 
     // Check size
+#if 0
+    // TODO
     {
         workarea mon;
         if ( !monitor_active ( &mon ) ) {
@@ -631,6 +633,7 @@ int config_sanity_check ( void )
             found_error = TRUE;
         }
     }
+#endif
 
     if ( config.menu_font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
