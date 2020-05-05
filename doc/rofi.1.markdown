@@ -863,6 +863,7 @@ of the window will be visible through it.
   * `grave`: Toggle case sensitivity.
   * `Alt-grave`: Toggle sorting.
   * `Alt-Shift-S`: Take a screenshot and store it in the Pictures directory.
+  * `Ctrl-l`: File complete for run dialog.
 
 To get a full list of key bindings on the commandline, see `rofi -h`.
 The options starting with `-kb` are keybindings.
