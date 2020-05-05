@@ -312,26 +312,6 @@ static char *_get_completion ( const Mode *sw, unsigned int index )
     return d;
 }
 
-Mode file_browser_mode =
-{
-    .display_name       = NULL,
-    .abi_version        = ABI_VERSION,
-    .name               = "file-browser",
-    .cfg_name_key       = "display-file_browser",
-    ._init              = file_browser_mode_init,
-    ._get_num_entries   = file_browser_mode_get_num_entries,
-    ._result            = file_browser_mode_result,
-    ._destroy           = file_browser_mode_destroy,
-    ._token_match       = file_browser_token_match,
-    ._get_display_value = _get_display_value,
-    ._get_icon          = _get_icon,
-    ._get_message       = _get_message,
-    ._get_completion    = _get_completion,
-    ._preprocess_input  = NULL,
-    .private_data       = NULL,
-    .free               = NULL,
-};
-
 Mode *create_new_file_browser (void )
 {
     Mode *sw = g_malloc0(sizeof(Mode));
@@ -401,3 +381,23 @@ ModeMode file_browser_mode_completer ( Mode *sw, int mretv, char **input, unsign
     }
     return retv;
 }
+
+Mode file_browser_mode =
+{
+    .display_name       = NULL,
+    .abi_version        = ABI_VERSION,
+    .name               = "file-browser",
+    .cfg_name_key       = "display-file_browser",
+    ._init              = file_browser_mode_init,
+    ._get_num_entries   = file_browser_mode_get_num_entries,
+    ._result            = file_browser_mode_result,
+    ._destroy           = file_browser_mode_destroy,
+    ._token_match       = file_browser_token_match,
+    ._get_display_value = _get_display_value,
+    ._get_icon          = _get_icon,
+    ._get_message       = _get_message,
+    ._get_completion    = _get_completion,
+    ._preprocess_input  = NULL,
+    .private_data       = NULL,
+    .free               = NULL,
+};
