@@ -900,42 +900,42 @@ A key binding starting with `!` will act when all keys have been released.
 
 ## Available Modi
 
-### Window
+### window
 
 Show a list of all the windows and allow switching between them.
 Pressing the `delete-entry` binding (`shift-delete`) will close the window.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run a command on the window.
 (See option `window-command` );
 
-### WindowCD
+### windowcd
 
 Shows a list of the windows on the current desktop and allows switching between them.
 Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run a command on the window.
 (See option `window-command` );
 
-### Run
+### run
 
 Shows a list of executables in **$PATH** and can launch them (optional in a terminal).
 Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run the command in a terminal.
 
-### DRun
+### drun
 
 Same as the **run** launches, but the list is created from the installed desktop files. It automatically launches them
 in a terminal if specified in the Desktop File.
 Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) with custom input (no entry matching) will run the command in a terminal.
 
-### SSH
+### ssh
 
 Shows a list of SSH targets based on your ssh config file, and allows to quickly `ssh` into them.
 
-### Keys
+### keys
 
 Shows a searchable list of key bindings.
 
-### Script
+### script
 
 Allows custom scripted Modi to be added.
 
