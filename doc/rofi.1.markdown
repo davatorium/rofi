@@ -626,7 +626,8 @@ Urgent row, mark *X* as urgent. See `-a` option for details.
 `-only-match`
 
 Only return a selected item, do not allow custom entry.
-This mode always returns an entry, or returns directly when no entries given.
+This mode always returns an entry. It will not return if no matching entry is
+selected.
 
 `-no-custom`
 

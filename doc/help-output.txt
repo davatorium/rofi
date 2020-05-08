@@ -29,8 +29,8 @@ DMENU command line options:
 	-l [integer]                           Number of rows to display
 	-window-title [string]                 Set the dmenu window title
 	-i                                     Set filter to be case insensitive
-	-only-match                            Force selection or custom entry
-	-no-custom                             Don't accept custom entry
+	-only-match                            Force selection to be given entry, disallow no match
+	-no-custom                             Don't accept custom entry, allow no match
 	-select [string]                       Select the first row that matches
 	-password                              Do not show what the user inputs. Show '*' instead.
 	-markup-rows                           Allow and render pango markup as input data.
