@@ -133,6 +133,10 @@ Specify the number of threads **rofi** should use:
   * 1: Disable threading
   * 2..N: Specify the maximum number of threads to use in the thread pool.
 
+`-display` *display*
+
+The X server to contact. Default is `${DISPLAY}`.
+
 `-dmenu`
 
 Run **rofi** in dmenu mode. This allows for interactive scripts.
@@ -228,6 +232,10 @@ Show application icons in drun and window modes.
 Specify icon theme to be used.
 If not specified default theme from DE is used, *Adwaita* and *gnome* themes act as
 fallback themes.
+
+`-markup`
+
+Use pango markup to format output wherever possible.
 
 ### Matching
 
