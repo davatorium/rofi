@@ -666,7 +666,7 @@ Select first line that matches the given string
 `-mesg` *string*
 
 Add a message line below the filter entry box. Supports Pango markup.
-For more information on supported markup see [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html)
+For more information on supported markup see [here](https://developer.gnome.org/pygtk/stable/pango-markup-language.html)
 
 `-dump`
 
@@ -685,7 +685,7 @@ Hide the input text. This should not be considered secure!
 `-markup-rows`
 
 Tell **rofi** that DMenu input is Pango markup encoded, and should be rendered.
-See [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html) for details about Pango markup.
+See [here](https://developer.gnome.org/pygtk/stable/pango-markup-language.html) for details about Pango markup.
 
 
 `-multi-select`
