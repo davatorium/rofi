@@ -11,7 +11,7 @@ Command line only options:
 	-dump-xresources                       Dump the current configuration in Xresources format and exit.
 	-e [string]                            Show a dialog displaying the passed message and exit.
 	-markup                                Enable pango markup where possible.
-	-normal-window                         In dmenu mode, behave as a normal window. (experimental)
+	-normal-window                         Behave as a normal window. (experimental)
 	-show [mode]                           Show the mode 'mode' and exit. The mode has to be enabled.
 	-no-lazy-grab                          Disable lazy grab that, when fail to grab keyboard, does not block but retry later.
 	-no-plugins                            Disable loading of external plugins.

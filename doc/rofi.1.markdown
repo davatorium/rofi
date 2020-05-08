@@ -237,6 +237,10 @@ fallback themes.
 
 Use pango markup to format output wherever possible.
 
+`-normal-window`
+
+Make **rofi** react like a normal application window. Useful for scripts like Clerk that are basically an application.
+
 ### Matching
 
 `-matching` *method*
@@ -656,10 +660,6 @@ Select first line that matches the given string
 
 Add a message line below the filter entry box. Supports pango markup.
 For more information on supported markup see [here](https://developer.gnome.org/pango/stable/PangoMarkupFormat.html)
-
-`-normal-window`
-
-Make **rofi** react like a normal application window. Useful for scripts like Clerk that are basically an application.
 
 `-dump`
 
