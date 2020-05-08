@@ -104,12 +104,25 @@ Below is a list of the most important options:
 
 `-help`
 
-The help option shows the full list of commandline options and the current set value.
+The help option shows the full list of command-line options and the current set values.
 These include dynamic (run-time generated) options.
+
+`-version`
+
+Show the **rofi** version and exit.
+
+`-dump-config`
+
+Dump the current active configuration, in rasi format, to stdout and exit.
+Information about the rasi format can be found in the **rofi-theme(5)** manpage.
+
+`-dump-theme`
+
+Dump the current active theme, in rasi format, to stdout and exit.
 
 `-dump-xresources`
 
-Dump the current active configuration in Xresources format to the command-line.
+Dump the current active configuration, in Xresources format, to stdout.
 This does not validate all passed values (for example, colors).
 
 `-threads` *num*
