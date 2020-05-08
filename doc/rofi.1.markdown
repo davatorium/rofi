@@ -702,6 +702,10 @@ This makes it feel more 'snappy'.
 
 Set name used for the window title. Will be shown as Rofi - *title*
 
+`-w` *windowid*
+
+Position the window over window with the given X11 window ID.
+
 `-keep-right`
 
 Set ellipsize mode to start. So end of string is visible.
