@@ -693,7 +693,8 @@ such as `-dump`, `-only-match` or `-auto-select`.
 
 `-async-pre-read` *number*
 
-Reads the first 25 entries blocking, then switches to async mode. This makes it feel more 'snappy'.
+Reads the first *number* entries blocking, then switches to async mode.
+This makes it feel more 'snappy'.
 
 *default*: 25
 
