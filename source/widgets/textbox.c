@@ -404,6 +404,28 @@ static void textbox_free ( widget *wid )
     g_slice_free ( textbox, tb );
 }
 
+/* FIXME: workaround for cairo bug, when subpixel rendering failed with some cairo clip paths */
+static void draw_pango_layout (cairo_t * cr, PangoLayout * layout, int x, int y)
+{
+        cairo_surface_t * txt_surf;
+        cairo_t * txt_cr;
+        PangoRectangle rect;
+
+        pango_layout_get_pixel_extents (layout, NULL, &rect);
+        txt_surf = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, rect.width, rect.height);
+        txt_cr = cairo_create (txt_surf);
+
+        cairo_set_source (txt_cr, cairo_get_source (cr));
+        pango_cairo_show_layout (txt_cr, layout);
+        cairo_surface_flush (txt_surf);
+        cairo_destroy (txt_cr);
+
+        cairo_set_source_surface (cr, txt_surf, x, y);
+        cairo_paint (cr);
+
+        cairo_surface_destroy (txt_surf);
+}
+
 static void textbox_draw ( widget *wid, cairo_t *draw )
 {
     if ( wid == NULL ) {
@@ -447,7 +469,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     // Set ARGB
     // We need to set over, otherwise subpixel hinting wont work.
     cairo_move_to ( draw, x, top );
-    pango_cairo_show_layout ( draw, tb->layout );
+    draw_pango_layout (draw, tb->layout, x, top);
 
     // draw the cursor
     rofi_theme_get_color ( WIDGET ( tb ), "text-color", draw );
