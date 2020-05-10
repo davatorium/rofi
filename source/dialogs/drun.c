@@ -1022,7 +1022,9 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     char *en  = NULL;
     char *ec  = NULL;
     if ( dr->generic_name ) {
+		/* printf("%s\n", dr->generic_name); */
         egn = g_markup_escape_text ( dr->generic_name, -1 );
+		/* printf("%s\n", egn); */
     }
     if ( dr->name ) {
         en = g_markup_escape_text ( dr->name, -1 );
@@ -1039,6 +1041,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
                                                    "{categories}", cats,
                                                    "{keywords}", keywords,
                                                    NULL );
+	printf("%s\n", retv);
     g_free ( egn );
     g_free ( en );
     g_free ( ec );
