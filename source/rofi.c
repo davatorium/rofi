@@ -285,7 +285,7 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-dump-xresources", "", "Dump the current configuration in Xresources format and exit.", NULL, is_term );
     print_help_msg ( "-e", "[string]", "Show a dialog displaying the passed message and exit.", NULL, is_term );
     print_help_msg ( "-markup", "", "Enable pango markup where possible.", NULL, is_term );
-    print_help_msg ( "-normal-window", "", "In dmenu mode, behave as a normal window. (experimental)", NULL, is_term );
+    print_help_msg ( "-normal-window", "", "Behave as a normal window. (experimental)", NULL, is_term );
     print_help_msg ( "-show", "[mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
     print_help_msg ( "-no-lazy-grab", "", "Disable lazy grab that, when fail to grab keyboard, does not block but retry later.", NULL, is_term );
     print_help_msg ( "-no-plugins", "", "Disable loading of external plugins.", NULL, is_term );

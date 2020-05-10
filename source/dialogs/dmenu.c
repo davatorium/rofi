@@ -760,8 +760,8 @@ void print_dmenu_options ( void )
     print_help_msg ( "-l", "[integer] ", "Number of rows to display", NULL, is_term );
     print_help_msg ( "-window-title", "[string] ", "Set the dmenu window title", NULL, is_term );
     print_help_msg ( "-i", "", "Set filter to be case insensitive", NULL, is_term );
-    print_help_msg ( "-only-match", "", "Force selection or custom entry", NULL, is_term );
-    print_help_msg ( "-no-custom", "", "Don't accept custom entry", NULL, is_term );
+    print_help_msg ( "-only-match", "", "Force selection to be given entry, disallow no match", NULL, is_term );
+    print_help_msg ( "-no-custom", "", "Don't accept custom entry, allow no match", NULL, is_term );
     print_help_msg ( "-select", "[string]", "Select the first row that matches", NULL, is_term );
     print_help_msg ( "-password", "", "Do not show what the user inputs. Show '*' instead.", NULL, is_term );
     print_help_msg ( "-markup-rows", "", "Allow and render pango markup as input data.", NULL, is_term );
