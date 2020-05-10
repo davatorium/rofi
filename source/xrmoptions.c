@@ -217,6 +217,8 @@ static XrmOption xrmOptions[] = {
       "Color scheme window", CONFIG_DEFAULT },
     { xrm_Number,  "max-history-size",          { .num   = &config.max_history_size                     }, NULL,
       "Max history size (WARNING: can cause slowdowns when set to high).", CONFIG_DEFAULT },
+    { xrm_Boolean, "combi-hide-mode-prefix",    { .snum  = &config.combi_hide_mode_prefix               }, NULL,
+      "Hide the prefix mode prefix on the combi view.", CONFIG_DEFAULT },
     { xrm_Boolean,  "combi-bang-anywhere",       { .snum   = &config.combi_bang_anywhere                  }, NULL,
       "Allow bang (!) to be used anywhere in the string if it occurs after a space character.", CONFIG_DEFAULT },
     { xrm_Char,    "matching-negate-char",      { .charc = &config.matching_negate_char                 }, NULL,

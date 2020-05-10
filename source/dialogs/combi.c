@@ -331,8 +331,6 @@ static char * combi_preprocess_input ( Mode *sw, const char *input )
 	char *bang;
 	char *rest;
 	split_bang(input, &bang, &rest);
-	/* printf("split_bang: %s; %s;\n", bang, rest); */
-
 
 	ssize_t bang_len = strlen(bang);
 	if ( strlen(bang) > 0 ) {
