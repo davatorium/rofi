@@ -39,6 +39,7 @@
 #include <pango/pango.h>
 #include "mode-private.h"
 #include <theme.h>
+#include "widgets/textbox.h"
 
 /**
  * Combi Mode
@@ -47,6 +48,7 @@ typedef struct
 {
     Mode     *mode;
     gboolean disable;
+	gboolean print_newline;
 } CombiMode;
 
 typedef struct
@@ -69,6 +71,10 @@ static void combi_mode_parse_switchers ( Mode *sw )
     char                 *switcher_str = g_strdup ( config.combi_modi );
     const char * const   sep           = ",#";
     // Split token on ','. This modifies switcher_str.
+
+	GHashTable *ht;
+	ht = g_hash_table_new ( g_str_hash, g_str_equal );
+
     for ( char *token = strtok_r ( switcher_str, sep, &savept ); token != NULL;
           token = strtok_r ( NULL, sep, &savept ) ) {
         // Resize and add entry.
@@ -78,14 +84,19 @@ static void combi_mode_parse_switchers ( Mode *sw )
         Mode *mode = rofi_collect_modi_search ( token );
         if (  mode ) {
             pd->switchers[pd->num_switchers].disable = FALSE;
-            pd->switchers[pd->num_switchers++].mode  = mode;
+            pd->switchers[pd->num_switchers].mode  = mode;
+            pd->switchers[pd->num_switchers].print_newline  = TRUE;
+			g_hash_table_insert( ht, token,  &( pd->switchers[pd->num_switchers++] ) );
+			/* g_hash_table_insert( ht, token,  pd->switchers + pd->num_switchers ); */
         }
         else {
             // If not build in, use custom switchers.
             Mode *sw = script_switcher_parse_setup ( token );
             if ( sw != NULL ) {
                 pd->switchers[pd->num_switchers].disable = FALSE;
-                pd->switchers[pd->num_switchers++].mode  = sw;
+                pd->switchers[pd->num_switchers].mode  = sw;
+				pd->switchers[pd->num_switchers].print_newline  = TRUE;
+				g_hash_table_insert( ht, token,  &( pd->switchers[pd->num_switchers++] ) );
             }
             else {
                 // Report error, don't continue.
@@ -94,8 +105,21 @@ static void combi_mode_parse_switchers ( Mode *sw )
             }
         }
     }
+
+    savept = NULL;
+    for ( char *token = strtok_r ( config.combi_no_linebreak_modi, sep, &savept ); token != NULL;
+          token = strtok_r ( NULL, sep, &savept ) ) {
+		CombiMode *mode = g_hash_table_lookup ( ht, token );
+		if ( mode != NULL ) {
+			mode->print_newline = FALSE;
+		}
+		else {
+			g_warning ( "%s is in -combi-no-linebreak-modi but not in -combi-modi.", token );
+		}
+	}
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
+	g_hash_table_destroy( ht );
 }
 
 static int combi_mode_init ( Mode *sw )
@@ -184,7 +208,11 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
         return mretv & MENU_LOWER_MASK;
     }
 
+	unsigned offset = 0;
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+		if ( pd->switchers[i].disable ) {
+			offset += pd->lengths[i];
+		}
         if ( selected_line >= pd->starts[i] &&
              selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
             return mode_result ( pd->switchers[i].mode, mretv, input, selected_line - pd->starts[i] );
@@ -208,6 +236,9 @@ static int combi_mode_match ( const Mode *sw, rofi_int_matcher **tokens, unsigne
 static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *state, GList **attr_list, int get_entry )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
+	if (config.markup_combi) {
+		*state |= MARKUP;
+	}
     if ( !get_entry ) {
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
@@ -223,8 +254,16 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
             char       * str  = retv = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, attr_list, TRUE );
             const char *dname = mode_get_display_name ( pd->switchers[i].mode );
             if ( !config.combi_hide_mode_prefix ) {
-                retv = g_strdup_printf ( "%s %s", dname, str );
+				char *dname_markup = g_markup_escape_text ( dname, -1 );
+				char *opt_linebreak = g_strdup(pd->switchers[i].print_newline ? "\n" : config.combi_no_linebreak_str);
+				retv = helper_string_replace_if_exists( config.combi_display_format,
+					"{mode}", dname_markup,
+					"{linebreak}", opt_linebreak,
+					"{element}", str,
+				    NULL );
                 g_free ( str );
+				g_free ( dname_markup );
+				g_free ( opt_linebreak );
             }
 
             if ( attr_list != NULL ) {
