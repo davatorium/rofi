@@ -409,20 +409,22 @@ static void draw_pango_layout (cairo_t * cr, PangoLayout * layout, int x, int y)
 {
         cairo_surface_t * txt_surf;
         cairo_t * txt_cr;
-        PangoRectangle rect;
 
-        pango_layout_get_pixel_extents (layout, NULL, &rect);
-        txt_surf = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, rect.width, rect.height);
+        txt_surf = cairo_recording_surface_create (CAIRO_CONTENT_COLOR_ALPHA, NULL);
         txt_cr = cairo_create (txt_surf);
 
         cairo_set_source (txt_cr, cairo_get_source (cr));
         pango_cairo_show_layout (txt_cr, layout);
-        cairo_surface_flush (txt_surf);
         cairo_destroy (txt_cr);
+        {
+                cairo_pattern_t * pat = cairo_get_source (cr);
+                cairo_pattern_reference (pat);
 
-        cairo_set_source_surface (cr, txt_surf, x, y);
-        cairo_paint (cr);
+                cairo_set_source_surface (cr, txt_surf, x, y);
+                cairo_paint (cr);
 
+                cairo_set_source (cr, pat);
+        }
         cairo_surface_destroy (txt_surf);
 }
 
