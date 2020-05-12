@@ -568,7 +568,7 @@ To get one merge view, of `window`,`run`, and `ssh`:
 
     rofi -show combi -combi-modi "window,run,ssh" -modi combi
 
-Notes: The i3 window manager does not like commas in the command when specifying an exec command.
+**NOTE**: The i3 window manager does not like commas in the command when specifying an exec command.
 For that case '#' can be used as a separator.
 
 ### History and Sorting
@@ -945,6 +945,16 @@ Shows a searchable list of key bindings.
 ### script
 
 Allows custom scripted Modi to be added.
+
+### combi
+
+Combines multiple modi in one list. Specify which modi are included with the `-combi-modi` option.
+
+When using the combi mode, a *!bang* can be used to filter the results by modi.
+All modi that match the bang as a prefix are included.
+For example, say you have specified `-combi-modi run,window,windowcd`. If your
+query begins with the bang `!w`, only results from the `window` and `windowcd`
+modi are shown, even if the rest of the input text would match results from `run`.
 
 ## FAQ
 
