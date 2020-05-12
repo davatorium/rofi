@@ -133,64 +133,66 @@ void rofi_icon_fetcher_destroy ( void )
     g_free ( rofi_icon_fetcher_data );
 }
 
+static cairo_surface_t* cairo_image_surface_create_from_jpeg_private ( struct jpeg_decompress_struct* cinfo )
+{
+    cairo_surface_t* surface = 0;
+    unsigned char  * data    = 0;
+    unsigned char  * rgb     = 0;
 
+    jpeg_read_header ( cinfo, TRUE );
+    jpeg_start_decompress ( cinfo );
 
-static cairo_surface_t* cairo_image_surface_create_from_jpeg_private(struct jpeg_decompress_struct* cinfo) {
-	cairo_surface_t* surface = 0;
-	unsigned char*   data    = 0;
-	unsigned char*   rgb     = 0;
+    surface = cairo_image_surface_create ( CAIRO_FORMAT_RGB24, cinfo->image_width, cinfo->image_height );
+    data    = cairo_image_surface_get_data ( surface );
+    rgb     = (unsigned char*) ( malloc ( cinfo->output_width * cinfo->output_components ) );
 
-	jpeg_read_header(cinfo, TRUE);
-	jpeg_start_decompress(cinfo);
+    while ( cinfo->output_scanline < cinfo->output_height ) {
+        unsigned int i;
+        int          scanline = cinfo->output_scanline * cairo_image_surface_get_stride ( surface );
 
-	surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, cinfo->image_width, cinfo->image_height);
-	data    = cairo_image_surface_get_data(surface);
-	rgb     = (unsigned char*)(malloc(cinfo->output_width * cinfo->output_components));
+        jpeg_read_scanlines ( cinfo, &rgb, 1 );
 
-	while(cinfo->output_scanline < cinfo->output_height) {
-		unsigned int i;
-		int          scanline = cinfo->output_scanline * cairo_image_surface_get_stride(surface);
+        for ( i = 0; i < cinfo->output_width; i++ ) {
+            int offset = scanline + ( i * 4 );
 
-		jpeg_read_scanlines(cinfo, &rgb, 1);
+            data[offset + 3] = 255;
+            data[offset + 2] = rgb[( i * 3 )];
+            data[offset + 1] = rgb[( i * 3 ) + 1];
+            data[offset    ] = rgb[( i * 3 ) + 2];
+        }
+    }
 
-		for(i = 0; i < cinfo->output_width; i++) {
-			int offset = scanline + (i * 4);
+    free ( rgb );
 
-			data[offset + 3] = 255;
-			data[offset + 2] = rgb[(i * 3)];
-			data[offset + 1] = rgb[(i * 3) + 1];
-			data[offset    ] = rgb[(i * 3) + 2];
-		}
-	}
+    jpeg_finish_decompress ( cinfo );
+    jpeg_destroy_decompress ( cinfo );
 
-	free(rgb);
+    cairo_surface_mark_dirty ( surface );
 
-	jpeg_finish_decompress(cinfo);
-	jpeg_destroy_decompress(cinfo);
-
-	cairo_surface_mark_dirty(surface);
-
-	return surface;
+    return surface;
 }
 
-static cairo_surface_t* cairo_image_surface_create_from_jpeg(const char* file) {
-	struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr         jerr;
-	cairo_surface_t*              surface;
-	FILE*                         infile;
+static cairo_surface_t* cairo_image_surface_create_from_jpeg ( const char* file )
+{
+    struct jpeg_decompress_struct cinfo;
+    struct jpeg_error_mgr         jerr;
+    cairo_surface_t               * surface;
+    FILE                          * infile;
 
-	if((infile = fopen(file, "rb")) == NULL) return NULL;
+    if ( ( infile = fopen ( file, "rb" ) ) == NULL ) {
+        return NULL;
+    }
 
-	cinfo.err = jpeg_std_error(&jerr);
+    cinfo.err = jpeg_std_error ( &jerr );
 
-	jpeg_create_decompress(&cinfo);
-	jpeg_stdio_src(&cinfo, infile);
+    jpeg_create_decompress ( &cinfo );
+    jpeg_stdio_src ( &cinfo, infile );
 
-	surface = cairo_image_surface_create_from_jpeg_private(&cinfo);
+    surface = cairo_image_surface_create_from_jpeg_private ( &cinfo );
 
-	fclose(infile);
+    fclose ( infile );
 
-	return surface;
+    return surface;
 }
 
 static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpointer user_data )
@@ -235,29 +237,26 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
     }
     if ( icon_surf ) {
         if ( cairo_surface_status ( icon_surf ) == CAIRO_STATUS_SUCCESS ) {
-            float sw = sentry->size/(float)cairo_image_surface_get_width( icon_surf );
-            float sh = sentry->size/(float)cairo_image_surface_get_height( icon_surf );
+            float sw = sentry->size / (float) cairo_image_surface_get_width ( icon_surf );
+            float sh = sentry->size / (float) cairo_image_surface_get_height ( icon_surf );
 
-            float scale = ( sw > sh)? sh:sw;
-            if ( scale <  0.5 )
-            {
-                cairo_surface_t * surface = cairo_image_surface_create(
-                        cairo_image_surface_get_format( icon_surf ),
-                        cairo_image_surface_get_width( icon_surf )*scale,
-                        cairo_image_surface_get_height( icon_surf )*scale);
+            float scale = ( sw > sh ) ? sh : sw;
+            if ( scale < 0.5 ) {
+                cairo_surface_t * surface = cairo_image_surface_create (
+                    cairo_image_surface_get_format ( icon_surf ),
+                    cairo_image_surface_get_width ( icon_surf ) * scale,
+                    cairo_image_surface_get_height ( icon_surf ) * scale );
 
                 cairo_t *d = cairo_create ( surface );
                 cairo_scale ( d, scale, scale );
-                cairo_set_source_surface ( d, icon_surf, 0.0,0.0);
-                cairo_pattern_set_filter (cairo_get_source (d), CAIRO_FILTER_FAST);
+                cairo_set_source_surface ( d, icon_surf, 0.0, 0.0 );
+                cairo_pattern_set_filter ( cairo_get_source ( d ), CAIRO_FILTER_FAST );
                 cairo_paint ( d );
 
                 cairo_destroy ( d );
                 cairo_surface_destroy ( icon_surf );
                 icon_surf = surface;
             }
-
-
         }
         // check if surface is valid.
         if ( cairo_surface_status ( icon_surf ) != CAIRO_STATUS_SUCCESS ) {

@@ -126,9 +126,9 @@ struct
     .fake_bgrel     = FALSE,
     .flags          = MENU_NORMAL,
     .views          = G_QUEUE_INIT,
-    .idle_timeout   = 0,
-    .count          = 0L,
-    .repaint_source = 0,
+    .idle_timeout   =               0,
+    .count          =              0L,
+    .repaint_source =               0,
     .fullscreen     = FALSE,
 };
 

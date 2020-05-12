@@ -45,10 +45,10 @@
 /**
  * Orientation of the listview
  */
-    /** Vertical (classical) list */
-#define  LISTVIEW ROFI_ORIENTATION_VERTICAL
-    /** Horizontal list. (barview) */
-#define BARVIEW  ROFI_ORIENTATION_HORIZONTAL
+/** Vertical (classical) list */
+#define  LISTVIEW    ROFI_ORIENTATION_VERTICAL
+/** Horizontal list. (barview) */
+#define BARVIEW      ROFI_ORIENTATION_HORIZONTAL
 
 /**
  * The moving direction of the selection, this (in barview) affects the scrolling.
@@ -69,7 +69,7 @@ typedef struct
 
 struct _listview
 {
-    widget   widget;
+    widget          widget;
 
     RofiOrientation type;
 
@@ -553,8 +553,8 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
     widget_move ( WIDGET ( lv->scrollbar ),
-            lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
-            widget_padding_get_top ( WIDGET ( lv ) ) );
+                  lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
+                  widget_padding_get_top ( WIDGET ( lv ) ) );
 
     widget_resize (  WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), height );
 
@@ -661,10 +661,13 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
     listview_create_row ( lv, &row );
     // FIXME: hack to scale hight correctly.
     if ( lv->eh > 1 && row.textbox ) {
-        char buff[lv->eh*2+1] ;
-        memset( buff, '\0', lv->eh*2+1);
-        for ( unsigned int i = 0; i < (lv->eh-1); i++) { buff[i*2] = 'a'; buff[i*2+1] ='\n'; };
-        textbox_text( row.textbox, buff);
+        char buff[lv->eh * 2 + 1];
+        memset ( buff, '\0', lv->eh * 2 + 1 );
+        for ( unsigned int i = 0; i < ( lv->eh - 1 ); i++ ) {
+            buff[i * 2] = 'a'; buff[i * 2 + 1] = '\n';
+        }
+        ;
+        textbox_text ( row.textbox, buff );
     }
     lv->element_height = widget_get_desired_height ( WIDGET ( row.box ) );
     widget_free ( WIDGET ( row.box ) );

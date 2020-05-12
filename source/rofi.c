@@ -193,10 +193,10 @@ static void run_switcher ( ModeMode mode )
     RofiViewState * state = rofi_view_create ( modi[mode], config.filter, 0, process_result );
 
     // User can pre-select a row.
-    if ( find_arg ( "-selected-row" ) >= 0 ){
-	unsigned int sr = 0;
-	find_arg_uint (  "-selected-row", &(sr) );
-	rofi_view_set_selected_line ( state, sr );
+    if ( find_arg ( "-selected-row" ) >= 0 ) {
+        unsigned int sr = 0;
+        find_arg_uint (  "-selected-row", &( sr ) );
+        rofi_view_set_selected_line ( state, sr );
     }
     if ( state ) {
         rofi_view_set_active ( state );
@@ -512,7 +512,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
             if ( !g_str_has_suffix ( dn, G_MODULE_SUFFIX ) ) {
                 continue;
             }
-            char    *fn  = g_build_filename ( base_dir, dn, NULL );
+            char    *fn = g_build_filename ( base_dir, dn, NULL );
             g_debug ( "Trying to open: %s plugin", fn );
             GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL );
             if ( mod ) {
@@ -565,7 +565,7 @@ static void rofi_collect_modi ( void )
         g_debug ( "Parse plugin path: %s", config.plugin_path );
         rofi_collect_modi_dir ( config.plugin_path );
         /* ROFI_PLUGIN_PATH */
-        const char *path = g_getenv("ROFI_PLUGIN_PATH");
+        const char *path = g_getenv ( "ROFI_PLUGIN_PATH" );
         if ( path != NULL ) {
             gchar ** paths = g_strsplit ( path, ":", -1 );
             for ( unsigned int i = 0; paths[i]; i++ ) {
@@ -869,40 +869,41 @@ int main ( int argc, char *argv[] )
 
     if ( find_arg ( "-no-config" ) < 0 ) {
         // Load distro default settings
-        gboolean found_system = FALSE;
-        const char * const * dirs = g_get_system_config_dirs();
-        if ( dirs )
-        {
-            for ( unsigned int i =0;  !found_system &&  dirs[i]; i++ ) {
+        gboolean           found_system = FALSE;
+        const char * const * dirs       = g_get_system_config_dirs ();
+        if ( dirs ) {
+            for ( unsigned int i = 0; !found_system && dirs[i]; i++ ) {
                 /** New format. */
                 gchar *etc = g_build_filename ( dirs[i], "rofi.rasi", NULL );
                 g_debug ( "Look for default config file: %s", etc );
                 if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
                     g_debug ( "Parsing: %s", etc );
                     rofi_theme_parse_file ( etc );
-                    found_system  = TRUE;
-                } else {
+                    found_system = TRUE;
+                }
+                else {
                     /** Old format. */
                     gchar *xetc = g_build_filename ( dirs[i], "rofi.conf", NULL );
                     g_debug ( "Look for default config file: %s", xetc );
                     if ( g_file_test ( xetc, G_FILE_TEST_IS_REGULAR ) ) {
                         config_parse_xresource_options_file ( xetc );
                         old_config_format = TRUE;
-                        found_system  = TRUE;
+                        found_system      = TRUE;
                     }
                     g_free ( xetc );
                 }
                 g_free ( etc );
             }
         }
-        if ( ! found_system  ) {
+        if ( !found_system  ) {
             /** New format. */
             gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.rasi", NULL );
             g_debug ( "Look for default config file: %s", etc );
             if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
                 g_debug ( "Look for default config file: %s", etc );
                 rofi_theme_parse_file ( etc );
-            } else {
+            }
+            else {
                 /** Old format. */
                 gchar *xetc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
                 g_debug ( "Look for default config file: %s", xetc );
