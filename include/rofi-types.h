@@ -100,21 +100,22 @@ typedef enum
     ROFI_DISTANCE_MODIFIER_GROUP,
 } RofiDistanceModifier;
 
-typedef struct RofiDistanceUnit
+typedef struct RofiDistanceUnit 
 {
     /** Distance */
-    double                  distance;
+    double        distance;
     /** Unit type of the distance */
-    RofiPixelUnit           type;
+    RofiPixelUnit type;
 
     /** Type */
-    RofiDistanceModifier    modtype;
+    RofiDistanceModifier modtype;
 
     /** Modifier */
     struct RofiDistanceUnit *left;
 
     /** Modifier */
     struct RofiDistanceUnit *right;
+
 } RofiDistanceUnit;
 
 typedef struct
@@ -122,7 +123,7 @@ typedef struct
     /** Base */
     RofiDistanceUnit base;
     /** Style of the line (optional)*/
-    RofiLineStyle    style;
+    RofiLineStyle style;
 } RofiDistance;
 
 /**

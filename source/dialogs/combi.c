@@ -151,87 +151,86 @@ static void combi_mode_destroy ( Mode *sw )
     }
 }
 
-static void split_bang ( const char *input, char **bang, char **rest )
-{
-    // Splits string input into a part containing the bang and the part containing the rest,
-    // saved in the pointers bang and rest.
-    if ( input != NULL ) {
-        char *sob       = g_utf8_strchr ( input, -1, '!' );
-        char *prev_char = g_utf8_find_prev_char ( input, sob );
+static void split_bang( const char *input, char **bang, char **rest ) {
+	// Splits string input into a part containing the bang and the part containing the rest,
+	// saved in the pointers bang and rest.
+    if ( input != NULL) {
+		char *sob = g_utf8_strchr ( input, -1, '!' );
+		char *prev_char = g_utf8_find_prev_char( input, sob );
 
-        if ( sob != NULL && ( prev_char == NULL || ( config.combi_bang_anywhere && prev_char[0] == ' ' ) ) ) {
-            glong      sob_offset = g_utf8_pointer_to_offset ( input, sob );
-            const char *eob       = g_utf8_strchr ( sob, -1, ' ' );
-            if ( eob == NULL ) {
-                // Set it to end.
-                eob = &( input[strlen ( input )] );
-            }
-            ssize_t bang_len = g_utf8_pointer_to_offset ( sob, eob );
+		if (sob != NULL && (prev_char == NULL || ( config.combi_bang_anywhere && prev_char[0] == ' ' ))) {
+			glong sob_offset = g_utf8_pointer_to_offset( input, sob );
+			const char    *eob     = g_utf8_strchr ( sob, -1, ' ' );
+			if ( eob == NULL ) {
+				// Set it to end.
+				eob = &(input[strlen(input)]);
+			}
+			ssize_t bang_len = g_utf8_pointer_to_offset ( sob, eob );
 
-            if ( bang_len > 1 ) {
-                *bang = g_utf8_substring ( input, sob_offset + 1, sob_offset + bang_len );
+			if ( bang_len > 1 ) {
+				*bang = g_utf8_substring( input, sob_offset + 1, sob_offset + bang_len );
 
-                char       *head = g_utf8_substring ( input, 0, ( eob[0] != ' ' && prev_char != NULL ) ? sob_offset - 1 : sob_offset );
-                const char *tail = ( eob[0] == ' ' ) ? g_utf8_next_char ( eob ) : eob;
-                *rest = g_strdup_printf ( "%s%s", head, tail );
-                g_free ( head );
-                return;
-            }
-        }
+				char *head = g_utf8_substring ( input, 0, ( eob[0] != ' ' && prev_char != NULL) ? sob_offset - 1 : sob_offset );
+				const char *tail = ( eob[0] == ' ' ) ? g_utf8_next_char( eob ) : eob;
+				*rest = g_strdup_printf ( "%s%s", head, tail );
+				g_free(head);
+				return;
+			}
+		}
     }
-    *bang = g_strdup ( "" );
-    *rest = g_strdup ( input );
-    return;
+	*bang = g_strdup("");
+	*rest = g_strdup(input);
+	return;
 }
 
 static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
 
-    gboolean             return_from_fun = FALSE;
-    ModeMode             retv;
-    char                 *bang;
-    char                 *rest;
-    split_bang ( *input, &bang, &rest );
+	gboolean return_from_fun = FALSE;
+	ModeMode retv;
+	char *bang;
+	char *rest;
+	split_bang(*input, &bang, &rest);
 
-    ssize_t bang_len = strlen ( bang );
-    if ( bang_len > 0 ) {
-        int switcher = -1;
-        for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
-            const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
-            size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
-            if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( bang, mode_name, bang_len ) == 0 ) {
-                switcher = i;
-            }
-        }
+	ssize_t bang_len = strlen(bang);
+	if ( bang_len > 0 ) {
+		int switcher = -1;
+		for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
+			const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
+			size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
+			if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( bang, mode_name, bang_len ) == 0 ) {
+				switcher = i;
+			}
+		}
         if ( switcher >= 0 ) {
-            if ( strlen ( rest ) > 0 ) {
+            if ( strlen( rest ) > 0) {
                 retv = mode_result ( pd->switchers[switcher].mode, mretv, &rest,
                                      selected_line - pd->starts[switcher] );
-                return_from_fun = TRUE;
+				return_from_fun = TRUE;
             }
-            else {
-                retv            = MODE_EXIT;
-                return_from_fun = TRUE;
-            }
+			else {
+				retv = MODE_EXIT;
+				return_from_fun = TRUE;
+			}
         }
-    }
+	}
 
-    g_free ( bang );
-    g_free ( rest );
-    if ( return_from_fun ) {
-        return retv;
-    }
+	g_free( bang );
+	g_free( rest );
+	if ( return_from_fun ) {
+		return retv;
+	}
 
     if ( mretv & MENU_QUICK_SWITCH ) {
         return mretv & MENU_LOWER_MASK;
     }
 
-    unsigned offset = 0;
+	unsigned offset = 0;
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-        if ( pd->switchers[i].disable ) {
-            offset += pd->lengths[i];
-        }
+		if ( pd->switchers[i].disable ) {
+			offset += pd->lengths[i];
+		}
         if ( selected_line >= pd->starts[i] &&
              selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
             return mode_result ( pd->switchers[i].mode, mretv, input, selected_line - pd->starts[i] );
@@ -321,6 +320,7 @@ static cairo_surface_t * combi_get_icon ( const Mode *sw, unsigned int index, in
     return NULL;
 }
 
+
 static char * combi_preprocess_input ( Mode *sw, const char *input )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
@@ -328,23 +328,23 @@ static char * combi_preprocess_input ( Mode *sw, const char *input )
         pd->switchers[i].disable = FALSE;
     }
 
-    char *bang;
-    char *rest;
-    split_bang ( input, &bang, &rest );
+	char *bang;
+	char *rest;
+	split_bang(input, &bang, &rest);
 
-    ssize_t bang_len = strlen ( bang );
-    if ( strlen ( bang ) > 0 ) {
-        for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-            const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
-            size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
-            if ( !( (size_t) bang_len <= mode_name_len && utf8_strncmp ( bang, mode_name, bang_len ) == 0 ) ) {
-                // No match.
-                pd->switchers[i].disable = TRUE;
-            }
-        }
-    }
-    g_free ( bang );
-    return rest;
+	ssize_t bang_len = strlen(bang);
+	if ( strlen(bang) > 0 ) {
+		for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
+			const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
+			size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
+			if ( !( (size_t) bang_len <= mode_name_len && utf8_strncmp ( bang, mode_name, bang_len ) == 0 ) ) {
+				// No match.
+				pd->switchers[i].disable = TRUE;
+			}
+		}
+	}
+	g_free(bang);
+	return rest;
 }
 
 Mode combi_mode =
