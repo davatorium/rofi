@@ -734,6 +734,7 @@ int dmenu_switcher_dialog ( void )
     find_arg_str (  "-p", &( dmenu_mode.display_name ) );
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, menu_flags, dmenu_finalize );
 
+
     if ( find_arg ( "-keep-right" ) >= 0 ) {
         rofi_view_ellipsize_start ( state );
     }
