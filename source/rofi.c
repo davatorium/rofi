@@ -1105,6 +1105,9 @@ int main ( int argc, char *argv[] )
     if ( find_arg_uint ( "-record-screenshots", &interval ) ) {
         g_timeout_add ( 1000 / (double) interval, record, NULL );
     }
+    if ( find_arg ( "-benchmark-ui" ) >= 0 ) {
+        config.benchmark_ui = TRUE;
+    }
 
     rofi_view_workers_initialize ();
     rofi_icon_fetcher_init ( );

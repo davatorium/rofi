@@ -223,6 +223,47 @@ void rofi_capture_screenshot ( void )
     g_date_time_unref ( now );
 }
 
+
+/**
+ * Code used for benchmarking drawing the gui, this will keep updating the UI as fast as possible.
+ */
+gboolean do_bench = TRUE;
+struct {
+    GTimer *time;
+    uint64_t draws;
+    double last_ts;
+    double min;
+} BenchMark = {
+    .time = NULL,
+    .draws = 0,
+    .last_ts = 0.0,
+    .min = G_MAXDOUBLE
+};
+
+static gboolean bench_update ( void )
+{
+    if ( !config.benchmark_ui ) {
+        return FALSE;
+    }
+    BenchMark.draws++;
+    if ( BenchMark.time == NULL ) {
+        BenchMark.time = g_timer_new();
+    }
+
+    if ( (BenchMark.draws & 1023) == 0 ){
+        double ts = g_timer_elapsed(BenchMark.time, NULL);
+        double fps = 1024/(ts-BenchMark.last_ts);
+
+        if ( fps < BenchMark.min ) {
+            BenchMark.min = fps;
+        }
+        printf("current: %.2f fps, avg: %.2f fps, min: %.2f fps, %lu draws\r\n", fps, BenchMark.draws/ts, BenchMark.min, BenchMark.draws);
+
+        BenchMark.last_ts = ts;
+    }
+    return TRUE;
+}
+
 static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
 {
     if ( current_active_menu  ) {
@@ -238,7 +279,7 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
         TICK_N ( "flush" );
         CacheState.repaint_source = 0;
     }
-    return G_SOURCE_REMOVE;
+    return (bench_update () == TRUE )? G_SOURCE_CONTINUE:G_SOURCE_REMOVE;
 }
 
 static void rofi_view_update_prompt ( RofiViewState *state )
