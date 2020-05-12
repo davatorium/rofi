@@ -987,7 +987,7 @@ rofi \-show combi \-combi\-modi "window,run,ssh" \-modi combi
 .RE
 
 .PP
-Notes: The i3 window manager does not like commas in the command when specifying an exec command.
+\fBNOTE\fP: The i3 window manager does not like commas in the command when specifying an exec command.
 For that case '#' can be used as a separator.
 
 .SS History and Sorting
@@ -1599,6 +1599,17 @@ Shows a searchable list of key bindings.
 .SS script
 .PP
 Allows custom scripted Modi to be added.
+
+.SS combi
+.PP
+Combines multiple modi in one list. Specify which modi are included with the \fB\fC\-combi\-modi\fR option.
+
+.PP
+When using the combi mode, a \fI!bang\fP can be used to filter the results by modi.
+All modi that match the bang as a prefix are included.
+For example, say you have specified \fB\fC\-combi\-modi run,window,windowcd\fR\&. If your
+query begins with the bang \fB\fC!w\fR, only results from the \fB\fCwindow\fR and \fB\fCwindowcd\fR
+modi are shown, even if the rest of the input text would match results from \fB\fCrun\fR\&.
 
 .SH FAQ
 .SS The text in the window switcher is not nicely aligned.
