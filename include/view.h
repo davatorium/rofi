@@ -307,7 +307,6 @@ void rofi_capture_screenshot ( void );
  */
 void rofi_view_set_window_title ( const char * title  );
 
-
 /**
  * set ellipsize mode to start.
  */

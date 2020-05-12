@@ -182,7 +182,7 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
         case 'm':
             break;
         case '%':
-            g_string_append(res, "%");
+            g_string_append ( res, "%" );
             break;
         case 'k':
             if ( e->e->path ) {
