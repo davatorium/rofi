@@ -196,6 +196,9 @@ typedef struct
     /** drun cache */
     gboolean       drun_use_desktop_cache;
     gboolean       drun_reload_desktop_cache;
+
+    /** Benchmark */
+    gboolean       benchmark_ui;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

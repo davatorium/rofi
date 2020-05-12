@@ -161,5 +161,7 @@ Settings config = {
     .cache_dir                 = NULL,
     .window_thumbnail          = FALSE,
     .drun_use_desktop_cache    = FALSE,
-    .drun_reload_desktop_cache = FALSE
+    .drun_reload_desktop_cache = FALSE,
+    /** Benchmarks */
+    .benchmark_ui              = FALSE
 };
