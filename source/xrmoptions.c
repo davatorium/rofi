@@ -225,7 +225,7 @@ static XrmOption xrmOptions[] = {
       "Modi that do not use a linbreak for {linebreak} in combi mode, but -combi-no-linebreak-str instead.", CONFIG_DEFAULT },
     { xrm_String,  "combi-no-linebreak-str",    { .str   = &config.combi_no_linebreak_str               }, NULL,
       "String used instead of linebreak in the output formatting for -combi-no-linebreak-modi.", CONFIG_DEFAULT },
-    { xrm_Boolean, "markup-combi",              { .str   = &config.markup_combi                         }, NULL,
+    { xrm_Boolean,  "markup-combi",             { .str   = &config.markup_combi                         }, NULL,
       "Allow pango markup in combi mode entries.", CONFIG_DEFAULT },
     { xrm_Char,    "matching-negate-char",      { .charc = &config.matching_negate_char                 }, NULL,
       "Set the character used to negate the matching. ('\\0' to disable)", CONFIG_DEFAULT },
