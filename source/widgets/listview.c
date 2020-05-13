@@ -165,6 +165,32 @@ static void listview_set_state ( _listview_row r, TextBoxFontType tbft )
         break;
     }
 }
+static void listview_add_widget ( listview *lv, _listview_row *row, widget *wid, const char *label )
+{
+    TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
+    if ( strcasecmp ( label, "element-icon" ) == 0 ) {
+        if ( config.show_icons ) {
+            row->icon = icon_create ( WIDGET ( wid ), "element-icon" );
+            box_add ( (box *)wid, WIDGET ( row->icon ), FALSE );
+        }
+    }
+    else if ( strcasecmp ( label, "element-text" ) == 0 ) {
+        row->textbox = textbox_create ( WIDGET ( wid ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT | flags, NORMAL, "DDD", 0, 0 );
+        box_add ( (box *)wid, WIDGET ( row->textbox ), TRUE );
+    }
+    else if ( strcasecmp ( label, "element-index" ) == 0 ) {
+        row->index = textbox_create ( WIDGET ( wid ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT, NORMAL, " ", 0, 0 );
+        box_add ( (box *)wid, WIDGET ( row->index ), FALSE );
+    } else {
+        widget *wid2 = (widget *) box_create ( wid, label, ROFI_ORIENTATION_VERTICAL );
+        box_add ( (box *) wid, WIDGET ( wid2 ), TRUE );
+        GList *list = rofi_theme_get_list ( WIDGET ( wid2 ), "children", "" );
+        for ( GList *iter = g_list_first ( list ); iter != NULL; iter = g_list_next ( iter ) ) {
+            listview_add_widget ( lv,row, wid2, (const char *)iter->data );
+        }
+    }
+
+}
 
 static void listview_create_row ( listview *lv, _listview_row *row )
 {
@@ -178,20 +204,7 @@ static void listview_create_row ( listview *lv, _listview_row *row )
     row->index   = NULL;
 
     for ( GList *iter = g_list_first ( list ); iter != NULL; iter = g_list_next ( iter ) ) {
-        if ( strcasecmp ( (char *) iter->data, "element-icon" ) == 0 ) {
-            if ( config.show_icons ) {
-                row->icon = icon_create ( WIDGET ( row->box ), "element-icon" );
-                box_add ( row->box, WIDGET ( row->icon ), FALSE );
-            }
-        }
-        else if ( strcasecmp ( (char *) iter->data, "element-text" ) == 0 ) {
-            row->textbox = textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT | flags, NORMAL, "DDD", 0, 0 );
-            box_add ( row->box, WIDGET ( row->textbox ), TRUE );
-        }
-        else if ( strcasecmp ( (char*) iter->data, "element-index" ) == 0 ) {
-            row->index = textbox_create ( WIDGET ( row->box ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT, NORMAL, " ", 0, 0 );
-            box_add ( row->box, WIDGET ( row->index ), FALSE );
-        }
+        listview_add_widget ( lv,row, WIDGET(row->box), (const char *)iter->data );
     }
     g_list_free_full ( list, g_free );
 }
