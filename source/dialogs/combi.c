@@ -187,50 +187,11 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
 
-	gboolean return_from_fun = FALSE;
-	ModeMode retv;
-	char *bang;
-	char *rest;
-	split_bang(*input, &bang, &rest);
-
-	ssize_t bang_len = strlen(bang);
-	if ( bang_len > 0 ) {
-		int switcher = -1;
-		for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
-			const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
-			size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
-			if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( bang, mode_name, bang_len ) == 0 ) {
-				switcher = i;
-			}
-		}
-        if ( switcher >= 0 ) {
-            if ( strlen( rest ) > 0) {
-                retv = mode_result ( pd->switchers[switcher].mode, mretv, &rest,
-                                     selected_line - pd->starts[switcher] );
-				return_from_fun = TRUE;
-            }
-			else {
-				retv = MODE_EXIT;
-				return_from_fun = TRUE;
-			}
-        }
-	}
-
-	g_free( bang );
-	g_free( rest );
-	if ( return_from_fun ) {
-		return retv;
-	}
-
     if ( mretv & MENU_QUICK_SWITCH ) {
         return mretv & MENU_LOWER_MASK;
     }
 
-	unsigned offset = 0;
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
-		if ( pd->switchers[i].disable ) {
-			offset += pd->lengths[i];
-		}
         if ( selected_line >= pd->starts[i] &&
              selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
             return mode_result ( pd->switchers[i].mode, mretv, input, selected_line - pd->starts[i] );
