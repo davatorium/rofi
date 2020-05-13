@@ -154,32 +154,43 @@ static void combi_mode_destroy ( Mode *sw )
 static void split_bang( const char *input, char **bang, char **rest ) {
 	// Splits string input into a part containing the bang and the part containing the rest,
 	// saved in the pointers bang and rest.
-    if ( input != NULL) {
-		char *sob = g_utf8_strchr ( input, -1, '!' );
-		char *prev_char = g_utf8_find_prev_char( input, sob );
-
-		if (sob != NULL && (prev_char == NULL || ( config.combi_bang_anywhere && prev_char[0] == ' ' ))) {
-			glong sob_offset = g_utf8_pointer_to_offset( input, sob );
-			const char    *eob     = g_utf8_strchr ( sob, -1, ' ' );
-			if ( eob == NULL ) {
-				// Set it to end.
-				eob = &(input[strlen(input)]);
-			}
-			ssize_t bang_len = g_utf8_pointer_to_offset ( sob, eob );
-
-			if ( bang_len > 1 ) {
-				*bang = g_utf8_substring( input, sob_offset + 1, sob_offset + bang_len );
-
-				char *head = g_utf8_substring ( input, 0, ( eob[0] != ' ' && prev_char != NULL) ? sob_offset - 1 : sob_offset );
-				const char *tail = ( eob[0] == ' ' ) ? g_utf8_next_char( eob ) : eob;
-				*rest = g_strdup_printf ( "%s%s", head, tail );
-				g_free(head);
-				return;
-			}
-		}
-    }
+	
 	*bang = g_strdup("");
 	*rest = g_strdup(input);
+
+	if ( input == NULL ) {
+		return;
+	}
+
+	char *sob = g_utf8_strchr ( input, -1, '!' );
+	if ( sob == NULL ) {
+		return;
+	}
+	char *prev_char = g_utf8_find_prev_char( input, sob );
+	if ( prev_char != NULL && (!config.combi_bang_anywhere || !g_unichar_isspace ( g_utf8_get_char( prev_char ) ) ) ) {
+		
+		return;
+	}
+
+	glong sob_offset = g_utf8_pointer_to_offset( input, sob );
+	const char    *eob     = g_utf8_strchr ( sob, -1, ' ' );
+	if ( eob == NULL ) {
+		// Set it to end.
+		eob = &(input[strlen(input)]);
+	}
+	ssize_t bang_len = g_utf8_pointer_to_offset ( sob, eob );
+
+	if ( bang_len <= 1 ) {
+		return;
+	}
+
+	*bang = g_utf8_substring( input, sob_offset + 1, sob_offset + bang_len );
+
+	char *head = g_utf8_substring ( input, 0, ( eob[0] != ' ' && prev_char != NULL) ? sob_offset - 1 : sob_offset );
+	const char *tail = ( eob[0] == ' ' ) ? g_utf8_next_char( eob ) : eob;
+	g_free(*rest);
+	*rest = g_strdup_printf ( "%s%s", head, tail );
+	g_free(head);
 	return;
 }
 
