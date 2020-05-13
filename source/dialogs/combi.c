@@ -236,9 +236,6 @@ static int combi_mode_match ( const Mode *sw, rofi_int_matcher **tokens, unsigne
 static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *state, GList **attr_list, int get_entry )
 {
     CombiModePrivateData *pd = mode_get_private_data ( sw );
-	if (config.markup_combi) {
-		*state |= MARKUP;
-	}
     if ( !get_entry ) {
         for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
             if ( selected_line >= pd->starts[i] && selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
@@ -253,10 +250,24 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
             char       * retv;
             char       * str  = retv = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, attr_list, TRUE );
             const char *dname = mode_get_display_name ( pd->switchers[i].mode );
+			char *format_str = g_strdup( config.combi_display_format );
             if ( !config.combi_hide_mode_prefix ) {
+				if ( !(*state & MARKUP) && config.markup_combi ) {
+					// Mode does not use markup, but we want to, so escape output
+					char * tmp_str = g_markup_escape_text( str, -1 );
+					g_free(str);
+					str = tmp_str;
+					*state |= MARKUP;
+				}
+				if ( (*state & MARKUP) && !config.markup_combi ) {
+					// Mode does use markup, but we did not want to, so escape pattern string
+					char * tmp_str = g_markup_escape_text( format_str, -1 );
+					g_free(format_str);
+					format_str = tmp_str;
+				}
 				char *dname_markup = g_markup_escape_text ( dname, -1 );
 				char *opt_linebreak = g_strdup(pd->switchers[i].print_newline ? "\n" : config.combi_no_linebreak_str);
-				retv = helper_string_replace_if_exists( config.combi_display_format,
+				retv = helper_string_replace_if_exists( format_str,
 					"{mode}", dname_markup,
 					"{linebreak}", opt_linebreak,
 					"{element}", str,
@@ -264,6 +275,7 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
                 g_free ( str );
 				g_free ( dname_markup );
 				g_free ( opt_linebreak );
+				g_free ( format_str );
             }
 
             if ( attr_list != NULL ) {
