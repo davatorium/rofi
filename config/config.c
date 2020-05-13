@@ -159,7 +159,6 @@ Settings config = {
     .combi_display_format    = "{mode} {element}",
     .combi_no_linebreak_modi = "",
     .combi_no_linebreak_str  = " ",
-    .markup_combi            = FALSE,
 
     .matching_negate_char      = '-',
 
