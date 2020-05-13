@@ -141,8 +141,9 @@ const char *const listview_theme_prop_names[][3] = {
     { "normal.active", "selected.active", "alternate.active" },
 };
 
-static void listview_set_style ( widget *w, TextBoxFontType tbft )
+static void listview_set_state ( _listview_row r, TextBoxFontType tbft )
 {
+    widget *w = WIDGET(r.box);
     TextBoxFontType t = tbft & STATE_MASK;
     if ( w == NULL ) {
         return;
@@ -164,6 +165,7 @@ static void listview_set_style ( widget *w, TextBoxFontType tbft )
         break;
     }
 }
+
 static void listview_create_row ( listview *lv, _listview_row *row )
 {
     TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
@@ -194,20 +196,6 @@ static void listview_create_row ( listview *lv, _listview_row *row )
     g_list_free_full ( list, g_free );
 }
 
-static void listview_set_state ( _listview_row r, TextBoxFontType type )
-{
-    listview_set_style ( WIDGET ( r.box ), type );
-    if ( r.textbox ) {
-        listview_set_style ( WIDGET ( r.textbox ), type );
-    }
-    if ( r.index ) {
-        listview_set_style ( WIDGET ( r.index ), type );
-    }
-    if ( r.icon ) {
-        listview_set_style ( WIDGET ( r.icon ), type );
-    }
-    widget_queue_redraw ( WIDGET ( r.box  ) );
-}
 static int listview_get_desired_height ( widget *wid );
 
 static void listview_free ( widget *wid )

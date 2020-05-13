@@ -62,8 +62,11 @@ void widget_set_state ( widget *widget, const char *state )
         // Update border.
         widget->border        = rofi_theme_get_padding ( widget, "border", widget->def_border );
         widget->border_radius = rofi_theme_get_padding ( widget, "border-radius", widget->def_border_radius );
-
+        if ( widget->set_state  ) {
+            widget->set_state ( widget, state );
+        }
         widget_queue_redraw ( widget );
+
     }
 }
 
