@@ -102,7 +102,7 @@ before_install:
     - PATH="$PATH:$HOME/.local/bin"
   before_script:
     &meson_before_script # Configure the build directory with meson:
-    - meson setup build
+    - meson setup build  -Db_coverage=true
   # TODO: Fix X11 tests (and check whether or not changing the user's resource
   #       limit is still required for the X11 tests).
   script: &meson_script # Build the project:
