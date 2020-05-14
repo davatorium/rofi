@@ -155,21 +155,32 @@ static void split_bang( const char *input, char **bang, char **rest ) {
 	// Splits string input into a part containing the bang and the part containing the rest,
 	// saved in the pointers bang and rest.
 	
-	*bang = g_strdup("");
+	*bang = NULL;
 	*rest = g_strdup(input);
 
 	if ( input == NULL ) {
 		return;
 	}
 
-	char *sob = g_utf8_strchr ( input, -1, '!' );
+	char *sob = input;
+	sob = g_utf8_strchr ( input, -1, '!' );
 	if ( sob == NULL ) {
 		return;
 	}
 	char *prev_char = g_utf8_find_prev_char( input, sob );
-	if ( prev_char != NULL && (!config.combi_bang_anywhere || !g_unichar_isspace ( g_utf8_get_char( prev_char ) ) ) ) {
-		
+	if ( !config.combi_bang_anywhere && prev_char != NULL ) {
 		return;
+	}
+	while ( prev_char != NULL && !g_unichar_isspace ( g_utf8_get_char( prev_char ) ) ) {
+			sob = g_utf8_next_char ( sob );
+			if ( sob == NULL ) {
+				return;
+			}
+			sob = g_utf8_strchr ( sob, -1, '!' );
+			if ( sob == NULL ) {
+				return;
+			}
+			prev_char = g_utf8_find_prev_char( input, sob );
 	}
 
 	glong sob_offset = g_utf8_pointer_to_offset( input, sob );
@@ -304,8 +315,9 @@ static char * combi_preprocess_input ( Mode *sw, const char *input )
 	char *rest;
 	split_bang(input, &bang, &rest);
 
-	ssize_t bang_len = strlen(bang);
-	if ( strlen(bang) > 0 ) {
+	/* ssize_t bang_len = strlen(bang); */
+	ssize_t bang_len = g_utf8_strlen(bang, -1);
+	if ( bang != NULL ) {
 		for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
 			const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
 			size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
