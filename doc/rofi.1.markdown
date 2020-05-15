@@ -397,7 +397,8 @@ To show sidebar, use:
 
     rofi -show run -sidebar-mode -lines 0
 
-`-eh` *number*
+`-eh` *number*;
+`-element-height` *number*
 
 Set row height (in chars)
 Default: *1*
