@@ -482,13 +482,7 @@ static gboolean __config_parser_set_property ( XrmOption *option, const Property
             *error = g_strdup_printf ( "Option: %s needs to be set with a string not a %s.", option->name, PropertyTypeName[p->type] );
             return TRUE;
         }
-
         gchar value = *( p->value.s );
-        if ( ( option )->mem != NULL ) {
-            g_free ( option->mem );
-            option->mem = NULL;
-        }
-
         *( option->value.charc ) = value;
         option->source  = CONFIG_FILE_THEME;
     }
