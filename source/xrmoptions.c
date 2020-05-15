@@ -156,6 +156,8 @@ static XrmOption xrmOptions[] = {
       "Cycle through the results list", CONFIG_DEFAULT },
     { xrm_Boolean, "sidebar-mode",              { .num   = &config.sidebar_mode                         }, NULL,
       "Enable sidebar-mode", CONFIG_DEFAULT },
+    { xrm_SNumber, "element-height",            { .snum  = &config.element_height                       }, NULL,
+      "Row height (in chars)", CONFIG_DEFAULT },
     { xrm_SNumber, "eh",                        { .snum  = &config.element_height                       }, NULL,
       "Row height (in chars)", CONFIG_DEFAULT },
     { xrm_Boolean, "auto-select",               { .num   = &config.auto_select                          }, NULL,
