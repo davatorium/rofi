@@ -442,7 +442,7 @@ if ( queue == NULL ){
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CHAR}                { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CHAR}                { yytext[yyleng-1] = '\0'; yylval->cval = g_strcompress(&yytext[1])[0]; return T_CHAR;}
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>@{WORD}               {
     yylval->sval = g_strdup(yytext+1);
