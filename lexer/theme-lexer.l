@@ -411,13 +411,13 @@ if ( queue == NULL ){
     BEGIN(NAMESTR);
     return T_NAME_PREFIX;
 }
-    /* Go into parsing an section*/
+    /* Go into parsing a section. */
 <NAMESTR>"\{"                    {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(SECTION);
     return T_BOPEN;
 }
-  /* Pop out of parsing an section. */
+  /* Pop out of parsing a section. */
 <SECTION>"\}"             {
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
