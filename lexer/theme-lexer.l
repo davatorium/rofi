@@ -401,7 +401,7 @@ if ( queue == NULL ){
     BEGIN(SECTION);
     return T_BOPEN;
 }
-  /** Everythin not yet parsed is an error. */
+  /** Everything not yet parsed is an error. */
 <DEFAULTS>. {
     return T_ERROR_DEFAULTS;
 }
