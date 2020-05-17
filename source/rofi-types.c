@@ -10,6 +10,8 @@ const char * const PropertyTypeName[P_NUM_TYPES] = {
     "Double",
     /** String */
     "String",
+    /** Character */
+    "Character",
     /** Boolean */
     "Boolean",
     /** Color */

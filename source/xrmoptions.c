@@ -422,7 +422,7 @@ void config_parse_cmd_options ( void )
 
 static gboolean __config_parser_set_property ( XrmOption *option, const Property *p, char **error  )
 {
-    if ( option->type == xrm_String  ) {
+    if ( option->type == xrm_String ) {
         if ( p->type != P_STRING && p->type != P_LIST ) {
             *error = g_strdup_printf ( "Option: %s needs to be set with a string not a %s.", option->name, PropertyTypeName[p->type] );
             return TRUE;
@@ -476,6 +476,14 @@ static gboolean __config_parser_set_property ( XrmOption *option, const Property
         }
         *( option->value.num ) = ( p->value.b );
         option->source         = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_Char ) {
+        if ( p->type != P_CHAR ) {
+            *error = g_strdup_printf ( "Option: %s needs to be set with a character not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
+        }
+        *( option->value.charc ) = ( p->value.c );
+        option->source  = CONFIG_FILE_THEME;
     }
     else {
         // TODO add type

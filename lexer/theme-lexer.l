@@ -169,6 +169,7 @@ WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
 COLOR_NAME [[:alpha:]]+
 STRING     \"{UANYN}*\"
+CHAR       \'({ASCN}|\\\\|\\\'|\\0)\'
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
 PNNUMBER   [-+]?[[:digit:]]+
@@ -401,7 +402,7 @@ if ( queue == NULL ){
     BEGIN(SECTION);
     return T_BOPEN;
 }
-  /** Everythin not yet parsed is an error. */
+  /** Everything not yet parsed is an error. */
 <DEFAULTS>. {
     return T_ERROR_DEFAULTS;
 }
@@ -411,13 +412,13 @@ if ( queue == NULL ){
     BEGIN(NAMESTR);
     return T_NAME_PREFIX;
 }
-    /* Go into parsing an section*/
+    /* Go into parsing a section. */
 <NAMESTR>"\{"                    {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(SECTION);
     return T_BOPEN;
 }
-  /* Pop out of parsing an section. */
+  /* Pop out of parsing a section. */
 <SECTION>"\}"             {
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
@@ -441,6 +442,7 @@ if ( queue == NULL ){
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CHAR}                { yytext[yyleng-1] = '\0'; yylval->cval = g_strcompress(&yytext[1])[0]; return T_CHAR;}
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>@{WORD}               {
     yylval->sval = g_strdup(yytext+1);
