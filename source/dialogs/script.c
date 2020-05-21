@@ -157,6 +157,10 @@ static DmenuScriptEntry *execute_executor ( Mode *sw, char *arg, unsigned int *l
     env = g_environ_setenv ( env, "ROFI_RETV", str_value, TRUE);
     g_free ( str_value );
 
+    str_value = g_strdup_printf("%d", (int) getpid());
+    env = g_environ_setenv ( env, "ROFI_OUTSIDE", str_value, TRUE);
+    g_free ( str_value );
+
 
     if ( g_shell_parse_argv ( sw->ed, &argc, &argv, &error ) ) {
         argv           = g_realloc ( argv, ( argc + 2 ) * sizeof ( char* ) );

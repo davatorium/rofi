@@ -788,6 +788,17 @@ int main ( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
 
+    {
+        const char *ro_pid = g_getenv("ROFI_OUTSIDE");
+        if ( ro_pid != NULL ) {
+            int ro_pidi = g_ascii_strtoll ( ro_pid, NULL, 0 );
+            if ( kill ( ro_pidi, 0 ) == 0 ) {
+                    printf ( "Do not launch rofi from inside rofi.\r\n" );
+                    return EXIT_FAILURE;
+            }
+        }
+    }
+
     // Detect if we are in dmenu mode.
     // This has two possible causes.
     // 1 the user specifies it on the command-line.
