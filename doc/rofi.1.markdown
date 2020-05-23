@@ -60,8 +60,8 @@ There are currently three methods of setting configuration options (evaluated in
    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
  * Rasi theme file: The new *theme* format can be used to set configuration values.
  * Configuration File: This uses the same format as the Xresources file.
-   By default it looks in `XDG_USER_CONFIG_DIR`/rofi/config, but can be overridden on commandline.
-   By default `XDG_USER_CONFIG_DIR` defaults to `$HOME/.config`. (See `rofi -h` for current location).
+   By default it looks in `XDG_CONFIG_HOME`/rofi/config, but can be overridden on commandline.
+   By default `XDG_CONFIG_HOME` defaults to `$HOME/.config`. (See `rofi -h` for current location).
    This is the recommended way of configuring **rofi**.
  * Command-line options: Arguments passed to **rofi**.
 
