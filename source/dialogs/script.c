@@ -79,12 +79,18 @@ typedef struct
 void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *entry, char *buffer, size_t length )
 {
     size_t length_key = 0;              //strlen ( line );
+    size_t end_value = 0;
     while ( length_key < length && buffer[length_key] != '\x1f' ) {
         length_key++;
+    }
+    end_value = length_key+1;
+    while ( end_value < length && buffer[end_value] != '\x1f' ) {
+        end_value++;
     }
     // Should be not last character in buffer.
     if ( (length_key+1) < (length) ) {
         buffer[length_key] = '\0';
+        if ( end_value < length_key) buffer[end_value] = '\0';
         char *value = buffer + length_key + 1;
         if ( strcasecmp ( buffer, "icon" ) == 0 ) {
             entry->icon_name = g_strdup ( value );
@@ -92,9 +98,15 @@ void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *
         else if ( strcasecmp ( buffer, "meta" ) == 0 ) {
             entry->meta = g_strdup ( value );
         }
+        else if ( strcasecmp ( buffer, "info" ) == 0 ) {
+            entry->info = g_strdup ( value );
+        }
         else if ( strcasecmp ( buffer, "nonselectable" ) == 0 ) {
             entry->nonselectable = strcasecmp ( value, "true" ) == 0;
         }
+    }
+    if ( end_value < length ) {
+        dmenuscript_parse_entry_extras ( NULL, entry, &buffer[end_value+1], length-end_value);
     }
 }
 
@@ -139,7 +151,7 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
     }
 }
 
-static DmenuScriptEntry *execute_executor ( Mode *sw, char *arg, unsigned int *length, int value )
+static DmenuScriptEntry *execute_executor ( Mode *sw, char *arg, unsigned int *length, int value, DmenuScriptEntry *entry )
 {
     ScriptModePrivateData *pd        = (ScriptModePrivateData *) sw->private_data;
     int              fd     = -1;
@@ -160,6 +172,10 @@ static DmenuScriptEntry *execute_executor ( Mode *sw, char *arg, unsigned int *l
     str_value = g_strdup_printf("%d", (int) getpid());
     env = g_environ_setenv ( env, "ROFI_OUTSIDE", str_value, TRUE);
     g_free ( str_value );
+
+    if ( entry && entry->info ) {
+        env = g_environ_setenv ( env, "ROFI_INFO", entry->info, TRUE);
+    }
 
 
     if ( g_shell_parse_argv ( sw->ed, &argc, &argv, &error ) ) {
@@ -239,7 +255,7 @@ static int script_mode_init ( Mode *sw )
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
 		pd->delim        = '\n';
         sw->private_data = (void *) pd;
-        pd->cmd_list     = execute_executor ( sw, NULL, &( pd->cmd_list_length ), 0 );
+        pd->cmd_list     = execute_executor ( sw, NULL, &( pd->cmd_list_length ), 0, NULL );
     }
     return TRUE;
 }
@@ -278,10 +294,10 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
         //retv = 1+( mretv & MENU_LOWER_MASK );
         script_mode_reset_highlight ( sw );
         if ( selected_line != UINT32_MAX ) {
-            new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length,10+( mretv & MENU_LOWER_MASK ) );
+            new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length,10+( mretv & MENU_LOWER_MASK ), &(rmpd->cmd_list[selected_line]) );
         } else {
             if ( rmpd->no_custom == FALSE ) {
-                new_list = execute_executor ( sw, *input, &new_length,10+( mretv & MENU_LOWER_MASK ) );
+                new_list = execute_executor ( sw, *input, &new_length,10+( mretv & MENU_LOWER_MASK ), NULL );
             } else {
                 return RELOAD_DIALOG;
             }
@@ -292,12 +308,12 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
             return RELOAD_DIALOG;
         }
         script_mode_reset_highlight ( sw );
-        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 1 );
+        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 1, NULL );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         if ( rmpd->no_custom == FALSE ) {
             script_mode_reset_highlight ( sw );
-            new_list = execute_executor ( sw, *input, &new_length, 2 );
+            new_list = execute_executor ( sw, *input, &new_length, 2 , &(rmpd->cmd_list[selected_line]));
         } else {
             return RELOAD_DIALOG;
         }

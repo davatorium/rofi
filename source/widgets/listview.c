@@ -194,7 +194,6 @@ static void listview_add_widget ( listview *lv, _listview_row *row, widget *wid,
 
 static void listview_create_row ( listview *lv, _listview_row *row )
 {
-    TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
     row->box = box_create ( WIDGET ( lv ), "element", ROFI_ORIENTATION_HORIZONTAL );
     widget_set_type ( WIDGET ( row->box ), WIDGET_TYPE_LISTVIEW_ELEMENT );
     GList *list = rofi_theme_get_list ( WIDGET ( row->box ), "children", "element-icon,element-text" );

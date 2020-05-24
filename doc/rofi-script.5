@@ -73,6 +73,10 @@ An integer number with the current state:
 .IP \(bu 2
 \fB10\-28\fP: Custom keybinding 1\-19
 
+.SS \fB\fCROFI\_INFO\fR
+.PP
+Environment get set when selected entry get set with the property value of the 'info' row option, if set.
+
 .SH Passing mode options
 .PP
 Extra options, like setting the prompt, can be set by the script.
@@ -132,6 +136,20 @@ The following options are supported:
 \fBmeta\fP: Specify invisible search terms.
 .IP \(bu 2
 \fBnonselectable\fP: If true the row cannot activated.
+.IP \(bu 2
+\fBinfo\fP: Info that, on selection, gets placed in the \fB\fCROFI\_INFO\fR environment variable. This entry does not get searched.
+
+.PP
+multiple entries can be passed using the \fB\fC\\x1f\fR separator.
+
+.PP
+.RS
+
+.nf
+    echo \-en "aap\\0icon\\x1ffolder\\x1finfo\\x1ftest\\n"
+
+.fi
+.RE
 
 .SH SEE ALSO
 .PP

@@ -59,6 +59,10 @@ An integer number with the current state:
  * **2**: Selected a custom entry.
  * **10-28**: Custom keybinding 1-19
 
+### `ROFI_INFO`
+
+Environment get set when selected entry get set with the property value of the 'info' row option, if set.
+
 ## Passing mode options
 
 Extra options, like setting the prompt, can be set by the script.
@@ -96,6 +100,13 @@ The following options are supported:
  * **icon**: Set the icon for that row.
  * **meta**: Specify invisible search terms.
  * **nonselectable**: If true the row cannot activated.
+ * **info**: Info that, on selection, gets placed in the `ROFI_INFO` environment variable. This entry does not get searched.
+
+multiple entries can be passed using the `\x1f` separator.
+
+```bash
+    echo -en "aap\0icon\x1ffolder\x1finfo\x1ftest\n"
+```
 
 
 
