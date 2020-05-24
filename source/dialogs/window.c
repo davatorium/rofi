@@ -453,6 +453,7 @@ static unsigned int window_mode_get_num_entries ( const Mode *sw )
  * Small helper function to find the right entry in the ewmh reply.
  * Is there a call for this?
  */
+const char *invalid_desktop_name = "n/a";
 static const char * _window_name_list_entry  ( const char *str, uint32_t length, int entry )
 {
     uint32_t offset = 0;
@@ -462,6 +463,9 @@ static const char * _window_name_list_entry  ( const char *str, uint32_t length,
             index++;
         }
         offset++;
+    }
+    if ( offset >=  length ){
+        return invalid_desktop_name;
     }
     return &str[offset];
 }
