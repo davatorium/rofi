@@ -271,3 +271,9 @@ On both openSUSE Leap and openSUSE Tumbleweed rofi can be installed using:
 ```
 sudo zypper install rofi
 ```
+
+### FreeBSD
+
+```
+sudo pkg install rofi
+```
