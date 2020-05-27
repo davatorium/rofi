@@ -364,6 +364,52 @@ wayland_keyboard_leave(void *data, struct wl_keyboard *keyboard, uint32_t serial
     // TODO?
 }
 
+static gboolean
+wayland_key_repeat(void *data)
+{
+    wayland_seat *self = data;
+
+    if ( self->repeat.key == 0 ) {
+        self->repeat.source = NULL;
+        return G_SOURCE_REMOVE;
+    }
+
+    RofiViewState *state = rofi_view_get_active ( );
+    char *text = nk_bindings_seat_handle_key( wayland->bindings_seat, NULL, self->repeat.key, NK_BINDINGS_KEY_STATE_PRESS );
+
+    if ( text != NULL ) {
+        rofi_view_handle_text ( state, text );
+    }
+
+    rofi_view_maybe_update( state );
+
+    return G_SOURCE_CONTINUE;
+}
+
+static gboolean
+wayland_key_repeat_delay(void *data)
+{
+    wayland_seat *self = data;
+
+    if ( self->repeat.key == 0 ) {
+        return FALSE;
+    }
+
+    RofiViewState *state = rofi_view_get_active ( );
+    char *text = nk_bindings_seat_handle_key( wayland->bindings_seat, NULL, self->repeat.key, NK_BINDINGS_KEY_STATE_PRESS );
+
+    if ( text != NULL ) {
+        rofi_view_handle_text ( state, text );
+    }
+
+    guint source_id = g_timeout_add ( self->repeat.rate, wayland_key_repeat, data );
+    self->repeat.source = g_main_context_find_source_by_id ( NULL, source_id);
+
+    rofi_view_maybe_update( state );
+
+    return G_SOURCE_REMOVE;
+}
+
 static void
 wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, uint32_t time, uint32_t key, enum wl_keyboard_key_state kstate)
 {
@@ -375,14 +421,30 @@ wayland_keyboard_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, 
     wayland->last_seat = self;
     self->serial = serial;
 
+    xkb_keycode_t keycode = key + 8;
     if ( kstate == WL_KEYBOARD_KEY_STATE_RELEASED ) {
-        nk_bindings_seat_handle_key( wayland->bindings_seat, NULL, key + 8, NK_BINDINGS_KEY_STATE_RELEASE );
+        if ( keycode == self->repeat.key ) {
+            self->repeat.key = 0;
+            if ( self->repeat.source != NULL ) {
+                g_source_destroy ( self->repeat.source );
+                self->repeat.source = NULL;
+            }
+        }
+        nk_bindings_seat_handle_key( wayland->bindings_seat, NULL, keycode, NK_BINDINGS_KEY_STATE_RELEASE );
     } else if ( kstate == WL_KEYBOARD_KEY_STATE_PRESSED ) {
-        char *text = nk_bindings_seat_handle_key( wayland->bindings_seat, NULL, key + 8, NK_BINDINGS_KEY_STATE_PRESS );
+        char *text = nk_bindings_seat_handle_key( wayland->bindings_seat, NULL, keycode, NK_BINDINGS_KEY_STATE_PRESS );
 
         if ( text != NULL ) {
             rofi_view_handle_text ( state, text );
         }
+        if ( self->repeat.source != NULL ) {
+            g_source_destroy ( self->repeat.source );
+            self->repeat.source = NULL;
+        }
+
+        self->repeat.key = keycode;
+        guint source_id = g_timeout_add ( self->repeat.delay, wayland_key_repeat_delay, data );
+        self->repeat.source = g_main_context_find_source_by_id ( NULL, source_id);
     }
 
     rofi_view_maybe_update( state );
@@ -402,6 +464,13 @@ static void
 wayland_keyboard_repeat_info(void *data, struct wl_keyboard *keyboard, int32_t rate, int32_t delay)
 {
     wayland_seat *self = data;
+    self->repeat.key = 0;
+    self->repeat.rate = rate;
+    self->repeat.delay = delay;
+    if ( self->repeat.source != NULL ) {
+        g_source_destroy ( self->repeat.source );
+        self->repeat.source = NULL;
+    }
 }
 
 static const struct wl_keyboard_listener wayland_keyboard_listener = {
@@ -452,7 +521,6 @@ static void
 wayland_pointer_send_events(wayland_seat *self)
 {
     RofiViewState *state = rofi_view_get_active ();
-    //widget_modifier_mask modmask = xkb_get_modmask(&self->xkb, 0);
 
     if ( self->motion.x > -1 || self->motion.y > -1 )
     {
@@ -461,33 +529,42 @@ wayland_pointer_send_events(wayland_seat *self)
         self->motion.y = -1;
     }
 
-    if ( self->button.button > 0 )
+    NkBindingsMouseButton button = -1;
+    switch ( self->button.button )
     {
-        //rofi_view_handle_mouse_button(&self->button);
+    case BTN_LEFT:
+        button = NK_BINDINGS_MOUSE_BUTTON_PRIMARY;
+    break;
+    case BTN_RIGHT:
+        button = NK_BINDINGS_MOUSE_BUTTON_SECONDARY;
+    break;
+    case BTN_MIDDLE:
+        button = NK_BINDINGS_MOUSE_BUTTON_MIDDLE;
+    break;
+    }
+
+    if ( self->button.button >= 0 )
+    {
+        if ( self->button.pressed ) {
+            rofi_view_handle_mouse_motion ( state, self->button.x, self->button.y );
+            nk_bindings_seat_handle_button ( wayland->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_PRESS, self->button.time );
+        } else {
+            nk_bindings_seat_handle_button ( wayland->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_RELEASE, self->button.time );
+        }
         self->button.button = 0;
     }
 
-#if 0
     if ( self->wheel.vertical != 0 )
     {
-        rofi_mouse_wheel_direction direction = self->wheel.vertical < 0 ? ROFI_MOUSE_WHEEL_UP : ROFI_MOUSE_WHEEL_DOWN;
-        guint val = ABS(self->wheel.vertical);
-        do
-            rofi_view_mouse_navigation(direction);
-        while ( --val > 0 );
+        nk_bindings_seat_handle_scroll( wayland->bindings_seat, NULL, NK_BINDINGS_SCROLL_AXIS_VERTICAL, self->wheel.vertical );
         self->wheel.vertical = 0;
     }
 
     if ( self->wheel.horizontal != 0 )
     {
-        rofi_mouse_wheel_direction direction = self->wheel.horizontal < 0 ? ROFI_MOUSE_WHEEL_LEFT : ROFI_MOUSE_WHEEL_RIGHT;
-        guint val = ABS(self->wheel.horizontal);
-        do
-            rofi_view_mouse_navigation(direction);
-        while ( --val > 0 );
+        nk_bindings_seat_handle_scroll( wayland->bindings_seat, NULL, NK_BINDINGS_SCROLL_AXIS_HORIZONTAL, self->wheel.horizontal );
         self->wheel.horizontal = 0;
     }
-#endif
 
     rofi_view_maybe_update(state);
 }
@@ -544,21 +621,7 @@ wayland_pointer_button(void *data, struct wl_pointer *pointer, uint32_t serial, 
 
     self->button.time = time;
     self->button.pressed = (state == WL_POINTER_BUTTON_STATE_PRESSED);
-    switch ( button )
-    {
-    case BTN_LEFT:
-        self->button.button = NK_BINDINGS_MOUSE_BUTTON_PRIMARY;
-    break;
-    case BTN_RIGHT:
-        self->button.button = NK_BINDINGS_MOUSE_BUTTON_SECONDARY;
-    break;
-    case BTN_MIDDLE:
-        self->button.button = NK_BINDINGS_MOUSE_BUTTON_MIDDLE;
-    break;
-    }
-
-    if ( wl_pointer_get_version(self->pointer) >= WL_POINTER_FRAME_SINCE_VERSION )
-        return;
+    self->button.button = button;
 
     wayland_pointer_send_events(self);
 }
@@ -567,9 +630,6 @@ static void
 wayland_pointer_axis(void *data, struct wl_pointer *pointer, uint32_t time, enum wl_pointer_axis axis, wl_fixed_t value)
 {
     wayland_seat *self = data;
-
-    if ( wl_pointer_get_version(self->pointer) >= WL_POINTER_FRAME_SINCE_VERSION )
-        return;
 
     switch ( axis )
     {
@@ -640,6 +700,12 @@ wayland_keyboard_release(wayland_seat *self)
     else
         wl_keyboard_destroy(self->keyboard);
 
+    self->repeat.key = 0;
+    if ( self->repeat.source != NULL ) {
+        g_source_destroy ( self->repeat.source );
+        self->repeat.source = NULL;
+    }
+
     self->keyboard = NULL;
 }
 
@@ -683,7 +749,6 @@ wayland_seat_capabilities(void *data, struct wl_seat *seat, uint32_t capabilitie
     {
         self->keyboard = wl_seat_get_keyboard(self->seat);
         wl_keyboard_add_listener(self->keyboard, &wayland_keyboard_listener, self);
-        //self->xkb.context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
     }
     else if ( ( ! ( capabilities & WL_SEAT_CAPABILITY_POINTER ) ) && ( self->keyboard != NULL ) )
         wayland_keyboard_release(self);
@@ -787,7 +852,6 @@ wayland_registry_handle_global(void *data, struct wl_registry *registry, uint32_
         seat->context = wayland;
         seat->global_name = name;
         seat->seat = wl_registry_bind(registry, name, &wl_seat_interface, MIN(version, WL_SEAT_INTERFACE_VERSION));
-
         g_hash_table_insert(wayland->seats, seat->seat, seat);
 
         wl_seat_add_listener(seat->seat, &wayland_seat_listener, seat);
@@ -912,10 +976,6 @@ wayland_error(gpointer user_data)
     return G_SOURCE_REMOVE;
 }
 
-static void
-wayland_build_monitor_layout(void)
-{
-}
 
 gboolean
 display_setup(GMainLoop *main_loop, NkBindings *bindings)
@@ -943,7 +1003,14 @@ display_setup(GMainLoop *main_loop, NkBindings *bindings)
     wl_registry_add_listener ( wayland->registry, &wayland_registry_listener, NULL );
     wl_display_roundtrip ( wayland->display );
 
-    wayland_build_monitor_layout ();
+    if ( wayland->compositor == NULL || wayland->shm == NULL || g_hash_table_size(wayland->outputs) == 0 || g_hash_table_size(wayland->seats) == 0 ) {
+        g_error( "Could not connect to wayland compositor" );
+        return FALSE;
+    }
+    if ( wayland->layer_shell == NULL ) {
+        g_error( "Rofi on wayland requires support for the layer shell protocol" );
+        return FALSE;
+    }
 
     wayland->cursor.theme = wl_cursor_theme_load(wayland->cursor.theme_name, 32, wayland->shm);
     if ( wayland->cursor.theme != NULL )
@@ -968,26 +1035,76 @@ display_setup(GMainLoop *main_loop, NkBindings *bindings)
     return TRUE;
 }
 
-gboolean display_late_setup ( void )
+gboolean
+display_late_setup ( void )
 {
-    // TODO: move this in view?
-    #if 0
-    zwlr_layer_surface_v1_set_size(wayland->wlr_surface, width, height);
-    zwlr_layer_surface_v1_set_anchor(wayland->wlr_surface, anchor);
-    zwlr_layer_surface_v1_set_exclusive_zone(wayland->wlr_surface, exclusive_zone);
-    zwlr_layer_surface_v1_set_margin(wayland->wlr_surface, margin_top, margin_right, margin_bottom, margin_left);
-    zwlr_layer_surface_v1_set_keyboard_interactivity( wayland->wlr_surface, keyboard_interactive);
-    #endif
-    zwlr_layer_surface_v1_set_anchor( wayland->wlr_surface, ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP );
+    // note: ANCHOR_LEFT is needed to get the full window width
+    zwlr_layer_surface_v1_set_anchor( wayland->wlr_surface, ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP | ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT );
     zwlr_layer_surface_v1_set_keyboard_interactivity( wayland->wlr_surface, 1 );
     zwlr_layer_surface_v1_add_listener( wayland->wlr_surface, &wayland_layer_shell_surface_listener, NULL );
 
-    wl_surface_add_listener(wayland->surface, &wayland_surface_interface, wayland);
-    wl_surface_commit(wayland->surface);
-    wl_display_roundtrip(wayland->display);
-    wayland_frame_callback(wayland, wayland->frame_cb, 0);
+    // By setting 0 here, we'll get some useful sizes in the configure event
+    zwlr_layer_surface_v1_set_size(wayland->wlr_surface, 0, 0);
+    wl_surface_add_listener( wayland->surface, &wayland_surface_interface, wayland );
+    wl_surface_commit( wayland->surface );
+    wl_display_roundtrip( wayland->display );
+    wayland_frame_callback( wayland, wayland->frame_cb, 0 );
 
     return TRUE;
+}
+
+gboolean
+display_get_surface_dimensions ( int *width, int *height )
+{
+    if ( wayland->layer_width != 0 ) {
+        if ( width != NULL )
+            *width = wayland->layer_width;
+        if ( height != NULL )
+            *height = wayland->layer_height;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+void
+display_set_surface_dimensions ( int width, int height, int loc )
+{
+    wayland->layer_width = width;
+    wayland->layer_height = height;
+    zwlr_layer_surface_v1_set_size( wayland->wlr_surface, width, height );
+
+    uint32_t wlr_anchor = 0;
+    switch ( loc )
+    {
+    case WL_NORTH_WEST:
+        wlr_anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT | ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP;
+        break;
+    case WL_NORTH:
+        wlr_anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP;
+        break;
+    case WL_NORTH_EAST:
+        wlr_anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT | ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP;
+        break;
+    case WL_EAST:
+        wlr_anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT;
+        break;
+    case WL_SOUTH_EAST:
+        wlr_anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT | ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM;
+        break;
+    case WL_SOUTH:
+        wlr_anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM;
+        break;
+    case WL_SOUTH_WEST:
+        wlr_anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT | ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM;
+        break;
+    case WL_WEST:
+        wlr_anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT;
+        break;
+    case WL_CENTER:
+    default:
+        break;
+    }
+    zwlr_layer_surface_v1_set_anchor( wayland->wlr_surface, wlr_anchor );
 }
 
 void

@@ -16,20 +16,8 @@ typedef enum {
     _WAYLAND_GLOBAL_SIZE,
 } wayland_global_name;
 
-#if 0
-typedef enum {
-    WIDGET_MODMASK_SHIFT   = (1 << WIDGET_MOD_SHIFT),
-    WIDGET_MODMASK_CONTROL = (1 << WIDGET_MOD_CONTROL),
-    WIDGET_MODMASK_ALT     = (1 << WIDGET_MOD_ALT),
-    WIDGET_MODMASK_META    = (1 << WIDGET_MOD_META),
-    WIDGET_MODMASK_SUPER   = (1 << WIDGET_MOD_SUPER),
-    WIDGET_MODMASK_HYPER   = (1 << WIDGET_MOD_HYPER),
-    WIDGET_MODMASK_ALL     = (WIDGET_MODMASK_SHIFT | WIDGET_MODMASK_CONTROL | WIDGET_MODMASK_ALT | WIDGET_MODMASK_META | WIDGET_MODMASK_SUPER | WIDGET_MODMASK_HYPER)
-} widget_modifier_mask;
-#endif
-
 typedef struct {
-    NkBindingsMouseButton button;
+    uint32_t button;
     char modifiers;
     gint x, y;
     gboolean pressed;
@@ -86,9 +74,14 @@ struct _wayland_seat {
     uint32_t global_name;
     struct wl_seat *seat;
     gchar *name;
+    struct {
+        xkb_keycode_t key;
+        GSource *source;
+        int32_t rate;
+        int32_t delay;
+    } repeat;
     uint32_t serial;
     struct wl_keyboard *keyboard;
-    // xkb_stuff xkb;
     struct wl_pointer *pointer;
     widget_button_event button;
     widget_motion_event motion;

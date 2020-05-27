@@ -82,22 +82,6 @@ RofiViewState *current_active_menu = NULL;
  */
 struct
 {
-#if 0
-    /** main x11 windows */
-    xcb_window_t       main_window;
-    /** surface containing the fake background. */
-    cairo_surface_t    *fake_bg;
-    /** Draw context  for main window */
-    xcb_gcontext_t     gc;
-    /** Main X11 side pixmap to draw on. */
-    xcb_pixmap_t       edit_pixmap;
-    /** Cairo Surface for edit_pixmap */
-    cairo_surface_t    *edit_surf;
-    /** Drawable context for edit_surf */
-    cairo_t            *edit_draw;
-    /** Indicate that fake background should be drawn relative to the window */
-    int                fake_bgrel;
-#endif
     /** Main flags */
     MenuFlags          flags;
     /** List of stacked views */
@@ -125,7 +109,9 @@ struct
 
 void rofi_view_get_current_monitor ( int *width, int *height )
 {
+    display_get_surface_dimensions( width, height );
 }
+
 static char * get_matching_state ( void )
 {
     if ( config.case_sensitive ) {
@@ -163,22 +149,26 @@ void rofi_capture_screenshot ( void )
 {
 }
 
-static void rofi_view_update_prompt ( RofiViewState *state )
+static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
 {
+    if ( current_active_menu  ) {
+        // Repaint the view (if needed).
+        // After a resize the edit_pixmap surface might not contain anything anymore.
+        // If we already re-painted, this does nothing.
+        rofi_view_maybe_update( current_active_menu );
+        CacheState.repaint_source = 0;
+    }
+    return G_SOURCE_REMOVE;
 }
 
-/**
- * Calculates the window position
- */
-/** Convert the old location to the new location type.
- * 123
- * 804
- * 765
- *
- * nw n ne
- * w  c e
- * sw s se
- */
+static void rofi_view_update_prompt ( RofiViewState *state )
+{
+    if ( state->prompt ) {
+        const char *str = mode_get_display_name ( state->sw );
+        textbox_text ( state->prompt, str );
+    }
+}
+
 static const int loc_transtable[9] = {
     WL_CENTER,
     WL_NORTH | WL_WEST,
@@ -190,110 +180,16 @@ static const int loc_transtable[9] = {
     WL_SOUTH | WL_WEST,
     WL_WEST
 };
-#if 0
-static void rofi_view_calculate_window_position ( RofiViewState *state )
-{
-    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", loc_transtable[config.location] );
-    int anchor   = location;
-    if ( !listview_get_fixed_num_lines ( state->list_view ) ) {
-        anchor = location;
-        if ( location == WL_CENTER ) {
-            anchor = WL_NORTH;
-        }
-        else if ( location == WL_EAST ) {
-            anchor = WL_NORTH_EAST;
-        }
-        else if ( location == WL_WEST ) {
-            anchor = WL_NORTH_WEST;
-        }
-    }
-    anchor = rofi_theme_get_position ( WIDGET ( state->main_window ), "anchor", anchor );
 
-    if ( CacheState.fullscreen ) {
-        state->x = CacheState.mon.x;
-        state->y = CacheState.mon.y;
-        return;
-    }
-    state->y = CacheState.mon.y + ( CacheState.mon.h ) / 2;
-    state->x = CacheState.mon.x + ( CacheState.mon.w ) / 2;
-    // Determine window location
-    switch ( location )
-    {
-    case WL_NORTH_WEST:
-        state->x = CacheState.mon.x;
-    /* FALLTHRU */
-    case WL_NORTH:
-        state->y = CacheState.mon.y;
-        break;
-    case WL_NORTH_EAST:
-        state->y = CacheState.mon.y;
-    /* FALLTHRU */
-    case WL_EAST:
-        state->x = CacheState.mon.x + CacheState.mon.w;
-        break;
-    case WL_SOUTH_EAST:
-        state->x = CacheState.mon.x + CacheState.mon.w;
-    /* FALLTHRU */
-    case WL_SOUTH:
-        state->y = CacheState.mon.y + CacheState.mon.h;
-        break;
-    case WL_SOUTH_WEST:
-        state->y = CacheState.mon.y + CacheState.mon.h;
-    /* FALLTHRU */
-    case WL_WEST:
-        state->x = CacheState.mon.x;
-        break;
-    case WL_CENTER:
-        ;
-    /* FALLTHRU */
-    default:
-        break;
-    }
-    switch ( anchor )
-    {
-    case WL_SOUTH_WEST:
-        state->y -= state->height;
-        break;
-    case WL_SOUTH:
-        state->x -= state->width / 2;
-        state->y -= state->height;
-        break;
-    case WL_SOUTH_EAST:
-        state->x -= state->width;
-        state->y -= state->height;
-        break;
-    case WL_NORTH_EAST:
-        state->x -= state->width;
-        break;
-    case WL_NORTH_WEST:
-        break;
-    case WL_NORTH:
-        state->x -= state->width / 2;
-        break;
-    case WL_EAST:
-        state->x -= state->width;
-        state->y -= state->height / 2;
-        break;
-    case WL_WEST:
-        state->y -= state->height / 2;
-        break;
-    case WL_CENTER:
-        state->y -= state->height / 2;
-        state->x -= state->width / 2;
-        break;
-    default:
-        break;
-    }
-    // Apply offset.
-    RofiDistance x = rofi_theme_get_distance ( WIDGET ( state->main_window ), "x-offset", config.x_offset );
-    RofiDistance y = rofi_theme_get_distance ( WIDGET ( state->main_window ), "y-offset", config.y_offset );
-    state->x += distance_get_pixel ( x, ROFI_ORIENTATION_HORIZONTAL );
-    state->y += distance_get_pixel ( y, ROFI_ORIENTATION_VERTICAL );
+static int rofi_get_location ( RofiViewState *state )
+{
+    return rofi_theme_get_position ( WIDGET ( state->main_window ), "location", loc_transtable[config.location] );
 }
-#endif
 
 static void rofi_view_window_update_size ( RofiViewState * state )
 {
+    widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
+    display_set_surface_dimensions ( state->width, state->height, rofi_get_location(state) );
 }
 
 void rofi_view_set_size ( RofiViewState * state, gint width, gint height )
@@ -329,10 +225,13 @@ static void rofi_view_reload_message_bar ( RofiViewState *state )
 
 static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
 {
+    RofiViewState *state = rofi_view_get_active ();
+
     if ( current_active_menu ) {
         current_active_menu->reload   = TRUE;
         current_active_menu->refilter = TRUE;
-        rofi_view_queue_redraw ();
+
+        rofi_view_maybe_update ( state );
     }
     CacheState.idle_timeout = 0;
     return G_SOURCE_REMOVE;
@@ -342,11 +241,19 @@ void rofi_view_reload ( void  )
 {
     // @TODO add check if current view is equal to the callee
     if ( CacheState.idle_timeout == 0 ) {
-        CacheState.idle_timeout = g_timeout_add ( 1000 / 10, rofi_view_reload_idle, NULL );
+        CacheState.idle_timeout = g_timeout_add ( 1000 / 15, rofi_view_reload_idle, NULL );
     }
 }
 void rofi_view_queue_redraw ( void  )
 {
+    if ( current_active_menu && CacheState.repaint_source == 0 ) {
+        CacheState.count++;
+        g_debug ( "redraw %llu", CacheState.count );
+
+        widget_queue_redraw ( WIDGET ( current_active_menu->main_window ) );
+
+        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
+    }
 }
 
 void rofi_view_restart ( RofiViewState *state )
@@ -385,6 +292,16 @@ void rofi_view_set_active ( RofiViewState *state )
 
 void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line )
 {
+    state->selected_line = selected_line;
+    // Find the line.
+    unsigned int selected = 0;
+    for ( unsigned int i = 0; ( ( state->selected_line ) ) < UINT32_MAX && !selected && i < state->filtered_lines; i++ ) {
+        if ( state->line_map[i] == ( state->selected_line ) ) {
+            selected = i;
+            break;
+        }
+    }
+    listview_set_selected ( state->list_view, selected );
 }
 
 void rofi_view_free ( RofiViewState *state )
@@ -575,9 +492,11 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
         state->width  = -( fw * config.menu_width );
         state->width += widget_padding_get_padding_width ( WIDGET ( state->main_window ) );
     }
-    else{
+    else {
+        int width = 1920;
         // Calculate as float to stop silly, big rounding down errors.
-        state->width = config.menu_width < 101 ? ( /* FIXME: ??? what to use instead of monitor size here? */ 1000. / 100.0f ) * ( float ) config.menu_width : config.menu_width;
+        display_get_surface_dimensions( &width, NULL );
+        state->width = config.menu_width < 101 ? ( (float)width / 100.0f ) * ( float ) config.menu_width : config.menu_width;
     }
     // Use theme configured width, if set.
     RofiDistance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
@@ -1180,19 +1099,6 @@ void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notif
 {
 }
 
-static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
-{
-    if ( current_active_menu  ) {
-        // Repaint the view (if needed).
-        // After a resize the edit_pixmap surface might not contain anything anymore.
-        // If we already re-painted, this does nothing.
-        rofi_view_update ( current_active_menu, FALSE );
-        CacheState.repaint_source = 0;
-    }
-    return FALSE;
-    // return (bench_update () == TRUE )? G_SOURCE_CONTINUE:G_SOURCE_REMOVE;
-}
-
 void rofi_view_frame_callback ( void )
 {
     if ( CacheState.repaint_source == 0 ) {
@@ -1202,11 +1108,11 @@ void rofi_view_frame_callback ( void )
 
 static int rofi_view_calculate_height ( RofiViewState *state )
 {
-    /*
     if ( CacheState.fullscreen == TRUE ) {
-        return CacheState.mon.h;
+        int height = 1080;
+        display_get_surface_dimensions( NULL, &height );
+        return height;
     }
-    */
 
     RofiDistance h      = rofi_theme_get_distance ( WIDGET ( state->main_window ), "height", 0 );
     unsigned int height = distance_get_pixel ( h, ROFI_ORIENTATION_VERTICAL );

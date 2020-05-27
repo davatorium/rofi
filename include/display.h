@@ -115,4 +115,7 @@ void display_buffer_pool_free(display_buffer_pool *pool);
 cairo_surface_t *display_buffer_pool_get_next_buffer(display_buffer_pool *pool);
 void display_surface_commit(cairo_surface_t *surface);
 
+gboolean display_get_surface_dimensions ( int *width, int *height );
+void display_set_surface_dimensions ( int width, int height, int loc );
+
 #endif
