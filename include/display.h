@@ -33,6 +33,39 @@
 #include "nkutils-bindings.h"
 
 /**
+ * Structure describing a workarea/monitor.
+ */
+typedef struct _workarea
+{
+    /** numeric monitor id. */
+    int              monitor_id;
+    /** if monitor is set as primary monitor. */
+    int              primary;
+    /** Horizontal location (in pixels) of the monitor. */
+    int              x;
+    /** Vertical location  (in pixels) of the monitor. */
+    int              y;
+    /** Width of the monitor. */
+    int              w;
+    /** Height of the monitor */
+    int              h;
+    int              mw, mh;
+    /** Output name of the monitor, e.g. eDP1 or VGA-1 */
+    char             *name;
+    /** Pointer to next monitor */
+    struct _workarea *next;
+} workarea;
+
+/**
+ * @param mon workarea to be filled in.
+ *
+ * Fills in #mon with the information about the monitor rofi should show on.
+ *
+ * @returns TRUE if monitor is found, FALSE if no monitor could be detected.
+ */
+int monitor_active ( workarea *mon );
+
+/**
  * @param main_loop The GMainLoop
  * @param bindings The bindings object
  *

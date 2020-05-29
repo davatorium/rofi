@@ -43,6 +43,7 @@
 #include "view.h"
 #include "rofi.h"
 #include "rofi-types.h"
+#include "display.h"
 
 void yyerror ( YYLTYPE *yylloc, const char *, const char * );
 static gboolean distance_compare ( RofiDistance d, RofiDistance e )
