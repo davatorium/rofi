@@ -217,6 +217,7 @@ static DmenuScriptEntry *execute_executor ( Mode *sw, char *arg, unsigned int *l
                     retv[( *length )].entry          = g_memdup ( buffer, buf_length );
                     retv[( *length )].icon_name      = NULL;
                     retv[( *length )].meta           = NULL;
+                    retv[( *length )].info           = NULL;
                     retv[( *length )].icon_fetch_uid = 0;
                     retv[( *length )].nonselectable  = FALSE;
                     if ( buf_length > 0 && ( read_length > (ssize_t) buf_length )  ) {
@@ -313,7 +314,7 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         if ( rmpd->no_custom == FALSE ) {
             script_mode_reset_highlight ( sw );
-            new_list = execute_executor ( sw, *input, &new_length, 2 , &(rmpd->cmd_list[selected_line]));
+            new_list = execute_executor ( sw, *input, &new_length, 2 , NULL );
         } else {
             return RELOAD_DIALOG;
         }
