@@ -37,6 +37,10 @@
 #include "xcb.h"
 #include "theme.h"
 
+#ifdef ENABLE_WAYLAND
+#include "wayland.h"
+#endif
+
 /**
  * @ingroup ViewHandle
  *
@@ -125,8 +129,11 @@ struct RofiViewState
     /** Y position of the view */
     int              y;
 
+#ifdef ENABLE_WAYLAND
+    /** wayland */
     display_buffer_pool *pool;
     gboolean frame_callback;
+#endif
 
     /** Position and target of the mouse. */
     struct

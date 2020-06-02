@@ -9,6 +9,8 @@
 #include <libgwater-wayland.h>
 #include <nkutils-bindings.h>
 
+#include "wayland.h"
+
 typedef enum {
     WAYLAND_GLOBAL_COMPOSITOR,
     WAYLAND_GLOBAL_SHM,
