@@ -328,7 +328,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
             if ( lv->barview.direction == LEFT_TO_RIGHT ) {
                 for ( unsigned int i = 0; i < max && width > 0; i++ ) {
                     update_element ( lv, i, i + offset, TRUE );
-                    int twidth = textbox_get_desired_width ( WIDGET ( lv->boxes[i].textbox ) );
+                    int twidth = widget_get_desired_width ( lv->boxes[i].box );//textbox_get_desired_width ( WIDGET ( lv->boxes[i].textbox ) );
                     if ( twidth >= width ) {
                         if ( !first ) {
                             break;
@@ -348,7 +348,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
             else {
                 for ( unsigned int i = 0; i < lv->cur_elements && width > 0 && i <= offset; i++ ) {
                     update_element ( lv, i, offset - i, TRUE );
-                    int twidth = textbox_get_desired_width ( WIDGET ( lv->boxes[i].textbox ) );
+                     int twidth = widget_get_desired_width ( lv->boxes[i].box );// int twidth = textbox_get_desired_width ( WIDGET ( lv->boxes[i].textbox ) );
                     if ( twidth >= width ) {
                         if ( !first ) {
                             break;
