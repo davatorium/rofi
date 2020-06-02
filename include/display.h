@@ -56,6 +56,28 @@ typedef struct _workarea
     struct _workarea *next;
 } workarea;
 
+struct _view_proxy;
+
+typedef struct _display_proxy {
+    gboolean (*setup) ( GMainLoop *main_loop, NkBindings *bindings );
+    gboolean (*late_setup) ( void );
+    void (*early_cleanup) ( void );
+    void (*cleanup) ( void );
+    void (*dump_monitor_layout) ( void );
+    void (*startup_notification) ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data );
+    int (*monitor_active) ( workarea *mon );
+
+    const struct _view_proxy* (*view) ( void );
+} display_proxy;
+
+/* Implementations */
+extern display_proxy * const xcb_proxy;
+#ifdef ENABLE_WAYLAND
+extern display_proxy * const wayland_proxy;
+#endif
+
+void display_init( const display_proxy *disp_in );
+
 /**
  * @param mon workarea to be filled in.
  *
@@ -105,5 +127,6 @@ void display_dump_monitor_layout ( void );
  * Provides the needed child setup function
  */
 void display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data );
+
 
 #endif

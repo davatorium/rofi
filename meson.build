@@ -95,7 +95,7 @@ header_conf.set('GLIB_VERSION_MIN_REQUIRED', '(G_ENCODE_VERSION(@0@,@1@))'.forma
 header_conf.set('GLIB_VERSION_MAX_ALLOWED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
 
 header_conf.set('ENABLE_DRUN', get_option('drun'))
-#header_conf.set('WINDOW_MODE', get_option('window'))
+header_conf.set('WINDOW_MODE', get_option('window'))
 
 header_conf.set('ENABLE_WAYLAND', wayland_client.found())
 
@@ -150,14 +150,14 @@ rofi_sources = files(
         'source/mode.c',
         'source/keyb.c',
         'config/config.c',
+        'source/display.c',
         'source/helper.c',
         'source/timings.c',
         'source/history.c',
         'source/theme.c',
         'source/rofi-icon-fetcher.c',
         'source/css-colors.c',
-        'source/wayland/view.c',
-        'source/wayland/display.c',
+        'source/view.c',
         'source/widgets/box.c',
         'source/widgets/icon.c',
         'source/widgets/container.c',
@@ -172,11 +172,11 @@ rofi_sources = files(
         'source/dialogs/drun.c',
         'source/dialogs/dmenu.c',
         'source/dialogs/combi.c',
-        #'source/dialogs/window.c',
+        'source/dialogs/window.c',
         'source/dialogs/script.c',
         'source/dialogs/help-keys.c',
-        #'source/xcb/display.c',
-        #'source/xcb/view.c',
+        'source/xcb/display.c',
+        'source/xcb/view.c',
         'include/display.h',
         'include/xcb.h',
         'include/xcb-internal.h',
@@ -195,7 +195,6 @@ rofi_sources = files(
         'include/theme.h',
         'include/rofi-types.h',
         'include/css-colors.h',
-        'include/wayland-internal.h',
         'include/widgets/box.h',
         'include/widgets/icon.h',
         'include/widgets/container.h',
@@ -248,6 +247,11 @@ if get_option('wayland').enabled()
 
     rofi_sources += proto_srcs
     rofi_sources += proto_headers
+    rofi_sources += files(
+        'source/wayland/view.c',
+        'source/wayland/display.c',
+        'include/wayland-internal.h',
+    )
 endif
 
 

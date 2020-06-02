@@ -306,7 +306,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "Global options:\n" );
     print_options ();
     printf ( "\n" );
-    //display_dump_monitor_layout ();
+    display_dump_monitor_layout ();
     printf ( "\n" );
     printf ( "Detected modi:\n" );
     print_list_of_modi ( is_term );
@@ -549,8 +549,10 @@ static void rofi_collect_modi_dir ( const char *base_dir )
 static void rofi_collect_modi ( void )
 {
 #ifdef WINDOW_MODE
-    rofi_collect_modi_add ( &window_mode );
-    rofi_collect_modi_add ( &window_mode_cd );
+    if ( config.backend == DISPLAY_XCB ) {
+        rofi_collect_modi_add ( &window_mode );
+        rofi_collect_modi_add ( &window_mode_cd );
+    }
 #endif
     rofi_collect_modi_add ( &run_mode );
     rofi_collect_modi_add ( &ssh_mode );
@@ -855,6 +857,20 @@ int main ( int argc, char *argv[] )
     }
 
     TICK_N ( "Setup Locale" );
+
+    const display_proxy *proxy = xcb_proxy;
+    config.backend = DISPLAY_XCB;
+#ifdef ENABLE_WAYLAND
+    if ( find_arg ( "-x11" ) < 0 ) {
+        const gchar *d = g_getenv ( "WAYLAND_DISPLAY" );
+        if ( d != NULL && strlen(d) != 0 ) {
+            config.backend = DISPLAY_WAYLAND;
+            proxy = wayland_proxy;
+        }
+    }
+#endif
+
+    TICK_N ( "Select Backend" );
     rofi_collect_modi ();
     TICK_N ( "Collect MODI" );
     rofi_collect_modi_setup ();
@@ -867,6 +883,7 @@ int main ( int argc, char *argv[] )
     bindings = nk_bindings_new ( 0 );
     TICK_N ( "NK Bindings" );
 
+    display_init ( proxy );
     if ( !display_setup ( main_loop, bindings ) ) {
         g_warning ( "Connection has error" );
         cleanup ();
@@ -926,7 +943,9 @@ int main ( int argc, char *argv[] )
             g_free ( etc );
         }
         // Load in config from X resources.
-        // config_parse_xresource_options ( xcb );
+        if ( config.backend == DISPLAY_XCB ) {
+            config_parse_xresource_options ( xcb );
+        }
 
         if ( config_path_new && g_file_test ( config_path_new, G_FILE_TEST_IS_REGULAR ) ) {
             if ( rofi_theme_parse_file ( config_path_new ) ) {

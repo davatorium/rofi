@@ -150,4 +150,5 @@ struct RofiViewState
     rofi_int_matcher **tokens;
 };
 /** @} */
+
 #endif

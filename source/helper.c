@@ -617,11 +617,9 @@ int config_sanity_check ( void )
     }
 
     // Check size
-#if 0
-    // TODO
     {
         workarea mon;
-        if ( !monitor_active ( &mon ) ) {
+        if ( config.backend == DISPLAY_XCB && !monitor_active ( &mon ) ) {
             const char *name = config.monitor;
             if ( name && name[0] == '-' ) {
                 int index = name[1] - '0';
@@ -633,7 +631,6 @@ int config_sanity_check ( void )
             found_error = TRUE;
         }
     }
-#endif
 
     if ( config.menu_font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );

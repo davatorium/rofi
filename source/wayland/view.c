@@ -67,20 +67,20 @@
  *
  * Update the state of the view. This involves filter state.
  */
-void rofi_view_update ( RofiViewState *state, gboolean qr );
+static void wayland_rofi_view_update ( RofiViewState *state, gboolean qr );
 
-static int rofi_view_calculate_height ( RofiViewState *state );
+static int calculate_height ( RofiViewState *state );
 
 /** Thread pool used for filtering */
-GThreadPool *tpool = NULL;
+extern GThreadPool *tpool;
 
 /** Global pointer to the currently active RofiViewState */
-RofiViewState *current_active_menu = NULL;
+static RofiViewState *current_active_menu = NULL;
 
 /**
  * Structure holding cached state.
  */
-struct
+static struct
 {
     /** Main flags */
     MenuFlags          flags;
@@ -107,7 +107,7 @@ struct
     .fullscreen     = FALSE,
 };
 
-void rofi_view_get_current_monitor ( int *width, int *height )
+static void wayland_rofi_view_get_current_monitor ( int *width, int *height )
 {
     display_get_surface_dimensions( width, height );
 }
@@ -145,7 +145,7 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
 /**
  * Stores a screenshot of Rofi at that point in time.
  */
-void rofi_capture_screenshot ( void )
+static void wayland_rofi_view_capture_screenshot ( void )
 {
 }
 
@@ -192,7 +192,7 @@ static void rofi_view_window_update_size ( RofiViewState * state )
     display_set_surface_dimensions ( state->width, state->height, rofi_get_location(state) );
 }
 
-void rofi_view_set_size ( RofiViewState * state, gint width, gint height )
+static void wayland_rofi_view_set_size ( RofiViewState * state, gint width, gint height )
 {
     if ( width > -1 )
         state->width = width;
@@ -201,7 +201,7 @@ void rofi_view_set_size ( RofiViewState * state, gint width, gint height )
     rofi_view_window_update_size(state);
 }
 
-void rofi_view_get_size ( RofiViewState * state, gint *width, gint *height )
+static void wayland_rofi_view_get_size ( RofiViewState * state, gint *width, gint *height )
 {
     *width = state->width;
     *height = state->height;
@@ -237,14 +237,14 @@ static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_REMOVE;
 }
 
-void rofi_view_reload ( void  )
+static void wayland_rofi_view_reload ( void  )
 {
     // @TODO add check if current view is equal to the callee
     if ( CacheState.idle_timeout == 0 ) {
         CacheState.idle_timeout = g_timeout_add ( 1000 / 15, rofi_view_reload_idle, NULL );
     }
 }
-void rofi_view_queue_redraw ( void  )
+static void wayland_rofi_view_queue_redraw ( void  )
 {
     if ( current_active_menu && CacheState.repaint_source == 0 ) {
         CacheState.count++;
@@ -256,18 +256,18 @@ void rofi_view_queue_redraw ( void  )
     }
 }
 
-void rofi_view_restart ( RofiViewState *state )
+static void wayland_rofi_view_restart ( RofiViewState *state )
 {
     state->quit = FALSE;
     state->retv = MENU_CANCEL;
 }
 
-RofiViewState * rofi_view_get_active ( void )
+static RofiViewState * wayland_rofi_view_get_active ( void )
 {
     return current_active_menu;
 }
 
-void rofi_view_set_active ( RofiViewState *state )
+static void wayland_rofi_view_set_active ( RofiViewState *state )
 {
     if ( current_active_menu != NULL && state != NULL ) {
         g_queue_push_head ( &( CacheState.views ), current_active_menu );
@@ -290,7 +290,7 @@ void rofi_view_set_active ( RofiViewState *state )
     rofi_view_queue_redraw ();
 }
 
-void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line )
+static void wayland_rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line )
 {
     state->selected_line = selected_line;
     // Find the line.
@@ -304,7 +304,7 @@ void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_l
     listview_set_selected ( state->list_view, selected );
 }
 
-void rofi_view_free ( RofiViewState *state )
+static void wayland_rofi_view_free ( RofiViewState *state )
 {
     if ( state->tokens ) {
         helper_tokenize_free ( state->tokens );
@@ -324,17 +324,17 @@ void rofi_view_free ( RofiViewState *state )
     g_free ( state );
 }
 
-MenuReturn rofi_view_get_return_value ( const RofiViewState *state )
+static MenuReturn wayland_rofi_view_get_return_value ( const RofiViewState *state )
 {
     return state->retv;
 }
 
-unsigned int rofi_view_get_selected_line ( const RofiViewState *state )
+static unsigned int wayland_rofi_view_get_selected_line ( const RofiViewState *state )
 {
     return state->selected_line;
 }
 
-unsigned int rofi_view_get_next_position ( const RofiViewState *state )
+static unsigned int wayland_rofi_view_get_next_position ( const RofiViewState *state )
 {
     unsigned int next_pos = state->selected_line;
     unsigned int selected = listview_get_selected ( state->list_view );
@@ -344,12 +344,12 @@ unsigned int rofi_view_get_next_position ( const RofiViewState *state )
     return next_pos;
 }
 
-unsigned int rofi_view_get_completed ( const RofiViewState *state )
+static unsigned int wayland_rofi_view_get_completed ( const RofiViewState *state )
 {
     return state->quit;
 }
 
-const char * rofi_view_get_user_input ( const RofiViewState *state )
+static const char * wayland_rofi_view_get_user_input ( const RofiViewState *state )
 {
     if ( state->text ) {
         return state->text->text;
@@ -442,7 +442,7 @@ static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data
         g_mutex_unlock ( t->mutex );
     }
 }
-void __create_window ( MenuFlags menu_flags )
+static void wayland___create_window ( MenuFlags menu_flags )
 {
     // FIXME: create surface
     // FIXME: roll next buffer
@@ -626,7 +626,7 @@ static void update_callback ( textbox *t, icon *ico, unsigned int index, void *u
     }
 }
 
-void rofi_view_update ( RofiViewState *state, gboolean qr )
+static void wayland_rofi_view_update ( RofiViewState *state, gboolean qr )
 {
     if ( !widget_need_redraw ( WIDGET ( state->main_window ) ) ) {
         return;
@@ -769,7 +769,7 @@ static void rofi_view_refilter ( RofiViewState *state )
     }
 
     // Size the window.
-    int height = rofi_view_calculate_height ( state );
+    int height = calculate_height ( state );
     if ( height != state->height ) {
         state->height = height;
         //rofi_view_calculate_window_position ( state );
@@ -786,7 +786,7 @@ static void rofi_view_refilter ( RofiViewState *state )
  * Check if a finalize function is set, and if sets executes it.
  */
 void process_result ( RofiViewState *state );
-void rofi_view_finalize ( RofiViewState *state )
+static void wayland_rofi_view_finalize ( RofiViewState *state )
 {
     if ( state && state->finalize != NULL ) {
         state->finalize ( state );
@@ -1013,7 +1013,7 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
     }
 }
 
-gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, guint action )
+static gboolean wayland_rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, guint action )
 {
     switch ( scope )
     {
@@ -1051,14 +1051,14 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
     return FALSE;
 }
 
-void rofi_view_handle_text ( RofiViewState *state, char *text )
+static void wayland_rofi_view_handle_text ( RofiViewState *state, char *text )
 {
     if ( textbox_append_text ( state->text, text, strlen ( text ) ) ) {
         state->refilter = TRUE;
     }
 }
 
-void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y )
+static void wayland_rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y )
 {
     state->mouse.x = x;
     state->mouse.y = y;
@@ -1068,7 +1068,7 @@ void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y )
     }
 }
 
-void rofi_view_maybe_update ( RofiViewState *state )
+static void wayland_rofi_view_maybe_update ( RofiViewState *state )
 {
     if ( rofi_view_get_completed ( state ) ) {
         // This menu is done.
@@ -1088,25 +1088,17 @@ void rofi_view_maybe_update ( RofiViewState *state )
     if ( state->refilter ) {
         rofi_view_refilter ( state );
     }
-    rofi_view_update ( state, TRUE );
+    wayland_rofi_view_update ( state, TRUE );
 }
 
-/**
- * Handle window configure event.
- * Handles resizes.
- */
-void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce )
-{
-}
-
-void rofi_view_frame_callback ( void )
+static void wayland_rofi_view_frame_callback ( void )
 {
     if ( CacheState.repaint_source == 0 ) {
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
 }
 
-static int rofi_view_calculate_height ( RofiViewState *state )
+static int calculate_height ( RofiViewState *state )
 {
     if ( CacheState.fullscreen == TRUE ) {
         int height = 1080;
@@ -1367,7 +1359,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     }
 }
 
-RofiViewState *rofi_view_create ( Mode *sw,
+static RofiViewState *wayland_rofi_view_create ( Mode *sw,
                                   const char *input,
                                   MenuFlags menu_flags,
                                   void ( *finalize )( RofiViewState * ) )
@@ -1415,19 +1407,19 @@ RofiViewState *rofi_view_create ( Mode *sw,
         listview_set_fixed_num_lines ( state->list_view );
     }
 
-    state->height = rofi_view_calculate_height ( state );
+    state->height = calculate_height ( state );
     // Move the window to the correct x,y position.
     //rofi_view_calculate_window_position ( state );
     rofi_view_window_update_size ( state );
 
     state->quit = FALSE;
     rofi_view_refilter ( state );
-    rofi_view_update ( state, TRUE );
+    wayland_rofi_view_update ( state, TRUE );
     widget_queue_redraw ( WIDGET ( state->main_window ) );
     return state;
 }
 
-int rofi_view_error_dialog ( const char *msg, int markup )
+static int wayland_rofi_view_error_dialog ( const char *msg, int markup )
 {
     RofiViewState *state = __rofi_view_state_create ();
     state->retv       = MENU_CANCEL;
@@ -1462,11 +1454,11 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     return TRUE;
 }
 
-void rofi_view_hide ( void )
+static void wayland_rofi_view_hide ( void )
 {
 }
 
-void rofi_view_cleanup ()
+static void wayland_rofi_view_cleanup ()
 {
     //g_log ( LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Cleanup." );
     if ( CacheState.idle_timeout > 0 ) {
@@ -1479,7 +1471,8 @@ void rofi_view_cleanup ()
     }
     g_assert ( g_queue_is_empty ( &( CacheState.views ) ) );
 }
-void rofi_view_workers_initialize ( void )
+
+static void wayland_rofi_view_workers_initialize ( void )
 {
     TICK_N ( "Setup Threadpool, start" );
     if ( config.threads == 0 ) {
@@ -1506,19 +1499,21 @@ void rofi_view_workers_initialize ( void )
     }
     TICK_N ( "Setup Threadpool, done" );
 }
-void rofi_view_workers_finalize ( void )
+
+static void wayland_rofi_view_workers_finalize ( void )
 {
     if ( tpool ) {
         g_thread_pool_free ( tpool, TRUE, TRUE );
         tpool = NULL;
     }
 }
-Mode * rofi_view_get_mode ( RofiViewState *state )
+
+static Mode * wayland_rofi_view_get_mode ( RofiViewState *state )
 {
     return state->sw;
 }
 
-void rofi_view_set_overlay ( RofiViewState *state, const char *text )
+static void wayland_rofi_view_set_overlay ( RofiViewState *state, const char *text )
 {
     if ( state->overlay == NULL || state->list_view == NULL ) {
         return;
@@ -1533,7 +1528,7 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     rofi_view_queue_redraw ( );
 }
 
-void rofi_view_clear_input ( RofiViewState *state )
+static void wayland_rofi_view_clear_input ( RofiViewState *state )
 {
     if ( state->text ) {
         textbox_text ( state->text, "" );
@@ -1541,12 +1536,12 @@ void rofi_view_clear_input ( RofiViewState *state )
     }
 }
 
-void rofi_view_ellipsize_start ( RofiViewState *state )
+static void wayland_rofi_view_ellipsize_start ( RofiViewState *state )
 {
     listview_set_ellipsize_start ( state->list_view );
 }
 
-void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
+static void wayland_rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
 {
     state->sw = mode;
     // Update prompt;
@@ -1563,12 +1558,50 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     state->reload   = TRUE;
     state->refilter = TRUE;
     rofi_view_refilter ( state );
-    rofi_view_update ( state, TRUE );
+    wayland_rofi_view_update ( state, TRUE );
 }
 
-/*
-xcb_window_t rofi_view_get_window ( void )
-{
-    return CacheState.main_window;
-}
-*/
+static view_proxy view_ = {
+    .create = wayland_rofi_view_create,
+    .finalize = wayland_rofi_view_finalize,
+    .get_return_value = wayland_rofi_view_get_return_value,
+    .get_next_position = wayland_rofi_view_get_next_position,
+    .handle_text = wayland_rofi_view_handle_text,
+    .handle_mouse_motion = wayland_rofi_view_handle_mouse_motion,
+    .maybe_update = wayland_rofi_view_maybe_update,
+    .temp_configure_notify = NULL,
+    .temp_click_to_exit = NULL,
+    .frame_callback = wayland_rofi_view_frame_callback,
+    .get_completed = wayland_rofi_view_get_completed,
+    .get_user_input = wayland_rofi_view_get_user_input,
+    .set_selected_line = wayland_rofi_view_set_selected_line,
+    .get_selected_line = wayland_rofi_view_get_selected_line,
+    .restart = wayland_rofi_view_restart,
+    .trigger_action = wayland_rofi_view_trigger_action,
+    .free = wayland_rofi_view_free,
+    .get_active = wayland_rofi_view_get_active,
+    .set_active = wayland_rofi_view_set_active,
+    .error_dialog = wayland_rofi_view_error_dialog,
+    .queue_redraw = wayland_rofi_view_queue_redraw,
+
+    .cleanup = wayland_rofi_view_cleanup,
+    .get_mode = wayland_rofi_view_get_mode,
+    .hide = wayland_rofi_view_hide,
+    .reload = wayland_rofi_view_reload,
+    .switch_mode = wayland_rofi_view_switch_mode,
+    .set_overlay = wayland_rofi_view_set_overlay,
+    .clear_input = wayland_rofi_view_clear_input,
+    .__create_window = wayland___create_window,
+    .get_window = NULL,
+    .workers_initialize = wayland_rofi_view_workers_initialize,
+    .workers_finalize = wayland_rofi_view_workers_finalize,
+    .get_current_monitor = wayland_rofi_view_get_current_monitor,
+    .capture_screenshot = wayland_rofi_view_capture_screenshot,
+
+    .ellipsize_start = wayland_rofi_view_ellipsize_start,
+
+    .set_size = wayland_rofi_view_set_size,
+    .get_size = wayland_rofi_view_get_size,
+};
+
+const view_proxy *wayland_view_proxy = &view_;

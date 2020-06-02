@@ -52,6 +52,12 @@ typedef enum
     SORT_FZF    = 1
 } SortingMethod;
 
+typedef enum
+{
+    DISPLAY_XCB,
+    DISPLAY_WAYLAND,
+} DisplayBackend;
+
 /**
  * Settings structure holding all (static) configurable options.
  * @ingroup CONFIGURATION
@@ -98,6 +104,9 @@ typedef struct
     char           * window_match_fields;
     /** Theme for icons */
     char           * icon_theme;
+
+    /** Backend */
+    DisplayBackend backend;
 
     /** Windows location/gravity */
     WindowLocation location;

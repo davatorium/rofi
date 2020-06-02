@@ -75,12 +75,14 @@
  *
  * Update the state of the view. This involves filter state.
  */
-void rofi_view_update ( RofiViewState *state, gboolean qr );
+static void xcb_rofi_view_update ( RofiViewState *state, gboolean qr );
 
 static int rofi_view_calculate_height ( RofiViewState *state );
 
+static void xcb_rofi_view_set_window_title ( const char * title );
+
 /** Thread pool used for filtering */
-GThreadPool *tpool = NULL;
+extern GThreadPool *tpool;
 
 /** Global pointer to the currently active RofiViewState */
 RofiViewState *current_active_menu = NULL;
@@ -88,7 +90,7 @@ RofiViewState *current_active_menu = NULL;
 /**
  * Structure holding cached state.
  */
-struct
+static struct
 {
     /** main x11 windows */
     xcb_window_t       main_window;
@@ -132,7 +134,7 @@ struct
     .fullscreen     = FALSE,
 };
 
-void rofi_view_get_current_monitor ( int *width, int *height )
+static void xcb_rofi_view_get_current_monitor ( int *width, int *height )
 {
     if ( width ) {
         *width = CacheState.mon.w;
@@ -174,7 +176,7 @@ static int lev_sort ( const void *p1, const void *p2, void *arg )
 /**
  * Stores a screenshot of Rofi at that point in time.
  */
-void rofi_capture_screenshot ( void )
+static void xcb_rofi_view_capture_screenshot ( void )
 {
     const char *outp = g_getenv ( "ROFI_PNG_OUTPUT" );
     if ( CacheState.edit_surf == NULL ) {
@@ -270,7 +272,7 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
         // Repaint the view (if needed).
         // After a resize the edit_pixmap surface might not contain anything anymore.
         // If we already re-painted, this does nothing.
-        rofi_view_update ( current_active_menu, FALSE );
+        xcb_rofi_view_update ( current_active_menu, FALSE );
         g_debug ( "expose event" );
         TICK_N ( "Expose" );
         xcb_copy_area ( xcb->connection, CacheState.edit_pixmap, CacheState.main_window, CacheState.gc,
@@ -463,14 +465,14 @@ static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_REMOVE;
 }
 
-void rofi_view_reload ( void  )
+static void xcb_rofi_view_reload ( void  )
 {
     // @TODO add check if current view is equal to the callee
     if ( CacheState.idle_timeout == 0 ) {
         CacheState.idle_timeout = g_timeout_add ( 1000 / 10, rofi_view_reload_idle, NULL );
     }
 }
-void rofi_view_queue_redraw ( void  )
+static void xcb_rofi_view_queue_redraw ( void  )
 {
     if ( current_active_menu && CacheState.repaint_source == 0 ) {
         CacheState.count++;
@@ -479,18 +481,18 @@ void rofi_view_queue_redraw ( void  )
     }
 }
 
-void rofi_view_restart ( RofiViewState *state )
+static void xcb_rofi_view_restart ( RofiViewState *state )
 {
     state->quit = FALSE;
     state->retv = MENU_CANCEL;
 }
 
-RofiViewState * rofi_view_get_active ( void )
+static RofiViewState * xcb_rofi_view_get_active ( void )
 {
     return current_active_menu;
 }
 
-void rofi_view_set_active ( RofiViewState *state )
+static void xcb_rofi_view_set_active ( RofiViewState *state )
 {
     if ( current_active_menu != NULL && state != NULL ) {
         g_queue_push_head ( &( CacheState.views ), current_active_menu );
@@ -513,7 +515,7 @@ void rofi_view_set_active ( RofiViewState *state )
     rofi_view_queue_redraw ();
 }
 
-void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line )
+static void xcb_rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line )
 {
     state->selected_line = selected_line;
     // Find the line.
@@ -529,7 +531,7 @@ void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_l
     xcb_flush ( xcb->connection );
 }
 
-void rofi_view_free ( RofiViewState *state )
+static void xcb_rofi_view_free ( RofiViewState *state )
 {
     if ( state->tokens ) {
         helper_tokenize_free ( state->tokens );
@@ -548,17 +550,17 @@ void rofi_view_free ( RofiViewState *state )
     g_free ( state );
 }
 
-MenuReturn rofi_view_get_return_value ( const RofiViewState *state )
+static MenuReturn xcb_rofi_view_get_return_value ( const RofiViewState *state )
 {
     return state->retv;
 }
 
-unsigned int rofi_view_get_selected_line ( const RofiViewState *state )
+static unsigned int xcb_rofi_view_get_selected_line ( const RofiViewState *state )
 {
     return state->selected_line;
 }
 
-unsigned int rofi_view_get_next_position ( const RofiViewState *state )
+static unsigned int xcb_rofi_view_get_next_position ( const RofiViewState *state )
 {
     unsigned int next_pos = state->selected_line;
     unsigned int selected = listview_get_selected ( state->list_view );
@@ -568,12 +570,12 @@ unsigned int rofi_view_get_next_position ( const RofiViewState *state )
     return next_pos;
 }
 
-unsigned int rofi_view_get_completed ( const RofiViewState *state )
+static unsigned int xcb_rofi_view_get_completed ( const RofiViewState *state )
 {
     return state->quit;
 }
 
-const char * rofi_view_get_user_input ( const RofiViewState *state )
+static const char * xcb_rofi_view_get_user_input ( const RofiViewState *state )
 {
     if ( state->text ) {
         return state->text->text;
@@ -585,7 +587,7 @@ const char * rofi_view_get_user_input ( const RofiViewState *state )
  * Create a new, 0 initialized RofiViewState structure.
  *
  * @returns a new 0 initialized RofiViewState
- */
+ static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_static xcb_*/
 static RofiViewState * __rofi_view_state_create ( void )
 {
     return g_malloc0 ( sizeof ( RofiViewState ) );
@@ -716,7 +718,7 @@ static void rofi_view_setup_fake_transparency ( const char* const fake_backgroun
         TICK_N ( "Fake transparency" );
     }
 }
-void __create_window ( MenuFlags menu_flags )
+static void xcb___create_window ( MenuFlags menu_flags )
 {
     uint32_t          selmask  = XCB_CW_BACK_PIXMAP | XCB_CW_BORDER_PIXEL | XCB_CW_BIT_GRAVITY | XCB_CW_BACKING_STORE | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
     uint32_t          selval[] = {
@@ -835,7 +837,7 @@ void __create_window ( MenuFlags menu_flags )
 
     TICK_N ( "setup window fullscreen" );
     // Set the WM_NAME
-    rofi_view_set_window_title ( "rofi" );
+    xcb_rofi_view_set_window_title ( "rofi" );
     const char wm_class_name[] = "rofi\0Rofi";
     xcb_icccm_set_wm_class ( xcb->connection, box_window, sizeof ( wm_class_name ), wm_class_name );
 
@@ -1018,7 +1020,7 @@ static void update_callback ( textbox *t, icon *ico, unsigned int index, void *u
     }
 }
 
-void rofi_view_update ( RofiViewState *state, gboolean qr )
+static void xcb_rofi_view_update ( RofiViewState *state, gboolean qr )
 {
     if ( !widget_need_redraw ( WIDGET ( state->main_window ) ) ) {
         return;
@@ -1186,7 +1188,7 @@ static void rofi_view_refilter ( RofiViewState *state )
  * Check if a finalize function is set, and if sets executes it.
  */
 void process_result ( RofiViewState *state );
-void rofi_view_finalize ( RofiViewState *state )
+static void xcb_rofi_view_finalize ( RofiViewState *state )
 {
     if ( state && state->finalize != NULL ) {
         state->finalize ( state );
@@ -1418,7 +1420,7 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
     }
 }
 
-gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, guint action )
+static gboolean xcb_rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, guint action )
 {
     switch ( scope )
     {
@@ -1456,14 +1458,14 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
     return FALSE;
 }
 
-void rofi_view_handle_text ( RofiViewState *state, char *text )
+static void xcb_rofi_view_handle_text ( RofiViewState *state, char *text )
 {
     if ( textbox_append_text ( state->text, text, strlen ( text ) ) ) {
         state->refilter = TRUE;
     }
 }
 
-void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y )
+static void xcb_rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y )
 {
     state->mouse.x = x;
     state->mouse.y = y;
@@ -1473,7 +1475,7 @@ void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y )
     }
 }
 
-void rofi_view_maybe_update ( RofiViewState *state )
+static void xcb_rofi_view_maybe_update ( RofiViewState *state )
 {
     if ( rofi_view_get_completed ( state ) ) {
         // This menu is done.
@@ -1493,14 +1495,14 @@ void rofi_view_maybe_update ( RofiViewState *state )
     if ( state->refilter ) {
         rofi_view_refilter ( state );
     }
-    rofi_view_update ( state, TRUE );
+    xcb_rofi_view_update ( state, TRUE );
 }
 
 /**
  * Handle window configure event.
  * Handles resizes.
  */
-void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce )
+static void xcb_rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce )
 {
     if ( xce->window == CacheState.main_window ) {
         if ( state->x != xce->x || state->y != xce->y ) {
@@ -1531,7 +1533,7 @@ void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notif
 /**
  * Quit rofi on click (outside of view )
  */
-void rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target )
+static void xcb_rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target )
 {
     if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == 0 ) {
         if ( target != CacheState.main_window ) {
@@ -1541,7 +1543,7 @@ void rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target )
     }
 }
 
-void rofi_view_frame_callback ( void )
+static void xcb_rofi_view_frame_callback ( void )
 {
     if ( CacheState.repaint_source == 0 ) {
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
@@ -1805,7 +1807,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     }
 }
 
-RofiViewState *rofi_view_create ( Mode *sw,
+static RofiViewState *xcb_rofi_view_create ( Mode *sw,
                                   const char *input,
                                   MenuFlags menu_flags,
                                   void ( *finalize )( RofiViewState * ) )
@@ -1829,11 +1831,11 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     if ( state->sw ) {
         char * title = g_strdup_printf ( "rofi - %s", mode_get_display_name ( state->sw ) );
-        rofi_view_set_window_title ( title );
+        xcb_rofi_view_set_window_title ( title );
         g_free ( title );
     }
     else {
-        rofi_view_set_window_title ( "rofi" );
+        xcb_rofi_view_set_window_title ( "rofi" );
     }
     TICK_N ( "Startup notification" );
 
@@ -1872,7 +1874,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     state->quit = FALSE;
     rofi_view_refilter ( state );
-    rofi_view_update ( state, TRUE );
+    xcb_rofi_view_update ( state, TRUE );
     xcb_map_window ( xcb->connection, CacheState.main_window );
     widget_queue_redraw ( WIDGET ( state->main_window ) );
     xcb_flush ( xcb->connection );
@@ -1882,7 +1884,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     return state;
 }
 
-int rofi_view_error_dialog ( const char *msg, int markup )
+static int xcb_rofi_view_error_dialog ( const char *msg, int markup )
 {
     RofiViewState *state = __rofi_view_state_create ();
     state->retv       = MENU_CANCEL;
@@ -1925,7 +1927,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     return TRUE;
 }
 
-void rofi_view_hide ( void )
+static void xcb_rofi_view_hide ( void )
 {
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
@@ -1933,7 +1935,7 @@ void rofi_view_hide ( void )
     }
 }
 
-void rofi_view_cleanup ()
+static void xcb_rofi_view_cleanup ()
 {
     g_debug ( "Cleanup." );
     if ( CacheState.idle_timeout > 0 ) {
@@ -1971,7 +1973,7 @@ void rofi_view_cleanup ()
     xcb_flush ( xcb->connection );
     g_assert ( g_queue_is_empty ( &( CacheState.views ) ) );
 }
-void rofi_view_workers_initialize ( void )
+static void xcb_rofi_view_workers_initialize ( void )
 {
     TICK_N ( "Setup Threadpool, start" );
     if ( config.threads == 0 ) {
@@ -1998,19 +2000,19 @@ void rofi_view_workers_initialize ( void )
     }
     TICK_N ( "Setup Threadpool, done" );
 }
-void rofi_view_workers_finalize ( void )
+static void xcb_rofi_view_workers_finalize ( void )
 {
     if ( tpool ) {
         g_thread_pool_free ( tpool, TRUE, TRUE );
         tpool = NULL;
     }
 }
-Mode * rofi_view_get_mode ( RofiViewState *state )
+static Mode * xcb_rofi_view_get_mode ( RofiViewState *state )
 {
     return state->sw;
 }
 
-void rofi_view_set_overlay ( RofiViewState *state, const char *text )
+static void xcb_rofi_view_set_overlay ( RofiViewState *state, const char *text )
 {
     if ( state->overlay == NULL || state->list_view == NULL ) {
         return;
@@ -2025,7 +2027,7 @@ void rofi_view_set_overlay ( RofiViewState *state, const char *text )
     rofi_view_queue_redraw ( );
 }
 
-void rofi_view_clear_input ( RofiViewState *state )
+static void xcb_rofi_view_clear_input ( RofiViewState *state )
 {
     if ( state->text ) {
         textbox_text ( state->text, "" );
@@ -2033,12 +2035,12 @@ void rofi_view_clear_input ( RofiViewState *state )
     }
 }
 
-void rofi_view_ellipsize_start ( RofiViewState *state )
+static void xcb_rofi_view_ellipsize_start ( RofiViewState *state )
 {
     listview_set_ellipsize_start ( state->list_view );
 }
 
-void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
+static void xcb_rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
 {
     state->sw = mode;
     // Update prompt;
@@ -2047,11 +2049,11 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     }
     if ( state->sw ) {
         char * title = g_strdup_printf ( "rofi - %s", mode_get_display_name ( state->sw ) );
-        rofi_view_set_window_title ( title );
+        xcb_rofi_view_set_window_title ( title );
         g_free ( title );
     }
     else {
-        rofi_view_set_window_title ( "rofi" );
+        xcb_rofi_view_set_window_title ( "rofi" );
     }
     if ( state->sidebar_bar ) {
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
@@ -2063,17 +2065,62 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     state->reload   = TRUE;
     state->refilter = TRUE;
     rofi_view_refilter ( state );
-    rofi_view_update ( state, TRUE );
+    xcb_rofi_view_update ( state, TRUE );
 }
 
-xcb_window_t rofi_view_get_window ( void )
+static xcb_window_t xcb_rofi_view_get_window ( void )
 {
     return CacheState.main_window;
 }
 
-void rofi_view_set_window_title ( const char * title )
+static void xcb_rofi_view_set_window_title ( const char * title )
 {
     ssize_t len = strlen ( title );
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, CacheState.main_window, xcb->ewmh._NET_WM_NAME, xcb->ewmh.UTF8_STRING, 8, len, title );
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, CacheState.main_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, len, title );
 }
+
+static view_proxy view_ = {
+    .create = xcb_rofi_view_create,
+    .finalize = xcb_rofi_view_finalize,
+    .get_return_value = xcb_rofi_view_get_return_value,
+    .get_next_position = xcb_rofi_view_get_next_position,
+    .handle_text = xcb_rofi_view_handle_text,
+    .handle_mouse_motion = xcb_rofi_view_handle_mouse_motion,
+    .maybe_update = xcb_rofi_view_maybe_update,
+    .temp_configure_notify = xcb_rofi_view_temp_configure_notify,
+    .temp_click_to_exit = xcb_rofi_view_temp_click_to_exit,
+    .frame_callback = xcb_rofi_view_frame_callback,
+    .get_completed = xcb_rofi_view_get_completed,
+    .get_user_input = xcb_rofi_view_get_user_input,
+    .set_selected_line = xcb_rofi_view_set_selected_line,
+    .get_selected_line = xcb_rofi_view_get_selected_line,
+    .restart = xcb_rofi_view_restart,
+    .trigger_action = xcb_rofi_view_trigger_action,
+    .free = xcb_rofi_view_free,
+    .get_active = xcb_rofi_view_get_active,
+    .set_active = xcb_rofi_view_set_active,
+    .error_dialog = xcb_rofi_view_error_dialog,
+    .queue_redraw = xcb_rofi_view_queue_redraw,
+
+    .cleanup = xcb_rofi_view_cleanup,
+    .get_mode = xcb_rofi_view_get_mode,
+    .hide = xcb_rofi_view_hide,
+    .reload = xcb_rofi_view_reload,
+    .switch_mode = xcb_rofi_view_switch_mode,
+    .set_overlay = xcb_rofi_view_set_overlay,
+    .clear_input = xcb_rofi_view_clear_input,
+    .__create_window = xcb___create_window,
+    .get_window = xcb_rofi_view_get_window,
+    .workers_initialize = xcb_rofi_view_workers_initialize,
+    .workers_finalize = xcb_rofi_view_workers_finalize,
+    .get_current_monitor = xcb_rofi_view_get_current_monitor,
+    .capture_screenshot = xcb_rofi_view_capture_screenshot,
+
+    .ellipsize_start = xcb_rofi_view_ellipsize_start,
+
+    .set_size = NULL,
+    .get_size = NULL,
+};
+
+const view_proxy *xcb_view_proxy = &view_;

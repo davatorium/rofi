@@ -493,7 +493,7 @@ static void x11_build_monitor_layout ()
     }
 }
 
-void display_dump_monitor_layout ( void )
+static void xcb_display_dump_monitor_layout ( void )
 {
     int is_term = isatty ( fileno ( stdout ) );
     printf ( "Monitor layout:\n" );
@@ -520,7 +520,7 @@ void display_dump_monitor_layout ( void )
     }
 }
 
-void display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data )
+static void xcb_display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data )
 {
     if ( context == NULL ) {
         return;
@@ -748,7 +748,7 @@ static int monitor_active_from_id ( int mon_id, workarea *mon )
 }
 
 // determine which monitor holds the active window, or failing that the mouse pointer
-int monitor_active ( workarea *mon )
+static int xcb_display_monitor_active ( workarea *mon )
 {
     if ( config.monitor != NULL ) {
         for ( workarea *iter = xcb->monitors; iter; iter = iter->next ) {
@@ -1161,7 +1161,7 @@ static void x11_helper_discover_window_manager ( void )
     }
 }
 
-gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
+static gboolean xcb_display_setup ( GMainLoop *main_loop, NkBindings *bindings )
 {
     // Get DISPLAY, first env, then argument.
     // We never modify display_str content.
@@ -1356,7 +1356,7 @@ static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
     return G_SOURCE_CONTINUE;
 }
 
-gboolean display_late_setup ( void )
+static gboolean xcb_display_late_setup ( void )
 {
     x11_create_visual_and_colormap ();
 
@@ -1394,14 +1394,14 @@ xcb_window_t xcb_stuff_get_root_window ( void )
     return xcb->screen->root;
 }
 
-void display_early_cleanup ( void )
+static void xcb_display_early_cleanup ( void )
 {
     release_keyboard ( );
     release_pointer ( );
     xcb_flush ( xcb->connection );
 }
 
-void display_cleanup ( void )
+static void xcb_display_cleanup ( void )
 {
     if ( xcb->connection == NULL ) {
         return;
@@ -1453,3 +1453,22 @@ void x11_disable_decoration ( xcb_window_t window )
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
 }
+
+static const struct _view_proxy* xcb_display_view_proxy ( void )
+{
+    return xcb_view_proxy;
+}
+
+static display_proxy display_ = {
+    .setup = xcb_display_setup,
+    .late_setup = xcb_display_late_setup,
+    .early_cleanup = xcb_display_early_cleanup,
+    .cleanup =  xcb_display_cleanup,
+    .dump_monitor_layout = xcb_display_dump_monitor_layout,
+    .startup_notification = xcb_display_startup_notification,
+    .monitor_active = xcb_display_monitor_active,
+
+    .view = xcb_display_view_proxy,
+};
+
+display_proxy * const xcb_proxy = &display_;

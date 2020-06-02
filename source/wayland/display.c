@@ -26,6 +26,7 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
+#include <config.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -977,8 +978,8 @@ wayland_error(gpointer user_data)
 }
 
 
-gboolean
-display_setup(GMainLoop *main_loop, NkBindings *bindings)
+static gboolean
+wayland_display_setup(GMainLoop *main_loop, NkBindings *bindings)
 {
     wayland->main_loop = main_loop;
 
@@ -1035,8 +1036,8 @@ display_setup(GMainLoop *main_loop, NkBindings *bindings)
     return TRUE;
 }
 
-gboolean
-display_late_setup ( void )
+static gboolean
+wayland_display_late_setup ( void )
 {
     // note: ANCHOR_LEFT is needed to get the full window width
     zwlr_layer_surface_v1_set_anchor( wayland->wlr_surface, ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP | ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT );
@@ -1107,13 +1108,13 @@ display_set_surface_dimensions ( int width, int height, int loc )
     zwlr_layer_surface_v1_set_anchor( wayland->wlr_surface, wlr_anchor );
 }
 
-void
-display_early_cleanup(void)
+static void
+wayland_display_early_cleanup(void)
 {
 }
 
-void
-display_cleanup(void)
+static void
+wayland_display_cleanup(void)
 {
     if ( wayland->main_loop_source == NULL )
         return;
@@ -1130,12 +1131,38 @@ display_cleanup(void)
     g_water_wayland_source_free ( wayland->main_loop_source );
 }
 
-int monitor_active ( workarea *mon )
+
+static void
+wayland_display_dump_monitor_layout ( void )
 {
-    // TODO: return the "first" monitor for now
+}
+
+static void
+wayland_display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data )
+{
+}
+
+static int wayland_display_monitor_active ( workarea *mon )
+{
+    // TODO: do something?
     return FALSE;
 }
 
-void display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data )
+static const struct _view_proxy* wayland_display_view_proxy ( void )
 {
+    return wayland_view_proxy;
 }
+
+static display_proxy display_ = {
+    .setup = wayland_display_setup,
+    .late_setup = wayland_display_late_setup,
+    .early_cleanup = wayland_display_early_cleanup,
+    .cleanup =  wayland_display_cleanup,
+    .dump_monitor_layout = wayland_display_dump_monitor_layout,
+    .startup_notification = wayland_display_startup_notification,
+    .monitor_active = wayland_display_monitor_active,
+
+    .view = wayland_display_view_proxy,
+};
+
+display_proxy * const wayland_proxy = &display_;

@@ -36,7 +36,13 @@ Settings config = {
     /** List of enabled modi. */
     /** -modi */
 #ifdef WINDOW_MODE
+#ifdef ENABLE_WAYLAND
+    // change the default if we build with wayland support
+    // window mode will still be available if running on X11
+    .modi                      = "run,ssh",
+#else
     .modi                      = "window,run,ssh",
+#endif
 #else
     .modi                      = "run,ssh",
 #endif
