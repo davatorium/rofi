@@ -1,8 +1,16 @@
 # 1.6.0: 
 
+More then 2 years after the 1.5.0 release and a year after 1.5.4, we present rofi 1.6.0. This release
+is again focusses bug-fixing and improving the experience for themers and
+script developers. The script mode has been extended with many small requested tweaks to get it more
+on par with dmenu mode. For themers the listview has been made more flexible, allowing more fancy themes, 
+for examples mimicking Gnomes application launcher or albert. But also features as `calc()` has been
+added.
 
 
-## DRun
+Big thanks to [SardemFF7](https://www.sardemff7.net/) and all the other
+contributors, without their support and contributions this release would not
+have been possible.
 
 
 ## Script mode
