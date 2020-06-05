@@ -81,6 +81,8 @@ static int xcb_rofi_view_calculate_window_height ( RofiViewState *state );
 
 static void xcb_rofi_view_set_window_title ( const char * title );
 
+static void xcb_rofi_view_queue_redraw ( void  );
+
 /** Thread pool used for filtering */
 extern GThreadPool *tpool;
 
@@ -254,7 +256,7 @@ static gboolean bench_update ( void )
     return TRUE;
 }
 
-static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
+static gboolean xcb_rofi_view_repaint ( G_GNUC_UNUSED void * data  )
 {
     if ( current_active_menu  ) {
         // Repaint the view (if needed).
@@ -272,7 +274,7 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
     return (bench_update () == TRUE )? G_SOURCE_CONTINUE:G_SOURCE_REMOVE;
 }
 
-static void rofi_view_update_prompt ( RofiViewState *state )
+static void xcb_rofi_view_update_prompt ( RofiViewState *state )
 {
     if ( state->prompt ) {
         const char *str = mode_get_display_name ( state->sw );
@@ -426,12 +428,12 @@ static void xcb_rofi_view_window_update_size ( RofiViewState * state )
     widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
 }
 
-static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
+static gboolean xcb_rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
 {
     if ( current_active_menu ) {
         current_active_menu->reload   = TRUE;
         current_active_menu->refilter = TRUE;
-        rofi_view_queue_redraw ();
+        xcb_rofi_view_queue_redraw ();
     }
     CacheState.idle_timeout = 0;
     return G_SOURCE_REMOVE;
@@ -441,7 +443,7 @@ static void xcb_rofi_view_reload ( void  )
 {
     // @TODO add check if current view is equal to the callee
     if ( CacheState.idle_timeout == 0 ) {
-        CacheState.idle_timeout = g_timeout_add ( 1000 / 10, rofi_view_reload_idle, NULL );
+        CacheState.idle_timeout = g_timeout_add ( 1000 / 10, xcb_rofi_view_reload_idle, NULL );
     }
 }
 static void xcb_rofi_view_queue_redraw ( void  )
@@ -449,7 +451,7 @@ static void xcb_rofi_view_queue_redraw ( void  )
     if ( current_active_menu && CacheState.repaint_source == 0 ) {
         CacheState.count++;
         g_debug ( "redraw %llu", CacheState.count );
-        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
+        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, xcb_rofi_view_repaint, NULL, NULL );
     }
 }
 
@@ -465,20 +467,20 @@ static void xcb_rofi_view_set_active ( RofiViewState *state )
         // TODO check.
         current_active_menu = state;
         g_debug ( "stack view." );
-        rofi_view_window_update_size ( current_active_menu );
-        rofi_view_queue_redraw ();
+        xcb_rofi_view_window_update_size ( current_active_menu );
+        xcb_rofi_view_queue_redraw ();
         return;
     }
     else if ( state == NULL && !g_queue_is_empty ( &( CacheState.views ) ) ) {
         g_debug ( "pop view." );
         current_active_menu = g_queue_pop_head ( &( CacheState.views ) );
-        rofi_view_window_update_size ( current_active_menu );
-        rofi_view_queue_redraw ();
+        xcb_rofi_view_window_update_size ( current_active_menu );
+        xcb_rofi_view_queue_redraw ();
         return;
     }
     g_assert ( ( current_active_menu == NULL && state != NULL ) || ( current_active_menu != NULL && state == NULL ) );
     current_active_menu = state;
-    rofi_view_queue_redraw ();
+    xcb_rofi_view_queue_redraw ();
 }
 
 static void xcb_rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line )
@@ -526,7 +528,7 @@ static RofiViewState * __rofi_view_state_create ( void )
     return g_malloc0 ( sizeof ( RofiViewState ) );
 }
 
-static void rofi_view_setup_fake_transparency ( const char* const fake_background )
+static void xcb_rofi_view_setup_fake_transparency ( const char* const fake_background )
 {
     if ( CacheState.fake_bg == NULL ) {
         cairo_surface_t *s = NULL;
@@ -702,10 +704,10 @@ static void xcb___create_window ( MenuFlags menu_flags )
     TICK_N ( "setup window name and class" );
     const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency ) {
-        rofi_view_setup_fake_transparency ( transparency  );
+        xcb_rofi_view_setup_fake_transparency ( transparency  );
     }
     else if ( config.fake_transparency && config.fake_background ) {
-        rofi_view_setup_fake_transparency ( config.fake_background );
+        xcb_rofi_view_setup_fake_transparency ( config.fake_background );
     }
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );
@@ -735,7 +737,7 @@ static void xcb___create_window ( MenuFlags menu_flags )
  *
  * Calculate the width of the window and the width of an element.
  */
-static void rofi_view_calculate_window_width ( RofiViewState *state )
+static void xcb_rofi_view_calculate_window_width ( RofiViewState *state )
 {
     if ( CacheState.fullscreen ) {
         state->width = CacheState.mon.w;
@@ -764,7 +766,7 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
  *
  * Tab handling.
  */
-static void rofi_view_nav_row_tab ( RofiViewState *state )
+static void xcb_rofi_view_nav_row_tab ( RofiViewState *state )
 {
     if ( state->filtered_lines == 1 ) {
         state->retv              = MENU_OK;
@@ -789,7 +791,7 @@ static void rofi_view_nav_row_tab ( RofiViewState *state )
  *
  * complete current row.
  */
-inline static void rofi_view_nav_row_select ( RofiViewState *state )
+inline static void xcb_rofi_view_nav_row_select ( RofiViewState *state )
 {
     if ( state->list_view == NULL ) {
         return;
@@ -810,7 +812,7 @@ inline static void rofi_view_nav_row_select ( RofiViewState *state )
  *
  * Move the selection to first row.
  */
-inline static void rofi_view_nav_first ( RofiViewState * state )
+inline static void xcb_rofi_view_nav_first ( RofiViewState * state )
 {
 //    state->selected = 0;
     listview_set_selected ( state->list_view, 0 );
@@ -821,7 +823,7 @@ inline static void rofi_view_nav_first ( RofiViewState * state )
  *
  * Move the selection to last row.
  */
-inline static void rofi_view_nav_last ( RofiViewState * state )
+inline static void xcb_rofi_view_nav_last ( RofiViewState * state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -913,13 +915,13 @@ static void xcb_rofi_view_update ( RofiViewState *state, gboolean qr )
     TICK_N ( "widgets" );
     cairo_surface_flush ( CacheState.edit_surf );
     if ( qr ) {
-        rofi_view_queue_redraw ();
+        xcb_rofi_view_queue_redraw ();
     }
 }
 
-static void rofi_view_trigger_global_action ( KeyBindingAction action )
+static void xcb_rofi_view_trigger_global_action ( KeyBindingAction action )
 {
-    RofiViewState *state = rofi_view_get_active ();
+    RofiViewState *state = xcb_rofi_view_get_active ();
     switch ( action )
     {
     // Handling of paste
@@ -1036,7 +1038,7 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
         listview_nav_up ( state->list_view );
         break;
     case ROW_TAB:
-        rofi_view_nav_row_tab ( state );
+        xcb_rofi_view_nav_row_tab ( state );
         break;
     case ROW_DOWN:
         listview_nav_down ( state->list_view );
@@ -1054,13 +1056,13 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
         listview_nav_page_next ( state->list_view );
         break;
     case ROW_FIRST:
-        rofi_view_nav_first ( state );
+        xcb_rofi_view_nav_first ( state );
         break;
     case ROW_LAST:
-        rofi_view_nav_last ( state );
+        xcb_rofi_view_nav_last ( state );
         break;
     case ROW_SELECT:
-        rofi_view_nav_row_select ( state );
+        xcb_rofi_view_nav_row_select ( state );
         break;
     // If you add a binding here, make sure to add it to textbox_keybinding too
     case MOVE_CHAR_BACK:
@@ -1147,7 +1149,7 @@ static gboolean xcb_rofi_view_trigger_action ( RofiViewState *state, BindingsSco
     switch ( scope )
     {
     case SCOPE_GLOBAL:
-        rofi_view_trigger_global_action ( action );
+        xcb_rofi_view_trigger_global_action ( action );
         return TRUE;
     case SCOPE_MOUSE_LISTVIEW:
     case SCOPE_MOUSE_LISTVIEW_ELEMENT:
@@ -1258,7 +1260,7 @@ static void xcb_rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_
 static void xcb_rofi_view_frame_callback ( void )
 {
     if ( CacheState.repaint_source == 0 ) {
-        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
+        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, xcb_rofi_view_repaint, NULL, NULL );
     }
 }
 
@@ -1344,7 +1346,7 @@ static WidgetTriggerActionResult textbox_sidebar_modi_trigger_action ( widget *w
 }
 
 // @TODO don't like this construction.
-static void rofi_view_listview_mouse_activated_cb ( listview *lv, gboolean custom, void *udata )
+static void xcb_rofi_view_listview_mouse_activated_cb ( listview *lv, gboolean custom, void *udata )
 {
     RofiViewState *state = (RofiViewState *) udata;
     state->retv = MENU_OK;
@@ -1357,7 +1359,7 @@ static void rofi_view_listview_mouse_activated_cb ( listview *lv, gboolean custo
     state->skip_absorb = TRUE;
 }
 
-static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, const char *name )
+static void xcb_rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, const char *name )
 {
     char   *defaults = NULL;
     widget *wid      = NULL;
@@ -1393,7 +1395,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         }
         // Prompt box.
         state->prompt = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "", 0, 0 );
-        rofi_view_update_prompt ( state );
+        xcb_rofi_view_update_prompt ( state );
         box_add ( (box *) parent_widget, WIDGET ( state->prompt ), FALSE );
         defaults = NULL;
     }
@@ -1461,7 +1463,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         // Set configuration
         listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
         listview_set_scroll_type ( state->list_view, config.scroll_method );
-        listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
+        listview_set_mouse_activated_cb ( state->list_view, xcb_rofi_view_listview_mouse_activated_cb, state );
 
         int lines = rofi_theme_get_integer ( WIDGET ( state->list_view ), "lines", config.menu_lines );
         listview_set_num_lines ( state->list_view, lines );
@@ -1513,7 +1515,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     if ( wid ) {
         GList *list = rofi_theme_get_list ( wid, "children", defaults );
         for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter ) ) {
-            rofi_view_add_widget ( state, wid, (const char *) iter->data );
+            xcb_rofi_view_add_widget ( state, wid, (const char *) iter->data );
         }
         g_list_free_full ( list, g_free );
     }
@@ -1558,7 +1560,7 @@ static RofiViewState *xcb_rofi_view_create ( Mode *sw,
     // Get children.
     GList *list = rofi_theme_get_list ( WIDGET ( state->main_window ), "children", "mainbox" );
     for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter ) ) {
-        rofi_view_add_widget ( state, WIDGET ( state->main_window ), (const char *) iter->data );
+        xcb_rofi_view_add_widget ( state, WIDGET ( state->main_window ), (const char *) iter->data );
     }
     g_list_free_full ( list, g_free );
 
@@ -1571,7 +1573,7 @@ static RofiViewState *xcb_rofi_view_create ( Mode *sw,
     state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
     state->distance = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
-    rofi_view_calculate_window_width ( state );
+    xcb_rofi_view_calculate_window_width ( state );
     // Need to resize otherwise calculated desired height is wrong.
     widget_resize ( WIDGET ( state->main_window ), state->width, 100 );
     // Only needed when window is fixed size.
@@ -1581,8 +1583,8 @@ static RofiViewState *xcb_rofi_view_create ( Mode *sw,
 
     state->height = xcb_rofi_view_calculate_window_height ( state );
     // Move the window to the correct x,y position.
-    rofi_view_calculate_window_position ( state );
-    rofi_view_window_update_size ( state );
+    xcb_rofi_view_calculate_window_position ( state );
+    xcb_rofi_view_window_update_size ( state );
 
     state->quit = FALSE;
     rofi_view_refilter ( state );
@@ -1621,17 +1623,17 @@ static int xcb_rofi_view_error_dialog ( const char *msg, int markup )
     if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
         listview_set_fixed_num_lines ( state->list_view );
     }
-    rofi_view_calculate_window_width ( state );
+    xcb_rofi_view_calculate_window_width ( state );
     // Need to resize otherwise calculated desired height is wrong.
     widget_resize ( WIDGET ( state->main_window ), state->width, 100 );
     // resize window vertically to suit
     state->height = widget_get_desired_height ( WIDGET ( state->main_window ) );
 
     // Calculte window position.
-    rofi_view_calculate_window_position ( state );
+    xcb_rofi_view_calculate_window_position ( state );
 
     // Move the window to the correct x,y position.
-    rofi_view_window_update_size ( state );
+    xcb_rofi_view_window_update_size ( state );
 
     // Display it.
     xcb_map_window ( xcb->connection, CacheState.main_window );
@@ -1642,7 +1644,7 @@ static int xcb_rofi_view_error_dialog ( const char *msg, int markup )
     }
 
     // Set it as current window.
-    rofi_view_set_active ( state );
+    xcb_rofi_view_set_active ( state );
     return TRUE;
 }
 
@@ -1709,14 +1711,14 @@ static void xcb_rofi_view_set_overlay ( RofiViewState *state, const char *text )
     widget_enable ( WIDGET ( state->overlay ) );
     textbox_text ( state->overlay, text );
     // We want to queue a repaint.
-    rofi_view_queue_redraw ( );
+    xcb_rofi_view_queue_redraw ( );
 }
 
 static void xcb_rofi_view_clear_input ( RofiViewState *state )
 {
     if ( state->text ) {
         textbox_text ( state->text, "" );
-        rofi_view_set_selected_line ( state, 0 );
+        xcb_rofi_view_set_selected_line ( state, 0 );
     }
 }
 
@@ -1725,7 +1727,7 @@ static void xcb_rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     state->sw = mode;
     // Update prompt;
     if ( state->prompt ) {
-        rofi_view_update_prompt ( state );
+        xcb_rofi_view_update_prompt ( state );
     }
     if ( state->sw ) {
         char * title = g_strdup_printf ( "rofi - %s", mode_get_display_name ( state->sw ) );

@@ -71,6 +71,10 @@ static void wayland_rofi_view_update ( RofiViewState *state, gboolean qr );
 
 static int wayland_rofi_view_calculate_window_height ( RofiViewState *state );
 
+static void wayland_rofi_view_maybe_update ( RofiViewState *state );
+
+static RofiViewState * wayland_rofi_view_get_active ( void );
+
 /** Thread pool used for filtering */
 extern GThreadPool *tpool;
 
@@ -133,19 +137,19 @@ static void wayland_rofi_view_capture_screenshot ( void )
 {
 }
 
-static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
+static gboolean wayland_rofi_view_repaint ( G_GNUC_UNUSED void * data  )
 {
     if ( current_active_menu  ) {
         // Repaint the view (if needed).
         // After a resize the edit_pixmap surface might not contain anything anymore.
         // If we already re-painted, this does nothing.
-        rofi_view_maybe_update( current_active_menu );
+        wayland_rofi_view_maybe_update( current_active_menu );
         CacheState.repaint_source = 0;
     }
     return G_SOURCE_REMOVE;
 }
 
-static void rofi_view_update_prompt ( RofiViewState *state )
+static void wayland_rofi_view_update_prompt ( RofiViewState *state )
 {
     if ( state->prompt ) {
         const char *str = mode_get_display_name ( state->sw );
@@ -186,7 +190,7 @@ static void wayland_rofi_view_set_size ( RofiViewState * state, gint width, gint
         state->width = width;
     if ( height > -1 )
         state->height = height;
-    rofi_view_window_update_size(state);
+    wayland_rofi_view_window_update_size(state);
 }
 
 static void wayland_rofi_view_get_size ( RofiViewState * state, gint *width, gint *height )
@@ -195,15 +199,15 @@ static void wayland_rofi_view_get_size ( RofiViewState * state, gint *width, gin
     *height = state->height;
 }
 
-static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
+static gboolean wayland_rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
 {
-    RofiViewState *state = rofi_view_get_active ();
+    RofiViewState *state = wayland_rofi_view_get_active ();
 
     if ( current_active_menu ) {
         current_active_menu->reload   = TRUE;
         current_active_menu->refilter = TRUE;
 
-        rofi_view_maybe_update ( state );
+        wayland_rofi_view_maybe_update ( state );
     }
     CacheState.idle_timeout = 0;
     return G_SOURCE_REMOVE;
@@ -213,7 +217,7 @@ static void wayland_rofi_view_reload ( void  )
 {
     // @TODO add check if current view is equal to the callee
     if ( CacheState.idle_timeout == 0 ) {
-        CacheState.idle_timeout = g_timeout_add ( 1000 / 15, rofi_view_reload_idle, NULL );
+        CacheState.idle_timeout = g_timeout_add ( 1000 / 15, wayland_rofi_view_reload_idle, NULL );
     }
 }
 static void wayland_rofi_view_queue_redraw ( void  )
@@ -224,7 +228,7 @@ static void wayland_rofi_view_queue_redraw ( void  )
 
         widget_queue_redraw ( WIDGET ( current_active_menu->main_window ) );
 
-        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
+        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, wayland_rofi_view_repaint, NULL, NULL );
     }
 }
 
@@ -240,20 +244,20 @@ static void wayland_rofi_view_set_active ( RofiViewState *state )
         // TODO check.
         current_active_menu = state;
         g_debug ( "stack view." );
-        rofi_view_window_update_size ( current_active_menu );
-        rofi_view_queue_redraw ();
+        wayland_rofi_view_window_update_size ( current_active_menu );
+        wayland_rofi_view_queue_redraw ();
         return;
     }
     else if ( state == NULL && !g_queue_is_empty ( &( CacheState.views ) ) ) {
         g_debug ( "pop view." );
         current_active_menu = g_queue_pop_head ( &( CacheState.views ) );
-        rofi_view_window_update_size ( current_active_menu );
-        rofi_view_queue_redraw ();
+        wayland_rofi_view_window_update_size ( current_active_menu );
+        wayland_rofi_view_queue_redraw ();
         return;
     }
     g_assert ( ( current_active_menu == NULL && state != NULL ) || ( current_active_menu != NULL && state == NULL ) );
     current_active_menu = state;
-    rofi_view_queue_redraw ();
+    wayland_rofi_view_queue_redraw ();
 }
 
 static void wayland_rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line )
@@ -381,7 +385,7 @@ static void wayland___create_window ( MenuFlags menu_flags )
  *
  * Calculate the width of the window and the width of an element.
  */
-static void rofi_view_calculate_window_width ( RofiViewState *state )
+static void wayland_rofi_view_calculate_window_width ( RofiViewState *state )
 {
     if ( config.menu_width < 0 ) {
         double fw = textbox_get_estimated_char_width ( );
@@ -408,7 +412,7 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
  *
  * Tab handling.
  */
-static void rofi_view_nav_row_tab ( RofiViewState *state )
+static void wayland_rofi_view_nav_row_tab ( RofiViewState *state )
 {
     if ( state->filtered_lines == 1 ) {
         state->retv              = MENU_OK;
@@ -433,7 +437,7 @@ static void rofi_view_nav_row_tab ( RofiViewState *state )
  *
  * complete current row.
  */
-inline static void rofi_view_nav_row_select ( RofiViewState *state )
+inline static void wayland_rofi_view_nav_row_select ( RofiViewState *state )
 {
     if ( state->list_view == NULL ) {
         return;
@@ -454,7 +458,7 @@ inline static void rofi_view_nav_row_select ( RofiViewState *state )
  *
  * Move the selection to first row.
  */
-inline static void rofi_view_nav_first ( RofiViewState * state )
+inline static void wayland_rofi_view_nav_first ( RofiViewState * state )
 {
 //    state->selected = 0;
     listview_set_selected ( state->list_view, 0 );
@@ -465,7 +469,7 @@ inline static void rofi_view_nav_first ( RofiViewState * state )
  *
  * Move the selection to last row.
  */
-inline static void rofi_view_nav_last ( RofiViewState * state )
+inline static void wayland_rofi_view_nav_last ( RofiViewState * state )
 {
     // If no lines, do nothing.
     if ( state->filtered_lines == 0 ) {
@@ -549,7 +553,7 @@ static void wayland_rofi_view_update ( RofiViewState *state, gboolean qr )
     display_surface_commit ( surface );
 
     if ( qr ) {
-        rofi_view_queue_redraw ();
+        wayland_rofi_view_queue_redraw ();
     }
 }
 
@@ -560,9 +564,9 @@ static void wayland_rofi_view_update ( RofiViewState *state, gboolean qr )
  */
 void process_result ( RofiViewState *state );
 
-static void rofi_view_trigger_global_action ( KeyBindingAction action )
+static void wayland_rofi_view_trigger_global_action ( KeyBindingAction action )
 {
-    RofiViewState *state = rofi_view_get_active ();
+    RofiViewState *state = wayland_rofi_view_get_active ();
     switch ( action )
     {
     case PASTE_PRIMARY:
@@ -674,7 +678,7 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
         listview_nav_up ( state->list_view );
         break;
     case ROW_TAB:
-        rofi_view_nav_row_tab ( state );
+        wayland_rofi_view_nav_row_tab ( state );
         break;
     case ROW_DOWN:
         listview_nav_down ( state->list_view );
@@ -692,13 +696,13 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
         listview_nav_page_next ( state->list_view );
         break;
     case ROW_FIRST:
-        rofi_view_nav_first ( state );
+        wayland_rofi_view_nav_first ( state );
         break;
     case ROW_LAST:
-        rofi_view_nav_last ( state );
+        wayland_rofi_view_nav_last ( state );
         break;
     case ROW_SELECT:
-        rofi_view_nav_row_select ( state );
+        wayland_rofi_view_nav_row_select ( state );
         break;
     // If you add a binding here, make sure to add it to textbox_keybinding too
     case MOVE_CHAR_BACK:
@@ -785,7 +789,7 @@ static gboolean wayland_rofi_view_trigger_action ( RofiViewState *state, Binding
     switch ( scope )
     {
     case SCOPE_GLOBAL:
-        rofi_view_trigger_global_action ( action );
+        wayland_rofi_view_trigger_global_action ( action );
         return TRUE;
     case SCOPE_MOUSE_LISTVIEW:
     case SCOPE_MOUSE_LISTVIEW_ELEMENT:
@@ -831,7 +835,7 @@ static void wayland_rofi_view_maybe_update ( RofiViewState *state )
         // This menu is done.
         rofi_view_finalize ( state );
         // If there a state. (for example error) reload it.
-        state = rofi_view_get_active ();
+        state = wayland_rofi_view_get_active ();
 
         // cleanup, if no more state to display.
         if ( state == NULL ) {
@@ -851,7 +855,7 @@ static void wayland_rofi_view_maybe_update ( RofiViewState *state )
 static void wayland_rofi_view_frame_callback ( void )
 {
     if ( CacheState.repaint_source == 0 ) {
-        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
+        CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, wayland_rofi_view_repaint, NULL, NULL );
     }
 }
 
@@ -941,7 +945,7 @@ static WidgetTriggerActionResult textbox_sidebar_modi_trigger_action ( widget *w
 }
 
 // @TODO don't like this construction.
-static void rofi_view_listview_mouse_activated_cb ( listview *lv, gboolean custom, void *udata )
+static void wayland_rofi_view_listview_mouse_activated_cb ( listview *lv, gboolean custom, void *udata )
 {
     RofiViewState *state = (RofiViewState *) udata;
     state->retv = MENU_OK;
@@ -954,7 +958,7 @@ static void rofi_view_listview_mouse_activated_cb ( listview *lv, gboolean custo
     state->skip_absorb = TRUE;
 }
 
-static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, const char *name )
+static void wayland_rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, const char *name )
 {
     char   *defaults = NULL;
     widget *wid      = NULL;
@@ -990,7 +994,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         }
         // Prompt box.
         state->prompt = textbox_create ( parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name, TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "", 0, 0 );
-        rofi_view_update_prompt ( state );
+        wayland_rofi_view_update_prompt ( state );
         box_add ( (box *) parent_widget, WIDGET ( state->prompt ), FALSE );
         defaults = NULL;
     }
@@ -1058,7 +1062,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         // Set configuration
         listview_set_multi_select ( state->list_view, ( state->menu_flags & MENU_INDICATOR ) == MENU_INDICATOR );
         listview_set_scroll_type ( state->list_view, config.scroll_method );
-        listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
+        listview_set_mouse_activated_cb ( state->list_view, wayland_rofi_view_listview_mouse_activated_cb, state );
 
         int lines = rofi_theme_get_integer ( WIDGET ( state->list_view ), "lines", config.menu_lines );
         listview_set_num_lines ( state->list_view, lines );
@@ -1110,7 +1114,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     if ( wid ) {
         GList *list = rofi_theme_get_list ( wid, "children", defaults );
         for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter ) ) {
-            rofi_view_add_widget ( state, wid, (const char *) iter->data );
+            wayland_rofi_view_add_widget ( state, wid, (const char *) iter->data );
         }
         g_list_free_full ( list, g_free );
     }
@@ -1143,7 +1147,7 @@ static RofiViewState *wayland_rofi_view_create ( Mode *sw,
     // Get children.
     GList *list = rofi_theme_get_list ( WIDGET ( state->main_window ), "children", "mainbox" );
     for ( const GList *iter = list; iter != NULL; iter = g_list_next ( iter ) ) {
-        rofi_view_add_widget ( state, WIDGET ( state->main_window ), (const char *) iter->data );
+        wayland_rofi_view_add_widget ( state, WIDGET ( state->main_window ), (const char *) iter->data );
     }
     g_list_free_full ( list, g_free );
 
@@ -1156,7 +1160,7 @@ static RofiViewState *wayland_rofi_view_create ( Mode *sw,
     state->line_map = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
     state->distance = (int *) g_malloc0_n ( state->num_lines, sizeof ( int ) );
 
-    rofi_view_calculate_window_width ( state );
+    wayland_rofi_view_calculate_window_width ( state );
     // Need to resize otherwise calculated desired height is wrong.
     widget_resize ( WIDGET ( state->main_window ), state->width, 100 );
     // Only needed when window is fixed size.
@@ -1166,8 +1170,8 @@ static RofiViewState *wayland_rofi_view_create ( Mode *sw,
 
     state->height = wayland_rofi_view_calculate_window_height ( state );
     // Move the window to the correct x,y position.
-    rofi_view_calculate_window_position ( state );
-    rofi_view_window_update_size ( state );
+    wayland_rofi_view_calculate_window_position ( state );
+    wayland_rofi_view_window_update_size ( state );
 
     state->quit = FALSE;
     rofi_view_refilter ( state );
@@ -1194,20 +1198,20 @@ static int wayland_rofi_view_error_dialog ( const char *msg, int markup )
     if ( ( CacheState.flags & MENU_NORMAL_WINDOW ) == MENU_NORMAL_WINDOW ) {
         listview_set_fixed_num_lines ( state->list_view );
     }
-    rofi_view_calculate_window_width ( state );
+    wayland_rofi_view_calculate_window_width ( state );
     // Need to resize otherwise calculated desired height is wrong.
     widget_resize ( WIDGET ( state->main_window ), state->width, 100 );
     // resize window vertically to suit
     state->height = widget_get_desired_height ( WIDGET ( state->main_window ) );
 
     // Calculte window position.
-    rofi_view_calculate_window_position ( state );
+    wayland_rofi_view_calculate_window_position ( state );
 
     // Move the window to the correct x,y position.
-    rofi_view_window_update_size ( state );
+    wayland_rofi_view_window_update_size ( state );
 
     // Set it as current window.
-    rofi_view_set_active ( state );
+    wayland_rofi_view_set_active ( state );
     return TRUE;
 }
 
@@ -1246,14 +1250,14 @@ static void wayland_rofi_view_set_overlay ( RofiViewState *state, const char *te
     widget_enable ( WIDGET ( state->overlay ) );
     textbox_text ( state->overlay, text );
     // We want to queue a repaint.
-    rofi_view_queue_redraw ( );
+    wayland_rofi_view_queue_redraw ( );
 }
 
 static void wayland_rofi_view_clear_input ( RofiViewState *state )
 {
     if ( state->text ) {
         textbox_text ( state->text, "" );
-        rofi_view_set_selected_line ( state, 0 );
+        wayland_rofi_view_set_selected_line ( state, 0 );
     }
 }
 
@@ -1262,7 +1266,7 @@ static void wayland_rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
     state->sw = mode;
     // Update prompt;
     if ( state->prompt ) {
-        rofi_view_update_prompt ( state );
+        wayland_rofi_view_update_prompt ( state );
     }
     if ( state->sidebar_bar ) {
         for ( unsigned int j = 0; j < state->num_modi; j++ ) {
