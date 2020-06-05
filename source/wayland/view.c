@@ -69,7 +69,7 @@
  */
 static void wayland_rofi_view_update ( RofiViewState *state, gboolean qr );
 
-static int calculate_height ( RofiViewState *state );
+static int wayland_rofi_view_calculate_window_height ( RofiViewState *state );
 
 /** Thread pool used for filtering */
 extern GThreadPool *tpool;
@@ -86,10 +86,6 @@ static struct
     MenuFlags          flags;
     /** List of stacked views */
     GQueue             views;
-#if 0
-    /** Current work area */
-    workarea           mon;
-#endif
     /** timeout for reloading */
     guint              idle_timeout;
     /** debug counter for redraws */
@@ -131,18 +127,6 @@ static char * get_matching_state ( void )
 }
 
 /**
- * Levenshtein Sorting.
- */
-static int lev_sort ( const void *p1, const void *p2, void *arg )
-{
-    const int *a         = p1;
-    const int *b         = p2;
-    int       *distances = arg;
-
-    return distances[*a] - distances[*b];
-}
-
-/**
  * Stores a screenshot of Rofi at that point in time.
  */
 static void wayland_rofi_view_capture_screenshot ( void )
@@ -181,12 +165,16 @@ static const int loc_transtable[9] = {
     WL_WEST
 };
 
+static void wayland_rofi_view_calculate_window_position ( RofiViewState *state )
+{
+}
+
 static int rofi_get_location ( RofiViewState *state )
 {
     return rofi_theme_get_position ( WIDGET ( state->main_window ), "location", loc_transtable[config.location] );
 }
 
-static void rofi_view_window_update_size ( RofiViewState * state )
+static void wayland_rofi_view_window_update_size ( RofiViewState * state )
 {
     widget_resize ( WIDGET ( state->main_window ), state->width, state->height );
     display_set_surface_dimensions ( state->width, state->height, rofi_get_location(state) );
@@ -205,22 +193,6 @@ static void wayland_rofi_view_get_size ( RofiViewState * state, gint *width, gin
 {
     *width = state->width;
     *height = state->height;
-}
-
-static void rofi_view_reload_message_bar ( RofiViewState *state )
-{
-    if ( state->mesg_box == NULL ) {
-        return;
-    }
-    char *msg = mode_get_message ( state->sw );
-    if ( msg ) {
-        textbox_text ( state->mesg_tb, msg );
-        widget_enable ( WIDGET ( state->mesg_box ) );
-        g_free ( msg );
-    }
-    else {
-        widget_disable ( WIDGET ( state->mesg_box ) );
-    }
 }
 
 static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
@@ -254,12 +226,6 @@ static void wayland_rofi_view_queue_redraw ( void  )
 
         CacheState.repaint_source = g_idle_add_full (  G_PRIORITY_HIGH_IDLE, rofi_view_repaint, NULL, NULL );
     }
-}
-
-static void wayland_rofi_view_restart ( RofiViewState *state )
-{
-    state->quit = FALSE;
-    state->retv = MENU_CANCEL;
 }
 
 static RofiViewState * wayland_rofi_view_get_active ( void )
@@ -324,31 +290,6 @@ static void wayland_rofi_view_free ( RofiViewState *state )
     g_free ( state );
 }
 
-static MenuReturn wayland_rofi_view_get_return_value ( const RofiViewState *state )
-{
-    return state->retv;
-}
-
-static unsigned int wayland_rofi_view_get_selected_line ( const RofiViewState *state )
-{
-    return state->selected_line;
-}
-
-static unsigned int wayland_rofi_view_get_next_position ( const RofiViewState *state )
-{
-    unsigned int next_pos = state->selected_line;
-    unsigned int selected = listview_get_selected ( state->list_view );
-    if ( ( selected + 1 ) < state->num_lines ) {
-        ( next_pos ) = state->line_map[selected + 1];
-    }
-    return next_pos;
-}
-
-static unsigned int wayland_rofi_view_get_completed ( const RofiViewState *state )
-{
-    return state->quit;
-}
-
 static const char * wayland_rofi_view_get_user_input ( const RofiViewState *state )
 {
     if ( state->text ) {
@@ -396,52 +337,7 @@ typedef struct _thread_state_view
     /** Length of pattern. */
     glong         plen;
 } thread_state_view;
-/**
- * @param data A thread_state object.
- * @param user_data User data to pass to thread_state callback
- *
- * Small wrapper function that is internally used to pass a job to a worker.
- */
-static void rofi_view_call_thread ( gpointer data, gpointer user_data )
-{
-    thread_state *t = (thread_state *) data;
-    t->callback ( t, user_data );
-}
 
-static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data )
-{
-    thread_state_view *t = (thread_state_view *) ts;
-    for ( unsigned int i = t->start; i < t->stop; i++ ) {
-        int match = mode_token_match ( t->state->sw, t->state->tokens, i );
-        // If each token was matched, add it to list.
-        if ( match ) {
-            t->state->line_map[t->start + t->count] = i;
-            if ( config.sort ) {
-                // This is inefficient, need to fix it.
-                char  * str = mode_get_completion ( t->state->sw, i );
-                glong slen  = g_utf8_strlen ( str, -1 );
-                switch ( config.sorting_method_enum )
-                {
-                case SORT_FZF:
-                    t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( t->pattern, t->plen, str, slen );
-                    break;
-                case SORT_NORMAL:
-                default:
-                    t->state->distance[i] = levenshtein ( t->pattern, t->plen, str, slen );
-                    break;
-                }
-                g_free ( str );
-            }
-            t->count++;
-        }
-    }
-    if ( t->acount != NULL  ) {
-        g_mutex_lock ( t->mutex );
-        ( *( t->acount ) )--;
-        g_cond_signal ( t->cond );
-        g_mutex_unlock ( t->mutex );
-    }
-}
 static void wayland___create_window ( MenuFlags menu_flags )
 {
     // FIXME: create surface
@@ -657,141 +553,12 @@ static void wayland_rofi_view_update ( RofiViewState *state, gboolean qr )
     }
 }
 
-static void _rofi_view_reload_row ( RofiViewState *state )
-{
-    g_free ( state->line_map );
-    g_free ( state->distance );
-    state->num_lines = mode_get_num_entries ( state->sw );
-    state->line_map  = g_malloc0_n ( state->num_lines, sizeof ( unsigned int ) );
-    state->distance  = g_malloc0_n ( state->num_lines, sizeof ( int ) );
-    listview_set_max_lines ( state->list_view, state->num_lines );
-    rofi_view_reload_message_bar ( state );
-}
-
-static void rofi_view_refilter ( RofiViewState *state )
-{
-    TICK_N ( "Filter start" );
-    if ( state->reload ) {
-        _rofi_view_reload_row ( state );
-        state->reload = FALSE;
-    }
-    TICK_N ( "Filter reload rows" );
-    if ( state->tokens ) {
-        helper_tokenize_free ( state->tokens );
-        state->tokens = NULL;
-    }
-    TICK_N ( "Filter tokenize" );
-    if ( state->text && strlen ( state->text->text ) > 0 ) {
-        unsigned int j        = 0;
-        gchar        *pattern = mode_preprocess_input ( state->sw, state->text->text );
-        glong        plen     = pattern ? g_utf8_strlen ( pattern, -1 ) : 0;
-        state->tokens = helper_tokenize ( pattern, config.case_sensitive );
-        /**
-         * On long lists it can be beneficial to parallelize.
-         * If number of threads is 1, no thread is spawn.
-         * If number of threads > 1 and there are enough (> 1000) items, spawn jobs for the thread pool.
-         * For large lists with 8 threads I see a factor three speedup of the whole function.
-         */
-        unsigned int      nt = MAX ( 1, state->num_lines / 500 );
-        thread_state_view states[nt];
-        GCond             cond;
-        GMutex            mutex;
-        g_mutex_init ( &mutex );
-        g_cond_init ( &cond );
-        unsigned int count = nt;
-        unsigned int steps = ( state->num_lines + nt ) / nt;
-        for ( unsigned int i = 0; i < nt; i++ ) {
-            states[i].state       = state;
-            states[i].start       = i * steps;
-            states[i].stop        = MIN ( state->num_lines, ( i + 1 ) * steps );
-            states[i].count       = 0;
-            states[i].cond        = &cond;
-            states[i].mutex       = &mutex;
-            states[i].acount      = &count;
-            states[i].plen        = plen;
-            states[i].pattern     = pattern;
-            states[i].st.callback = filter_elements;
-            if ( i > 0 ) {
-                g_thread_pool_push ( tpool, &states[i], NULL );
-            }
-        }
-        // Run one in this thread.
-        rofi_view_call_thread ( &states[0], NULL );
-        // No need to do this with only one thread.
-        if ( nt > 1 ) {
-            g_mutex_lock ( &mutex );
-            while ( count > 0 ) {
-                g_cond_wait ( &cond, &mutex );
-            }
-            g_mutex_unlock ( &mutex );
-        }
-        g_cond_clear ( &cond );
-        g_mutex_clear ( &mutex );
-        for ( unsigned int i = 0; i < nt; i++ ) {
-            if ( j != states[i].start ) {
-                memmove ( &( state->line_map[j] ), &( state->line_map[states[i].start] ), sizeof ( unsigned int ) * ( states[i].count ) );
-            }
-            j += states[i].count;
-        }
-        if ( config.sort ) {
-            g_qsort_with_data ( state->line_map, j, sizeof ( int ), lev_sort, state->distance );
-        }
-
-        // Cleanup + bookkeeping.
-        state->filtered_lines = j;
-        g_free ( pattern );
-    }
-    else{
-        for ( unsigned int i = 0; i < state->num_lines; i++ ) {
-            state->line_map[i] = i;
-        }
-        state->filtered_lines = state->num_lines;
-    }
-    TICK_N ( "Filter matching done" );
-    listview_set_num_elements ( state->list_view, state->filtered_lines );
-
-    if ( state->tb_filtered_rows ) {
-        char *r = g_strdup_printf ( "%u", state->filtered_lines );
-        textbox_text ( state->tb_filtered_rows, r );
-        g_free ( r );
-    }
-    if ( state->tb_total_rows ) {
-        char *r = g_strdup_printf ( "%u", state->num_lines );
-        textbox_text ( state->tb_total_rows, r );
-        g_free ( r );
-    }
-    TICK_N ( "Update filter lines" );
-
-    if ( config.auto_select == TRUE && state->filtered_lines == 1 && state->num_lines > 1 ) {
-        ( state->selected_line ) = state->line_map[listview_get_selected ( state->list_view  )];
-        state->retv              = MENU_OK;
-        state->quit              = TRUE;
-    }
-
-    // Size the window.
-    int height = calculate_height ( state );
-    if ( height != state->height ) {
-        state->height = height;
-        //rofi_view_calculate_window_position ( state );
-        rofi_view_window_update_size ( state );
-        g_debug ( "Resize based on re-filter" );
-    }
-    TICK_N ( "Filter resize window based on window " );
-    state->refilter = FALSE;
-    TICK_N ( "Filter done" );
-}
 /**
  * @param state The Menu Handle
  *
  * Check if a finalize function is set, and if sets executes it.
  */
 void process_result ( RofiViewState *state );
-static void wayland_rofi_view_finalize ( RofiViewState *state )
-{
-    if ( state && state->finalize != NULL ) {
-        state->finalize ( state );
-    }
-}
 
 static void rofi_view_trigger_global_action ( KeyBindingAction action )
 {
@@ -1058,16 +825,6 @@ static void wayland_rofi_view_handle_text ( RofiViewState *state, char *text )
     }
 }
 
-static void wayland_rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y )
-{
-    state->mouse.x = x;
-    state->mouse.y = y;
-    if ( state->mouse.motion_target != NULL ) {
-        widget_xy_to_relative ( state->mouse.motion_target, &x, &y );
-        widget_motion_notify ( state->mouse.motion_target, x, y );
-    }
-}
-
 static void wayland_rofi_view_maybe_update ( RofiViewState *state )
 {
     if ( rofi_view_get_completed ( state ) ) {
@@ -1098,7 +855,7 @@ static void wayland_rofi_view_frame_callback ( void )
     }
 }
 
-static int calculate_height ( RofiViewState *state )
+static int wayland_rofi_view_calculate_window_height ( RofiViewState *state )
 {
     if ( CacheState.fullscreen == TRUE ) {
         int height = 1080;
@@ -1407,9 +1164,9 @@ static RofiViewState *wayland_rofi_view_create ( Mode *sw,
         listview_set_fixed_num_lines ( state->list_view );
     }
 
-    state->height = calculate_height ( state );
+    state->height = wayland_rofi_view_calculate_window_height ( state );
     // Move the window to the correct x,y position.
-    //rofi_view_calculate_window_position ( state );
+    rofi_view_calculate_window_position ( state );
     rofi_view_window_update_size ( state );
 
     state->quit = FALSE;
@@ -1444,7 +1201,7 @@ static int wayland_rofi_view_error_dialog ( const char *msg, int markup )
     state->height = widget_get_desired_height ( WIDGET ( state->main_window ) );
 
     // Calculte window position.
-    //rofi_view_calculate_window_position ( state );
+    rofi_view_calculate_window_position ( state );
 
     // Move the window to the correct x,y position.
     rofi_view_window_update_size ( state );
@@ -1470,42 +1227,6 @@ static void wayland_rofi_view_cleanup ()
         CacheState.repaint_source = 0;
     }
     g_assert ( g_queue_is_empty ( &( CacheState.views ) ) );
-}
-
-static void wayland_rofi_view_workers_initialize ( void )
-{
-    TICK_N ( "Setup Threadpool, start" );
-    if ( config.threads == 0 ) {
-        config.threads = 1;
-        long procs = sysconf ( _SC_NPROCESSORS_CONF );
-        if ( procs > 0 ) {
-            config.threads = MIN ( procs, 128l );
-        }
-    }
-    // Create thread pool
-    GError *error = NULL;
-    tpool = g_thread_pool_new ( rofi_view_call_thread, NULL, config.threads, FALSE, &error );
-    if ( error == NULL ) {
-        // Idle threads should stick around for a max of 60 seconds.
-        g_thread_pool_set_max_idle_time ( 60000 );
-        // We are allowed to have
-        g_thread_pool_set_max_threads ( tpool, config.threads, &error );
-    }
-    // If error occurred during setup of pool, tell user and exit.
-    if ( error != NULL ) {
-        g_warning ( "Failed to setup thread pool: '%s'", error->message );
-        g_error_free ( error );
-        exit ( EXIT_FAILURE );
-    }
-    TICK_N ( "Setup Threadpool, done" );
-}
-
-static void wayland_rofi_view_workers_finalize ( void )
-{
-    if ( tpool ) {
-        g_thread_pool_free ( tpool, TRUE, TRUE );
-        tpool = NULL;
-    }
 }
 
 static Mode * wayland_rofi_view_get_mode ( RofiViewState *state )
@@ -1536,11 +1257,6 @@ static void wayland_rofi_view_clear_input ( RofiViewState *state )
     }
 }
 
-static void wayland_rofi_view_ellipsize_start ( RofiViewState *state )
-{
-    listview_set_ellipsize_start ( state->list_view );
-}
-
 static void wayland_rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
 {
     state->sw = mode;
@@ -1563,26 +1279,23 @@ static void wayland_rofi_view_switch_mode ( RofiViewState *state, Mode *mode )
 
 static view_proxy view_ = {
     .create = wayland_rofi_view_create,
-    .finalize = wayland_rofi_view_finalize,
-    .get_return_value = wayland_rofi_view_get_return_value,
-    .get_next_position = wayland_rofi_view_get_next_position,
     .handle_text = wayland_rofi_view_handle_text,
-    .handle_mouse_motion = wayland_rofi_view_handle_mouse_motion,
     .maybe_update = wayland_rofi_view_maybe_update,
     .temp_configure_notify = NULL,
     .temp_click_to_exit = NULL,
     .frame_callback = wayland_rofi_view_frame_callback,
-    .get_completed = wayland_rofi_view_get_completed,
     .get_user_input = wayland_rofi_view_get_user_input,
     .set_selected_line = wayland_rofi_view_set_selected_line,
-    .get_selected_line = wayland_rofi_view_get_selected_line,
-    .restart = wayland_rofi_view_restart,
     .trigger_action = wayland_rofi_view_trigger_action,
     .free = wayland_rofi_view_free,
     .get_active = wayland_rofi_view_get_active,
     .set_active = wayland_rofi_view_set_active,
     .error_dialog = wayland_rofi_view_error_dialog,
     .queue_redraw = wayland_rofi_view_queue_redraw,
+
+    .calculate_window_position = wayland_rofi_view_calculate_window_position,
+    .calculate_window_height = wayland_rofi_view_calculate_window_height,
+    .window_update_size = wayland_rofi_view_window_update_size,
 
     .cleanup = wayland_rofi_view_cleanup,
     .get_mode = wayland_rofi_view_get_mode,
@@ -1593,12 +1306,8 @@ static view_proxy view_ = {
     .clear_input = wayland_rofi_view_clear_input,
     .__create_window = wayland___create_window,
     .get_window = NULL,
-    .workers_initialize = wayland_rofi_view_workers_initialize,
-    .workers_finalize = wayland_rofi_view_workers_finalize,
     .get_current_monitor = wayland_rofi_view_get_current_monitor,
     .capture_screenshot = wayland_rofi_view_capture_screenshot,
-
-    .ellipsize_start = wayland_rofi_view_ellipsize_start,
 
     .set_size = wayland_rofi_view_set_size,
     .get_size = wayland_rofi_view_get_size,

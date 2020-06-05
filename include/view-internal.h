@@ -151,4 +151,11 @@ struct RofiViewState
 };
 /** @} */
 
+void rofi_view_reload_message_bar ( struct RofiViewState *state );
+void rofi_view_calculate_window_position ( struct RofiViewState *state );
+int rofi_view_calculate_window_height ( struct RofiViewState *state );
+void rofi_view_window_update_size ( struct RofiViewState * state );
+void rofi_view_call_thread ( gpointer data, gpointer user_data );
+void rofi_view_refilter ( struct RofiViewState *state );
+
 #endif
