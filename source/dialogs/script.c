@@ -309,7 +309,7 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
             return RELOAD_DIALOG;
         }
         script_mode_reset_highlight ( sw );
-        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 1, NULL );
+        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 1, &(rmpd->cmd_list[selected_line]) );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         if ( rmpd->no_custom == FALSE ) {
