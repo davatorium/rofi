@@ -78,36 +78,31 @@ typedef struct
  */
 void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *entry, char *buffer, size_t length )
 {
-    size_t length_key = 0;              //strlen ( line );
-    size_t end_value = 0;
-    while ( length_key < length && buffer[length_key] != '\x1f' ) {
-        length_key++;
-    }
-    end_value = length_key+1;
-    while ( end_value < length && buffer[end_value] != '\x1f' ) {
-        end_value++;
-    }
-    // Should be not last character in buffer.
-    if ( (length_key+1) < (length) ) {
-        buffer[length_key] = '\0';
-        if ( end_value < length_key) buffer[end_value] = '\0';
-        char *value = buffer + length_key + 1;
-        if ( strcasecmp ( buffer, "icon" ) == 0 ) {
-            entry->icon_name = g_strdup ( value );
+    gchar **extras = g_strsplit ( buffer, "\x1f", -1 );
+    gchar **extra;
+    for ( extra = extras ; *extra != NULL && *(extra + 1) != NULL ; extra += 2 )
+    {
+        gchar *key = *extra;
+        gchar *value = *(extra + 1);
+        if ( strcasecmp ( key, "icon" ) == 0 ) {
+            entry->icon_name = value;
         }
-        else if ( strcasecmp ( buffer, "meta" ) == 0 ) {
-            entry->meta = g_strdup ( value );
+        else if ( strcasecmp ( key, "meta" ) == 0 ) {
+            entry->meta = value;
         }
-        else if ( strcasecmp ( buffer, "info" ) == 0 ) {
-            entry->info = g_strdup ( value );
+        else if ( strcasecmp ( key, "info" ) == 0 ) {
+            entry->info = value;
         }
-        else if ( strcasecmp ( buffer, "nonselectable" ) == 0 ) {
+        else if ( strcasecmp ( key, "nonselectable" ) == 0 ) {
             entry->nonselectable = strcasecmp ( value, "true" ) == 0;
+            g_free(value);
         }
+        else {
+            g_free(value);
+        }
+        g_free(key);
     }
-    if ( end_value < length ) {
-        dmenuscript_parse_entry_extras ( NULL, entry, &buffer[end_value+1], length-end_value);
-    }
+    g_free(extras);
 }
 
 /**
