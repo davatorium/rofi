@@ -301,6 +301,10 @@ static void rofi_theme_print_distance_unit ( RofiDistanceUnit *unit )
         if ( unit->type == ROFI_PU_PX ) {
             printf ( "%upx ", (unsigned int) unit->distance );
         }
+        else if ( unit->type == ROFI_PU_MM ) {
+            printf_double ( unit->distance );
+            fputs ( "mm ", stdout );
+        }
         else if ( unit->type == ROFI_PU_PERCENT ) {
             printf_double ( unit->distance );
             fputs ( "% ", stdout );
@@ -941,6 +945,9 @@ static int get_pixels ( RofiDistanceUnit *unit, RofiOrientation ori )
             rofi_view_get_current_monitor ( &width, NULL );
             val = ( unit->distance * width ) / ( 100.0 );
         }
+    }
+    else if ( unit->type == ROFI_PU_MM ) {
+        val = unit->distance * config.dpi / 25.4;
     }
     return val;
 }
