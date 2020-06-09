@@ -334,12 +334,14 @@ It currently supports:
 * Format: `{Real}em`
 * Format: `{Real}ch`
 * Format: `{Real}%`
+* Format: `{Integer}mm`
 
 A distance can be specified in 3 different units:
 
 * `px`: Screen pixels.
 * `em`: Relative to text height.
 * `ch`: Relative to width of a single number.
+* `mm`: Actual size in millimeters (based on dpi).
 * `%`:  Percentage of the **monitor** size.
 
 Distances used in the horizontal direction use the monitor width. Distances in
