@@ -785,6 +785,10 @@ void __create_window ( MenuFlags menu_flags )
         PangoFontMap *font_map = pango_cairo_font_map_get_default ();
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
         config.dpi = dpi;
+    } else {
+	// default pango is 96.
+        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
+        config.dpi = pango_cairo_font_map_get_resolution ( (PangoCairoFontMap *) font_map );
     }
     // Setup font.
     // Dummy widget.
