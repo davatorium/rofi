@@ -80,6 +80,8 @@ typedef enum
 {
     /** PixelWidth in pixels. */
     ROFI_PU_PX,
+    /** PixelWidth in millimeters. */
+    ROFI_PU_MM,
     /** PixelWidth in EM. */
     ROFI_PU_EM,
     /** PixelWidget in percentage */
