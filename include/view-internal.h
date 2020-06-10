@@ -151,11 +151,54 @@ struct RofiViewState
 };
 /** @} */
 
-void rofi_view_reload_message_bar ( struct RofiViewState *state );
+typedef struct _view_proxy {
+    void (*update) ( RofiViewState *state, gboolean qr );
+    void (*maybe_update) ( RofiViewState *state );
+    void (*temp_configure_notify) ( RofiViewState *state, xcb_configure_notify_event_t *xce );
+    void (*temp_click_to_exit) ( RofiViewState *state, xcb_window_t target );
+    void (*frame_callback) ( void );
+
+    void (*queue_redraw) ( void );
+
+    void (*set_window_title) ( const char * title );
+    void (*calculate_window_position) ( RofiViewState *state );
+    void (*calculate_window_width) ( RofiViewState *state );
+    int (*calculate_window_height) ( RofiViewState *state );
+    void (*window_update_size) ( RofiViewState *state );
+
+    void (*cleanup) ( void );
+    void (*hide) ( void );
+    void (*reload) ( void  );
+    void (*__create_window) ( MenuFlags menu_flags );
+    xcb_window_t (*get_window) ( void );
+
+    void (*get_current_monitor) ( int *width, int *height );
+    void (*capture_screenshot) ( void );
+
+    void (*set_size) ( RofiViewState * state, gint width, gint height );
+    void (*get_size) ( RofiViewState * state, gint *width, gint *height );
+} view_proxy;
+
+/**
+ * Structure holding cached state.
+ */
+struct _rofi_view_cache_state
+{
+    /** main x11 windows */
+    xcb_window_t       main_window;
+    /** Main flags */
+    MenuFlags          flags;
+    /** List of stacked views */
+    GQueue             views;
+};
+extern struct _rofi_view_cache_state CacheState;
+
+void rofi_view_update ( struct RofiViewState *state, gboolean qr );
 void rofi_view_calculate_window_position ( struct RofiViewState *state );
+void rofi_view_calculate_window_width ( struct RofiViewState *state );
 int rofi_view_calculate_window_height ( struct RofiViewState *state );
 void rofi_view_window_update_size ( struct RofiViewState * state );
-void rofi_view_call_thread ( gpointer data, gpointer user_data );
 void rofi_view_refilter ( struct RofiViewState *state );
+void rofi_view_set_window_title ( const char * title );
 
 #endif

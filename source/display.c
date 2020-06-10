@@ -1,7 +1,9 @@
 #include <glib.h>
 #include <xcb/xkb.h>
 #include "keyb.h"
+
 #include "display.h"
+#include "display-internal.h"
 
 #include "view.h"
 #include "view-internal.h"

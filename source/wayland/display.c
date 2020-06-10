@@ -52,6 +52,7 @@
 
 #include "wayland-internal.h"
 #include "display.h"
+#include "display-internal.h"
 
 #include "wlr-layer-shell-unstable-v1-protocol.h"
 

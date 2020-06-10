@@ -61,6 +61,7 @@
 #include "settings.h"
 #include "helper.h"
 #include "timings.h"
+#include "display-internal.h"
 
 #include <rofi.h>
 

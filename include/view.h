@@ -315,50 +315,17 @@ void rofi_view_set_size ( RofiViewState * state, gint width, gint height );
 
 void rofi_view_get_size ( RofiViewState * state, gint *width, gint *height );
 
-typedef struct _view_proxy {
-    RofiViewState* (*create) ( Mode *sw, const char *input, MenuFlags menu_flags, void ( *finalize )( RofiViewState * ) );
-    void (*handle_text) ( RofiViewState *state, char *text );
-    void (*maybe_update) ( RofiViewState *state );
-    void (*temp_configure_notify) ( RofiViewState *state, xcb_configure_notify_event_t *xce );
-    void (*temp_click_to_exit) ( RofiViewState *state, xcb_window_t target );
-    void (*frame_callback) ( void );
-    const char * (*get_user_input) ( const RofiViewState *state );
-    void (*set_selected_line) ( RofiViewState *state, unsigned int selected_line );
-    gboolean (*trigger_action) ( RofiViewState *state, BindingsScope scope, guint action );
-    void (*free) ( RofiViewState *state );
-    RofiViewState * (*get_active) ( void );
-    void (*set_active) ( RofiViewState *state );
-    int (*error_dialog) ( const char *msg, int markup  );
-    void (*queue_redraw) ( void );
-    void (*calculate_window_position) ( RofiViewState *state );
-    int (*calculate_window_height) ( RofiViewState *state );
-    void (*window_update_size) ( RofiViewState *state );
+void rofi_view_set_window_tilte ( const char * title );
 
-    void (*cleanup) ( void );
-    Mode * (*get_mode) ( RofiViewState *state );
-    void (*hide) ( void );
-    void (*reload) ( void  );
-    void (*switch_mode) ( RofiViewState *state, Mode *mode );
-    void (*set_overlay) ( RofiViewState *state, const char *text );
-    void (*clear_input) ( RofiViewState *state );
-    void (*__create_window) ( MenuFlags menu_flags );
-    xcb_window_t (*get_window) ( void );
-    void (*workers_initialize) ( void );
-    void (*workers_finalize) ( void );
-    void (*get_current_monitor) ( int *width, int *height );
-    void (*capture_screenshot) ( void );
 
-    void (*set_size) ( RofiViewState * state, gint width, gint height );
-    void (*get_size) ( RofiViewState * state, gint *width, gint *height );
-} view_proxy;
-
+struct _view_proxy;
 
 /* Implementations */
-extern const view_proxy *xcb_view_proxy;
+extern const struct _view_proxy *xcb_view_proxy;
 #ifdef ENABLE_WAYLAND
-extern const view_proxy *wayland_view_proxy;
+extern const struct _view_proxy *wayland_view_proxy;
 #endif
 
-void view_init( const view_proxy *view_in );
+void view_init( const struct _view_proxy *view_in );
 
 #endif

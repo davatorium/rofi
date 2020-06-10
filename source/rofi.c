@@ -858,7 +858,7 @@ int main ( int argc, char *argv[] )
 
     TICK_N ( "Setup Locale" );
 
-    const display_proxy *proxy = xcb_proxy;
+    const struct _display_proxy *proxy = xcb_proxy;
     config.backend = DISPLAY_XCB;
 #ifdef ENABLE_WAYLAND
     if ( find_arg ( "-x11" ) < 0 ) {
