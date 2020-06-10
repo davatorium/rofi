@@ -177,6 +177,8 @@ typedef struct _view_proxy {
 
     void (*set_size) ( RofiViewState * state, gint width, gint height );
     void (*get_size) ( RofiViewState * state, gint *width, gint *height );
+
+    void (*pool_refresh) ( );
 } view_proxy;
 
 /**

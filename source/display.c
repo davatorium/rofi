@@ -58,3 +58,8 @@ display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSet
     proxy->startup_notification ( context, child_setup, user_data );
 }
 
+guint
+display_scale ( void )
+{
+    return proxy->scale ( );
+}

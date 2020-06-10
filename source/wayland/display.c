@@ -148,7 +148,6 @@ display_buffer_pool_new(gint width, gint height)
 
     gchar filename[PATH_MAX];
     g_snprintf(filename, PATH_MAX, "%s/rofi-wayland-surface", g_get_user_runtime_dir());
-    //fd = g_open(filename, O_CREAT | O_RDWR | O_CLOEXEC, 0);
     fd = g_open(filename, O_CREAT | O_RDWR, 0);
     g_unlink(filename);
     if ( fd < 0 )
@@ -214,14 +213,15 @@ wayland_surface_protocol_enter(void *data, struct wl_surface *wl_surface, struct
     output = g_hash_table_lookup(wayland->outputs, wl_output);
     if ( output == NULL )
         return;
-    if ( ( output->scale < 1 ) || ( output->scale > 3 ) )
-        return;
 
-    ++wayland->scales[output->scale - 1];
-    if ( wayland->scale < output->scale )
+    wl_surface_set_buffer_scale( wl_surface, output->scale );
+
+    if ( wayland->scale != output->scale )
     {
         wayland->scale = output->scale;
 
+        // create new buffers with the correct scaled size
+        rofi_view_pool_refresh ( );
         rofi_view_set_size(rofi_view_get_active(), -1, -1);
     }
 }
@@ -229,25 +229,6 @@ wayland_surface_protocol_enter(void *data, struct wl_surface *wl_surface, struct
 static void
 wayland_surface_protocol_leave(void *data, struct wl_surface *wl_surface, struct wl_output *wl_output)
 {
-    wayland_output *output;
-
-    output = g_hash_table_lookup(wayland->outputs, wl_output);
-    if ( output == NULL )
-        return;
-    if ( ( output->scale < 1 ) || ( output->scale > 3 ) )
-        return;
-
-    if ( ( --wayland->scales[output->scale - 1] < 1 ) && ( wayland->scale == output->scale ) )
-    {
-        int32_t i;
-        for ( i = 0 ; i < 3 ; ++i )
-        {
-            if ( wayland->scales[i] > 0 )
-                wayland->scale = i + 1;
-        }
-        rofi_view_set_size(rofi_view_get_active(), -1, -1);
-    }
-
 }
 
 static const struct wl_surface_listener wayland_surface_interface = {
@@ -295,8 +276,8 @@ display_surface_commit(cairo_surface_t *surface)
 
     wl_surface_damage(wayland->surface, 0, 0, pool->width, pool->height);
     wl_surface_attach(wayland->surface, buffer->buffer, 0, 0);
-    if ( wl_surface_get_version(wayland->surface) >= WL_SURFACE_SET_BUFFER_SCALE_SINCE_VERSION )
-        wl_surface_set_buffer_scale(wayland->surface, wayland->scale);
+    // FIXME: hidpi
+    wl_surface_set_buffer_scale(wayland->surface, wayland->scale);
     buffer->released = FALSE;
 
     wl_surface_commit( wayland->surface );
@@ -354,7 +335,6 @@ wayland_keyboard_enter(void *data, struct wl_keyboard *keyboard, uint32_t serial
 
     uint32_t *key, *kend;
     for ( key = keys->data, kend = key + keys->size / sizeof(*key) ; key < kend ; ++key ) {
-        // TODO: check
         nk_bindings_seat_handle_key( wayland->bindings_seat, NULL, *key + 8, NK_BINDINGS_KEY_STATE_PRESSED );
     }
 }
@@ -1034,13 +1014,8 @@ wayland_display_setup(GMainLoop *main_loop, NkBindings *bindings)
     wayland->bindings_seat = nk_bindings_seat_new ( bindings, XKB_CONTEXT_NO_FLAGS );
 
     wayland->wlr_surface = zwlr_layer_shell_v1_get_layer_surface(wayland->layer_shell, wayland->surface, NULL, ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY, "rofi");
-    return TRUE;
-}
 
-static gboolean
-wayland_display_late_setup ( void )
-{
-    // note: ANCHOR_LEFT is needed to get the full window width
+    // ANCHOR_LEFT is needed to get the full screen width
     zwlr_layer_surface_v1_set_anchor( wayland->wlr_surface, ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP | ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT );
     zwlr_layer_surface_v1_set_keyboard_interactivity( wayland->wlr_surface, 1 );
     zwlr_layer_surface_v1_add_listener( wayland->wlr_surface, &wayland_layer_shell_surface_listener, NULL );
@@ -1052,6 +1027,12 @@ wayland_display_late_setup ( void )
     wl_display_roundtrip( wayland->display );
     wayland_frame_callback( wayland, wayland->frame_cb, 0 );
 
+    return TRUE;
+}
+
+static gboolean
+wayland_display_late_setup ( void )
+{
     return TRUE;
 }
 
@@ -1154,6 +1135,11 @@ static const struct _view_proxy* wayland_display_view_proxy ( void )
     return wayland_view_proxy;
 }
 
+static guint wayland_display_scale ( void )
+{
+    return wayland->scale;
+}
+
 static display_proxy display_ = {
     .setup = wayland_display_setup,
     .late_setup = wayland_display_late_setup,
@@ -1162,6 +1148,7 @@ static display_proxy display_ = {
     .dump_monitor_layout = wayland_display_dump_monitor_layout,
     .startup_notification = wayland_display_startup_notification,
     .monitor_active = wayland_display_monitor_active,
+    .scale = wayland_display_scale,
 
     .view = wayland_display_view_proxy,
 };

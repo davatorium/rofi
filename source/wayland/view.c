@@ -301,6 +301,8 @@ static void wayland_rofi_view_update ( RofiViewState *state, gboolean qr )
     cairo_set_operator ( d, CAIRO_OPERATOR_SOURCE );
     // Paint the background transparent.
     cairo_set_source_rgba ( d, 0, 0, 0, 0.0 );
+    guint scale = display_scale ( );
+    cairo_surface_set_device_scale ( surface, scale, scale );
     cairo_paint ( d );
     TICK_N ( "Background" );
 
@@ -396,6 +398,14 @@ static void wayland_rofi_view_set_window_title ( const char * title )
 {
 }
 
+static void wayland_rofi_view_pool_refresh ( void )
+{
+    RofiViewState *state = rofi_view_get_active ();
+    display_buffer_pool_free ( state->pool );
+    state->pool = NULL;
+    wayland_rofi_view_update ( state, TRUE);
+}
+
 static view_proxy view_ = {
     .update = wayland_rofi_view_update,
     .maybe_update = wayland_rofi_view_maybe_update,
@@ -421,6 +431,8 @@ static view_proxy view_ = {
 
     .set_size = wayland_rofi_view_set_size,
     .get_size = wayland_rofi_view_get_size,
+
+    .pool_refresh = wayland_rofi_view_pool_refresh,
 };
 
 const view_proxy *wayland_view_proxy = &view_;

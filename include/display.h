@@ -116,5 +116,6 @@ void display_dump_monitor_layout ( void );
  */
 void display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data );
 
+guint display_scale ( void );
 
 #endif

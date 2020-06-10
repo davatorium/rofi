@@ -316,7 +316,7 @@ void rofi_view_set_size ( RofiViewState * state, gint width, gint height );
 void rofi_view_get_size ( RofiViewState * state, gint *width, gint *height );
 
 void rofi_view_set_window_tilte ( const char * title );
-
+void rofi_view_pool_refresh ( void );
 
 struct _view_proxy;
 

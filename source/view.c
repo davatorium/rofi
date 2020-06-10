@@ -1416,3 +1416,7 @@ void rofi_view_set_size ( RofiViewState * state, gint width, gint height ) {
 void rofi_view_get_size ( RofiViewState * state, gint *width, gint *height ) {
     proxy->get_size ( state, width, height );
 }
+
+void rofi_view_pool_refresh ( void ) {
+    proxy->pool_refresh ( );
+}
