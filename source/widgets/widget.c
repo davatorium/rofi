@@ -205,34 +205,43 @@ void widget_draw ( widget *widget, cairo_t *d )
         int       radius_tl     = distance_get_pixel ( widget->border_radius.top, ROFI_ORIENTATION_VERTICAL );
         int       radius_br     = distance_get_pixel ( widget->border_radius.bottom, ROFI_ORIENTATION_VERTICAL );
 
-        double    vspace = widget->h - margin_top - margin_bottom - top / 2.0 - bottom / 2.0;
-        double    hspace = widget->w - margin_left - margin_right - left / 2.0 - right / 2.0;
-        if ( ( radius_bl + radius_tl ) > ( vspace ) ) {
-            int j = ( ( vspace ) / 2.0 );
-            radius_bl = MIN ( radius_bl, j );
-            radius_tl = MIN ( radius_tl, j );
-        }
-        if ( ( radius_br + radius_tr ) > ( vspace ) ) {
-            int j = ( ( vspace  ) / 2.0 );
-            radius_br = MIN ( radius_br, j );
-            radius_tr = MIN ( radius_tr, j );
-        }
-        if ( ( radius_tl + radius_tr ) > ( hspace ) ) {
-            int j = ( ( hspace ) / 2.0 );
-            radius_tr = MIN ( radius_tr, j );
-            radius_tl = MIN ( radius_tl, j );
-        }
-        if ( ( radius_bl + radius_br ) > ( hspace ) ) {
-            int j = ( ( hspace ) / 2.0 );
-            radius_br = MIN ( radius_br, j );
-            radius_bl = MIN ( radius_bl, j );
-        }
+        double minof_tl, minof_tr, minof_br, minof_bl;
+        {
+            double left_2   = (double) left   / 2;
+            double top_2    = (double) top    / 2;
+            double right_2  = (double) right  / 2;
+            double bottom_2 = (double) bottom / 2;
 
-        // Calculate the different offsets for the corners.
-        double minof_tr = MIN ( right / 2.0, top / 2.0 );
-        double minof_tl = MIN ( left / 2.0, top / 2.0 );
-        double minof_br = MIN ( right / 2.0, bottom / 2.0 );
-        double minof_bl = MIN ( left / 2.0, bottom / 2.0 );
+            // Calculate the different offsets for the corners.
+            minof_tl = MIN ( left_2,  top_2 );
+            minof_tr = MIN ( right_2, top_2 );
+            minof_br = MIN ( right_2, bottom_2 );
+            minof_bl = MIN ( left_2,  bottom_2 );
+
+            // Contain border radius in widget space
+            double vspace, vspace_2, hspace, hspace_2;
+            vspace = widget->h - ( margin_top + margin_bottom ) - ( top_2 + bottom_2 );
+            hspace = widget->w - ( margin_left + margin_right ) - ( left_2 + right_2 );
+            vspace_2 = vspace / 2;
+            hspace_2 = hspace / 2;
+
+            if ( radius_bl + radius_tl > vspace ) {
+                radius_bl = MIN ( radius_bl, vspace_2 );
+                radius_tl = MIN ( radius_tl, vspace_2 );
+            }
+            if ( radius_br + radius_tr > vspace ) {
+                radius_br = MIN ( radius_br, vspace_2 );
+                radius_tr = MIN ( radius_tr, vspace_2 );
+            }
+            if ( radius_tl + radius_tr > hspace ) {
+                radius_tr = MIN ( radius_tr, hspace_2 );
+                radius_tl = MIN ( radius_tl, hspace_2 );
+            }
+            if ( radius_bl + radius_br > hspace ) {
+                radius_br = MIN ( radius_br, hspace_2 );
+                radius_bl = MIN ( radius_bl, hspace_2 );
+            }
+        }
 
         // Background painting.
         // Set new x/y position.
