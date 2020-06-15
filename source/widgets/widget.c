@@ -228,17 +228,26 @@ void widget_draw ( widget *widget, cairo_t *d )
             radius_bl = MIN ( radius_bl, j );
         }
 
+        // Calculate the different offsets for the corners.
+        double minof_tr = MIN ( right / 2.0, top / 2.0 );
+        double minof_tl = MIN ( left / 2.0, top / 2.0 );
+        double minof_br = MIN ( right / 2.0, bottom / 2.0 );
+        double minof_bl = MIN ( left / 2.0, bottom / 2.0 );
+
         // Background painting.
         // Set new x/y position.
         cairo_translate ( d, widget->x, widget->y );
         cairo_set_line_width ( d, 0 );
 
-        draw_rounded_rect (d,
-                           margin_left + left / 2.0,
-                           margin_top + top / 2.0 ,
-                           widget->w - margin_right - right / 2.0,
-                           widget->h - margin_bottom - bottom / 2.0,
-                           radius_tl, radius_tr, radius_br, radius_bl);
+        draw_rounded_rect ( d,
+                            margin_left               + ( left   > 2 ? left   - 1 : left   == 1 ? 0.5 : 0 ),
+                            margin_top                + ( top    > 2 ? top    - 1 : top    == 1 ? 0.5 : 0 ),
+                            widget->w - margin_right  - ( right  > 2 ? right  - 1 : right  == 1 ? 0.5 : 0 ),
+                            widget->h - margin_bottom - ( bottom > 2 ? bottom - 1 : bottom == 1 ? 0.5 : 0 ),
+                            radius_tl - ( minof_tl > 1 ? minof_tl - 1 : 0 ),
+                            radius_tr - ( minof_tr > 1 ? minof_tr - 1 : 0 ),
+                            radius_br - ( minof_br > 1 ? minof_br - 1 : 0 ),
+                            radius_bl - ( minof_bl > 1 ? minof_bl - 1 : 0 ) );
 
         cairo_set_source_rgba ( d, 1.0, 1.0, 1.0, 1.0 );
         rofi_theme_get_color ( widget, "background-color", d );
@@ -255,11 +264,6 @@ void widget_draw ( widget *widget, cairo_t *d )
             cairo_translate ( d, widget->x, widget->y );
             cairo_new_path ( d );
             rofi_theme_get_color ( widget, "border-color", d );
-            // Calculate the different offsets for the corners.
-            double minof_tr = MIN ( right / 2.0, top / 2.0 );
-            double minof_tl = MIN ( left / 2.0, top / 2.0 );
-            double minof_br = MIN ( right / 2.0, bottom / 2.0 );
-            double minof_bl = MIN ( left / 2.0, bottom / 2.0 );
 
             double radius_int_tl, radius_int_tr, radius_int_br, radius_int_bl;
             double radius_out_tl, radius_out_tr, radius_out_br, radius_out_bl;
