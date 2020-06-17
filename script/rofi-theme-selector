@@ -24,7 +24,7 @@ then
     exit 1
 fi
 
-TMP_CONFIG_FILE=$(${MKTEMP})
+TMP_CONFIG_FILE=$(${MKTEMP}).rasi
 
 ##
 # Array with parts to the found themes.
@@ -103,7 +103,9 @@ function find_themes()
 ##
 function create_config_copy()
 {
-    ${ROFI} -dump-xresources > ${TMP_CONFIG_FILE}
+    ${ROFI} -dump-config > ${TMP_CONFIG_FILE}
+    # remove theme entry.
+    sed -i 's/^\s*theme:\s\+".*"\s*;//g' ${TMP_CONFIG_FILE}
 }
 
 ###
