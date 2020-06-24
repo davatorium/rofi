@@ -848,15 +848,7 @@ int main ( int argc, char *argv[] )
             config_path = rofi_expand_path ( c );
         }
     }
-
     TICK ();
-    if ( setlocale ( LC_ALL, "" ) == NULL ) {
-        g_warning ( "Failed to set locale." );
-        cleanup ();
-        return EXIT_FAILURE;
-    }
-
-    TICK_N ( "Setup Locale" );
 
     const struct _display_proxy *proxy = xcb_proxy;
     config.backend = DISPLAY_XCB;
@@ -869,8 +861,17 @@ int main ( int argc, char *argv[] )
         }
     }
 #endif
+    display_init ( proxy );
 
     TICK_N ( "Select Backend" );
+
+    if ( setlocale ( LC_ALL, "" ) == NULL ) {
+        g_warning ( "Failed to set locale." );
+        cleanup ();
+        return EXIT_FAILURE;
+    }
+
+    TICK_N ( "Setup Locale" );
     rofi_collect_modi ();
     TICK_N ( "Collect MODI" );
     rofi_collect_modi_setup ();
@@ -883,7 +884,6 @@ int main ( int argc, char *argv[] )
     bindings = nk_bindings_new ( 0 );
     TICK_N ( "NK Bindings" );
 
-    display_init ( proxy );
     if ( !display_setup ( main_loop, bindings ) ) {
         g_warning ( "Connection has error" );
         cleanup ();
