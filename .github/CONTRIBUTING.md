@@ -25,6 +25,8 @@ It is preferred to have feature requests discussed via
 
 # Creating a bug report
 
+Please write your bug reports in clear English.
+
 Before creating a bug report:
 
 * Update to the latest version. Check if problem still exists.
