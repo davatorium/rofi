@@ -60,6 +60,16 @@ element {
 
 This will make the box `element` put `element-icon` and `element-text` in a vertical list.
 
+or change the ordering to show icon on the right:
+
+```css
+element {
+  children: [element-text, element-icon];
+}
+```
+
+![Icons vertical](./icons2.png)
+
 
 ### Calculation support in theme format.
 
@@ -79,6 +89,20 @@ It supports: `-`, `+`, `/`, `*` and `%` operators and they should be surrounded 
 
 This is a very initial implementation of CSS like `@media` support. This allows you to modify the theme
 based on screen size or ratio.
+
+We currently support: minimum width, minimum height, maximum width, maximum
+height, monitor id, minimum acpect ratio or maximum acpect ratio.
+
+
+For example, go to fullscreen mode on screens smaller then full HD:
+
+```
+@media (max-width: 1920px ) {
+  window {
+    fullscreen: true;
+  }
+}
+```
 
 
 ##  Log
