@@ -384,6 +384,7 @@ box_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
+      config/config.c\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -399,6 +400,7 @@ scrollbar_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
+      config/config.c\
 			test/scrollbar-test.c
 
 textbox_test_SOURCES=\
