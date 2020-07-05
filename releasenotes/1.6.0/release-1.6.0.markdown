@@ -15,14 +15,24 @@ have been possible.
 
 ## Script mode
 
+Rofi now communicates some information back to the script using environment variables.
+The most important one, is `ROFI_RETV`, this is equal to the return value in dmenu mode. 
+It can have the following values:
 
-    * Support for invisible search text
-    * Support for passing extra information back on selection
-    * Support for custom keybindings
-    * Support for custom delimiter
-    * Support for dmenus no-custom option
+ * **0**: Initial call of script.
+ * **1**: Selected an entry.
+ * **2**: Selected a custom entry.
+ * **10-28**: Custom keybinding 1-19
 
 
+To fully read up on all features of script mode, there is now a `rofi-script(5)` manpage.
+
+Some of the new features are:
+
+ * Search invisible text
+ * Pass extra information back on selection
+ * Support for a custom delimiter
+ * Support for dmenus no-custom option
 
 
 ## Theme
@@ -32,11 +42,23 @@ There have been a set of tweaks to the theme format, making it more flexible and
 
 ### Listview flexibility
 
-Instead of the listview having a hacked textbox as elements. It now re-uses existing widgets like box, icon and textbox.
-This way you can re-structure how it looks. For example put the icon above the text.
+This is one of the biggest change, instead of the listview having a hacked
+textbox as elements. It now re-uses existing widgets like box, icon and
+textbox.  This way you can re-structure how it looks. For example put the icon
+above the text.
 
 
 ![Icons](./icons.png)
+
+With theme:
+
+```css
+element {
+  orientation: vertical;
+}
+```
+
+This will make the box `element` put `element-icon` and `element-text` in a vertical list.
 
 
 ### Calculation support in theme format.
@@ -49,6 +71,9 @@ window {
     width: calc(100% - 10px);
 }
 ```
+
+It supports: `-`, `+`, `/`, `*` and `%` operators and they should be surrounded by whitespace.
+
 
 ### Initial media support
 
