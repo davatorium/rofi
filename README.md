@@ -92,7 +92,7 @@ Drun mode features:
 
 ![SSH Launcher](https://davatorium.github.io/rofi/images/rofi/ssh-dialog.png)
 
-Quickly `ssh` into remote machines. Parses `~/.ssh/config` to find hosts.
+Quickly `ssh` into remote machines. Parses `~/.ssh/known_hosts` to find hosts.
 
 ## Script mode
 
