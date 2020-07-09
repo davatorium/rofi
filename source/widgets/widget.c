@@ -94,11 +94,10 @@ void widget_set_state ( widget *widget, const char *state )
         // Update border.
         widget->border        = rofi_theme_get_padding ( widget, "border", widget->def_border );
         widget->border_radius = rofi_theme_get_padding ( widget, "border-radius", widget->def_border_radius );
-        if ( widget->set_state  ) {
+        if ( widget->set_state ) {
             widget->set_state ( widget, state );
         }
         widget_queue_redraw ( widget );
-
     }
 }
 
@@ -330,15 +329,15 @@ void widget_draw ( widget *widget, cairo_t *d )
 
 void widget_free ( widget *wid )
 {
-    if ( wid ) {
-        if ( wid->name ) {
-            g_free ( wid->name );
-        }
-        if ( wid->free ) {
-            wid->free ( wid );
-        }
-        return;
-    }
+  if ( wid == NULL ) {
+    return;
+  }
+  if ( wid->name ) {
+    g_free ( wid->name );
+  }
+  if ( wid->free ) {
+    wid->free ( wid );
+  }
 }
 
 int widget_get_height ( widget *widget )
@@ -397,20 +396,24 @@ void widget_update ( widget *widget )
 
 void widget_queue_redraw ( widget *wid )
 {
-    if ( wid ) {
-        widget *iter = wid;
-        // Find toplevel widget.
-        while ( iter->parent != NULL ) {
-            iter->need_redraw = TRUE;
-            iter              = iter->parent;
-        }
-        iter->need_redraw = TRUE;
+    if ( wid == NULL ) {
+      return ;
     }
+    widget *iter = wid;
+    // Find toplevel widget.
+    while ( iter->parent != NULL ) {
+      iter->need_redraw = TRUE;
+      iter              = iter->parent;
+    }
+    iter->need_redraw = TRUE;
 }
 
 gboolean widget_need_redraw ( widget *wid )
 {
-    if ( wid && wid->enabled ) {
+    if ( wid == NULL ) {
+        return FALSE;
+    }
+    if ( wid->enabled ) {
         return wid->need_redraw;
     }
     return FALSE;
@@ -418,7 +421,7 @@ gboolean widget_need_redraw ( widget *wid )
 
 widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y )
 {
-    if ( !wid ) {
+    if ( wid == NULL ) {
         return NULL;
     }
 
@@ -436,7 +439,10 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y 
 
 WidgetTriggerActionResult widget_trigger_action ( widget *wid, guint action, gint x, gint y )
 {
-    if ( wid && wid->trigger_action ) {
+    if ( wid == NULL ) {
+        return FALSE;
+    }
+    if ( wid->trigger_action ) {
         return wid->trigger_action ( wid, action, x, y, wid->trigger_action_cb_data );
     }
     return FALSE;
@@ -453,7 +459,10 @@ void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb c
 
 gboolean widget_motion_notify ( widget *wid, gint x, gint y )
 {
-    if ( wid && wid->motion_notify ) {
+    if ( wid == NULL ) {
+        return FALSE;
+    }
+    if ( wid->motion_notify ) {
         wid->motion_notify ( wid, x, y );
     }
 
@@ -553,23 +562,23 @@ int widget_get_desired_width ( widget *wid )
 
 int widget_get_absolute_xpos ( widget *wid )
 {
-    int retv = 0;
-    if ( wid ) {
-        retv += wid->x;
-        if ( wid->parent ) {
-            retv += widget_get_absolute_xpos ( wid->parent );
-        }
+    if ( wid == NULL ) {
+      return 0;
+    }
+    int retv = wid->x;
+    if ( wid->parent ) {
+      retv += widget_get_absolute_xpos ( wid->parent );
     }
     return retv;
 }
 int widget_get_absolute_ypos ( widget *wid )
 {
-    int retv = 0;
-    if ( wid ) {
-        retv += wid->y;
-        if ( wid->parent ) {
-            retv += widget_get_absolute_ypos ( wid->parent );
-        }
+    if ( wid == NULL ) {
+      return 0;
+    }
+    int retv = wid->y;
+    if ( wid->parent ) {
+      retv += widget_get_absolute_ypos ( wid->parent );
     }
     return retv;
 }
