@@ -165,24 +165,19 @@ gboolean widget_enabled ( widget *widget )
     return widget->enabled;
 }
 
-void widget_enable ( widget *widget )
+void widget_set_enabled ( widget *widget, gboolean enabled )
 {
-    if ( widget != NULL && !widget->enabled ) {
-        widget->enabled = TRUE;
+    if ( widget == NULL ) {
+        return;
+    }
+    if ( widget->enabled != enabled ) {
+        widget->enabled = enabled;
         widget_update ( widget );
         widget_update ( widget->parent );
         widget_queue_redraw ( widget );
     }
 }
-void widget_disable ( widget *widget )
-{
-    if ( widget != NULL && widget->enabled ) {
-        widget->enabled = FALSE;
-        widget_update ( widget );
-        widget_update ( widget->parent );
-        widget_queue_redraw ( widget );
-    }
-}
+
 void widget_draw ( widget *widget, cairo_t *d )
 {
     if ( widget == NULL ) {

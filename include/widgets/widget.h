@@ -157,18 +157,33 @@ void widget_set_type ( widget *widget, WidgetType type );
  * @returns TRUE when widget is enabled.
  */
 gboolean widget_enabled ( widget *widget );
+
+/**
+ * @param widget Handle to widget
+ * @param enabled The new state
+ *
+ * Disable the widget.
+ */
+void widget_set_enabled ( widget *widget, gboolean enabled );
+
 /**
  * @param widget Handle to widget
  *
  * Disable the widget.
  */
-void widget_disable ( widget *widget );
+static inline
+void widget_disable ( widget *widget ) {
+    widget_set_enabled ( widget, FALSE );
+}
 /**
  * @param widget Handle to widget
  *
  * Enable the widget.
  */
-void widget_enable ( widget *widget );
+static inline
+void widget_enable ( widget *widget ) {
+    widget_set_enabled ( widget, TRUE );
+}
 
 /**
  * @param widget widget  Handle to the widget
