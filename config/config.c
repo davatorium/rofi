@@ -155,6 +155,8 @@ Settings config = {
     .plugin_path            = PLUGIN_PATH,
     .max_history_size       = 25,
     .combi_hide_mode_prefix = FALSE,
+    /**  Combi bang anywhere */
+    .combi_bang_anywhere        = FALSE,
 
     .matching_negate_char      = '-',
 
