@@ -105,13 +105,13 @@ For example, go to fullscreen mode on screens smaller then full HD:
 ```
 
 
-##  Log
+## List of Changes
 
 * Add `themes/` directory in the users rofi config directory to the theme search path. (#1001)
 * Split listview element into box widget holding icon and textbox. Supporting more dynamic themes. (#949)
 * Fix default theme.
 * Add -upgrade-config option.
-* Add ROFI_PLUGIN_PATH variable.
+* Add `ROFI_PLUGIN_PATH` variable.
 * Add check for running rofi inside a Script mode.
 * Remove gnome-terminal from rofi-sensible-terminal (#1074)
 * Set window title based on mode name. (#969)
@@ -139,7 +139,7 @@ For example, go to fullscreen mode on screens smaller then full HD:
 * [Script] Add delimiter option. (#1041)
 * [Script] Add environment variable indicating state.
 * [Script] Add extra matchign field (meta). (#1052)
-* [Script] Add info option, hidden field that gets passed to script via ROFI_INFO environment.
+* [Script] Add info option, hidden field that gets passed to script via `ROFI_INFO` environment.
 * [Script] Add no-custom option.
 * [Textbox] Add cursor blinking option.
 * [Textbox] Add placeholder. (#1020)
