@@ -1110,15 +1110,19 @@ int main ( int argc, char *argv[] )
     }
 
     rofi_view_workers_initialize ();
+    TICK_N ( "Workers initialize" );
     rofi_icon_fetcher_init ( );
+    TICK_N ( "Icon fetcher initialize" );
 
     // Create pid file
     int pfd = create_pid_file ( pidfile );
+    TICK_N ( "Pid file created" );
     if ( pfd < 0 ) {
         cleanup ();
         return EXIT_FAILURE;
     }
     textbox_setup ();
+    TICK_N ( "Text box setup" );
 
     if ( !display_late_setup () ) {
         g_warning ( "Failed to properly finish display setup" );
