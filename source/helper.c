@@ -160,7 +160,7 @@ static gchar *fuzzy_to_regex ( const char * input )
             g_string_append ( str, "(" );
         }
         else {
-            g_string_append ( str, ".*(" );
+            g_string_append ( str, ".*?(" );
         }
         if ( *iter == '\\' ) {
             g_string_append_c ( str, '\\' );
