@@ -57,6 +57,7 @@
 
 #define DRUN_CACHE_FILE            "rofi3.druncache"
 #define DRUN_DESKTOP_CACHE_FILE    "rofi-drun-desktop.cache"
+#define XDG_OPEN_COMMAND           "xdg-open"
 
 char *DRUN_GROUP_NAME = "Desktop Entry";
 
@@ -222,7 +223,40 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
 }
 static void launch_link_entry ( DRunModeEntry *e )
 {
-    g_debug ( "launch_link_entry: implementing launcher" );
+    if ( e->key_file == NULL ) {
+        GKeyFile *kf    = g_key_file_new ();
+        GError   *error = NULL;
+        gboolean res    = g_key_file_load_from_file ( kf, e->path, 0, &error );
+        if ( res ) {
+            e->key_file = kf;
+        }
+        else {
+            g_warning ( "[%s] [%s] Failed to parse desktop file because: %s.", e->app_id, e->path, error->message );
+            g_error_free ( error );
+            g_key_file_free ( kf );
+            return;
+        }
+    }
+
+    gchar *url = g_key_file_get_string ( e->key_file, e->action, "URL", NULL );
+    if ( url == NULL || strlen ( url ) == 0 ) {
+        g_warning ( "[%s] [%s] No URL found.", e->app_id, e->path );
+        g_free ( url );
+        return ;
+    }
+
+    gsize command_len = strlen( XDG_OPEN_COMMAND ) + strlen( url ) + 2; // space + terminator = 2
+    gchar *command = g_newa ( gchar, command_len );
+    g_snprintf( command, command_len, "%s %s", XDG_OPEN_COMMAND, url );
+    g_free ( url );
+
+    g_debug ( "Link launch command: |%s|", command );
+    if ( helper_execute_command ( NULL, command, FALSE, NULL ) ) {
+        char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
+        // Store it based on the unique identifiers (desktop_id).
+        history_set ( path, e->desktop_id );
+        g_free ( path );
+    }
 }
 static void exec_cmd_entry ( DRunModeEntry *e )
 {
