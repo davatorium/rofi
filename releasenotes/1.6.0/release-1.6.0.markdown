@@ -152,4 +152,6 @@ For example, go to fullscreen mode on screens smaller then full HD:
 * [Window] Add window thumbnail option.
 * [Window] Remove arbitrary # window limit. (#1047)
 * [Window] check buffer overflow.
+* [Build] Fix meson build with meson 0.55.
+* [Matching] Make Fuzzy matching non greedy.
 
