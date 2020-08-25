@@ -61,6 +61,15 @@
 char *DRUN_GROUP_NAME = "Desktop Entry";
 
 typedef struct _DRunModePrivateData DRunModePrivateData;
+
+typedef enum
+{
+    DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED = 0,
+    DRUN_DESKTOP_ENTRY_TYPE_APPLICATION,
+    DRUN_DESKTOP_ENTRY_TYPE_LINK,
+    DRUN_DESKTOP_ENTRY_TYPE_DIRECTORY,
+} DRunDesktopEntryType;
+
 /**
  * Store extra information about the entry.
  * Currently the executable and if it should run in terminal.
@@ -86,7 +95,7 @@ typedef struct
     int             icon_size;
     /* Surface holding the icon. */
     cairo_surface_t *icon;
-    /* Executable */
+    /* Executable - for Application entries only */
     char            *exec;
     /* Name of the Entry */
     char            *name;
@@ -104,6 +113,8 @@ typedef struct
     gint            sort_index;
 
     uint32_t        icon_fetch_uid;
+
+    DRunDesktopEntryType type;
 } DRunModeEntry;
 
 typedef struct
