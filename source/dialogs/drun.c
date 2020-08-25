@@ -220,6 +220,10 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
     // Continue replacement.
     return FALSE;
 }
+static void launch_link_entry ( DRunModeEntry *e )
+{
+    g_debug ( "launch_link_entry: implementing launcher" );
+}
 static void exec_cmd_entry ( DRunModeEntry *e )
 {
     GError *error = NULL;
@@ -311,6 +315,7 @@ static gboolean rofi_strv_contains ( const char * const *categories, const char 
  */
 static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename, const char *action )
 {
+    DRunDesktopEntryType desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED;
     int parse_action = ( config.drun_show_actions && action != DRUN_GROUP_NAME );
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
@@ -353,8 +358,12 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_key_file_free ( kf );
         return;
     }
-    if ( g_strcmp0 ( key, "Application" ) ) {
-        g_debug ( "[%s] [%s] Skipping desktop file: Not of type application (%s)", id, path, key );
+    if ( !g_strcmp0 ( key, "Application" ) ) {
+        desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_APPLICATION;
+    } else if ( !g_strcmp0 ( key, "Link" ) ) {
+        desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_LINK;
+    } else {
+        g_debug ( "[%s] [%s] Skipping desktop file: Not of type Application or Link (%s)", id, path, key );
         g_free ( key );
         g_key_file_free ( kf );
         return;
@@ -418,9 +427,17 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         return;
     }
+
     // We need Exec, don't support DBusActivatable
-    if ( !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
-        g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present.", id, path );
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION
+         && !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
+        g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present for type Application.", id, path );
+        g_key_file_free ( kf );
+        return;
+    }
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_LINK
+         && !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "URL", NULL ) ) {
+        g_debug ( "[%s] [%s] Unsupported desktop file: no 'URL' key present for type Link.", id, path );
         g_key_file_free ( kf );
         return;
     }
@@ -510,7 +527,12 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     }
     g_strfreev ( categories );
 
-    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
+    pd->entry_list[pd->cmd_list_length].type = desktop_entry_type;
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION ) {
+        pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
+    } else {
+        pd->entry_list[pd->cmd_list_length].exec = NULL;
+    }
 
     if ( matching_entry_fields[DRUN_MATCH_FIELD_COMMENT].enabled ) {
         pd->entry_list[pd->cmd_list_length].comment = g_key_file_get_locale_string ( kf,
@@ -964,7 +986,16 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK )  ) {
-        exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
+        switch ( rmpd->entry_list[selected_line].type ) {
+            case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
+                exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
+                break;
+            case DRUN_DESKTOP_ENTRY_TYPE_LINK:
+                launch_link_entry ( &( rmpd->entry_list[selected_line] ) );
+                break;
+            default:
+                g_assert_not_reached ();
+        }
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         retv = RELOAD_DIALOG;
@@ -1107,7 +1138,7 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
             }
             if ( matching_entry_fields[DRUN_MATCH_FIELD_EXEC].enabled ) {
                 // Match executable name.
-                if ( test == tokens[j]->invert  ) {
+                if ( test == tokens[j]->invert && rmpd->entry_list[index].exec ) {
                     test = helper_token_match ( ftokens, rmpd->entry_list[index].exec );
                 }
             }
