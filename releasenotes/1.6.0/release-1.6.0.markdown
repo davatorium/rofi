@@ -1,12 +1,10 @@
-# 1.6.0: 
+# 1.6.0: The Masked Launcher
 
 More then 2 years after the 1.5.0 release and a year after 1.5.4, we present rofi 1.6.0. This release
 is again focusses bug-fixing and improving the experience for themers and
 script developers. The script mode has been extended with many small requested tweaks to get it more
-on par with dmenu mode. For themers the listview has been made more flexible, allowing more fancy themes, 
-for examples mimicking Gnomes application launcher or albert. But also features as `calc()` has been
-added.
-
+on par with dmenu mode. For themers the listview has been made more flexible, allowing more fancy themes,
+for examples mimicking Gnomes application launcher or [albert](https://github.com/albertlauncher/albert).
 
 Big thanks to [SardemFF7](https://www.sardemff7.net/) and all the other
 contributors, without their support and contributions this release would not
@@ -16,7 +14,7 @@ have been possible.
 ## Script mode
 
 Rofi now communicates some information back to the script using environment variables.
-The most important one, is `ROFI_RETV`, this is equal to the return value in dmenu mode. 
+The most important one, is `ROFI_RETV`, this is equal to the return value in dmenu mode.
 It can have the following values:
 
  * **0**: Initial call of script.
@@ -33,6 +31,28 @@ Some of the new features are:
  * Pass extra information back on selection
  * Support for a custom delimiter
  * Support for dmenus no-custom option
+ * Detect if launched from rofi
+
+
+To test some of the features:
+
+```bash
+#!/usr/bin/env bash
+
+if [ -z "${ROFI_OUTSIDE}" ]
+then
+    echo "run this script in rofi".
+    exit
+fi
+
+echo -en "\x00no-custom\x1ftrue\n"
+echo -en "${ROFI_RETV}\x00icon\x1ffirefox\x1finfo\x1ftest\n"
+
+if [ -n "${ROFI_INFO}" ]
+then
+    echo "my info: ${ROFI_INFO} "
+fi
+```
 
 
 ## Theme
@@ -73,7 +93,7 @@ element {
 
 ### Calculation support in theme format.
 
-Rofi adds CSS like calculations in the CSS format for distances. 
+Rofi adds CSS like calculations in the CSS format for distances.
 You can now set the width of the window to the screen width minus a 10 pixels.
 
 ```css
