@@ -116,14 +116,16 @@ Settings config = {
     .tokenize        = TRUE,
     .matching        = "normal",
     .matching_method = MM_NORMAL,
-    /** Desktop entry fields to match*/
+
+    /** Desktop entries to match in drun */
     .drun_match_fields = "name,generic,exec,categories,keywords",
+    /** Only show entries in this category */
     .drun_categories   = NULL,
-    /**  Desktop format display */
-    .drun_display_format       = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]",
     /** Desktop entry show actions */
     .drun_show_actions         = FALSE,
-    /** Desktop entry show actions */
+    /** Desktop format display */
+    .drun_display_format       = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]",
+
     /** Window fields to match in window mode*/
     .window_match_fields       = "all",
     /** Monitor */
@@ -160,8 +162,11 @@ Settings config = {
 
     .cache_dir                 = NULL,
     .window_thumbnail          = FALSE,
+
+    /** drun cache */
     .drun_use_desktop_cache    = FALSE,
     .drun_reload_desktop_cache = FALSE,
+
     /** Benchmarks */
     .benchmark_ui              = FALSE
 };
