@@ -119,14 +119,18 @@ typedef struct
     SortingMethod  sorting_method_enum;
     /** Sorting method. */
     char           * sorting_method;
+
     /** Desktop entries to match in drun */
     char           * drun_match_fields;
     /** Only show entries in this category */
     char           * drun_categories;
     /** Desktop entry show actions */
     unsigned int   drun_show_actions;
-    /** Desktop entry show */
+    /** Desktop format display */
     char           * drun_display_format;
+    /** Desktop Link launch command */
+    char           * drun_url_launcher;
+
     /** Search case sensitivity */
     unsigned int   case_sensitive;
     /** Cycle through in the element list */

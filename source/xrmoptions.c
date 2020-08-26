@@ -135,13 +135,15 @@ static XrmOption xrmOptions[] = {
 
     { xrm_String,  "drun-match-fields",         { .str   = &config.drun_match_fields                    }, NULL,
       "Desktop entry fields to match in drun", CONFIG_DEFAULT },
-
     { xrm_String,  "drun-categories",           { .str   = &config.drun_categories                      }, NULL,
       "Only show Desktop entry from these categories", CONFIG_DEFAULT },
     { xrm_Boolean, "drun-show-actions",         { .num   = &config.drun_show_actions                    }, NULL,
       "Desktop entry show actions.", CONFIG_DEFAULT },
     { xrm_String,  "drun-display-format",       { .str   = &config.drun_display_format                  }, NULL,
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
+    { xrm_String,  "drun-url-launcher",         { .str   = &config.drun_url_launcher                    }, NULL,
+      "Command to open an Desktop Entry that is a Link.", CONFIG_DEFAULT },
+
     { xrm_Boolean, "disable-history",           { .num   = &config.disable_history                      }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
     { xrm_String,  "ignored-prefixes",          { .str   = &config.ignored_prefixes                     }, NULL,

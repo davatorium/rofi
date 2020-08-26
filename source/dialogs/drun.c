@@ -61,6 +61,15 @@
 char *DRUN_GROUP_NAME = "Desktop Entry";
 
 typedef struct _DRunModePrivateData DRunModePrivateData;
+
+typedef enum
+{
+    DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED = 0,
+    DRUN_DESKTOP_ENTRY_TYPE_APPLICATION,
+    DRUN_DESKTOP_ENTRY_TYPE_LINK,
+    DRUN_DESKTOP_ENTRY_TYPE_DIRECTORY,
+} DRunDesktopEntryType;
+
 /**
  * Store extra information about the entry.
  * Currently the executable and if it should run in terminal.
@@ -86,7 +95,7 @@ typedef struct
     int             icon_size;
     /* Surface holding the icon. */
     cairo_surface_t *icon;
-    /* Executable */
+    /* Executable - for Application entries only */
     char            *exec;
     /* Name of the Entry */
     char            *name;
@@ -104,6 +113,8 @@ typedef struct
     gint            sort_index;
 
     uint32_t        icon_fetch_uid;
+
+    DRunDesktopEntryType type;
 } DRunModeEntry;
 
 typedef struct
@@ -209,6 +220,43 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
     // Continue replacement.
     return FALSE;
 }
+static void launch_link_entry ( DRunModeEntry *e )
+{
+    if ( e->key_file == NULL ) {
+        GKeyFile *kf    = g_key_file_new ();
+        GError   *error = NULL;
+        gboolean res    = g_key_file_load_from_file ( kf, e->path, 0, &error );
+        if ( res ) {
+            e->key_file = kf;
+        }
+        else {
+            g_warning ( "[%s] [%s] Failed to parse desktop file because: %s.", e->app_id, e->path, error->message );
+            g_error_free ( error );
+            g_key_file_free ( kf );
+            return;
+        }
+    }
+
+    gchar *url = g_key_file_get_string ( e->key_file, e->action, "URL", NULL );
+    if ( url == NULL || strlen ( url ) == 0 ) {
+        g_warning ( "[%s] [%s] No URL found.", e->app_id, e->path );
+        g_free ( url );
+        return ;
+    }
+
+    gsize command_len = strlen( config.drun_url_launcher ) + strlen( url ) + 2; // space + terminator = 2
+    gchar *command = g_newa ( gchar, command_len );
+    g_snprintf( command, command_len, "%s %s", config.drun_url_launcher, url );
+    g_free ( url );
+
+    g_debug ( "Link launch command: |%s|", command );
+    if ( helper_execute_command ( NULL, command, FALSE, NULL ) ) {
+        char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
+        // Store it based on the unique identifiers (desktop_id).
+        history_set ( path, e->desktop_id );
+        g_free ( path );
+    }
+}
 static void exec_cmd_entry ( DRunModeEntry *e )
 {
     GError *error = NULL;
@@ -300,6 +348,7 @@ static gboolean rofi_strv_contains ( const char * const *categories, const char 
  */
 static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename, const char *action )
 {
+    DRunDesktopEntryType desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED;
     int parse_action = ( config.drun_show_actions && action != DRUN_GROUP_NAME );
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
@@ -342,8 +391,12 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_key_file_free ( kf );
         return;
     }
-    if ( g_strcmp0 ( key, "Application" ) ) {
-        g_debug ( "[%s] [%s] Skipping desktop file: Not of type application (%s)", id, path, key );
+    if ( !g_strcmp0 ( key, "Application" ) ) {
+        desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_APPLICATION;
+    } else if ( !g_strcmp0 ( key, "Link" ) ) {
+        desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_LINK;
+    } else {
+        g_debug ( "[%s] [%s] Skipping desktop file: Not of type Application or Link (%s)", id, path, key );
         g_free ( key );
         g_key_file_free ( kf );
         return;
@@ -407,9 +460,17 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         return;
     }
+
     // We need Exec, don't support DBusActivatable
-    if ( !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
-        g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present.", id, path );
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION
+         && !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
+        g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present for type Application.", id, path );
+        g_key_file_free ( kf );
+        return;
+    }
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_LINK
+         && !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "URL", NULL ) ) {
+        g_debug ( "[%s] [%s] Unsupported desktop file: no 'URL' key present for type Link.", id, path );
         g_key_file_free ( kf );
         return;
     }
@@ -499,7 +560,12 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     }
     g_strfreev ( categories );
 
-    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
+    pd->entry_list[pd->cmd_list_length].type = desktop_entry_type;
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION ) {
+        pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
+    } else {
+        pd->entry_list[pd->cmd_list_length].exec = NULL;
+    }
 
     if ( matching_entry_fields[DRUN_MATCH_FIELD_COMMENT].enabled ) {
         pd->entry_list[pd->cmd_list_length].comment = g_key_file_get_locale_string ( kf,
@@ -953,7 +1019,16 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK )  ) {
-        exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
+        switch ( rmpd->entry_list[selected_line].type ) {
+            case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
+                exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
+                break;
+            case DRUN_DESKTOP_ENTRY_TYPE_LINK:
+                launch_link_entry ( &( rmpd->entry_list[selected_line] ) );
+                break;
+            default:
+                g_assert_not_reached ();
+        }
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         retv = RELOAD_DIALOG;
@@ -1096,7 +1171,7 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
             }
             if ( matching_entry_fields[DRUN_MATCH_FIELD_EXEC].enabled ) {
                 // Match executable name.
-                if ( test == tokens[j]->invert  ) {
+                if ( test == tokens[j]->invert && rmpd->entry_list[index].exec ) {
                     test = helper_token_match ( ftokens, rmpd->entry_list[index].exec );
                 }
             }
