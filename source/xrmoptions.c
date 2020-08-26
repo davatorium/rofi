@@ -141,6 +141,8 @@ static XrmOption xrmOptions[] = {
       "Desktop entry show actions.", CONFIG_DEFAULT },
     { xrm_String,  "drun-display-format",       { .str   = &config.drun_display_format                  }, NULL,
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
+    { xrm_String,  "drun-url-launcher",         { .str   = &config.drun_url_launcher                    }, NULL,
+      "Command to open an Desktop Entry that is a Link.", CONFIG_DEFAULT },
 
     { xrm_Boolean, "disable-history",           { .num   = &config.disable_history                      }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },

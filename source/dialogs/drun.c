@@ -57,7 +57,6 @@
 
 #define DRUN_CACHE_FILE            "rofi3.druncache"
 #define DRUN_DESKTOP_CACHE_FILE    "rofi-drun-desktop.cache"
-#define XDG_OPEN_COMMAND           "xdg-open"
 
 char *DRUN_GROUP_NAME = "Desktop Entry";
 
@@ -245,9 +244,9 @@ static void launch_link_entry ( DRunModeEntry *e )
         return ;
     }
 
-    gsize command_len = strlen( XDG_OPEN_COMMAND ) + strlen( url ) + 2; // space + terminator = 2
+    gsize command_len = strlen( config.drun_url_launcher ) + strlen( url ) + 2; // space + terminator = 2
     gchar *command = g_newa ( gchar, command_len );
-    g_snprintf( command, command_len, "%s %s", XDG_OPEN_COMMAND, url );
+    g_snprintf( command, command_len, "%s %s", config.drun_url_launcher, url );
     g_free ( url );
 
     g_debug ( "Link launch command: |%s|", command );

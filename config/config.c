@@ -125,6 +125,8 @@ Settings config = {
     .drun_show_actions         = FALSE,
     /** Desktop format display */
     .drun_display_format       = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]",
+    /** Desktop Link launch command */
+    .drun_url_launcher         = "xdg-open",
 
     /** Window fields to match in window mode*/
     .window_match_fields       = "all",

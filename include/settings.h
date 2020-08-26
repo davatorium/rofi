@@ -128,6 +128,8 @@ typedef struct
     unsigned int   drun_show_actions;
     /** Desktop format display */
     char           * drun_display_format;
+    /** Desktop Link launch command */
+    char           * drun_url_launcher;
 
     /** Search case sensitivity */
     unsigned int   case_sensitive;
