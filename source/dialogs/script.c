@@ -68,7 +68,7 @@ typedef struct
     char                   *message;
     char                   *prompt;
     gboolean               do_markup;
-	char 				   delim;
+    char                   delim;
     /** no custom */
     gboolean               no_custom;
 } ScriptModePrivateData;
@@ -80,10 +80,9 @@ void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *
 {
     gchar **extras = g_strsplit ( buffer, "\x1f", -1 );
     gchar **extra;
-    for ( extra = extras ; *extra != NULL && *(extra + 1) != NULL ; extra += 2 )
-    {
-        gchar *key = *extra;
-        gchar *value = *(extra + 1);
+    for ( extra = extras; *extra != NULL && *( extra + 1 ) != NULL; extra += 2 ) {
+        gchar *key   = *extra;
+        gchar *value = *( extra + 1 );
         if ( strcasecmp ( key, "icon" ) == 0 ) {
             entry->icon_name = value;
         }
@@ -95,14 +94,14 @@ void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *
         }
         else if ( strcasecmp ( key, "nonselectable" ) == 0 ) {
             entry->nonselectable = strcasecmp ( value, "true" ) == 0;
-            g_free(value);
+            g_free ( value );
         }
         else {
-            g_free(value);
+            g_free ( value );
         }
-        g_free(key);
+        g_free ( key );
     }
-    g_free(extras);
+    g_free ( extras );
 }
 
 /**
@@ -117,7 +116,7 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
         length_key++;
     }
 
-    if ( (length_key+1) < length ) {
+    if ( ( length_key + 1 ) < length ) {
         line[length_key] = '\0';
         char *value = line + length_key + 1;
         if ( strcasecmp ( line, "message" ) == 0 ) {
@@ -140,38 +139,37 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
         }
         else if ( strcasecmp ( line, "delim" ) == 0 ) {
             pd->delim = helper_parse_char ( value );
-        } else if ( strcasecmp ( line, "no-custom" ) == 0 ) {
-            pd->no_custom = ( strcasecmp ( value, "true") == 0 );
+        }
+        else if ( strcasecmp ( line, "no-custom" ) == 0 ) {
+            pd->no_custom = ( strcasecmp ( value, "true" ) == 0 );
         }
     }
 }
 
 static DmenuScriptEntry *execute_executor ( Mode *sw, char *arg, unsigned int *length, int value, DmenuScriptEntry *entry )
 {
-    ScriptModePrivateData *pd        = (ScriptModePrivateData *) sw->private_data;
-    int              fd     = -1;
-    GError           *error = NULL;
-    DmenuScriptEntry *retv  = NULL;
-    char             **argv = NULL;
-    int              argc   = 0;
+    ScriptModePrivateData *pd    = (ScriptModePrivateData *) sw->private_data;
+    int                   fd     = -1;
+    GError                *error = NULL;
+    DmenuScriptEntry      *retv  = NULL;
+    char                  **argv = NULL;
+    int                   argc   = 0;
     *length = 0;
-
 
     // Environment
     char ** env = g_get_environ ();
 
-    char *str_value = g_strdup_printf("%d", value);
-    env = g_environ_setenv ( env, "ROFI_RETV", str_value, TRUE);
+    char *str_value = g_strdup_printf ( "%d", value );
+    env = g_environ_setenv ( env, "ROFI_RETV", str_value, TRUE );
     g_free ( str_value );
 
-    str_value = g_strdup_printf("%d", (int) getpid());
-    env = g_environ_setenv ( env, "ROFI_OUTSIDE", str_value, TRUE);
+    str_value = g_strdup_printf ( "%d", (int) getpid () );
+    env       = g_environ_setenv ( env, "ROFI_OUTSIDE", str_value, TRUE );
     g_free ( str_value );
 
     if ( entry && entry->info ) {
-        env = g_environ_setenv ( env, "ROFI_INFO", entry->info, TRUE);
+        env = g_environ_setenv ( env, "ROFI_INFO", entry->info, TRUE );
     }
-
 
     if ( g_shell_parse_argv ( sw->ed, &argc, &argv, &error ) ) {
         argv           = g_realloc ( argv, ( argc + 2 ) * sizeof ( char* ) );
@@ -181,7 +179,7 @@ static DmenuScriptEntry *execute_executor ( Mode *sw, char *arg, unsigned int *l
     }
     g_strfreev ( env );
     if ( error != NULL ) {
-        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", (char*)sw->ed, error->message );
+        char *msg = g_strdup_printf ( "Failed to execute: '%s'\nError: '%s'", (char *) sw->ed, error->message );
         rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
@@ -249,7 +247,7 @@ static int script_mode_init ( Mode *sw )
 {
     if ( sw->private_data == NULL ) {
         ScriptModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
-		pd->delim        = '\n';
+        pd->delim        = '\n';
         sw->private_data = (void *) pd;
         pd->cmd_list     = execute_executor ( sw, NULL, &( pd->cmd_list_length ), 0, NULL );
     }
@@ -290,11 +288,13 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
         //retv = 1+( mretv & MENU_LOWER_MASK );
         script_mode_reset_highlight ( sw );
         if ( selected_line != UINT32_MAX ) {
-            new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length,10+( mretv & MENU_LOWER_MASK ), &(rmpd->cmd_list[selected_line]) );
-        } else {
+            new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), &( rmpd->cmd_list[selected_line] ) );
+        }
+        else {
             if ( rmpd->no_custom == FALSE ) {
-                new_list = execute_executor ( sw, *input, &new_length,10+( mretv & MENU_LOWER_MASK ), NULL );
-            } else {
+                new_list = execute_executor ( sw, *input, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), NULL );
+            }
+            else {
                 return RELOAD_DIALOG;
             }
         }
@@ -304,13 +304,14 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
             return RELOAD_DIALOG;
         }
         script_mode_reset_highlight ( sw );
-        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 1, &(rmpd->cmd_list[selected_line]) );
+        new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 1, &( rmpd->cmd_list[selected_line] ) );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         if ( rmpd->no_custom == FALSE ) {
             script_mode_reset_highlight ( sw );
-            new_list = execute_executor ( sw, *input, &new_length, 2 , NULL );
-        } else {
+            new_list = execute_executor ( sw, *input, &new_length, 2, NULL );
+        }
+        else {
             return RELOAD_DIALOG;
         }
     }

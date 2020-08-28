@@ -122,7 +122,7 @@ static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
     pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
     pd->cmd_list[pd->cmd_list_length].icon_name      = NULL;
     pd->cmd_list[pd->cmd_list_length].meta           = NULL;
-    pd->cmd_list[pd->cmd_list_length].info         = NULL;
+    pd->cmd_list[pd->cmd_list_length].info           = NULL;
     char *end = strchr ( data, '\0' );
     if ( end != NULL ) {
         data_len = end - data;
@@ -735,7 +735,6 @@ int dmenu_switcher_dialog ( void )
     }
     find_arg_str (  "-p", &( dmenu_mode.display_name ) );
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, menu_flags, dmenu_finalize );
-
 
     if ( find_arg ( "-keep-right" ) >= 0 ) {
         rofi_view_ellipsize_start ( state );

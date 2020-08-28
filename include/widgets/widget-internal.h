@@ -81,7 +81,7 @@ struct _widget
     int                         ( *get_desired_height )( struct _widget * );
     int                         ( *get_desired_width )( struct _widget * );
 
-    void                        ( *set_state ) ( struct _widget *, const char *);
+    void                        ( *set_state ) ( struct _widget *, const char * );
 
     /** widget find_mouse_target callback */
     widget_find_mouse_target_cb find_mouse_target;

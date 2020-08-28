@@ -155,11 +155,11 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
     CombiModePrivateData *pd = mode_get_private_data ( sw );
 
     if ( input[0][0] == '!' ) {
-        int     switcher = -1;
+        int  switcher = -1;
         // Implement strchrnul behaviour.
-        char    *eob     = g_utf8_strchr ( input[0], -1,' ' );
+        char *eob = g_utf8_strchr ( input[0], -1, ' ' );
         if ( eob == NULL ) {
-            eob = &(input[0][strlen(input[0])]);
+            eob = &( input[0][strlen ( input[0] )] );
         }
         ssize_t bang_len = g_utf8_pointer_to_offset ( input[0], eob ) - 1;
         if ( bang_len > 0 ) {
@@ -282,10 +282,10 @@ static char * combi_preprocess_input ( Mode *sw, const char *input )
     }
     if ( input != NULL && input[0] == '!' ) {
         // Implement strchrnul behaviour.
-        const char    *eob     = g_utf8_strchr ( input, -1, ' ' );
+        const char *eob = g_utf8_strchr ( input, -1, ' ' );
         if ( eob == NULL ) {
             // Set it to end.
-            eob = &(input[strlen(input)]);
+            eob = &( input[strlen ( input )] );
         }
         ssize_t bang_len = g_utf8_pointer_to_offset ( input, eob ) - 1;
         if ( bang_len > 0 ) {

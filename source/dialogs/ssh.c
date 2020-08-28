@@ -519,7 +519,7 @@ static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
         g_free ( path );
         for ( GList *iter = g_list_first ( pd->user_known_hosts ); iter; iter = g_list_next ( iter ) ) {
             char *path = rofi_expand_path ( (const char *) iter->data );
-            retv = read_known_hosts_file ( (const char*) path, retv, length );
+            retv = read_known_hosts_file ( (const char *) path, retv, length );
             g_free ( path );
         }
     }

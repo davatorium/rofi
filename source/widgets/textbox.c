@@ -914,7 +914,7 @@ double textbox_get_estimated_ch ( void )
 int textbox_get_estimated_height ( const textbox *tb, int eh )
 {
     int height = pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics );
-    return ceil(( eh * height ) / (double)PANGO_SCALE) + widget_padding_get_padding_height ( WIDGET ( tb ) );
+    return ceil ( ( eh * height ) / (double) PANGO_SCALE ) + widget_padding_get_padding_height ( WIDGET ( tb ) );
 }
 int textbox_get_desired_width ( widget *wid )
 {

@@ -118,9 +118,9 @@ Settings config = {
     .matching_method = MM_NORMAL,
 
     /** Desktop entries to match in drun */
-    .drun_match_fields = "name,generic,exec,categories,keywords",
+    .drun_match_fields         = "name,generic,exec,categories,keywords",
     /** Only show entries in this category */
-    .drun_categories   = NULL,
+    .drun_categories           = NULL,
     /** Desktop entry show actions */
     .drun_show_actions         = FALSE,
     /** Desktop format display */
@@ -162,8 +162,8 @@ Settings config = {
 
     .matching_negate_char      = '-',
 
-    .cache_dir                 = NULL,
-    .window_thumbnail          = FALSE,
+    .cache_dir        = NULL,
+    .window_thumbnail = FALSE,
 
     /** drun cache */
     .drun_use_desktop_cache    = FALSE,

@@ -92,27 +92,27 @@ typedef struct
     /* Icon size is used to indicate what size is requested by the gui.
      * secondary it indicates if the request for a lookup has been issued (0 not issued )
      */
-    int             icon_size;
+    int                  icon_size;
     /* Surface holding the icon. */
-    cairo_surface_t *icon;
+    cairo_surface_t      *icon;
     /* Executable - for Application entries only */
-    char            *exec;
+    char                 *exec;
     /* Name of the Entry */
-    char            *name;
+    char                 *name;
     /* Generic Name */
-    char            *generic_name;
+    char                 *generic_name;
     /* Categories */
-    char            **categories;
+    char                 **categories;
     /* Keywords */
-    char            **keywords;
+    char                 **keywords;
     /* Comments */
-    char            *comment;
+    char                 *comment;
 
-    GKeyFile        *key_file;
+    GKeyFile             *key_file;
 
-    gint            sort_index;
+    gint                 sort_index;
 
-    uint32_t        icon_fetch_uid;
+    uint32_t             icon_fetch_uid;
 
     DRunDesktopEntryType type;
 } DRunModeEntry;
@@ -193,7 +193,7 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
         case 'm':
             break;
         case '%':
-            g_string_append(res, "%");
+            g_string_append ( res, "%" );
             break;
         case 'k':
             if ( e->e->path ) {
@@ -241,12 +241,12 @@ static void launch_link_entry ( DRunModeEntry *e )
     if ( url == NULL || strlen ( url ) == 0 ) {
         g_warning ( "[%s] [%s] No URL found.", e->app_id, e->path );
         g_free ( url );
-        return ;
+        return;
     }
 
-    gsize command_len = strlen( config.drun_url_launcher ) + strlen( url ) + 2; // space + terminator = 2
-    gchar *command = g_newa ( gchar, command_len );
-    g_snprintf( command, command_len, "%s %s", config.drun_url_launcher, url );
+    gsize command_len = strlen ( config.drun_url_launcher ) + strlen ( url ) + 2; // space + terminator = 2
+    gchar *command    = g_newa ( gchar, command_len );
+    g_snprintf ( command, command_len, "%s %s", config.drun_url_launcher, url );
     g_free ( url );
 
     g_debug ( "Link launch command: |%s|", command );
@@ -349,7 +349,7 @@ static gboolean rofi_strv_contains ( const char * const *categories, const char 
 static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename, const char *action )
 {
     DRunDesktopEntryType desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED;
-    int parse_action = ( config.drun_show_actions && action != DRUN_GROUP_NAME );
+    int                  parse_action       = ( config.drun_show_actions && action != DRUN_GROUP_NAME );
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
     const ssize_t id_len = strlen ( path ) - strlen ( root );
@@ -393,9 +393,11 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     }
     if ( !g_strcmp0 ( key, "Application" ) ) {
         desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_APPLICATION;
-    } else if ( !g_strcmp0 ( key, "Link" ) ) {
+    }
+    else if ( !g_strcmp0 ( key, "Link" ) ) {
         desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_LINK;
-    } else {
+    }
+    else {
         g_debug ( "[%s] [%s] Skipping desktop file: Not of type Application or Link (%s)", id, path, key );
         g_free ( key );
         g_key_file_free ( kf );
@@ -499,7 +501,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     char **categories = NULL;
     if ( pd->show_categories ) {
         categories = g_key_file_get_locale_string_list ( kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL );
-        if (  !rofi_strv_contains ( (const char * const *) categories, (const char *const *) pd->show_categories ) ) {
+        if (  !rofi_strv_contains ( (const char * const *) categories, (const char * const *) pd->show_categories ) ) {
             g_strfreev ( categories );
             g_key_file_free ( kf );
             return;
@@ -563,7 +565,8 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     pd->entry_list[pd->cmd_list_length].type = desktop_entry_type;
     if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION ) {
         pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
-    } else {
+    }
+    else {
         pd->entry_list[pd->cmd_list_length].exec = NULL;
     }
 
@@ -1019,15 +1022,16 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         retv = ( mretv & MENU_LOWER_MASK );
     }
     else if ( ( mretv & MENU_OK )  ) {
-        switch ( rmpd->entry_list[selected_line].type ) {
-            case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
-                exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
-                break;
-            case DRUN_DESKTOP_ENTRY_TYPE_LINK:
-                launch_link_entry ( &( rmpd->entry_list[selected_line] ) );
-                break;
-            default:
-                g_assert_not_reached ();
+        switch ( rmpd->entry_list[selected_line].type )
+        {
+        case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
+            exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
+            break;
+        case DRUN_DESKTOP_ENTRY_TYPE_LINK:
+            launch_link_entry ( &( rmpd->entry_list[selected_line] ) );
+            break;
+        default:
+            g_assert_not_reached ();
         }
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {

@@ -231,7 +231,9 @@ static void hori_calculate_size ( box *b )
         int    left  = widget_padding_get_left ( WIDGET ( b ) );
         double rem   = rem_width - b->max_size;
         int    index = 0;
-        if ( rem < 0 ) rem = 0;
+        if ( rem < 0 ) {
+            rem = 0;
+        }
         for ( GList *iter = g_list_first ( b->children ); iter != NULL; iter = g_list_next ( iter ) ) {
             widget * child = (widget *) iter->data;
             if ( child->enabled == FALSE  ) {
@@ -332,7 +334,7 @@ static widget *box_find_mouse_target ( widget *wid, WidgetType type, gint x, gin
 
 static void box_set_state ( widget *wid, const char *state )
 {
-    for ( GList *iter = g_list_first ( ((box*)wid)->children ); iter != NULL; iter = g_list_next ( iter ) ) {
+    for ( GList *iter = g_list_first ( ( (box *) wid )->children ); iter != NULL; iter = g_list_next ( iter ) ) {
         widget * child = (widget *) iter->data;
         widget_set_state ( child, state );
     }

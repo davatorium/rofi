@@ -485,7 +485,7 @@ static gboolean __config_parser_set_property ( XrmOption *option, const Property
             return TRUE;
         }
         *( option->value.charc ) = ( p->value.c );
-        option->source  = CONFIG_FILE_THEME;
+        option->source           = CONFIG_FILE_THEME;
     }
     else {
         // TODO add type

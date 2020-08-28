@@ -45,10 +45,10 @@
 /**
  * Orientation of the listview
  */
-    /** Vertical (classical) list */
-#define  LISTVIEW ROFI_ORIENTATION_VERTICAL
-    /** Horizontal list. (barview) */
-#define BARVIEW  ROFI_ORIENTATION_HORIZONTAL
+/** Vertical (classical) list */
+#define  LISTVIEW    ROFI_ORIENTATION_VERTICAL
+/** Horizontal list. (barview) */
+#define BARVIEW      ROFI_ORIENTATION_HORIZONTAL
 
 /**
  * The moving direction of the selection, this (in barview) affects the scrolling.
@@ -69,7 +69,7 @@ typedef struct
 
 struct _listview
 {
-    widget   widget;
+    widget          widget;
 
     RofiOrientation type;
 
@@ -143,8 +143,8 @@ const char *const listview_theme_prop_names[][3] = {
 
 static void listview_set_state ( _listview_row r, TextBoxFontType tbft )
 {
-    widget *w = WIDGET(r.box);
-    TextBoxFontType t = tbft & STATE_MASK;
+    widget          *w = WIDGET ( r.box );
+    TextBoxFontType t  = tbft & STATE_MASK;
     if ( w == NULL ) {
         return;
     }
@@ -171,25 +171,25 @@ static void listview_add_widget ( listview *lv, _listview_row *row, widget *wid,
     if ( strcasecmp ( label, "element-icon" ) == 0 ) {
         if ( config.show_icons ) {
             row->icon = icon_create ( WIDGET ( wid ), "element-icon" );
-            box_add ( (box *)wid, WIDGET ( row->icon ), FALSE );
+            box_add ( (box *) wid, WIDGET ( row->icon ), FALSE );
         }
     }
     else if ( strcasecmp ( label, "element-text" ) == 0 ) {
         row->textbox = textbox_create ( WIDGET ( wid ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT | flags, NORMAL, "DDD", 0, 0 );
-        box_add ( (box *)wid, WIDGET ( row->textbox ), TRUE );
+        box_add ( (box *) wid, WIDGET ( row->textbox ), TRUE );
     }
     else if ( strcasecmp ( label, "element-index" ) == 0 ) {
         row->index = textbox_create ( WIDGET ( wid ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT, NORMAL, " ", 0, 0 );
-        box_add ( (box *)wid, WIDGET ( row->index ), FALSE );
-    } else {
+        box_add ( (box *) wid, WIDGET ( row->index ), FALSE );
+    }
+    else {
         widget *wid2 = (widget *) box_create ( wid, label, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *) wid, WIDGET ( wid2 ), TRUE );
-        GList *list = rofi_theme_get_list ( WIDGET ( wid2 ), "children", "" );
+        GList  *list = rofi_theme_get_list ( WIDGET ( wid2 ), "children", "" );
         for ( GList *iter = g_list_first ( list ); iter != NULL; iter = g_list_next ( iter ) ) {
-            listview_add_widget ( lv,row, wid2, (const char *)iter->data );
+            listview_add_widget ( lv, row, wid2, (const char *) iter->data );
         }
     }
-
 }
 
 static void listview_create_row ( listview *lv, _listview_row *row )
@@ -203,7 +203,7 @@ static void listview_create_row ( listview *lv, _listview_row *row )
     row->index   = NULL;
 
     for ( GList *iter = g_list_first ( list ); iter != NULL; iter = g_list_next ( iter ) ) {
-        listview_add_widget ( lv,row, WIDGET(row->box), (const char *)iter->data );
+        listview_add_widget ( lv, row, WIDGET ( row->box ), (const char *) iter->data );
     }
     g_list_free_full ( list, g_free );
 }
@@ -348,7 +348,7 @@ static void barview_draw ( widget *wid, cairo_t *draw )
             else {
                 for ( unsigned int i = 0; i < lv->cur_elements && width > 0 && i <= offset; i++ ) {
                     update_element ( lv, i, offset - i, TRUE );
-                     int twidth = widget_get_desired_width ( WIDGET ( lv->boxes[i].box ) );
+                    int twidth = widget_get_desired_width ( WIDGET ( lv->boxes[i].box ) );
                     if ( twidth >= width ) {
                         if ( !first ) {
                             break;
@@ -553,8 +553,8 @@ static void listview_resize ( widget *wid, short w, short h )
     lv->max_elements = lv->max_rows * lv->menu_columns;
 
     widget_move ( WIDGET ( lv->scrollbar ),
-            lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
-            widget_padding_get_top ( WIDGET ( lv ) ) );
+                  lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
+                  widget_padding_get_top ( WIDGET ( lv ) ) );
 
     widget_resize (  WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), height );
 
@@ -661,10 +661,13 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
     listview_create_row ( lv, &row );
     // FIXME: hack to scale hight correctly.
     if ( lv->eh > 1 && row.textbox ) {
-        char buff[lv->eh*2+1] ;
-        memset( buff, '\0', lv->eh*2+1);
-        for ( unsigned int i = 0; i < (lv->eh-1); i++) { buff[i*2] = 'a'; buff[i*2+1] ='\n'; };
-        textbox_text( row.textbox, buff);
+        char buff[lv->eh * 2 + 1];
+        memset ( buff, '\0', lv->eh * 2 + 1 );
+        for ( unsigned int i = 0; i < ( lv->eh - 1 ); i++ ) {
+            buff[i * 2] = 'a'; buff[i * 2 + 1] = '\n';
+        }
+        ;
+        textbox_text ( row.textbox, buff );
     }
     lv->element_height = widget_get_desired_height ( WIDGET ( row.box ) );
     widget_free ( WIDGET ( row.box ) );

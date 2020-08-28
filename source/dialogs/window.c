@@ -464,7 +464,7 @@ static const char * _window_name_list_entry  ( const char *str, uint32_t length,
         }
         offset++;
     }
-    if ( offset >=  length ){
+    if ( offset >= length ) {
         return invalid_desktop_name;
     }
     return &str[offset];

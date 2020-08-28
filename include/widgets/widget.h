@@ -172,7 +172,8 @@ void widget_set_enabled ( widget *widget, gboolean enabled );
  * Disable the widget.
  */
 static inline
-void widget_disable ( widget *widget ) {
+void widget_disable ( widget *widget )
+{
     widget_set_enabled ( widget, FALSE );
 }
 /**
@@ -181,7 +182,8 @@ void widget_disable ( widget *widget ) {
  * Enable the widget.
  */
 static inline
-void widget_enable ( widget *widget ) {
+void widget_enable ( widget *widget )
+{
     widget_set_enabled ( widget, TRUE );
 }
 
