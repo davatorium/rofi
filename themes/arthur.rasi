@@ -178,3 +178,10 @@
     border-color: @foreground;
 }
 
+error-message {
+    expand: true;
+    background-color: red;
+    border-color: darkred;
+    border: 2px;
+    padding: 1em;
+}
