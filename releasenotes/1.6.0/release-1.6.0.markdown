@@ -174,4 +174,4 @@ For example, go to fullscreen mode on screens smaller then full HD:
 * [Window] check buffer overflow.
 * [Build] Fix meson build with meson 0.55.
 * [Matching] Make Fuzzy matching non greedy.
-
+* [DRUN] Support Type=Link (#1166)
