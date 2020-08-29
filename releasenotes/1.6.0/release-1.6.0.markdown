@@ -90,6 +90,8 @@ element {
 
 ![Icons vertical](./icons2.png)
 
+This causes a breaking change for themes, to modify the highlighting, this should be set to `element-text`.
+Or inherited. `element-text { highlight: inherit; }'.
 
 ### Calculation support in theme format.
 
