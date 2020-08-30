@@ -139,10 +139,12 @@ For example, go to fullscreen mode on screens smaller then full HD:
 * Set window title based on mode name. (#969)
 * Subpixel rendering workaround. (#303)
 * Support character type in configuration {} block . (#1131)
-* Use XDG_CONFIG_DIRS (#1133)
+* Use `XDG_CONFIG_DIRS` (#1133)
 * [Box] Bug fix update propagation.
+* [Build] Fix meson build with meson 0.55.
 * [DMenu] Add `-keep-right` flag. (#1089)
 * [DMenu] Don't match markup when filtering. (#579,#1128)
+* [DRUN] Support Type=Link (#1166)
 * [DRun] Add % to escape variable.
 * [DRun] Add an optional cache for desktop files. (#1040)
 * [DRun] Add keywords as default match item. (#1061)
@@ -158,6 +160,7 @@ For example, go to fullscreen mode on screens smaller then full HD:
 * [Listview] Fix distribution of remaining space.
 * [Listview] Fix left-to-right scrolling. (#1028)
 * [Listview] Fix updating elements. (#1032)
+* [Matching] Make Fuzzy matching non greedy.
 * [Script] Add delimiter option. (#1041)
 * [Script] Add environment variable indicating state.
 * [Script] Add extra matchign field (meta). (#1052)
@@ -174,6 +177,3 @@ For example, go to fullscreen mode on screens smaller then full HD:
 * [Window] Add window thumbnail option.
 * [Window] Remove arbitrary # window limit. (#1047)
 * [Window] check buffer overflow.
-* [Build] Fix meson build with meson 0.55.
-* [Matching] Make Fuzzy matching non greedy.
-* [DRUN] Support Type=Link (#1166)
