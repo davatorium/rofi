@@ -555,12 +555,12 @@ int config_sanity_check ( void )
         }
         else if ( g_strcmp0 ( config.sorting_method, "levenshtein" ) == 0 ) {
             config.sorting_method_enum = SORT_NORMAL;
-        }
-        else if ( g_strcmp0 ( config.sorting_method, "fzf" ) == 0 ) {
-            config.sorting_method_enum = SORT_FZF;
-        }
-        else {
-            g_string_append_printf ( msg, "\t<b>config.sorting_method</b>=%s is not a valid sorting strategy.\nValid options are: normal or fzf.\n",
+        } else if ( g_strcmp0( config.sorting_method, "fuzzy" ) == 0 ||
+                    g_strcmp0( config.sorting_method, "fzf" ) == 0 ) {
+            // "fzf" was a misnomer. Keep it for a while for compatibility.
+            config.sorting_method_enum = SORT_FUZZY;
+        } else {
+            g_string_append_printf ( msg, "\t<b>config.sorting_method</b>=%s is not a valid sorting strategy.\nValid options are: normal or fuzzy.\n",
                                      config.sorting_method );
             found_error = 1;
         }

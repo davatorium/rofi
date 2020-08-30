@@ -605,7 +605,7 @@ static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data
                 glong slen  = g_utf8_strlen ( str, -1 );
                 switch ( config.sorting_method_enum )
                 {
-                case SORT_FZF:
+                case SORT_FUZZY:
                     t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( t->pattern, t->plen, str, slen );
                     break;
                 case SORT_NORMAL:
