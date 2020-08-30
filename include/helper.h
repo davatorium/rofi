@@ -238,6 +238,15 @@ gchar *rofi_escape_markup ( gchar *text );
  * @param pattern   The user input to match against.
  * @param plen      Pattern length.
  * @param str       The input to match against pattern.
+ *
+ * @returns whether the pattern is a case-insensitive subsequence of str.
+ */
+gboolean rofi_scorer_fuzzy_filter ( const char *pattern, glong plen, const char *str);
+
+/**
+ * @param pattern   The user input to match against.
+ * @param plen      Pattern length.
+ * @param str       The input to match against pattern.
  * @param slen      Length of str.
  *
  * FZF like fuzzy sorting algorithm.

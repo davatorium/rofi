@@ -808,6 +808,37 @@ enum CharClass
     NON_WORD
 };
 
+static inline char fast_tolower( char c ) {
+    return 'A' <= c && c <= 'Z' ? c - 'A' + 'a' : c;
+}
+
+gboolean rofi_scorer_fuzzy_filter( const char *pattern, glong plen,
+                                   const char *str) {
+    if ( plen == 0 )
+        return TRUE;
+    glong j = 0;
+    gboolean unicode = FALSE;
+
+    for (const char *s = str ; *s; s++ ) {
+        unicode |= (unsigned char)*s >= 0x80;
+        if ( fast_tolower( *s ) == fast_tolower( pattern[j] ) && ++j == plen )
+            return TRUE;
+    }
+    if ( unicode ) {
+        gunichar c, cc = g_unichar_tolower( g_utf8_get_char( pattern ) );
+        for ( ; ( c = g_utf8_get_char( str ) );
+              str = g_utf8_next_char( str ) ) {
+            if ( c == cc ) {
+                pattern = g_utf8_next_char( pattern );
+                cc = g_unichar_tolower( g_utf8_get_char( pattern ) );
+                if ( !cc )
+                    return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
 /**
  * @param c The character to determine class of
  *

@@ -594,28 +594,33 @@ static void rofi_view_call_thread ( gpointer data, gpointer user_data )
 static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data )
 {
     thread_state_view *t = (thread_state_view *) ts;
-    for ( unsigned int i = t->start; i < t->stop; i++ ) {
-        int match = mode_token_match ( t->state->sw, t->state->tokens, i );
-        // If each token was matched, add it to list.
-        if ( match ) {
-            t->state->line_map[t->start + t->count] = i;
-            if ( config.sort ) {
-                // This is inefficient, need to fix it.
-                char  * str = mode_get_completion ( t->state->sw, i );
-                glong slen  = g_utf8_strlen ( str, -1 );
-                switch ( config.sorting_method_enum )
-                {
-                case SORT_FUZZY:
-                    t->state->distance[i] = rofi_scorer_fuzzy_evaluate ( t->pattern, t->plen, str, slen );
-                    break;
-                case SORT_NORMAL:
-                default:
-                    t->state->distance[i] = levenshtein ( t->pattern, t->plen, str, slen );
-                    break;
-                }
-                g_free ( str );
+    if ( config.sort && config.sorting_method_enum == SORT_FUZZY ) {
+        for ( unsigned int i = t->start; i < t->stop; i++ ) {
+            char *str = mode_get_completion( t->state->sw, i );
+            if ( rofi_scorer_fuzzy_filter( t->pattern, t->plen, str ) ) {
+                t->state->line_map[t->start + t->count] = i;
+                t->count++;
+                t->state->distance[i] = rofi_scorer_fuzzy_evaluate(
+                    t->pattern, t->plen, str, g_utf8_strlen( str, -1 ) );
             }
-            t->count++;
+            g_free( str );
+        }
+    } else {
+        for ( unsigned int i = t->start; i < t->stop; i++ ) {
+            int match = mode_token_match( t->state->sw, t->state->tokens, i );
+            // If each token was matched, add it to list.
+            if ( match ) {
+                t->state->line_map[t->start + t->count] = i;
+                if ( config.sort ) {
+                    // This is inefficient, need to fix it.
+                    char *str = mode_get_completion( t->state->sw, i );
+                    glong slen = g_utf8_strlen( str, -1 );
+                    t->state->distance[i] =
+                        levenshtein( t->pattern, t->plen, str, slen );
+                    g_free( str );
+                }
+                t->count++;
+            }
         }
     }
     if ( t->acount != NULL  ) {
