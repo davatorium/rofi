@@ -123,8 +123,11 @@ static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
     pd->cmd_list[pd->cmd_list_length].icon_name      = NULL;
     pd->cmd_list[pd->cmd_list_length].meta           = NULL;
     pd->cmd_list[pd->cmd_list_length].info           = NULL;
-    char *end = strchr ( data, '\0' );
-    if ( end != NULL ) {
+    char *end = data;
+    while ( end < data + len && *end != '\0' ) {
+        end++;
+    }
+    if ( end != data + len ) {
         data_len = end - data;
         dmenuscript_parse_entry_extras ( NULL, &( pd->cmd_list[pd->cmd_list_length] ), end + 1, len - data_len );
     }
