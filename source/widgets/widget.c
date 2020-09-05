@@ -314,7 +314,7 @@ void widget_draw ( widget *widget, cairo_t *d )
                                 margin_left,
                                 margin_top,
                                 widget->w - margin_right,
-                                widget->h - margin_top,
+                                widget->h - margin_bottom,
                                 radius_out_tl,
                                 radius_out_tr,
                                 radius_out_br,
