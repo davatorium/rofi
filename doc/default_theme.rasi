@@ -75,6 +75,7 @@ element alternate.active {
 element-text {
     background-color: rgba ( 0, 0, 0, 0 % );
     text-color:       inherit;
+    highlight:        inherit;
 }
 element-icon {
     background-color: rgba ( 0, 0, 0, 0 % );
