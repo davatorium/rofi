@@ -701,6 +701,29 @@ The following properties are currently supported:
 
 Each element is a `box` called `element`. Each `element` can contain an `element-icon` and `element-text`.
 
+### listview text highlight:
+
+The `element-text` widget in the `listview` is the one used to show the text.
+On this widget set the `highlight` property (only place this property is used) to change
+the style of highlighting.
+The `highlight` property consist of the `text-style` property and a color.
+
+To disable highlighting:
+
+```css
+  element-text {
+    highlight: None;
+  }
+```
+
+To set to red underlined:
+
+```css
+  element-text {
+    highlight: underline red;
+  }
+```
+
 ## Layout
 
 The new format allows the layout of the **rofi** window to be tweaked extensively.

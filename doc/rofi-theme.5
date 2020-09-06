@@ -1011,6 +1011,41 @@ Do not reduce the number of columns shown when number of visible elements is not
 .PP
 Each element is a \fB\fCbox\fR called \fB\fCelement\fR\&. Each \fB\fCelement\fR can contain an \fB\fCelement\-icon\fR and \fB\fCelement\-text\fR\&.
 
+.SS listview text highlight:
+.PP
+The \fB\fCelement\-text\fR widget in the \fB\fClistview\fR is the one used to show the text.
+On this widget set the \fB\fChighlight\fR property (only place this property is used) to change
+the style of highlighting.
+The \fB\fChighlight\fR property consist of the \fB\fCtext\-style\fR property and a color.
+
+.PP
+To disable highlighting:
+
+.PP
+.RS
+
+.nf
+  element\-text {
+    highlight: None;
+  }
+
+.fi
+.RE
+
+.PP
+To set to red underlined:
+
+.PP
+.RS
+
+.nf
+  element\-text {
+    highlight: underline red;
+  }
+
+.fi
+.RE
+
 .SH Layout
 .PP
 The new format allows the layout of the \fBrofi\fP window to be tweaked extensively.
