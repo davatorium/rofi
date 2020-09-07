@@ -79,20 +79,18 @@ static void combi_mode_parse_switchers ( Mode *sw )
         if (  mode != NULL ) {
             pd->switchers[pd->num_switchers].disable = FALSE;
             pd->switchers[pd->num_switchers++].mode  = mode;
+            continue;
         }
-        else {
-            // If not build in, use custom switchers.
-            mode = script_switcher_parse_setup ( token );
-            if ( mode != NULL ) {
-                pd->switchers[pd->num_switchers].disable = FALSE;
-                pd->switchers[pd->num_switchers++].mode  = mode;
-            }
-            else {
-                // Report error, don't continue.
-                g_warning ( "Invalid script switcher: %s", token );
-                token = NULL;
-            }
+        // If not build in, use custom switchers.
+        mode = script_switcher_parse_setup ( token );
+        if ( mode != NULL ) {
+            pd->switchers[pd->num_switchers].disable = FALSE;
+            pd->switchers[pd->num_switchers++].mode  = mode;
+            continue;
         }
+        // Report error, don't continue.
+        g_warning ( "Invalid script switcher: %s", token );
+        token = NULL;
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
