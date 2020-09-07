@@ -155,11 +155,12 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
         }
         ssize_t bang_len = g_utf8_pointer_to_offset ( input[0], eob ) - 1;
         if ( bang_len > 0 ) {
-            for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
+            for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
                 const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
                 size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
                 if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( &input[0][1], mode_name, bang_len ) == 0 ) {
                     switcher = i;
+                    break;
                 }
             }
         }
