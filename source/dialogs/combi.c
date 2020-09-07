@@ -97,6 +97,18 @@ static void combi_mode_parse_switchers ( Mode *sw )
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
 }
+static unsigned int combi_mode_get_num_entries ( const Mode *sw )
+{
+    const CombiModePrivateData *pd    = (const CombiModePrivateData *) mode_get_private_data ( sw );
+    unsigned int               length = 0;
+    for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
+        unsigned int entries = mode_get_num_entries ( pd->switchers[i].mode );
+        pd->starts[i]  = length;
+        pd->lengths[i] = entries;
+        length        += entries;
+    }
+    return length;
+}
 
 static int combi_mode_init ( Mode *sw )
 {
@@ -112,28 +124,10 @@ static int combi_mode_init ( Mode *sw )
             }
         }
         if ( pd->cmd_list_length == 0 ) {
-            pd->cmd_list_length = 0;
-            for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-                unsigned int length = mode_get_num_entries ( pd->switchers[i].mode );
-                pd->starts[i]        = pd->cmd_list_length;
-                pd->lengths[i]       = length;
-                pd->cmd_list_length += length;
-            }
+            pd->cmd_list_length = combi_mode_get_num_entries ( sw );
         }
     }
     return TRUE;
-}
-static unsigned int combi_mode_get_num_entries ( const Mode *sw )
-{
-    const CombiModePrivateData *pd    = (const CombiModePrivateData *) mode_get_private_data ( sw );
-    unsigned int               length = 0;
-    for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-        unsigned int entries = mode_get_num_entries ( pd->switchers[i].mode );
-        pd->starts[i]  = length;
-        pd->lengths[i] = entries;
-        length        += entries;
-    }
-    return length;
 }
 static void combi_mode_destroy ( Mode *sw )
 {
