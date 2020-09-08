@@ -547,7 +547,7 @@ default: {w}  {c}   {t}
 
 `-window-command` *cmd*
 
-Set command to execute on selected window for a custom action.
+Set command to execute on selected window for a alt action (`-kb-accept-alt`).
 See *PATTERN*.
 
 Default: *"wmctrl -i -R {window}"*

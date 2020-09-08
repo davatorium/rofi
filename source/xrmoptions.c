@@ -127,7 +127,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "run-shell-command",         { .str   = &config.run_shell_command                    }, NULL,
       "Run command to execute that runs in shell", CONFIG_DEFAULT },
     { xrm_String,  "window-command",            { .str   = &config.window_command                       }, NULL,
-      "Command executed on accep-entry-custom for window modus", CONFIG_DEFAULT },
+      "Command to executed when -kb-accept-alt binding is hit on selected window ", CONFIG_DEFAULT },
     { xrm_String,  "window-match-fields",       { .str   = &config.window_match_fields                  }, NULL,
       "Window fields to match in window mode", CONFIG_DEFAULT },
     { xrm_String,  "icon-theme",                { .str   = &config.icon_theme                           }, NULL,
