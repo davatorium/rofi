@@ -575,14 +575,14 @@ static void dmenu_finalize ( RofiViewState *state )
                     rofi_view_set_overlay ( state, NULL );
                 }
             }
-            else if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line].entry != NULL ) {
+            else if ( ( mretv & ( MENU_OK | MENU_CUSTOM_COMMAND ) ) && cmd_list[pd->selected_line].entry != NULL ) {
                 if ( cmd_list[pd->selected_line].nonselectable == TRUE ) {
                     g_free ( input );
                     return;
                 }
                 dmenu_print_results ( pd, input );
                 retv = TRUE;
-                if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+                if ( ( mretv & MENU_CUSTOM_COMMAND ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
                 }
                 g_free ( input );
@@ -640,7 +640,7 @@ static void dmenu_finalize ( RofiViewState *state )
         retv = TRUE;
     }
     // Quick switch with entry selected.
-    else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+    else if ( ( mretv & MENU_CUSTOM_COMMAND ) ) {
         dmenu_print_results ( pd, input );
 
         restart = FALSE;

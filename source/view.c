@@ -1300,7 +1300,7 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
         if ( selected < state->filtered_lines ) {
             ( state->selected_line ) = state->line_map[selected];
         }
-        state->retv = MENU_QUICK_SWITCH | ( ( action - CUSTOM_1 ) & MENU_LOWER_MASK );
+        state->retv = MENU_CUSTOM_COMMAND | ( ( action - CUSTOM_1 ) & MENU_LOWER_MASK );
         state->quit = TRUE;
         break;
     }
