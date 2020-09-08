@@ -370,16 +370,7 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
 
     gboolean           run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
 
-    if ( mretv & MENU_NEXT ) {
-        retv = NEXT_DIALOG;
-    }
-    else if ( mretv & MENU_PREVIOUS ) {
-        retv = PREVIOUS_DIALOG;
-    }
-    else if ( mretv & MENU_QUICK_SWITCH ) {
-        retv = ( mretv & MENU_LOWER_MASK );
-    }
-    else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
+    if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
         exec_cmd ( rmpd->cmd_list[selected_line], run_in_term );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {

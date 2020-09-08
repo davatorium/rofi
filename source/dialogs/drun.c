@@ -1012,16 +1012,7 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     ModeMode            retv  = MODE_EXIT;
 
-    if ( mretv & MENU_NEXT ) {
-        retv = NEXT_DIALOG;
-    }
-    else if ( mretv & MENU_PREVIOUS ) {
-        retv = PREVIOUS_DIALOG;
-    }
-    else if ( mretv & MENU_QUICK_SWITCH ) {
-        retv = ( mretv & MENU_LOWER_MASK );
-    }
-    else if ( ( mretv & MENU_OK )  ) {
+    if ( ( mretv & MENU_OK )  ) {
         switch ( rmpd->entry_list[selected_line].type )
         {
         case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:

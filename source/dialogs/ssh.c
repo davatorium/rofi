@@ -593,16 +593,7 @@ static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned in
 {
     ModeMode           retv  = MODE_EXIT;
     SSHModePrivateData *rmpd = (SSHModePrivateData *) mode_get_private_data ( sw );
-    if ( mretv & MENU_NEXT ) {
-        retv = NEXT_DIALOG;
-    }
-    else if ( mretv & MENU_PREVIOUS ) {
-        retv = PREVIOUS_DIALOG;
-    }
-    else if ( mretv & MENU_QUICK_SWITCH ) {
-        retv = ( mretv & MENU_LOWER_MASK );
-    }
-    else if ( ( mretv & MENU_OK ) && rmpd->hosts_list[selected_line].hostname != NULL ) {
+    if ( ( mretv & MENU_OK ) && rmpd->hosts_list[selected_line].hostname != NULL ) {
         exec_ssh ( &( rmpd->hosts_list[selected_line] ) );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
