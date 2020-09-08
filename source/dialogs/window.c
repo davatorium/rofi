@@ -650,16 +650,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
 {
     ModeModePrivateData *rmpd = (ModeModePrivateData *) mode_get_private_data ( sw );
     ModeMode            retv  = MODE_EXIT;
-    if ( mretv & MENU_NEXT ) {
-        retv = NEXT_DIALOG;
-    }
-    else if ( mretv & MENU_PREVIOUS ) {
-        retv = PREVIOUS_DIALOG;
-    }
-    else if ( ( mretv & MENU_QUICK_SWITCH ) == MENU_QUICK_SWITCH ) {
-        retv = ( mretv & MENU_LOWER_MASK );
-    }
-    else if ( ( mretv & ( MENU_OK ) ) ) {
+    if ( ( mretv & ( MENU_OK ) ) ) {
         if ( mretv & MENU_CUSTOM_ACTION ) {
             act_on_window ( rmpd->ids->array[selected_line] );
         }

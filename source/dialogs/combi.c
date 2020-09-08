@@ -76,26 +76,36 @@ static void combi_mode_parse_switchers ( Mode *sw )
                                                    sizeof ( CombiMode ) * ( pd->num_switchers + 1 ) );
 
         Mode *mode = rofi_collect_modi_search ( token );
-        if (  mode ) {
+        if (  mode != NULL ) {
             pd->switchers[pd->num_switchers].disable = FALSE;
             pd->switchers[pd->num_switchers++].mode  = mode;
+            continue;
         }
-        else {
-            // If not build in, use custom switchers.
-            Mode *sw = script_switcher_parse_setup ( token );
-            if ( sw != NULL ) {
-                pd->switchers[pd->num_switchers].disable = FALSE;
-                pd->switchers[pd->num_switchers++].mode  = sw;
-            }
-            else {
-                // Report error, don't continue.
-                g_warning ( "Invalid script switcher: %s", token );
-                token = NULL;
-            }
+        // If not build in, use custom switchers.
+        mode = script_switcher_parse_setup ( token );
+        if ( mode != NULL ) {
+            pd->switchers[pd->num_switchers].disable = FALSE;
+            pd->switchers[pd->num_switchers++].mode  = mode;
+            continue;
         }
+        // Report error, don't continue.
+        g_warning ( "Invalid script switcher: %s", token );
+        token = NULL;
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
+}
+static unsigned int combi_mode_get_num_entries ( const Mode *sw )
+{
+    const CombiModePrivateData *pd    = (const CombiModePrivateData *) mode_get_private_data ( sw );
+    unsigned int               length = 0;
+    for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
+        unsigned int entries = mode_get_num_entries ( pd->switchers[i].mode );
+        pd->starts[i]  = length;
+        pd->lengths[i] = entries;
+        length        += entries;
+    }
+    return length;
 }
 
 static int combi_mode_init ( Mode *sw )
@@ -112,28 +122,10 @@ static int combi_mode_init ( Mode *sw )
             }
         }
         if ( pd->cmd_list_length == 0 ) {
-            pd->cmd_list_length = 0;
-            for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-                unsigned int length = mode_get_num_entries ( pd->switchers[i].mode );
-                pd->starts[i]        = pd->cmd_list_length;
-                pd->lengths[i]       = length;
-                pd->cmd_list_length += length;
-            }
+            pd->cmd_list_length = combi_mode_get_num_entries ( sw );
         }
     }
     return TRUE;
-}
-static unsigned int combi_mode_get_num_entries ( const Mode *sw )
-{
-    const CombiModePrivateData *pd    = (const CombiModePrivateData *) mode_get_private_data ( sw );
-    unsigned int               length = 0;
-    for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-        unsigned int entries = mode_get_num_entries ( pd->switchers[i].mode );
-        pd->starts[i]  = length;
-        pd->lengths[i] = entries;
-        length        += entries;
-    }
-    return length;
 }
 static void combi_mode_destroy ( Mode *sw )
 {
@@ -163,11 +155,12 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
         }
         ssize_t bang_len = g_utf8_pointer_to_offset ( input[0], eob ) - 1;
         if ( bang_len > 0 ) {
-            for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
+            for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
                 const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
                 size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
                 if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( &input[0][1], mode_name, bang_len ) == 0 ) {
                     switcher = i;
+                    break;
                 }
             }
         }
@@ -179,9 +172,6 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
             }
             return MODE_EXIT;
         }
-    }
-    if ( mretv & MENU_QUICK_SWITCH ) {
-        return mretv & MENU_LOWER_MASK;
     }
 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
