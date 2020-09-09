@@ -723,7 +723,7 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
 * Cache voodoo                            *
 *******************************************/
 
-#define CACHE_VERSION    1
+#define CACHE_VERSION    2
 static void drun_write_str ( FILE *fd, const char *str )
 {
     size_t l = ( str == NULL ? 0 : strlen ( str ) );
@@ -732,6 +732,17 @@ static void drun_write_str ( FILE *fd, const char *str )
     if ( l > 0 ) {
         // Also writeout terminating '\0'
         fwrite ( str, 1, l + 1, fd );
+    }
+}
+static void drun_write_integer ( FILE *fd, int32_t val )
+{
+    fwrite ( &val,sizeof(val), 1, fd );
+}
+static void drun_read_integer ( FILE *fd, int32_t *type )
+{
+    if ( fread ( type, sizeof ( int32_t), 1, fd ) != 1 ) {
+        g_warning ( "Failed to read entry, cache corrupt?" );
+        return;
     }
 }
 static void drun_read_string ( FILE *fd, char **str )
@@ -810,6 +821,7 @@ static void write_cache ( DRunModePrivateData *pd, const char *cache_file )
         drun_write_strv ( fd, entry->keywords );
 
         drun_write_str ( fd, entry->comment );
+        drun_write_integer ( fd, (int32_t)entry->type );
     }
 
     fclose ( fd );
@@ -842,21 +854,21 @@ static gboolean drun_read_cache ( DRunModePrivateData *pd, const char *cache_fil
         fclose ( fd );
         g_warning ( "Cache corrupt, ignoring." );
         TICK_N ( "DRUN Read CACHE: stop" );
-        return FALSE;
+        return TRUE;
     }
 
     if ( version != CACHE_VERSION ) {
         fclose ( fd );
         g_warning ( "Cache file wrong version, ignoring." );
         TICK_N ( "DRUN Read CACHE: stop" );
-        return FALSE;
+        return TRUE;
     }
 
     if ( fread ( &( pd->cmd_list_length ), sizeof ( pd->cmd_list_length ), 1, fd ) != 1 ) {
         fclose ( fd );
         g_warning ( "Cache corrupt, ignoring." );
         TICK_N ( "DRUN Read CACHE: stop" );
-        return FALSE;
+        return TRUE;
     }
     // set actual length to length;
     pd->cmd_list_length_actual = pd->cmd_list_length;
@@ -880,6 +892,9 @@ static gboolean drun_read_cache ( DRunModePrivateData *pd, const char *cache_fil
         drun_read_stringv ( fd, &( entry->keywords ) );
 
         drun_read_string ( fd, &( entry->comment ) );
+        int32_t type = 0;
+        drun_read_integer( fd, &( type ) );
+        entry->type = type;
     }
 
     fclose ( fd );
