@@ -121,7 +121,7 @@ height, monitor id, minimum acpect ratio or maximum acpect ratio.
 For example, go to fullscreen mode on screens smaller then full HD:
 
 ```
-@media (max-width: 1920px ) {
+@media (max-width: 1920 ) {
   window {
     fullscreen: true;
   }
