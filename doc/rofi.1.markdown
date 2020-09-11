@@ -932,7 +932,6 @@ Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run
 Same as the **run** launches, but the list is created from the installed desktop files. It automatically launches them
 in a terminal if specified in the Desktop File.
 Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
-Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) with custom input (no entry matching) will run the command in a terminal.
 
 ### ssh
 
