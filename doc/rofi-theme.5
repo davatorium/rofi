@@ -19,14 +19,10 @@ preferred.
 .SH Comments
 .PP
 C and C++ file comments are supported.
-
-.RS
 .IP \(bu 2
 Anything after  \fB\fC//\fR and before a newline is considered a comment.
 .IP \(bu 2
 Everything between \fB\fC/*\fR and \fB\fC*/\fR is a comment.
-
-.RE
 
 .PP
 Comments can be nested and the C comments can be inline.
@@ -246,8 +242,6 @@ When used, values with the wrong type that cannot be converted are ignored.
 
 .PP
 The current theme format supports different types:
-
-.RS
 .IP \(bu 2
 a string
 .IP \(bu 2
@@ -281,17 +275,11 @@ an environment variable
 .IP \(bu 2
 Inherit
 
-.RE
-
 .PP
 Some of these types are a combination of other types.
 
-.SH String
-.RS
-.IP \(bu 2
+.SH String.IP \(bu 2
 Format:  \fB\fC"[:print:]+"\fR
-
-.RE
 
 .PP
 A string is always surrounded by double quotes (\fB\fC"\fR). Between the quotes there can be any printable character.
@@ -311,12 +299,8 @@ font: "Awasome 12";
 .PP
 The string must be valid UTF\-8.
 
-.SH Integer
-.RS
-.IP \(bu 2
+.SH Integer.IP \(bu 2
 Format: \fB\fC[\-+]?[:digit:]+\fR
-
-.RE
 
 .PP
 An integer may contain any number.
@@ -333,12 +317,8 @@ lines: 12;
 .fi
 .RE
 
-.SH Real
-.RS
-.IP \(bu 2
+.SH Real.IP \(bu 2
 Format: \fB\fC[\-+]?[:digit:]+(\\.[:digit:]+)?\fR
-
-.RE
 
 .PP
 A real is an integer with an optional fraction.
@@ -358,12 +338,8 @@ real: 3.4;
 .PP
 The following is not valid: \fB\fC\&.3\fR, \fB\fC3.\fR or scientific notation: \fB\fC3.4e\-3\fR\&.
 
-.SH Boolean
-.RS
-.IP \(bu 2
+.SH Boolean.IP \(bu 2
 Format: \fB\fC(true|false)\fR
-
-.RE
 
 .PP
 Boolean value is either \fB\fCtrue\fR or \fB\fCfalse\fR\&. This is case\-\&sensitive.
@@ -383,8 +359,6 @@ dynamic: false;
 .SH Color
 .PP
 \fBrofi\fP supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
-
-.RS
 .IP \(bu 2
 Format: \fB\fC#{HEX}{3}\fR (rgb)
 .IP \(bu 2
@@ -406,15 +380,11 @@ Format: \fB\fCcmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {P
 .IP \(bu 2
 Format: \fB\fC{named\-color} [ / {PERCENTAGE} ]\fR
 
-.RE
-
 .PP
 The white\-space format proposed in CSS4 is also supported.
 
 .PP
 The different values are:
-
-.RS
 .IP \(bu 2
 \fB\fC{HEX}\fR is a hexadecimal number ('0\-9a\-f' case insensitive).
 .IP \(bu 2
@@ -443,8 +413,6 @@ PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red,
 Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen,
 SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen,transparent
 
-.RE
-
 .PP
 For example:
 
@@ -472,18 +440,12 @@ text\-color: Black;
 .fi
 .RE
 
-.SH Text style
-.RS
-.IP \(bu 2
+.SH Text style.IP \(bu 2
 Format: \fB\fC(bold|italic|underline|strikethrough|none)\fR
-
-.RE
 
 .PP
 Text style indicates how the highlighted text is emphasized. \fB\fCNone\fR indicates that no emphasis
 should be applied.
-
-.RS
 .IP \(bu 2
 \fB\fCbold\fR: make the text thicker then the surrounding text.
 .IP \(bu 2
@@ -495,8 +457,6 @@ should be applied.
 .IP \(bu 2
 \fB\fCsmall caps\fR: emphasise the text using capitalization.
 
-.RE
-
 .PP
 .RS
 
@@ -504,12 +464,8 @@ should be applied.
 For some reason \fB\fCsmall caps\fR does not work on some systems.
 .RE
 
-.SH Line style
-.RS
-.IP \(bu 2
+.SH Line style.IP \(bu 2
 Format: \fB\fC(dash|solid)\fR
-
-.RE
 
 .PP
 Indicates how a line should be drawn.
@@ -517,9 +473,7 @@ It currently supports:
  * \fB\fCdash\fR:  a dashed line, where the gap is the same width as the dash
  * \fB\fCsolid\fR: a solid line
 
-.SH Distance
-.RS
-.IP \(bu 2
+.SH Distance.IP \(bu 2
 Format: \fB\fC{Integer}px\fR
 .IP \(bu 2
 Format: \fB\fC{Real}em\fR
@@ -530,12 +484,8 @@ Format: \fB\fC{Real}%\fR
 .IP \(bu 2
 Format: \fB\fC{Integer}mm\fR
 
-.RE
-
 .PP
 A distance can be specified in 3 different units:
-
-.RS
 .IP \(bu 2
 \fB\fCpx\fR: Screen pixels.
 .IP \(bu 2
@@ -546,8 +496,6 @@ A distance can be specified in 3 different units:
 \fB\fCmm\fR: Actual size in millimeters (based on dpi).
 .IP \(bu 2
 \fB\fC%\fR:  Percentage of the \fBmonitor\fP size.
-
-.RE
 
 .PP
 Distances used in the horizontal direction use the monitor width. Distances in
@@ -582,8 +530,6 @@ width: calc( 100% \- 37px );
 
 .PP
 It supports the following operations:
-
-.RS
 .IP \(bu 2
 \fB\fC+\fR: Add
 .IP \(bu 2
@@ -595,14 +541,10 @@ It supports the following operations:
 .IP \(bu 2
 \fB\fC%\fR: Multiply
 
-.RE
-
 .PP
 It uses the C precedence ordering.
 
-.SH Padding
-.RS
-.IP \(bu 2
+.SH Padding.IP \(bu 2
 Format: \fB\fC{Integer}\fR
 .IP \(bu 2
 Format: \fB\fC{Distance}\fR
@@ -613,15 +555,11 @@ Format: \fB\fC{Distance} {Distance} {Distance}\fR
 .IP \(bu 2
 Format: \fB\fC{Distance} {Distance} {Distance} {Distance}\fR
 
-.RE
-
 .PP
 If no unit is specified, pixels are assumed.
 
 .PP
 The different number of fields in the formats are parsed like:
-
-.RS
 .IP \(bu 2
 1 field: \fB\fCall\fR
 .IP \(bu 2
@@ -631,11 +569,7 @@ The different number of fields in the formats are parsed like:
 .IP \(bu 2
 4 fields: \fB\fCtop\fR, \fB\fCright\fR, \fB\fCbottom\fR, \fB\fCleft\fR
 
-.RE
-
-.SH Border
-.RS
-.IP \(bu 2
+.SH Border.IP \(bu 2
 Format: \fB\fC{Integer}\fR
 .IP \(bu 2
 Format: \fB\fC{Distance}\fR
@@ -654,8 +588,6 @@ Format: \fB\fC{Distance} {Line style} {Distance} {Line style} {Distance} {Line s
 .IP \(bu 2
 Format: \fB\fC{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}\fR
 
-.RE
-
 .PP
 Borders are identical to padding, except that each distance field has a line
 style property.
@@ -670,12 +602,9 @@ When no unit is specified, pixels are assumed.
 .SH Position
 .PP
 Indicate a place on the window/monitor.
-
-.RS
 .IP \(bu 2
-
-.PP
 Format: \fB\fC(center|east|north|west|south|north east|north west|south west|south east)\fR
+
 .PP
 .RS
 
@@ -683,13 +612,11 @@ Format: \fB\fC(center|east|north|west|south|north east|north west|south west|sou
 
 north west   |    north    |  north east
 \-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
-  west   |   center    |  east
+      west   |   center    |  east
 \-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
 south west   |    south    |  south east
 
 .fi
-.RE
-
 .RE
 
 .SH Visibility
@@ -701,12 +628,8 @@ inputbar {
     enabled: false;
 }
 
-.SH Reference
-.RS
-.IP \(bu 2
+.SH Reference.IP \(bu 2
 Format: \fB\fC@{PROPERTY NAME}\fR
-
-.RE
 
 .PP
 A reference can point to another reference. Currently, the maximum number of redirects is 20.
@@ -740,33 +663,21 @@ window {
 .fi
 .RE
 
-.SH Orientation
-.RS
-.IP \(bu 2
+.SH Orientation.IP \(bu 2
 Format: \fB\fC(horizontal|vertical)\fR
-
-.RE
 
 .PP
 Specify the orientation of the widget.
 
-.SH List of keywords
-.RS
-.IP \(bu 2
+.SH List of keywords.IP \(bu 2
 Format: \fB\fC[ keyword, keyword ]\fR
-
-.RE
 
 .PP
 A list starts with a '[' and ends with a ']'. The entries in the list are comma\-separated.
 The \fB\fCkeyword\fR in the list refers to an widget name.
 
-.SH Environment variable
-.RS
-.IP \(bu 2
+.SH Environment variable.IP \(bu 2
 Format: \fB\fC${:alnum:}\fR
-
-.RE
 
 .PP
 This will parse the environment variable as the property value. (that then can be any of the above types).
@@ -783,12 +694,8 @@ The environment variable should be an alphanumeric string without white\-space.
 .fi
 .RE
 
-.SH Inherit
-.RS
-.IP \(bu 2
+.SH Inherit.IP \(bu 2
 Format: \fB\fCinherit\fR
-
-.RE
 
 .PP
 Inherits the property from its parent widget.
@@ -846,20 +753,14 @@ element selected {
 .SH Name
 .PP
 The current widgets available in \fBrofi\fP:
-
-.RS
 .IP \(bu 2
 \fB\fCwindow\fR
-
-.RS
 .IP \(bu 2
 \fB\fCoverlay\fR: the overlay widget.
 .IP \(bu 2
 \fB\fCmainbox\fR: The mainbox box.
 .IP \(bu 2
 \fB\fCinputbar\fR: The input bar box.
-
-.RS
 .IP \(bu 2
 \fB\fCbox\fR: the horizontal @box packing the widgets
 .IP \(bu 2
@@ -872,48 +773,26 @@ The current widgets available in \fBrofi\fP:
 \fB\fCnum\-rows\fR: Shows the total number of rows.
 .IP \(bu 2
 \fB\fCnum\-filtered\-rows\fR: Shows the total number of rows after filtering.
-
-.RE
 .IP \(bu 2
 \fB\fClistview\fR: The listview.
-
-.RS
 .IP \(bu 2
 \fB\fCscrollbar\fR: the listview scrollbar
 .IP \(bu 2
 \fB\fCelement\fR: a box in the listview holding the entries
-
-.RS
 .IP \(bu 2
 \fB\fCelement\-icon\fR: the widget in the listview's entry showing the (optional) icon
 .IP \(bu 2
 \fB\fCelement\-index\fR: the widget in the listview's entry keybindable index (1,2,3..0)
 .IP \(bu 2
 \fB\fCelement\-text\fR: the widget in the listview's entry showing the text.
-
-.RE
-
-.RE
 .IP \(bu 2
 \fB\fCmode\-switcher\fR: the main horizontal @box packing the buttons.
-
-.RS
 .IP \(bu 2
 \fB\fCbutton\fR: the buttons @textbox for each mode
-
-.RE
 .IP \(bu 2
 \fB\fCmessage\fR: The container holding the textbox.
-
-.RS
 .IP \(bu 2
 \fB\fCtextbox\fR: the message textbox
-
-.RE
-
-.RE
-
-.RE
 
 .PP
 Note that these path names match the default theme. Themes that provide a custom layout will have different
@@ -986,9 +865,7 @@ This allows the colors used for drawing the handle to be set independently.
 .PP
 The following properties are currently supported:
 
-.SS all widgets:
-.RS
-.IP \(bu 2
+.SS all widgets:.IP \(bu 2
 \fBenabled\fP:         enable/disable the widget
 .IP \(bu 2
 \fBpadding\fP:         padding
@@ -1009,11 +886,7 @@ Background color
 \fBborder\-color\fP:      color
 Color of the border
 
-.RE
-
-.SS window:
-.RS
-.IP \(bu 2
+.SS window:.IP \(bu 2
 
 .PP
 \fBfont\fP:            string
@@ -1057,11 +930,7 @@ The width of the window
 \fBy\-offset\fP:  distance
 The offset of the window to the anchor point, allowing you to push the window left/right/up/down
 
-.RE
-
-.SS scrollbar:
-.RS
-.IP \(bu 2
+.SS scrollbar:.IP \(bu 2
 \fBbackground\-color\fP:    color
 .IP \(bu 2
 \fBhandle\-width\fP:        distance
@@ -1070,22 +939,14 @@ The offset of the window to the anchor point, allowing you to push the window le
 .IP \(bu 2
 \fBborder\-color\fP:        color
 
-.RE
-
-.SS box:
-.RS
-.IP \(bu 2
+.SS box:.IP \(bu 2
 \fBorientation\fP:      orientation
     Set the direction the elements are packed.
 .IP \(bu 2
 \fBspacing\fP:         distance
     Distance between the packed elements.
 
-.RE
-
-.SS textbox:
-.RS
-.IP \(bu 2
+.SS textbox:.IP \(bu 2
 \fBbackground\-color\fP:  color
 .IP \(bu 2
 \fBborder\-color\fP:      the color used for the border around the widget.
@@ -1113,11 +974,7 @@ color is optional, multiple highlight styles can be added like: bold underline i
 .IP \(bu 2
 \fBblink\fP:             Enable/Disable blinking on an input textbox (Boolean).
 
-.RE
-
-.SS listview:
-.RS
-.IP \(bu 2
+.SS listview:.IP \(bu 2
 \fBcolumns\fP:         integer
 Number of columns to show (at least 1)
 .IP \(bu 2
@@ -1150,8 +1007,6 @@ Reverse the ordering (top down to bottom up).
 .IP \(bu 2
 \fBfixed\-columns\fP:    boolean
 Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.
-
-.RE
 
 .PP
 Each element is a \fB\fCbox\fR called \fB\fCelement\fR\&. Each \fB\fCelement\fR can contain an \fB\fCelement\-icon\fR and \fB\fCelement\-text\fR\&.
@@ -1279,8 +1134,6 @@ The layout of \fBrofi\fP can be tweaked by packing the 'fixed' widgets in a cust
 
 .PP
 The following widgets are fixed, as they provide core \fBrofi\fP functionality:
-
-.RS
 .IP \(bu 2
 prompt
 .IP \(bu 2
@@ -1300,13 +1153,9 @@ num\-rows
 .IP \(bu 2
 num\-filtered\-rows
 
-.RE
-
 .PP
 The following keywords are defined and can be used to automatically pack a subset of the widgets.
 These are used in the default theme as depicted in the figure above.
-
-.RS
 .IP \(bu 2
 mainbox
 Packs: \fB\fCinputbar, message, listview, mode\-switcher\fR
@@ -1314,15 +1163,11 @@ Packs: \fB\fCinputbar, message, listview, mode\-switcher\fR
 inputbar
 Packs: \fB\fCprompt,entry,case\-indicator\fR
 
-.RE
-
 .PP
 Any widget name starting with \fB\fCtextbox\fR is a textbox widget, others are box widgets and can pack other widgets.
 
 .PP
 There are several special widgets that can be used by prefixing the name of the widget:
-
-.RS
 .IP \(bu 2
 \fB\fCtextbox\fR:
 This is a textbox widget. The displayed string can be set with \fB\fCstr\fR\&.
@@ -1337,8 +1182,6 @@ The \fB\fCaction\fR can be set to:
 \fB\fCcustom\fR accept custom input.
 \fB\fCok|alternate\fR: accept entry and launch alternate action (for run launch in terminal).
 \fB\fCcustom|alternate\fR: accept custom input and launch alternate action.
-
-.RE
 
 .PP
 To specify children, set the \fB\fCchildren\fR
@@ -1430,8 +1273,6 @@ Just like CSS, \fBrofi\fP uses the box model for each widget.
 
 .PP
 Explanation of the different parts:
-
-.RS
 .IP \(bu 2
 Content \- The content of the widget.
 .IP \(bu 2
@@ -1443,8 +1284,6 @@ The border use the border\-color of the widget.
 .IP \(bu 2
 Margin \- Clears an area outside the border.
 The margin is transparent.
-
-.RE
 
 .PP
 The box model allows us to add a border around elements, and to define space between elements.
@@ -1561,7 +1400,7 @@ Parts of the theme can be conditionally loaded, like the CSS \fB\fC@media\fR opt
 .RS
 
 .nf
-@media ( min\-width: 120px ) {
+@media ( min\-width: 120 ) {
 
 }
 
@@ -1570,8 +1409,6 @@ Parts of the theme can be conditionally loaded, like the CSS \fB\fC@media\fR opt
 
 .PP
 It supports the following keys as constraint:
-
-.RS
 .IP \(bu 2
 \fB\fCmin\-width\fR:         load when width is bigger then value.
 .IP \(bu 2
@@ -1587,20 +1424,17 @@ It supports the following keys as constraint:
 .IP \(bu 2
 \fB\fCmonitor\-id\fR:        The monitor id, see rofi \-help for id's.
 
-.RE
+.PP
+@media takes an integer number or a fraction.
 
 .SH Multiple file handling
 .PP
 The rasi file format offers two methods of including other files.
 This can be used to modify existing themes, or have multiple variations on a theme.
-
-.RS
 .IP \(bu 2
 import:  Import and parse a second file.
 .IP \(bu 2
 theme:   Discard theme, and load file as a fresh theme.
-
-.RE
 
 .PP
 Syntax:
@@ -1620,8 +1454,6 @@ The specified file can either by \fIname\fP, \fIfilename\fP,\fIfull path\fP\&.
 
 .PP
 If a filename is provided, it will try to resolve it in the following order:
-
-.RS
 .IP \(bu 2
 \fB\fC${XDG\_CONFIG\_HOME}/rofi/themes/\fR
 .IP \(bu 2
@@ -1630,8 +1462,6 @@ If a filename is provided, it will try to resolve it in the following order:
 \fB\fC${XDG\_DATA\_HOME}/rofi/themes/\fR
 .IP \(bu 2
 \fB\fC${INSTALL PREFIX}/share/rofi/themes/\fR
-
-.RE
 
 .PP
 A name is resolved as a filename by appending the \fB\fC\&.rasi\fR extension.

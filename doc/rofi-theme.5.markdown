@@ -985,7 +985,7 @@ rofi -dump-theme
 Parts of the theme can be conditionally loaded, like the CSS `@media` option.
 
 ```
-@media ( min-width: 120px ) {
+@media ( min-width: 120 ) {
 
 }
 ```
@@ -999,6 +999,8 @@ It supports the following keys as constraint:
  * `min-aspect-ratio`   load when aspect ratio is over value.
  * `max-aspect_ratio`:  load when aspect ratio is under value.
  * `monitor-id`:        The monitor id, see rofi -help for id's.
+
+@media takes an integer number or a fraction.
 
 
 ## Multiple file handling
