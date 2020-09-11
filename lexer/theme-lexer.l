@@ -167,6 +167,7 @@ UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
+MEDIA_NAME [[:alpha:]-]+
 COLOR_NAME [[:alpha:]]+
 STRING     \"{UANYN}*\"
 CHAR       \'({ASCN}|\\\\|\\\'|\\0)\'
@@ -648,7 +649,7 @@ if ( queue == NULL ){
     BEGIN(MEDIA_CONTENT);
     return T_PARENT_LEFT;
 }
-<MEDIA_CONTENT>{WORD} {
+<MEDIA_CONTENT>{MEDIA_NAME} {
     yylval->sval = g_strdup(yytext);
     return T_STRING;
 }

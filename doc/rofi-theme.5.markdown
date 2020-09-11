@@ -997,11 +997,17 @@ It supports the following keys as constraint:
  * `min-height`:        load when height is bigger then value.
  * `max-height`:        load when height is smaller then value.
  * `min-aspect-ratio`   load when aspect ratio is over value.
- * `max-aspect_ratio`:  load when aspect ratio is under value.
+ * `max-aspect-ratio`:  load when aspect ratio is under value.
  * `monitor-id`:        The monitor id, see rofi -help for id's.
 
-@media takes an integer number or a fraction.
+@media takes an integer number or a fraction, for integer number `px` can be added.
 
+
+```
+@media ( min-width: 120 px ) {
+
+}
+```
 
 ## Multiple file handling
 

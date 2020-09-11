@@ -1420,12 +1420,23 @@ It supports the following keys as constraint:
 .IP \(bu 2
 \fB\fCmin\-aspect\-ratio\fR   load when aspect ratio is over value.
 .IP \(bu 2
-\fB\fCmax\-aspect\_ratio\fR:  load when aspect ratio is under value.
+\fB\fCmax\-aspect\-ratio\fR:  load when aspect ratio is under value.
 .IP \(bu 2
 \fB\fCmonitor\-id\fR:        The monitor id, see rofi \-help for id's.
 
 .PP
-@media takes an integer number or a fraction.
+@media takes an integer number or a fraction, for integer number \fB\fCpx\fR can be added.
+
+.PP
+.RS
+
+.nf
+@media ( min\-width: 120 px ) {
+
+}
+
+.fi
+.RE
 
 .SH Multiple file handling
 .PP
