@@ -244,7 +244,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_MEDIA_SEP                      "-"
 
 %type <theme>          t_entry_list
-%type <theme>           t_media_entry_list
 %type <list>           t_entry_name_path
 %type <list>           t_entry_name_path_selectors
 %type <property>       t_property
@@ -302,56 +301,6 @@ t_configuration_list:
 | t_configuration_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {};
 
 
-t_media_entry_list:
-t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE {
-    ThemeWidget *widget = $$ = g_slice_new0 ( ThemeWidget );
-    for ( GList *liter = g_list_first ( $2); liter; liter = g_list_next ( liter ) ) {
-        for ( GList *iter = g_list_first ( (GList*)liter->data ); widget && iter ; iter = g_list_next ( iter ) ) {
-            widget = rofi_theme_find_or_create_name ( widget, iter->data );
-        }
-        g_list_free_full ( (GList*)liter->data, g_free );
-        widget->set = TRUE;
-        rofi_theme_widget_add_properties ( widget, $4);
-    }
-    if ( $4 ) {
-        g_hash_table_destroy ( $4 );
-    }
-    g_list_free ( $2 );
-}
-| T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
-    ThemeWidget *widget = $$ = g_slice_new0( ThemeWidget ) ;
-    widget = rofi_theme_find_or_create_name ( widget, "*" );
-    widget->set = TRUE;
-    rofi_theme_widget_add_properties ( widget, $3);
-    if ( $3 ) {
-        g_hash_table_destroy ( $3 );
-    }
-}
-| t_media_entry_list T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
-    ThemeWidget *widget = $$ = $1 ;
-    widget = rofi_theme_find_or_create_name ( widget, "*" );
-    widget->set = TRUE;
-    rofi_theme_widget_add_properties ( widget, $4);
-    if ( $4 ) {
-        g_hash_table_destroy ( $4 );
-    }
-}
-| t_media_entry_list t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE {
-    ThemeWidget *widget = $$ = $1 ;
-    for ( GList *liter = g_list_first ( $3); liter; liter = g_list_next ( liter ) ) {
-        for ( GList *iter = g_list_first ( (GList*)liter->data ); widget && iter ; iter = g_list_next ( iter ) ) {
-            widget = rofi_theme_find_or_create_name ( widget, iter->data );
-        }
-        g_list_free_full ( (GList*)liter->data, g_free );
-        widget->set = TRUE;
-        rofi_theme_widget_add_properties ( widget, $5);
-    }
-    if ( $5 ) {
-        g_hash_table_destroy ( $5 );
-    }
-    g_list_free ( $3 );
-};
-
 /**
  * Small dummy object to make the prefix optional.
  */
@@ -386,7 +335,7 @@ t_entry_list:
         g_hash_table_destroy ( $4 );
     }
 }
-| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
+| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %d )",$4, $6);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
     widget->set = TRUE;
@@ -399,7 +348,7 @@ t_entry_list:
     }
     g_free ( name );
 }
-| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
+| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %f )",$4, $6);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
     widget->set = TRUE;
@@ -412,7 +361,7 @@ t_entry_list:
     }
     g_free ( name );
 }
-| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
+| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %d px )",$4, $6);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
     widget->set = TRUE;

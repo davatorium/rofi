@@ -992,9 +992,9 @@ Parts of the theme can be conditionally loaded, like the CSS `@media` option.
 
 It supports the following keys as constraint:
 
- * `min-width`:         load when width is bigger then value.
+ * `min-width`:         load when width is bigger or equal then value.
  * `max-width`:         load when width is smaller then value.
- * `min-height`:        load when height is bigger then value.
+ * `min-height`:        load when height is bigger or equal then value.
  * `max-height`:        load when height is smaller then value.
  * `min-aspect-ratio`   load when aspect ratio is over value.
  * `max-aspect-ratio`:  load when aspect ratio is under value.
