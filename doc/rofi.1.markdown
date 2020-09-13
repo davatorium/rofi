@@ -921,6 +921,8 @@ Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run a command on the window.
 (See option `window-command` );
 
+If there is no match, it will try to launch the input.
+
 ### run
 
 Shows a list of executables in `$PATH` and can launch them (optional in a terminal).
@@ -932,6 +934,7 @@ Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run
 Same as the **run** launches, but the list is created from the installed desktop files. It automatically launches them
 in a terminal if specified in the Desktop File.
 Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
+Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run the command in a terminal.
 
 ### ssh
 
@@ -954,6 +957,8 @@ All modi that match the bang as a prefix are included.
 For example, say you have specified `-combi-modi run,window,windowcd`. If your
 query begins with the bang `!w`, only results from the `window` and `windowcd`
 modi are shown, even if the rest of the input text would match results from `run`.
+
+If no match, the input is handled by the first combined modi.
 
 ## FAQ
 
