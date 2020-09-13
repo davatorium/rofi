@@ -187,13 +187,23 @@ void rofi_view_free ( RofiViewState *state );
 RofiViewState * rofi_view_get_active ( void );
 
 /**
- * @param state the new active view handle, NULL to clear.
+ * @param state the new active view handle.
  *
- * Set the current active view Handle.
+ * Set the current active view Handle, If NULL passed a queued  view is popped
+ * from stack.
  *
  */
+
 void rofi_view_set_active ( RofiViewState *state );
 
+/**
+ * @param state remove view handle.
+ *
+ * remove state handle from queue, if current view, pop view from
+ * stack.
+ *
+ */
+void rofi_view_remove_active ( RofiViewState *state );
 /**
  * @param msg The error message to show.
  * @param markup The error message uses pango markup.
@@ -265,6 +275,7 @@ void rofi_view_clear_input ( RofiViewState *state );
  * TODO: Internal call to view exposed.
  */
 void __create_window ( MenuFlags menu_flags );
+
 /**
  * Get the handle of the main window.
  *
