@@ -464,62 +464,73 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
     putchar ( '\n' );
 }
 
-static void rofi_theme_print_index ( ThemeWidget *widget )
+static void rofi_theme_print_index ( ThemeWidget *widget, int index )
 {
     GHashTableIter iter;
     gpointer       key, value;
-    if ( widget->properties ) {
-        int         index = 0;
-        GList       *list = NULL;
-        ThemeWidget *w    = widget;
-        while ( w ) {
-            if ( g_strcmp0 ( w->name, "Root" ) == 0 ) {
-                break;
-            }
-            list = g_list_prepend ( list, w->name );
-            w    = w->parent;
+
+    if ( widget->media ) {
+        printf("%s {\n", widget->name );
+        for ( unsigned int i = 0; i < widget->num_widgets; i++ ) {
+            rofi_theme_print_index ( widget->widgets[i], index+4 );
         }
-        if ( g_list_length ( list ) > 0 ) {
-            index = 4;
-            for ( GList *iter = g_list_first ( list ); iter != NULL; iter = g_list_next ( iter ) ) {
-                char *name = (char *) iter->data;
-                fputs ( name, stdout );
-                if ( iter->prev == NULL && iter->next ) {
-                    putchar ( ' ' );
+        printf("}\n");
+    } else {
+        if ( widget->properties ) {
+            GList       *list = NULL;
+            ThemeWidget *w    = widget;
+            while ( w ) {
+                if ( g_strcmp0 ( w->name, "Root" ) == 0 ) {
+                    break;
                 }
-                else if ( iter->next ) {
-                    putchar ( '.' );
+                if ( w->media ) {
+                    break;
                 }
+                list = g_list_prepend ( list, w->name );
+                w    = w->parent;
             }
-            printf ( " {\n" );
+            if ( g_list_length ( list ) > 0 ) {
+                printf("%*s", index, "");
+                for ( GList *iter = g_list_first ( list ); iter != NULL; iter = g_list_next ( iter ) ) {
+                    char *name = (char *) iter->data;
+                    fputs ( name, stdout );
+                    if ( iter->prev == NULL && iter->next ) {
+                        putchar ( ' ' );
+                    }
+                    else if ( iter->next ) {
+                        putchar ( '.' );
+                    }
+                }
+                printf ( " {\n" );
+            }
+            else {
+                printf ( "%*s* {\n", index, "" );
+            }
+            size_t property_name_length = 0;
+            g_hash_table_iter_init ( &iter, widget->properties );
+            while ( g_hash_table_iter_next ( &iter, &key, &value ) ) {
+                Property *p = (Property *) value;
+                property_name_length = MAX ( strlen ( p->name ), property_name_length );
+            }
+            g_hash_table_iter_init ( &iter, widget->properties );
+            while ( g_hash_table_iter_next ( &iter, &key, &value ) ) {
+                Property *p = (Property *) value;
+                rofi_theme_print_property_index ( property_name_length, index+4, p );
+            }
+            printf ( "%*s}\n", index, "" );
+            g_list_free ( list );
         }
-        else {
-            index = 4;
-            printf ( "* {\n" );
+        for ( unsigned int i = 0; i < widget->num_widgets; i++ ) {
+            rofi_theme_print_index ( widget->widgets[i], index );
         }
-        size_t property_name_length = 0;
-        g_hash_table_iter_init ( &iter, widget->properties );
-        while ( g_hash_table_iter_next ( &iter, &key, &value ) ) {
-            Property *p = (Property *) value;
-            property_name_length = MAX ( strlen ( p->name ), property_name_length );
-        }
-        g_hash_table_iter_init ( &iter, widget->properties );
-        while ( g_hash_table_iter_next ( &iter, &key, &value ) ) {
-            Property *p = (Property *) value;
-            rofi_theme_print_property_index ( property_name_length, index, p );
-        }
-        printf ( "}\n" );
-        g_list_free ( list );
-    }
-    for ( unsigned int i = 0; i < widget->num_widgets; i++ ) {
-        rofi_theme_print_index ( widget->widgets[i] );
     }
 }
+
 void rofi_theme_print ( ThemeWidget *widget )
 {
     if ( widget != NULL ) {
         printf ( "/**\n * rofi -dump-theme output.\n * Rofi version: %s\n **/\n", PACKAGE_VERSION );
-        rofi_theme_print_index ( widget );
+        rofi_theme_print_index ( widget, 0 );
     }
 }
 
