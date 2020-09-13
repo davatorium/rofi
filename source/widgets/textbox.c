@@ -55,16 +55,8 @@ static PangoContext     *p_context = NULL;
 /** The pango font metrics */
 static PangoFontMetrics *p_metrics = NULL;
 
-/** Cache to hold font descriptions. This it to avoid having to lookup each time. */
-typedef struct TBFontConfig
-{
-    /** Font description */
-    PangoFontDescription *pfd;
-    /** Font metrics */
-    PangoFontMetrics     *metrics;
-    /** height */
-    double               height;
-}TBFontConfig;
+/* Default tbfc */
+TBFontConfig *tbfc_default = NULL;
 
 /** HashMap of previously parsed font descriptions. */
 static GHashTable *tbfc_cache = NULL;
@@ -133,7 +125,7 @@ static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, 
 
 static void textbox_initialize_font ( textbox *tb )
 {
-    tb->metrics = p_metrics;
+    tb->tbfc = tbfc_default;
     const char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
     if ( font ) {
         TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
@@ -142,7 +134,13 @@ static void textbox_initialize_font ( textbox *tb )
             tbfc->pfd = pango_font_description_from_string ( font );
             if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
-                tbfc->height  = pango_font_metrics_get_ascent ( tbfc->metrics ) + pango_font_metrics_get_descent ( tbfc->metrics );
+
+                PangoLayout *layout = pango_layout_new(p_context );
+                pango_layout_set_text(layout,"aAjb", -1);
+                PangoRectangle rect;
+                pango_layout_get_pixel_extents(layout, NULL, &rect );
+                tbfc->height  = rect.y + rect.height;
+                g_object_unref ( layout);
 
                 // Cast away consts. (*yuck*) because table_insert does not know it is const.
                 g_hash_table_insert ( tbfc_cache, (char *) font, tbfc );
@@ -156,7 +154,7 @@ static void textbox_initialize_font ( textbox *tb )
         if ( tbfc ) {
             // Update for used font.
             pango_layout_set_font_description ( tb->layout, tbfc->pfd );
-            tb->metrics = tbfc->metrics;
+            tb->tbfc = tbfc;
         }
     }
 }
@@ -419,7 +417,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     // Skip the side MARGIN on the X axis.
     int x = widget_padding_get_left ( WIDGET ( tb ) );
     int top = widget_padding_get_top ( WIDGET ( tb ) );
-    int y = ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+    int y = ( pango_font_metrics_get_ascent ( tb->tbfc->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
     int line_width = 0, line_height = 0;
     // Get actual width.
     pango_layout_get_pixel_size ( tb->layout, &line_width, &line_height );
@@ -828,7 +826,15 @@ void textbox_set_pango_context ( const char *font, PangoContext *p )
     p_metrics = pango_context_get_metrics ( p_context, NULL, NULL );
     TBFontConfig *tbfc = g_malloc0 ( sizeof ( TBFontConfig ) );
     tbfc->metrics = p_metrics;
-    tbfc->height  = pango_font_metrics_get_ascent ( tbfc->metrics ) + pango_font_metrics_get_descent ( tbfc->metrics );
+
+    PangoLayout *layout = pango_layout_new( p_context );
+    pango_layout_set_text(layout,"aAjb", -1);
+    PangoRectangle rect;
+    pango_layout_get_pixel_extents(layout, NULL, &rect );
+    tbfc->height  = rect.y + rect.height;
+    g_object_unref ( layout);
+    tbfc_default = tbfc;
+
     g_hash_table_insert ( tbfc_cache, (gpointer *) ( font ? font : default_font_name ), tbfc );
 }
 
@@ -866,27 +872,22 @@ int textbox_get_height ( const textbox *tb )
 
 int textbox_get_font_height ( const textbox *tb )
 {
-    int height;
-    pango_layout_get_pixel_size ( tb->layout, NULL, &height );
-    return height;
+    PangoRectangle rect;
+    pango_layout_get_pixel_extents ( tb->layout, NULL, &rect );
+    return rect.height+ rect.y;
 }
 
 int textbox_get_font_width ( const textbox *tb )
 {
     PangoRectangle rect;
-    pango_layout_get_pixel_extents ( tb->layout, NULL, &rect );
+    pango_layout_get_pixel_extents ( tb->layout, NULL, &rect);
     return rect.width + rect.x;
 }
 
 /** Caching for the estimated character height. (em) */
-static double char_height = -1;
 double textbox_get_estimated_char_height ( void )
 {
-    if ( char_height < 0 ) {
-        int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
-        char_height = ( height ) / (double) PANGO_SCALE;
-    }
-    return char_height;
+  return tbfc_default->height;
 }
 
 /** Caching for the expected character width. */
@@ -913,8 +914,8 @@ double textbox_get_estimated_ch ( void )
 
 int textbox_get_estimated_height ( const textbox *tb, int eh )
 {
-    int height = pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics );
-    return ceil ( ( eh * height ) / (double) PANGO_SCALE ) + widget_padding_get_padding_height ( WIDGET ( tb ) );
+    int height = tb->tbfc->height;
+    return ( eh * height ) + widget_padding_get_padding_height ( WIDGET ( tb ) );
 }
 int textbox_get_desired_width ( widget *wid )
 {
