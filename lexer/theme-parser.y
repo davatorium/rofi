@@ -243,7 +243,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_MEDIA_MAX                      "Max"
 %token T_MEDIA_SEP                      "-"
 
-%type <sval>           t_entry
 %type <theme>          t_entry_list
 %type <theme>           t_media_entry_list
 %type <list>           t_entry_name_path
@@ -285,6 +284,16 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 t_main
 : t_configuration_list t_entry_list {
     // Dummy at this point.
+    if (rofi_theme == NULL ){
+      rofi_theme_reset();
+    }
+
+
+    rofi_theme_widget_add_properties ( rofi_theme, $2->properties );
+    for ( unsigned int i = 0; i < $2->num_widgets;i++) {
+        ThemeWidget *d = $2->widgets[i];
+        rofi_theme_parse_merge_widgets(rofi_theme, d);
+    }
 }
 ;
 
@@ -292,17 +301,6 @@ t_configuration_list:
  %empty {}
 | t_configuration_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {};
 
-t_entry_list:
-  %empty {
-        // There is always a base widget.
-        if (rofi_theme == NULL ){
-            rofi_theme_reset();
-            $$ =  rofi_theme;
-        }
-  }
-|  t_entry_list t_entry {
-   }
-;
 
 t_media_entry_list:
 t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE {
@@ -362,65 +360,67 @@ t_name_prefix_optional
 | %empty {}
 ;
 
-t_entry:
-t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
+t_entry_list:
+  %empty {
+    $$ = g_slice_new0 ( ThemeWidget );
+  }
+|  t_entry_list t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
 {
-    for ( GList *liter = g_list_first ( $2); liter; liter = g_list_next ( liter ) ) {
-        ThemeWidget *widget = rofi_theme;
+    for ( GList *liter = g_list_first ( $3); liter; liter = g_list_next ( liter ) ) {
+        ThemeWidget *widget = $1;
         for ( GList *iter = g_list_first ( (GList*)liter->data ); widget && iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_name ( widget, iter->data );
         }
         g_list_free_full ( (GList*)liter->data, g_free );
         widget->set = TRUE;
-        rofi_theme_widget_add_properties ( widget, $4);
+        rofi_theme_widget_add_properties ( widget, $5);
     }
+    if ( $5 ) {
+        g_hash_table_destroy ( $5 );
+    }
+    g_list_free ( $3 );
+}
+| t_entry_list T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
+    rofi_theme_widget_add_properties ( $1, $4);
     if ( $4 ) {
         g_hash_table_destroy ( $4 );
     }
-    g_list_free ( $2 );
 }
-|
-    T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
-    rofi_theme_widget_add_properties ( rofi_theme, $3);
-    if ( $3 ) {
-        g_hash_table_destroy ( $3 );
-    }
-}
-| T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
-    gchar *name = g_strdup_printf("@media ( %s: %d )",$3, $5);
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, name );
+| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
+    gchar *name = g_strdup_printf("@media ( %s: %d )",$4, $6);
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
     widget->set = TRUE;
     widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $3 );
-    widget->media->value = (double)$5;
-    for ( unsigned int i = 0; i < $8->num_widgets;i++) {
-        ThemeWidget *d = $8->widgets[i];
-        rofi_theme_parse_merge_widgets(widget, d);
-    }
-    g_free ( name );
-}
-| T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
-    gchar *name = g_strdup_printf("@media ( %s: %f )",$3, $5);
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, name );
-    widget->set = TRUE;
-    widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $3 );
-    widget->media->value = $5;
-    for ( unsigned int i = 0; i < $8->num_widgets;i++) {
-        ThemeWidget *d = $8->widgets[i];
-        rofi_theme_parse_merge_widgets(widget, d);
-    }
-    g_free ( name );
-}
-| T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
-    gchar *name = g_strdup_printf("@media ( %s: %d px )",$3, $5);
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, name );
-    widget->set = TRUE;
-    widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $3 );
-    widget->media->value = (double)$5;
+    widget->media->type = rofi_theme_parse_media_type ( $4 );
+    widget->media->value = (double)$6;
     for ( unsigned int i = 0; i < $9->num_widgets;i++) {
         ThemeWidget *d = $9->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+    g_free ( name );
+}
+| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
+    gchar *name = g_strdup_printf("@media ( %s: %f )",$4, $6);
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
+    widget->set = TRUE;
+    widget->media = g_slice_new0(ThemeMedia);
+    widget->media->type = rofi_theme_parse_media_type ( $4 );
+    widget->media->value = $6;
+    for ( unsigned int i = 0; i < $9->num_widgets;i++) {
+        ThemeWidget *d = $9->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+    g_free ( name );
+}
+| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_media_entry_list T_BCLOSE {
+    gchar *name = g_strdup_printf("@media ( %s: %d px )",$4, $6);
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
+    widget->set = TRUE;
+    widget->media = g_slice_new0(ThemeMedia);
+    widget->media->type = rofi_theme_parse_media_type ( $4 );
+    widget->media->value = (double)$6;
+    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
+        ThemeWidget *d = $10->widgets[i];
         rofi_theme_parse_merge_widgets(widget, d);
     }
     g_free ( name );
@@ -728,7 +728,7 @@ t_property_distance
     $$.style    = $3;
 }
 | T_CALC T_PARENT_LEFT t_property_distance_unit_math2 T_PARENT_RIGHT t_property_line_style {
-    $$.base.distance = 0; 
+    $$.base.distance = 0;
     $$.base.type     = ROFI_PU_PX;
     $$.base.left = $3;
     $$.base.right = NULL;
