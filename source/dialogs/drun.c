@@ -1041,7 +1041,12 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         }
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        retv = RELOAD_DIALOG;
+        RofiHelperExecuteContext context = { .name = NULL };
+        gboolean             run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
+        // FIXME: We assume startup notification in terminals, not in others
+        if ( ! helper_execute_command ( NULL, *input, run_in_term, run_in_term ? &context : NULL ) ) {
+            retv = RELOAD_DIALOG;
+        }
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         // Possitive sort index means it is in history.

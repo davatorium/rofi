@@ -193,6 +193,7 @@ RofiViewState * rofi_view_get_active ( void );
  *
  */
 void rofi_view_set_active ( RofiViewState *state );
+void rofi_view_remove_active ( RofiViewState *state );
 
 /**
  * @param msg The error message to show.
