@@ -180,6 +180,9 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
             return mode_result ( pd->switchers[i].mode, mretv, input, selected_line - pd->starts[i] );
         }
     }
+    if ( ( mretv & MENU_CUSTOM_INPUT )  ) {
+      return mode_result ( pd->switchers[0].mode, mretv, input, selected_line );
+    }
     return MODE_EXIT;
 }
 static int combi_mode_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
