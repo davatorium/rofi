@@ -79,7 +79,7 @@ element-text {
 }
 element-icon {
     background-color: rgba ( 0, 0, 0, 0 % );
-    size:             1.2000em ;
+    size:             1.0000em ;
     text-color:       inherit;
 }
 window {
