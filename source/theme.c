@@ -297,6 +297,12 @@ static void rofi_theme_print_distance_unit ( RofiDistanceUnit *unit )
     else if ( unit->modtype == ROFI_DISTANCE_MODIFIER_MODULO ) {
         fputs ( " % ", stdout );
     }
+    else if ( unit->modtype == ROFI_DISTANCE_MODIFIER_MIN ) {
+        fputs ( " min ", stdout );
+    }
+    else if ( unit->modtype == ROFI_DISTANCE_MODIFIER_MAX ) {
+        fputs ( " max ", stdout );
+    }
     if ( unit->right ) {
         rofi_theme_print_distance_unit ( unit->right );
     }
@@ -997,6 +1003,18 @@ static int distance_unit_get_pixel ( RofiDistanceUnit *unit, RofiOrientation ori
             return a % b;
         }
         return 0;
+    }
+    case ROFI_DISTANCE_MODIFIER_MIN:
+    {
+        int a = distance_unit_get_pixel ( unit->left, ori );
+        int b = distance_unit_get_pixel ( unit->right, ori );
+        return MIN(a,b);
+    }
+    case ROFI_DISTANCE_MODIFIER_MAX:
+    {
+        int a = distance_unit_get_pixel ( unit->left, ori );
+        int b = distance_unit_get_pixel ( unit->right, ori );
+        return MAX(a,b);
     }
     default:
         break;

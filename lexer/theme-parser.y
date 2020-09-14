@@ -218,6 +218,9 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_MODIFIER_SUBTRACT              "Subtract ('-')"
 %token T_MODIFIER_MULTIPLY              "Multiply ('*')"
 
+%token T_MODIFIER_MAX                   "Max ('max')"
+%token T_MODIFIER_MIN                   "Min ('min')"
+
 %token T_CALC                           "calc"
 
 %token T_BOPEN                          "bracket open ('{')"
@@ -261,6 +264,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <distance>       t_property_distance_zero
 %type <distance_unit>  t_property_distance_unit_math
 %type <distance_unit>  t_property_distance_unit_math2
+%type <distance_unit>  t_property_distance_unit_math3
 %type <distance_unit>  t_property_distance_unit
 %type <ival>           t_property_unit
 %type <wloc>           t_property_position
@@ -601,7 +605,7 @@ t_property_distance_unit
     $$->right    = NULL;
     $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
 }
-| T_PARENT_LEFT t_property_distance_unit_math2 T_PARENT_RIGHT {
+| T_PARENT_LEFT t_property_distance_unit_math3 T_PARENT_RIGHT {
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->distance = 0;
     $$->type     = ROFI_PU_PX;
@@ -655,6 +659,23 @@ t_property_distance_unit_math2
 | t_property_distance_unit_math  {
     $$ = $1;
 };
+/** Level 3  (min max)*/
+t_property_distance_unit_math3
+: t_property_distance_unit_math3 T_MODIFIER_MIN t_property_distance_unit_math2 {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MIN;
+}
+| t_property_distance_unit_math3 T_MODIFIER_MAX t_property_distance_unit_math2 {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MAX;
+}
+| t_property_distance_unit_math2  {
+    $$ = $1;
+};
 
 
 t_property_distance
@@ -676,7 +697,7 @@ t_property_distance
     $$.base.right = NULL;
     $$.style    = $3;
 }
-| T_CALC T_PARENT_LEFT t_property_distance_unit_math2 T_PARENT_RIGHT t_property_line_style {
+| T_CALC T_PARENT_LEFT t_property_distance_unit_math3 T_PARENT_RIGHT t_property_line_style {
     $$.base.distance = 0;
     $$.base.type     = ROFI_PU_PX;
     $$.base.left = $3;

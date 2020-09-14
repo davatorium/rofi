@@ -364,11 +364,13 @@ width: calc( 100% - 37px );
 
 It supports the following operations:
 
-* `+`: Add
-* `-`: Subtract
-* `/`: Divide
-* `*`: Multiply
-* `%`: Multiply
+* `+`   : Add
+* `-`   : Subtract
+* `/`   : Divide
+* `*`   : Multiply
+* `%`   : Multiply
+* `min` : Minimum of l or rvalue;
+* `max` : Maximum of l or rvalue;
 
 It uses the C precedence ordering.
 
