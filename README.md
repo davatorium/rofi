@@ -8,6 +8,10 @@
 [![Coverity](https://scan.coverity.com/projects/3850/badge.svg)](https://scan.coverity.com/projects/davedavenport-rofi)
 [![Forum](https://img.shields.io/badge/forum-online-green.svg)](https://reddit.com/r/qtools/)
 
+[![Packages](https://repology.org/badge/latest-versions/rofi.svg)](https://repology.org/metapackage/rofi/versions)
+[![Packages](https://repology.org/badge/tiny-repos/rofi.svg)](https://repology.org/metapackage/rofi/versions)
+
+
 # A window switcher, Application launcher and dmenu replacement
 
 **Rofi** started as a clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) - a
