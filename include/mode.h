@@ -77,6 +77,8 @@ typedef enum
     MENU_ENTRY_DELETE  = 0x00100000,
     /** User wants to jump to another switcher. */
     MENU_QUICK_SWITCH  = 0x00200000,
+    /** User wants to jump to custom command. */
+    MENU_CUSTOM_COMMAND= 0x00800000,
     /** Go to the previous menu. */
     MENU_PREVIOUS      = 0x00400000,
     /** Bindings specifics */

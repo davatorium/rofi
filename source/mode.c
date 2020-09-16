@@ -96,9 +96,20 @@ char * mode_get_completion ( const Mode *mode, unsigned int selected_line )
 
 ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int selected_line )
 {
+    if ( menu_retv & MENU_NEXT ) {
+        return NEXT_DIALOG;
+    }
+    else if ( menu_retv & MENU_PREVIOUS ) {
+        return PREVIOUS_DIALOG;
+    }
+    else if ( menu_retv & MENU_QUICK_SWITCH ) {
+        return ( menu_retv & MENU_LOWER_MASK );
+    }
+
     g_assert ( mode != NULL );
     g_assert ( mode->_result != NULL );
     g_assert ( input != NULL );
+
     return mode->_result ( mode, menu_retv, input, selected_line );
 }
 

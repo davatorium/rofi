@@ -75,10 +75,11 @@ element alternate.active {
 element-text {
     background-color: rgba ( 0, 0, 0, 0 % );
     text-color:       inherit;
+    highlight:        inherit;
 }
 element-icon {
     background-color: rgba ( 0, 0, 0, 0 % );
-    size:             1.2000ch ;
+    size:             1.0000em ;
     text-color:       inherit;
 }
 window {

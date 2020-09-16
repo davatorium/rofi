@@ -59,6 +59,10 @@ An integer number with the current state:
  * **2**: Selected a custom entry.
  * **10-28**: Custom keybinding 1-19
 
+### `ROFI_INFO`
+
+Environment get set when selected entry get set with the property value of the 'info' row option, if set.
+
 ## Passing mode options
 
 Extra options, like setting the prompt, can be set by the script.
@@ -78,6 +82,7 @@ The following extra options exists:
  * **urgent**:      Mark rows as urgent. (for syntax see the urgent option in dmenu mode)
  * **active**:      Mark rows as active. (for syntax see the active option in dmenu mode)
  * **delim**:       Set the delimiter for for next rows. Default is '\n' and this option should finish with this. Only call this on first call of script, it is remembered for consecutive calls.
+ * **no-custom**:   Only accept listed entries, ignore custom input.
 
 ## Parsing row options
 
@@ -95,6 +100,13 @@ The following options are supported:
  * **icon**: Set the icon for that row.
  * **meta**: Specify invisible search terms.
  * **nonselectable**: If true the row cannot activated.
+ * **info**: Info that, on selection, gets placed in the `ROFI_INFO` environment variable. This entry does not get searched.
+
+multiple entries can be passed using the `\x1f` separator.
+
+```bash
+    echo -en "aap\0icon\x1ffolder\x1finfo\x1ftest\n"
+```
 
 
 

@@ -1,105 +1,149 @@
-
-sudo: required
-dist: trusty
+os: linux
+dist: bionic
 language: c
 env:
   global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "Uodrn3x36plX2yk4+c7eimCuv7j6p6n1XCNbNEYxibRX77730eQMCVS0BvM40OgD7m5K9s2hIQaMV7EMj3qKuRmemULDVJVTgNd1fbx6t4BhYh+Hrf6FhsNcm9nFxvQQrdJAVSOwIAlrUilVFotDRt9qKqLwwZiBKIs5gBPcHQY="
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created via
+    # the "travis encrypt" command using the project repo's public key
+    - secure: "Uodrn3x36plX2yk4+c7eimCuv7j6p6n1XCNbNEYxibRX77730eQMCVS0BvM40OgD7m5K9s2hIQaMV7EMj3qKuRmemULDVJVTgNd1fbx6t4BhYh+Hrf6FhsNcm9nFxvQQrdJAVSOwIAlrUilVFotDRt9qKqLwwZiBKIs5gBPcHQY="
 
 addons:
-    coverity_scan:
-      project:
-        name: "DaveDavenport/rofi"
-        description: "Build submitted via Travis CI"
-      notification_email: qball@gmpclient.org
-      build_command_prepend: "autoreconf -i;./configure; make clean"
-      build_command:   "make"
-      branch_pattern: coverity_scan
-    apt:
-        packages:
-            - python3.5
-            - autoconf
-            - automake
-            - make
-            - xutils-dev
-            - libpango1.0-dev
-            - libcairo2-dev
-            - libstartup-notification0-dev
-            - libxcb-ewmh-dev
-            - libxcb-icccm4-dev
-            - libxcb-util0-dev
-            - libxcb-xinerama0-dev
-            - libxcb-xkb-dev
-            - libxcb-randr0-dev
-            - libxcb1-dev
-            - libxkbcommon-dev
-            - libxkbcommon-x11-dev
-            - xvfb
-            - discount
-            - xdotool
-            - fluxbox
-            - xterm
-            - gdb
-            - lcov
-            - doxygen
-            - graphviz
-            - texinfo
-            - texi2html
-            - xfonts-base
+  coverity_scan:
+    project:
+      name: "DaveDavenport/rofi"
+      description: "Build submitted via Travis CI"
+    notification_email: qball@gmpclient.org
+    # TODO: What do these actually do?
+    build_command_prepend: "meson setup build"
+    build_command: "ninja -C build"
+    branch_pattern: coverity_scan
+  apt:
+    packages:
+      - discount
+      - doxygen
+      - fluxbox
+      - gdb
+      - graphviz
+      - jq
+      - lcov
+      - libpango1.0-dev
+      - libstartup-notification0-dev
+      - libxcb-ewmh-dev
+      - libxcb-icccm4-dev
+      - libxcb-randr0-dev
+      - libxcb-util0-dev
+      - libxcb-xinerama0-dev
+      - libxcb-xkb-dev
+      - libxcb-xrm-dev
+      - libxkbcommon-dev
+      - libxkbcommon-dev
+      - libxkbcommon-x11-dev
+      - ninja-build
+      - python3-pip
+      - python3-setuptools
+      - python3-wheel
+      - texi2html
+      - texinfo
+      - xdotool
+      - xfonts-base
+      - xterm
+      - xutils-dev
 
-compiler:
-    - gcc
-
+# TODO: Potentially switch to coverxygen (active project with the same goal) at
+# some point in the future?
 before_install:
-    - sudo add-apt-repository -y 'deb https://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
-    - sudo add-apt-repository -y 'deb https://debian.jpleau.ca/ jessie-backports main contrib non-free'
-    - sudo apt-get update -qq
-    - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  # doxy-coverage is not packaged in Ubuntu 18.04 (Bionic), clone the helper
+  # scripts manually:
+  - git clone https://github.com/alobbs/doxy-coverage
+  # Ubuntu 18.04 ships an outdated version of check. Install a more recent
+  # version instead:
+  - curl -L https://github.com/libcheck/check/releases/download/0.14.0/check-0.14.0.tar.gz | tar xzf -
+  - cd check-0.14.0
+  - ./configure
+  - make
+  # Disable tests for non-"debug" runs (as these tests can take several minutes
+  # to complete):
+  #- make check
+  - sudo make install
+  - sudo ldconfig
+  - cd ..
 
-
-# TODO: We install xkbcommon here, until Travis use an up-to-date enough Ubuntu
-install:
-    - sudo apt-get install -y --force-yes flex/trusty-backports libfl-dev/trusty-backports
-    - wget https://github.com/mesonbuild/meson/releases/download/0.47.0/meson-0.47.0.tar.gz
-    - tar xf meson-0.47.0.tar.gz
-    - wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip
-    - export MESON=$(pwd)/meson-0.47.0/meson.py
-    - unzip ninja-linux.zip
-    - export PATH=$(pwd):$PATH
-    - git clone https://github.com/alobbs/doxy-coverage
-    - git clone --recursive https://github.com/Airblader/xcb-util-xrm.git
-    - cd xcb-util-xrm
-    - ./autogen.sh --prefix=/usr
+# YAML anchor, ignored by Travis CI (albeit present in the JSON render):
+.autotools: &autotools
+  before_script: &autotools_before_script
+    # prettier-ignore
+    # Generate the configure script:
+    - autoreconf --install
+    # Make the build directory:
+    - mkdir build
+    # Change into the build directory:
+    - cd build
+    # Configure the build directory
+    - ../configure
+  # TODO: Fix X11 tests (and check whether or not changing the user's resource
+  #       limit is still required for the X11 tests).
+  script: &autotools_script # Build the project:
     - make
-    - sudo make install
-    - cd -
-    - git clone https://github.com/libcheck/check/ -b 0.11.0
-    - cd check
-    - autoreconf -i
-    - TEX="false" ./configure --prefix=/usr/
-    - make
-    - sudo make install
-    - cd -
+    # Run tests:
+    - make distcheck
+    # Code coverage:
+    - make doxy 2>&1 > doxygen.log
+    # Check for warnings in doxygen.log:
+    - test $(grep -c warning doxygen.log) -eq 0
+    - ../doxy-coverage/doxy-coverage.py doc/html/xml/
 
-before_script:
-    - python3.5 ${MESON} build -Db_coverage=true
-
-script:
+# YAML anchor, ignored by Travis CI (albeit present in the JSON render):
+.meson: &meson
+  install: &meson_install
+    # Ubuntu's meson version is outdated. Use pip to install a more recent
+    # release:
+    - pip3 install --user meson
+    # ~/.local/bin is not a part of $PATH by default. Update $PATH to include it:
+    - PATH="$PATH:$HOME/.local/bin"
+  before_script:
+    &meson_before_script # Configure the build directory with meson:
+    - meson setup build  -Db_coverage=true
+  # TODO: Fix X11 tests (and check whether or not changing the user's resource
+  #       limit is still required for the X11 tests).
+  script: &meson_script # Build the project:
     - ninja -C build
+    # Run tests:
     - ninja -C build test
-    - ulimit -c unlimited
-    - ninja -C build test-x
+    #- ulimit -c unlimited
+    #- ninja -C build test-x
     - ninja -C build doc/html 2>&1 > doxygen.log
     - test $(grep -c warning doxygen.log) -eq 0
     - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
 
 after_success:
-      - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
+
+# Travis CI doesn't propagate the compiler key to individual jobs. Define
+# a _single_ compiler for each job, as a list will only result in the first
+# compiler being used!
+
+jobs:
+  include:
+    - name: "Autotools - Clang"
+      compiler: clang
+      # Merge keys from the .autotools map:
+      <<: *autotools
+    - name: "Autotools - GCC"
+      compiler: gcc
+      # Merge keys from the .autotools map:
+      <<: *autotools
+    - name: "Meson - Clang"
+      compiler: clang
+      # Merge keys from the .meson map:
+      <<: *meson
+    - name: "Meson - GCC"
+      compiler: gcc
+      # Merge keys from the .meson map:
+      <<: *meson
 
 notifications:
-    webhooks:
-        urls:
-            - secure: "AqDM5SkWJPSBeCiyGdXzHYLnFCML/vKxWW/0wE00ocX+97Fa5ixeU7apMJ0OMZ0ZQVXG96xVtlJ513ZSpnRYHx6FF+Ivvw5pYeZjKHqtxThEhOueW1YynYWMX7HJrA4P19ollqRLrtsJqG6x7BhVEnIyhyu9eXtgj6hiI70F0SE="
-        on_success: change
+  webhooks:
+    urls:
+      - secure: "AqDM5SkWJPSBeCiyGdXzHYLnFCML/vKxWW/0wE00ocX+97Fa5ixeU7apMJ0OMZ0ZQVXG96xVtlJ513ZSpnRYHx6FF+Ivvw5pYeZjKHqtxThEhOueW1YynYWMX7HJrA4P19ollqRLrtsJqG6x7BhVEnIyhyu9eXtgj6hiI70F0SE="
+    on_success: change
+# vim: et sw=2 ts=2

@@ -167,12 +167,15 @@ UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
+MEDIA_NAME [[:alpha:]-]+
 COLOR_NAME [[:alpha:]]+
 STRING     \"{UANYN}*\"
+CHAR       \'({ASCN}|\\\\|\\\'|\\0)\'
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
 PNNUMBER   [-+]?[[:digit:]]+
 PX         (px)
+MM         (mm)
 EM         (em)
 CH         (ch)
 PERCENT    (\%)
@@ -182,6 +185,12 @@ INHERIT    (inherit)
 ASTERIX    \*
 
 ENV        $\{[[:alnum:]]*\}
+
+MODIFIER_ADD      \+
+MODIFIER_SUBTRACT -
+MODIFIER_MULTIPLY \*
+MODIFIER_MIN      (min)
+MODIFIER_MAX      (max)
 
  /* Position */
 CENTER     (?i:center)
@@ -224,6 +233,7 @@ COLOR_TRANSPARENT (?i:transparent)
 
 S_T_PARENT_LEFT  \(
 S_T_PARENT_RIGHT \)
+CALC    (?i:calc)
 COMMA            ,
 FORWARD_SLASH    \/
 
@@ -396,7 +406,7 @@ if ( queue == NULL ){
     BEGIN(SECTION);
     return T_BOPEN;
 }
-  /** Everythin not yet parsed is an error. */
+  /** Everything not yet parsed is an error. */
 <DEFAULTS>. {
     return T_ERROR_DEFAULTS;
 }
@@ -406,13 +416,13 @@ if ( queue == NULL ){
     BEGIN(NAMESTR);
     return T_NAME_PREFIX;
 }
-    /* Go into parsing an section*/
+    /* Go into parsing a section. */
 <NAMESTR>"\{"                    {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(SECTION);
     return T_BOPEN;
 }
-  /* Pop out of parsing an section. */
+  /* Pop out of parsing a section. */
 <SECTION>"\}"             {
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
@@ -436,6 +446,7 @@ if ( queue == NULL ){
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CHAR}                { yytext[yyleng-1] = '\0'; yylval->cval = g_strcompress(&yytext[1])[0]; return T_CHAR;}
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>@{WORD}               {
     yylval->sval = g_strdup(yytext+1);
@@ -445,11 +456,18 @@ if ( queue == NULL ){
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{EM}       { return T_UNIT_EM; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CH}       { return T_UNIT_CH; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PX}       { return T_UNIT_PX; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{MM}       { return T_UNIT_MM; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PERCENT}  { return T_PERCENT; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LS_SOLID} { return T_SOLID;   }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LS_DASH}  { return T_DASH;    }
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{INHERIT}  { return T_INHERIT; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_ADD}       { return T_MODIFIER_ADD; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_SUBTRACT}  { return T_MODIFIER_SUBTRACT; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_MULTIPLY}  { return T_MODIFIER_MULTIPLY; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_MIN}  { return T_MODIFIER_MIN; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_MAX}  { return T_MODIFIER_MAX; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CALC}  { return T_CALC; }
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ENV} {
     yytext[yyleng-1] = '\0';
@@ -635,7 +653,7 @@ if ( queue == NULL ){
     BEGIN(MEDIA_CONTENT);
     return T_PARENT_LEFT;
 }
-<MEDIA_CONTENT>{WORD} {
+<MEDIA_CONTENT>{MEDIA_NAME} {
     yylval->sval = g_strdup(yytext);
     return T_STRING;
 }

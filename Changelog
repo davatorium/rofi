@@ -1,4 +1,54 @@
-v1.5.5: (unreleased)
+v1.6.0: The Masked Launcher
+   -  Add `themes/` directory in the users rofi config directory to the theme search path. (#1001)
+   -  Split listview element into box widget holding icon and textbox. Supporting more dynamic themes. (#949)
+   -  Fix default theme.
+   -  Add -upgrade-config option.
+   -  Add `ROFI_PLUGIN_PATH` variable.
+   -  Add check for running rofi inside a Script mode.
+   -  Remove gnome-terminal from rofi-sensible-terminal (#1074)
+   -  Set window title based on mode name. (#969)
+   -  Subpixel rendering workaround. (#303)
+   -  Support character type in configuration {} block . (#1131)
+   -  Use `XDG_CONFIG_DIRS` (#1133)
+   -  [Box] Bug fix update propagation.
+   -  [Build] Fix meson build with meson 0.55.
+   -  [DMenu] Add `-keep-right` flag. (#1089)
+   -  [DMenu] Don't match markup when filtering. (#579,#1128)
+   -  [DRUN] Support Type=Link (#1166)
+   -  [DRun] Add % to escape variable.
+   -  [DRun] Add an optional cache for desktop files. (#1040)
+   -  [DRun] Add keywords as default match item. (#1061)
+   -  [DRun] Don't run custom commands.
+   -  [DRun] Match keywords field.
+   -  [DRun] Only show selected categories. (#817)
+   -  [Dmenu|Script] Add non-selectable entries. (#1024)
+   -  [Doc] Update documentation.
+   -  [IconFetcher] Add jpeg support.
+   -  [Icon] Set default size to 1.2 CH.
+   -  [Icon] support distance for size.
+   -  [Listview] Add widget to show keybinding index. (#1050)
+   -  [Listview] Fix distribution of remaining space.
+   -  [Listview] Fix left-to-right scrolling. (#1028)
+   -  [Listview] Fix updating elements. (#1032)
+   -  [Matching] Make Fuzzy matching non greedy.
+   -  [Script] Add delimiter option. (#1041)
+   -  [Script] Add environment variable indicating state.
+   -  [Script] Add extra matchign field (meta). (#1052)
+   -  [Script] Add info option, hidden field that gets passed to script via `ROFI_INFO` environment.
+   -  [Script] Add no-custom option.
+   -  [Textbox] Add cursor blinking option.
+   -  [Textbox] Add placeholder. (#1020)
+   -  [Theme] Add `calc()` support. (#1105)
+   -  [Theme] Add alpha channel to highlight color. (#1033)
+   -  [Theme] Add sidebar as mode-switcher alias.
+   -  [Theme] Add some initial @media support. (#893)
+   -  [Theme] Support buttons in the UI.
+   -  [View] Add two widgets. One showing number of rows, other number of filtered rows. (#1026)
+   -  [Window] Add window thumbnail option.
+   -  [Window] Remove arbitrary # window limit. (#1047)
+   -  [Window] check buffer overflow.
+
+v1.5.5:
 v1.5.4: Painful tardiness
 	- SSH: Fix wrong malloc size, causing crash.
 

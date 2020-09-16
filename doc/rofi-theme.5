@@ -481,6 +481,8 @@ Format: \fB\fC{Real}em\fR
 Format: \fB\fC{Real}ch\fR
 .IP \(bu 2
 Format: \fB\fC{Real}%\fR
+.IP \(bu 2
+Format: \fB\fC{Integer}mm\fR
 
 .PP
 A distance can be specified in 3 different units:
@@ -490,6 +492,8 @@ A distance can be specified in 3 different units:
 \fB\fCem\fR: Relative to text height.
 .IP \(bu 2
 \fB\fCch\fR: Relative to width of a single number.
+.IP \(bu 2
+\fB\fCmm\fR: Actual size in millimeters (based on dpi).
 .IP \(bu 2
 \fB\fC%\fR:  Percentage of the \fBmonitor\fP size.
 
@@ -510,6 +514,35 @@ For example:
 .PP
 On a full\-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left
 and right side and 108 pixels on the top and bottom.
+
+.SS Calculating sizes
+.PP
+Rofi supports some maths in calculating sizes. For this it uses the CSS syntax:
+
+.PP
+.RS
+
+.nf
+width: calc( 100% \- 37px );
+
+.fi
+.RE
+
+.PP
+It supports the following operations:
+.IP \(bu 2
+\fB\fC+\fR: Add
+.IP \(bu 2
+\fB\fC\-\fR: Subtract
+.IP \(bu 2
+\fB\fC/\fR: Divide
+.IP \(bu 2
+\fB\fC*\fR: Multiply
+.IP \(bu 2
+\fB\fC%\fR: Multiply
+
+.PP
+It uses the C precedence ordering.
 
 .SH Padding.IP \(bu 2
 Format: \fB\fC{Integer}\fR
@@ -978,6 +1011,41 @@ Do not reduce the number of columns shown when number of visible elements is not
 .PP
 Each element is a \fB\fCbox\fR called \fB\fCelement\fR\&. Each \fB\fCelement\fR can contain an \fB\fCelement\-icon\fR and \fB\fCelement\-text\fR\&.
 
+.SS listview text highlight:
+.PP
+The \fB\fCelement\-text\fR widget in the \fB\fClistview\fR is the one used to show the text.
+On this widget set the \fB\fChighlight\fR property (only place this property is used) to change
+the style of highlighting.
+The \fB\fChighlight\fR property consist of the \fB\fCtext\-style\fR property and a color.
+
+.PP
+To disable highlighting:
+
+.PP
+.RS
+
+.nf
+  element\-text {
+    highlight: None;
+  }
+
+.fi
+.RE
+
+.PP
+To set to red underlined:
+
+.PP
+.RS
+
+.nf
+  element\-text {
+    highlight: underline red;
+  }
+
+.fi
+.RE
+
 .SH Layout
 .PP
 The new format allows the layout of the \fBrofi\fP window to be tweaked extensively.
@@ -1332,7 +1400,7 @@ Parts of the theme can be conditionally loaded, like the CSS \fB\fC@media\fR opt
 .RS
 
 .nf
-@media ( min\-width: 120px ) {
+@media ( min\-width: 120 ) {
 
 }
 
@@ -1342,19 +1410,33 @@ Parts of the theme can be conditionally loaded, like the CSS \fB\fC@media\fR opt
 .PP
 It supports the following keys as constraint:
 .IP \(bu 2
-\fB\fCmin\-width\fR:         load when width is bigger then value.
+\fB\fCmin\-width\fR:         load when width is bigger or equal then value.
 .IP \(bu 2
 \fB\fCmax\-width\fR:         load when width is smaller then value.
 .IP \(bu 2
-\fB\fCmin\-height\fR:        load when height is bigger then value.
+\fB\fCmin\-height\fR:        load when height is bigger or equal then value.
 .IP \(bu 2
 \fB\fCmax\-height\fR:        load when height is smaller then value.
 .IP \(bu 2
 \fB\fCmin\-aspect\-ratio\fR   load when aspect ratio is over value.
 .IP \(bu 2
-\fB\fCmax\-aspect\_ratio\fR:  load when aspect ratio is under value.
+\fB\fCmax\-aspect\-ratio\fR:  load when aspect ratio is under value.
 .IP \(bu 2
 \fB\fCmonitor\-id\fR:        The monitor id, see rofi \-help for id's.
+
+.PP
+@media takes an integer number or a fraction, for integer number \fB\fCpx\fR can be added.
+
+.PP
+.RS
+
+.nf
+@media ( min\-width: 120 px ) {
+
+}
+
+.fi
+.RE
 
 .SH Multiple file handling
 .PP

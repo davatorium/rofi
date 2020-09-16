@@ -96,7 +96,7 @@ Settings config = {
     /** Sort the displayed list */
     .sort                      = FALSE,
     /** Use levenshtein sorting when matching */
-    .sorting_method            = SORT_NORMAL,
+    .sorting_method            = "normal",
     /** Case sensitivity of the search */
     .case_sensitive            = FALSE,
     /** Cycle through in the element list */
@@ -116,14 +116,18 @@ Settings config = {
     .tokenize        = TRUE,
     .matching        = "normal",
     .matching_method = MM_NORMAL,
-    /** Desktop entry fields to match*/
-    .drun_match_fields = "name,generic,exec,categories,keywords",
-    .drun_categories   = NULL,
-    /**  Desktop format display */
-    .drun_display_format       = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]",
+
+    /** Desktop entries to match in drun */
+    .drun_match_fields         = "name,generic,exec,categories,keywords",
+    /** Only show entries in this category */
+    .drun_categories           = NULL,
     /** Desktop entry show actions */
     .drun_show_actions         = FALSE,
-    /** Desktop entry show actions */
+    /** Desktop format display */
+    .drun_display_format       = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]",
+    /** Desktop Link launch command */
+    .drun_url_launcher         = "xdg-open",
+
     /** Window fields to match in window mode*/
     .window_match_fields       = "all",
     /** Monitor */
@@ -158,8 +162,13 @@ Settings config = {
 
     .matching_negate_char      = '-',
 
-    .cache_dir                 = NULL,
-    .window_thumbnail          = FALSE,
+    .cache_dir        = NULL,
+    .window_thumbnail = FALSE,
+
+    /** drun cache */
     .drun_use_desktop_cache    = FALSE,
-    .drun_reload_desktop_cache = FALSE
+    .drun_reload_desktop_cache = FALSE,
+
+    /** Benchmarks */
+    .benchmark_ui              = FALSE
 };

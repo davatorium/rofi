@@ -61,6 +61,15 @@
 char *DRUN_GROUP_NAME = "Desktop Entry";
 
 typedef struct _DRunModePrivateData DRunModePrivateData;
+
+typedef enum
+{
+    DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED = 0,
+    DRUN_DESKTOP_ENTRY_TYPE_APPLICATION,
+    DRUN_DESKTOP_ENTRY_TYPE_LINK,
+    DRUN_DESKTOP_ENTRY_TYPE_DIRECTORY,
+} DRunDesktopEntryType;
+
 /**
  * Store extra information about the entry.
  * Currently the executable and if it should run in terminal.
@@ -83,27 +92,29 @@ typedef struct
     /* Icon size is used to indicate what size is requested by the gui.
      * secondary it indicates if the request for a lookup has been issued (0 not issued )
      */
-    int             icon_size;
+    int                  icon_size;
     /* Surface holding the icon. */
-    cairo_surface_t *icon;
-    /* Executable */
-    char            *exec;
+    cairo_surface_t      *icon;
+    /* Executable - for Application entries only */
+    char                 *exec;
     /* Name of the Entry */
-    char            *name;
+    char                 *name;
     /* Generic Name */
-    char            *generic_name;
+    char                 *generic_name;
     /* Categories */
-    char            **categories;
+    char                 **categories;
     /* Keywords */
-    char            **keywords;
+    char                 **keywords;
     /* Comments */
-    char            *comment;
+    char                 *comment;
 
-    GKeyFile        *key_file;
+    GKeyFile             *key_file;
 
-    gint            sort_index;
+    gint                 sort_index;
 
-    uint32_t        icon_fetch_uid;
+    uint32_t             icon_fetch_uid;
+
+    DRunDesktopEntryType type;
 } DRunModeEntry;
 
 typedef struct
@@ -182,7 +193,7 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
         case 'm':
             break;
         case '%':
-            g_string_append(res, "%");
+            g_string_append ( res, "%" );
             break;
         case 'k':
             if ( e->e->path ) {
@@ -208,6 +219,43 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
     }
     // Continue replacement.
     return FALSE;
+}
+static void launch_link_entry ( DRunModeEntry *e )
+{
+    if ( e->key_file == NULL ) {
+        GKeyFile *kf    = g_key_file_new ();
+        GError   *error = NULL;
+        gboolean res    = g_key_file_load_from_file ( kf, e->path, 0, &error );
+        if ( res ) {
+            e->key_file = kf;
+        }
+        else {
+            g_warning ( "[%s] [%s] Failed to parse desktop file because: %s.", e->app_id, e->path, error->message );
+            g_error_free ( error );
+            g_key_file_free ( kf );
+            return;
+        }
+    }
+
+    gchar *url = g_key_file_get_string ( e->key_file, e->action, "URL", NULL );
+    if ( url == NULL || strlen ( url ) == 0 ) {
+        g_warning ( "[%s] [%s] No URL found.", e->app_id, e->path );
+        g_free ( url );
+        return;
+    }
+
+    gsize command_len = strlen ( config.drun_url_launcher ) + strlen ( url ) + 2; // space + terminator = 2
+    gchar *command    = g_newa ( gchar, command_len );
+    g_snprintf ( command, command_len, "%s %s", config.drun_url_launcher, url );
+    g_free ( url );
+
+    g_debug ( "Link launch command: |%s|", command );
+    if ( helper_execute_command ( NULL, command, FALSE, NULL ) ) {
+        char *path = g_build_filename ( cache_dir, DRUN_CACHE_FILE, NULL );
+        // Store it based on the unique identifiers (desktop_id).
+        history_set ( path, e->desktop_id );
+        g_free ( path );
+    }
 }
 static void exec_cmd_entry ( DRunModeEntry *e )
 {
@@ -300,7 +348,8 @@ static gboolean rofi_strv_contains ( const char * const *categories, const char 
  */
 static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const char *path, const gchar *basename, const char *action )
 {
-    int parse_action = ( config.drun_show_actions && action != DRUN_GROUP_NAME );
+    DRunDesktopEntryType desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED;
+    int                  parse_action       = ( config.drun_show_actions && action != DRUN_GROUP_NAME );
     // Create ID on stack.
     // We know strlen (path ) > strlen(root)+1
     const ssize_t id_len = strlen ( path ) - strlen ( root );
@@ -342,8 +391,14 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_key_file_free ( kf );
         return;
     }
-    if ( g_strcmp0 ( key, "Application" ) ) {
-        g_debug ( "[%s] [%s] Skipping desktop file: Not of type application (%s)", id, path, key );
+    if ( !g_strcmp0 ( key, "Application" ) ) {
+        desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_APPLICATION;
+    }
+    else if ( !g_strcmp0 ( key, "Link" ) ) {
+        desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_LINK;
+    }
+    else {
+        g_debug ( "[%s] [%s] Skipping desktop file: Not of type Application or Link (%s)", id, path, key );
         g_free ( key );
         g_key_file_free ( kf );
         return;
@@ -407,9 +462,17 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
         g_hash_table_add ( pd->disabled_entries, g_strdup ( id ) );
         return;
     }
+
     // We need Exec, don't support DBusActivatable
-    if ( !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
-        g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present.", id, path );
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION
+         && !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
+        g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present for type Application.", id, path );
+        g_key_file_free ( kf );
+        return;
+    }
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_LINK
+         && !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "URL", NULL ) ) {
+        g_debug ( "[%s] [%s] Unsupported desktop file: no 'URL' key present for type Link.", id, path );
         g_key_file_free ( kf );
         return;
     }
@@ -438,7 +501,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     char **categories = NULL;
     if ( pd->show_categories ) {
         categories = g_key_file_get_locale_string_list ( kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL );
-        if (  !rofi_strv_contains ( (const char * const *) categories, (const char *const *) pd->show_categories ) ) {
+        if (  !rofi_strv_contains ( (const char * const *) categories, (const char * const *) pd->show_categories ) ) {
             g_strfreev ( categories );
             g_key_file_free ( kf );
             return;
@@ -499,7 +562,13 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     }
     g_strfreev ( categories );
 
-    pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
+    pd->entry_list[pd->cmd_list_length].type = desktop_entry_type;
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION ) {
+        pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
+    }
+    else {
+        pd->entry_list[pd->cmd_list_length].exec = NULL;
+    }
 
     if ( matching_entry_fields[DRUN_MATCH_FIELD_COMMENT].enabled ) {
         pd->entry_list[pd->cmd_list_length].comment = g_key_file_get_locale_string ( kf,
@@ -654,7 +723,7 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
 * Cache voodoo                            *
 *******************************************/
 
-#define CACHE_VERSION    1
+#define CACHE_VERSION    2
 static void drun_write_str ( FILE *fd, const char *str )
 {
     size_t l = ( str == NULL ? 0 : strlen ( str ) );
@@ -663,6 +732,17 @@ static void drun_write_str ( FILE *fd, const char *str )
     if ( l > 0 ) {
         // Also writeout terminating '\0'
         fwrite ( str, 1, l + 1, fd );
+    }
+}
+static void drun_write_integer ( FILE *fd, int32_t val )
+{
+    fwrite ( &val,sizeof(val), 1, fd );
+}
+static void drun_read_integer ( FILE *fd, int32_t *type )
+{
+    if ( fread ( type, sizeof ( int32_t), 1, fd ) != 1 ) {
+        g_warning ( "Failed to read entry, cache corrupt?" );
+        return;
     }
 }
 static void drun_read_string ( FILE *fd, char **str )
@@ -741,6 +821,7 @@ static void write_cache ( DRunModePrivateData *pd, const char *cache_file )
         drun_write_strv ( fd, entry->keywords );
 
         drun_write_str ( fd, entry->comment );
+        drun_write_integer ( fd, (int32_t)entry->type );
     }
 
     fclose ( fd );
@@ -773,21 +854,21 @@ static gboolean drun_read_cache ( DRunModePrivateData *pd, const char *cache_fil
         fclose ( fd );
         g_warning ( "Cache corrupt, ignoring." );
         TICK_N ( "DRUN Read CACHE: stop" );
-        return FALSE;
+        return TRUE;
     }
 
     if ( version != CACHE_VERSION ) {
         fclose ( fd );
         g_warning ( "Cache file wrong version, ignoring." );
         TICK_N ( "DRUN Read CACHE: stop" );
-        return FALSE;
+        return TRUE;
     }
 
     if ( fread ( &( pd->cmd_list_length ), sizeof ( pd->cmd_list_length ), 1, fd ) != 1 ) {
         fclose ( fd );
         g_warning ( "Cache corrupt, ignoring." );
         TICK_N ( "DRUN Read CACHE: stop" );
-        return FALSE;
+        return TRUE;
     }
     // set actual length to length;
     pd->cmd_list_length_actual = pd->cmd_list_length;
@@ -811,6 +892,9 @@ static gboolean drun_read_cache ( DRunModePrivateData *pd, const char *cache_fil
         drun_read_stringv ( fd, &( entry->keywords ) );
 
         drun_read_string ( fd, &( entry->comment ) );
+        int32_t type = 0;
+        drun_read_integer( fd, &( type ) );
+        entry->type = type;
     }
 
     fclose ( fd );
@@ -943,20 +1027,26 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     ModeMode            retv  = MODE_EXIT;
 
-    if ( mretv & MENU_NEXT ) {
-        retv = NEXT_DIALOG;
-    }
-    else if ( mretv & MENU_PREVIOUS ) {
-        retv = PREVIOUS_DIALOG;
-    }
-    else if ( mretv & MENU_QUICK_SWITCH ) {
-        retv = ( mretv & MENU_LOWER_MASK );
-    }
-    else if ( ( mretv & MENU_OK )  ) {
-        exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
+    if ( ( mretv & MENU_OK )  ) {
+        switch ( rmpd->entry_list[selected_line].type )
+        {
+        case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
+            exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
+            break;
+        case DRUN_DESKTOP_ENTRY_TYPE_LINK:
+            launch_link_entry ( &( rmpd->entry_list[selected_line] ) );
+            break;
+        default:
+            g_assert_not_reached ();
+        }
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        retv = RELOAD_DIALOG;
+        RofiHelperExecuteContext context = { .name = NULL };
+        gboolean             run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
+        // FIXME: We assume startup notification in terminals, not in others
+        if ( ! helper_execute_command ( NULL, *input, run_in_term, run_in_term ? &context : NULL ) ) {
+            retv = RELOAD_DIALOG;
+        }
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         // Possitive sort index means it is in history.
@@ -1096,7 +1186,7 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
             }
             if ( matching_entry_fields[DRUN_MATCH_FIELD_EXEC].enabled ) {
                 // Match executable name.
-                if ( test == tokens[j]->invert  ) {
+                if ( test == tokens[j]->invert && rmpd->entry_list[index].exec ) {
                     test = helper_token_match ( ftokens, rmpd->entry_list[index].exec );
                 }
             }

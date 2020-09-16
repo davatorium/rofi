@@ -161,7 +161,7 @@ static gchar *fuzzy_to_regex ( const char * input )
             g_string_append ( str, "(" );
         }
         else {
-            g_string_append ( str, ".*(" );
+            g_string_append ( str, ".*?(" );
         }
         if ( *iter == '\\' ) {
             g_string_append_c ( str, '\\' );
@@ -1028,6 +1028,10 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
     }
     else {
         helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, (char *) 0 );
+    }
+
+    if ( args == NULL ) {
+        return FALSE;
     }
 
     if ( context != NULL ) {

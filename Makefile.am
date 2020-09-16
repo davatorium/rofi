@@ -387,6 +387,7 @@ box_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
+      config/config.c\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -402,6 +403,7 @@ scrollbar_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
+      config/config.c\
 			test/scrollbar-test.c
 
 textbox_test_SOURCES=\
@@ -649,4 +651,5 @@ EXTRA_DIST += \
 	subprojects/libnkutils/meson_options.txt \
 	subprojects/libgwater/xcb/meson.build \
 	meson_options.txt \
+  subprojects/xcb \
 	meson.build

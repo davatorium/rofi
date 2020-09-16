@@ -223,6 +223,47 @@ void rofi_capture_screenshot ( void )
     g_date_time_unref ( now );
 }
 
+/**
+ * Code used for benchmarking drawing the gui, this will keep updating the UI as fast as possible.
+ */
+gboolean do_bench = TRUE;
+struct
+{
+    GTimer   *time;
+    uint64_t draws;
+    double   last_ts;
+    double   min;
+} BenchMark = {
+    .time    = NULL,
+    .draws   = 0,
+    .last_ts = 0.0,
+    .min     = G_MAXDOUBLE
+};
+
+static gboolean bench_update ( void )
+{
+    if ( !config.benchmark_ui ) {
+        return FALSE;
+    }
+    BenchMark.draws++;
+    if ( BenchMark.time == NULL ) {
+        BenchMark.time = g_timer_new ();
+    }
+
+    if ( ( BenchMark.draws & 1023 ) == 0 ) {
+        double ts  = g_timer_elapsed ( BenchMark.time, NULL );
+        double fps = 1024 / ( ts - BenchMark.last_ts );
+
+        if ( fps < BenchMark.min ) {
+            BenchMark.min = fps;
+        }
+        printf ( "current: %.2f fps, avg: %.2f fps, min: %.2f fps, %lu draws\r\n", fps, BenchMark.draws / ts, BenchMark.min, BenchMark.draws );
+
+        BenchMark.last_ts = ts;
+    }
+    return TRUE;
+}
+
 static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
 {
     if ( current_active_menu  ) {
@@ -238,7 +279,7 @@ static gboolean rofi_view_repaint ( G_GNUC_UNUSED void * data  )
         TICK_N ( "flush" );
         CacheState.repaint_source = 0;
     }
-    return G_SOURCE_REMOVE;
+    return ( bench_update () == TRUE ) ? G_SOURCE_CONTINUE : G_SOURCE_REMOVE;
 }
 
 static void rofi_view_update_prompt ( RofiViewState *state )
@@ -374,6 +415,9 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
 
 static void rofi_view_window_update_size ( RofiViewState * state )
 {
+    if ( state == NULL ) {
+      return;
+    }
     uint16_t mask   = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
     uint32_t vals[] = { state->x, state->y, state->width, state->height };
 
@@ -449,6 +493,15 @@ RofiViewState * rofi_view_get_active ( void )
     return current_active_menu;
 }
 
+void rofi_view_remove_active ( RofiViewState *state )
+{
+  if ( state == current_active_menu ) {
+    rofi_view_set_active ( NULL );
+  }
+  else if ( state ) {
+    g_queue_remove ( &(CacheState.views ), state);
+  }
+}
 void rofi_view_set_active ( RofiViewState *state )
 {
     if ( current_active_menu != NULL && state != NULL ) {
@@ -744,6 +797,11 @@ void __create_window ( MenuFlags menu_flags )
         PangoFontMap *font_map = pango_cairo_font_map_get_default ();
         pango_cairo_font_map_set_resolution ( (PangoCairoFontMap *) font_map, dpi );
         config.dpi = dpi;
+    }
+    else {
+        // default pango is 96.
+        PangoFontMap *font_map = pango_cairo_font_map_get_default ();
+        config.dpi = pango_cairo_font_map_get_resolution ( (PangoCairoFontMap *) font_map );
     }
     // Setup font.
     // Dummy widget.
@@ -1254,7 +1312,7 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
         if ( selected < state->filtered_lines ) {
             ( state->selected_line ) = state->line_map[selected];
         }
-        state->retv = MENU_QUICK_SWITCH | ( ( action - CUSTOM_1 ) & MENU_LOWER_MASK );
+        state->retv = MENU_CUSTOM_COMMAND | ( ( action - CUSTOM_1 ) & MENU_LOWER_MASK );
         state->quit = TRUE;
         break;
     }

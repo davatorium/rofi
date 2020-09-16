@@ -249,7 +249,6 @@ double rofi_theme_get_double (  const widget *widget, const char *property, doub
  */
 void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d );
 
-
 /**
  * @param widget   The widget to query
  * @param property The property to query.
@@ -387,4 +386,5 @@ void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child );
  * Returns the media type described by type.
  */
 ThemeMediaType rofi_theme_parse_media_type ( const char *type );
+RofiDistance rofi_theme_property_copy_distance  ( RofiDistance const distance );
 #endif

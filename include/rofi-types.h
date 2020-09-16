@@ -15,6 +15,8 @@ typedef enum
     P_DOUBLE,
     /** String */
     P_STRING,
+    /** Character */
+    P_CHAR,
     /** Boolean */
     P_BOOLEAN,
     /** Color */
@@ -78,6 +80,8 @@ typedef enum
 {
     /** PixelWidth in pixels. */
     ROFI_PU_PX,
+    /** PixelWidth in millimeters. */
+    ROFI_PU_MM,
     /** PixelWidth in EM. */
     ROFI_PU_EM,
     /** PixelWidget in percentage */
@@ -89,14 +93,42 @@ typedef enum
 /**
  * Structure representing a distance.
  */
-typedef struct
+typedef enum
+{
+    ROFI_DISTANCE_MODIFIER_NONE,
+    ROFI_DISTANCE_MODIFIER_ADD,
+    ROFI_DISTANCE_MODIFIER_SUBTRACT,
+    ROFI_DISTANCE_MODIFIER_DIVIDE,
+    ROFI_DISTANCE_MODIFIER_MULTIPLY,
+    ROFI_DISTANCE_MODIFIER_MODULO,
+    ROFI_DISTANCE_MODIFIER_GROUP,
+    ROFI_DISTANCE_MODIFIER_MIN,
+    ROFI_DISTANCE_MODIFIER_MAX,
+} RofiDistanceModifier;
+
+typedef struct RofiDistanceUnit
 {
     /** Distance */
-    double        distance;
+    double                  distance;
     /** Unit type of the distance */
-    RofiPixelUnit type;
+    RofiPixelUnit           type;
+
+    /** Type */
+    RofiDistanceModifier    modtype;
+
+    /** Modifier */
+    struct RofiDistanceUnit *left;
+
+    /** Modifier */
+    struct RofiDistanceUnit *right;
+} RofiDistanceUnit;
+
+typedef struct
+{
+    /** Base */
+    RofiDistanceUnit base;
     /** Style of the line (optional)*/
-    RofiLineStyle style;
+    RofiLineStyle    style;
 } RofiDistance;
 
 /**
@@ -184,6 +216,8 @@ typedef union _PropertyValue
     double      f;
     /** String */
     char        *s;
+    /** Character */
+    char        c;
     /** boolean */
     gboolean    b;
     /** Color */

@@ -101,6 +101,12 @@ static widget *container_find_mouse_target ( widget *wid, WidgetType type, gint 
     return widget_find_mouse_target ( b->child, type, x, y );
 }
 
+static void container_set_state ( widget *wid, const char *state )
+{
+    container *b = (container *) wid;
+    widget_set_state ( b->child, state );
+}
+
 container * container_create ( widget *parent, const char *name )
 {
     container *b = g_malloc0 ( sizeof ( container ) );
@@ -112,6 +118,7 @@ container * container_create ( widget *parent, const char *name )
     b->widget.update             = container_update;
     b->widget.find_mouse_target  = container_find_mouse_target;
     b->widget.get_desired_height = container_get_desired_height;
+    b->widget.set_state          = container_set_state;
     return b;
 }
 

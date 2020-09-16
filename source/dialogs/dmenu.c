@@ -122,8 +122,12 @@ static void read_add ( DmenuModePrivateData * pd, char *data, gsize len )
     pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
     pd->cmd_list[pd->cmd_list_length].icon_name      = NULL;
     pd->cmd_list[pd->cmd_list_length].meta           = NULL;
-    char *end = strchr ( data, '\0' );
-    if ( end != NULL ) {
+    pd->cmd_list[pd->cmd_list_length].info           = NULL;
+    char *end = data;
+    while ( end < data + len && *end != '\0' ) {
+        end++;
+    }
+    if ( end != data + len ) {
         data_len = end - data;
         dmenuscript_parse_entry_extras ( NULL, &( pd->cmd_list[pd->cmd_list_length] ), end + 1, len - data_len );
     }
@@ -314,6 +318,7 @@ static void dmenu_mode_free ( Mode *sw )
                 g_free ( pd->cmd_list[i].entry );
                 g_free ( pd->cmd_list[i].icon_name );
                 g_free ( pd->cmd_list[i].meta );
+                g_free ( pd->cmd_list[i].info );
             }
         }
         g_free ( pd->cmd_list );
@@ -570,14 +575,14 @@ static void dmenu_finalize ( RofiViewState *state )
                     rofi_view_set_overlay ( state, NULL );
                 }
             }
-            else if ( ( mretv & ( MENU_OK | MENU_QUICK_SWITCH ) ) && cmd_list[pd->selected_line].entry != NULL ) {
+            else if ( ( mretv & ( MENU_OK | MENU_CUSTOM_COMMAND ) ) && cmd_list[pd->selected_line].entry != NULL ) {
                 if ( cmd_list[pd->selected_line].nonselectable == TRUE ) {
                     g_free ( input );
                     return;
                 }
                 dmenu_print_results ( pd, input );
                 retv = TRUE;
-                if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+                if ( ( mretv & MENU_CUSTOM_COMMAND ) ) {
                     retv = 10 + ( mretv & MENU_LOWER_MASK );
                 }
                 g_free ( input );
@@ -635,7 +640,7 @@ static void dmenu_finalize ( RofiViewState *state )
         retv = TRUE;
     }
     // Quick switch with entry selected.
-    else if ( ( mretv & MENU_QUICK_SWITCH ) ) {
+    else if ( ( mretv & MENU_CUSTOM_COMMAND ) ) {
         dmenu_print_results ( pd, input );
 
         restart = FALSE;
@@ -734,7 +739,6 @@ int dmenu_switcher_dialog ( void )
     find_arg_str (  "-p", &( dmenu_mode.display_name ) );
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, menu_flags, dmenu_finalize );
 
-
     if ( find_arg ( "-keep-right" ) >= 0 ) {
         rofi_view_ellipsize_start ( state );
     }
@@ -760,8 +764,8 @@ void print_dmenu_options ( void )
     print_help_msg ( "-l", "[integer] ", "Number of rows to display", NULL, is_term );
     print_help_msg ( "-window-title", "[string] ", "Set the dmenu window title", NULL, is_term );
     print_help_msg ( "-i", "", "Set filter to be case insensitive", NULL, is_term );
-    print_help_msg ( "-only-match", "", "Force selection or custom entry", NULL, is_term );
-    print_help_msg ( "-no-custom", "", "Don't accept custom entry", NULL, is_term );
+    print_help_msg ( "-only-match", "", "Force selection to be given entry, disallow no match", NULL, is_term );
+    print_help_msg ( "-no-custom", "", "Don't accept custom entry, allow no match", NULL, is_term );
     print_help_msg ( "-select", "[string]", "Select the first row that matches", NULL, is_term );
     print_help_msg ( "-password", "", "Do not show what the user inputs. Show '*' instead.", NULL, is_term );
     print_help_msg ( "-markup-rows", "", "Allow and render pango markup as input data.", NULL, is_term );

@@ -127,7 +127,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "run-shell-command",         { .str   = &config.run_shell_command                    }, NULL,
       "Run command to execute that runs in shell", CONFIG_DEFAULT },
     { xrm_String,  "window-command",            { .str   = &config.window_command                       }, NULL,
-      "Command executed on accep-entry-custom for window modus", CONFIG_DEFAULT },
+      "Command to executed when -kb-accept-alt binding is hit on selected window ", CONFIG_DEFAULT },
     { xrm_String,  "window-match-fields",       { .str   = &config.window_match_fields                  }, NULL,
       "Window fields to match in window mode", CONFIG_DEFAULT },
     { xrm_String,  "icon-theme",                { .str   = &config.icon_theme                           }, NULL,
@@ -135,13 +135,15 @@ static XrmOption xrmOptions[] = {
 
     { xrm_String,  "drun-match-fields",         { .str   = &config.drun_match_fields                    }, NULL,
       "Desktop entry fields to match in drun", CONFIG_DEFAULT },
-
     { xrm_String,  "drun-categories",           { .str   = &config.drun_categories                      }, NULL,
       "Only show Desktop entry from these categories", CONFIG_DEFAULT },
     { xrm_Boolean, "drun-show-actions",         { .num   = &config.drun_show_actions                    }, NULL,
       "Desktop entry show actions.", CONFIG_DEFAULT },
     { xrm_String,  "drun-display-format",       { .str   = &config.drun_display_format                  }, NULL,
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
+    { xrm_String,  "drun-url-launcher",         { .str   = &config.drun_url_launcher                    }, NULL,
+      "Command to open an Desktop Entry that is a Link.", CONFIG_DEFAULT },
+
     { xrm_Boolean, "disable-history",           { .num   = &config.disable_history                      }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
     { xrm_String,  "ignored-prefixes",          { .str   = &config.ignored_prefixes                     }, NULL,
@@ -224,7 +226,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "cache-dir",                 { .str   = &config.cache_dir                            }, NULL,
       "Directory where history and temporary files are stored.", CONFIG_DEFAULT },
     { xrm_Boolean, "window-thumbnail",          { .snum  = &config.window_thumbnail                     }, NULL,
-      "Show window thumbnail in window switcher if availalbe.", CONFIG_DEFAULT },
+      "Show window thumbnail (if available) as icon in window switcher.", CONFIG_DEFAULT },
     { xrm_Boolean, "drun-use-desktop-cache",    { .snum  = &config.drun_use_desktop_cache               }, NULL,
       "DRUN: build and use a cache with desktop file content.", CONFIG_DEFAULT },
     { xrm_Boolean, "drun-reload-desktop-cache", { .snum  = &config.drun_reload_desktop_cache            }, NULL,
@@ -422,7 +424,7 @@ void config_parse_cmd_options ( void )
 
 static gboolean __config_parser_set_property ( XrmOption *option, const Property *p, char **error  )
 {
-    if ( option->type == xrm_String  ) {
+    if ( option->type == xrm_String ) {
         if ( p->type != P_STRING && p->type != P_LIST ) {
             *error = g_strdup_printf ( "Option: %s needs to be set with a string not a %s.", option->name, PropertyTypeName[p->type] );
             return TRUE;
@@ -476,6 +478,14 @@ static gboolean __config_parser_set_property ( XrmOption *option, const Property
         }
         *( option->value.num ) = ( p->value.b );
         option->source         = CONFIG_FILE_THEME;
+    }
+    else if ( option->type == xrm_Char ) {
+        if ( p->type != P_CHAR ) {
+            *error = g_strdup_printf ( "Option: %s needs to be set with a character not a %s.", option->name, PropertyTypeName[p->type] );
+            return TRUE;
+        }
+        *( option->value.charc ) = ( p->value.c );
+        option->source           = CONFIG_FILE_THEME;
     }
     else {
         // TODO add type

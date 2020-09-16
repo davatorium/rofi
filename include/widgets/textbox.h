@@ -43,6 +43,17 @@
  *
  * @{
  */
+
+/** Cache to hold font descriptions. This it to avoid having to lookup each time. */
+typedef struct TBFontConfig
+{
+    /** Font description */
+    PangoFontDescription *pfd;
+    /** Font metrics */
+    PangoFontMetrics     *metrics;
+    /** height */
+    double               height;
+}TBFontConfig;
 /**
  * Internal structure of a textbox widget.
  * TODO make this internal to textbox
@@ -66,7 +77,8 @@ typedef struct
     double             yalign;
     double             xalign;
 
-    PangoFontMetrics   *metrics;
+    TBFontConfig       *tbfc;
+
     PangoEllipsizeMode emode;
     //
     const char         *theme_name;

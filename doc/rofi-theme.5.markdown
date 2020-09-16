@@ -334,12 +334,14 @@ It currently supports:
 * Format: `{Real}em`
 * Format: `{Real}ch`
 * Format: `{Real}%`
+* Format: `{Integer}mm`
 
 A distance can be specified in 3 different units:
 
 * `px`: Screen pixels.
 * `em`: Relative to text height.
 * `ch`: Relative to width of a single number.
+* `mm`: Actual size in millimeters (based on dpi).
 * `%`:  Percentage of the **monitor** size.
 
 Distances used in the horizontal direction use the monitor width. Distances in
@@ -351,6 +353,26 @@ For example:
 ```
 On a full-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left
 and right side and 108 pixels on the top and bottom.
+
+### Calculating sizes
+
+Rofi supports some maths in calculating sizes. For this it uses the CSS syntax:
+
+```
+width: calc( 100% - 37px );
+```
+
+It supports the following operations:
+
+* `+`   : Add
+* `-`   : Subtract
+* `/`   : Divide
+* `*`   : Multiply
+* `%`   : Multiply
+* `min` : Minimum of l or rvalue;
+* `max` : Maximum of l or rvalue;
+
+It uses the C precedence ordering.
 
 ## Padding
 
@@ -681,6 +703,29 @@ The following properties are currently supported:
 
 Each element is a `box` called `element`. Each `element` can contain an `element-icon` and `element-text`.
 
+### listview text highlight:
+
+The `element-text` widget in the `listview` is the one used to show the text.
+On this widget set the `highlight` property (only place this property is used) to change
+the style of highlighting.
+The `highlight` property consist of the `text-style` property and a color.
+
+To disable highlighting:
+
+```css
+  element-text {
+    highlight: None;
+  }
+```
+
+To set to red underlined:
+
+```css
+  element-text {
+    highlight: underline red;
+  }
+```
+
 ## Layout
 
 The new format allows the layout of the **rofi** window to be tweaked extensively.
@@ -837,6 +882,7 @@ element selected {
 }
 ```
 
+
 ### Padding and margin
 
 Just like CSS, **rofi** uses the box model for each widget.
@@ -941,21 +987,29 @@ rofi -dump-theme
 Parts of the theme can be conditionally loaded, like the CSS `@media` option.
 
 ```
-@media ( min-width: 120px ) {
+@media ( min-width: 120 ) {
 
 }
 ```
 
 It supports the following keys as constraint:
 
- * `min-width`:         load when width is bigger then value.
+ * `min-width`:         load when width is bigger or equal then value.
  * `max-width`:         load when width is smaller then value.
- * `min-height`:        load when height is bigger then value.
+ * `min-height`:        load when height is bigger or equal then value.
  * `max-height`:        load when height is smaller then value.
  * `min-aspect-ratio`   load when aspect ratio is over value.
- * `max-aspect_ratio`:  load when aspect ratio is under value.
+ * `max-aspect-ratio`:  load when aspect ratio is under value.
  * `monitor-id`:        The monitor id, see rofi -help for id's.
 
+@media takes an integer number or a fraction, for integer number `px` can be added.
+
+
+```
+@media ( min-width: 120 px ) {
+
+}
+```
 
 ## Multiple file handling
 

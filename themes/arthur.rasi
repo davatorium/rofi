@@ -53,7 +53,7 @@
     transparent: rgba(0,0,0,0);
     font: "Source Code Pro 10";
 }
-#window {
+window {
     location: center;
     anchor:   center;
     transparency: "screenshot";
@@ -67,24 +67,24 @@
     orientation: horizontal;
 }
 
-#mainbox {
+mainbox {
     spacing: 0;
     children: [ inputbar, message, listview ];
 }
 
-#message {
+message {
     border-color: @foreground;
     border:  0px 2px 2px 2px;
 //    border-radius: 10px;
     padding: 5;
     background-color: @tcyan;
 }
-#message {
+message {
     font: "Source Code Pro 8";
     color: @black;
 }
 
-#inputbar {
+inputbar {
     color: @lightgreen;
     padding: 11px;
     background-color: @tlightblack;
@@ -93,14 +93,14 @@
     border-color: @foreground;
     font: "Source Code Pro 18";
 }
-#entry,prompt,case-indicator {
+entry,prompt,case-indicator {
     text-font: inherit;
     text-color:inherit;
 }
-#prompt {
+prompt {
     margin:     0px 0.3em 0em 0em ;
 }
-#listview {
+listview {
     padding: 8px;
     border-radius: 0px 0px 15px 15px;
     border-color: @foreground;
@@ -109,7 +109,7 @@
     dynamic: false;
     lines: 10;
 }
-#element {
+element {
     padding: 3px;
     vertical-align: 0.5;
 //    border: 2px;
@@ -118,50 +118,50 @@
     color: @foreground;
     font:inherit;
 }
-#element selected.normal {
+element selected.normal {
     background-color: @blue;
 }
-#element normal active {
+element normal active {
     foreground: @lightblue;
 }
-#element normal urgent {
+element normal urgent {
     foreground: @lightred;
 }
-#element alternate normal {
+element alternate normal {
 }
-#element alternate active {
+element alternate active {
     foreground: @lightblue;
 }
-#element alternate urgent {
+element alternate urgent {
     foreground: @lightred;
 }
-#element selected active {
+element selected active {
     background-color: @lightblue;
     foreground: @dark;
 }
-#element selected urgent {
+element selected urgent {
     background-color: @lightred;
     foreground: @dark;
 }
-#element normal normal {
+element normal normal {
 
 }
 
-#vertb {
+vertb {
     expand: false;
     children: [ dummy0, mode-switcher, dummy1  ];
 }
-#dummy0,  dummy1 {
+dummy0,  dummy1 {
     expand: true;
 }
 
-#mode-switcher {
+mode-switcher {
     expand: false;
     orientation: vertical;
     spacing: 0px;
     border: 0px 0px 0px 0px;
 }
-#button {
+button {
     font: "FontAwesome 22";
     padding: 6px;
     border: 2px 0px 2px 2px;
@@ -171,10 +171,17 @@
     color: @foreground;
     horizontal-align: 0.5;
 }
-#button selected normal {
+button selected normal {
     color: @dark;
     border: 2px 0px 2px 2px;
     background-color: @backlight;
     border-color: @foreground;
 }
 
+error-message {
+    expand: true;
+    background-color: red;
+    border-color: darkred;
+    border: 2px;
+    padding: 1em;
+}

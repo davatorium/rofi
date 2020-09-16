@@ -193,10 +193,10 @@ static void run_switcher ( ModeMode mode )
     RofiViewState * state = rofi_view_create ( modi[mode], config.filter, 0, process_result );
 
     // User can pre-select a row.
-    if ( find_arg ( "-selected-row" ) >= 0 ){
-	unsigned int sr = 0;
-	find_arg_uint (  "-selected-row", &(sr) );
-	rofi_view_set_selected_line ( state, sr );
+    if ( find_arg ( "-selected-row" ) >= 0 ) {
+        unsigned int sr = 0;
+        find_arg_uint (  "-selected-row", &( sr ) );
+        rofi_view_set_selected_line ( state, sr );
     }
     if ( state ) {
         rofi_view_set_active ( state );
@@ -208,7 +208,7 @@ static void run_switcher ( ModeMode mode )
 void process_result ( RofiViewState *state )
 {
     Mode *sw = state->sw;
-    rofi_view_set_active ( NULL );
+ //   rofi_view_set_active ( NULL );
     if ( sw != NULL ) {
         unsigned int selected_line = rofi_view_get_selected_line ( state );;
         MenuReturn   mretv         = rofi_view_get_return_value ( state );
@@ -246,11 +246,17 @@ void process_result ( RofiViewState *state )
              * Load in the new mode.
              */
             rofi_view_switch_mode ( state, modi[mode] );
-            rofi_view_set_active ( state );
             curr_switcher = mode;
             return;
+        } else {
+          // On exit, free current view, and pop to one above.
+          rofi_view_remove_active ( state );
+          rofi_view_free ( state );
+          return;
         }
     }
+//    rofi_view_set_active ( NULL );
+          rofi_view_remove_active ( state );
     rofi_view_free ( state );
 }
 
@@ -285,7 +291,7 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-dump-xresources", "", "Dump the current configuration in Xresources format and exit.", NULL, is_term );
     print_help_msg ( "-e", "[string]", "Show a dialog displaying the passed message and exit.", NULL, is_term );
     print_help_msg ( "-markup", "", "Enable pango markup where possible.", NULL, is_term );
-    print_help_msg ( "-normal-window", "", "In dmenu mode, behave as a normal window. (experimental)", NULL, is_term );
+    print_help_msg ( "-normal-window", "", "Behave as a normal window. (experimental)", NULL, is_term );
     print_help_msg ( "-show", "[mode]", "Show the mode 'mode' and exit. The mode has to be enabled.", NULL, is_term );
     print_help_msg ( "-no-lazy-grab", "", "Disable lazy grab that, when fail to grab keyboard, does not block but retry later.", NULL, is_term );
     print_help_msg ( "-no-plugins", "", "Disable loading of external plugins.", NULL, is_term );
@@ -512,7 +518,7 @@ static void rofi_collect_modi_dir ( const char *base_dir )
             if ( !g_str_has_suffix ( dn, G_MODULE_SUFFIX ) ) {
                 continue;
             }
-            char    *fn  = g_build_filename ( base_dir, dn, NULL );
+            char    *fn = g_build_filename ( base_dir, dn, NULL );
             g_debug ( "Trying to open: %s plugin", fn );
             GModule *mod = g_module_open ( fn, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL );
             if ( mod ) {
@@ -565,7 +571,7 @@ static void rofi_collect_modi ( void )
         g_debug ( "Parse plugin path: %s", config.plugin_path );
         rofi_collect_modi_dir ( config.plugin_path );
         /* ROFI_PLUGIN_PATH */
-        const char *path = g_getenv("ROFI_PLUGIN_PATH");
+        const char *path = g_getenv ( "ROFI_PLUGIN_PATH" );
         if ( path != NULL ) {
             gchar ** paths = g_strsplit ( path, ":", -1 );
             for ( unsigned int i = 0; paths[i]; i++ ) {
@@ -788,6 +794,17 @@ int main ( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
 
+    {
+        const char *ro_pid = g_getenv ( "ROFI_OUTSIDE" );
+        if ( ro_pid != NULL ) {
+            int ro_pidi = g_ascii_strtoll ( ro_pid, NULL, 0 );
+            if ( kill ( ro_pidi, 0 ) == 0 ) {
+                printf ( "Do not launch rofi from inside rofi.\r\n" );
+                return EXIT_FAILURE;
+            }
+        }
+    }
+
     // Detect if we are in dmenu mode.
     // This has two possible causes.
     // 1 the user specifies it on the command-line.
@@ -869,40 +886,41 @@ int main ( int argc, char *argv[] )
 
     if ( find_arg ( "-no-config" ) < 0 ) {
         // Load distro default settings
-        gboolean found_system = FALSE;
-        const char * const * dirs = g_get_system_config_dirs();
-        if ( dirs )
-        {
-            for ( unsigned int i =0;  !found_system &&  dirs[i]; i++ ) {
+        gboolean           found_system = FALSE;
+        const char * const * dirs       = g_get_system_config_dirs ();
+        if ( dirs ) {
+            for ( unsigned int i = 0; !found_system && dirs[i]; i++ ) {
                 /** New format. */
                 gchar *etc = g_build_filename ( dirs[i], "rofi.rasi", NULL );
                 g_debug ( "Look for default config file: %s", etc );
                 if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
                     g_debug ( "Parsing: %s", etc );
                     rofi_theme_parse_file ( etc );
-                    found_system  = TRUE;
-                } else {
+                    found_system = TRUE;
+                }
+                else {
                     /** Old format. */
                     gchar *xetc = g_build_filename ( dirs[i], "rofi.conf", NULL );
                     g_debug ( "Look for default config file: %s", xetc );
                     if ( g_file_test ( xetc, G_FILE_TEST_IS_REGULAR ) ) {
                         config_parse_xresource_options_file ( xetc );
                         old_config_format = TRUE;
-                        found_system  = TRUE;
+                        found_system      = TRUE;
                     }
                     g_free ( xetc );
                 }
                 g_free ( etc );
             }
         }
-        if ( ! found_system  ) {
+        if ( !found_system  ) {
             /** New format. */
             gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.rasi", NULL );
             g_debug ( "Look for default config file: %s", etc );
             if ( g_file_test ( etc, G_FILE_TEST_IS_REGULAR ) ) {
                 g_debug ( "Look for default config file: %s", etc );
                 rofi_theme_parse_file ( etc );
-            } else {
+            }
+            else {
                 /** Old format. */
                 gchar *xetc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
                 g_debug ( "Look for default config file: %s", xetc );
@@ -1094,17 +1112,24 @@ int main ( int argc, char *argv[] )
     if ( find_arg_uint ( "-record-screenshots", &interval ) ) {
         g_timeout_add ( 1000 / (double) interval, record, NULL );
     }
+    if ( find_arg ( "-benchmark-ui" ) >= 0 ) {
+        config.benchmark_ui = TRUE;
+    }
 
     rofi_view_workers_initialize ();
+    TICK_N ( "Workers initialize" );
     rofi_icon_fetcher_init ( );
+    TICK_N ( "Icon fetcher initialize" );
 
     // Create pid file
     int pfd = create_pid_file ( pidfile );
+    TICK_N ( "Pid file created" );
     if ( pfd < 0 ) {
         cleanup ();
         return EXIT_FAILURE;
     }
     textbox_setup ();
+    TICK_N ( "Text box setup" );
 
     if ( !display_late_setup () ) {
         g_warning ( "Failed to properly finish display setup" );

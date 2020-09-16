@@ -78,18 +78,18 @@ typedef struct
  *
  * Execute command and add to history.
  */
-static void exec_cmd ( const char *cmd, int run_in_term )
+static gboolean exec_cmd ( const char *cmd, int run_in_term )
 {
     GError *error = NULL;
     if ( !cmd || !cmd[0] ) {
-        return;
+        return FALSE;
     }
     gsize lf_cmd_size = 0;
     gchar *lf_cmd     = g_locale_from_utf8 ( cmd, -1, NULL, &lf_cmd_size, &error );
     if ( error != NULL ) {
         g_warning ( "Failed to convert command to locale encoding: %s", error->message );
         g_error_free ( error );
-        return;
+        return FALSE;
     }
 
     char                     *path   = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
@@ -102,12 +102,16 @@ static void exec_cmd ( const char *cmd, int run_in_term )
          */
 
         history_set ( path, cmd );
+        g_free ( path );
+        g_free ( lf_cmd );
+        return TRUE;
     }
     else {
         history_remove ( path, cmd );
+        g_free ( path );
+        g_free ( lf_cmd );
+        return FALSE;
     }
-    g_free ( path );
-    g_free ( lf_cmd );
 }
 
 /**
@@ -370,20 +374,15 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
 
     gboolean           run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
 
-    if ( mretv & MENU_NEXT ) {
-        retv = NEXT_DIALOG;
-    }
-    else if ( mretv & MENU_PREVIOUS ) {
-        retv = PREVIOUS_DIALOG;
-    }
-    else if ( mretv & MENU_QUICK_SWITCH ) {
-        retv = ( mretv & MENU_LOWER_MASK );
-    }
-    else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
-        exec_cmd ( rmpd->cmd_list[selected_line], run_in_term );
+    if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
+        if ( !exec_cmd ( rmpd->cmd_list[selected_line], run_in_term ) ) {
+          retv = RELOAD_DIALOG;
+        }
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        exec_cmd ( *input, run_in_term );
+        if ( !exec_cmd ( *input, run_in_term ) ) {
+          retv = RELOAD_DIALOG;
+        }
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {
         delete_entry ( rmpd->cmd_list[selected_line] );

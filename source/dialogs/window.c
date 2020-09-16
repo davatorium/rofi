@@ -453,6 +453,7 @@ static unsigned int window_mode_get_num_entries ( const Mode *sw )
  * Small helper function to find the right entry in the ewmh reply.
  * Is there a call for this?
  */
+const char *invalid_desktop_name = "n/a";
 static const char * _window_name_list_entry  ( const char *str, uint32_t length, int entry )
 {
     uint32_t offset = 0;
@@ -462,6 +463,9 @@ static const char * _window_name_list_entry  ( const char *str, uint32_t length,
             index++;
         }
         offset++;
+    }
+    if ( offset >= length ) {
+        return invalid_desktop_name;
     }
     return &str[offset];
 }
@@ -646,16 +650,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
 {
     ModeModePrivateData *rmpd = (ModeModePrivateData *) mode_get_private_data ( sw );
     ModeMode            retv  = MODE_EXIT;
-    if ( mretv & MENU_NEXT ) {
-        retv = NEXT_DIALOG;
-    }
-    else if ( mretv & MENU_PREVIOUS ) {
-        retv = PREVIOUS_DIALOG;
-    }
-    else if ( ( mretv & MENU_QUICK_SWITCH ) == MENU_QUICK_SWITCH ) {
-        retv = ( mretv & MENU_LOWER_MASK );
-    }
-    else if ( ( mretv & ( MENU_OK ) ) ) {
+    if ( ( mretv & ( MENU_OK ) ) ) {
         if ( mretv & MENU_CUSTOM_ACTION ) {
             act_on_window ( rmpd->ids->array[selected_line] );
         }
@@ -701,6 +696,23 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
     else if ( ( mretv & ( MENU_ENTRY_DELETE ) ) == MENU_ENTRY_DELETE ) {
         xcb_ewmh_request_close_window ( &( xcb->ewmh ), xcb->screen_nbr, rmpd->ids->array[selected_line], XCB_CURRENT_TIME, XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER );
         xcb_flush ( xcb->connection );
+    }
+    else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
+      GError *error = NULL;
+      gboolean           run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
+      gsize lf_cmd_size = 0;
+      gchar *lf_cmd     = g_locale_from_utf8 ( *input, -1, NULL, &lf_cmd_size, &error );
+      if ( error != NULL ) {
+        g_warning ( "Failed to convert command to locale encoding: %s", error->message );
+        g_error_free ( error );
+        return RELOAD_DIALOG;
+      }
+
+      RofiHelperExecuteContext context = { .name = NULL };
+      if (  ! helper_execute_command ( NULL, lf_cmd, run_in_term, run_in_term ? &context : NULL ) ) {
+        retv = RELOAD_DIALOG;
+      }
+      g_free ( lf_cmd );
     }
     return retv;
 }

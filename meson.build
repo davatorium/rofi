@@ -51,9 +51,11 @@ deps = [
     c_compiler.find_library('m', required: false),
 ]
 
+
+gwxcb = subproject('xcb')
 # XCB stuff
 deps += [
-    subproject('libgwater/xcb').get_variable('libgwater_xcb'),
+    gwxcb.get_variable('libgwater_xcb'),
     dependency('xcb-aux'),
     dependency('xcb-xkb'),
     dependency('xkbcommon-x11'),

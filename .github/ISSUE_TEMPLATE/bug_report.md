@@ -19,7 +19,7 @@ Output of `rofi -v`
 
 ## Configuration
 
-Output of `rofi -help` (in a [gist](https://gist.github.com/))
+Output of `rofi -help` (in a [gist](https://gist.github.com/), please paste the *full* output)
 
 
 ## Launch Command

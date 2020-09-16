@@ -16,7 +16,7 @@
     anchor: north;
     location: center;
 }
-#window {
+window {
     transparency: "screenshot";
     background-color: #00000000;
     border: 0;
@@ -24,103 +24,110 @@
     x-offset: 0;
     y-offset: -10%;
 }
-#mainbox {
+mainbox {
     padding: 0px;
     border: 0;
     spacing: 1%;
 }
-#message {
-    border: 2px; 
-    padding: 1em; 
-    background-color: @white; 
+message {
+    border: 2px;
+    padding: 1em;
+    background-color: @white;
     text-color: @back;
 }
-#textbox normal {
+textbox normal {
     text-color: #002B36FF;
     padding: 0;
     border: 0;
 }
-#listview {
+listview {
     fixed-height: 1;
     border: 2px;
     padding: 1em;
     reverse: false;
 
     columns: 1;
-    background-color: @white; 
+    background-color: @white;
 }
-#element {
+element {
     border: 0;
     padding: 2px;
     highlight: bold ;
 }
-#element normal.normal {
+element normal.normal {
     text-color: #002B36FF;
     background-color: #F5F5F500;
 }
-#element normal.urgent {
+element normal.urgent {
     text-color: #D75F00FF;
     background-color: #F5F5F5FF;
 }
-#element normal.active {
+element normal.active {
     text-color: #005F87FF;
     background-color: #F5F5F5FF;
 }
-#element selected.normal {
+element selected.normal {
     text-color: #F5F5F5FF;
     background-color: #4271AEFF;
 }
-#element selected.urgent {
+element selected.urgent {
     text-color: #F5F5F5FF;
     background-color: #D75F00FF;
 }
-#element selected.active {
+element selected.active {
     text-color: #F5F5F5FF;
     background-color: #005F87FF;
 }
-#element alternate.normal {
+element alternate.normal {
     text-color: #002B36FF;
     background-color: #D0D0D0FF;
 }
-#element alternate.urgent {
+element alternate.urgent {
     text-color: #D75F00FF;
     background-color: #D0D0D0FF;
 }
-#element alternate.active {
+element alternate.active {
     text-color: #005F87FF;
     background-color: #D0D0D0FF;
 }
-#scrollbar {
+scrollbar {
     border: 0;
     padding: 0;
 }
-#inputbar {
+inputbar {
     spacing: 0;
     border: 2px;
     padding: 0.5em 1em;
     background-color: @grey;
     index: 0;
 }
-#inputbar normal {
+inputbar normal {
     foreground-color: #002B36FF;
     background-color: #F5F5F500;
 }
 
-#mode-switcher {
+mode-switcher {
     border: 2px;
     padding: 0.5em 1em;
     background-color: @grey;
     index: 10;
 }
-#button selected {
+button selected {
     text-color: #4271AEFF;
 }
-#inputbar {
+inputbar {
     children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
 }
-#textbox-prompt-colon {
+textbox-prompt-colon {
     expand:     false;
     str:        ":";
     margin:     0px 0.3em 0em 0em ;
     text-color: @normal-foreground;
+}
+
+error-message {
+    border: 2px;
+    padding: 1em;
+    background-color: #FF8888;
+    text-color: @back;
 }

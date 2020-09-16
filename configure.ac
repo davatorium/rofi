@@ -1,4 +1,4 @@
-AC_INIT([rofi], [1.5.4-dev], [https://github.com/davatorium/rofi/],[],[https://reddit.com/r/qtools/])
+AC_INIT([rofi], [1.6.0-dev], [https://github.com/davatorium/rofi/],[],[https://reddit.com/r/qtools/])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
@@ -10,7 +10,27 @@ dnl ---------------------------------------------------------------------
 AC_PROG_LEX([flex])
 AC_PROG_YACC
 
-AS_IF([test "x${YACC}" != "xbison -y" ], [AC_MSG_ERROR( "Failed to find bison")])
+
+AC_DEFUN([AX_PROG_BISON], [
+  AC_REQUIRE([AC_PROG_YACC])
+  AC_REQUIRE([AC_PROG_EGREP])
+
+  AC_CACHE_CHECK([if bison is the parser generator],[ax_cv_prog_bison],[
+    AS_IF([$YACC --version 2>/dev/null | $EGREP -q '^bison '],
+      [ax_cv_prog_bison=yes], [ax_cv_prog_bison=no])
+  ])
+  AS_IF([test "$ax_cv_prog_bison" = "yes"], [
+      dnl replace the yacc-compatible compiler with the real bison, as
+      dnl otherwise autoconf limits us to the POSIX yacc.
+      dnl We also change the generated filename to the old one, so that
+      dnl automake's ylwrap can deal with it.
+      YACC="${YACC% -y} -o y.tab.c"
+    ] m4_ifnblank([$1], [[$1]]),
+    m4_ifnblank([$2], [[$2]])
+  )
+])
+
+AX_PROG_BISON([],[AC_MSG_ERROR("Failed to find bison")])
 
 m4_include([m4/ax_prog_flex_version.m4])
 m4_include([m4/ax_compare_version.m4])
