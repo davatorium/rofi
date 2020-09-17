@@ -604,7 +604,7 @@ Separator for `dmenu`. Example: To show a list of 'a' to 'e' with '|' as a separ
 
 Specify the prompt to show in `dmenu` mode. For example, select 'monkey', a,b,c,d, or e.
 
-    echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey:"
+    echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey"
 
 Default: *dmenu*
 
