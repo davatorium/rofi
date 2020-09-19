@@ -226,6 +226,7 @@ install_man(
     'doc/rofi.1',
     'doc/rofi-theme-selector.1',
     'doc/rofi-sensible-terminal.1',
+    'doc/rofi-script.5',
     'doc/rofi-theme.5',
 )
 
