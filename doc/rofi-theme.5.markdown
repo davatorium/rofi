@@ -9,7 +9,7 @@
 The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed. From a very
 static drawing of lines and text to a nice structured form of packing widgets. This change made it possible to provide a
 more flexible theme framework. The old theme format and config file are not flexible enough to expose these options in a
-user-friendly way. Therefor, a new file format has been created, replacing the old one.
+user-friendly way. Therefore, a new file format has been created, replacing the old one.
 
 ## FORMAT SPECIFICATION
 
