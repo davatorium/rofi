@@ -58,7 +58,7 @@ mkdir build && cd build
 Check dependencies and configure build system:
 
 ```
-../configure
+./configure
 ```
 
 Build Rofi:
@@ -140,7 +140,7 @@ The most useful one to set the installation prefix:
 
 ```
 # Autotools
-../configure --prefix=<installation path>
+./configure --prefix=<installation path>
 
 # Meson
 meson setup build --prefix <installation path>
@@ -150,7 +150,7 @@ f.e.
 
 ```
 # Autotools
-../configure --prefix=/usr/
+./configure --prefix=/usr/
 
 # Meson
 meson setup build --prefix /usr
@@ -162,7 +162,7 @@ or to install locally:
 
 ```
 # Autotools
-../configure --prefix=${HOME}/.local/
+./configure --prefix=${HOME}/.local/
 
 # Meson
 meson setup build --prefix ${HOME}/.local
