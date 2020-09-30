@@ -214,6 +214,12 @@ Show the indicator that shows what part of the string is matched.
 
     Default: *true*
 
+`-normalize-match`
+
+Normalize the string before matching, so o will match ö, and é matches e.
+This is not a perfect implementation, but works.
+For now it disabled highlighting of the matched part. 
+
 `-no-lazy-grab`
 
 Disables lazy grab, this forces the keyboard being grabbed before gui is shown.

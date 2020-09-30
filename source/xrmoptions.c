@@ -231,6 +231,8 @@ static XrmOption xrmOptions[] = {
       "DRUN: build and use a cache with desktop file content.", CONFIG_DEFAULT },
     { xrm_Boolean, "drun-reload-desktop-cache", { .snum  = &config.drun_reload_desktop_cache            }, NULL,
       "DRUN: If enabled, reload the cache with desktop file content.", CONFIG_DEFAULT },
+    { xrm_Boolean, "normalize-match", 		      { .snum  = &config.normalize_match                      }, NULL,
+            "Normalize string when matching (implies -no-show-match).", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

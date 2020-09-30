@@ -170,5 +170,8 @@ Settings config = {
     .drun_reload_desktop_cache = FALSE,
 
     /** Benchmarks */
-    .benchmark_ui              = FALSE
+    .benchmark_ui              = FALSE,
+
+    /** normalize match */
+    .normalize_match 	       = FALSE
 };
