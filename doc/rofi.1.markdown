@@ -304,6 +304,10 @@ Show actions present in the Desktop files.
 
     Default: false
 
+`-drun-local-only`
+
+Only load desktop files from user local data directory.
+
 `-window-match-fields` *field1*,*field2*,...
 
 When using window mode, match only with the specified fields.

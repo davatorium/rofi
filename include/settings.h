@@ -130,6 +130,8 @@ typedef struct
     char           * drun_display_format;
     /** Desktop Link launch command */
     char           * drun_url_launcher;
+    /** Desktop Local XDG Data onlu */
+    gboolean       drun_local_desktop_only;
 
     /** Search case sensitivity */
     unsigned int   case_sensitive;
@@ -203,6 +205,8 @@ typedef struct
 
     /** Benchmark */
     gboolean       benchmark_ui;
+
+    gboolean       normalize_match;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

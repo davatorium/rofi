@@ -723,7 +723,7 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
 * Cache voodoo                            *
 *******************************************/
 
-#define CACHE_VERSION    1
+#define CACHE_VERSION    2
 static void drun_write_str ( FILE *fd, const char *str )
 {
     size_t l = ( str == NULL ? 0 : strlen ( str ) );
@@ -732,6 +732,17 @@ static void drun_write_str ( FILE *fd, const char *str )
     if ( l > 0 ) {
         // Also writeout terminating '\0'
         fwrite ( str, 1, l + 1, fd );
+    }
+}
+static void drun_write_integer ( FILE *fd, int32_t val )
+{
+    fwrite ( &val,sizeof(val), 1, fd );
+}
+static void drun_read_integer ( FILE *fd, int32_t *type )
+{
+    if ( fread ( type, sizeof ( int32_t), 1, fd ) != 1 ) {
+        g_warning ( "Failed to read entry, cache corrupt?" );
+        return;
     }
 }
 static void drun_read_string ( FILE *fd, char **str )
@@ -810,6 +821,7 @@ static void write_cache ( DRunModePrivateData *pd, const char *cache_file )
         drun_write_strv ( fd, entry->keywords );
 
         drun_write_str ( fd, entry->comment );
+        drun_write_integer ( fd, (int32_t)entry->type );
     }
 
     fclose ( fd );
@@ -842,21 +854,21 @@ static gboolean drun_read_cache ( DRunModePrivateData *pd, const char *cache_fil
         fclose ( fd );
         g_warning ( "Cache corrupt, ignoring." );
         TICK_N ( "DRUN Read CACHE: stop" );
-        return FALSE;
+        return TRUE;
     }
 
     if ( version != CACHE_VERSION ) {
         fclose ( fd );
         g_warning ( "Cache file wrong version, ignoring." );
         TICK_N ( "DRUN Read CACHE: stop" );
-        return FALSE;
+        return TRUE;
     }
 
     if ( fread ( &( pd->cmd_list_length ), sizeof ( pd->cmd_list_length ), 1, fd ) != 1 ) {
         fclose ( fd );
         g_warning ( "Cache corrupt, ignoring." );
         TICK_N ( "DRUN Read CACHE: stop" );
-        return FALSE;
+        return TRUE;
     }
     // set actual length to length;
     pd->cmd_list_length_actual = pd->cmd_list_length;
@@ -880,6 +892,9 @@ static gboolean drun_read_cache ( DRunModePrivateData *pd, const char *cache_fil
         drun_read_stringv ( fd, &( entry->keywords ) );
 
         drun_read_string ( fd, &( entry->comment ) );
+        int32_t type = 0;
+        drun_read_integer( fd, &( type ) );
+        entry->type = type;
     }
 
     fclose ( fd );
@@ -898,6 +913,7 @@ static void get_apps ( DRunModePrivateData *pd )
         walk_dir ( pd, dir, dir );
         g_free ( dir );
         TICK_N ( "Get Desktop apps (user dir)" );
+        if ( config.drun_local_desktop_only == FALSE ) {
         // Then read thee system data dirs.
         const gchar * const * sys = g_get_system_data_dirs ();
         for ( const gchar * const *iter = sys; *iter != NULL; ++iter ) {
@@ -916,6 +932,7 @@ static void get_apps ( DRunModePrivateData *pd )
             }
         }
         TICK_N ( "Get Desktop apps (system dirs)" );
+        }
         get_apps_history ( pd );
 
         g_qsort_with_data ( pd->entry_list, pd->cmd_list_length, sizeof ( DRunModeEntry ), drun_int_sort_list, NULL );
@@ -1012,16 +1029,7 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     ModeMode            retv  = MODE_EXIT;
 
-    if ( mretv & MENU_NEXT ) {
-        retv = NEXT_DIALOG;
-    }
-    else if ( mretv & MENU_PREVIOUS ) {
-        retv = PREVIOUS_DIALOG;
-    }
-    else if ( mretv & MENU_QUICK_SWITCH ) {
-        retv = ( mretv & MENU_LOWER_MASK );
-    }
-    else if ( ( mretv & MENU_OK )  ) {
+    if ( ( mretv & MENU_OK )  ) {
         switch ( rmpd->entry_list[selected_line].type )
         {
         case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
@@ -1035,7 +1043,12 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         }
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        retv = RELOAD_DIALOG;
+        RofiHelperExecuteContext context = { .name = NULL };
+        gboolean             run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
+        // FIXME: We assume startup notification in terminals, not in others
+        if ( ! helper_execute_command ( NULL, *input, run_in_term, run_in_term ? &context : NULL ) ) {
+            retv = RELOAD_DIALOG;
+        }
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
         // Possitive sort index means it is in history.

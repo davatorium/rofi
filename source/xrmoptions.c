@@ -127,7 +127,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "run-shell-command",         { .str   = &config.run_shell_command                    }, NULL,
       "Run command to execute that runs in shell", CONFIG_DEFAULT },
     { xrm_String,  "window-command",            { .str   = &config.window_command                       }, NULL,
-      "Command executed on accep-entry-custom for window modus", CONFIG_DEFAULT },
+      "Command to executed when -kb-accept-alt binding is hit on selected window ", CONFIG_DEFAULT },
     { xrm_String,  "window-match-fields",       { .str   = &config.window_match_fields                  }, NULL,
       "Window fields to match in window mode", CONFIG_DEFAULT },
     { xrm_String,  "icon-theme",                { .str   = &config.icon_theme                           }, NULL,
@@ -143,6 +143,8 @@ static XrmOption xrmOptions[] = {
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
     { xrm_String,  "drun-url-launcher",         { .str   = &config.drun_url_launcher                    }, NULL,
       "Command to open an Desktop Entry that is a Link.", CONFIG_DEFAULT },
+    { xrm_Boolean, "drun-local-only",         { .num   = &config.drun_local_desktop_only}, NULL,
+      "Only show Desktop entry in user home data directiory", CONFIG_DEFAULT },
 
     { xrm_Boolean, "disable-history",           { .num   = &config.disable_history                      }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
@@ -231,6 +233,8 @@ static XrmOption xrmOptions[] = {
       "DRUN: build and use a cache with desktop file content.", CONFIG_DEFAULT },
     { xrm_Boolean, "drun-reload-desktop-cache", { .snum  = &config.drun_reload_desktop_cache            }, NULL,
       "DRUN: If enabled, reload the cache with desktop file content.", CONFIG_DEFAULT },
+    { xrm_Boolean, "normalize-match", 		      { .snum  = &config.normalize_match                      }, NULL,
+            "Normalize string when matching (implies -no-show-match).", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */
