@@ -658,4 +658,4 @@ Mode ssh_mode =
     .private_data       = NULL,
     .free               = NULL
 };
-/*@}*/
+/**@}*/

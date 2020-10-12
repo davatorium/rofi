@@ -42,5 +42,5 @@
 /** #Mode object representing the run dialog. */
 extern Mode run_mode;
 
-/*@}*/
+/**@}*/
 #endif // DIALOG_RUN_H

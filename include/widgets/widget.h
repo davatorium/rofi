@@ -348,5 +348,5 @@ int widget_get_absolute_xpos ( widget *wid );
  */
 int widget_get_absolute_ypos ( widget *wid );
 
-/*@}*/
+/**@}*/
 #endif // ROFI_WIDGET_H

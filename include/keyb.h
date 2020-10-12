@@ -184,5 +184,5 @@ gboolean parse_keys_abe ( NkBindings *bindings );
  */
 void setup_abe ( void );
 
-/*@}*/
+/**@}*/
 #endif // ROFI_KEYB_H

@@ -67,5 +67,5 @@ void history_remove ( const char *filename, const char *entry ) __attribute__( (
  */
 char ** history_get_list ( const char *filename, unsigned int * length ) __attribute__( ( nonnull ) );
 
-/*@}*/
+/**@}*/
 #endif // ROFI_HISTORY_H

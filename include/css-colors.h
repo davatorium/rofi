@@ -29,5 +29,5 @@ extern const CSSColor CSSColors[];
  * Number of named colors.
  */
 extern const unsigned int num_CSSColors;
-/* @} */
+/** @} */
 #endif // ROFI_INCLUDE_CSS_COLORS_H

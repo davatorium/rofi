@@ -269,7 +269,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
  *
  * Match the entry.
  *
- * @param returns try when a match.
+ * @returns try when a match.
  */
 static int file_browser_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
