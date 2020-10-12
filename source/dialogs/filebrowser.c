@@ -31,6 +31,9 @@
 #include <gmodule.h>
 #include <gio/gio.h>
 
+#include <sys/types.h>
+#include <dirent.h>
+
 #include "mode.h"
 #include "helper.h"
 #include "mode-private.h"

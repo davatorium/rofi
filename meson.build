@@ -12,6 +12,7 @@ c_compiler = meson.get_compiler('c')
 add_project_arguments(
     '-I@0@'.format(meson.build_root()),
     '-I@0@'.format(join_paths(meson.source_root(), 'include')),
+    '-D_DEFAULT_SOURCE=1',
     language: 'c'
 )
 

@@ -119,6 +119,7 @@ AC_CHECK_FUNC([fcntl],,    AC_MSG_ERROR("Could not find fcntl"))
 AC_CHECK_FUNC([setlocale],,AC_MSG_ERROR("Could not find setlocale"))
 AC_CHECK_FUNC([atexit],,   AC_MSG_ERROR("Could not find atexit in c library"))
 AC_CHECK_FUNC([glob],,     AC_MSG_ERROR("Could not find glob in c library"))
+AC_CHECK_FUNC([readdir],,  AC_MSG_ERROR("Could not find readdir in c library"))
 
 AC_CHECK_HEADER([math.h],, AC_MSG_ERROR("Could not find math.h header file"))
 AC_SEARCH_LIBS([floor],[m],,      AC_MSG_ERROR("Could not find floor in math library"))
