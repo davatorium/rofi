@@ -89,6 +89,7 @@ SOURCES=\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
+	source/dialogs/filebrowser.c\
 	include/display.h\
 	include/xcb.h\
 	include/xcb-internal.h\
@@ -125,6 +126,7 @@ SOURCES=\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
 	include/dialogs/help-keys.h\
+	include/dialogs/filebrowser.h\
 	include/dialogs/dmenuscriptshared.h\
 	resources/resources.c\
 	resources/resources.h

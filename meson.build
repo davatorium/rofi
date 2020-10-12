@@ -165,6 +165,7 @@ rofi_sources = files(
         'source/dialogs/window.c',
         'source/dialogs/script.c',
         'source/dialogs/help-keys.c',
+        'source/dialogs/filebrowser.c',
         'include/display.h',
         'include/xcb.h',
         'include/xcb-internal.h',
@@ -201,6 +202,7 @@ rofi_sources = files(
         'include/dialogs/window.h',
         'include/dialogs/dialogs.h',
         'include/dialogs/help-keys.h',
+        'include/dialogs/filebrowser.h',
         'include/dialogs/dmenuscriptshared.h',
 )
 theme_lexer_sources = files('lexer/theme-lexer.l')
