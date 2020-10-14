@@ -132,13 +132,15 @@ static void get_file_browser (  Mode *sw )
                 case DT_UNKNOWN:
                 case DT_SOCK:
                     break;
+                case DT_LNK:
                 case DT_REG:
                 case DT_DIR:
                     pd->array = g_realloc ( pd->array, (pd->array_length+1)*sizeof(FBFile));
                     // Rofi expects utf-8, so lets convert the filename.
                     pd->array[pd->array_length].name = g_filename_to_utf8 ( rd->d_name, -1, NULL, NULL, NULL);
                     pd->array[pd->array_length].path = g_build_filename ( cdir, rd->d_name, NULL );
-                    pd->array[pd->array_length].type = (rd->d_type == DT_DIR)? DIRECTORY: RFILE;
+                    pd->array[pd->array_length].type = ( (rd->d_type == DT_DIR) || (rd->d_type == DT_LNK) ) ?
+                                                        DIRECTORY: RFILE;
                     pd->array[pd->array_length].icon_fetch_uid = 0;
                     pd->array_length++;
             }
