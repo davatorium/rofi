@@ -32,6 +32,7 @@
 #include <gio/gio.h>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 
 #include "mode.h"
@@ -139,8 +140,13 @@ static void get_file_browser (  Mode *sw )
                     // Rofi expects utf-8, so lets convert the filename.
                     pd->array[pd->array_length].name = g_filename_to_utf8 ( rd->d_name, -1, NULL, NULL, NULL);
                     pd->array[pd->array_length].path = g_build_filename ( cdir, rd->d_name, NULL );
-                    pd->array[pd->array_length].type = ( (rd->d_type == DT_DIR) || (rd->d_type == DT_LNK) ) ?
-                                                        DIRECTORY: RFILE;
+                    if (rd->d_type == DT_LNK) {
+                      struct stat symlink;
+                      stat(dir, &symlink);
+                      pd->array[pd->array_length].type = (S_ISDIR(symlink.st_mode)) ? DIRECTORY: RFILE;
+                    } else {
+                      pd->array[pd->array_length].type = (rd->d_type == DT_DIR) ? DIRECTORY: RFILE;
+                    }
                     pd->array[pd->array_length].icon_fetch_uid = 0;
                     pd->array_length++;
             }
