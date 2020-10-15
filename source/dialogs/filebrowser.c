@@ -32,6 +32,7 @@
 #include <gio/gio.h>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 
 #include "mode.h"
@@ -86,7 +87,7 @@ static void free_list ( FileBrowserModePrivateData *pd )
 #include <sys/types.h>
 #include <dirent.h>
 
-static gint compare ( gconstpointer a, gconstpointer b, gpointer data )
+static gint compare ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpointer data )
 {
     FBFile *fa = (FBFile*)a;
     FBFile *fb = (FBFile*)b;
@@ -131,6 +132,7 @@ static void get_file_browser (  Mode *sw )
                 case DT_FIFO:
                 case DT_UNKNOWN:
                 case DT_SOCK:
+		default:
                     break;
                 case DT_REG:
                 case DT_DIR:
@@ -141,7 +143,38 @@ static void get_file_browser (  Mode *sw )
                     pd->array[pd->array_length].type = (rd->d_type == DT_DIR)? DIRECTORY: RFILE;
                     pd->array[pd->array_length].icon_fetch_uid = 0;
                     pd->array_length++;
-            }
+		    break;
+		case DT_LNK:
+                    pd->array = g_realloc ( pd->array, (pd->array_length+1)*sizeof(FBFile));
+                    // Rofi expects utf-8, so lets convert the filename.
+                    pd->array[pd->array_length].name = g_filename_to_utf8 ( rd->d_name, -1, NULL, NULL, NULL);
+                    pd->array[pd->array_length].path = g_build_filename ( cdir, rd->d_name, NULL );
+                    pd->array[pd->array_length].icon_fetch_uid = 0;
+		    // Default to file.
+		    pd->array[pd->array_length].type = RFILE;
+		    {
+			// If we have link, use a stat to fine out what it is, if we fail, we mark it as file.
+			// TODO have a 'broken link'  mode?
+			// Convert full path to right encoding.
+			char *file = g_filename_from_utf8(pd->array[pd->array_length].path,-1, NULL, NULL, NULL );
+			if ( file ) {
+				struct stat statbuf;
+				if ( stat(file, &statbuf ) == 0 )  {
+					if ( S_ISDIR(statbuf.st_mode ) ) {
+						pd->array[pd->array_length].type = DIRECTORY;
+					} else if ( S_ISREG ( statbuf.st_mode ) ) {
+						pd->array[pd->array_length].type = RFILE;
+					}
+				} else {
+					g_warning("Failed to stat file: %s, %s" , file, strerror(errno));
+				}
+
+				g_free ( file );
+			}
+		    }
+                    pd->array_length++;
+		    break;
+	    }
         }
         closedir ( dir );
     }
