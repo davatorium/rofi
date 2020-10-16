@@ -39,10 +39,15 @@
 #include "helper.h"
 #include "mode-private.h"
 #include "dialogs/filebrowser.h"
+#include "rofi.h"
+#include "history.h"
 
 #include <stdint.h>
 
 #include "rofi-icon-fetcher.h"
+
+
+#define FILEBROWSER_CACHE_FILE            "rofi3.filebrowsercache"
 
 /**
  * The internal data structure holding the private data of the TEST Mode.
@@ -194,7 +199,21 @@ static int file_browser_mode_init ( Mode *sw )
     if ( mode_get_private_data ( sw ) == NULL ) {
         FileBrowserModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
-        pd->current_dir = g_file_new_for_path(g_get_home_dir () );
+        {
+            char *path = g_build_filename ( cache_dir, FILEBROWSER_CACHE_FILE, NULL );
+            char *file = NULL;
+            if ( g_file_get_contents (path, &file, NULL, NULL ) ) {
+                if ( g_file_test ( file, G_FILE_TEST_IS_DIR ) ){
+                    pd->current_dir = g_file_new_for_path( file );
+                }
+                g_free ( file );
+            }
+            // Store it based on the unique identifiers (desktop_id).
+            g_free ( path );
+            if ( pd->current_dir == NULL ) {
+                pd->current_dir = g_file_new_for_path(g_get_home_dir () );
+            }
+        }
         // Load content.
         get_file_browser ( sw );
     }
@@ -229,6 +248,9 @@ static ModeMode file_browser_mode_result ( Mode *sw, int mretv, char **input, un
                    return RESET_DIALOG;
                }
             } else if ( pd->array[selected_line].type == DIRECTORY ) {
+                char *path = g_build_filename ( cache_dir, FILEBROWSER_CACHE_FILE, NULL );
+                g_file_set_contents (path, pd->array[selected_line].path, -1, NULL );
+                g_free(path);
                 GFile *new = g_file_new_for_path ( pd->array[selected_line].path );
                 g_object_unref ( pd->current_dir );
                 pd->current_dir = new;
