@@ -320,7 +320,7 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     if ( dr->icon_fetch_uid > 0 ) {
         return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
     }
-    if ( dr->path && (g_str_has_suffix(dr->path, ".png") || g_str_has_suffix(dr->path, "jpeg") || g_str_has_suffix(dr->path, "jpg") )){
+    if ( dr->path && (g_str_has_suffix(dr->path, ".png") || g_str_has_suffix(dr->path, "jpeg") || g_str_has_suffix(dr->path, "jpg") || g_str_has_suffix(dr->path, ".svg") )){
         dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->path, height );
     } else {
         dr->icon_fetch_uid = rofi_icon_fetcher_query ( icon_name[dr->type], height );
