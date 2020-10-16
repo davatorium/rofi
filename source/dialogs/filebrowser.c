@@ -64,6 +64,7 @@ typedef struct {
     char *path;
     enum FBFileType type;
     uint32_t        icon_fetch_uid;
+    gboolean          link;
 } FBFile;
 
 typedef struct
@@ -118,6 +119,7 @@ static void get_file_browser (  Mode *sw )
                     pd->array[pd->array_length].path = NULL;
                     pd->array[pd->array_length].type = UP;
                     pd->array[pd->array_length].icon_fetch_uid = 0;
+                    pd->array[pd->array_length].link = FALSE;
                     pd->array_length++;
                     continue;
 
@@ -142,6 +144,7 @@ static void get_file_browser (  Mode *sw )
                     pd->array[pd->array_length].path = g_build_filename ( cdir, rd->d_name, NULL );
                     pd->array[pd->array_length].type = (rd->d_type == DT_DIR)? DIRECTORY: RFILE;
                     pd->array[pd->array_length].icon_fetch_uid = 0;
+                    pd->array[pd->array_length].link = FALSE;
                     pd->array_length++;
 		    break;
 		case DT_LNK:
@@ -150,28 +153,29 @@ static void get_file_browser (  Mode *sw )
                     pd->array[pd->array_length].name = g_filename_to_utf8 ( rd->d_name, -1, NULL, NULL, NULL);
                     pd->array[pd->array_length].path = g_build_filename ( cdir, rd->d_name, NULL );
                     pd->array[pd->array_length].icon_fetch_uid = 0;
-		    // Default to file.
-		    pd->array[pd->array_length].type = RFILE;
-		    {
-			// If we have link, use a stat to fine out what it is, if we fail, we mark it as file.
-			// TODO have a 'broken link'  mode?
-			// Convert full path to right encoding.
-			char *file = g_filename_from_utf8(pd->array[pd->array_length].path,-1, NULL, NULL, NULL );
-			if ( file ) {
-				struct stat statbuf;
-				if ( stat(file, &statbuf ) == 0 )  {
-					if ( S_ISDIR(statbuf.st_mode ) ) {
-						pd->array[pd->array_length].type = DIRECTORY;
-					} else if ( S_ISREG ( statbuf.st_mode ) ) {
-						pd->array[pd->array_length].type = RFILE;
-					}
-				} else {
-					g_warning("Failed to stat file: %s, %s" , file, strerror(errno));
-				}
+                    pd->array[pd->array_length].link = TRUE;
+                    // Default to file.
+                    pd->array[pd->array_length].type = RFILE;
+                    {
+                        // If we have link, use a stat to fine out what it is, if we fail, we mark it as file.
+                        // TODO have a 'broken link'  mode?
+                        // Convert full path to right encoding.
+                        char *file = g_filename_from_utf8(pd->array[pd->array_length].path,-1, NULL, NULL, NULL );
+                        if ( file ) {
+                            struct stat statbuf;
+                            if ( stat(file, &statbuf ) == 0 )  {
+                                if ( S_ISDIR(statbuf.st_mode ) ) {
+                                    pd->array[pd->array_length].type = DIRECTORY;
+                                } else if ( S_ISREG ( statbuf.st_mode ) ) {
+                                    pd->array[pd->array_length].type = RFILE;
+                                }
+                            } else {
+                                g_warning("Failed to stat file: %s, %s" , file, strerror(errno));
+                            }
 
-				g_free ( file );
-			}
-		    }
+                            g_free ( file );
+                        }
+                    }
                     pd->array_length++;
 		    break;
 	    }
@@ -285,12 +289,14 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
 
     // Only return the string if requested, otherwise only set state.
     if ( !get_entry ) return NULL;
-    if ( pd->array[selected_line].type == DIRECTORY ){
-        return g_strdup ( pd->array[selected_line].name);
-    } else if ( pd->array[selected_line].type == UP ){
+    if ( pd->array[selected_line].type == UP ){
         return g_strdup( " ..");
     } else {
-        return g_strdup ( pd->array[selected_line].name);
+        if ( pd->array[selected_line].link ) {
+            return g_strconcat ( "@", pd->array[selected_line].name, NULL);
+        } else {
+            return g_strdup ( pd->array[selected_line].name);
+        }
     }
     return g_strdup("n/a");
 }
