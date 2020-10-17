@@ -126,6 +126,7 @@ AC_SEARCH_LIBS([floor],[m],,      AC_MSG_ERROR("Could not find floor in math lib
 AC_SEARCH_LIBS([ceil], [m],,      AC_MSG_ERROR("Could not find ceil in math library"))
 
 AC_CHECK_HEADER([sysexits.h],, AC_MSG_ERROR("Could not find the sysexists.h header file"))
+AC_CHECK_HEADER([setjmp.h],,   AC_MSG_ERROR("Could not find the setjmp.h header file"))
 
 dnl ---------------------------------------------------------------------
 dnl Check dependencies
