@@ -252,13 +252,15 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
         }
     }
     cairo_surface_t *icon_surf = NULL;
-    if ( g_str_has_suffix ( icon_path, ".png" ) ) {
+    if ( g_str_has_suffix ( icon_path, ".png" ) || g_str_has_suffix ( icon_path, ".PNG" )  ) {
         icon_surf = cairo_image_surface_create_from_png ( icon_path );
     }
-    else if (  g_str_has_suffix ( icon_path, ".jpeg" ) || g_str_has_suffix ( icon_path, ".jpg" ) ) {
+    else if (  g_str_has_suffix ( icon_path, ".jpeg" ) || g_str_has_suffix ( icon_path, ".jpg" ) ||
+        g_str_has_suffix ( icon_path, ".JPEG" ) || g_str_has_suffix ( icon_path, ".JPG" )
+        ) {
         icon_surf = cairo_image_surface_create_from_jpeg ( icon_path );
     }
-    else if ( g_str_has_suffix ( icon_path, ".svg" ) ) {
+    else if ( g_str_has_suffix ( icon_path, ".svg" ) ||  g_str_has_suffix ( icon_path, ".SVG" ) ) {
         icon_surf = cairo_image_surface_create_from_svg ( icon_path, sentry->size );
     }
     else {
