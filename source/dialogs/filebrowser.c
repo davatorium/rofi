@@ -340,6 +340,26 @@ static int file_browser_token_match ( const Mode *sw, rofi_int_matcher **tokens,
     return helper_token_match ( tokens, pd->array[index].name);
 }
 
+
+const char * const image_exts[] = {".png",".PNG",".jpg",".JPG",".jpeg",".JPEG",".svg",".SVG"};
+static gboolean file_browser_is_image ( const char * const path )
+{
+    if ( path == NULL ) {
+        return FALSE;
+    }
+    const char *suf = strrchr(path, '.');
+    if ( suf == NULL  ) {
+        return FALSE;
+    }
+    for ( uint32_t i = 0; i < (sizeof (image_exts)/sizeof(char*)); i++ ) {
+        if ( g_strcmp0(suf,image_exts[i]) == 0 ) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+
 static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )
 {
     FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
@@ -348,8 +368,7 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     if ( dr->icon_fetch_uid > 0 ) {
         return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
     }
-    if ( dr->path && (g_str_has_suffix(dr->path, ".png") || g_str_has_suffix(dr->path, ".jpeg") || g_str_has_suffix(dr->path, ".jpg") || g_str_has_suffix(dr->path, ".svg") ||
-          g_str_has_suffix(dr->path, ".PNG") || g_str_has_suffix(dr->path, ".JPEG") || g_str_has_suffix(dr->path, ".JPG") || g_str_has_suffix(dr->path, ".SVG") )){
+    if ( file_browser_is_image ( dr->path ) ){
       dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->path, height );
     } else {
         dr->icon_fetch_uid = rofi_icon_fetcher_query ( icon_name[dr->type], height );
