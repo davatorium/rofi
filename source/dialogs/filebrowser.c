@@ -36,8 +36,6 @@
 #include <dirent.h>
 
 
-#include <config.h>
-
 #include "mode.h"
 #include "helper.h"
 #include "mode-private.h"
@@ -344,29 +342,6 @@ static int file_browser_token_match ( const Mode *sw, rofi_int_matcher **tokens,
 }
 
 
-const char * const image_exts[] = {".png",".PNG",".jpg",".JPG",".jpeg",".JPEG",".svg",".SVG"
-#ifdef HAVE_LIBGIF
-    ,".gif",".GIF"
-#endif
-};
-static gboolean file_browser_is_image ( const char * const path )
-{
-    if ( path == NULL ) {
-        return FALSE;
-    }
-    const char *suf = strrchr(path, '.');
-    if ( suf == NULL  ) {
-        return FALSE;
-    }
-    for ( uint32_t i = 0; i < G_N_ELEMENTS(image_exts); i++ ) {
-        if ( g_strcmp0(suf,image_exts[i]) == 0 ) {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-
 static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )
 {
     FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
@@ -375,7 +350,7 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     if ( dr->icon_fetch_uid > 0 ) {
         return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
     }
-    if ( file_browser_is_image ( dr->path ) ){
+    if ( rofi_icon_fetcher_file_is_image ( dr->path ) ){
       dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->path, height );
     } else {
         dr->icon_fetch_uid = rofi_icon_fetcher_query ( icon_name[dr->type], height );

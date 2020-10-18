@@ -28,6 +28,8 @@
 /** The log domain of this Helper. */
 #define G_LOG_DOMAIN    "Helpers.IconFetcher"
 
+#include <stdlib.h>
+#include <config.h>
 
 #include "rofi-icon-fetcher.h"
 #include "rofi-types.h"
@@ -39,13 +41,13 @@
 #include "view.h"
 
 #include "nkutils-xdg-theme.h"
+#include "nkutils-enum.h"
 
 #include <stdint.h>
 #include <jpeglib.h>
 
 #include <setjmp.h>
 
-#include <config.h>
 typedef struct
 {
     // Context for icon-themes.
@@ -288,6 +290,42 @@ done:
 }
 #endif
 
+enum {
+    IMAGE_PNG,
+    IMAGE_JPG,
+    IMAGE_JPEG,
+    IMAGE_SVG,
+#ifdef HAVE_LIBGIF
+    IMAGE_GIF,
+#endif
+    IMAGE_MAX_VALUES
+} RofiIconFetchDecoder;
+
+static const gchar * const _image_exts[IMAGE_MAX_VALUES] = {
+    [IMAGE_PNG] = ".png",
+    [IMAGE_JPG] = ".jpg",
+    [IMAGE_JPEG] = ".jpeg",
+    [IMAGE_SVG] = ".svg",
+#ifdef HAVE_LIBGIF
+    [IMAGE_GIF] = ".gif",
+#endif
+};
+
+gboolean rofi_icon_fetcher_file_is_image ( const char * const path )
+{
+    if ( path == NULL ) {
+        return FALSE;
+    }
+    const char *suf = strrchr(path, '.');
+    if ( suf == NULL  ) {
+        return FALSE;
+    }
+
+    guint64 type;
+    gboolean r = nk_enum_parse ( suf, _image_exts, G_N_ELEMENTS(_image_exts), TRUE, FALSE, &type );
+    return r;
+}
+
 static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpointer user_data )
 {
     g_debug ( "starting up icon fetching thread." );
@@ -316,24 +354,33 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
         }
     }
     cairo_surface_t *icon_surf = NULL;
-    if ( g_str_has_suffix ( icon_path, ".png" ) || g_str_has_suffix ( icon_path, ".PNG" )  ) {
-        icon_surf = cairo_image_surface_create_from_png ( icon_path );
+
+    const char *suf = strrchr(icon_path, '.');
+    if ( suf == NULL  ) {
+        return ;
     }
+
+    guint64 type;
+    gboolean is_image  = nk_enum_parse ( suf, _image_exts, G_N_ELEMENTS(_image_exts), TRUE, FALSE, &type );
+    if ( is_image )
+    {
+        if ( type == IMAGE_PNG  ) {
+            icon_surf = cairo_image_surface_create_from_png ( icon_path );
+        }
 #ifdef HAVE_LIBGIF
-    else if ( g_str_has_suffix ( icon_path, ".gif" ) || g_str_has_suffix ( icon_path, ".GIF" )  ) {
-        icon_surf = cairo_image_surface_create_from_gif ( icon_path );
-    }
+        else if ( type == IMAGE_GIF ) {
+            icon_surf = cairo_image_surface_create_from_gif ( icon_path );
+        }
 #endif
-    else if (  g_str_has_suffix ( icon_path, ".jpeg" ) || g_str_has_suffix ( icon_path, ".jpg" ) ||
-        g_str_has_suffix ( icon_path, ".JPEG" ) || g_str_has_suffix ( icon_path, ".JPG" )
-        ) {
-        icon_surf = cairo_image_surface_create_from_jpeg ( icon_path );
-    }
-    else if ( g_str_has_suffix ( icon_path, ".svg" ) ||  g_str_has_suffix ( icon_path, ".SVG" ) ) {
-        icon_surf = cairo_image_surface_create_from_svg ( icon_path, sentry->size );
-    }
-    else {
-        g_debug ( "icon type not yet supported: %s", icon_path  );
+        else if ( type == IMAGE_JPG || type == IMAGE_JPEG ) {
+            icon_surf = cairo_image_surface_create_from_jpeg ( icon_path );
+        }
+        else if ( type == IMAGE_SVG ) {
+            icon_surf = cairo_image_surface_create_from_svg ( icon_path, sentry->size );
+        }
+        else {
+            g_debug ( "icon type not yet supported: %s", icon_path  );
+        }
     }
     if ( icon_surf ) {
         if ( cairo_surface_status ( icon_surf ) == CAIRO_STATUS_SUCCESS ) {
