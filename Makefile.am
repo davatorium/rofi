@@ -168,6 +168,7 @@ rofi_LDADD=\
 	$(cairo_LIBS)\
 	$(librsvg_LIBS)\
 	$(libjpeg_LIBS)\
+	$(libgif_LIBS)\
 	$(LIBS)
 
 ##

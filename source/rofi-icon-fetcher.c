@@ -28,6 +28,7 @@
 /** The log domain of this Helper. */
 #define G_LOG_DOMAIN    "Helpers.IconFetcher"
 
+
 #include "rofi-icon-fetcher.h"
 #include "rofi-types.h"
 #include "helper.h"
@@ -44,6 +45,7 @@
 
 #include <setjmp.h>
 
+#include <config.h>
 typedef struct
 {
     // Context for icon-themes.
@@ -187,7 +189,7 @@ static void jpegErrorExit (j_common_ptr cinfo)
 
     /* Create the message */
     ( *(cinfo->err->format_message) ) (cinfo, jpegLastErrorMsg);
-    g_warning ( jpegLastErrorMsg );
+    g_warning ( jpegLastErrorMsg, NULL );
 
     /* Jump to the setjmp point */
     longjmp(myerr->setjmp_buffer, 1);
@@ -224,6 +226,68 @@ static cairo_surface_t* cairo_image_surface_create_from_jpeg ( const char* file 
     return surface;
 }
 
+#ifdef HAVE_LIBGIF
+#include <gif_lib.h>
+
+static cairo_surface_t* cairo_image_surface_create_from_gif(const char* file )
+{
+    cairo_surface_t* img = NULL;
+
+    int err;
+    GifFileType* gif = DGifOpenFileName(file, &err);
+    if (!gif) {
+        g_warning( "[%i] %s", err, GifErrorString(err));
+        return NULL;
+    }
+
+    // decode with high-level API
+    if (DGifSlurp(gif) != GIF_OK) {
+        g_warning("Decoder error: %s", GifErrorString(gif->Error));
+        goto done;
+    }
+    if (!gif->SavedImages) {
+        g_warning("No saved images");
+        goto done;
+    }
+
+    // create canvas
+    img = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, gif->SWidth, gif->SHeight);
+    if (cairo_surface_status(img) != CAIRO_STATUS_SUCCESS) {
+        g_warning("Unable to create surface: %s",
+                cairo_status_to_string(cairo_surface_status(img)));
+        cairo_surface_destroy(img);
+        img = NULL;
+        goto done;
+    }
+
+    // we don't support animation, show the first frame only
+    const GifImageDesc* frame = &gif->SavedImages->ImageDesc;
+    const GifColorType* colors = gif->SColorMap ? gif->SColorMap->Colors :
+        frame->ColorMap->Colors;
+    uint32_t* base = (uint32_t*)(cairo_image_surface_get_data(img) +
+            frame->Top * cairo_image_surface_get_stride(img));
+    for (int y = 0; y < frame->Height; ++y) {
+        uint32_t* pixel = base + y * gif->SWidth + frame->Left;
+        const uint8_t* raster = &gif->SavedImages->RasterBits[y * gif->SWidth];
+        for (int x = 0; x < frame->Width; ++x) {
+            const uint8_t color = raster[x];
+            if (color != gif->SBackGroundColor) {
+                const GifColorType* rgb = &colors[color];
+                *pixel = 0xff000000 |
+                    rgb->Red << 16 | rgb->Green << 8 | rgb->Blue;
+            }
+            ++pixel;
+        }
+    }
+
+    cairo_surface_mark_dirty(img);
+
+done:
+    DGifCloseFile(gif, NULL);
+    return img;
+}
+#endif
+
 static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpointer user_data )
 {
     g_debug ( "starting up icon fetching thread." );
@@ -255,6 +319,11 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
     if ( g_str_has_suffix ( icon_path, ".png" ) || g_str_has_suffix ( icon_path, ".PNG" )  ) {
         icon_surf = cairo_image_surface_create_from_png ( icon_path );
     }
+#ifdef HAVE_LIBGIF
+    else if ( g_str_has_suffix ( icon_path, ".gif" ) || g_str_has_suffix ( icon_path, ".GIF" )  ) {
+        icon_surf = cairo_image_surface_create_from_gif ( icon_path );
+    }
+#endif
     else if (  g_str_has_suffix ( icon_path, ".jpeg" ) || g_str_has_suffix ( icon_path, ".jpg" ) ||
         g_str_has_suffix ( icon_path, ".JPEG" ) || g_str_has_suffix ( icon_path, ".JPG" )
         ) {

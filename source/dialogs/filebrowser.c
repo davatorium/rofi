@@ -35,6 +35,9 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+
+#include <config.h>
+
 #include "mode.h"
 #include "helper.h"
 #include "mode-private.h"
@@ -341,7 +344,11 @@ static int file_browser_token_match ( const Mode *sw, rofi_int_matcher **tokens,
 }
 
 
-const char * const image_exts[] = {".png",".PNG",".jpg",".JPG",".jpeg",".JPEG",".svg",".SVG"};
+const char * const image_exts[] = {".png",".PNG",".jpg",".JPG",".jpeg",".JPEG",".svg",".SVG"
+#ifdef HAVE_LIBGIF
+    ,".gif",".GIF"
+#endif
+};
 static gboolean file_browser_is_image ( const char * const path )
 {
     if ( path == NULL ) {
@@ -351,7 +358,7 @@ static gboolean file_browser_is_image ( const char * const path )
     if ( suf == NULL  ) {
         return FALSE;
     }
-    for ( uint32_t i = 0; i < (sizeof (image_exts)/sizeof(char*)); i++ ) {
+    for ( uint32_t i = 0; i < G_N_ELEMENTS(image_exts); i++ ) {
         if ( g_strcmp0(suf,image_exts[i]) == 0 ) {
             return TRUE;
         }
