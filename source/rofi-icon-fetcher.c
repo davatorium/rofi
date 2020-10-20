@@ -134,12 +134,14 @@ void rofi_icon_fetcher_init ( void )
 
       for ( unsigned int i = 0; exts && exts[i]; i ++ ) {
           rofi_icon_fetcher_data->supported_extensions = g_list_append ( rofi_icon_fetcher_data->supported_extensions, exts[i]);
+          g_info ( "Add image extension: %s", exts[i]);
           exts[i] = NULL;
       }
 
       g_free ( exts );
 
     }
+    g_slist_free ( l );
 
 }
 
