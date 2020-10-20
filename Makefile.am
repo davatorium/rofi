@@ -145,7 +145,7 @@ rofi_CFLAGS=\
 	$(pango_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
-	$(librsvg_CFLAGS)\
+	$(gdkpixbuf_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
 	-I$(top_builddir)/lexer/\
@@ -166,9 +166,7 @@ rofi_LDADD=\
 	$(libsn_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
-	$(librsvg_LIBS)\
-	$(libjpeg_LIBS)\
-	$(libgif_LIBS)\
+	$(gdkpixbuf_LIBS)\
 	$(LIBS)
 
 ##
@@ -326,8 +324,7 @@ textbox_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
-	$(librsvg_CFLAGS)\
-	$(libjpeg_CFLAGS)\
+	$(gdkpixbuf_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
@@ -342,7 +339,6 @@ textbox_test_LDADD=\
 	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
-	$(librsvg_LIBS)\
 	$(libsn_LIBS)
 
 helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
@@ -479,7 +475,7 @@ helper_test_CFLAGS=\
 	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
-	$(librsvg_CFLAGS)\
+	$(gdkpixbuf_CFLAGS)\
 	$(libsn_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
@@ -495,7 +491,6 @@ helper_test_LDADD=\
 	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
-	$(librsvg_LIBS)\
 	$(cairo_LIBS)
 
 

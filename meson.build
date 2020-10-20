@@ -47,9 +47,7 @@ deps = [
     dependency('pango'),
     dependency('pangocairo'),
     dependency('xkbcommon'),
-    dependency('librsvg-2.0'),
-    dependency('libjpeg'),
-    c_compiler.find_library('m', required: false),
+    dependency('gdk-pixbuf-2.0'),
 ]
 
 

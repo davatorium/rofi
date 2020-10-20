@@ -31,17 +31,15 @@ You can also use [Meson](https://mesonbuild.com/) as an alternative.
 * libglib2.0 >= 2.40
   * gmodule-2.0
   * gio-unix-2.0
-* librsvg2.0
+* libgdk-pixbuf-2.0
 * libstartup-notification-1.0
 * libxkbcommon >= 0.4.1
 * libxkbcommon-x11
-* libjpeg
 * libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-randr libxcb-xinerama)
 * xcb-util
 * xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
 * xcb-util-xrm [new module might not be available in your distribution. The source can be found
   here](https://github.com/Airblader/xcb-util-xrm/)
-* libgif (optional)
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
 `<package>-devel`.

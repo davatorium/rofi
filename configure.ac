@@ -148,8 +148,7 @@ GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
-PKG_CHECK_MODULES([librsvg],    [librsvg-2.0 ])
-PKG_CHECK_MODULES([libjpeg],    [libjpeg])
+PKG_CHECK_MODULES([gdkpixbuf],    [gdk-pixbuf-2.0])
 
 dnl ---------------------------------------------------------------------
 dnl check - Unit testing.
@@ -165,38 +164,6 @@ dnl Gets the resource compile tool path.
 dnl ---------------------------------------------------------------------
 AM_PATH_GLIB_2_0
 
-dnl Test for libgif or libungif
-AC_ARG_WITH([libgif],
-	AS_HELP_STRING([--with-libgif=PREFIX],
-	[Prefix where libgif is installed, or 'no' to disable]),
-	[libgif_prefix="$withval"], [libgif_prefix="${prefix}"])
-
-  if test x$with_libgif != xno && test -z "$libgif_LIBS"; then
-    GIF_CFLAGS="-I${libgif_prefix}/include"
-    GIF_LIBS="-L${libgif_prefix}/lib"
-    save_cflags=$CFLAGS; CFLAGS=$GIF_CFLAGS
-    save_libs=$LIBS; LIBS=$GIF_LIBS
-    AC_CHECK_LIB(gif, DGifOpenFileName,
-      [AC_CHECK_HEADER(gif_lib.h,
-        GIF='gif'; libgif_LIBS='-lgif'; gif_ok=yes,
-	AC_MSG_WARN(*** GIF loader will not be built (giflibrary not found) ***))],
-      AC_MSG_WARN(*** GIF loader will not be built (giflibrary not found) ***))
-
-    AC_CHECK_LIB(ungif, DGifOpenFileName,
-      [AC_CHECK_HEADER(gif_lib.h,
-	GIF='ungif'; libgif_LIBS='-lungif'; gif_ok=yes,
-	AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))],
-      AC_MSG_WARN(*** GIF loader will not be built (ungiflibrary not found) ***))
-    CFLAGS+=$save_cflags
-    LIBS+=$save_libs
-  fi
-
-if test x$GIF != x; then
-    AC_SUBST(libgif_LIBS)
-    AC_DEFINE(HAVE_LIBGIF, 1, Define if gif support is available)
-else
-  gif_ok="no (See http://sourceforge.net/projects/libgif)"
-fi
 dnl ---------------------------------------------------------------------
 dnl Add extra compiler flags
 dnl ---------------------------------------------------------------------

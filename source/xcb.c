@@ -38,7 +38,6 @@
 #include <glib.h>
 #include <cairo.h>
 #include <cairo-xcb.h>
-#include <librsvg/rsvg.h>
 
 #include <xcb/xcb.h>
 #include <xcb/xcb_aux.h>
