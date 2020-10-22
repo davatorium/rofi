@@ -15,7 +15,6 @@ jobs:
           issue-exclude-created-before: ''
           issue-exclude-labels: ''
           issue-lock-labels: ''
-          issue-lock-comment: ''
           issue-lock-reason: 'resolved'
           issue-lock-comment: >
             This issue has been automatically locked since there
@@ -25,7 +24,6 @@ jobs:
           pr-exclude-created-before: ''
           pr-exclude-labels: ''
           pr-lock-labels: ''
-          pr-lock-comment: ''
           pr-lock-reason: 'resolved'
           pr-lock-comment: >
             This pull request has been automatically locked since there
