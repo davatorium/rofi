@@ -42,7 +42,7 @@ struct kbl_charmap
 /**
  * Array of relationships of the character to the layout. Sorted by keycode
  */
-static GArray *rofi_kbl_charmap;
+static GArray *rofi_kbl_charmap = NULL;
 
 static void kbl_charmap_key_iter ( struct xkb_keymap *keymap, xkb_keycode_t key, void *data )
 {

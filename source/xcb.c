@@ -1248,7 +1248,7 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
         return FALSE;
     }
 
-    char *matching_str;
+    char *matching_str = NULL;
     find_arg_str (  "-matching", &matching_str );
     if ( g_strcmp0 ( matching_str, "all_kb_layouts" ) == 0 ) {
         kbl_charmap_load_from_keymap ( keymap );
