@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2020 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,20 +25,20 @@
  *
  */
 
-#ifndef ROFI_DIALOG_HELPKEYS_H
-#define ROFI_DIALOG_HELPKEYS_H
+#ifndef ROFI_DIALOG_FILE_BROWSER_H
+#define ROFI_DIALOG_FILE_BROWSER_H
 
 /**
- * @defgroup HELPKEYSMode KeysHelp
+ * @defgroup FileBrowserMode FileBrowser
  * @ingroup MODES
  *
- * Displays the different keybindings available in *rofi*
  *
  * @{
  */
-/**
- * #Mode object representing the help key mode view
- */
-extern Mode help_keys_mode;
+/** #Mode object representing the run dialog. */
+extern Mode file_browser_mode;
+
+Mode *create_new_file_browser (void);
+ModeMode file_browser_mode_completer ( Mode *sw, int mretv, char **input, unsigned int selected_line, char **path );
 /**@}*/
-#endif // ROFI_DIALOG_HELPKEYS_H
+#endif // ROFI_DIALOG_FILE_BROWSER_H

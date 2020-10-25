@@ -155,6 +155,7 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
 
 ASC     [\x00-\x7f]
 ASCN    [\x00-\t\v-\x7f]
+ASCNP    [\x00-\t\v-\x21\x23-\x7f]
 U       [\x80-\xbf]
 U2      [\xc2-\xdf]
 U3      [\xe0-\xef]
@@ -164,12 +165,15 @@ U4      [\xf0-\xf4]
 UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
  // UONLY   {U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 
+UANYNP   {ASCNP}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
 MEDIA_NAME [[:alpha:]-]+
 COLOR_NAME [[:alpha:]]+
 STRING     \"{UANYN}*\"
+STRING_LIST \"{UANYNP}*\"
 CHAR       \'({ASCN}|\\\\|\\\'|\\0)\'
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
@@ -709,7 +713,7 @@ if ( queue == NULL ){
     yylval->sval = g_strdup(yytext);
     return T_ELEMENT;
 }
-<PROPERTIES_LIST>{STRING} {
+<PROPERTIES_LIST>{STRING_LIST} {
     yytext[yyleng-1] = '\0';
     yylval->sval = g_strdup(yytext+1);
     return T_ELEMENT;

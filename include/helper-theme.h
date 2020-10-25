@@ -52,5 +52,5 @@ PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, r
  * @returns true if font is valid.
  */
 gboolean helper_validate_font ( PangoFontDescription *pfd, const char *font );
-/* @} */
+/** @} */
 #endif // ROFI_HELPER_THEME_H

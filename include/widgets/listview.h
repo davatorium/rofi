@@ -252,6 +252,6 @@ void listview_toggle_ellipsizing ( listview *lv );
  */
 
 void listview_set_ellipsize_start ( listview *lv );
-/* @} */
+/** @} */
 
 #endif // ROFI_LISTVIEW_H

@@ -119,12 +119,14 @@ AC_CHECK_FUNC([fcntl],,    AC_MSG_ERROR("Could not find fcntl"))
 AC_CHECK_FUNC([setlocale],,AC_MSG_ERROR("Could not find setlocale"))
 AC_CHECK_FUNC([atexit],,   AC_MSG_ERROR("Could not find atexit in c library"))
 AC_CHECK_FUNC([glob],,     AC_MSG_ERROR("Could not find glob in c library"))
+AC_CHECK_FUNC([readdir],,  AC_MSG_ERROR("Could not find readdir in c library"))
 
 AC_CHECK_HEADER([math.h],, AC_MSG_ERROR("Could not find math.h header file"))
 AC_SEARCH_LIBS([floor],[m],,      AC_MSG_ERROR("Could not find floor in math library"))
 AC_SEARCH_LIBS([ceil], [m],,      AC_MSG_ERROR("Could not find ceil in math library"))
 
 AC_CHECK_HEADER([sysexits.h],, AC_MSG_ERROR("Could not find the sysexists.h header file"))
+AC_CHECK_HEADER([setjmp.h],,   AC_MSG_ERROR("Could not find the setjmp.h header file"))
 
 dnl ---------------------------------------------------------------------
 dnl Check dependencies
@@ -146,8 +148,7 @@ GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
-PKG_CHECK_MODULES([librsvg],    [librsvg-2.0 ])
-PKG_CHECK_MODULES([libjpeg],    [libjpeg])
+PKG_CHECK_MODULES([gdkpixbuf],    [gdk-pixbuf-2.0])
 
 dnl ---------------------------------------------------------------------
 dnl check - Unit testing.
@@ -162,7 +163,6 @@ dnl ---------------------------------------------------------------------
 dnl Gets the resource compile tool path.
 dnl ---------------------------------------------------------------------
 AM_PATH_GLIB_2_0
-
 
 dnl ---------------------------------------------------------------------
 dnl Add extra compiler flags

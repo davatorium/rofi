@@ -237,6 +237,6 @@ char * mode_preprocess_input ( Mode *mode, const char *input );
  * @return a new allocated (valid pango markup) message to display (user should free).
  */
 char *mode_get_message ( const Mode *mode );
-/*@}*/
+/**@}*/
 G_END_DECLS
 #endif

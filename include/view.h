@@ -322,5 +322,5 @@ void rofi_view_set_window_title ( const char * title  );
  * set ellipsize mode to start.
  */
 void rofi_view_ellipsize_start ( RofiViewState *state );
-/**@}*/
+/** @}*/
 #endif

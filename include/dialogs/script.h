@@ -52,5 +52,5 @@ Mode *script_switcher_parse_setup ( const char *str );
  * @returns true when valid.
  */
 gboolean script_switcher_is_valid ( const char *token );
-/*@}*/
+/**@}*/
 #endif // ROFI_DIALOG_SCRIPT_H

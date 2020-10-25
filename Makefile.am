@@ -89,6 +89,7 @@ SOURCES=\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
+	source/dialogs/filebrowser.c\
 	include/display.h\
 	include/xcb.h\
 	include/xcb-internal.h\
@@ -125,6 +126,7 @@ SOURCES=\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
 	include/dialogs/help-keys.h\
+	include/dialogs/filebrowser.h\
 	include/dialogs/dmenuscriptshared.h\
 	resources/resources.c\
 	resources/resources.h\
@@ -144,7 +146,7 @@ rofi_CFLAGS=\
 	$(pango_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
-	$(librsvg_CFLAGS)\
+	$(gdkpixbuf_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
 	-I$(top_builddir)/lexer/\
@@ -165,8 +167,7 @@ rofi_LDADD=\
 	$(libsn_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
-	$(librsvg_LIBS)\
-	$(libjpeg_LIBS)\
+	$(gdkpixbuf_LIBS)\
 	$(LIBS)
 
 ##
@@ -185,6 +186,7 @@ EXTRA_DIST += \
 	doc/rofi-theme.5.markdown \
 	doc/rofi-script.5.markdown \
 	doc/rofi-theme-selector.1.markdown \
+	doc/rofi-sensible-terminal.1.markdown \
 	doc/rofi.1.markdown
 
 
@@ -261,11 +263,12 @@ EXTRA_DIST+=\
 ##
 
 
-update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown
+update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown ${top_srcdir}/doc/rofi-sensible-terminal.1.markdown
 	go-md2man -in $(top_srcdir)/doc/rofi.1.markdown -out $(top_srcdir)/doc/rofi.1
 	go-md2man -in $(top_srcdir)/doc/rofi-theme-selector.1.markdown -out $(top_srcdir)/doc/rofi-theme-selector.1
 	go-md2man -in $(top_srcdir)/doc/rofi-theme.5.markdown -out $(top_srcdir)/doc/rofi-theme.5
 	go-md2man -in $(top_srcdir)/doc/rofi-script.5.markdown -out $(top_srcdir)/doc/rofi-script.5
+	go-md2man -in $(top_srcdir)/doc/rofi-sensible-terminal.1.markdown -out $(top_srcdir)/doc/rofi-sensible-terminal.1
 
 ##
 # Rofi test program
@@ -322,8 +325,7 @@ textbox_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
-	$(librsvg_CFLAGS)\
-	$(libjpeg_CFLAGS)\
+	$(gdkpixbuf_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
@@ -338,7 +340,6 @@ textbox_test_LDADD=\
 	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
-	$(librsvg_LIBS)\
 	$(libsn_LIBS)
 
 helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
@@ -480,7 +481,7 @@ helper_test_CFLAGS=\
 	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
-	$(librsvg_CFLAGS)\
+	$(gdkpixbuf_CFLAGS)\
 	$(libsn_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
@@ -496,7 +497,6 @@ helper_test_LDADD=\
 	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
-	$(librsvg_LIBS)\
 	$(cairo_LIBS)
 
 

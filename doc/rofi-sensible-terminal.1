@@ -1,148 +1,66 @@
-.TH "ROFI\-SENSIBLE\-TERMIN" "1"
-.ie \n(.g .ds Aq \(aq
-.el       .ds Aq '
-.nh
-.ad l
-.SH "NAME"
-rofi-sensible-terminal \- launches $TERMINAL with fallbacks
-.SH "SYNOPSIS"
-.sp
+.TH rofi\-sensible\-terminal 1 rofi\-sensible\-terminal
+.SH NAME
+.PP
+\fBrofi\-sensible\-terminal\fP \-  launches $TERMINAL with fallbacks
+
+.SH SYNOPSIS
+.PP
 rofi\-sensible\-terminal [arguments]
-.SH "DESCRIPTION"
-.sp
-rofi\-sensible\-terminal is invoked in the rofi default config to start a terminal\&. This wrapper script is necessary since there is no distribution\-independent terminal launcher (but for example Debian has x\-terminal\-emulator)\&. Distribution packagers are responsible for shipping this script in a way which is appropriate for the distribution\&.
-.sp
+
+.SH DESCRIPTION
+.PP
+rofi\-sensible\-terminal is invoked in the rofi default config to start a terminal. This
+wrapper script is necessary since there is no distribution\-independent terminal launcher
+(but for example Debian has x\-terminal\-emulator). Distribution packagers are responsible for
+shipping this script in a way which is appropriate for the distribution.
+
+.PP
 It tries to start one of the following (in that order):
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-$TERMINAL (this is a non\-standard variable)
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
+.IP \(bu 2
+\fB\fC$TERMINAL\fR (this is a non\-standard variable)
+.IP \(bu 2
 x\-terminal\-emulator
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-termite
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
+.IP \(bu 2
 urxvt
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
+.IP \(bu 2
 rxvt
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-terminator
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
+.IP \(bu 2
+st
+.IP \(bu 2
+terminology
+.IP \(bu 2
+qterminal
+.IP \(bu 2
 Eterm
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
+.IP \(bu 2
 aterm
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
+.IP \(bu 2
+uxterm
+.IP \(bu 2
 xterm
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
+.IP \(bu 2
 roxterm
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-xfce4\-terminal
-.RE
-.sp
-Please don\(cqt complain about the order: If the user has any preference, she will have $TERMINAL set or modified her rofi configuration file\&.
-.SH "SEE ALSO"
-.sp
+.IP \(bu 2
+xfce4\-terminal.wrapper
+.IP \(bu 2
+mate\-terminal
+.IP \(bu 2
+lxterminal
+.IP \(bu 2
+konsole
+.IP \(bu 2
+alacritty
+.IP \(bu 2
+kitty
+
+.SH SEE ALSO
+.PP
 rofi(1)
-.SH "AUTHOR"
-.sp
+
+.SH AUTHORS
+.PP
 Dave Davenport and contributors
-.sp
+
+.PP
 Copied script from i3:
-.br
 Michael Stapelberg and contributors

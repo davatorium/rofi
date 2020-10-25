@@ -47,7 +47,6 @@
 #include <pango/pango.h>
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
-#include <librsvg/rsvg.h>
 #include "display.h"
 #include "xcb.h"
 #include "helper.h"
@@ -198,10 +197,43 @@ static gchar *all_kb_layouts_to_regex ( const char * input )
     return retv;
 }
 
+static char *utf8_helper_simplify_string ( const char *s)
+{
+  gunichar buf2[G_UNICHAR_MAX_DECOMPOSITION_LENGTH] = {0,};
+  char buf[6] = {0,};
+  // Compose the string in maximally composed form.
+  char * str = g_malloc0((g_utf8_strlen(s,0)*6+2));
+  char *striter = str;
+  for ( const char *iter = s; iter && *iter; iter = g_utf8_next_char ( iter )) {
+    gunichar uc = g_utf8_get_char ( iter );
+    int l = 0;
+    gsize dl = g_unichar_fully_decompose ( uc, FALSE, buf2, G_UNICHAR_MAX_DECOMPOSITION_LENGTH) ;
+    if ( dl ) {
+      l = g_unichar_to_utf8 ( buf2[0], buf);
+    } else {
+      l = g_unichar_to_utf8 ( uc, buf);
+    }
+    memcpy(striter, buf, l);
+    striter+=l;
+  }
+
+  return str;
+}
+
 // Macro for quickly generating regex for matching.
 static inline GRegex * R ( const char *s, int case_sensitive  )
 {
+  if ( config.normalize_match ) {
+    char *str = utf8_helper_simplify_string ( s );
+
+    GRegex *r = g_regex_new ( str, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL );
+
+    g_free ( str );
+    return r;
+  } else {
     return g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL );
+
+  }
 }
 
 static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
@@ -403,6 +435,10 @@ int find_arg_char ( const char * const key, char *val )
 
 PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, rofi_int_matcher**tokens, const char *input, PangoAttrList *retv )
 {
+    // Disable highlighting for normalize match, not supported atm.
+    if ( config.normalize_match ) {
+      return retv;
+    }
     // Do a tokenized match.
     if ( tokens ) {
         for ( int j = 0; tokens[j]; j++ ) {
@@ -476,10 +512,19 @@ int helper_token_match ( rofi_int_matcher* const *tokens, const char *input )
     int match = TRUE;
     // Do a tokenized match.
     if ( tokens ) {
+      if ( config.normalize_match ) {
+        char *r = utf8_helper_simplify_string(input);
         for ( int j = 0; match && tokens[j]; j++ ) {
-            match  = g_regex_match ( tokens[j]->regex, input, 0, NULL );
-            match ^= tokens[j]->invert;
+          match  = g_regex_match ( tokens[j]->regex, r, 0, NULL );
+          match ^= tokens[j]->invert;
         }
+        g_free(r);
+      } else {
+        for ( int j = 0; match && tokens[j]; j++ ) {
+          match  = g_regex_match ( tokens[j]->regex, input, 0, NULL );
+          match ^= tokens[j]->invert;
+        }
+      }
     }
     return match;
 }
@@ -1115,50 +1160,6 @@ char *helper_get_theme_path ( const char *file )
         g_free ( theme_path );
     }
     return filename;
-}
-
-cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int height )
-{
-    GError          *error   = NULL;
-    cairo_surface_t *surface = NULL;
-    RsvgHandle      * handle;
-
-    handle = rsvg_handle_new_from_file ( file, &error );
-    if ( G_LIKELY ( handle != NULL ) ) {
-        RsvgDimensionData dimensions;
-        // Update DPI.
-        rsvg_handle_set_dpi ( handle, config.dpi );
-        // Get size.
-        rsvg_handle_get_dimensions ( handle, &dimensions );
-        // Create cairo surface in the right size.
-        double scale = (double) height / dimensions.height;
-        surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32,
-                                               (double) dimensions.width * scale,
-                                               (double) dimensions.height * scale );
-        gboolean failed = cairo_surface_status ( surface ) != CAIRO_STATUS_SUCCESS;
-        if ( G_LIKELY ( failed == FALSE ) ) {
-            cairo_t *cr = cairo_create ( surface );
-            cairo_scale ( cr, scale, scale );
-            failed = rsvg_handle_render_cairo ( handle, cr ) == FALSE;
-            cairo_destroy ( cr );
-        }
-
-        rsvg_handle_close ( handle, &error );
-        g_object_unref ( handle );
-
-        /** Rendering fails */
-        if ( G_UNLIKELY ( failed ) ) {
-            g_warning ( "Failed to render file: '%s'", file );
-            cairo_surface_destroy ( surface );
-            surface = NULL;
-        }
-    }
-    if ( G_UNLIKELY ( error != NULL ) ) {
-        g_warning ( "Failed to render SVG file: '%s': %s", file, error->message );
-        g_error_free ( error );
-    }
-
-    return surface;
 }
 
 static void parse_pair ( char  *input, rofi_range_pair  *item )

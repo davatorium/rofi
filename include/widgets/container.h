@@ -58,5 +58,5 @@ container * container_create ( widget *parent, const char *name );
  * Add a widget to the container.
  */
 void container_add ( container *container, widget *child );
-/*@}*/
+/**@}*/
 #endif // ROFI_CONTAINER_H

@@ -228,7 +228,7 @@ char * rofi_latin_to_utf8_strdup ( const char *input, gssize length );
 /**
  * @param text the string to escape
  *
- * Escape XML markup from the string. @param text is freed.
+ * Escape XML markup from the string. text is freed.
  *
  * @return the escaped string
  */
@@ -301,7 +301,7 @@ gboolean helper_execute ( const char *wd, char **args, const char *error_precmd,
  * @param context The startup notification context, if any
  *
  * Execute command.
- * If needed members of @param context are NULL, they will be filled.
+ * If needed members of context are NULL, they will be filled.
  *
  * @returns FALSE On failure, TRUE on success
  */
@@ -330,10 +330,12 @@ cairo_surface_t *cairo_image_surface_create_from_svg ( const gchar* file, int he
 void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length );
 
 /**
- * @param format
- * @param string
- * @param selected_line
- * @param filter
+ * @param format The format string
+ * @param string The string
+ * @param selected_line selected line
+ * @param filter filter stringr
+ *
+ * Output formatted line
  */
 void rofi_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter );
 
@@ -352,4 +354,6 @@ void rofi_output_formatted_line ( const char *format, const char *string, int se
  */
 char *helper_string_replace_if_exists ( char * string, ... );
 G_END_DECLS
+
+/**@} */
 #endif // ROFI_HELPER_H

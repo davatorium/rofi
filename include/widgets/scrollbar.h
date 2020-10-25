@@ -91,5 +91,5 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
  */
 guint scrollbar_scroll_get_line ( const scrollbar *sb, int y );
 
-/*@}*/
+/**@}*/
 #endif // ROFI_SCROLLBAR_H

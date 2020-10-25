@@ -40,5 +40,5 @@
 extern Mode window_mode;
 extern Mode window_mode_cd;
 #endif // WINDOW_MODE
-/* @}*/
+/** @}*/
 #endif // ROFI_DIALOG_WINDOW_H

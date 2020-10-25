@@ -179,4 +179,4 @@ char *mode_get_message ( const Mode *mode )
     }
     return NULL;
 }
-/*@}*/
+/**@}*/

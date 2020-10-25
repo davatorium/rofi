@@ -424,4 +424,4 @@ Mode run_mode =
     .private_data       = NULL,
     .free               = NULL
 };
-/*@}*/
+/** @}*/

@@ -108,5 +108,5 @@ Mode * rofi_collect_modi_search ( const char *name );
     " <i>https://github.com/davatorium/rofi/</i>"
 /** Indicates if ERROR_MSG uses pango markup */
 #define ERROR_MSG_MARKUP    TRUE
-/*@}*/
+/**@}*/
 #endif

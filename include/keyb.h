@@ -202,5 +202,5 @@ void kbl_charmap_cleanup ( void );
  */
 gchar *kbl_charmap_for_char ( const gchar *chr );
 
-/*@}*/
+/**@}*/
 #endif // ROFI_KEYB_H

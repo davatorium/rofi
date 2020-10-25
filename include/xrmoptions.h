@@ -173,5 +173,5 @@ gboolean config_parse_set_property ( const Property *p, char **error );
  * @brief Dump configuration in rasi format.
  */
 void config_parse_dump_config_rasi_format ( FILE *out, gboolean changes );
-/* @}*/
+/** @}*/
 #endif

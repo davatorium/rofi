@@ -214,6 +214,12 @@ Show the indicator that shows what part of the string is matched.
 
     Default: *true*
 
+`-normalize-match`
+
+Normalize the string before matching, so o will match ö, and é matches e.
+This is not a perfect implementation, but works.
+For now it disabled highlighting of the matched part. 
+
 `-no-lazy-grab`
 
 Disables lazy grab, this forces the keyboard being grabbed before gui is shown.
@@ -605,7 +611,7 @@ Separator for `dmenu`. Example: To show a list of 'a' to 'e' with '|' as a separ
 
 Specify the prompt to show in `dmenu` mode. For example, select 'monkey', a,b,c,d, or e.
 
-    echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey:"
+    echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey"
 
 Default: *dmenu*
 

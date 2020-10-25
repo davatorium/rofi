@@ -12,6 +12,7 @@ c_compiler = meson.get_compiler('c')
 add_project_arguments(
     '-I@0@'.format(meson.build_root()),
     '-I@0@'.format(join_paths(meson.source_root(), 'include')),
+    '-D_DEFAULT_SOURCE=1',
     language: 'c'
 )
 
@@ -46,9 +47,7 @@ deps = [
     dependency('pango'),
     dependency('pangocairo'),
     dependency('xkbcommon'),
-    dependency('librsvg-2.0'),
-    dependency('libjpeg'),
-    c_compiler.find_library('m', required: false),
+    dependency('gdk-pixbuf-2.0'),
 ]
 
 
@@ -67,6 +66,9 @@ deps += [
     dependency('cairo-xcb'),
     dependency('libstartup-notification-1.0'),
 ]
+
+libgif = c_compiler.find_library('libgif', required: false)
+deps += [ libgif ]
 
 check = dependency('check', version: '>= 0.11.0', required: get_option('check'))
 
@@ -87,6 +89,7 @@ header_conf.set('GLIB_VERSION_MIN_REQUIRED', '(G_ENCODE_VERSION(@0@,@1@))'.forma
 header_conf.set('GLIB_VERSION_MAX_ALLOWED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
 
 header_conf.set('ENABLE_DRUN', get_option('drun'))
+header_conf.set('HAVE_LIBGIF', libgif.found())
 header_conf.set('WINDOW_MODE', get_option('window'))
 
 header_conf.set_quoted('MANPAGE_PATH', join_paths(get_option('prefix'), get_option('mandir')))
@@ -166,6 +169,7 @@ rofi_sources = files(
         'source/dialogs/window.c',
         'source/dialogs/script.c',
         'source/dialogs/help-keys.c',
+        'source/dialogs/filebrowser.c',
         'include/display.h',
         'include/xcb.h',
         'include/xcb-internal.h',
@@ -202,6 +206,7 @@ rofi_sources = files(
         'include/dialogs/window.h',
         'include/dialogs/dialogs.h',
         'include/dialogs/help-keys.h',
+        'include/dialogs/filebrowser.h',
         'include/dialogs/dmenuscriptshared.h',
 )
 theme_lexer_sources = files('lexer/theme-lexer.l')
@@ -227,6 +232,7 @@ install_man(
     'doc/rofi.1',
     'doc/rofi-theme-selector.1',
     'doc/rofi-sensible-terminal.1',
+    'doc/rofi-script.5',
     'doc/rofi-theme.5',
 )
 

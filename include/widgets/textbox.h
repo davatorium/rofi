@@ -336,5 +336,5 @@ void textbox_cursor_end ( textbox *tb );
  * Set the ellipsizing mode used on the string.
  */
 void textbox_set_ellipsize ( textbox *tb, PangoEllipsizeMode mode );
-/*@}*/
+/**@}*/
 #endif //ROFI_TEXTBOX_H

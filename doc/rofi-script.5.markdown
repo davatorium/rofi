@@ -108,6 +108,10 @@ multiple entries can be passed using the `\x1f` separator.
     echo -en "aap\0icon\x1ffolder\x1finfo\x1ftest\n"
 ```
 
+## DASH shell
+
+If you use the `dash` shell for your script, take special care with how dash handles escaped values for the separators.
+See issue #1201 on github.
 
 
 ## SEE ALSO
