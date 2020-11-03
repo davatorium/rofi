@@ -698,21 +698,21 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         xcb_flush ( xcb->connection );
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-      GError *error = NULL;
-      gboolean           run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
-      gsize lf_cmd_size = 0;
-      gchar *lf_cmd     = g_locale_from_utf8 ( *input, -1, NULL, &lf_cmd_size, &error );
-      if ( error != NULL ) {
-        g_warning ( "Failed to convert command to locale encoding: %s", error->message );
-        g_error_free ( error );
-        return RELOAD_DIALOG;
-      }
+        GError   *error      = NULL;
+        gboolean run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
+        gsize    lf_cmd_size = 0;
+        gchar    *lf_cmd     = g_locale_from_utf8 ( *input, -1, NULL, &lf_cmd_size, &error );
+        if ( error != NULL ) {
+            g_warning ( "Failed to convert command to locale encoding: %s", error->message );
+            g_error_free ( error );
+            return RELOAD_DIALOG;
+        }
 
-      RofiHelperExecuteContext context = { .name = NULL };
-      if (  ! helper_execute_command ( NULL, lf_cmd, run_in_term, run_in_term ? &context : NULL ) ) {
-        retv = RELOAD_DIALOG;
-      }
-      g_free ( lf_cmd );
+        RofiHelperExecuteContext context = { .name = NULL };
+        if (  !helper_execute_command ( NULL, lf_cmd, run_in_term, run_in_term ? &context : NULL ) ) {
+            retv = RELOAD_DIALOG;
+        }
+        g_free ( lf_cmd );
     }
     return retv;
 }

@@ -135,12 +135,12 @@ static void textbox_initialize_font ( textbox *tb )
             if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
 
-                PangoLayout *layout = pango_layout_new(p_context );
-                pango_layout_set_text(layout,"aAjb", -1);
+                PangoLayout    *layout = pango_layout_new ( p_context );
+                pango_layout_set_text ( layout, "aAjb", -1 );
                 PangoRectangle rect;
-                pango_layout_get_pixel_extents(layout, NULL, &rect );
-                tbfc->height  = rect.y + rect.height;
-                g_object_unref ( layout);
+                pango_layout_get_pixel_extents ( layout, NULL, &rect );
+                tbfc->height = rect.y + rect.height;
+                g_object_unref ( layout );
 
                 // Cast away consts. (*yuck*) because table_insert does not know it is const.
                 g_hash_table_insert ( tbfc_cache, (char *) font, tbfc );
@@ -827,12 +827,12 @@ void textbox_set_pango_context ( const char *font, PangoContext *p )
     TBFontConfig *tbfc = g_malloc0 ( sizeof ( TBFontConfig ) );
     tbfc->metrics = p_metrics;
 
-    PangoLayout *layout = pango_layout_new( p_context );
-    pango_layout_set_text(layout,"aAjb", -1);
+    PangoLayout    *layout = pango_layout_new ( p_context );
+    pango_layout_set_text ( layout, "aAjb", -1 );
     PangoRectangle rect;
-    pango_layout_get_pixel_extents(layout, NULL, &rect );
-    tbfc->height  = rect.y + rect.height;
-    g_object_unref ( layout);
+    pango_layout_get_pixel_extents ( layout, NULL, &rect );
+    tbfc->height = rect.y + rect.height;
+    g_object_unref ( layout );
     tbfc_default = tbfc;
 
     g_hash_table_insert ( tbfc_cache, (gpointer *) ( font ? font : default_font_name ), tbfc );
@@ -874,20 +874,20 @@ int textbox_get_font_height ( const textbox *tb )
 {
     PangoRectangle rect;
     pango_layout_get_pixel_extents ( tb->layout, NULL, &rect );
-    return rect.height+ rect.y;
+    return rect.height + rect.y;
 }
 
 int textbox_get_font_width ( const textbox *tb )
 {
     PangoRectangle rect;
-    pango_layout_get_pixel_extents ( tb->layout, NULL, &rect);
+    pango_layout_get_pixel_extents ( tb->layout, NULL, &rect );
     return rect.width + rect.x;
 }
 
 /** Caching for the estimated character height. (em) */
 double textbox_get_estimated_char_height ( void )
 {
-  return tbfc_default->height;
+    return tbfc_default->height;
 }
 
 /** Caching for the expected character width. */

@@ -58,7 +58,7 @@ typedef struct
     GHashTable        *icon_cache_uid;
 
     // list extensions
-    GList               *supported_extensions;
+    GList             *supported_extensions;
     uint32_t          last_uid;
 } IconFetcher;
 
@@ -87,7 +87,6 @@ typedef struct
  * The icon fetcher internal state.
  */
 IconFetcher *rofi_icon_fetcher_data = NULL;
-
 
 static void rofi_icon_fetch_entry_free ( gpointer data )
 {
@@ -126,23 +125,19 @@ void rofi_icon_fetcher_init ( void )
     rofi_icon_fetcher_data->icon_cache_uid = g_hash_table_new ( g_direct_hash, g_direct_equal );
     rofi_icon_fetcher_data->icon_cache     = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, rofi_icon_fetch_entry_free );
 
+    GSList *l = gdk_pixbuf_get_formats ();
+    for ( GSList *li = l; li != NULL; li = g_slist_next ( li ) ) {
+        gchar **exts = gdk_pixbuf_format_get_extensions ( (GdkPixbufFormat *) li->data );
 
-    GSList *l = gdk_pixbuf_get_formats();
-    for ( GSList *li = l; li != NULL; li = g_slist_next(li))
-    {
-      gchar **exts = gdk_pixbuf_format_get_extensions ( (GdkPixbufFormat *)li->data );
+        for ( unsigned int i = 0; exts && exts[i]; i++ ) {
+            rofi_icon_fetcher_data->supported_extensions = g_list_append ( rofi_icon_fetcher_data->supported_extensions, exts[i] );
+            g_info ( "Add image extension: %s", exts[i] );
+            exts[i] = NULL;
+        }
 
-      for ( unsigned int i = 0; exts && exts[i]; i ++ ) {
-          rofi_icon_fetcher_data->supported_extensions = g_list_append ( rofi_icon_fetcher_data->supported_extensions, exts[i]);
-          g_info ( "Add image extension: %s", exts[i]);
-          exts[i] = NULL;
-      }
-
-      g_free ( exts );
-
+        g_free ( exts );
     }
     g_slist_free ( l );
-
 }
 
 void rofi_icon_fetcher_destroy ( void )
@@ -156,8 +151,7 @@ void rofi_icon_fetcher_destroy ( void )
     g_hash_table_unref ( rofi_icon_fetcher_data->icon_cache_uid );
     g_hash_table_unref ( rofi_icon_fetcher_data->icon_cache );
 
-
-    g_list_foreach ( rofi_icon_fetcher_data->supported_extensions, (GFunc)g_free, NULL );
+    g_list_foreach ( rofi_icon_fetcher_data->supported_extensions, (GFunc) g_free, NULL );
     g_list_free ( rofi_icon_fetcher_data->supported_extensions );
     g_free ( rofi_icon_fetcher_data );
 }
@@ -169,18 +163,18 @@ void rofi_icon_fetcher_destroy ( void )
  *     Copyright (C) 2011-2018 Red Hat, Inc.
  */
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-#define RED_BYTE 2
-#define GREEN_BYTE 1
-#define BLUE_BYTE 0
-#define ALPHA_BYTE 3
+#define RED_BYTE      2
+#define GREEN_BYTE    1
+#define BLUE_BYTE     0
+#define ALPHA_BYTE    3
 #else
-#define RED_BYTE 1
-#define GREEN_BYTE 2
-#define BLUE_BYTE 3
-#define ALPHA_BYTE 0
+#define RED_BYTE      1
+#define GREEN_BYTE    2
+#define BLUE_BYTE     3
+#define ALPHA_BYTE    0
 #endif
 
-static inline guchar alpha_mult(guchar c, guchar a)
+static inline guchar alpha_mult ( guchar c, guchar a )
 {
     guint16 t;
     switch ( a )
@@ -191,70 +185,70 @@ static inline guchar alpha_mult(guchar c, guchar a)
         return 0x00;
     default:
         t = c * a + 0x7f;
-        return ((t >> 8) + t) >> 8;
+        return ( ( t >> 8 ) + t ) >> 8;
     }
 }
 
-static cairo_surface_t * rofi_icon_fetcher_get_surface_from_pixbuf(GdkPixbuf
-    *pixbuf)
+static cairo_surface_t * rofi_icon_fetcher_get_surface_from_pixbuf ( GdkPixbuf
+                                                                     *pixbuf )
 {
-  gint width, height;
-  const guchar *pixels;
-  gint stride;
-  gboolean alpha;
+    gint         width, height;
+    const guchar *pixels;
+    gint         stride;
+    gboolean     alpha;
 
-  if ( pixbuf == NULL )
-    return NULL;
-
-  width = gdk_pixbuf_get_width(pixbuf);
-  height = gdk_pixbuf_get_height(pixbuf);
-  pixels = gdk_pixbuf_read_pixels(pixbuf);
-  stride = gdk_pixbuf_get_rowstride(pixbuf);
-  alpha = gdk_pixbuf_get_has_alpha(pixbuf);
-
-  cairo_surface_t *surface = NULL;
-
-  gint cstride;
-  guint lo, o;
-  guchar a = 0xff;
-  const guchar *pixels_end, *line, *line_end;
-  guchar *cpixels, *cline;
-
-  pixels_end = pixels + height * stride;
-  o = alpha ? 4 : 3;
-  lo = o * width;
-
-  surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-  cpixels = cairo_image_surface_get_data(surface);
-  cstride = cairo_image_surface_get_stride(surface);
-
-  cairo_surface_flush(surface);
-  while ( pixels < pixels_end )
-  {
-    line = pixels;
-    line_end = line + lo;
-    cline = cpixels;
-
-    while ( line < line_end )
-    {
-      if ( alpha )
-        a = line[3];
-      cline[RED_BYTE] = alpha_mult(line[0], a);
-      cline[GREEN_BYTE] = alpha_mult(line[1], a);
-      cline[BLUE_BYTE] = alpha_mult(line[2], a);
-      cline[ALPHA_BYTE] = a;
-
-      line += o;
-      cline += 4;
+    if ( pixbuf == NULL ) {
+        return NULL;
     }
 
-    pixels += stride;
-    cpixels += cstride;
-  }
-  cairo_surface_mark_dirty(surface);
-  cairo_surface_flush(surface);
+    width  = gdk_pixbuf_get_width ( pixbuf );
+    height = gdk_pixbuf_get_height ( pixbuf );
+    pixels = gdk_pixbuf_read_pixels ( pixbuf );
+    stride = gdk_pixbuf_get_rowstride ( pixbuf );
+    alpha  = gdk_pixbuf_get_has_alpha ( pixbuf );
 
-  return surface;
+    cairo_surface_t *surface = NULL;
+
+    gint            cstride;
+    guint           lo, o;
+    guchar          a = 0xff;
+    const guchar    *pixels_end, *line, *line_end;
+    guchar          *cpixels, *cline;
+
+    pixels_end = pixels + height * stride;
+    o          = alpha ? 4 : 3;
+    lo         = o * width;
+
+    surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, width, height );
+    cpixels = cairo_image_surface_get_data ( surface );
+    cstride = cairo_image_surface_get_stride ( surface );
+
+    cairo_surface_flush ( surface );
+    while ( pixels < pixels_end ) {
+        line     = pixels;
+        line_end = line + lo;
+        cline    = cpixels;
+
+        while ( line < line_end ) {
+            if ( alpha ) {
+                a = line[3];
+            }
+            cline[RED_BYTE]   = alpha_mult ( line[0], a );
+            cline[GREEN_BYTE] = alpha_mult ( line[1], a );
+            cline[BLUE_BYTE]  = alpha_mult ( line[2], a );
+            cline[ALPHA_BYTE] = a;
+
+            line  += o;
+            cline += 4;
+        }
+
+        pixels  += stride;
+        cpixels += cstride;
+    }
+    cairo_surface_mark_dirty ( surface );
+    cairo_surface_flush ( surface );
+
+    return surface;
 }
 
 gboolean rofi_icon_fetcher_file_is_image ( const char * const path )
@@ -262,70 +256,71 @@ gboolean rofi_icon_fetcher_file_is_image ( const char * const path )
     if ( path == NULL ) {
         return FALSE;
     }
-    const char *suf = strrchr(path, '.');
+    const char *suf = strrchr ( path, '.' );
     if ( suf == NULL  ) {
         return FALSE;
     }
     suf++;
 
-    for ( GList *iter = rofi_icon_fetcher_data->supported_extensions; iter != NULL ; iter = g_list_next ( iter ) ) {
-      if ( g_ascii_strcasecmp(iter->data, suf ) == 0 ) {
-          return TRUE;
-      }
+    for ( GList *iter = rofi_icon_fetcher_data->supported_extensions; iter != NULL; iter = g_list_next ( iter ) ) {
+        if ( g_ascii_strcasecmp ( iter->data, suf ) == 0 ) {
+            return TRUE;
+        }
     }
     return FALSE;
 }
 
 static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpointer user_data )
 {
-  g_debug ( "starting up icon fetching thread." );
-  // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
-  // this should be fine running in another thread.
-  IconFetcherEntry *sentry   = (IconFetcherEntry *) sdata;
-  const gchar      *themes[] = {
-    config.icon_theme,
-    NULL
-  };
+    g_debug ( "starting up icon fetching thread." );
+    // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
+    // this should be fine running in another thread.
+    IconFetcherEntry *sentry   = (IconFetcherEntry *) sdata;
+    const gchar      *themes[] = {
+        config.icon_theme,
+        NULL
+    };
 
-  const gchar      *icon_path;
-  gchar            *icon_path_ = NULL;
+    const gchar      *icon_path;
+    gchar            *icon_path_ = NULL;
 
-  if ( g_path_is_absolute ( sentry->entry->name ) ) {
-    icon_path = sentry->entry->name;
-  }
-  else {
-    icon_path = icon_path_ = nk_xdg_theme_get_icon ( rofi_icon_fetcher_data->xdg_context, themes, NULL, sentry->entry->name, sentry->size, 1, TRUE );
-    if ( icon_path_ == NULL ) {
-      g_debug ( "failed to get icon %s(%d): n/a", sentry->entry->name, sentry->size  );
-      return;
+    if ( g_path_is_absolute ( sentry->entry->name ) ) {
+        icon_path = sentry->entry->name;
     }
-    else{
-      g_debug ( "found icon %s(%d): %s", sentry->entry->name, sentry->size, icon_path  );
+    else {
+        icon_path = icon_path_ = nk_xdg_theme_get_icon ( rofi_icon_fetcher_data->xdg_context, themes, NULL, sentry->entry->name, sentry->size, 1, TRUE );
+        if ( icon_path_ == NULL ) {
+            g_debug ( "failed to get icon %s(%d): n/a", sentry->entry->name, sentry->size  );
+            return;
+        }
+        else{
+            g_debug ( "found icon %s(%d): %s", sentry->entry->name, sentry->size, icon_path  );
+        }
     }
-  }
-  cairo_surface_t *icon_surf = NULL;
+    cairo_surface_t *icon_surf = NULL;
 
-  const char *suf = strrchr(icon_path, '.');
-  if ( suf == NULL  ) {
-    return ;
-  }
-
-  GError *error = NULL;
-  GdkPixbuf *pb = gdk_pixbuf_new_from_file_at_scale ( icon_path, sentry->size, sentry->size, TRUE, &error );
-  if ( error != NULL ) {
-    g_warning ( "Failed to load image: %s", error->message);
-    g_error_free( error );
-    if ( pb ) {
-      g_object_unref ( pb );
+    const char      *suf = strrchr ( icon_path, '.' );
+    if ( suf == NULL  ) {
+        return;
     }
-  }  else {
-    icon_surf = rofi_icon_fetcher_get_surface_from_pixbuf(pb );
-    g_object_unref ( pb );
-  }
 
-  sentry->surface = icon_surf;
-  g_free ( icon_path_ );
-  rofi_view_reload ();
+    GError    *error = NULL;
+    GdkPixbuf *pb    = gdk_pixbuf_new_from_file_at_scale ( icon_path, sentry->size, sentry->size, TRUE, &error );
+    if ( error != NULL ) {
+        g_warning ( "Failed to load image: %s", error->message );
+        g_error_free ( error );
+        if ( pb ) {
+            g_object_unref ( pb );
+        }
+    }
+    else {
+        icon_surf = rofi_icon_fetcher_get_surface_from_pixbuf ( pb );
+        g_object_unref ( pb );
+    }
+
+    sentry->surface = icon_surf;
+    g_free ( icon_path_ );
+    rofi_view_reload ();
 }
 
 uint32_t rofi_icon_fetcher_query ( const char *name, const int size )

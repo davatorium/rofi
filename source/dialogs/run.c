@@ -376,12 +376,12 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
 
     if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
         if ( !exec_cmd ( rmpd->cmd_list[selected_line], run_in_term ) ) {
-          retv = RELOAD_DIALOG;
+            retv = RELOAD_DIALOG;
         }
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         if ( !exec_cmd ( *input, run_in_term ) ) {
-          retv = RELOAD_DIALOG;
+            retv = RELOAD_DIALOG;
         }
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {

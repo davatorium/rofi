@@ -181,7 +181,7 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
         }
     }
     if ( ( mretv & MENU_CUSTOM_INPUT )  ) {
-      return mode_result ( pd->switchers[0].mode, mretv, input, selected_line );
+        return mode_result ( pd->switchers[0].mode, mretv, input, selected_line );
     }
     return MODE_EXIT;
 }

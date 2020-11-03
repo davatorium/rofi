@@ -208,7 +208,7 @@ static void run_switcher ( ModeMode mode )
 void process_result ( RofiViewState *state )
 {
     Mode *sw = state->sw;
- //   rofi_view_set_active ( NULL );
+    //   rofi_view_set_active ( NULL );
     if ( sw != NULL ) {
         unsigned int selected_line = rofi_view_get_selected_line ( state );;
         MenuReturn   mretv         = rofi_view_get_return_value ( state );
@@ -248,15 +248,16 @@ void process_result ( RofiViewState *state )
             rofi_view_switch_mode ( state, modi[mode] );
             curr_switcher = mode;
             return;
-        } else {
-          // On exit, free current view, and pop to one above.
-          rofi_view_remove_active ( state );
-          rofi_view_free ( state );
-          return;
+        }
+        else {
+            // On exit, free current view, and pop to one above.
+            rofi_view_remove_active ( state );
+            rofi_view_free ( state );
+            return;
         }
     }
 //    rofi_view_set_active ( NULL );
-          rofi_view_remove_active ( state );
+    rofi_view_remove_active ( state );
     rofi_view_free ( state );
 }
 

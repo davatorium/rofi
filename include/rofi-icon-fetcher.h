@@ -45,8 +45,6 @@ uint32_t rofi_icon_fetcher_query ( const char *name, const int size );
  */
 cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid );
 
-
-
 gboolean rofi_icon_fetcher_file_is_image ( const char * const path );
 /** @} */
 #endif // ROFI_ICON_FETCHER_H

@@ -38,7 +38,7 @@
 /** #Mode object representing the run dialog. */
 extern Mode file_browser_mode;
 
-Mode *create_new_file_browser (void);
+Mode *create_new_file_browser ( void );
 ModeMode file_browser_mode_completer ( Mode *sw, int mretv, char **input, unsigned int selected_line, char **path );
 /**@}*/
 #endif // ROFI_DIALOG_FILE_BROWSER_H

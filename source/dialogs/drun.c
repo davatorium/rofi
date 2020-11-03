@@ -736,11 +736,11 @@ static void drun_write_str ( FILE *fd, const char *str )
 }
 static void drun_write_integer ( FILE *fd, int32_t val )
 {
-    fwrite ( &val,sizeof(val), 1, fd );
+    fwrite ( &val, sizeof ( val ), 1, fd );
 }
 static void drun_read_integer ( FILE *fd, int32_t *type )
 {
-    if ( fread ( type, sizeof ( int32_t), 1, fd ) != 1 ) {
+    if ( fread ( type, sizeof ( int32_t ), 1, fd ) != 1 ) {
         g_warning ( "Failed to read entry, cache corrupt?" );
         return;
     }
@@ -821,7 +821,7 @@ static void write_cache ( DRunModePrivateData *pd, const char *cache_file )
         drun_write_strv ( fd, entry->keywords );
 
         drun_write_str ( fd, entry->comment );
-        drun_write_integer ( fd, (int32_t)entry->type );
+        drun_write_integer ( fd, (int32_t) entry->type );
     }
 
     fclose ( fd );
@@ -893,7 +893,7 @@ static gboolean drun_read_cache ( DRunModePrivateData *pd, const char *cache_fil
 
         drun_read_string ( fd, &( entry->comment ) );
         int32_t type = 0;
-        drun_read_integer( fd, &( type ) );
+        drun_read_integer ( fd, &( type ) );
         entry->type = type;
     }
 
@@ -1041,10 +1041,10 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         }
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
-        RofiHelperExecuteContext context = { .name = NULL };
-        gboolean             run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
+        RofiHelperExecuteContext context     = { .name = NULL };
+        gboolean                 run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
         // FIXME: We assume startup notification in terminals, not in others
-        if ( ! helper_execute_command ( NULL, *input, run_in_term, run_in_term ? &context : NULL ) ) {
+        if ( !helper_execute_command ( NULL, *input, run_in_term, run_in_term ? &context : NULL ) ) {
             retv = RELOAD_DIALOG;
         }
     }

@@ -103,7 +103,7 @@ ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int sel
         return PREVIOUS_DIALOG;
     }
     else if ( menu_retv & MENU_QUICK_SWITCH ) {
-        return ( menu_retv & MENU_LOWER_MASK );
+        return menu_retv & MENU_LOWER_MASK;
     }
 
     g_assert ( mode != NULL );
