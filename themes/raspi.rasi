@@ -1,0 +1,65 @@
+/* ==========================================================================
+   Rofi color theme
+
+   Based on the gruvbox-light color scheme by bardisty
+   Based on the Gruvbox color scheme for Vim by morhetz
+   https://github.com/morhetz/gruvbox
+
+   File: raspi.rasi
+   Desc: Raspberry Pi color theme for rofi
+   Author: durapensa <durapensa@gmail.com>
+   Source: https://github.com/durapensa/raspi-rofi
+   Modified: Fri Nov 06 2020 06:06:06 PST -0800
+   ========================================================================== */
+
+* {
+    /* Theme settings */
+    highlight: bold italic;
+    scrollbar: true;
+
+    /* Raspberry Pi colors */
+    raspi-background:                 #ffffff;
+    raspi-alternate-background:       #ffffff;
+    raspi-selected-background:        #87919b;
+    raspi-selected-foreground:        #ffffff;
+    raspi-foreground:                 #000000;
+    raspi-border:                     #87919b;
+    raspi-scrollbar-handle:           #a0a0a0;
+    raspi-separator:                  #dedede;
+    raspi-urgent-background:          #9d0006;
+    raspi-selected-urgent-background: #cc241d;
+    raspi-active-background:          #b57614;
+    raspi-selected-active-background: #d79921;
+
+    /* Theme colors */
+    background:                  @raspi-background;
+    background-color:            @raspi-background;
+    foreground:                  @raspi-foreground;
+    border-color:                @raspi-border;
+    separatorcolor:              @raspi-separator;
+    scrollbar-handle:            @raspi-scrollbar-handle;
+
+    normal-background:           @raspi-background;
+    normal-foreground:           @raspi-foreground;
+    alternate-background:        @raspi-alternate-background;
+    alternate-foreground:        @raspi-foreground;
+    selected-normal-background:  @raspi-selected-background;
+    selected-normal-foreground:  @raspi-selected-foreground;
+
+    active-background:           @raspi-active-background;
+    active-foreground:           @raspi-background;
+    alternate-active-background: @raspi-active-background;
+    alternate-active-foreground: @raspi-active-foreground;
+    selected-active-background:  @raspi-selected-active-background;
+    selected-active-foreground:  @raspi-active-foreground;
+
+    urgent-background:           @raspi-urgent-background;
+    urgent-foreground:           @raspi-background;
+    alternate-urgent-background: @raspi-urgent-background;
+    alternate-urgent-foreground: @raspi-urgent-foreground;
+    selected-urgent-background:  @raspi-selected-urgent-background;
+    selected-urgent-foreground:  @raspi-urgent-foreground;
+}
+
+@import "gruvbox-common.rasi"
+
