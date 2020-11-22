@@ -1,3 +1,14 @@
+v1.6.1: Tortoise Power
+   - Use GdkPixbuf for Icon parsing.
+   - Add FileBrowser to default mode.
+   - Fix parsing dicts in config file (with " in middle of string.)
+   - Add -normalize-match option, that tries to o match ö, é match e. (#1119)
+   - [Theme] Add min/max operator support to calc() (#1172)
+   - Show error message and return to list instead of closing (#1187)
+   - [Theme] Add nested media support. (#1189)
+   - [Textbox] Try to fix estimated font height. (#1190)
+   - [DRun] Fix broken caching mechanism.
+
 v1.6.0: The Masked Launcher
    -  Add `themes/` directory in the users rofi config directory to the theme search path. (#1001)
    -  Split listview element into box widget holding icon and textbox. Supporting more dynamic themes. (#949)
