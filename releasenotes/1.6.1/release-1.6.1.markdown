@@ -1,12 +1,15 @@
 # 1.6.1: Tortoise Power
 
-A bugfix release with a few minor new features.
+Rofi 1.6.1 is another bug-fix release in the 1.6 series.
+This release fixes a few issues with 1.6.0, most important the crash with drun-cache and
+resolving some issues that the default theme had on some systems.
+There are a few minor new features introduced.
+
 
 ## Theme: min/max and nested media support
 
-To make themes more adoptable between different setups, `@media` statements can now be nested.
-
-Support for min/max operation `calc()` has been added.
+To make themes more adoptable to different setups, `@media` statements can now be nested and support for min/max
+operation in `calc()` has been added.
 
 ## FileBrowser
 
