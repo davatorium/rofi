@@ -337,39 +337,6 @@ Set to '\x0' to disable.
 Most of the following options are **deprecated** and should not be used. Please use the new theme format to customize
 **rofi**. More information about the new format can be found in the **rofi-theme(5)** manpage.
 
-`-lines`
-
-Maximum number of lines to show before scrolling.
-
-    rofi -lines 25
-
-Default: *15*
-
-`-columns`
-
-Number of columns to show before scrolling.
-
-    rofi -columns 2
-
-Default: *1*
-
-`-width` [value]
-
-Set width of menu. `[value]` is specified in percentage.
-
-    rofi -width 60
-
-If `[value]` is larger then 100, size is set in pixels. Example to span a full-HD monitor:
-
-    rofi -width 1920
-
-If `[value]` is negative, it tries to estimates a character width. To show 30 characters in a row:
-
-    rofi -width -30
-
-Character width is a rough estimate, and might not be correct, but should work for most monospaced fonts.
-
-Default: *50*
 
 `-location`
 
@@ -384,12 +351,6 @@ Default: *0*
 `-fixed-num-lines`
 
 Keep a fixed number of visible lines (See the `-lines` option.)
-
-`-padding`
-
-Define the inner margin of the window.
-
-Default: *5*
 
 `-fullscreen`
 
@@ -614,14 +575,6 @@ Specify the prompt to show in `dmenu` mode. For example, select 'monkey', a,b,c,
 
 Default: *dmenu*
 
-`-l` *number of lines to show*
-
-Maximum number of lines the menu may show before scrolling.
-
-    rofi -lines 25
-
-Default: *15*
-
 `-i`
 
 Makes `dmenu` searches case-insensitive
@@ -809,63 +762,8 @@ This way it can be used as a drop-in replacement for dmenu. Just copy or symlink
 
 ## THEMING
 
-The theme format below describes the old (pre version 1.4) theme format. Please see rofi-theme(5) manpage for an updated
-manual.
+Please see rofi-theme(5) manpage for an manual.
 
-The theme setup allows you to specify colors per state, similar to **i3**
-Currently 3 states exist:
-
-  * **normal**: normal row
-  * **urgent**: highlighted row (urgent)
-  * **active**: highlighted row (active)
-
-For each state, the following 5 colors must be set:
-
-  * **bg**: background color row
-  * **fg**: text color
-  * **bgalt**: background color alternating row
-  * **hlfg**: foreground color selected row
-  * **hlbg**: background color selected row
-
-The window background and border color should be specified separately. The key `color-window` contains
-a tuple `background,border,separator`.
-An example `Xresources` file:
-
-    ! State:           'bg',     'fg',     'bgalt',  'hlbg',   'hlfg'
-    rofi.color-normal: #fdf6e3,  #002b36,  #eee8d5,  #586e75,  #eee8d5
-    rofi.color-urgent: #fdf6e3,  #dc322f,  #eee8d5,  #dc322f,  #fdf6e3
-    rofi.color-active: #fdf6e3,  #268bd2,  #eee8d5,  #268bd2,  #fdf6e3
-
-    !                  'background', 'border', 'separator'
-    rofi.color-window: #fdf6e3,      #002b36,  #002b36
-
-Same settings can also be specified on the command-line:
-
-    rofi -color-normal "#fdf6e3,#002b36,#eee8d5,#586e75,#eee8d5"
-
-## COLORS
-
-RGB colors can be specified by either their X11 name or hexadecimal notation.
-For example:
-
-    white
-
-Or:
-
-    #FFFFFF
-
-ARGB colors are also supported. These can be used to create a transparent window if (1) your Xserver supports TrueColor, and (2) you are running a composite manager.
-For example:
-    argb:FF444444
-
-Or:
-
-    #FF444444
-
-The first two fields specify the alpha level. This determines the amount of transparency (00 everything, FF nothing). The other fields represent the actual color, in hex.
-
-Transparency can be used within **rofi**, for example if the selected background color is 50% transparent, the background color
-of the window will be visible through it.
 
 ## KEY BINDINGS
 
@@ -1004,10 +902,6 @@ Combine the run and Desktop File run dialog (`drun`):
 Combine the run and Desktop File run dialog (`drun`), and allow switching to window switcher:
 
     rofi -modi combi,window -show combi -combi-modi run,drun
-
-Run **rofi** full monitor width at the top of the monitor like a dropdown menu:
-
-    rofi -show run -width 100 -location 1 -lines 5 -bw 2 -yoffset -2
 
 Pop up a text message claiming that this is the end:
 

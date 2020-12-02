@@ -770,9 +770,6 @@ static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer 
         int l = 0;
         if ( match[2] == ':' ) {
             l = (int) g_ascii_strtoll ( &match[3], NULL, 10 );
-            if ( l < 0 && config.menu_width < 0 ) {
-                l = -config.menu_width + l;
-            }
             if ( l < 0 ) {
                 l = 0;
             }

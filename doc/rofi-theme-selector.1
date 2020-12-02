@@ -1,3 +1,4 @@
+.nh
 .TH rofi\-theme\-selector 1 rofi\-theme\-selector
 .SH NAME
 .PP
@@ -18,6 +19,8 @@ It lets you preview each theme with the Enter key and apply the theme to your
 .SH Theme directories
 .PP
 \fBrofi\-theme\-selector\fP searches the following directories for themes:
+
+.RS
 .IP \(bu 2
 ${PREFIX}/share/rofi/themes
 .IP \(bu 2
@@ -25,9 +28,11 @@ $XDG\_CONFIG\_HOME/rofi/themes
 .IP \(bu 2
 $XDG\_DATA\_HOME/share/rofi/themes
 
+.RE
+
 .PP
-${PREFIX} reflects the install location of rofi. In most cases this will be "/usr".<br>
-$XDG\_CONFIG\_HOME is normally unset. Default path is "$HOME/.config".<br>
+${PREFIX} reflects the install location of rofi. In most cases this will be "/usr".
+$XDG\_CONFIG\_HOME is normally unset. Default path is "$HOME/.config".
 $XDG\_DATA\_HOME is normally unset. Default path is "$HOME/.local/share".
 
 .SH SEE ALSO
@@ -36,5 +41,5 @@ rofi(1)
 
 .SH AUTHORS
 .PP
-Qball Cow qball@gmpclient.org<br>
+Qball Cow qball@gmpclient.org
 Rasmus Steinke rasi@xssn.at

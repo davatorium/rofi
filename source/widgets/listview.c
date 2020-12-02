@@ -677,7 +677,7 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
 
     // Some settings.
     lv->spacing         = rofi_theme_get_distance ( WIDGET ( lv ), "spacing", DEFAULT_SPACING );
-    lv->menu_columns    = rofi_theme_get_integer  ( WIDGET ( lv ), "columns", config.menu_columns );
+    lv->menu_columns    = rofi_theme_get_integer  ( WIDGET ( lv ), "columns", 1 );
     lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", config.fixed_num_lines );
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic", TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );

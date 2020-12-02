@@ -899,15 +899,6 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
         state->width = CacheState.mon.w;
         return;
     }
-    if ( config.menu_width < 0 ) {
-        double fw = textbox_get_estimated_char_width ( );
-        state->width  = -( fw * config.menu_width );
-        state->width += widget_padding_get_padding_width ( WIDGET ( state->main_window ) );
-    }
-    else{
-        // Calculate as float to stop silly, big rounding down errors.
-        state->width = config.menu_width < 101 ? ( CacheState.mon.w / 100.0f ) * ( float ) config.menu_width : config.menu_width;
-    }
     // Use theme configured width, if set.
     RofiDistance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
     state->width = distance_get_pixel ( width, ROFI_ORIENTATION_HORIZONTAL );
@@ -1767,7 +1758,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
         listview_set_scroll_type ( state->list_view, config.scroll_method );
         listview_set_mouse_activated_cb ( state->list_view, rofi_view_listview_mouse_activated_cb, state );
 
-        int lines = rofi_theme_get_integer ( WIDGET ( state->list_view ), "lines", config.menu_lines );
+        int lines = rofi_theme_get_integer ( WIDGET ( state->list_view ), "lines", 15 );
         listview_set_num_lines ( state->list_view, lines );
         listview_set_max_lines ( state->list_view, state->num_lines );
     }

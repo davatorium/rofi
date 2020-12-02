@@ -387,9 +387,6 @@ static int dmenu_mode_init ( Mode *sw )
         parse_ranges ( str, &( pd->active_list ), &( pd->num_active_list ) );
     }
 
-    // DMENU COMPATIBILITY
-    find_arg_uint (  "-l", &( config.menu_lines ) );
-
     str = NULL;
     find_arg_str ( "-window-title", &str );
     if ( str ) {

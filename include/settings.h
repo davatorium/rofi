@@ -60,22 +60,8 @@ typedef struct
 {
     /** List of enabled modi */
     char           *modi;
-    /** Border width */
-    unsigned int   menu_bw;
-    /** Width (0-100 in %, > 100 in pixels, < 0 in char width.) */
-    int            menu_width;
-    /** # lines */
-    unsigned int   menu_lines;
-    /** # Columns */
-    unsigned int   menu_columns;
     /** Font string (pango format) */
     char           * menu_font;
-
-    /** New row colors */
-    char           * color_normal;
-    char           * color_active;
-    char           * color_urgent;
-    char           * color_window;
 
     /** Whether to load and show icons  */
     gboolean       show_icons;
@@ -101,8 +87,6 @@ typedef struct
 
     /** Windows location/gravity */
     WindowLocation location;
-    /** Padding between elements */
-    unsigned int   padding;
     /** Y offset */
     int            y_offset;
     /** X offset */

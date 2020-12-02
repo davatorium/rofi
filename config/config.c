@@ -40,14 +40,6 @@ Settings config = {
 #else
     .modi                      = "run,ssh",
 #endif
-    /** Border width around the window. */
-    .menu_bw                   = 1,
-    /** The width of the switcher. (0100 in % > 100 in pixels) */
-    .menu_width                = 50,
-    /** Maximum number of options to show. */
-    .menu_lines                = 15,
-    /** Number of columns */
-    .menu_columns              = 1,
     /** Font */
     .menu_font                 = "mono 12",
 
@@ -81,8 +73,6 @@ Settings config = {
      *
      */
     .location                  = WL_CENTER,
-    /** Padding between elements */
-    .padding                   = 5,
     /** Y offset */
     .y_offset                  = 0,
     /** X offset */
@@ -152,10 +142,6 @@ Settings config = {
     .click_to_exit          = TRUE,
     .show_match             = TRUE,
     .theme                  = NULL,
-    .color_normal           = NULL,
-    .color_active           = NULL,
-    .color_urgent           = NULL,
-    .color_window           = NULL,
     .plugin_path            = PLUGIN_PATH,
     .max_history_size       = 25,
     .combi_hide_mode_prefix = FALSE,
