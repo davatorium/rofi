@@ -169,10 +169,8 @@ static void listview_add_widget ( listview *lv, _listview_row *row, widget *wid,
 {
     TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
     if ( strcasecmp ( label, "element-icon" ) == 0 ) {
-        if ( config.show_icons ) {
-            row->icon = icon_create ( WIDGET ( wid ), "element-icon" );
-            box_add ( (box *) wid, WIDGET ( row->icon ), FALSE );
-        }
+	    row->icon = icon_create ( WIDGET ( wid ), "element-icon" );
+	    box_add ( (box *) wid, WIDGET ( row->icon ), FALSE );
     }
     else if ( strcasecmp ( label, "element-text" ) == 0 ) {
         row->textbox = textbox_create ( WIDGET ( wid ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT | flags, NORMAL, "DDD", 0, 0 );
@@ -678,7 +676,7 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
     // Some settings.
     lv->spacing         = rofi_theme_get_distance ( WIDGET ( lv ), "spacing", DEFAULT_SPACING );
     lv->menu_columns    = rofi_theme_get_integer  ( WIDGET ( lv ), "columns", 1 );
-    lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", config.fixed_num_lines );
+    lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", FALSE );
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic", TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );
     lv->cycle           = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );

@@ -293,29 +293,9 @@ static void rofi_view_update_prompt ( RofiViewState *state )
 /**
  * Calculates the window position
  */
-/** Convert the old location to the new location type.
- * 123
- * 804
- * 765
- *
- * nw n ne
- * w  c e
- * sw s se
- */
-static const int loc_transtable[9] = {
-    WL_CENTER,
-    WL_NORTH | WL_WEST,
-    WL_NORTH,
-    WL_NORTH | WL_EAST,
-    WL_EAST,
-    WL_SOUTH | WL_EAST,
-    WL_SOUTH,
-    WL_SOUTH | WL_WEST,
-    WL_WEST
-};
 static void rofi_view_calculate_window_position ( RofiViewState *state )
 {
-    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", loc_transtable[config.location] );
+    int location = rofi_theme_get_position ( WIDGET ( state->main_window ), "location", WL_CENTER );
     int anchor   = location;
     if ( !listview_get_fixed_num_lines ( state->list_view ) ) {
         anchor = location;
@@ -407,8 +387,8 @@ static void rofi_view_calculate_window_position ( RofiViewState *state )
         break;
     }
     // Apply offset.
-    RofiDistance x = rofi_theme_get_distance ( WIDGET ( state->main_window ), "x-offset", config.x_offset );
-    RofiDistance y = rofi_theme_get_distance ( WIDGET ( state->main_window ), "y-offset", config.y_offset );
+    RofiDistance x = rofi_theme_get_distance ( WIDGET ( state->main_window ), "x-offset", 0 );
+    RofiDistance y = rofi_theme_get_distance ( WIDGET ( state->main_window ), "y-offset", 0 );
     state->x += distance_get_pixel ( x, ROFI_ORIENTATION_HORIZONTAL );
     state->y += distance_get_pixel ( y, ROFI_ORIENTATION_VERTICAL );
 }
@@ -806,7 +786,7 @@ void __create_window ( MenuFlags menu_flags )
     // Setup font.
     // Dummy widget.
     box        *win  = box_create ( NULL, "window", ROFI_ORIENTATION_HORIZONTAL );
-    const char *font = rofi_theme_get_string ( WIDGET ( win ), "font", config.menu_font );
+    const char *font = rofi_theme_get_string ( WIDGET ( win ), "font", "mono 12" );
     if ( font ) {
         PangoFontDescription *pfd = pango_font_description_from_string ( font );
         if ( helper_validate_font ( pfd, font ) ) {
@@ -837,7 +817,7 @@ void __create_window ( MenuFlags menu_flags )
     }
 
     TICK_N ( "setup window attributes" );
-    CacheState.fullscreen = rofi_theme_get_boolean ( WIDGET ( win ), "fullscreen", config.fullscreen );
+    CacheState.fullscreen = rofi_theme_get_boolean ( WIDGET ( win ), "fullscreen", FALSE );
     if ( CacheState.fullscreen ) {
         xcb_atom_t atoms[] = {
             xcb->ewmh._NET_WM_STATE_FULLSCREEN,
@@ -861,9 +841,6 @@ void __create_window ( MenuFlags menu_flags )
     const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency ) {
         rofi_view_setup_fake_transparency ( transparency  );
-    }
-    else if ( config.fake_transparency && config.fake_background ) {
-        rofi_view_setup_fake_transparency ( config.fake_background );
     }
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );

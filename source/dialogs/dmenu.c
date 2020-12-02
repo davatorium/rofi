@@ -392,14 +392,6 @@ static int dmenu_mode_init ( Mode *sw )
     if ( str ) {
         dmenu_mode.display_name = str;
     }
-
-    /**
-     * Dmenu compatibility.
-     * `-b` put on bottom.
-     */
-    if ( find_arg ( "-b" ) >= 0 ) {
-        config.location = 6;
-    }
     /* -i case insensitive */
     config.case_sensitive = TRUE;
     if ( find_arg ( "-i" ) >= 0 ) {

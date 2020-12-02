@@ -1060,59 +1060,6 @@ gboolean rofi_theme_is_empty ( void )
     return FALSE;
 }
 
-#ifdef THEME_CONVERTER
-
-void rofi_theme_convert_old ( void )
-{
-    if ( config.separator_style != NULL  ) {
-        if ( g_strcmp0 ( config.separator_style, "none" ) == 0 ) {
-            const char *const str = "#listview { border: 0px; }";
-            rofi_theme_parse_string ( str );
-            const char *const str2 = "#mode-switcher { border: 0px; }";
-            rofi_theme_parse_string ( str2 );
-            const char *const str3 = "#message { border: 0px; }";
-            rofi_theme_parse_string ( str3 );
-        }
-        else if  ( g_strcmp0 ( config.separator_style, "solid" ) == 0 ) {
-            const char *const str = "#listview { border: 2px solid 0px 0px 0px; }";
-            rofi_theme_parse_string ( str );
-            const char *const str2 = "#mode-switcher { border: 2px solid 0px 0px 0px; }";
-            rofi_theme_parse_string ( str2 );
-            const char *const str3 = "#message { border: 2px solid 0px 0px 0px; }";
-            rofi_theme_parse_string ( str3 );
-        } /* dash is default */
-    }
-    /* Line Margin */
-    {
-        char *str = g_strdup_printf ( "#listview { spacing: %dpx;}", config.line_margin );
-        rofi_theme_parse_string ( str );
-        g_free ( str );
-    }
-    /* Line Padding */
-    {
-        char *str = g_strdup_printf ( "#element, inputbar, message { padding: %dpx;}", config.line_padding );
-        rofi_theme_parse_string ( str );
-        g_free ( str );
-    }
-    if ( config.hide_scrollbar ) {
-        const char *str = "#listview { scrollbar: false; }";
-        rofi_theme_parse_string ( str );
-    }
-    else {
-        const char *str = "#listview { scrollbar: true; }";
-        rofi_theme_parse_string ( str );
-        char       *str2 = g_strdup_printf ( "#scrollbar { handle-width: %dpx; }", config.scrollbar_width );
-        rofi_theme_parse_string ( str2 );
-        g_free ( str2 );
-    }
-    if ( config.fake_transparency ) {
-        char *str = g_strdup_printf ( "#window { transparency: \"%s\"; }", config.fake_background );
-        rofi_theme_parse_string ( str );
-        g_free ( str );
-    }
-}
-#endif // THEME_CONVERTER
-
 char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file )
 {
     char *filename = rofi_expand_path ( file );

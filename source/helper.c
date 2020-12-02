@@ -645,12 +645,6 @@ int config_sanity_check ( void )
         config.element_height = 1;
         found_error           = TRUE;
     }
-    if ( !( config.location >= 0 && config.location <= 8 ) ) {
-        g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
-                                 config.location, 0, 8 );
-        config.location = WL_CENTER;
-        found_error     = 1;
-    }
 
     // Check size
     {
@@ -666,25 +660,6 @@ int config_sanity_check ( void )
             g_string_append_printf ( msg, "\t<b>config.monitor</b>=%s Could not find monitor.\n", name );
             found_error = TRUE;
         }
-    }
-
-    if ( config.menu_font ) {
-        PangoFontDescription *pfd = pango_font_description_from_string ( config.menu_font );
-        const char           *fam = pango_font_description_get_family ( pfd );
-        int                  size = pango_font_description_get_size ( pfd );
-        if ( fam == NULL || size == 0 ) {
-            g_string_append_printf ( msg, "Pango failed to parse font: '%s'\n", config.menu_font );
-            g_string_append_printf ( msg, "Got font family: <b>%s</b> at size <b>%d</b>\n", fam ? fam : "{unknown}", size );
-            config.menu_font = NULL;
-            found_error      = TRUE;
-        }
-        pango_font_description_free ( pfd );
-    }
-
-    if ( g_strcmp0 ( config.monitor, "-3" ) == 0 ) {
-        // On -3, set to location 1.
-        config.location   = 1;
-        config.fullscreen = 0;
     }
 
     if ( found_error ) {

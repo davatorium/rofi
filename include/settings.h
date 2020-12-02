@@ -60,11 +60,6 @@ typedef struct
 {
     /** List of enabled modi */
     char           *modi;
-    /** Font string (pango format) */
-    char           * menu_font;
-
-    /** Whether to load and show icons  */
-    gboolean       show_icons;
 
     /** Terminal to use  */
     char           * terminal_emulator;
@@ -85,14 +80,6 @@ typedef struct
     /** Theme for icons */
     char           * icon_theme;
 
-    /** Windows location/gravity */
-    WindowLocation location;
-    /** Y offset */
-    int            y_offset;
-    /** X offset */
-    int            x_offset;
-    /** Always should config.menu_lines lines, even if less lines are available */
-    unsigned int   fixed_num_lines;
     /** Do not use history */
     unsigned int   disable_history;
     /** Programs ignored for history */
@@ -138,27 +125,13 @@ typedef struct
     unsigned int   tokenize;
     /** Monitors */
     char           *monitor;
-    /** Line margin */
-    unsigned int   line_margin;
-    unsigned int   line_padding;
     /** filter */
     char           *filter;
-    /** style */
-    char           *separator_style;
-    /** hide scrollbar */
-    unsigned int   hide_scrollbar;
-    /** fullscreen */
-    unsigned int   fullscreen;
-    /** bg image */
-    unsigned int   fake_transparency;
     /** dpi */
     int            dpi;
     /** Number threads (1 to disable) */
     unsigned int   threads;
     unsigned int   scroll_method;
-    unsigned int   scrollbar_width;
-    /** Background type */
-    char           *fake_background;
 
     char           *window_format;
     /** Click outside the window to exit */

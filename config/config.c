@@ -40,11 +40,6 @@ Settings config = {
 #else
     .modi                      = "run,ssh",
 #endif
-    /** Font */
-    .menu_font                 = "mono 12",
-
-    /** Whether to load and show icons */
-    .show_icons                = FALSE,
 
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
@@ -61,24 +56,6 @@ Settings config = {
     .window_command            = "wmctrl -i -R {window}",
     /** No default icon theme, we search Adwaita and gnome as fallback */
     .icon_theme                = NULL,
-    /**
-     * Location of the window.
-     * Enumeration indicating location or gravity of window.
-     *
-     * WL_NORTH_WEST      WL_NORTH      WL_NORTH_EAST
-     *
-     * WL_EAST            WL_CENTER     WL_EAST
-     *
-     * WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST
-     *
-     */
-    .location                  = WL_CENTER,
-    /** Y offset */
-    .y_offset                  = 0,
-    /** X offset */
-    .x_offset                  = 0,
-    /** Always show config.menu_lines lines, even if less lines are available */
-    .fixed_num_lines           = TRUE,
     /** Do not use history */
     .disable_history           = FALSE,
     /** Programs ignored for history */
@@ -122,22 +99,11 @@ Settings config = {
     .window_match_fields       = "all",
     /** Monitor */
     .monitor                   = "-5",
-    /** set line margin */
-    .line_margin  = 2,
-    .line_padding = 1,
     /** Set filter */
     .filter                    = NULL,
-    /** Separator style: dash/solid */
-    .separator_style           = "dash",
-    /** Hide scrollbar */
-    .hide_scrollbar         = FALSE,
-    .fullscreen             = FALSE,
-    .fake_transparency      = FALSE,
     .dpi                    = -1,
     .threads                = 0,
     .scroll_method          = 0,
-    .scrollbar_width        = 8,
-    .fake_background        = "screenshot",
     .window_format          = "{w}    {c}   {t}",
     .click_to_exit          = TRUE,
     .show_match             = TRUE,

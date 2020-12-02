@@ -577,12 +577,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     else {
         pd->entry_list[pd->cmd_list_length].comment = NULL;
     }
-    if ( config.show_icons ) {
-        pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "Icon", NULL, NULL );
-    }
-    else{
-        pd->entry_list[pd->cmd_list_length].icon_name = NULL;
-    }
+    pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "Icon", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].icon = NULL;
 
     // Keep keyfile around.
