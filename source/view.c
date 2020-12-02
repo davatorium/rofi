@@ -877,7 +877,7 @@ static void rofi_view_calculate_window_width ( RofiViewState *state )
         return;
     }
     // Use theme configured width, if set.
-    RofiDistance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", state->width );
+    RofiDistance width = rofi_theme_get_distance ( WIDGET ( state->main_window ), "width", CacheState.mon.w/2 );
     state->width = distance_get_pixel ( width, ROFI_ORIENTATION_HORIZONTAL );
 }
 
