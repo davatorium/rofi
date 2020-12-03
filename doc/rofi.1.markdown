@@ -165,10 +165,6 @@ For that case '#' can be used as an separator.
 Start in case sensitive mode.
 This option can be changed at run-time using the `-kb-toggle-case-sensitivity` key binding.
 
-`-cycle`
-
-Cycle through the result list. Default is 'true'.
-
 `-filter` *filter*
 
 Filter the list by setting text in input bar to *filter*

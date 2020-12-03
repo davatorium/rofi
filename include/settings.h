@@ -104,8 +104,6 @@ typedef struct
 
     /** Search case sensitivity */
     unsigned int   case_sensitive;
-    /** Cycle through in the element list */
-    unsigned int   cycle;
     /** Height of an element in number of rows */
     int            element_height;
     /** Lazy filter limit. */

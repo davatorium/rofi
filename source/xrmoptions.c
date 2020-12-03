@@ -124,8 +124,6 @@ static XrmOption xrmOptions[] = {
       "Choose the strategy used for sorting: normal (levenshtein) or fzf.", CONFIG_DEFAULT },
     { xrm_Boolean, "case-sensitive",            { .num   = &config.case_sensitive                       }, NULL,
       "Set case-sensitivity", CONFIG_DEFAULT },
-    { xrm_Boolean, "cycle",                     { .num   = &config.cycle                                }, NULL,
-      "Cycle through the results list", CONFIG_DEFAULT },
     { xrm_SNumber, "eh",                        { .snum  = &config.element_height                       }, NULL,
       "Row height (in chars)", CONFIG_DEFAULT },
     { xrm_Boolean, "auto-select",               { .num   = &config.auto_select                          }, NULL,

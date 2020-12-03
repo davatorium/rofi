@@ -679,8 +679,8 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
     lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", TRUE );
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic", TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );
-    lv->cycle           = rofi_theme_get_boolean ( WIDGET ( lv ), "cycle", config.cycle );
-    lv->fixed_columns   = rofi_theme_get_boolean ( WIDGET ( lv ), "fixed-columns", FALSE );
+    lv->cycle           = rofi_theme_get_boolean  ( WIDGET ( lv ), "cycle", FALSE );
+    lv->fixed_columns   = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-columns", FALSE );
 
     lv->type = rofi_theme_get_orientation ( WIDGET ( lv ), "layout", ROFI_ORIENTATION_VERTICAL );
     if ( lv->type == LISTVIEW ) {
