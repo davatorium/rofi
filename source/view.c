@@ -1640,12 +1640,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     if ( strcmp ( name, "mainbox" ) == 0 ) {
         wid = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_VERTICAL );
         box_add ( (box *) parent_widget, WIDGET ( wid ), TRUE );
-        if ( config.sidebar_mode ) {
-            defaults = "inputbar,message,listview,mode-switcher";
-        }
-        else {
-            defaults = "inputbar,message,listview";
-        }
+	defaults = "inputbar,message,listview";
     }
     /**
      * INPUTBAR

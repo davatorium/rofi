@@ -70,8 +70,6 @@ Settings config = {
     .cycle                     = TRUE,
     /** Height of an element in #chars */
     .element_height            = 1,
-    /** Sidebar mode, show the modi */
-    .sidebar_mode              = FALSE,
     /** auto select */
     .auto_select               = FALSE,
     /** Parse /etc/hosts file in ssh view. */

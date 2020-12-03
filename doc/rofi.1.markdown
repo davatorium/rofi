@@ -330,18 +330,6 @@ Default: *0*
 
 Keep a fixed number of visible lines (See the `-lines` option.)
 
-`-fullscreen`
-
-Use the full-screen height and width.
-
-`-sidebar-mode`
-
-Open in sidebar-mode. In this mode a list of all enabled modes is shown at the bottom.
-(See `-modi` option)
-To show sidebar, use:
-
-    rofi -show run -sidebar-mode -lines 0
-
 `-eh` *number*
 
 Set row height (in chars)

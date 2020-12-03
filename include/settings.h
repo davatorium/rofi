@@ -108,8 +108,6 @@ typedef struct
     unsigned int   cycle;
     /** Height of an element in number of rows */
     int            element_height;
-    /** Sidebar mode, show the modi */
-    unsigned int   sidebar_mode;
     /** Lazy filter limit. */
     unsigned int   lazy_filter_limit;
     /** Auto select. */

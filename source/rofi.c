@@ -715,8 +715,6 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
     }
     // Dmenu mode.
     if ( dmenu_mode == TRUE ) {
-        // force off sidebar mode:
-        config.sidebar_mode = FALSE;
         int retv = dmenu_switcher_dialog ();
         if ( retv ) {
             rofi_set_return_code ( EXIT_SUCCESS );
