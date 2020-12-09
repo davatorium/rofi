@@ -914,11 +914,12 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     }
     case XCB_MOTION_NOTIFY:
     {
-        if ( config.click_to_exit == TRUE ) {
+        xcb_motion_notify_event_t *xme        = (xcb_motion_notify_event_t *) event;
+        gboolean                  button_mask = xme->state & XCB_EVENT_MASK_BUTTON_1_MOTION;
+        if (  button_mask && config.click_to_exit == TRUE ) {
             xcb->mouse_seen = TRUE;
         }
-        xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) event;
-        rofi_view_handle_mouse_motion ( state, xme->event_x, xme->event_y );
+        rofi_view_handle_mouse_motion ( state, xme->event_x, xme->event_y, !button_mask );
         break;
     }
     case XCB_BUTTON_PRESS:
@@ -929,7 +930,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         gint32                   steps;
 
         xcb->last_timestamp = bpe->time;
-        rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y );
+        rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y, FALSE );
         if ( x11_button_to_nk_bindings_button ( bpe->detail, &button ) ) {
             nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
         }
