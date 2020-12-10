@@ -13,9 +13,6 @@ addons:
       name: "DaveDavenport/rofi"
       description: "Build submitted via Travis CI"
     notification_email: qball@gmpclient.org
-    # TODO: What do these actually do?
-    build_command_prepend: "meson setup build"
-    build_command: "ninja -C build"
     branch_pattern: coverity_scan
   apt:
     packages:
@@ -38,10 +35,6 @@ addons:
       - libxkbcommon-dev
       - libxkbcommon-dev
       - libxkbcommon-x11-dev
-      - ninja-build
-      - python3-pip
-      - python3-setuptools
-      - python3-wheel
       - texi2html
       - texinfo
       - xdotool
@@ -92,29 +85,6 @@ before_install:
     - test $(grep -c warning doxygen.log) -eq 0
     - ../doxy-coverage/doxy-coverage.py doc/html/xml/
 
-# YAML anchor, ignored by Travis CI (albeit present in the JSON render):
-.meson: &meson
-  install: &meson_install
-    # Ubuntu's meson version is outdated. Use pip to install a more recent
-    # release:
-    - pip3 install --user meson
-    # ~/.local/bin is not a part of $PATH by default. Update $PATH to include it:
-    - PATH="$PATH:$HOME/.local/bin"
-  before_script:
-    &meson_before_script # Configure the build directory with meson:
-    - meson setup build  -Db_coverage=true
-  # TODO: Fix X11 tests (and check whether or not changing the user's resource
-  #       limit is still required for the X11 tests).
-  script: &meson_script # Build the project:
-    - ninja -C build
-    # Run tests:
-    - ninja -C build test
-    #- ulimit -c unlimited
-    #- ninja -C build test-x
-    - ninja -C build doc/html 2>&1 > doxygen.log
-    - test $(grep -c warning doxygen.log) -eq 0
-    - ./doxy-coverage/doxy-coverage.py build/doc/html/xml/
-
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
@@ -132,14 +102,6 @@ jobs:
       compiler: gcc
       # Merge keys from the .autotools map:
       <<: *autotools
-    - name: "Meson - Clang"
-      compiler: clang
-      # Merge keys from the .meson map:
-      <<: *meson
-    - name: "Meson - GCC"
-      compiler: gcc
-      # Merge keys from the .meson map:
-      <<: *meson
 
 notifications:
   webhooks:

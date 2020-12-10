@@ -4,7 +4,6 @@ This guide explains how to install rofi using its build system and how you can m
 
 Rofi uses autotools (GNU Build system), for more information see
 [here](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html).
-You can also use [Meson](https://mesonbuild.com/) as an alternative.
 
 ## DEPENDENCY
 
@@ -74,28 +73,6 @@ make install
 
 The default installation prefix is: `/usr/local/` use `./configure --prefix={prefix}` to install into another location.
 
-### Meson
-
-Check dependencies and configure build system:
-
-```
-meson setup build
-```
-
-Build Rofi:
-
-```
-ninja -C build
-```
-
-The actual install, execute as root (if needed):
-
-```
-ninja -C build install
-```
-
-The default installation prefix is: `/usr/local/` use `meson setup build --prefix={prefix}` to install into another location.
-
 ## Install a checkout from git
 
 The GitHub Pages version of these directions may be out of date.  Please use
@@ -132,17 +109,12 @@ From this point, use the same steps you use for a release.
 
 When you run the configure step there are several options you can configure.
 For Autotools, you can see the full list with `./configure --help`.
-For Meson, before the initial setup, you can see rofi options in `meson_options.txt` and Meson options with `meson setup --help`.
-After the initial setup, use `meson configure build`.
 
 The most useful one to set the installation prefix:
 
 ```
 # Autotools
 ../configure --prefix=<installation path>
-
-# Meson
-meson setup build --prefix <installation path>
 ```
 
 f.e.
@@ -150,9 +122,6 @@ f.e.
 ```
 # Autotools
 ../configure --prefix=/usr/
-
-# Meson
-meson setup build --prefix /usr
 ```
 
 ### Install locally
@@ -162,9 +131,6 @@ or to install locally:
 ```
 # Autotools
 ../configure --prefix=${HOME}/.local/
-
-# Meson
-meson setup build --prefix ${HOME}/.local
 ```
 
 
@@ -179,9 +145,6 @@ Show the commands called:
 ```
 # Autotools
 make V=1
-
-# Meson
-ninja -C build -v
 ```
 
 ### Debug build
@@ -191,10 +154,6 @@ Compile with debug symbols and no optimization, this is useful for making backtr
 ```
 # Autotools
 make CFLAGS="-O0 -g3" clean rofi
-
-# Meson
-meson configure build --debug
-ninja -C build
 ```
 
 ### Get a backtrace
@@ -207,9 +166,6 @@ can then load the core in GDB.
 ```
 # Autotools
 gdb rofi core
-
-# Meson (because it uses a separate build directory)
-gdb build/rofi core
 ```
 
 > Where the core file is located and what its exact name is different on each distributions. Please consult the

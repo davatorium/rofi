@@ -634,12 +634,3 @@ coverage-clean:
 
 .PHONY: .FORCE
 .FORCE:
-
-EXTRA_DIST += \
-	doc/meson.build \
-	subprojects/libnkutils/meson.build \
-	subprojects/libnkutils/meson_options.txt \
-	subprojects/libgwater/xcb/meson.build \
-	meson_options.txt \
-  subprojects/xcb \
-	meson.build
