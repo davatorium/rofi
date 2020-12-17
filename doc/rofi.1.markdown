@@ -218,7 +218,7 @@ Show the indicator that shows what part of the string is matched.
 
 Normalize the string before matching, so o will match ö, and é matches e.
 This is not a perfect implementation, but works.
-For now it disabled highlighting of the matched part. 
+For now it disabled highlighting of the matched part.
 
 `-no-lazy-grab`
 
@@ -261,6 +261,7 @@ Current the following methods are supported.
 * **regex**: match a regex input
 * **glob**: match a glob pattern
 * **fuzzy**: do a fuzzy match
+* **prefix**: match prefix
 
    Default: *normal*
 

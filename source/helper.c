@@ -179,6 +179,18 @@ static gchar *fuzzy_to_regex ( const char * input )
     return retv;
 }
 
+static gchar *prefix_regex (const char * input)
+{
+    gchar *r = g_regex_escape_string(input, -1);
+    GString *str = g_string_new(r);
+    g_string_prepend(str, "\\b");
+    g_free(r);
+    char *retv = str->str;
+    g_string_free(str, FALSE);
+    return retv;
+
+}
+
 static char *utf8_helper_simplify_string ( const char *s )
 {
     gunichar buf2[G_UNICHAR_MAX_DECOMPOSITION_LENGTH] = { 0, };
@@ -247,6 +259,11 @@ static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
         r    = fuzzy_to_regex ( input );
         retv = R ( r, case_sensitive );
         g_free ( r );
+        break;
+    case MM_PREFIX:
+        r = prefix_regex(input);
+        retv = R(r, case_sensitive);
+        g_free(r);
         break;
     default:
         r    = g_regex_escape_string ( input, -1 );
@@ -632,8 +649,11 @@ int config_sanity_check ( void )
         else if ( g_strcmp0 ( config.matching, "normal" ) == 0 ) {
             config.matching_method = MM_NORMAL;;
         }
+        else if (g_strcmp0 (config.matching, "prefix") == 0) {
+            config.matching_method = MM_PREFIX;
+        }
         else {
-            g_string_append_printf ( msg, "\t<b>config.matching</b>=%s is not a valid matching strategy.\nValid options are: glob, regex, fuzzy or normal.\n",
+            g_string_append_printf ( msg, "\t<b>config.matching</b>=%s is not a valid matching strategy.\nValid options are: glob, regex, fuzzy, prefix or normal.\n",
                                      config.matching );
             found_error = 1;
         }

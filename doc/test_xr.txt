@@ -31,7 +31,7 @@ rofi.ssh-command:                    {terminal} -e {ssh-client} {host}
 ! "Run command to execute" Set from: File
 rofi.run-command:                    bash -c "{cmd}"
 ! "Command to get extra run targets" Set from: Default
-! rofi.run-list-command:               
+! rofi.run-list-command:
 ! "Run command to execute that runs in shell" Set from: File
 rofi.run-shell-command:              {terminal} -e {cmd}
 ! "Command executed on accep-entry-custom for window modus" Set from: File
@@ -39,11 +39,11 @@ rofi.window-command:                 xkill -id {window}
 ! "Window fields to match in window mode" Set from: Default
 ! rofi.window-match-fields:            all
 ! "Theme to use to look for icons" Set from: Default
-! rofi.icon-theme:                     
+! rofi.icon-theme:
 ! "Desktop entry fields to match in drun" Set from: Default
 ! rofi.drun-match-fields:              name,generic,exec,categories,keywords
 ! "Only show Desktop entry from these categories" Set from: Default
-! rofi.drun-categories:                
+! rofi.drun-categories:
 ! "Desktop entry show actions." Set from: Default
 ! rofi.drun-show-actions:              false
 ! "DRUN format string. (Supports: generic,name,comment,exec,categories)" Set from: Default
@@ -51,11 +51,11 @@ rofi.window-command:                 xkill -id {window}
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
 ! "Programs ignored for history" Set from: Default
-! rofi.ignored-prefixes:               
+! rofi.ignored-prefixes:
 ! "Use sorting" Set from: Default
 ! rofi.sort:                           false
 ! "Choose the strategy used for sorting: normal (levenshtein) or fzf." Set from: Default
-! rofi.sorting-method:                 
+! rofi.sorting-method:
 ! "Set case-sensitivity" Set from: File
 rofi.case-sensitive:                 false
 ! "Cycle through the results list" Set from: File
@@ -72,7 +72,7 @@ rofi.parse-hosts:                    false
 rofi.parse-known-hosts:              true
 ! "Set the modi to combine in combi mode" Set from: File
 rofi.combi-modi:                     window,drun,run,ssh
-! "Set the matching algorithm. (normal, regex, glob, fuzzy)" Set from: Default
+! "Set the matching algorithm. (normal, regex, glob, fuzzy, prefix)" Set from: Default
 ! rofi.matching:                       normal
 ! "Tokenize input string" Set from: File
 rofi.tokenize:                       true
@@ -83,7 +83,7 @@ rofi.m:                              -1
 ! "Padding within rows *DEPRECATED*" Set from: Default
 ! rofi.line-padding:                   1
 ! "Pre-set filter" Set from: Default
-! rofi.filter:                         
+! rofi.filter:
 ! "Separator style (none, dash, solid) *DEPRECATED*" Set from: Default
 ! rofi.separator-style:                dash
 ! "Hide scroll-bar *DEPRECATED*" Set from: Default
@@ -109,15 +109,15 @@ rofi.scroll-method:                  0
 ! "Indicate how it match by underlining it." Set from: Default
 ! rofi.show-match:                     true
 ! "New style theme file" Set from: Default
-! rofi.theme:                          
+! rofi.theme:
 ! "Color scheme for normal row" Set from: Default
-! rofi.color-normal:                   
+! rofi.color-normal:
 ! "Color scheme for urgent row" Set from: Default
-! rofi.color-urgent:                   
+! rofi.color-urgent:
 ! "Color scheme for active row" Set from: Default
-! rofi.color-active:                   
+! rofi.color-active:
 ! "Color scheme window" Set from: Default
-! rofi.color-window:                   
+! rofi.color-window:
 ! "Max history size (WARNING: can cause slowdowns when set to high)." Set from: Default
 ! rofi.max-history-size:               25
 ! "Hide the prefix mode prefix on the combi view." Set from: Default
@@ -125,7 +125,7 @@ rofi.scroll-method:                  0
 ! "Set the character used to negate the matching. ('\0' to disable)" Set from: Default
 ! rofi.matching-negate-char:           -
 ! "Directory where history and temporary files are stored." Set from: Default
-! rofi.cache-dir:                      
+! rofi.cache-dir:
 ! "Show window thumbnail in window switcher if availalbe." Set from: Default
 ! rofi.window-thumbnail:               false
 ! "Pidfile location" Set from: File
