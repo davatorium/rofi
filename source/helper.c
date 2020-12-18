@@ -181,14 +181,7 @@ static gchar *fuzzy_to_regex ( const char * input )
 
 static gchar *prefix_regex (const char * input)
 {
-    gchar *r = g_regex_escape_string(input, -1);
-    GString *str = g_string_new(r);
-    g_string_prepend(str, "\\b");
-    g_free(r);
-    char *retv = str->str;
-    g_string_free(str, FALSE);
-    return retv;
-
+    return g_strconcat("\\b", g_regex_escape_string(input, -1), NULL);
 }
 
 static char *utf8_helper_simplify_string ( const char *s )
