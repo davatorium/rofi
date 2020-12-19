@@ -184,7 +184,7 @@ static gchar *prefix_regex (const char * input)
     gchar *r = g_regex_escape_string(input, -1);
     char *retv = g_strconcat("\\b", r, NULL);
     g_free(r);
-    return retv  
+    return retv;
 }
 
 static char *utf8_helper_simplify_string ( const char *s )
