@@ -1984,6 +1984,7 @@ void rofi_view_cleanup ()
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
         g_debug ( "Unmapping and free'ing window" );
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
+        rofi_xcb_revert_input_focus();
         xcb_free_gc ( xcb->connection, CacheState.gc );
         xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
         xcb_destroy_window ( xcb->connection, CacheState.main_window );
