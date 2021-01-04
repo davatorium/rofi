@@ -7,7 +7,7 @@ AH_BOTTOM([#include "gitconfig.h"])
 dnl ---------------------------------------------------------------------
 dnl Lex & Bison language parser.
 dnl ---------------------------------------------------------------------
-AC_PROG_LEX([flex])
+AC_PROG_LEX
 AC_PROG_YACC
 
 
