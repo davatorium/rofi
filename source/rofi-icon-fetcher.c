@@ -212,8 +212,8 @@ static cairo_surface_t * rofi_icon_fetcher_get_surface_from_pixbuf ( GdkPixbuf
     gint            cstride;
     guint           lo, o;
     guchar          a = 0xff;
-    const guchar    *pixels_end, *line, *line_end;
-    guchar          *cpixels, *cline;
+    const guchar    *pixels_end, *line;
+    guchar          *cpixels;
 
     pixels_end = pixels + height * stride;
     o          = alpha ? 4 : 3;
@@ -226,8 +226,8 @@ static cairo_surface_t * rofi_icon_fetcher_get_surface_from_pixbuf ( GdkPixbuf
     cairo_surface_flush ( surface );
     while ( pixels < pixels_end ) {
         line     = pixels;
-        line_end = line + lo;
-        cline    = cpixels;
+        const guchar *line_end = line + lo;
+        guchar *cline    = cpixels;
 
         while ( line < line_end ) {
             if ( alpha ) {
