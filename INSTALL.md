@@ -10,36 +10,36 @@ You can also use [Meson](https://mesonbuild.com/) as an alternative.
 
 ### For building:
 
-* C compiler that supports the c99 standard. (gcc or clang)
-* make
-* autoconf
-* automake (1.11.3 or up)
-* pkg-config
-* flex 2.5.39 or higher
-* bison
-* check (Can be disabled using the `--disable-check` configure flag)
-  check is used for build-time tests and does not affect functionality.
-* Developer packages of the external libraries
-* glib-compile-resources
+*   C compiler that supports the c99 standard. (gcc or clang)
+*   make
+*   autoconf
+*   automake (1.11.3 or up)
+*   pkg-config
+*   flex 2.5.39 or higher
+*   bison
+*   check (Can be disabled using the `--disable-check` configure flag)
+    check is used for build-time tests and does not affect functionality.
+*   Developer packages of the external libraries
+*   glib-compile-resources
 
 ### External libraries
 
-* libpango
-* libpangocairo
-* libcairo
-* libcairo-xcb
-* libglib2.0 >= 2.40
-  * gmodule-2.0
-  * gio-unix-2.0
-* libgdk-pixbuf-2.0
-* libstartup-notification-1.0
-* libxkbcommon >= 0.4.1
-* libxkbcommon-x11
-* libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-randr libxcb-xinerama)
-* xcb-util
-* xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
-* xcb-util-xrm [new module might not be available in your distribution. The source can be found
-  here](https://github.com/Airblader/xcb-util-xrm/)
+*   libpango
+*   libpangocairo
+*   libcairo
+*   libcairo-xcb
+*   libglib2.0 >= 2.40
+    *   gmodule-2.0
+    *   gio-unix-2.0
+*   libgdk-pixbuf-2.0
+*   libstartup-notification-1.0
+*   libxkbcommon >= 0.4.1
+*   libxkbcommon-x11
+*   libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-randr libxcb-xinerama)
+*   xcb-util
+*   xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
+*   xcb-util-xrm [new module might not be available in your distribution. The source can be found
+    here](https://github.com/Airblader/xcb-util-xrm/)
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
 `<package>-devel`.
@@ -50,27 +50,19 @@ On debian based systems, the developer packages are in the form of: `<package>-d
 
 Create a build directory and enter it:
 
-```
-mkdir build && cd build
-```
+    mkdir build && cd build
 
 Check dependencies and configure build system:
 
-```
-../configure
-```
+    ../configure
 
 Build Rofi:
 
-```
-make
-```
+    make
 
 The actual install, execute as root (if needed):
 
-```
-make install
-```
+    make install
 
 The default installation prefix is: `/usr/local/` use `./configure --prefix={prefix}` to install into another location.
 
@@ -78,21 +70,15 @@ The default installation prefix is: `/usr/local/` use `./configure --prefix={pre
 
 Check dependencies and configure build system:
 
-```
-meson setup build
-```
+    meson setup build
 
 Build Rofi:
 
-```
-ninja -C build
-```
+    ninja -C build
 
 The actual install, execute as root (if needed):
 
-```
-ninja -C build install
-```
+    ninja -C build install
 
 The default installation prefix is: `/usr/local/` use `meson setup build --prefix={prefix}` to install into another location.
 
@@ -105,28 +91,20 @@ The GitHub Pages version of these directions may be out of date.  Please use
 
 If you don't have a checkout:
 
-```
-git clone --recursive https://github.com/DaveDavenport/rofi
-cd rofi/
-```
+    git clone --recursive https://github.com/DaveDavenport/rofi
+    cd rofi/
 
 If you already have a checkout:
 
-```
-cd rofi/
-git pull
-git submodule update --init
-```
+    cd rofi/
+    git pull
+    git submodule update --init
 
 For Autotools you have an extra step, to generate build system:
 
-```
-autoreconf -i
-```
+    autoreconf -i
 
 From this point, use the same steps you use for a release.
-
-
 
 ## Options for configure
 
@@ -137,36 +115,29 @@ After the initial setup, use `meson configure build`.
 
 The most useful one to set the installation prefix:
 
-```
-# Autotools
-../configure --prefix=<installation path>
+    # Autotools
+    ../configure --prefix=<installation path>
 
-# Meson
-meson setup build --prefix <installation path>
-```
+    # Meson
+    meson setup build --prefix <installation path>
 
 f.e.
 
-```
-# Autotools
-../configure --prefix=/usr/
+    # Autotools
+    ../configure --prefix=/usr/
 
-# Meson
-meson setup build --prefix /usr
-```
+    # Meson
+    meson setup build --prefix /usr
 
 ### Install locally
 
 or to install locally:
 
-```
-# Autotools
-../configure --prefix=${HOME}/.local/
+    # Autotools
+    ../configure --prefix=${HOME}/.local/
 
-# Meson
-meson setup build --prefix ${HOME}/.local
-```
-
+    # Meson
+    meson setup build --prefix ${HOME}/.local
 
 ## Options for make
 
@@ -176,26 +147,22 @@ When you run make you can tweak the build process a little.
 
 Show the commands called:
 
-```
-# Autotools
-make V=1
+    # Autotools
+    make V=1
 
-# Meson
-ninja -C build -v
-```
+    # Meson
+    ninja -C build -v
 
 ### Debug build
 
 Compile with debug symbols and no optimization, this is useful for making backtraces:
 
-```
-# Autotools
-make CFLAGS="-O0 -g3" clean rofi
+    # Autotools
+    make CFLAGS="-O0 -g3" clean rofi
 
-# Meson
-meson configure build --debug
-ninja -C build
-```
+    # Meson
+    meson configure build --debug
+    ninja -C build
 
 ### Get a backtrace
 
@@ -204,13 +171,11 @@ mouse. So if it crashes in GDB you are stuck.
 The best way to go is to enable core file. (ulimit -c unlimited in bash) then make rofi crash. You
 can then load the core in GDB.
 
-```
-# Autotools
-gdb rofi core
+    # Autotools
+    gdb rofi core
 
-# Meson (because it uses a separate build directory)
-gdb build/rofi core
-```
+    # Meson (because it uses a separate build directory)
+    gdb build/rofi core
 
 > Where the core file is located and what its exact name is different on each distributions. Please consult the
 > relevant documentation.
@@ -219,9 +184,7 @@ gdb build/rofi core
 
 ### Debian or Ubuntu
 
-```
-apt install rofi
-```
+    apt install rofi
 
 ### Fedora
 
@@ -229,27 +192,20 @@ rofi from [russianfedora repository](http://ru.fedoracommunity.org/repository)
 and also
 [Yaroslav's COPR (Cool Other Package Repo)](https://copr.fedorainfracloud.org/coprs/yaroslav/i3desktop/)
 
-
 ### ArchLinux
 
-```
-pacman -S rofi
-```
+    pacman -S rofi
 
 ### Gentoo
 
 An ebuild is available, `x11-misc/rofi`. It's up to date, but you may need to
 enable ~arch to get the latest release:
 
-```
-echo 'x11-misc/rofi ~amd64' >> /etc/portage/package.accept_keywords
-```
+    echo 'x11-misc/rofi ~amd64' >> /etc/portage/package.accept_keywords
 
 for amd64 or:
 
-```
-echo 'x11-misc/rofi ~x86' >> /etc/portage/package.accept_keywords
-```
+    echo 'x11-misc/rofi ~x86' >> /etc/portage/package.accept_keywords
 
 for i386.
 
@@ -259,12 +215,8 @@ To install it, simply issue `emerge rofi`.
 
 On both openSUSE Leap and openSUSE Tumbleweed rofi can be installed using:
 
-```
-sudo zypper install rofi
-```
+    sudo zypper install rofi
 
 ### FreeBSD
 
-```
-sudo pkg install rofi
-```
+    sudo pkg install rofi
