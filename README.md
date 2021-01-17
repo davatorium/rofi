@@ -22,29 +22,29 @@ This can either be running an application, selecting a window, or options provid
 
 Its main features are:
 
- * Fully configurable keyboard navigation
- * Type to filter
-    - Tokenized: type any word in any order to filter
-    - Case insensitive (togglable)
-    - Support for fuzzy-, regex-, and glob matching
- * UTF-8 enabled
-    - UTF-8-aware string collating
-    - International keyboard support (`e -> è)
- * RTL language support
- * Cairo drawing and Pango font rendering
- * Built-in modes:
-    - Window switcher mode
-        - EWMH compatible WM
-    - Application launcher
-    - Desktop file application launcher
-    - SSH launcher mode
-    - Combi mode, allowing several modes to be merged into one list
- * History-based ordering — last 25 choices are ordered on top based on use (optional)
- * Levenshtein distance ordering of matches (optional)
- * Drop-in dmenu replacement
-    - Many added improvements
- * Easily extensible using scripts
- * Theming
+* Fully configurable keyboard navigation
+* Type to filter
+  - Tokenized: type any word in any order to filter
+  - Case insensitive (togglable)
+  - Support for fuzzy-, regex-, and glob matching
+* UTF-8 enabled
+  - UTF-8-aware string collating
+  - International keyboard support (`e -> è)
+* RTL language support
+* Cairo drawing and Pango font rendering
+* Built-in modes:
+  - Window switcher mode
+      - EWMH compatible WM
+  - Application launcher
+  - Desktop file application launcher
+  - SSH launcher mode
+  - Combi mode, allowing several modes to be merged into one list
+* History-based ordering — last 25 choices are ordered on top based on use (optional)
+* Levenshtein distance ordering of matches (optional)
+* Drop-in dmenu replacement
+  - Many added improvements
+* Easily extensible using scripts
+* Theming
 
 **Rofi** has several built-in modes implementing common use cases and can be extended by scripts (either called from
 **Rofi** or calling **Rofi**).
