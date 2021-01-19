@@ -188,8 +188,10 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     }
 
     // Allow overriding of markup.
-    if ( rofi_theme_get_boolean ( WIDGET ( tb ), "markup", FALSE) ) {
+    if ( rofi_theme_get_boolean ( WIDGET ( tb ), "markup", (tb->flags&TB_MARKUP) == TB_MARKUP ) ) {
         tb->flags |= TB_MARKUP;
+    } else {
+       tb->flags &= (~TB_MARKUP);
     }
 
     const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text );
