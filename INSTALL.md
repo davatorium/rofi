@@ -188,9 +188,7 @@ can then load the core in GDB.
 
 ### Fedora
 
-rofi from [russianfedora repository](http://ru.fedoracommunity.org/repository)
-and also
-[Yaroslav's COPR (Cool Other Package Repo)](https://copr.fedorainfracloud.org/coprs/yaroslav/i3desktop/)
+    dnf install rofi
 
 ### ArchLinux
 
