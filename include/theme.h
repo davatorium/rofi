@@ -343,12 +343,6 @@ gboolean rofi_theme_is_empty ( void );
  * Reset the current theme.
  */
 void rofi_theme_reset ( void );
-#ifdef THEME_CONVERTER
-/**
- * Convert old theme colors into default one.
- */
-void rofi_theme_convert_old ( void );
-#endif
 
 /**
  * @param file File name passed to option.

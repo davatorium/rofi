@@ -19,9 +19,7 @@ tests=(
     run_issue333_test
     help_output_test
     default_theme_test
-    convert_old_theme_test
     run_dmenu_normal_window_test
-    run_window_test
 )
 
 cd ${MESON_BUILD_ROOT}
