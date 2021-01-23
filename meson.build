@@ -51,10 +51,11 @@ deps = [
 ]
 
 
-gwxcb = subproject('xcb')
+libgwater = subproject('libgwater')
 # XCB stuff
 deps += [
-    gwxcb.get_variable('libgwater_xcb'),
+    libgwater.get_variable('libgwater_xcb'),
+    dependency('xcb'),
     dependency('xcb-aux'),
     dependency('xcb-xkb'),
     dependency('xkbcommon-x11'),

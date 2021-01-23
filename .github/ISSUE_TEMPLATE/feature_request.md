@@ -14,8 +14,10 @@ Any report missing these informations will be labeled as “Incomplete Report - 
 :exclamation:
 
 ## Before creating a feature request
+
 - [ ] I checked the *next* branch to see if the feature has already been
   implemented
+
 - [ ] I searched existing reports to see if it is already requested.
 
 
@@ -47,7 +49,6 @@ Output of `rofi -help` (in a [gist](https://gist.github.com/), please paste the 
 **Additional details:**
 - Include a link to your private config
 - Include screenshots/casts of your issue
-
 
 **Please do not submit reports related to wayland, see
 [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more

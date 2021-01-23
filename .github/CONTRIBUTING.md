@@ -5,7 +5,6 @@ tone will be closed without discussion. Everybody has it own way of working;
 What might be the norm for you, might not be for others. Therefore be verbose in
 your description.
 
-
 **The issue tracker is for bugs only.**
 
 This is an attempt to keep the issue tracker clean and searchable.
@@ -53,8 +52,6 @@ When adding comments to an issue make sure:
 Issue high-jacking, e.g. adding a request/issue to an existing issue, is very
 disruptive.
 Please create a new issue, if it is similar it will be marked duplicate.
-
-
 
 # Creating a feature request
 

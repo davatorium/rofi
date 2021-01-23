@@ -44,7 +44,6 @@
 /** Different sources of configuration. */
 const char * const ConfigSourceStr[] = {
     "Default",
-    "XResources",
     "File",
     "Rasi File",
     "Commandline",
@@ -53,10 +52,9 @@ const char * const ConfigSourceStr[] = {
 enum ConfigSource
 {
     CONFIG_DEFAULT    = 0,
-    CONFIG_XRESOURCES = 1,
-    CONFIG_FILE       = 2,
-    CONFIG_FILE_THEME = 3,
-    CONFIG_CMDLINE    = 4
+    CONFIG_FILE       = 1,
+    CONFIG_FILE_THEME = 2,
+    CONFIG_CMDLINE    = 3
 };
 
 typedef struct

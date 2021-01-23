@@ -676,6 +676,7 @@ The following properties are currently supported:
 * **placeholder**:       Set the displayed text (String) when nothing is entered.
 * **placeholder-color**: Color of the placeholder text.
 * **blink**:             Enable/Disable blinking on an input textbox (Boolean).
+* **markup**:            Force markup on, beware that only valid pango markup strings are shown.
 
 ### listview:
 * **columns**:         integer

@@ -1,4 +1,4 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ca0310962a7c4b829d0c57f1ab023531)](https://app.codacy.com/app/davatorium/rofi?utm_source=github.com&utm_medium=referral&utm_content=davatorium/rofi&utm_campaign=Badge_Grade_Settings)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ca0310962a7c4b829d0c57f1ab023531)](https://app.codacy.com/app/davatorium/rofi?utm_source=github.com\&utm_medium=referral\&utm_content=davatorium/rofi\&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/davatorium/rofi.svg?branch=master)](https://travis-ci.org/davatorium/rofi)
 [![codecov.io](https://codecov.io/github/davatorium/rofi/coverage.svg?branch=master)](https://codecov.io/github/davatorium/rofi?branch=master)
 [![Issues](https://img.shields.io/github/issues/davatorium/rofi.svg)](https://github.com/davatorium/rofi/issues)
@@ -7,14 +7,14 @@
 [![Downloads](https://img.shields.io/github/downloads/davatorium/rofi/total.svg)](https://github.com/davatorium/rofi/releases)
 [![Coverity](https://scan.coverity.com/projects/3850/badge.svg)](https://scan.coverity.com/projects/davedavenport-rofi)
 [![Forum](https://img.shields.io/badge/forum-online-green.svg)](https://reddit.com/r/qtools/)
- [![Packages](https://repology.org/badge/tiny-repos/rofi.svg)](https://repology.org/metapackage/rofi/versions)
+[![Packages](https://repology.org/badge/tiny-repos/rofi.svg)](https://repology.org/metapackage/rofi/versions)
 
 # A window switcher, Application launcher and dmenu replacement
 
 **Rofi** started as a clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) - a
 popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/).
 Simpleswitcher laid the foundations, and therefore Sean Pringle deserves most of the credit for this tool. **Rofi**
-(renamed, as it lost the *simple* property) has been extended with extra features, like an application launcher and 
+(renamed, as it lost the *simple* property) has been extended with extra features, like an application launcher and
 ssh-launcher, and can act as a drop-in dmenu replacement, making it a very versatile tool.
 
 **Rofi**, like dmenu, will provide the user with a textual list of options where one or more can be selected.
@@ -22,29 +22,29 @@ This can either be running an application, selecting a window, or options provid
 
 Its main features are:
 
- * Fully configurable keyboard navigation
- * Type to filter
-    - Tokenized: type any word in any order to filter
-    - Case insensitive (togglable)
-    - Support for fuzzy-, regex-, and glob matching
- * UTF-8 enabled
-    - UTF-8-aware string collating
-    - International keyboard support (`e -> è)
- * RTL language support
- * Cairo drawing and Pango font rendering
- * Built-in modes:
-    - Window switcher mode
-        - EWMH compatible WM
-    - Application launcher
-    - Desktop file application launcher
-    - SSH launcher mode
-    - Combi mode, allowing several modes to be merged into one list
- * History-based ordering — last 25 choices are ordered on top based on use (optional)
- * Levenshtein distance ordering of matches (optional)
- * Drop-in dmenu replacement
-    - Many added improvements
- * Easily extensible using scripts
- * Theming
+*   Fully configurable keyboard navigation
+*   Type to filter
+    *   Tokenized: type any word in any order to filter
+    *   Case insensitive (togglable)
+    *   Support for fuzzy-, regex-, and glob matching
+*   UTF-8 enabled
+    *   UTF-8-aware string collating
+    *   International keyboard support (\`e -> è)
+*   RTL language support
+*   Cairo drawing and Pango font rendering
+*   Built-in modes:
+    *   Window switcher mode
+        *   EWMH compatible WM
+    *   Application launcher
+    *   Desktop file application launcher
+    *   SSH launcher mode
+    *   Combi mode, allowing several modes to be merged into one list
+*   History-based ordering — last 25 choices are ordered on top based on use (optional)
+*   Levenshtein distance ordering of matches (optional)
+*   Drop-in dmenu replacement
+    *   Many added improvements
+*   Easily extensible using scripts
+*   Theming
 
 **Rofi** has several built-in modes implementing common use cases and can be extended by scripts (either called from
 **Rofi** or calling **Rofi**).
@@ -57,15 +57,14 @@ Below is a list of the different modes:
 
 The window switcher shows the following informations in columns (can be customized):
 
-1. Desktop name
-2. Window class
-3. Window title
+1.  Desktop name
+2.  Window class
+3.  Window title
 
 Window mode features:
 
- * Closing applications with `Shift-Delete`
- * Custom command with `Shift-Return`
-
+*   Closing applications with `Shift-Delete`
+*   Custom command with `Shift-Return`
 
 ## Application launcher
 
@@ -75,10 +74,9 @@ The run mode allows users to quickly search for and launch a program.
 
 Run mode features:
 
- * `Shift-Return` to run the selected program in a terminal
- * Favorites list, with frequently used programs sorted on top
- * Custom entries, like aliases, added by executing a command
-
+*   `Shift-Return` to run the selected program in a terminal
+*   Favorites list, with frequently used programs sorted on top
+*   Custom entries, like aliases, added by executing a command
 
 ## Desktop File Application launcher
 
@@ -86,8 +84,8 @@ The desktop run mode allows users to quickly search and launch an application fr
 Entries. These are used by most Desktop Environments to populate launchers and menus.
 Drun mode features:
 
- * Favorites list, with frequently used programs sorted on top
- * Auto starting terminal applications in a terminal
+*   Favorites list, with frequently used programs sorted on top
+*   Auto starting terminal applications in a terminal
 
 ## SSH launcher
 
@@ -99,9 +97,7 @@ Quickly `ssh` into remote machines. Parses `~/.ssh/config` and `~/.ssh/known_hos
 
 Loads external scripts to add modes to **Rofi**, for example a file-browser.
 
-```
-rofi  -show fb -modi fb:../Examples/rofi-file-browser.sh
-```
+    rofi  -show fb -modi fb:../Examples/rofi-file-browser.sh
 
 ## COMBI mode
 
@@ -110,9 +106,7 @@ Allowing to quickly switch to an application, either by switching to it when it 
 
 Example to combine Desktop run and the window switcher:
 
-```
-rofi -combi-modi window,drun -show combi -modi combi
-```
+    rofi -combi-modi window,drun -show combi -modi combi
 
 ## dmenu replacement
 
@@ -129,34 +123,31 @@ write them to stdout.
 
 # Usage
 
-If used with `-show [mode]`, rofi will immediately open in the specified [mode].
+If used with `-show [mode]`, rofi will immediately open in the specified \[mode].
 
 If used with `-dmenu`, rofi will use data from STDIN to let the user select an option.
 
 For example, to show a run dialog:
 
-  `rofi -show run`
+`rofi -show run`
 
 To show a ssh dialog:
 
-  `rofi -show ssh`
+`rofi -show ssh`
 
 ## dmenu
 
 If rofi is passed the `-dmenu` option, or run as `dmenu` (ie, /usr/bin/dmenu is symlinked to /usr/bin/rofi),
 it will use the data passed from STDIN.
 
-```
-~/scripts/my_script.sh | rofi -dmenu
-echo -e "Option #1\nOption #2\nOption #3" | rofi -dmenu
-```
+    ~/scripts/my_script.sh | rofi -dmenu
+    echo -e "Option #1\nOption #2\nOption #3" | rofi -dmenu
 
 In both cases, rofi will output the user's selection to STDOUT.
 
 ## Switching Between Modi
 
 Type `Shift-/Left/Right` to switch between active modi.
-
 
 ## Key bindings
 
@@ -202,10 +193,10 @@ For the full list of key bindings, see: `rofi -show keys` or `rofi -help`.
 
 There are currently three methods of setting configuration options:
 
- * Local configuration. Normally, depending on XDG, in `~/.config/rofi/config`. This uses the Xresources format.
- * Xresources: A method of storing key values in the Xserver. See
-   [here](https://en.wikipedia.org/wiki/X_resources) for more information.
- * Command line options: Arguments are passed to **Rofi**.
+*   Local configuration. Normally, depending on XDG, in `~/.config/rofi/config`. This uses the Xresources format.
+*   Xresources: A method of storing key values in the Xserver. See
+    [here](https://en.wikipedia.org/wiki/X_resources) for more information.
+*   Command line options: Arguments are passed to **Rofi**.
 
 A distribution can ship defaults in `/etc/rofi.conf`.
 
@@ -228,10 +219,10 @@ or in a more readable format:
 
 The configuration system supports the following types:
 
- * String
- * Integer (signed and unsigned)
- * Char
- * Boolean
+*   String
+*   Integer (signed and unsigned)
+*   Char
+*   Boolean
 
 The Boolean option has a non-default command line syntax, to enable option X you do:
 
@@ -254,9 +245,9 @@ install **Rofi**.
 
 Rofi is not:
 
- * A preview application. In other words, it will not show a (small) preview of images, movies or other files.
- * A UI toolkit.
- * A library to be used in other applications.
- * An application that can support every possible use-case. It tries to be generic enough to be usable by everybody.
-   Specific functionality can be added using scripts.
- * Just a dmenu replacement. The dmenu functionality is a nice 'extra' to **rofi**, not its main purpose.
+*   A preview application. In other words, it will not show a (small) preview of images, movies or other files.
+*   A UI toolkit.
+*   A library to be used in other applications.
+*   An application that can support every possible use-case. It tries to be generic enough to be usable by everybody.
+    Specific functionality can be added using scripts.
+*   Just a dmenu replacement. The dmenu functionality is a nice 'extra' to **rofi**, not its main purpose.

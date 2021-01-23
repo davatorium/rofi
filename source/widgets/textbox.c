@@ -136,6 +136,7 @@ static void textbox_initialize_font ( textbox *tb )
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
 
                 PangoLayout    *layout = pango_layout_new ( p_context );
+                pango_layout_set_font_description ( layout, tbfc->pfd );
                 pango_layout_set_text ( layout, "aAjb", -1 );
                 PangoRectangle rect;
                 pango_layout_get_pixel_extents ( layout, NULL, &rect );
@@ -182,8 +183,15 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
 
     textbox_initialize_font ( tb );
 
-    if ( ( flags & TB_WRAP ) == TB_WRAP ) {
+    if ( ( tb->flags & TB_WRAP ) == TB_WRAP ) {
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
+    }
+
+    // Allow overriding of markup.
+    if ( rofi_theme_get_boolean ( WIDGET ( tb ), "markup", (tb->flags&TB_MARKUP) == TB_MARKUP ) ) {
+        tb->flags |= TB_MARKUP;
+    } else {
+       tb->flags &= (~TB_MARKUP);
     }
 
     const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text );
@@ -202,7 +210,7 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
 
     tb->blink_timeout = 0;
     tb->blink         = 1;
-    if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
+    if ( ( tb->flags & TB_EDITABLE ) == TB_EDITABLE ) {
         if ( rofi_theme_get_boolean ( WIDGET ( tb ), "blink", TRUE ) ) {
             tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
         }

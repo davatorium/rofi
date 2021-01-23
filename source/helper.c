@@ -1102,11 +1102,15 @@ char *helper_get_theme_path ( const char *file )
     return filename;
 }
 
-static void parse_pair ( char  *input, rofi_range_pair  *item )
+static gboolean parse_pair ( char  *input, rofi_range_pair  *item )
 {
     // Skip leading blanks.
     while ( input != NULL && isblank ( *input ) ) {
         ++input;
+    }
+
+    if ( input == NULL ) {
+        return FALSE;
     }
 
     const char *sep[]   = { "-", ":" };
@@ -1130,6 +1134,7 @@ static void parse_pair ( char  *input, rofi_range_pair  *item )
             --item->stop;
         }
     }
+    return TRUE;
 }
 void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length )
 {
@@ -1142,9 +1147,9 @@ void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length )
         // Make space.
         *list = g_realloc ( ( *list ), ( ( *length ) + 1 ) * sizeof ( struct rofi_range_pair ) );
         // Parse a single pair.
-        parse_pair ( token, &( ( *list )[*length] ) );
-
-        ( *length )++;
+        if ( parse_pair ( token, &( ( *list )[*length] ) ) ) {
+            ( *length )++;
+        }
     }
 }
 /**
