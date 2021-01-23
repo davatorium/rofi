@@ -8,15 +8,15 @@ Command line only options:
 	-display [string]                      X server to contact.
 		${DISPLAY}
 	-h,-help                               This help message.
-	-dump-xresources                       Dump the current configuration in Xresources format and exit.
 	-e [string]                            Show a dialog displaying the passed message and exit.
 	-markup                                Enable pango markup where possible.
 	-normal-window                         Behave as a normal window. (experimental)
 	-show [mode]                           Show the mode 'mode' and exit. The mode has to be enabled.
 	-no-lazy-grab                          Disable lazy grab that, when fail to grab keyboard, does not block but retry later.
 	-no-plugins                            Disable loading of external plugins.
-	-plugin-path                           Directory used to search for rofi plugins.
+	-plugin-path                           Directory used to search for rofi plugins. *DEPRECATED*
 	-dump-config                           Dump the current configuration in rasi format and exit.
+	-upgrade-config                        Upgrade the old-style configuration file in the new rasi format and exit.
 	-dump-theme                            Dump the current theme in rasi format and exit.
 DMENU command line options:
 	-mesg [string]                         Print a small user message under the prompt (uses pango markup)
@@ -41,3 +41,4 @@ DMENU command line options:
 	-async-pre-read [number]               Read several entries blocking before switching to async mode
 		25
 	-w windowid                            Position over window with X11 windowid.
+	-keep-right                            Set ellipsize to end.

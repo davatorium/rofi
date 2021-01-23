@@ -13,7 +13,6 @@ tests=(
     run_dmenu_empty
     run_dmenu_issue_292
     run_screenshot_test
-    xr_dump_test
     run_combi_test
     run_regex_test
     run_glob_test

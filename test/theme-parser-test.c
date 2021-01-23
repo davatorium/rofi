@@ -1135,14 +1135,6 @@ START_TEST  ( test_properties_list )
 }
 END_TEST
 
-START_TEST ( test_configuration )
-{
-    rofi_theme_parse_string ( "configuration { font: \"blaat€\"; yoffset: 4; }");
-    ck_assert_int_eq ( g_utf8_collate ( config.menu_font, "blaat€" ) , 0 );
-    ck_assert_int_eq ( config.y_offset , 4 );
-}
-END_TEST
-
 START_TEST ( test_parse_file_empty )
 {
     rofi_theme_parse_file ("/dev/null");
@@ -1380,12 +1372,6 @@ static Suite * theme_parser_suite (void)
         tcase_add_checked_fixture(tc_prop_list, theme_parser_setup, theme_parser_teardown);
         tcase_add_test ( tc_prop_list, test_properties_list);
         suite_add_tcase(s, tc_prop_list );
-    }
-    {
-        TCase *tc_prop_configuration = tcase_create("Configuration");
-        tcase_add_checked_fixture(tc_prop_configuration, theme_parser_setup, theme_parser_teardown);
-        tcase_add_test ( tc_prop_configuration, test_configuration);
-        suite_add_tcase(s, tc_prop_configuration );
     }
     {
         TCase *tc_prop_parse_file = tcase_create("ParseFile");

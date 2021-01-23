@@ -29,10 +29,5 @@ then
     exit 1
 fi
 
-OUTPUT=$(rofi -dump-xresources)
-if [ -z "${OUTPUT}" ]
-then
-    exit 1
-fi
 
 exit ${RETV}
