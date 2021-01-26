@@ -796,6 +796,19 @@ int main ( int argc, char *argv[] )
         return EXIT_SUCCESS;
     }
 
+    if ( find_arg ( "-rasi-validate" ) >= 0 ) {
+        char *str = NULL;
+        find_arg_str ( "-rasi-validate", &str );
+        if ( str != NULL ) {
+            int retv = rofi_theme_rasi_validate ( str );
+            cleanup ();
+            return retv;
+        }
+        fprintf ( stderr, "Usage: %s -rasi-validate my-theme.rasi", argv[0] );
+        return EXIT_FAILURE;
+    }
+
+
     {
         const char *ro_pid = g_getenv ( "ROFI_OUTSIDE" );
         if ( ro_pid != NULL ) {
@@ -1157,4 +1170,22 @@ int main ( int argc, char *argv[] )
     /* dirty hack */
     g_free ( windowid );
     return return_code;
+}
+
+
+/** List of error messages.*/
+extern GList *list_of_error_msgs;
+int rofi_theme_rasi_validate ( const char *filename )
+{
+    rofi_theme_parse_file ( filename );
+    if ( list_of_error_msgs == NULL ) {
+        return EXIT_SUCCESS;
+    }
+
+    for ( GList *iter = g_list_first ( list_of_error_msgs );
+            iter != NULL; iter = g_list_next ( iter ) ) {
+        fputs ( ((GString*)iter->data)->str, stderr );
+    }
+
+    return EXIT_FAILURE;
 }
