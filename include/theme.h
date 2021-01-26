@@ -387,4 +387,12 @@ void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child );
  */
 ThemeMediaType rofi_theme_parse_media_type ( const char *type );
 RofiDistance rofi_theme_property_copy_distance  ( RofiDistance const distance );
+
+/**
+ * @param filename The file to validate.
+ *
+ * @returns the program exit code.
+ */
+int rofi_theme_rasi_validate ( const char *filename );
+
 #endif

@@ -128,6 +128,10 @@ Dump the current active theme, in rasi format, to stdout and exit.
 Dump the current active configuration, in Xresources format, to stdout.
 This does not validate all passed values (for example, colors).
 
+`-rasi-validate` *filename*
+
+Try to parse the file and 0 when succesful.
+
 `-threads` *num*
 
 Specify the number of threads **rofi** should use:
