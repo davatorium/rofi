@@ -601,6 +601,9 @@ There are 2 sorting method:
  * levenshtein (Default)
  * fzf sorting.
 
+`-max-history-size` *number*
+
+Maximum number of entries to store in history. Defaults to 25. (WARNING: can cause slowdowns when set to high)
 
 ### Dmenu specific
 
