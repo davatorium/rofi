@@ -26,7 +26,7 @@
  */
 
 /** The log domain of this widget. */
-#define G_LOG_DOMAIN    "Widgets.Window"
+#define G_LOG_DOMAIN    "Widgets.Container"
 
 #include <config.h>
 #include <stdio.h>
@@ -35,7 +35,7 @@
 #include "widgets/container.h"
 #include "theme.h"
 
-struct _window
+struct _container
 {
     widget widget;
     widget *child;
