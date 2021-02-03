@@ -41,7 +41,7 @@
 /**
  * Abstract handle to the container widget internal state.
  */
-typedef struct _window container;
+typedef struct _container container;
 
 /**
  * @param parent The widget's parent
