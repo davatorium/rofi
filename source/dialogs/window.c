@@ -491,7 +491,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         current_desktop = 0;
     }
 
-    c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, 0 );
+    c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, xcb->screen_nbr );
     xcb_ewmh_get_windows_reply_t clients = { 0, };
     if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
         found = 1;
