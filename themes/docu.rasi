@@ -3,7 +3,8 @@
  * User: Qball
  * Copyright: Dave Davenport
  */
-/** Default settings. */
+
+/** Default settings, every widget inherits from this. */
 * {
     /** Default background color is transparent. */
     background-color: transparent;
@@ -15,7 +16,7 @@
  * Entry box on top. 
  */
 entry {
-    /** top bottom border */
+    /** top  and bottom border */
     border: 2px 0px;
     /** Dark grey border color */
     border-color:  darkgrey;
