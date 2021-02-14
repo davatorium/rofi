@@ -224,6 +224,7 @@ theme_DATA=\
 		   themes/blue.rasi\
 		   themes/c64.rasi\
 		   themes/dmenu.rasi\
+		   themes/docu.rasi\
 		   themes/glue_pro_blue.rasi\
 		   themes/gruvbox-common.rasi\
 		   themes/gruvbox-dark-hard.rasi\
