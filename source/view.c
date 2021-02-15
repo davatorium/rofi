@@ -678,7 +678,7 @@ static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data
         g_mutex_unlock ( t->mutex );
     }
 }
-static void rofi_view_setup_fake_transparency ( const char* const fake_background )
+static void rofi_view_setup_fake_transparency ( widget *win, const char* const fake_background )
 {
     if ( CacheState.fake_bg == NULL ) {
         cairo_surface_t *s = NULL;
@@ -713,6 +713,8 @@ static void rofi_view_setup_fake_transparency ( const char* const fake_backgroun
             }
             else {
                 CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, CacheState.mon.w, CacheState.mon.h );
+                
+                int blur = rofi_theme_get_integer ( WIDGET ( win ), "blur", 0 );
                 cairo_t *dr = cairo_create ( CacheState.fake_bg );
                 if ( CacheState.fake_bgrel ) {
                     cairo_set_source_surface ( dr, s, 0, 0 );
@@ -723,6 +725,10 @@ static void rofi_view_setup_fake_transparency ( const char* const fake_backgroun
                 cairo_paint ( dr );
                 cairo_destroy ( dr );
                 cairo_surface_destroy ( s );
+                if ( blur > 0 ){
+                    cairo_image_surface_blur( CacheState.fake_bg, (double)blur );
+                    TICK_N("BLUR");
+                }
             }
         }
         TICK_N ( "Fake transparency" );
@@ -860,10 +866,10 @@ void __create_window ( MenuFlags menu_flags )
     TICK_N ( "setup window name and class" );
     const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency ) {
-        rofi_view_setup_fake_transparency ( transparency  );
+        rofi_view_setup_fake_transparency ( WIDGET (win), transparency  );
     }
     else if ( config.fake_transparency && config.fake_background ) {
-        rofi_view_setup_fake_transparency ( config.fake_background );
+        rofi_view_setup_fake_transparency ( WIDGET ( win ), config.fake_background );
     }
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );

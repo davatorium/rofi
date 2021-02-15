@@ -113,6 +113,101 @@ static xcb_visualtype_t * lookup_visual ( xcb_screen_t   *s, xcb_visualid_t visu
     return 0;
 }
 
+typedef union {
+    uint32_t value;
+    struct {
+        uint8_t a,b,c,d;
+    }vals;
+} Pixel __attribute__((packed));
+
+typedef struct {
+        uint32_t a,b,c,d;
+} Filter __attribute__((packed));
+
+void cairo_image_surface_blur(cairo_surface_t* surface, unsigned int radius)
+{
+    // Currently we only support argb32
+    if ( cairo_image_surface_get_format ( surface ) != CAIRO_FORMAT_ARGB32 ) {
+        g_warning("Invalid format for blurring.");
+        return;
+    }
+    // Steve Hanov, 2009
+    // Tweaks by Dave Davenport.
+    // Released into the public domain.
+
+    // get width, height
+    const uint_fast32_t stride = cairo_image_surface_get_stride(surface);
+    if ( stride%4 != 0 ) {
+        g_warning("Stride is not multiple of 4: %lu", stride%4);
+        return;
+    }
+    const uint_fast32_t width  = stride/4;
+    const uint_fast32_t height = cairo_image_surface_get_height(surface);
+    const double mul           = 1.0 / (double)(4.0*radius*radius);
+    Filter* precalc            = (Filter*)g_malloc_n(stride*height,sizeof(Filter));
+    Pixel * src                = (Pixel *)cairo_image_surface_get_data(surface);
+
+    // The number of times to perform the averaging. According to wikipedia,
+    // three iterations is good enough to pass for a gaussian.
+    const uint_fast32_t MAX_ITERATIONS = 3;
+
+    const uint_fast32_t wr1 = width-radius-1;
+    const uint_fast32_t hr1 = height-radius-1;
+    for (uint_fast32_t iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+        Pixel *pixel = (Pixel *)src;
+        Filter *filter = (Filter*)precalc;
+        for (uint_fast32_t y = 0; y < height; y++) {
+            for (uint_fast32_t x = 0; x < width; x++) {
+                Pixel t = pixel[0];
+                filter->a = t.vals.a;
+                filter->b = t.vals.b;
+                filter->c = t.vals.c;
+                filter->d = t.vals.d;
+                if (x!=0) {
+                    filter->a += filter[-1].a;
+                    filter->b += filter[-1].b;
+                    filter->c += filter[-1].c;
+                    filter->d += filter[-1].d;
+                }
+                if (y!=0) {
+                    filter->a += filter[-width].a;
+                    filter->b += filter[-width].b;
+                    filter->c += filter[-width].c;
+                    filter->d += filter[-width].d;
+                }
+                if (x!=0 && y!=0) {
+                    filter->a -= filter[-width-1].a;
+                    filter->b -= filter[-width-1].b;
+                    filter->c -= filter[-width-1].c;
+                    filter->d -= filter[-width-1].d;
+                }
+                filter++ ;
+                pixel++;
+            }
+        }
+        pixel = (Pixel *)src;
+        for (uint_fast32_t y = 0; y < (height); y++) {
+            const uint_fast32_t index = width*y;
+            const uint_fast32_t t = (y < radius)? 0: width*(y - radius);
+            const uint_fast32_t b = (y > hr1)? (height-1)*width: (y + radius)*width;
+            for (uint_fast32_t x = 0; x < (width ); x++) {
+                const uint_fast32_t  l = (x < radius)? 0:(x - radius);
+                const uint_fast32_t  r = (x > wr1)? (width-1):(x + radius);
+                int tota = precalc[r+b].a + precalc[l+t].a- precalc[l+b].a - precalc[r+t].a;
+                int totb = precalc[r+b].b + precalc[l+t].b- precalc[l+b].b - precalc[r+t].b;
+                int totc = precalc[r+b].c + precalc[l+t].c- precalc[l+b].c - precalc[r+t].c;
+                int totd = precalc[r+b].d + precalc[l+t].d- precalc[l+b].d - precalc[r+t].d;
+                pixel[index+x].vals.a = (uint8_t)(tota*mul);
+                pixel[index+x].vals.b = (uint8_t)(totb*mul);
+                pixel[index+x].vals.c = (uint8_t)(totc*mul);
+                pixel[index+x].vals.d = (uint8_t)(totd*mul);
+            }
+        }
+    }
+
+    g_free(precalc);
+}
+
 cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size )
 {
     xcb_get_geometry_cookie_t cookie;
