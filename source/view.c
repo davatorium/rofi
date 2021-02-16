@@ -678,6 +678,7 @@ static void filter_elements ( thread_state *ts, G_GNUC_UNUSED gpointer user_data
         g_mutex_unlock ( t->mutex );
     }
 }
+
 static void rofi_view_setup_fake_transparency ( widget *win, const char* const fake_background )
 {
     if ( CacheState.fake_bg == NULL ) {
@@ -726,7 +727,7 @@ static void rofi_view_setup_fake_transparency ( widget *win, const char* const f
                 cairo_destroy ( dr );
                 cairo_surface_destroy ( s );
                 if ( blur > 0 ){
-                    cairo_image_surface_blur( CacheState.fake_bg, (double)blur );
+                    cairo_image_surface_blur( CacheState.fake_bg, (double)blur, 0 );
                     TICK_N("BLUR");
                 }
             }

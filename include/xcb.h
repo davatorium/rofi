@@ -194,5 +194,5 @@ extern WindowManagerQuirk current_window_manager;
  * @returns NULL if window was not found, or unmapped, otherwise returns a cairo_surface.
  */
 cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size );
-void cairo_image_surface_blur(cairo_surface_t* surface, unsigned int radius);
+void cairo_image_surface_blur(cairo_surface_t* surface, double radius, double deviation);
 #endif
