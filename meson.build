@@ -41,6 +41,8 @@ plugins_deps = [
     dependency('cairo'),
 ]
 
+dep_lm = c_compiler.find_library('m', required : true)
+
 deps = [
     plugins_deps,
     dependency('gio-unix-2.0'),
@@ -48,6 +50,7 @@ deps = [
     dependency('pangocairo'),
     dependency('xkbcommon'),
     dependency('gdk-pixbuf-2.0'),
+    dep_lm,
 ]
 
 
