@@ -41,7 +41,7 @@ plugins_deps = [
     dependency('cairo'),
 ]
 
-dep_lm = c_compiler.find_library('m', required : true)
+dep_lm = c_compiler.find_library('m', required : false)
 
 deps = [
     plugins_deps,
