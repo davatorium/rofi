@@ -655,6 +655,8 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
             act_on_window ( rmpd->ids->array[selected_line] );
         }
         else {
+            // Disable reverting input focus to previous window.
+            xcb->focus_revert = 0;
             rofi_view_hide ();
             if ( ( current_window_manager & WM_DO_NOT_CHANGE_CURRENT_DESKTOP ) == 0 ) {
                 // Get the desktop of the client to switch to
@@ -687,7 +689,6 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
                 }
             }
             // Activate the window
-            xcb->focus_revert = 0;
             xcb_ewmh_request_change_active_window ( &xcb->ewmh, xcb->screen_nbr, rmpd->ids->array[selected_line],
                                                     XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER,
                                                     XCB_CURRENT_TIME, rofi_view_get_window () );
