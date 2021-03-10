@@ -2,7 +2,7 @@
 
 ## NAME
 
-**rofi script mode** - Rofi format for scriptable modi. 
+**rofi script mode** - Rofi format for scriptable modi.
 
 
 ## DESCRIPTION
@@ -107,6 +107,18 @@ multiple entries can be passed using the `\x1f` separator.
 ```bash
     echo -en "aap\0icon\x1ffolder\x1finfo\x1ftest\n"
 ```
+
+## Executing external program
+
+If you want to launch an external program from the script, you need to make sure it is launched in the background.
+If not rofi will wait for its output (to display).
+
+In bash the best way to do this is using `coproc`.
+
+```bash
+ coproc ( myApp  > /dev/null  2>&1 )
+```
+
 
 ## DASH shell
 
