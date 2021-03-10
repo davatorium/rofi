@@ -163,6 +163,23 @@ multiple entries can be passed using the \fB\fC\\x1f\fR separator.
 .fi
 .RE
 
+.SH Executing external program
+.PP
+If you want to launch an external program from the script, you need to make sure it is launched in the background.
+If not rofi will wait for its output (to display).
+
+.PP
+In bash the best way to do this is using \fB\fCcoproc\fR\&.
+
+.PP
+.RS
+
+.nf
+ coproc ( myApp  > /dev/null  2>\&1 )
+
+.fi
+.RE
+
 .SH DASH shell
 .PP
 If you use the \fB\fCdash\fR shell for your script, take special care with how dash handles escaped values for the separators.
