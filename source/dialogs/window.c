@@ -337,14 +337,14 @@ static client* window_client ( ModeModePrivateData *pd, xcb_window_t win )
     if ( c->title == NULL ) {
         c->title = window_get_text_prop ( c->window, XCB_ATOM_WM_NAME );
     }
-    c->title      = g_markup_escape_text( c->title, -1 );
+    c->title      = g_markup_escape_text ( c->title, -1 );
     pd->title_len = MAX ( c->title ? g_utf8_strlen ( c->title, -1 ) : 0, pd->title_len );
 
-    c->role      = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
+    c->role = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
     if ( c->role == NULL ) {
         c->role = "";
     }
-    c->role     = g_markup_escape_text( c->role, -1 );
+    c->role      = g_markup_escape_text ( c->role, -1 );
     pd->role_len = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
 
     cky = xcb_icccm_get_wm_class ( xcb->connection, c->window );
@@ -569,7 +569,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                             if ( pango_parse_markup ( _window_name_list_entry ( names.strings, names.strings_len,
                                                                                 c->wmdesktop ), -1, 0, NULL, &output, NULL, NULL ) ) {
                                 c->wmdesktopstr = g_strdup (  _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
-                                c->wmdesktopstr_len = g_utf8_strlen( output, -1 );
+                                c->wmdesktopstr_len = g_utf8_strlen ( output, -1 );
                                 pd->wmdn_len = MAX ( pd->wmdn_len, c->wmdesktopstr_len );
                                 g_free ( output );
                             }
@@ -756,23 +756,23 @@ static void helper_eval_add_str ( GString *str, const char *input, int l, int ma
     // g_utf8 does not work with NULL string.
     const char *input_nn = input ? input : "";
     // Both l and max_len are in characters, not bytes.
-    int        spaces = 0;
+    int spaces = 0;
     if ( l == 0 ) {
         spaces = MAX ( 0, max_len - nc );
         g_string_append ( str, input_nn );
     }
     else {
         if ( nc > l ) {
-            int bl = g_utf8_offset_to_pointer ( input_nn, l ) - input_nn;
-            char *tmp = g_markup_escape_text(input_nn, bl);
+            int bl    = g_utf8_offset_to_pointer ( input_nn, l ) - input_nn;
+            char *tmp = g_markup_escape_text ( input_nn, bl );
             g_string_append ( str, tmp );
-            g_free(tmp);
+            g_free ( tmp );
         }
         else {
-            spaces = l - nc;
-            char *tmp = g_markup_escape_text(input_nn, -1);
+            spaces    = l - nc;
+            char *tmp = g_markup_escape_text ( input_nn, -1 );
             g_string_append ( str, tmp );
-            g_free(tmp);
+            g_free ( tmp );
         }
     }
     while ( spaces-- ) {
@@ -800,16 +800,16 @@ static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer 
             helper_eval_add_str ( str, d->c->wmdesktopstr, l, d->pd->wmdn_len, d->c->wmdesktopstr_len );
         }
         else if ( match[1] == 'c' ) {
-            helper_eval_add_str ( str, d->c->class, l, d->pd->clf_len, g_utf8_strlen(d->c->class, -1 ) );
+            helper_eval_add_str ( str, d->c->class, l, d->pd->clf_len, g_utf8_strlen ( d->c->class, -1 ) );
         }
         else if ( match[1] == 't' ) {
-            helper_eval_add_str ( str, d->c->title, l, d->pd->title_len, g_utf8_strlen(d->c->title, -1 ) );
+            helper_eval_add_str ( str, d->c->title, l, d->pd->title_len, g_utf8_strlen ( d->c->title, -1 ) );
         }
         else if ( match[1] == 'n' ) {
-            helper_eval_add_str ( str, d->c->name, l, d->pd->name_len, g_utf8_strlen(d->c->name, -1 ) );
+            helper_eval_add_str ( str, d->c->name, l, d->pd->name_len, g_utf8_strlen ( d->c->name, -1 ) );
         }
         else if ( match[1] == 'r' ) {
-            helper_eval_add_str ( str, d->c->role, l, d->pd->role_len, g_utf8_strlen(d->c->role, -1 ) );
+            helper_eval_add_str ( str, d->c->role, l, d->pd->role_len, g_utf8_strlen ( d->c->role, -1 ) );
         }
         
         g_free ( match );
