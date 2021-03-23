@@ -341,6 +341,9 @@ static client* window_client ( ModeModePrivateData *pd, xcb_window_t win )
     pd->title_len = MAX ( c->title ? g_utf8_strlen ( c->title, -1 ) : 0, pd->title_len );
 
     c->role      = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
+    if ( c->role == NULL ) {
+        c->role = "";
+    }
     c->role     = g_markup_escape_text( c->role, -1 );
     pd->role_len = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
 
