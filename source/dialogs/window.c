@@ -333,19 +333,18 @@ static client* window_client ( ModeModePrivateData *pd, xcb_window_t win )
         xcb_ewmh_get_atoms_reply_wipe ( &states );
     }
 
-    c->title = window_get_text_prop ( c->window, xcb->ewmh._NET_WM_NAME );
-    if ( c->title == NULL ) {
-        c->title = window_get_text_prop ( c->window, XCB_ATOM_WM_NAME );
+    char *tmp_title = window_get_text_prop ( c->window, xcb->ewmh._NET_WM_NAME );
+    if ( tmp_title == NULL ) {
+        tmp_title = window_get_text_prop ( c->window, XCB_ATOM_WM_NAME );
     }
-    c->title      = g_markup_escape_text ( c->title, -1 );
+    c->title      = g_markup_escape_text ( tmp_title, -1 );
     pd->title_len = MAX ( c->title ? g_utf8_strlen ( c->title, -1 ) : 0, pd->title_len );
+    g_free ( tmp_title );
 
-    c->role = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
-    if ( c->role == NULL ) {
-        c->role = "";
-    }
-    c->role      = g_markup_escape_text ( c->role, -1 );
-    pd->role_len = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
+    char *tmp_role = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
+    c->role        = g_markup_escape_text ( tmp_role ? tmp_role : "", -1 );
+    pd->role_len   = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
+    g_free ( tmp_role );
 
     cky = xcb_icccm_get_wm_class ( xcb->connection, c->window );
     xcb_icccm_get_wm_class_reply_t wcr;
