@@ -9,7 +9,6 @@
 [![Forum](https://img.shields.io/badge/forum-online-green.svg)](https://reddit.com/r/qtools/)
 [![Packages](https://repology.org/badge/tiny-repos/rofi.svg)](https://repology.org/metapackage/rofi/versions)
 
-[![Repositories](https://repology.org/badge/vertical-allrepos/rofi.svg)](https://repology.org/project/rofi/packages)
 # A window switcher, Application launcher and dmenu replacement
 
 **Rofi** started as a clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) - a
