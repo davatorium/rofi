@@ -173,5 +173,7 @@ Settings config = {
     .benchmark_ui              = FALSE,
 
     /** normalize match */
-    .normalize_match           = FALSE
+    .normalize_match           = FALSE,
+    /** restore focus */
+    .restore_focus             = TRUE
 };

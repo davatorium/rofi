@@ -254,6 +254,10 @@ Use Pango markup to format output wherever possible.
 
 Make **rofi** react like a normal application window. Useful for scripts like Clerk that are basically an application.
 
+`-[no-]restore-focus`
+
+Make rofi restore focus to window that held it when launched.
+
 ### Matching
 
 `-matching` *method*
