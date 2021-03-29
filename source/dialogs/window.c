@@ -751,15 +751,11 @@ static void helper_eval_add_str ( GString *str, const char *input, int l, int ma
     else {
         if ( nc > l ) {
             int bl = g_utf8_offset_to_pointer ( input_nn, l ) - input_nn;
-            char *tmp = g_regex_escape_string(input_nn, bl);
-            g_string_append ( str, tmp );
-            g_free(tmp);
+            g_string_append_len ( str, input_nn, bl );
         }
         else {
             spaces = l - nc;
-            char *tmp = g_regex_escape_string(input_nn, -1);
-            g_string_append ( str, tmp );
-            g_free(tmp);
+            g_string_append ( str, input_nn );
         }
     }
     while ( spaces-- ) {
@@ -823,7 +819,6 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     if ( c->active ) {
         *state |= ACTIVE;
     }
-    *state |= MARKUP;
     return get_entry ? _generate_display_string ( rmpd, c ) : NULL;
 }
 
