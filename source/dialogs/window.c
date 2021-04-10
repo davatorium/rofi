@@ -715,6 +715,8 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
             retv = RELOAD_DIALOG;
         }
         g_free ( lf_cmd );
+    } else if ( mretv & MENU_CUSTOM_COMMAND ) {
+        retv = ( mretv & MENU_LOWER_MASK );
     }
     return retv;
 }

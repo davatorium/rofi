@@ -391,6 +391,9 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
         retv = RELOAD_DIALOG;
         run_mode_destroy ( sw );
         run_mode_init ( sw );
+
+    } else if ( mretv & MENU_CUSTOM_COMMAND ) {
+        retv = ( mretv & MENU_LOWER_MASK );
     }
     return retv;
 }

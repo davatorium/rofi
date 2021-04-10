@@ -606,6 +606,8 @@ static ModeMode ssh_mode_result ( Mode *sw, int mretv, char **input, unsigned in
         retv = RELOAD_DIALOG;
         ssh_mode_destroy ( sw );
         ssh_mode_init ( sw );
+    } else if ( mretv & MENU_CUSTOM_COMMAND ) {
+        retv = ( mretv & MENU_LOWER_MASK );
     }
     return retv;
 }
