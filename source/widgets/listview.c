@@ -770,6 +770,9 @@ void listview_nav_right ( listview *lv )
     if ( lv == NULL ) {
         return;
     }
+    if ( lv->max_rows == 0 ) {
+        return;
+    }
     if ( lv->type == BARVIEW ) {
         listview_nav_down_int ( lv );
         return;
