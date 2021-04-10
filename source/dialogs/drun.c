@@ -1058,6 +1058,8 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
             rmpd->cmd_list_length--;
         }
         retv = RELOAD_DIALOG;
+    } else if ( mretv & MENU_CUSTOM_COMMAND ) {
+        retv = ( mretv & MENU_LOWER_MASK );
     }
     return retv;
 }

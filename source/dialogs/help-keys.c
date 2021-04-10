@@ -71,6 +71,11 @@ static ModeMode help_keys_mode_result ( G_GNUC_UNUSED Mode *sw,
                                         G_GNUC_UNUSED char **input,
                                         G_GNUC_UNUSED unsigned int selected_line )
 {
+
+    if ( mretv & MENU_CUSTOM_COMMAND ) {
+        int retv = ( mretv & MENU_LOWER_MASK );
+        return retv;
+    }
     return MODE_EXIT;
 }
 static void help_keys_mode_destroy ( Mode *sw )
