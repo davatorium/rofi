@@ -205,8 +205,8 @@ typedef struct
     gboolean       benchmark_ui;
 
     gboolean       normalize_match;
-    /** Restore focus */
-    gboolean       restore_focus;
+    /** Steal focus */
+    gboolean       steal_focus;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;
