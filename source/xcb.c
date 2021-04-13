@@ -1187,7 +1187,7 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
 
 void rofi_xcb_set_input_focus ( xcb_window_t w )
 {
-    if ( config.restore_focus == FALSE ) {
+    if ( config.steal_focus != TRUE ) {
         xcb->focus_revert = 0;
         return;
     }

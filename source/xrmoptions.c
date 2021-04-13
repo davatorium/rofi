@@ -233,8 +233,8 @@ static XrmOption xrmOptions[] = {
       "DRUN: If enabled, reload the cache with desktop file content.", CONFIG_DEFAULT },
     { xrm_Boolean, "normalize-match",           { .snum  = &config.normalize_match                      }, NULL,
       "Normalize string when matching (implies -no-show-match).", CONFIG_DEFAULT },
-    { xrm_Boolean, "restore-focus",              { .snum  = &config.restore_focus                       }, NULL,
-      "Restore focus on close to window that had it on rofi start.", CONFIG_DEFAULT },
+    { xrm_Boolean, "steal-focus",               { .snum  = &config.steal_focus                          }, NULL,
+      "Steal focus on launch and restore to window that had it on rofi start on close .", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */

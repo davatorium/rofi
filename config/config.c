@@ -174,6 +174,6 @@ Settings config = {
 
     /** normalize match */
     .normalize_match           = FALSE,
-    /** restore focus */
-    .restore_focus             = TRUE
+    /** steal focus */
+    .steal_focus               = FALSE 
 };

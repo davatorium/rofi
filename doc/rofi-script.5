@@ -64,8 +64,6 @@ Rofi sets the following environment variable when executing the script:
 .SS \fB\fCROFI\_RETV\fR
 .PP
 An integer number with the current state:
-
-.RS
 .IP \(bu 2
 \fB0\fP: Initial call of script.
 .IP \(bu 2
@@ -74,8 +72,6 @@ An integer number with the current state:
 \fB2\fP: Selected a custom entry.
 .IP \(bu 2
 \fB10\-28\fP: Custom keybinding 1\-19
-
-.RE
 
 .SS \fB\fCROFI\_INFO\fR
 .PP
@@ -100,8 +96,6 @@ For example to set the prompt:
 
 .PP
 The following extra options exists:
-
-.RS
 .IP \(bu 2
 \fBprompt\fP:      Update the prompt text.
 .IP \(bu 2
@@ -116,8 +110,6 @@ The following extra options exists:
 \fBdelim\fP:       Set the delimiter for for next rows. Default is '\\n' and this option should finish with this. Only call this on first call of script, it is remembered for consecutive calls.
 .IP \(bu 2
 \fBno\-custom\fP:   If set to 'true'; only accept listed entries, ignore custom input.
-
-.RE
 
 .SH Parsing row options
 .PP
@@ -138,8 +130,6 @@ For example:
 
 .PP
 The following options are supported:
-
-.RS
 .IP \(bu 2
 \fBicon\fP: Set the icon for that row.
 .IP \(bu 2
@@ -148,8 +138,6 @@ The following options are supported:
 \fBnonselectable\fP: If true the row cannot activated.
 .IP \(bu 2
 \fBinfo\fP: Info that, on selection, gets placed in the \fB\fCROFI\_INFO\fR environment variable. This entry does not get searched.
-
-.RE
 
 .PP
 multiple entries can be passed using the \fB\fC\\x1f\fR separator.
