@@ -100,10 +100,11 @@ void rofi_view_handle_text ( RofiViewState *state, char *text );
  * @param state the Menu handle
  * @param x The X coordinates of the motion
  * @param y The Y coordinates of the motion
+ * @param find_mouse_target if we should handle pure mouse motion
  *
  * Update the state if needed.
  */
-void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y );
+void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y, gboolean find_mouse_target );
 /**
  * @param state the Menu handle
  *

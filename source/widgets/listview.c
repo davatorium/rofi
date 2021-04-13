@@ -467,6 +467,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
     widget_draw ( WIDGET ( lv->scrollbar ), draw );
 }
 static WidgetTriggerActionResult listview_element_trigger_action ( widget *wid, MouseBindingListviewElementAction action, gint x, gint y, void *user_data );
+static gboolean listview_element_motion_notify ( widget *wid, gint x, gint y );
 
 static void _listview_draw ( widget *wid, cairo_t *draw )
 {
@@ -502,7 +503,12 @@ static void listview_recompute_elements ( listview *lv )
     if ( newne > 0   ) {
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             listview_create_row ( lv, &( lv->boxes[i] ) );
-            widget_set_trigger_action_handler ( WIDGET ( lv->boxes[i].box ), listview_element_trigger_action, lv );
+            widget *wid = WIDGET ( lv->boxes[i].box );
+            widget_set_trigger_action_handler ( wid, listview_element_trigger_action, lv );
+            if ( wid != NULL ) {
+                wid->motion_notify = listview_element_motion_notify;
+            }
+
             listview_set_state ( lv->boxes[i], NORMAL );
         }
     }
@@ -638,6 +644,19 @@ static WidgetTriggerActionResult listview_element_trigger_action ( widget *wid, 
         break;
     }
     return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
+}
+
+static gboolean listview_element_motion_notify ( widget *wid, G_GNUC_UNUSED gint x, G_GNUC_UNUSED gint y )
+{
+    listview     *lv = (listview *) wid->parent;
+    unsigned int max = MIN ( lv->cur_elements, lv->req_elements - lv->last_offset );
+    unsigned int i;
+    for ( i = 0; i < max && WIDGET ( lv->boxes[i].box ) != wid; i++ ) {
+    }
+    if ( i < max && i != listview_get_selected ( lv ) ) {
+        listview_set_selected ( lv, lv->last_offset + i );
+    }
+    return TRUE;
 }
 
 listview *listview_create ( widget *parent, const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse )
