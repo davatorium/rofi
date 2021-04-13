@@ -140,7 +140,7 @@ typedef struct
     /** Sidebar mode, show the modi */
     unsigned int   sidebar_mode;
     /** Mouse hover automatically selects */
-    unsigned int   hover_select;
+    gboolean       hover_select;
     /** Lazy filter limit. */
     unsigned int   lazy_filter_limit;
     /** Auto select. */
