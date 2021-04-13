@@ -411,6 +411,13 @@ To show sidebar, use:
 
     rofi -show run -sidebar-mode -lines 0
 
+`-hover-select`
+
+Automatically select the entry the mouse is hovering over. This option is best combined with custom mouse bindings.
+To utilize hover-select and accept an entry in a single click, use:
+
+    rofi -show run -hover-select -me-select-entry '' -me-accept-entry MousePrimary
+
 `-eh` *number*
 
 Set row height (in chars)
