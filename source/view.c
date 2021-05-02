@@ -848,7 +848,7 @@ void __create_window ( MenuFlags menu_flags )
     }
 
     TICK_N ( "setup window attributes" );
-    CacheState.fullscreen = rofi_theme_get_boolean ( WIDGET ( win ), "fullscreen", config.fullscreen );
+    CacheState.fullscreen = rofi_theme_get_boolean ( WIDGET ( win ), "fullscreen", FALSE );
     if ( CacheState.fullscreen ) {
         xcb_atom_t atoms[] = {
             xcb->ewmh._NET_WM_STATE_FULLSCREEN,

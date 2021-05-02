@@ -695,7 +695,6 @@ int config_sanity_check ( void )
     if ( g_strcmp0 ( config.monitor, "-3" ) == 0 ) {
         // On -3, set to location 1.
         config.location   = 1;
-        config.fullscreen = 0;
     }
 
     if ( found_error ) {
