@@ -165,8 +165,6 @@ typedef struct
     char           *separator_style;
     /** hide scrollbar */
     unsigned int   hide_scrollbar;
-    /** fullscreen */
-    unsigned int   fullscreen;
     /** bg image */
     unsigned int   fake_transparency;
     /** dpi */

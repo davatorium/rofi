@@ -393,10 +393,6 @@ Define the inner margin of the window.
 
 Default: *5*
 
-`-fullscreen`
-
-Use the full-screen height and width.
-
 `-sidebar-mode`
 
 Open in sidebar-mode. In this mode a list of all enabled modes is shown at the bottom.
