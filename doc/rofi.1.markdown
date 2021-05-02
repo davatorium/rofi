@@ -212,12 +212,6 @@ Directory that is used to place temporary files, like history.
 
 Select the scrolling method. 0: Per page, 1: continuous.
 
-`-[no-]show-match`
-
-Show the indicator that shows what part of the string is matched.
-
-    Default: *true*
-
 `-normalize-match`
 
 Normalize the string before matching, so o will match ö, and é matches e.

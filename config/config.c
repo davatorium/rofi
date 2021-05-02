@@ -150,7 +150,6 @@ Settings config = {
     .fake_background        = "screenshot",
     .window_format          = "{w}    {c}   {t}",
     .click_to_exit          = TRUE,
-    .show_match             = TRUE,
     .theme                  = NULL,
     .color_normal           = NULL,
     .color_active           = NULL,

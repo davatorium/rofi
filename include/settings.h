@@ -181,7 +181,6 @@ typedef struct
     char           *window_format;
     /** Click outside the window to exit */
     int            click_to_exit;
-    gboolean       show_match;
 
     char           *theme;
     /** Path where plugins can be found. */

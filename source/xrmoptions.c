@@ -207,8 +207,6 @@ static XrmOption xrmOptions[] = {
       "Window Format. w (desktop name), t (title), n (name), r (role), c (class)", CONFIG_DEFAULT },
     { xrm_Boolean, "click-to-exit",             { .snum  = &config.click_to_exit                        }, NULL,
       "Click outside the window to exit", CONFIG_DEFAULT },
-    { xrm_Boolean, "show-match",                { .snum  = &config.show_match                           }, NULL,
-      "Indicate how it match by underlining it.", CONFIG_DEFAULT },
     { xrm_String,  "theme",                     { .str   = &config.theme                                }, NULL,
       "New style theme file", CONFIG_DEFAULT },
     { xrm_String,  "color-normal",              { .str   = &config.color_normal                         }, NULL,
@@ -234,7 +232,7 @@ static XrmOption xrmOptions[] = {
     { xrm_Boolean, "drun-reload-desktop-cache", { .snum  = &config.drun_reload_desktop_cache            }, NULL,
       "DRUN: If enabled, reload the cache with desktop file content.", CONFIG_DEFAULT },
     { xrm_Boolean, "normalize-match",           { .snum  = &config.normalize_match                      }, NULL,
-      "Normalize string when matching (implies -no-show-match).", CONFIG_DEFAULT },
+      "Normalize string when matching (disables match highlighting).", CONFIG_DEFAULT },
     { xrm_Boolean, "steal-focus",               { .snum  = &config.steal_focus                          }, NULL,
       "Steal focus on launch and restore to window that had it on rofi start on close .", CONFIG_DEFAULT },
 };

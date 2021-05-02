@@ -1025,7 +1025,7 @@ static void update_callback ( textbox *t, icon *ico, unsigned int index, void *u
             icon_set_surface ( ico, icon );
         }
 
-        if ( state->tokens && config.show_match ) {
+        if ( state->tokens ) {
             RofiHighlightColorStyle th = { ROFI_HL_BOLD | ROFI_HL_UNDERLINE, { 0.0, 0.0, 0.0, 0.0 } };
             th = rofi_theme_get_highlight ( WIDGET ( t ), "highlight", th );
             helper_token_match_get_pango_attr ( th, state->tokens, textbox_get_visible_text ( t ), list );
