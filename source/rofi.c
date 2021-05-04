@@ -289,7 +289,6 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-dmenu", "", "Start in dmenu mode.", NULL, is_term );
     print_help_msg ( "-display", "[string]", "X server to contact.", "${DISPLAY}", is_term );
     print_help_msg ( "-h,-help", "", "This help message.", NULL, is_term );
-    print_help_msg ( "-dump-xresources", "", "Dump the current configuration in Xresources format and exit.", NULL, is_term );
     print_help_msg ( "-e", "[string]", "Show a dialog displaying the passed message and exit.", NULL, is_term );
     print_help_msg ( "-markup", "", "Enable pango markup where possible.", NULL, is_term );
     print_help_msg ( "-normal-window", "", "Behave as a normal window. (experimental)", NULL, is_term );
@@ -1112,11 +1111,6 @@ int main ( int argc, char *argv[] )
     // catch help request
     if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
         help ( argc, argv );
-        cleanup ();
-        return EXIT_SUCCESS;
-    }
-    if ( find_arg (  "-dump-xresources" ) >= 0 ) {
-        config_parse_xresource_dump ();
         cleanup ();
         return EXIT_SUCCESS;
     }

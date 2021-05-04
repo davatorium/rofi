@@ -102,14 +102,6 @@ void config_parse_cmd_options ( void );
 void config_xresource_free ( void );
 
 /**
- * Dump the settings in a Xresources compatible way to
- * stdout.
- *
- * @ingroup CONFXResources
- */
-void config_parse_xresource_dump ( void );
-
-/**
  * @param type The type of the value
  * @param key  The key referring to this configuration option
  * @param value The value to update based [out][in]
