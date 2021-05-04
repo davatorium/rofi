@@ -524,63 +524,6 @@ void config_xresource_free ( void )
     }
 }
 
-static void xresource_dump_entry ( const char *namePrefix, XrmOption *option )
-{
-    printf ( "! \"%s\" ", option->comment );
-    printf ( "Set from: %s\n", ConfigSourceStr[option->source] );
-    if ( option->source == CONFIG_DEFAULT ) {
-        printf ( "! " );
-    }
-    printf ( "%s.%s: %*s", namePrefix, option->name,
-             (int) ( 30 - strlen ( option->name ) ), "" );
-    switch ( option->type )
-    {
-    case xrm_Number:
-        printf ( "%u", *( option->value.num ) );
-        break;
-    case xrm_SNumber:
-        printf ( "%i", *( option->value.snum ) );
-        break;
-    case xrm_String:
-        if ( ( *( option->value.str ) ) != NULL ) {
-            printf ( "%s", *( option->value.str ) );
-        }
-        break;
-    case xrm_Boolean:
-        printf ( "%s", ( *( option->value.num ) == TRUE ) ? "true" : "false" );
-        break;
-    case xrm_Char:
-        if ( *( option->value.charc ) > 32 && *( option->value.charc ) < 127 ) {
-            printf ( "%c", *( option->value.charc ) );
-        }
-        else {
-            printf ( "\\x%02X", *( option->value.charc ) );
-        }
-        break;
-    default:
-        break;
-    }
-    printf ( "\n" );
-}
-
-void config_parse_xresource_dump ( void )
-{
-    const char   * namePrefix = "rofi";
-    unsigned int entries      = sizeof ( xrmOptions ) / sizeof ( *xrmOptions );
-    for ( unsigned int i = 0; i < entries; ++i ) {
-        // Skip duplicates.
-        if ( ( i + 1 ) < entries ) {
-            if ( xrmOptions[i].value.str == xrmOptions[i + 1].value.str ) {
-                continue;
-            }
-        }
-        xresource_dump_entry ( namePrefix, &( xrmOptions[i] ) );
-    }
-    for ( unsigned int i = 0; i < num_extra_options; i++ ) {
-        xresource_dump_entry ( namePrefix, &( extra_options[i] ) );
-    }
-}
-
 static void config_parse_dump_config_option ( FILE *out, XrmOption *option )
 {
     if ( option->type == xrm_Char || option->source == CONFIG_DEFAULT ) {
