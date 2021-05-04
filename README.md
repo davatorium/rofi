@@ -40,14 +40,14 @@ Its main features are:
     *   SSH launcher mode
     *   Combi mode, allowing several modes to be merged into one list
 *   History-based ordering — last 25 choices are ordered on top based on use (optional)
-*   Levenshtein distance ordering of matches (optional)
+*   Levenshtein distance or fzf like sorting of matches (optional)
 *   Drop-in dmenu replacement
     *   Many added improvements
-*   Easily extensible using scripts
-*   Theming
+*   Easily extensible using scripts and plugins
+*   Advanced Theming
 
 **Rofi** has several built-in modi implementing common use cases and can be extended by scripts (either called from
-**Rofi** or calling **Rofi**).
+**Rofi** or calling **Rofi**) or plugins.
 
 Below is a list of the different modi:
 
@@ -86,5 +86,5 @@ Rofi is not:
 *   A UI toolkit.
 *   A library to be used in other applications.
 *   An application that can support every possible use-case. It tries to be generic enough to be usable by everybody.
-    Specific functionality can be added using scripts.
+    * Specific functionality can be added using scripts or plugins.
 *   Just a dmenu replacement. The dmenu functionality is a nice 'extra' to **rofi**, not its main purpose.
