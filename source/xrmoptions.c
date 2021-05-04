@@ -45,7 +45,6 @@
 /** Different sources of configuration. */
 const char * const ConfigSourceStr[] = {
     "Default",
-    "XResources",
     "File",
     "Rasi File",
     "Commandline",
@@ -54,10 +53,9 @@ const char * const ConfigSourceStr[] = {
 enum ConfigSource
 {
     CONFIG_DEFAULT    = 0,
-    CONFIG_XRESOURCES = 1,
-    CONFIG_FILE       = 2,
-    CONFIG_FILE_THEME = 3,
-    CONFIG_CMDLINE    = 4
+    CONFIG_FILE       = 1,
+    CONFIG_FILE_THEME = 2,
+    CONFIG_CMDLINE    = 3
 };
 
 typedef struct
@@ -335,15 +333,7 @@ static void __config_parse_xresource_options_dynamic ( xcb_xrm_database_t *xDB, 
         g_free ( name );
     }
 }
-void config_parse_xresource_options ( xcb_stuff *xcb )
-{
-    xcb_xrm_database_t *xDB = xcb_xrm_database_from_default ( xcb->connection );
-    if ( xDB ) {
-        __config_parse_xresource_options ( xDB, CONFIG_XRESOURCES );
-        __config_parse_xresource_options_dynamic ( xDB, CONFIG_XRESOURCES );
-        xcb_xrm_database_free ( xDB );
-    }
-}
+
 void config_parse_xresource_options_file ( const char *filename )
 {
     if ( !filename ) {
