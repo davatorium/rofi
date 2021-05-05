@@ -38,7 +38,20 @@
 /** #Mode object representing the run dialog. */
 extern Mode file_browser_mode;
 
+/**
+ * Create a new filebrowser.
+ * @returns a new filebrowser structure.
+ */
 Mode *create_new_file_browser ( void );
+/**
+ * @param sw Mode object.
+ * @param mretv return value passed in.
+ * @param input The user input string.
+ * @param selected_list The user selected line.
+ * @param path The full path as output.
+ *
+ * @returns the state the user selected.
+ */
 ModeMode file_browser_mode_completer ( Mode *sw, int mretv, char **input, unsigned int selected_line, char **path );
 /**@}*/
 #endif // ROFI_DIALOG_FILE_BROWSER_H

@@ -58,6 +58,7 @@ enum FBFileType
     RFILE,
     NUM_FILE_TYPES,
 };
+/** Icons to use for the file type  */
 const char *icon_name[NUM_FILE_TYPES] =
 {
     "go-up",

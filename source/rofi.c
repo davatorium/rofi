@@ -119,6 +119,7 @@ static int      dmenu_mode = FALSE;
 /** Rofi's return code */
 int             return_code = EXIT_SUCCESS;
 
+/** Flag indicating we are using old config format. */
 static gboolean old_config_format = FALSE;
 
 void process_result ( RofiViewState *state );

@@ -163,14 +163,22 @@ void rofi_icon_fetcher_destroy ( void )
  *     Copyright (C) 2011-2018 Red Hat, Inc.
  */
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
+/** Location of red byte */
 #define RED_BYTE      2
+/** Location of green byte */
 #define GREEN_BYTE    1
+/** Location of blue byte */
 #define BLUE_BYTE     0
+/** Location of alpha byte */
 #define ALPHA_BYTE    3
 #else
+/** Location of red byte */
 #define RED_BYTE      1
+/** Location of green byte */
 #define GREEN_BYTE    2
+/** Location of blue byte */
 #define BLUE_BYTE     3
+/** Location of alpha byte */
 #define ALPHA_BYTE    0
 #endif
 

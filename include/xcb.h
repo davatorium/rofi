@@ -127,7 +127,16 @@ typedef struct _workarea
  */
 int monitor_active ( workarea *mon );
 
+/**
+ * @param w rofis window
+ *
+ * Stores old input focus for reverting and set focus to rofi.
+ */
 void rofi_xcb_set_input_focus(xcb_window_t w);
+
+/**
+ * IF set, revert the focus back to the original applications.
+ */
 void rofi_xcb_revert_input_focus(void);
 
 /**
@@ -194,5 +203,13 @@ extern WindowManagerQuirk current_window_manager;
  * @returns NULL if window was not found, or unmapped, otherwise returns a cairo_surface.
  */
 cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size );
+
+/**
+ * @param surface
+ * @param radius
+ * @param deviation
+ *
+ * Blur the content of the surface with radius and deviation.
+ */
 void cairo_image_surface_blur(cairo_surface_t* surface, double radius, double deviation);
 #endif

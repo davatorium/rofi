@@ -45,6 +45,13 @@ uint32_t rofi_icon_fetcher_query ( const char *name, const int size );
  */
 cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid );
 
+/**
+ * @param path the image path to check.
+ *
+ * Checks if a file is a supported image. (by looking at extension).
+ *
+ * @returns true if image, false otherwise.
+ */
 gboolean rofi_icon_fetcher_file_is_image ( const char * const path );
 /** @} */
 #endif // ROFI_ICON_FETCHER_H
