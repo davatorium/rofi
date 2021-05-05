@@ -240,7 +240,24 @@ gchar *rofi_escape_markup ( gchar *text );
  * @param str       The input to match against pattern.
  * @param slen      Length of str.
  *
- * FZF like fuzzy sorting algorithm.
+ *  rofi_scorer_fuzzy_evaluate implements a global sequence alignment algorithm to find the maximum accumulated score by
+ *  aligning `pattern` to `str`. It applies when `pattern` is a subsequence of `str`.
+ *
+ *  Scoring criteria
+ *  - Prefer matches at the start of a word, or the start of subwords in CamelCase/camelCase/camel123 words. See WORD_START_SCORE/CAMEL_SCORE.
+ *  - Non-word characters matter. See NON_WORD_SCORE.
+ *  - The first characters of words of `pattern` receive bonus because they usually have more significance than the rest.
+ *  See PATTERN_START_MULTIPLIER/PATTERN_NON_START_MULTIPLIER.
+ *  - Superfluous characters in `str` will reduce the score (gap penalty). See GAP_SCORE.
+ *  - Prefer early occurrence of the first character. See LEADING_GAP_SCORE/GAP_SCORE.
+ *
+ *  The recurrence of the dynamic programming:
+ *  dp[i][j]: maximum accumulated score by aligning pattern[0..i] to str[0..j]
+ *  dp[0][j] = leading_gap_penalty(0, j) + score[j]
+ *  dp[i][j] = max(dp[i-1][j-1] + CONSECUTIVE_SCORE, max(dp[i-1][k] + gap_penalty(k+1, j) + score[j] : k < j))
+ *
+ *  The first dimension can be suppressed since we do not need a matching scheme, which reduces the space complexity from
+ *  O(N*M) to O(M)
  *
  * @returns the sorting weight.
  */
@@ -330,12 +347,22 @@ cairo_surface_t *cairo_image_surface_create_from_svg ( const gchar* file, int he
 void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length );
 
 /**
- * @param format The format string
- * @param string The string
- * @param selected_line selected line
- * @param filter filter stringr
+ * @param format The format string used. See below for possible syntax.
+ * @param string The selected entry.
+ * @param selected_line The selected line index.
+ * @param filter The entered filter.
  *
- * Output formatted line
+ * Function that outputs the selected line in the user-specified format.
+ * Currently the following formats are supported:
+ *   * i: Print the index (0-(N-1))
+ *   * d: Print the index (1-N)
+ *   * s: Print input string.
+ *   * q: Print quoted input string.
+ *   * f: Print the entered filter.
+ *   * F: Print the entered filter, quoted
+ *
+ * This functions outputs the formatted string to stdout, appends a newline (\n) character and
+ * calls flush on the file descriptor.
  */
 void rofi_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter );
 
