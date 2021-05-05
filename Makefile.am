@@ -642,5 +642,4 @@ EXTRA_DIST += \
 	subprojects/libnkutils/meson_options.txt \
 	subprojects/libgwater/xcb/meson.build \
 	meson_options.txt \
-  subprojects/xcb \
 	meson.build
