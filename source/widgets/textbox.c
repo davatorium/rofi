@@ -55,8 +55,8 @@ static PangoContext     *p_context = NULL;
 /** The pango font metrics */
 static PangoFontMetrics *p_metrics = NULL;
 
-/* Default tbfc */
-TBFontConfig *tbfc_default = NULL;
+/** Default tbfc */
+static TBFontConfig *tbfc_default = NULL;
 
 /** HashMap of previously parsed font descriptions. */
 static GHashTable *tbfc_cache = NULL;

@@ -33,6 +33,7 @@
 
 /** Default padding. */
 #define WIDGET_DEFAULT_PADDING    0
+/** macro for initializing the padding struction. */
 #define WIDGET_PADDING_INIT       { { WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL, NULL }, ROFI_HL_SOLID }
 
 /* Corner radius - tl, tr, br, bl */

@@ -227,11 +227,19 @@ void rofi_capture_screenshot ( void )
  * Code used for benchmarking drawing the gui, this will keep updating the UI as fast as possible.
  */
 gboolean do_bench = TRUE;
-struct
+
+/**
+ * Internal structure that hold benchmarking information.
+ */
+static struct
 {
+    /** timer used for timestamping. */
     GTimer   *time;
+    /** number of draws done. */
     uint64_t draws;
+    /** previous timestamp */
     double   last_ts;
+    /** minimum draw time. */
     double   min;
 } BenchMark = {
     .time    = NULL,
