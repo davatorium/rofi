@@ -47,7 +47,7 @@ Mode *create_new_file_browser ( void );
  * @param sw Mode object.
  * @param mretv return value passed in.
  * @param input The user input string.
- * @param selected_list The user selected line.
+ * @param selected_line The user selected line.
  * @param path The full path as output.
  *
  * @returns the state the user selected.

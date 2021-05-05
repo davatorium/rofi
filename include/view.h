@@ -33,7 +33,11 @@
  * @defgroup View View
  *
  * The rofi Menu view.
- *
+ * @{
+ * @}
+ */
+
+/**
  * @defgroup ViewHandle ViewHandle
  * @ingroup View
  *
@@ -304,9 +308,11 @@ void rofi_view_workers_initialize ( void );
 void rofi_view_workers_finalize ( void );
 
 /**
+ * @param width the width of the monitor.
+ * @param height the height of the monitor.
+ *
  * Return the current monitor workarea.
  *
- * @returns the current monitor workarea
  */
 void rofi_view_get_current_monitor ( int *width, int *height );
 
@@ -323,5 +329,5 @@ void rofi_view_set_window_title ( const char * title  );
  * set ellipsize mode to start.
  */
 void rofi_view_ellipsize_start ( RofiViewState *state );
-/** @}*/
+/** @} */
 #endif

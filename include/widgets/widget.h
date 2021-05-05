@@ -244,7 +244,7 @@ int widget_get_x_pos ( widget *widget );
  * @param x A pointer to the absolute X coordinates
  * @param y A pointer to the absolute Y coordinates
  *
- * Will modify @param x and @param y to make them relative to @param widget .
+ * Will modify param x and param y to make them relative to param widget .
  */
 void widget_xy_to_relative ( widget *widget, gint *x, gint *y );
 
@@ -288,7 +288,7 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y 
  * @param y A pointer to the y coordinate of the click
  *
  * Trigger an action on widget.
- * @param x and @param y are relative to @param wid .
+ * param x and param y are relative to param wid .
  *
  * @returns Whether the action was handled or not
  */

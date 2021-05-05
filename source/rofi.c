@@ -477,11 +477,6 @@ static void cleanup ()
  * Collected modi
  */
 
-/**
- * @param name Search for mode with this name.
- *
- * @return returns Mode * when found, NULL if not.
- */
 Mode * rofi_collect_modi_search ( const char *name )
 {
     for ( unsigned int i = 0; i < num_available_modi; i++ ) {
