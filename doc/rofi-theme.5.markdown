@@ -306,7 +306,7 @@ text-color: Black;
 
 ## Text style
 
-* Format: `(bold|italic|underline|strikethrough|none)`
+* Format: `(bold|italic|underline|strikethrough|small caps|snone)`
 
 Text style indicates how the highlighted text is emphasized. `None` indicates that no emphasis
 should be applied.
