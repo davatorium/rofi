@@ -266,7 +266,9 @@ static ModeMode file_browser_mode_result ( Mode *sw, int mretv, char **input, un
             }
             else if ( pd->array[selected_line].type == RFILE ) {
                 char *d   = g_filename_from_utf8 ( pd->array[selected_line].path, -1, NULL, NULL, NULL );
-                char *cmd = g_strdup_printf ( "xdg-open '%s'", d );
+                char *d_esc = g_shell_quote(d);
+                char *cmd = g_strdup_printf ( "xdg-open %s", d_esc );
+                g_free(d_esc);
                 g_free ( d );
                 char *cdir = g_file_get_path ( pd->current_dir );
                 helper_execute_command ( cdir, cmd, FALSE, NULL );
