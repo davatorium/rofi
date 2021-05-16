@@ -176,6 +176,28 @@ cairo_surface_t *x11_helper_get_screenshot_surface ( void );
 void x11_disable_decoration ( xcb_window_t window );
 
 /**
+ * List of cursor types.
+ */
+typedef enum
+{
+    /** Default arrow cursor */
+    CURSOR_DEFAULT = 0,
+    /** Cursor denoting a clickable area */
+    CURSOR_POINTER,
+    /** Cursor denoting an input field / selectable text */
+    CURSOR_TEXT,
+    NUM_CURSORS
+} CursorType;
+
+/**
+ * @param window
+ * @param type
+ *
+ * Change mouse cursor
+ */
+void x11_set_cursor( xcb_window_t window, CursorType type );
+
+/**
  * List of window managers that need different behaviour to functioning.
  */
 typedef enum
@@ -212,4 +234,5 @@ cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window,
  * Blur the content of the surface with radius and deviation.
  */
 void cairo_image_surface_blur(cairo_surface_t* surface, double radius, double deviation);
+
 #endif

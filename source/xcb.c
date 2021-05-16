@@ -45,6 +45,7 @@
 #include <xcb/xinerama.h>
 #include <xcb/xcb_ewmh.h>
 #include <xcb/xproto.h>
+#include <xcb/xcb_cursor.h>
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-x11.h>
@@ -70,6 +71,7 @@
 
 /** Checks if the if x and y is inside rectangle. */
 #define INTERSECT( x, y, x1, y1, w1, h1 )    ( ( ( ( x ) >= ( x1 ) ) && ( ( x ) < ( x1 + w1 ) ) ) && ( ( ( y ) >= ( y1 ) ) && ( ( y ) < ( y1 + h1 ) ) ) )
+
 WindowManagerQuirk current_window_manager = WM_EWHM;
 
 /**
@@ -97,6 +99,12 @@ xcb_colormap_t   map     = XCB_COLORMAP_NONE;
 static xcb_visualtype_t *root_visual = NULL;
 xcb_atom_t              netatoms[NUM_NETATOMS];
 const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
+
+xcb_cursor_t cursors[NUM_CURSORS] = { XCB_CURSOR_NONE, XCB_CURSOR_NONE, XCB_CURSOR_NONE };
+
+const char *default_cursor_names[] = { "left_ptr", "arrow", "dnd-none", "op_left_arrow" };
+const char *pointer_cursor_names[] = { "pointing_hand", "pointer", "hand", "hand1", "hand2", "e29285e634086352946a0e7090d73106", "9d800788f1b08800ae810202380a0822" };
+const char    *text_cursor_names[] = { "text", "060c183030e17efd0408102040c08602" };
 
 static xcb_visualtype_t * lookup_visual ( xcb_screen_t   *s, xcb_visualid_t visual )
 {
@@ -1504,6 +1512,40 @@ static void x11_create_visual_and_colormap ( void )
     }
 }
 
+static void x11_lookup_cursors ( void ) {
+    xcb_cursor_context_t *ctx;
+
+    if ( xcb_cursor_context_new( xcb->connection, xcb->screen, &ctx ) < 0 ) {
+      return;
+    }
+
+    for ( int i = 0; i < sizeof ( default_cursor_names ) / sizeof ( default_cursor_names[0] ); ++i ) {
+        cursors[CURSOR_DEFAULT] = xcb_cursor_load_cursor ( ctx, default_cursor_names[i] );
+
+        if (cursors[CURSOR_DEFAULT] != XCB_CURSOR_NONE) {
+            break;
+        }
+    }
+
+    for ( int i = 0; i < sizeof ( pointer_cursor_names ) / sizeof ( pointer_cursor_names[0] ); ++i ) {
+        cursors[CURSOR_POINTER] = xcb_cursor_load_cursor ( ctx, pointer_cursor_names[i] );
+
+        if (cursors[CURSOR_POINTER] != XCB_CURSOR_NONE) {
+            break;
+        }
+    }
+
+    for ( int i = 0; i < sizeof ( text_cursor_names ) / sizeof ( text_cursor_names[0] ); ++i ) {
+        cursors[CURSOR_TEXT] = xcb_cursor_load_cursor ( ctx, text_cursor_names[i] );
+
+        if (cursors[CURSOR_TEXT] != XCB_CURSOR_NONE) {
+            break;
+        }
+    }
+
+    xcb_cursor_context_free ( ctx );
+}
+
 /** Retry count of grabbing keyboard. */
 unsigned int lazy_grab_retry_count_kb = 0;
 /** Retry count of grabbing pointer. */
@@ -1539,6 +1581,8 @@ static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
 gboolean display_late_setup ( void )
 {
     x11_create_visual_and_colormap ();
+
+    x11_lookup_cursors ();
 
     /**
      * Create window (without showing)
@@ -1632,4 +1676,17 @@ void x11_disable_decoration ( xcb_window_t window )
 
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
+}
+
+void x11_set_cursor ( xcb_window_t window, CursorType type )
+{
+    if ( type < 0 || type >= NUM_CURSORS ) {
+        return;
+    }
+
+    if ( cursors[type] == XCB_CURSOR_NONE ) {
+      return;
+    }
+
+    xcb_change_window_attributes ( xcb->connection, window, XCB_CW_CURSOR, &(cursors[type]) );
 }

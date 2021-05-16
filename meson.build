@@ -66,6 +66,7 @@ deps += [
     dependency('xcb-icccm'),
     dependency('xcb-xrm'),
     dependency('xcb-randr'),
+    dependency('xcb-cursor'),
     dependency('xcb-xinerama'),
     dependency('cairo-xcb'),
     dependency('libstartup-notification-1.0'),
