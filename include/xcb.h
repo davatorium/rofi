@@ -187,7 +187,7 @@ typedef enum
     /** Cursor denoting an input field / selectable text */
     CURSOR_TEXT,
     NUM_CURSORS
-} CursorType;
+} X11CursorType;
 
 /**
  * @param window
@@ -195,7 +195,7 @@ typedef enum
  *
  * Change mouse cursor
  */
-void x11_set_cursor( xcb_window_t window, CursorType type );
+void x11_set_cursor ( xcb_window_t window, X11CursorType type );
 
 /**
  * List of window managers that need different behaviour to functioning.

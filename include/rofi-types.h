@@ -33,6 +33,8 @@ typedef enum
     P_LIST,
     /** Orientation */
     P_ORIENTATION,
+    /** Cursor */
+    P_CURSOR,
     /** Inherit */
     P_INHERIT,
     /** Number of types. */
@@ -139,6 +141,16 @@ typedef enum
     ROFI_ORIENTATION_VERTICAL,
     ROFI_ORIENTATION_HORIZONTAL
 } RofiOrientation;
+
+/**
+ * Cursor type.
+ */
+typedef enum
+{
+    ROFI_CURSOR_DEFAULT,
+    ROFI_CURSOR_POINTER,
+    ROFI_CURSOR_TEXT
+} RofiCursorType;
 
 /**
  * Represent the color in theme.

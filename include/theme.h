@@ -217,6 +217,17 @@ int rofi_theme_get_boolean   (  const widget *widget, const char *property, int 
  * @returns The orientation of this property for this widget or %def not found.
  */
 RofiOrientation rofi_theme_get_orientation ( const widget *widget, const char *property, RofiOrientation def );
+
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param def      The default value.
+ *
+ * Obtain the cursor indicated by %property of the widget.
+ *
+ * @returns The cursor for this widget or %def if not found.
+ */
+RofiCursorType rofi_theme_get_cursor_type ( const widget *widget, const char *property, RofiCursorType def );
 /**
  * @param widget   The widget to query
  * @param property The property to query.

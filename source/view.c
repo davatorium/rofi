@@ -118,6 +118,8 @@ struct
     guint              repaint_source;
     /** Window fullscreen */
     gboolean           fullscreen;
+    /** Cursor type */
+    X11CursorType      cursor_type;
 } CacheState = {
     .main_window    = XCB_WINDOW_NONE,
     .fake_bg        = NULL,
@@ -1498,23 +1500,59 @@ void rofi_view_handle_text ( RofiViewState *state, char *text )
     }
 }
 
+static X11CursorType rofi_cursor_type_to_x11_cursor_type ( RofiCursorType type )
+{
+    switch ( type )
+    {
+    case ROFI_CURSOR_DEFAULT:
+        return CURSOR_DEFAULT;
+
+    case ROFI_CURSOR_POINTER:
+        return CURSOR_POINTER;
+
+    case ROFI_CURSOR_TEXT:
+        return CURSOR_TEXT;
+    }
+
+    return CURSOR_DEFAULT;
+}
+
+static RofiCursorType rofi_view_resolve_cursor ( RofiViewState *state, gint x, gint y ) {
+    widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), WIDGET_TYPE_UNKNOWN, x, y );
+
+    return target != NULL
+        ? target->cursor_type
+        : ROFI_CURSOR_DEFAULT;
+}
+
+static void rofi_view_set_cursor ( RofiCursorType type )
+{
+    X11CursorType x11_type = rofi_cursor_type_to_x11_cursor_type ( type );
+
+    if ( x11_type == CacheState.cursor_type ) {
+        return;
+    }
+
+    CacheState.cursor_type = x11_type;
+
+    x11_set_cursor ( CacheState.main_window, x11_type );
+}
+
 void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y, gboolean find_mouse_target )
 {
     state->mouse.x = x;
     state->mouse.y = y;
 
-    widget *target = NULL;
+    RofiCursorType cursor_type = rofi_view_resolve_cursor ( state, x, y );
 
-    if ( ( widget_find_mouse_target ( WIDGET ( state->main_window ), SCOPE_MOUSE_EDITBOX, x, y ) ) != NULL ) {
-        x11_set_cursor( CacheState.main_window, CURSOR_TEXT );
-    } else if ( ( target = widget_find_mouse_target ( WIDGET ( state->main_window ), SCOPE_MOUSE_LISTVIEW_ELEMENT, x, y ) ) != NULL ) {
-        x11_set_cursor( CacheState.main_window, CURSOR_POINTER );
+    rofi_view_set_cursor ( cursor_type );
 
-        if ( find_mouse_target ) {
+    if ( find_mouse_target ) {
+        widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), SCOPE_MOUSE_LISTVIEW_ELEMENT, x, y );
+
+        if ( target != NULL ) {
             state->mouse.motion_target = target;
         }
-    } else {
-        x11_set_cursor( CacheState.main_window, CURSOR_DEFAULT );
     }
 
     if ( state->mouse.motion_target != NULL ) {
@@ -1859,6 +1897,20 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     }
 }
 
+static void rofi_view_ping_mouse ( RofiViewState *state )
+{
+    xcb_query_pointer_cookie_t pointer_cookie = xcb_query_pointer ( xcb->connection, CacheState.main_window );
+    xcb_query_pointer_reply_t *pointer_reply  = xcb_query_pointer_reply ( xcb->connection, pointer_cookie, NULL );
+
+    if ( pointer_reply == NULL ) {
+        return;
+    }
+
+    rofi_view_handle_mouse_motion ( state, pointer_reply->win_x, pointer_reply->win_y, config.hover_select );
+
+    free ( pointer_reply );
+}
+
 RofiViewState *rofi_view_create ( Mode *sw,
                                   const char *input,
                                   MenuFlags menu_flags,
@@ -1929,6 +1981,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_update ( state, TRUE );
     xcb_map_window ( xcb->connection, CacheState.main_window );
     widget_queue_redraw ( WIDGET ( state->main_window ) );
+    rofi_view_ping_mouse ( state );
     xcb_flush ( xcb->connection );
 
     /* When Override Redirect, the WM will not let us know we can take focus, so just steal it */

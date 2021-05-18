@@ -1106,6 +1106,28 @@ START_TEST  ( test_properties_orientation_case )
 
 }
 END_TEST
+START_TEST  ( test_properties_cursor )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { def: default; ptr: pointer; txt: text; }");
+    ck_assert_int_eq ( rofi_theme_get_cursor_type( &wid, "def", ROFI_CURSOR_TEXT), ROFI_CURSOR_DEFAULT);
+    ck_assert_int_eq ( rofi_theme_get_cursor_type( &wid, "ptr", ROFI_CURSOR_DEFAULT), ROFI_CURSOR_POINTER);
+    ck_assert_int_eq ( rofi_theme_get_cursor_type( &wid, "txt", ROFI_CURSOR_DEFAULT), ROFI_CURSOR_TEXT);
+}
+END_TEST
+START_TEST  ( test_properties_cursor_case )
+{
+    widget wid;
+    wid.name = "blaat";
+    wid.state = NULL;
+    rofi_theme_parse_string ( "* { def: dEfault; ptr: POINter; txt: tExt; }");
+    ck_assert_int_eq ( rofi_theme_get_cursor_type( &wid, "def", ROFI_CURSOR_TEXT), ROFI_CURSOR_DEFAULT);
+    ck_assert_int_eq ( rofi_theme_get_cursor_type( &wid, "ptr", ROFI_CURSOR_DEFAULT), ROFI_CURSOR_POINTER);
+    ck_assert_int_eq ( rofi_theme_get_cursor_type( &wid, "txt", ROFI_CURSOR_DEFAULT), ROFI_CURSOR_TEXT);
+}
+END_TEST
 START_TEST  ( test_properties_list )
 {
     widget wid;
@@ -1374,6 +1396,13 @@ static Suite * theme_parser_suite (void)
         tcase_add_test ( tc_prop_orientation, test_properties_orientation);
         tcase_add_test ( tc_prop_orientation, test_properties_orientation_case );
         suite_add_tcase(s, tc_prop_orientation );
+    }
+    {
+        TCase *tc_prop_cursor = tcase_create("Propertiescursor");
+        tcase_add_checked_fixture(tc_prop_cursor, theme_parser_setup, theme_parser_teardown);
+        tcase_add_test ( tc_prop_cursor, test_properties_cursor);
+        tcase_add_test ( tc_prop_cursor, test_properties_cursor_case );
+        suite_add_tcase(s, tc_prop_cursor );
     }
     {
         TCase *tc_prop_list = tcase_create("Propertieslist");
