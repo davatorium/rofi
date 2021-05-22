@@ -35,6 +35,7 @@ element {
     padding: 1px ;
     spacing: 5px ;
     border:  0;
+    cursor: pointer;
 }
 element normal.normal {
     background-color: var(normal-background);
@@ -76,11 +77,13 @@ element-text {
     background-color: rgba ( 0, 0, 0, 0 % );
     text-color:       inherit;
     highlight:        inherit;
+    cursor:           inherit;
 }
 element-icon {
     background-color: rgba ( 0, 0, 0, 0 % );
     size:             1.0000em ;
     text-color:       inherit;
+    cursor:           inherit;
 }
 window {
     padding:          5;
@@ -121,6 +124,7 @@ sidebar {
 button {
     spacing:    0;
     text-color: var(normal-foreground);
+    cursor: pointer;
 }
 button selected {
     background-color: var(selected-normal-background);
@@ -151,6 +155,7 @@ entry {
     text-color: var(normal-foreground);
     placeholder-color: grey;
     placeholder: "Type to filter";
+    cursor: text;
 }
 prompt {
     spacing:    0;

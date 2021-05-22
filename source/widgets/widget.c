@@ -87,7 +87,9 @@ void widget_init ( widget *wid, widget *parent, WidgetType type, const char *nam
     wid->border_radius = rofi_theme_get_padding ( wid, "border-radius", wid->def_border_radius );
     wid->margin        = rofi_theme_get_padding ( wid, "margin", wid->def_margin );
 
-    // bled by default
+    wid->cursor_type   = rofi_theme_get_cursor_type ( wid, "cursor", ROFI_CURSOR_DEFAULT );
+
+    // enabled by default
     wid->enabled = rofi_theme_get_boolean ( wid, "enabled", TRUE );
 }
 
@@ -443,9 +445,11 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y 
             return target;
         }
     }
-    if ( wid->type == type ) {
+
+    if ( wid->type == type || type == WIDGET_TYPE_UNKNOWN ) {
         return wid;
     }
+
     return NULL;
 }
 

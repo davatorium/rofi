@@ -275,6 +275,8 @@ a reference
 .IP \(bu 2
 an orientation
 .IP \(bu 2
+a cursor
+.IP \(bu 2
 a list of keywords
 .IP \(bu 2
 an environment variable
@@ -754,6 +756,16 @@ Format: \fB\fC(horizontal|vertical)\fR
 .PP
 Specify the orientation of the widget.
 
+.SH Cursor
+.RS
+.IP \(bu 2
+Format: \fB\fC(default|pointer|text)\fR
+
+.RE
+
+.PP
+Specify the type of mouse cursor that is set when the mouse pointer is over the widget.
+
 .SH List of keywords
 .RS
 .IP \(bu 2
@@ -1012,6 +1024,9 @@ Background color
 .IP \(bu 2
 \fBborder\-color\fP:      color
 Color of the border
+.IP \(bu 2
+\fBcursor\fP:          cursor
+Type of mouse cursor that is set when the mouse pointer is hovered over the widget.
 
 .RE
 

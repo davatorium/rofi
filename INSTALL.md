@@ -40,6 +40,7 @@ You can also use [Meson](https://mesonbuild.com/) as an alternative.
 *   xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
 *   xcb-util-xrm [new module might not be available in your distribution. The source can be found
     here](https://github.com/Airblader/xcb-util-xrm/)
+*   xcb-util-cursor
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
 `<package>-devel`.

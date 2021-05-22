@@ -200,6 +200,10 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token ORIENTATION_HORI                 "Horizontal"
 %token ORIENTATION_VERT                 "Vertical"
 
+%token CURSOR_DEF                       "Default"
+%token CURSOR_PTR                       "Pointer"
+%token CURSOR_TXT                       "Text"
+
 %token T_COL_RGBA                       "rgb[a] colorscheme"
 %token T_COL_HSL                        "hsl colorscheme"
 %token T_COL_HWB                        "hwb colorscheme"
@@ -276,6 +280,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <list>           t_property_element_list
 %type <list>           t_property_element_list_optional
 %type <ival>           t_property_orientation
+%type <ival>           t_property_cursor
 %type <ival>           t_name_prefix_optional
 %start t_main
 
@@ -510,6 +515,10 @@ t_property_element
 }
 | t_property_orientation {
         $$ = rofi_theme_property_create ( P_ORIENTATION );
+        $$->value.i = $1;
+}
+| t_property_cursor {
+        $$ = rofi_theme_property_create ( P_CURSOR );
         $$->value.i = $1;
 }
 ;
@@ -844,6 +853,12 @@ t_property_color_value
 t_property_orientation
 : ORIENTATION_HORI {  $$ = ROFI_ORIENTATION_HORIZONTAL; }
 | ORIENTATION_VERT {  $$ = ROFI_ORIENTATION_VERTICAL;   }
+;
+
+t_property_cursor
+: CURSOR_DEF {  $$ = ROFI_CURSOR_DEFAULT; }
+| CURSOR_PTR {  $$ = ROFI_CURSOR_POINTER; }
+| CURSOR_TXT {  $$ = ROFI_CURSOR_TEXT; }
 ;
 
 /** Property name */

@@ -359,6 +359,13 @@ const char * const WindowLocationStr[9] = {
     "west"
 };
 
+/** Textual representation of RofiCursorType */
+const char *const RofiCursorTypeStr[3] = {
+    "default",
+    "pointer",
+    "text",
+};
+
 static void int_rofi_theme_print_property ( Property *p )
 {
     switch ( p->type )
@@ -375,6 +382,9 @@ static void int_rofi_theme_print_property ( Property *p )
         break;
     case P_ORIENTATION:
         printf ( "%s", ( p->value.i == ROFI_ORIENTATION_HORIZONTAL ) ? "horizontal" : "vertical" );
+        break;
+    case P_CURSOR:
+        printf ( "%s", RofiCursorTypeStr[p->value.i] );
         break;
     case P_HIGHLIGHT:
         if ( p->value.highlight.style & ROFI_HL_BOLD ) {
@@ -810,6 +820,22 @@ RofiOrientation rofi_theme_get_orientation ( const widget *widget, const char *p
             return def;
         }
         return p->value.b;
+    }
+    g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    return def;
+}
+RofiCursorType rofi_theme_get_cursor_type ( const widget *widget, const char *property, RofiCursorType def )
+{
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property    *p   = rofi_theme_find_property ( wid, P_CURSOR, property, FALSE );
+    if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                return rofi_theme_get_cursor_type ( widget->parent, property, def );
+            }
+            return def;
+        }
+        return p->value.i;
     }
     g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     return def;
