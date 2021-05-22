@@ -712,6 +712,13 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
     DRunModeEntry *db = (DRunModeEntry *) b;
 
     if ( da->sort_index < 0 && db->sort_index < 0 ) {
+        if ( da->name == NULL && db->name == NULL ) {
+            return 0;
+        } else if ( da->name == NULL ) {
+            return -1;
+        } else if ( db->name == NULL ) {
+            return 1;
+        }
         return g_utf8_collate ( da->name, db->name );
     }
     else {
