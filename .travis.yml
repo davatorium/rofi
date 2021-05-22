@@ -35,6 +35,7 @@ addons:
       - libxcb-xinerama0-dev
       - libxcb-xkb-dev
       - libxcb-xrm-dev
+      - libxcb-cursor-dev
       - libxkbcommon-dev
       - libxkbcommon-dev
       - libxkbcommon-x11-dev

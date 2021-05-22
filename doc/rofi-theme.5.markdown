@@ -189,6 +189,7 @@ The current theme format supports different types:
  * a position
  * a reference
  * an orientation
+ * a cursor
  * a list of keywords
  * an environment variable
  * Inherit
@@ -462,6 +463,12 @@ window {
 
 Specify the orientation of the widget.
 
+## Cursor
+
+ * Format: `(default|pointer|text)`
+
+Specify the type of mouse cursor that is set when the mouse pointer is over the widget.
+
 ## List of keywords
 
 * Format: `[ keyword, keyword ]`
@@ -620,6 +627,8 @@ The following properties are currently supported:
   Background color
 * **border-color**:      color
   Color of the border
+* **cursor**:      cursor
+  Type of mouse cursor that is set when the mouse pointer is hovered over the widget.
 
 ### window:
 

@@ -118,6 +118,8 @@ struct
     guint              repaint_source;
     /** Window fullscreen */
     gboolean           fullscreen;
+    /** Cursor type */
+    X11CursorType      cursor_type;
 } CacheState = {
     .main_window    = XCB_WINDOW_NONE,
     .fake_bg        = NULL,
@@ -722,7 +724,7 @@ static void rofi_view_setup_fake_transparency ( widget *win, const char* const f
             }
             else {
                 CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, CacheState.mon.w, CacheState.mon.h );
-                
+
                 int blur = rofi_theme_get_integer ( WIDGET ( win ), "blur", 0 );
                 cairo_t *dr = cairo_create ( CacheState.fake_bg );
                 if ( CacheState.fake_bgrel ) {
@@ -748,10 +750,8 @@ void __create_window ( MenuFlags menu_flags )
     uint32_t selmask         = XCB_CW_BACK_PIXMAP | XCB_CW_BORDER_PIXEL | XCB_CW_BIT_GRAVITY | XCB_CW_BACKING_STORE | XCB_CW_EVENT_MASK | XCB_CW_COLORMAP;
     uint32_t xcb_event_masks = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE |
                                XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEYMAP_STATE |
-                               XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION;
-    if ( config.hover_select == TRUE ) {
-        xcb_event_masks |= XCB_EVENT_MASK_POINTER_MOTION;
-    }
+                               XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_BUTTON_1_MOTION | XCB_EVENT_MASK_POINTER_MOTION;
+
     uint32_t          selval[] = {
         XCB_BACK_PIXMAP_NONE,         0,
         XCB_GRAVITY_STATIC,
@@ -1500,19 +1500,65 @@ void rofi_view_handle_text ( RofiViewState *state, char *text )
     }
 }
 
+static X11CursorType rofi_cursor_type_to_x11_cursor_type ( RofiCursorType type )
+{
+    switch ( type )
+    {
+    case ROFI_CURSOR_DEFAULT:
+        return CURSOR_DEFAULT;
+
+    case ROFI_CURSOR_POINTER:
+        return CURSOR_POINTER;
+
+    case ROFI_CURSOR_TEXT:
+        return CURSOR_TEXT;
+    }
+
+    return CURSOR_DEFAULT;
+}
+
+static RofiCursorType rofi_view_resolve_cursor ( RofiViewState *state, gint x, gint y ) {
+    widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), WIDGET_TYPE_UNKNOWN, x, y );
+
+    return target != NULL
+        ? target->cursor_type
+        : ROFI_CURSOR_DEFAULT;
+}
+
+static void rofi_view_set_cursor ( RofiCursorType type )
+{
+    X11CursorType x11_type = rofi_cursor_type_to_x11_cursor_type ( type );
+
+    if ( x11_type == CacheState.cursor_type ) {
+        return;
+    }
+
+    CacheState.cursor_type = x11_type;
+
+    x11_set_cursor ( CacheState.main_window, x11_type );
+}
+
 void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y, gboolean find_mouse_target )
 {
     state->mouse.x = x;
     state->mouse.y = y;
+
+    RofiCursorType cursor_type = rofi_view_resolve_cursor ( state, x, y );
+
+    rofi_view_set_cursor ( cursor_type );
+
     if ( find_mouse_target ) {
         widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), SCOPE_MOUSE_LISTVIEW_ELEMENT, x, y );
+
         if ( target != NULL ) {
             state->mouse.motion_target = target;
         }
     }
+
     if ( state->mouse.motion_target != NULL ) {
         widget_xy_to_relative ( state->mouse.motion_target, &x, &y );
         widget_motion_notify ( state->mouse.motion_target, x, y );
+
         if ( find_mouse_target ) {
             state->mouse.motion_target = NULL;
         }
@@ -1851,6 +1897,20 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     }
 }
 
+static void rofi_view_ping_mouse ( RofiViewState *state )
+{
+    xcb_query_pointer_cookie_t pointer_cookie = xcb_query_pointer ( xcb->connection, CacheState.main_window );
+    xcb_query_pointer_reply_t *pointer_reply  = xcb_query_pointer_reply ( xcb->connection, pointer_cookie, NULL );
+
+    if ( pointer_reply == NULL ) {
+        return;
+    }
+
+    rofi_view_handle_mouse_motion ( state, pointer_reply->win_x, pointer_reply->win_y, config.hover_select );
+
+    free ( pointer_reply );
+}
+
 RofiViewState *rofi_view_create ( Mode *sw,
                                   const char *input,
                                   MenuFlags menu_flags,
@@ -1921,6 +1981,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_update ( state, TRUE );
     xcb_map_window ( xcb->connection, CacheState.main_window );
     widget_queue_redraw ( WIDGET ( state->main_window ) );
+    rofi_view_ping_mouse ( state );
     xcb_flush ( xcb->connection );
 
     /* When Override Redirect, the WM will not let us know we can take focus, so just steal it */
