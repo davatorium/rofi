@@ -348,7 +348,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
 #endif
     printf ( "              Bugreports: %s"PACKAGE_BUGREPORT "%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     printf ( "                 Support: %s"PACKAGE_URL "%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
-    printf ( "                          %s#rofi @ freenode.net%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
+    printf ( "                          %s#rofi @ libera.chat%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     if ( find_arg ( "-no-config" ) < 0 ) {
         if ( config_path_new ) {
             printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path_new, is_term ? color_reset : "" );

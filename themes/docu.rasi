@@ -30,6 +30,7 @@ entry {
     placeholder-color: darkgrey;
     /** inherit font setting from parent */
     font: inherit;
+    cursor: text;
 }
 
 /**
@@ -69,6 +70,7 @@ button {
     border-color: darkgrey;
     /** inherit font setting from parent */
     font: inherit;
+    cursor: pointer;
 }
 
 /**
@@ -156,6 +158,7 @@ element {
     border-color:     darkgrey;
     background-color: grey;
     /** 4 px padding on the inside of border */
+    cursor: pointer;
     padding:          4px;
 }
 
@@ -170,10 +173,12 @@ element selected {
 element-icon {
     /** change size to 128 pixels. */
     size: 128px;
+    cursor: inherit;
 }
 
 /** Entry text */
 element-text {
     /* align font in (horizontally) center */
     horizontal-align: 0.5;
+    cursor: inherit;
 }
