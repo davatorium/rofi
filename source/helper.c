@@ -54,6 +54,7 @@
 #include "settings.h"
 #include "rofi.h"
 #include "view.h"
+#include "keyb.h"
 
 /**
  * Textual description of positioning rofi.
@@ -178,6 +179,23 @@ static gchar *fuzzy_to_regex ( const char * input )
     g_string_free ( str, FALSE );
     return retv;
 }
+static gchar *all_kb_layouts_to_regex ( const char * input )
+{
+    GString *str = g_string_new ( "" );
+    gchar   *iter;
+    for ( iter = input; iter && *iter != '\0'; iter = g_utf8_next_char ( iter ) ) {
+        gchar *kblchs = kbl_charmap_for_char ( iter );
+        gchar *r      = g_regex_escape_string ( kblchs, -1 );
+
+        g_string_append_printf ( str, "[%s]", r );
+        g_free ( kblchs );
+        g_free ( r );
+    }
+
+    gchar *retv = str->str;
+    g_string_free ( str, FALSE );
+    return retv;
+}
 
 static char *utf8_helper_simplify_string ( const char *s )
 {
@@ -245,6 +263,11 @@ static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
         break;
     case MM_FUZZY:
         r    = fuzzy_to_regex ( input );
+        retv = R ( r, case_sensitive );
+        g_free ( r );
+        break;
+    case MM_ALL_KB_LAYOUTS:
+        r    = all_kb_layouts_to_regex ( input );
         retv = R ( r, case_sensitive );
         g_free ( r );
         break;
@@ -629,11 +652,14 @@ int config_sanity_check ( void )
         else if ( g_strcmp0 ( config.matching, "fuzzy" ) == 0 ) {
             config.matching_method = MM_FUZZY;
         }
+        else if ( g_strcmp0 ( config.matching, "all_kb_layouts" ) == 0 ) {
+            config.matching_method = MM_ALL_KB_LAYOUTS;
+        }
         else if ( g_strcmp0 ( config.matching, "normal" ) == 0 ) {
             config.matching_method = MM_NORMAL;;
         }
         else {
-            g_string_append_printf ( msg, "\t<b>config.matching</b>=%s is not a valid matching strategy.\nValid options are: glob, regex, fuzzy or normal.\n",
+            g_string_append_printf ( msg, "\t<b>config.matching</b>=%s is not a valid matching strategy.\nValid options are: glob, regex, fuzzy, all_kb_layouts or normal.\n",
                                      config.matching );
             found_error = 1;
         }

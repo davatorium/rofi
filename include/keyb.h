@@ -184,5 +184,23 @@ gboolean parse_keys_abe ( NkBindings *bindings );
  */
 void setup_abe ( void );
 
+/**
+ * Load the charmap from a keymap
+ */
+void kbl_charmap_load_from_keymap ( struct xkb_keymap *keymap );
+
+/**
+ * Cleanup the charmap
+ */
+void kbl_charmap_cleanup ( void );
+
+/**
+ * Allocate and initialize an input buffer state.
+ * @param chr character in utf8.
+ *
+ * @return the allocated string containing corresponding characters
+ */
+gchar *kbl_charmap_for_char ( const gchar *chr );
+
 /**@}*/
 #endif // ROFI_KEYB_H

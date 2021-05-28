@@ -148,6 +148,7 @@ rofi_sources = files(
         'source/view.c',
         'source/mode.c',
         'source/keyb.c',
+        'source/keyb-layout.c',
         'config/config.c',
         'source/helper.c',
         'source/timings.c',
@@ -305,6 +306,7 @@ test('helper_pidfile test', executable('helper_pidfile.test', [
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
+        'source/keyb-layout.c',
     ]),
     dependencies: deps,
 ))
@@ -323,6 +325,7 @@ test('widget test', executable('widget.test', [
         'source/css-colors.c',
         'source/helper.c',
         'config/config.c',
+        'source/keyb-layout.c',
     ]),
     dependencies: deps,
 ))
@@ -372,6 +375,7 @@ test('textbox test', executable('textbox.test', [
         'source/css-colors.c',
         'source/helper.c',
         'config/config.c',
+        'source/keyb-layout.c',
     ]),
     dependencies: deps,
 ))
@@ -384,6 +388,7 @@ test('helper test', executable('helper.test', [
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
+        'source/keyb-layout.c',
     ]),
     dependencies: deps,
 ))
@@ -396,6 +401,7 @@ test('helper_expand test', executable('helper_expand.test', [
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
+        'source/keyb-layout.c',
     ]),
     dependencies: deps,
 ))
@@ -408,6 +414,7 @@ test('helper_config_cmdline_parser test', executable('helper_config_cmdline_pars
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
+        'source/keyb-layout.c',
     ]),
     dependencies: deps,
 ))
@@ -427,6 +434,7 @@ if check.found()
             'source/theme.c',
             'source/rofi-types.c',
             'source/css-colors.c',
+            'source/keyb-layout.c',
         ]),
         dependencies: deps,
     ))
@@ -442,6 +450,7 @@ if check.found()
             'source/xrmoptions.c',
             'source/rofi-types.c',
             'source/keyb.c',
+            'source/keyb-layout.c',
         ]),
         dependencies: deps,
     ))
@@ -454,6 +463,7 @@ if check.found()
             'source/helper.c',
             'source/xrmoptions.c',
             'source/rofi-types.c',
+            'source/keyb-layout.c',
         ]),
         dependencies: deps,
     ))
