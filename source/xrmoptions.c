@@ -169,7 +169,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "combi-modi",                { .str   = &config.combi_modi                           }, NULL,
       "Set the modi to combine in combi mode", CONFIG_DEFAULT },
     { xrm_String,  "matching",                  { .str   = &config.matching                             }, NULL,
-      "Set the matching algorithm. (normal, regex, glob, fuzzy)", CONFIG_DEFAULT },
+      "Set the matching algorithm. (normal, regex, glob, fuzzy, prefix)", CONFIG_DEFAULT },
     { xrm_Boolean, "tokenize",                  { .num   = &config.tokenize                             }, NULL,
       "Tokenize input string", CONFIG_DEFAULT },
     { xrm_String,  "monitor",                   { .str   = &config.monitor                              }, NULL,
