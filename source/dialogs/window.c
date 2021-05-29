@@ -109,6 +109,7 @@ typedef struct
     long                              hint_flags;
     uint32_t                          wmdesktop;
     char                              *wmdesktopstr;
+    int                               wmdesktopstr_len;
     cairo_surface_t                   *icon;
     gboolean                          icon_checked;
     uint32_t                          icon_fetch_uid;
@@ -332,20 +333,24 @@ static client* window_client ( ModeModePrivateData *pd, xcb_window_t win )
         xcb_ewmh_get_atoms_reply_wipe ( &states );
     }
 
-    c->title = window_get_text_prop ( c->window, xcb->ewmh._NET_WM_NAME );
-    if ( c->title == NULL ) {
-        c->title = window_get_text_prop ( c->window, XCB_ATOM_WM_NAME );
+    char *tmp_title = window_get_text_prop ( c->window, xcb->ewmh._NET_WM_NAME );
+    if ( tmp_title == NULL ) {
+        tmp_title = window_get_text_prop ( c->window, XCB_ATOM_WM_NAME );
     }
+    c->title      = g_markup_escape_text ( tmp_title, -1 );
     pd->title_len = MAX ( c->title ? g_utf8_strlen ( c->title, -1 ) : 0, pd->title_len );
+    g_free ( tmp_title );
 
-    c->role      = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
-    pd->role_len = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
+    char *tmp_role = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
+    c->role        = g_markup_escape_text ( tmp_role ? tmp_role : "", -1 );
+    pd->role_len   = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
+    g_free ( tmp_role );
 
     cky = xcb_icccm_get_wm_class ( xcb->connection, c->window );
     xcb_icccm_get_wm_class_reply_t wcr;
     if ( xcb_icccm_get_wm_class_reply ( xcb->connection, cky, &wcr, NULL ) ) {
-        c->class     = rofi_latin_to_utf8_strdup ( wcr.class_name, -1 );
-        c->name      = rofi_latin_to_utf8_strdup ( wcr.instance_name, -1 );
+        c->class     = g_markup_escape_text( wcr.class_name, -1 );
+        c->name      = g_markup_escape_text( wcr.instance_name, -1 );
         pd->name_len = MAX ( c->name ? g_utf8_strlen ( c->name, -1 ) : 0, pd->name_len );
         xcb_icccm_get_wm_class_reply_wipe ( &wcr );
     }
@@ -560,24 +565,30 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                             char *output = NULL;
                             if ( pango_parse_markup ( _window_name_list_entry ( names.strings, names.strings_len,
                                                                                 c->wmdesktop ), -1, 0, NULL, &output, NULL, NULL ) ) {
-                                c->wmdesktopstr = output;
+                                c->wmdesktopstr = g_strdup (  _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
+                                c->wmdesktopstr_len = g_utf8_strlen ( output, -1 );
+                                pd->wmdn_len = MAX ( pd->wmdn_len, c->wmdesktopstr_len );
+                                g_free ( output );
                             }
                             else {
                                 c->wmdesktopstr = g_strdup ( "Invalid name" );
+                                pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                             }
                         }
                         else {
-                            c->wmdesktopstr = g_strdup ( _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
+                            c->wmdesktopstr = g_markup_escape_text ( _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ), -1 );
+                            pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                         }
                     }
                     else {
                         c->wmdesktopstr = g_strdup_printf ( "%u", (uint32_t) c->wmdesktop );
+                        pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                     }
                 }
                 else {
                     c->wmdesktopstr = g_strdup ( "" );
+                    pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                 }
-                pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                 if ( cd && c->wmdesktop != current_desktop ) {
                     continue;
                 }
@@ -739,25 +750,28 @@ struct arg
     client                    *c;
 };
 
-static void helper_eval_add_str ( GString *str, const char *input, int l, int max_len )
+static void helper_eval_add_str ( GString *str, const char *input, int l, int max_len, int nc )
 {
     // g_utf8 does not work with NULL string.
     const char *input_nn = input ? input : "";
     // Both l and max_len are in characters, not bytes.
-    int        nc     = g_utf8_strlen ( input_nn, -1 );
-    int        spaces = 0;
+    int spaces = 0;
     if ( l == 0 ) {
         spaces = MAX ( 0, max_len - nc );
         g_string_append ( str, input_nn );
     }
     else {
         if ( nc > l ) {
-            int bl = g_utf8_offset_to_pointer ( input_nn, l ) - input_nn;
-            g_string_append_len ( str, input_nn, bl );
+            int bl    = g_utf8_offset_to_pointer ( input_nn, l ) - input_nn;
+            char *tmp = g_markup_escape_text ( input_nn, bl );
+            g_string_append ( str, tmp );
+            g_free ( tmp );
         }
         else {
-            spaces = l - nc;
-            g_string_append ( str, input_nn );
+            spaces    = l - nc;
+            char *tmp = g_markup_escape_text ( input_nn, -1 );
+            g_string_append ( str, tmp );
+            g_free ( tmp );
         }
     }
     while ( spaces-- ) {
@@ -782,20 +796,21 @@ static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer 
             }
         }
         if ( match[1] == 'w' ) {
-            helper_eval_add_str ( str, d->c->wmdesktopstr, l, d->pd->wmdn_len );
+            helper_eval_add_str ( str, d->c->wmdesktopstr, l, d->pd->wmdn_len, d->c->wmdesktopstr_len );
         }
         else if ( match[1] == 'c' ) {
-            helper_eval_add_str ( str, d->c->class, l, d->pd->clf_len );
+            helper_eval_add_str ( str, d->c->class, l, d->pd->clf_len, g_utf8_strlen ( d->c->class, -1 ) );
         }
         else if ( match[1] == 't' ) {
-            helper_eval_add_str ( str, d->c->title, l, d->pd->title_len );
+            helper_eval_add_str ( str, d->c->title, l, d->pd->title_len, g_utf8_strlen ( d->c->title, -1 ) );
         }
         else if ( match[1] == 'n' ) {
-            helper_eval_add_str ( str, d->c->name, l, d->pd->name_len );
+            helper_eval_add_str ( str, d->c->name, l, d->pd->name_len, g_utf8_strlen ( d->c->name, -1 ) );
         }
         else if ( match[1] == 'r' ) {
-            helper_eval_add_str ( str, d->c->role, l, d->pd->role_len );
+            helper_eval_add_str ( str, d->c->role, l, d->pd->role_len, g_utf8_strlen ( d->c->role, -1 ) );
         }
+        
         g_free ( match );
     }
     return FALSE;
@@ -821,6 +836,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
     if ( c->active ) {
         *state |= ACTIVE;
     }
+    *state |= MARKUP;
     return get_entry ? _generate_display_string ( rmpd, c ) : NULL;
 }
 
