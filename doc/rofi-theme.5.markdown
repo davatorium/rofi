@@ -316,9 +316,6 @@ should be applied.
  * `italic`: put the highlighted text in script type (slanted).
  * `underline`: put a line under the highlighted text.
  * `strikethrough`: put a line through the highlighted text.
- * `small caps`: emphasise the text using capitalization.
-
-> For some reason `small caps` does not work on some systems.
 
 ## Line style
 
