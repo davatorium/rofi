@@ -67,6 +67,7 @@ typedef enum
     DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED = 0,
     DRUN_DESKTOP_ENTRY_TYPE_APPLICATION,
     DRUN_DESKTOP_ENTRY_TYPE_LINK,
+    DRUN_DESKTOP_ENTRY_TYPE_SERVICE,
     DRUN_DESKTOP_ENTRY_TYPE_DIRECTORY,
 } DRunDesktopEntryType;
 
@@ -397,6 +398,10 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     else if ( !g_strcmp0 ( key, "Link" ) ) {
         desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_LINK;
     }
+    else if ( !g_strcmp0 ( key, "Service" ) ) {
+        desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_SERVICE;
+        g_debug("Service file detected.");
+    }
     else {
         g_debug ( "[%s] [%s] Skipping desktop file: Not of type Application or Link (%s)", id, path, key );
         g_free ( key );
@@ -467,6 +472,12 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION
          && !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
         g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present for type Application.", id, path );
+        g_key_file_free ( kf );
+        return;
+    }
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_SERVICE
+         && !g_key_file_has_key ( kf, DRUN_GROUP_NAME, "Exec", NULL ) ) {
+        g_debug ( "[%s] [%s] Unsupported desktop file: no 'Exec' key present for type Service.", id, path );
         g_key_file_free ( kf );
         return;
     }
@@ -563,7 +574,8 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     g_strfreev ( categories );
 
     pd->entry_list[pd->cmd_list_length].type = desktop_entry_type;
-    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION ) {
+    if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION ||
+            desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_SERVICE) {
         pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
     }
     else {
@@ -1037,6 +1049,7 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     if ( ( mretv & MENU_OK )  ) {
         switch ( rmpd->entry_list[selected_line].type )
         {
+        case DRUN_DESKTOP_ENTRY_TYPE_SERVICE:
         case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
             exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
             break;
