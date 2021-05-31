@@ -71,6 +71,8 @@ typedef struct
     char                   delim;
     /** no custom */
     gboolean               no_custom;
+
+    gboolean               use_hot_keys;
 } ScriptModePrivateData;
 
 /**
@@ -142,6 +144,9 @@ static void parse_header_entry ( Mode *sw, char *line, ssize_t length )
         }
         else if ( strcasecmp ( line, "no-custom" ) == 0 ) {
             pd->no_custom = ( strcasecmp ( value, "true" ) == 0 );
+        }
+        else if ( strcasecmp ( line, "use-hot-keys" ) == 0 ) {
+            pd->use_hot_keys = ( strcasecmp ( value, "true" ) == 0 );
         }
     }
 }
@@ -279,19 +284,23 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
     unsigned int          new_length = 0;
 
     if ( ( mretv & MENU_CUSTOM_COMMAND ) ) {
-        //retv = 1+( mretv & MENU_LOWER_MASK );
+      if ( rmpd->use_hot_keys ) {
         script_mode_reset_highlight ( sw );
         if ( selected_line != UINT32_MAX ) {
-            new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), &( rmpd->cmd_list[selected_line] ) );
+          new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), &( rmpd->cmd_list[selected_line] ) );
         }
         else {
-            if ( rmpd->no_custom == FALSE ) {
-                new_list = execute_executor ( sw, *input, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), NULL );
-            }
-            else {
-                return RELOAD_DIALOG;
-            }
+          if ( rmpd->no_custom == FALSE ) {
+            new_list = execute_executor ( sw, *input, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), NULL );
+          }
+          else {
+            return RELOAD_DIALOG;
+          }
         }
+      } else {
+        retv = ( mretv & MENU_LOWER_MASK );
+        return retv;
+      }
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line].entry != NULL ) {
         if ( rmpd->cmd_list[selected_line].nonselectable ) {
