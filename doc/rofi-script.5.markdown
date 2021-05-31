@@ -57,7 +57,7 @@ An integer number with the current state:
  * **0**: Initial call of script.
  * **1**: Selected an entry.
  * **2**: Selected a custom entry.
- * **10-28**: Custom keybinding 1-19
+ * **10-28**: Custom keybinding 1-19 ( need to be explicitely enabled by script ).
 
 ### `ROFI_INFO`
 
@@ -83,6 +83,7 @@ The following extra options exists:
  * **active**:      Mark rows as active. (for syntax see the active option in dmenu mode)
  * **delim**:       Set the delimiter for for next rows. Default is '\n' and this option should finish with this. Only call this on first call of script, it is remembered for consecutive calls.
  * **no-custom**:   If set to 'true'; only accept listed entries, ignore custom input.
+ * **use-hot-keys**: If set to true, it enabled the Custom keybindings for script. Warning this breaks the normal rofi flow.
 
 ## Parsing row options
 
