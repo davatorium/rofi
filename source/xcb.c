@@ -824,6 +824,11 @@ static int monitor_active_from_id_focused ( int mon_id, workarea *mon )
             mon->w = r->width;
             mon->h = r->height;
             retv   = TRUE;
+            if ( (current_window_manager&WM_ROOT_WINDOW_OFFSET) == WM_ROOT_WINDOW_OFFSET ){
+              mon->x += r->x;
+              mon->y += r->y;
+            }
+            g_debug("mon pos: %d %d %d-%d", mon->x, mon->y, mon->w, mon->h);
         }
         else if ( mon_id == -4 ) {
             monitor_dimensions ( t->dst_x, t->dst_y, mon );
@@ -1345,9 +1350,12 @@ static void x11_helper_discover_window_manager ( void )
         xcb_get_property_cookie_t         cookie = xcb_ewmh_get_wm_name_unchecked ( &( xcb->ewmh ), wm_win );
         if (  xcb_ewmh_get_wm_name_reply ( &( xcb->ewmh ), cookie, &wtitle, (void *) 0 ) ) {
             if ( wtitle.strings_len > 0 ) {
-                g_debug ( "Found window manager: %s", wtitle.strings );
+                g_debug ( "Found window manager: |%s|", wtitle.strings );
                 if ( g_strcmp0 ( wtitle.strings, "i3" ) == 0 ) {
                     current_window_manager = WM_DO_NOT_CHANGE_CURRENT_DESKTOP | WM_PANGO_WORKSPACE_NAMES;
+                }
+                else if ( g_strcmp0 ( wtitle.strings, "bspwm" ) == 0 ) {
+                  current_window_manager = WM_ROOT_WINDOW_OFFSET;
                 }
             }
             xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
