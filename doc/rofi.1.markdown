@@ -33,7 +33,7 @@ To show the `run` dialog:
 
 ### Emulating dmenu
 
-**rofi** can emulate **dmenu(1)** (a dynamic menu for X) when launched with the `-dmenu` flag.
+**rofi** can emulate **dmenu(1)** (a dynamic menu for X11) when launched with the `-dmenu` flag.
 
 The website for `dmenu` can be found [here](http://tools.suckless.org/dmenu/).
 
@@ -53,19 +53,15 @@ Markup support can be enabled, see CONFIGURATION options.
 
 There are currently three methods of setting configuration options (evaluated in order below):
 
- * System configuration file  (for example `/etc/rofi.rasi` or old format `/etc/rofi.conf`).
-   It first checks XDG_CONFIG_DIRS  and then SYSCONFDIR (that is passed at compile time).
+ * System configuration file  (for example `/etc/rofi.rasi`).
+   It first checks XDG\_CONFIG\_DIRS  and then SYSCONFDIR (that is passed at compile time).
    It loads the first config file it finds, it does not merge multiple system configuration files.
  * Rasi theme file: The new *theme* format can be used to set configuration values.
- * Configuration File: This uses the same format as the Xresources file.
-   By default it looks in `XDG_CONFIG_HOME`/rofi/config, but can be overridden on commandline.
-   By default `XDG_CONFIG_HOME` defaults to `$HOME/.config`. (See `rofi -h` for current location).
-   This is the recommended way of configuring **rofi**.
  * Command-line options: Arguments passed to **rofi**.
 
 **TIP**: To get a template config file run: `rofi -dump-config > config.rasi`
 
-To get a list of available options formatted as Xresources entries, run:
+To get a list of available options formatted in reasi format, run:
 
     rofi -dump-config
 
@@ -79,7 +75,10 @@ The configuration system supports the following types:
  * Boolean
  * lists
 
-Boolean options have a non-default command-line syntax. Example to enable option X:
+For the syntax of these options see the **rofi-theme(5)** manpage.
+
+For use on the commandline, Boolean options have a non-default command-line
+syntax. Example to enable option X:
 
     -X
 
