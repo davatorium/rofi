@@ -37,12 +37,33 @@
 #include "xcb-internal.h"
 #include "rofi.h"
 #include "settings.h"
+#include "widgets/textbox.h"
 
 static int       test = 0;
 
 #define TASSERT( a )        {                            \
         assert ( a );                                    \
         printf ( "Test %i passed (%s)\n", ++test, # a ); \
+}
+#include "theme.h"
+ThemeWidget *rofi_theme = NULL;
+
+gboolean rofi_theme_parse_string ( const char *string )
+{
+  return FALSE;
+}
+double textbox_get_estimated_char_height ( void  )
+{
+  return 12.0;
+}
+void rofi_view_get_current_monitor ( int *width, int *height )
+{
+*width = 1920;
+*height = 1080;
+}
+double textbox_get_estimated_ch ( void )
+{
+  return 9.0;
 }
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {

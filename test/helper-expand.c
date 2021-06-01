@@ -32,11 +32,13 @@
 #include <helper.h>
 #include <string.h>
 #include <xcb/xcb_ewmh.h>
+#include "theme.h"
 #include "display.h"
 #include "xcb.h"
 #include "xcb-internal.h"
 #include "rofi.h"
 #include "settings.h"
+#include "widgets/textbox.h"
 
 static int       test = 0;
 
@@ -52,6 +54,26 @@ static int       test = 0;
             abort ( );                                                                   \
         }                                                                                \
 }
+ThemeWidget *rofi_theme = NULL;
+
+double textbox_get_estimated_char_height ( void  )
+{
+  return 12.0;
+}
+void rofi_view_get_current_monitor ( int *width, int *height )
+{
+*width = 1920;
+*height = 1080;
+}
+double textbox_get_estimated_ch ( void )
+{
+  return 9.0;
+}
+gboolean rofi_theme_parse_string ( const char *string )
+{
+return 0;
+}
+
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
