@@ -350,6 +350,7 @@ helper_pidfile_SOURCES=\
 					   include/mode.h\
 					   include/mode-private.h\
 					   source/helper.c\
+					   source/theme.c\
 					   source/rofi-types.c\
 					   include/rofi-types.h\
 					   include/helper.h\
@@ -464,6 +465,7 @@ helper_test_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
+	source/theme.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	test/helper-test.c
@@ -501,6 +503,7 @@ helper_expand_SOURCES=\
 	include/mode.h\
 	include/mode-private.h\
 	source/helper.c\
+	source/theme.c\
 	include/helper.h\
 	include/helper-theme.h\
 	include/xrmoptions.h\
@@ -522,6 +525,7 @@ helper_config_cmdline_parser_SOURCES=\
 	include/mode.h\
 	include/mode-private.h\
 	source/helper.c\
+	source/theme.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	include/helper.h\

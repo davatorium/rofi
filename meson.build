@@ -301,6 +301,7 @@ test('helper_pidfile test', executable('helper_pidfile.test', [
     ],
     objects: rofi.extract_objects([
         'config/config.c',
+        'source/theme.c',
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
@@ -380,6 +381,7 @@ test('helper test', executable('helper.test', [
     ],
     objects: rofi.extract_objects([
         'config/config.c',
+        'source/theme.c',
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
@@ -392,6 +394,7 @@ test('helper_expand test', executable('helper_expand.test', [
     ],
     objects: rofi.extract_objects([
         'config/config.c',
+        'source/theme.c',
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
@@ -404,6 +407,7 @@ test('helper_config_cmdline_parser test', executable('helper_config_cmdline_pars
     ],
     objects: rofi.extract_objects([
         'config/config.c',
+        'source/theme.c',
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
