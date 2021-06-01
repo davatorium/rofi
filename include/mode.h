@@ -81,6 +81,8 @@ typedef enum
     MENU_CUSTOM_COMMAND = 0x00800000,
     /** Go to the previous menu. */
     MENU_PREVIOUS       = 0x00400000,
+    /** Go to the complete. */
+    MENU_COMPLETE       = 0x01000000,
     /** Bindings specifics */
     MENU_CUSTOM_ACTION  = 0x10000000,
     /** Mask */

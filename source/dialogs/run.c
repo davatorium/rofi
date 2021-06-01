@@ -51,6 +51,7 @@
 #include "helper.h"
 #include "history.h"
 #include "dialogs/run.h"
+#include "dialogs/filebrowser.h"
 
 #include "mode-private.h"
 
@@ -70,6 +71,14 @@ typedef struct
     char         **cmd_list;
     /** Length of the #cmd_list. */
     unsigned int cmd_list_length;
+
+    /** Current mode. */
+    gboolean     file_complete;
+    uint32_t     selected_line;
+    char         *old_input;
+
+    Mode         *completer;
+    char         *old_completer_input;
 } RunModePrivateData;
 
 /**
@@ -347,6 +356,8 @@ static int run_mode_init ( Mode *sw )
         RunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         sw->private_data = (void *) pd;
         pd->cmd_list     = get_apps ( &( pd->cmd_list_length ) );
+        pd->completer    = create_new_file_browser ();
+        mode_init ( pd->completer );
     }
 
     return TRUE;
@@ -356,6 +367,9 @@ static void run_mode_destroy ( Mode *sw )
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
         g_strfreev ( rmpd->cmd_list );
+        g_free ( rmpd->old_input );
+        g_free ( rmpd->old_completer_input );
+        mode_destroy ( rmpd->completer );
         g_free ( rmpd );
         sw->private_data = NULL;
     }
@@ -364,6 +378,9 @@ static void run_mode_destroy ( Mode *sw )
 static unsigned int run_mode_get_num_entries ( const Mode *sw )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+    if ( rmpd->file_complete ){
+        return rmpd->completer->_get_num_entries( rmpd->completer );
+    }
     return rmpd->cmd_list_length;
 }
 
@@ -373,6 +390,38 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     ModeMode           retv  = MODE_EXIT;
 
     gboolean           run_in_term = ( ( mretv & MENU_CUSTOM_ACTION ) == MENU_CUSTOM_ACTION );
+    if ( rmpd->file_complete == TRUE ) {
+
+        retv = RELOAD_DIALOG;
+
+        if ( ( mretv& (MENU_COMPLETE)) ) {
+            g_free ( rmpd->old_completer_input );
+            rmpd->old_completer_input = *input;
+            *input = NULL;
+            if ( rmpd->selected_line < rmpd->cmd_list_length ) {
+                (*input) = g_strdup ( rmpd->old_input );
+            }
+            rmpd->file_complete = FALSE;
+        } else if ( (mretv&MENU_CANCEL) ) {
+            retv = MODE_EXIT;
+        } else {
+            char *path = NULL;
+            retv = file_browser_mode_completer ( rmpd->completer, mretv, input, selected_line, &path );
+            if ( retv == MODE_EXIT ) {
+                if ( path == NULL )
+                {
+                    exec_cmd ( rmpd->cmd_list[rmpd->selected_line], run_in_term );
+                } else {
+                    char *arg= g_strdup_printf ( "%s '%s'",  rmpd->cmd_list[rmpd->selected_line], path);
+                    exec_cmd ( arg, run_in_term );
+                    g_free(arg);
+                }
+
+            }
+            g_free (path);
+        }
+        return retv;
+    }
 
     if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
         if ( !exec_cmd ( rmpd->cmd_list[selected_line], run_in_term ) ) {
@@ -394,6 +443,19 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     }
     else if ( mretv & MENU_CUSTOM_COMMAND ) {
         retv = ( mretv & MENU_LOWER_MASK );
+    } else if ( ( mretv& MENU_COMPLETE) ) {
+        retv = RELOAD_DIALOG;
+        if ( selected_line  < rmpd->cmd_list_length ) {
+            rmpd->selected_line = selected_line;
+
+            g_free ( rmpd->old_input );
+            rmpd->old_input = g_strdup ( *input );
+
+            if ( *input ) g_free (*input);
+            *input = g_strdup ( rmpd->old_completer_input );
+
+            rmpd->file_complete =  TRUE;
+        }
     }
     return retv;
 }
@@ -401,13 +463,35 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **list, int get_entry )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+    if ( rmpd->file_complete ){
+        return rmpd->completer->_get_display_value (rmpd->completer, selected_line, state, list, get_entry );
+    }
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
 }
 
 static int run_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
+    if ( rmpd->file_complete ){
+        return rmpd->completer->_token_match (rmpd->completer, tokens, index );
+    }
     return helper_token_match ( tokens, rmpd->cmd_list[index] );
+}
+static char *run_get_message ( const Mode *sw )
+{
+    RunModePrivateData *pd = sw->private_data;
+    if ( pd->file_complete ) {
+        if ( pd->selected_line < pd->cmd_list_length ) {
+            char *msg =  mode_get_message ( pd->completer);
+            if (msg ){
+                char *retv = g_strdup_printf("File complete for: %s\n%s", pd->cmd_list[pd->selected_line], msg);
+                g_free (msg);
+                return retv;
+            }
+            return  g_strdup_printf("File complete for: %s", pd->cmd_list[pd->selected_line]);
+        }
+    }
+    return NULL;
 }
 
 #include "mode-private.h"
@@ -420,6 +504,7 @@ Mode run_mode =
     ._result            = run_mode_result,
     ._destroy           = run_mode_destroy,
     ._token_match       = run_token_match,
+    ._get_message       = run_get_message,
     ._get_display_value = _get_display_value,
     ._get_icon          = NULL,
     ._get_completion    = NULL,

@@ -401,7 +401,7 @@ Mode *create_new_file_browser ( void )
     return sw;
 }
 
-#if 0
+#if 1
 ModeMode file_browser_mode_completer ( Mode *sw, int mretv, char **input, unsigned int selected_line, char **path )
 {
     ModeMode                   retv = MODE_EXIT;
