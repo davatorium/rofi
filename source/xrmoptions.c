@@ -155,7 +155,7 @@ static XrmOption xrmOptions[] = {
       "Cycle through the results list", CONFIG_DEFAULT },
     { xrm_Boolean, "sidebar-mode",              { .num   = &config.sidebar_mode                         }, NULL,
       "Enable sidebar-mode", CONFIG_DEFAULT },
-    { xrm_Boolean, "hover-select",              { .snum   = &config.hover_select                         }, NULL,
+    { xrm_Boolean, "hover-select",              { .snum  = &config.hover_select                         }, NULL,
       "Enable hover-select", CONFIG_DEFAULT },
     { xrm_SNumber, "eh",                        { .snum  = &config.element_height                       }, NULL,
       "Row height (in chars)", CONFIG_DEFAULT },
@@ -258,7 +258,6 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
 
     num_extra_options++;
 }
-
 
 /**
  * Parse an option from the commandline vector.

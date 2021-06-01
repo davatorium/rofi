@@ -725,8 +725,8 @@ static void rofi_view_setup_fake_transparency ( widget *win, const char* const f
             else {
                 CacheState.fake_bg = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32, CacheState.mon.w, CacheState.mon.h );
 
-                int blur = rofi_theme_get_integer ( WIDGET ( win ), "blur", 0 );
-                cairo_t *dr = cairo_create ( CacheState.fake_bg );
+                int     blur = rofi_theme_get_integer ( WIDGET ( win ), "blur", 0 );
+                cairo_t *dr  = cairo_create ( CacheState.fake_bg );
                 if ( CacheState.fake_bgrel ) {
                     cairo_set_source_surface ( dr, s, 0, 0 );
                 }
@@ -736,9 +736,9 @@ static void rofi_view_setup_fake_transparency ( widget *win, const char* const f
                 cairo_paint ( dr );
                 cairo_destroy ( dr );
                 cairo_surface_destroy ( s );
-                if ( blur > 0 ){
-                    cairo_image_surface_blur( CacheState.fake_bg, (double)blur, 0 );
-                    TICK_N("BLUR");
+                if ( blur > 0 ) {
+                    cairo_image_surface_blur ( CacheState.fake_bg, (double) blur, 0 );
+                    TICK_N ( "BLUR" );
                 }
             }
         }
@@ -879,7 +879,7 @@ void __create_window ( MenuFlags menu_flags )
     TICK_N ( "setup window name and class" );
     const char *transparency = rofi_theme_get_string ( WIDGET ( win ), "transparency", NULL );
     if ( transparency ) {
-        rofi_view_setup_fake_transparency ( WIDGET (win), transparency  );
+        rofi_view_setup_fake_transparency ( WIDGET ( win ), transparency  );
     }
     else if ( config.fake_transparency && config.fake_background ) {
         rofi_view_setup_fake_transparency ( WIDGET ( win ), config.fake_background );
@@ -1517,12 +1517,13 @@ static X11CursorType rofi_cursor_type_to_x11_cursor_type ( RofiCursorType type )
     return CURSOR_DEFAULT;
 }
 
-static RofiCursorType rofi_view_resolve_cursor ( RofiViewState *state, gint x, gint y ) {
+static RofiCursorType rofi_view_resolve_cursor ( RofiViewState *state, gint x, gint y )
+{
     widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), WIDGET_TYPE_UNKNOWN, x, y );
 
     return target != NULL
-        ? target->cursor_type
-        : ROFI_CURSOR_DEFAULT;
+           ? target->cursor_type
+           : ROFI_CURSOR_DEFAULT;
 }
 
 static void rofi_view_set_cursor ( RofiCursorType type )
@@ -1900,7 +1901,7 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
 static void rofi_view_ping_mouse ( RofiViewState *state )
 {
     xcb_query_pointer_cookie_t pointer_cookie = xcb_query_pointer ( xcb->connection, CacheState.main_window );
-    xcb_query_pointer_reply_t *pointer_reply  = xcb_query_pointer_reply ( xcb->connection, pointer_cookie, NULL );
+    xcb_query_pointer_reply_t  *pointer_reply = xcb_query_pointer_reply ( xcb->connection, pointer_cookie, NULL );
 
     if ( pointer_reply == NULL ) {
         return;
@@ -1986,7 +1987,7 @@ RofiViewState *rofi_view_create ( Mode *sw,
 
     /* When Override Redirect, the WM will not let us know we can take focus, so just steal it */
     if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) ) {
-        rofi_xcb_set_input_focus(CacheState.main_window);
+        rofi_xcb_set_input_focus ( CacheState.main_window );
     }
 
     if ( xcb->sncontext != NULL ) {
@@ -2041,7 +2042,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
 void rofi_view_hide ( void )
 {
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
-        rofi_xcb_revert_input_focus();
+        rofi_xcb_revert_input_focus ();
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
         display_early_cleanup ();
     }
@@ -2073,7 +2074,7 @@ void rofi_view_cleanup ()
     if ( CacheState.main_window != XCB_WINDOW_NONE ) {
         g_debug ( "Unmapping and free'ing window" );
         xcb_unmap_window ( xcb->connection, CacheState.main_window );
-        rofi_xcb_revert_input_focus();
+        rofi_xcb_revert_input_focus ();
         xcb_free_gc ( xcb->connection, CacheState.gc );
         xcb_free_pixmap ( xcb->connection, CacheState.edit_pixmap );
         xcb_destroy_window ( xcb->connection, CacheState.main_window );

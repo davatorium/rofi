@@ -284,23 +284,24 @@ static ModeMode script_mode_result ( Mode *sw, int mretv, char **input, unsigned
     unsigned int          new_length = 0;
 
     if ( ( mretv & MENU_CUSTOM_COMMAND ) ) {
-      if ( rmpd->use_hot_keys ) {
-        script_mode_reset_highlight ( sw );
-        if ( selected_line != UINT32_MAX ) {
-          new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), &( rmpd->cmd_list[selected_line] ) );
+        if ( rmpd->use_hot_keys ) {
+            script_mode_reset_highlight ( sw );
+            if ( selected_line != UINT32_MAX ) {
+                new_list = execute_executor ( sw, rmpd->cmd_list[selected_line].entry, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), &( rmpd->cmd_list[selected_line] ) );
+            }
+            else {
+                if ( rmpd->no_custom == FALSE ) {
+                    new_list = execute_executor ( sw, *input, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), NULL );
+                }
+                else {
+                    return RELOAD_DIALOG;
+                }
+            }
         }
         else {
-          if ( rmpd->no_custom == FALSE ) {
-            new_list = execute_executor ( sw, *input, &new_length, 10 + ( mretv & MENU_LOWER_MASK ), NULL );
-          }
-          else {
-            return RELOAD_DIALOG;
-          }
+            retv = ( mretv & MENU_LOWER_MASK );
+            return retv;
         }
-      } else {
-        retv = ( mretv & MENU_LOWER_MASK );
-        return retv;
-      }
     }
     else if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line].entry != NULL ) {
         if ( rmpd->cmd_list[selected_line].nonselectable ) {

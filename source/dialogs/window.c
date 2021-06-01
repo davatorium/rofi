@@ -342,15 +342,15 @@ static client* window_client ( ModeModePrivateData *pd, xcb_window_t win )
     g_free ( tmp_title );
 
     char *tmp_role = window_get_text_prop ( c->window, netatoms[WM_WINDOW_ROLE] );
-    c->role        = g_markup_escape_text ( tmp_role ? tmp_role : "", -1 );
-    pd->role_len   = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
+    c->role      = g_markup_escape_text ( tmp_role ? tmp_role : "", -1 );
+    pd->role_len = MAX ( c->role ? g_utf8_strlen ( c->role, -1 ) : 0, pd->role_len );
     g_free ( tmp_role );
 
     cky = xcb_icccm_get_wm_class ( xcb->connection, c->window );
     xcb_icccm_get_wm_class_reply_t wcr;
     if ( xcb_icccm_get_wm_class_reply ( xcb->connection, cky, &wcr, NULL ) ) {
-        c->class     = g_markup_escape_text( wcr.class_name, -1 );
-        c->name      = g_markup_escape_text( wcr.instance_name, -1 );
+        c->class     = g_markup_escape_text ( wcr.class_name, -1 );
+        c->name      = g_markup_escape_text ( wcr.instance_name, -1 );
         pd->name_len = MAX ( c->name ? g_utf8_strlen ( c->name, -1 ) : 0, pd->name_len );
         xcb_icccm_get_wm_class_reply_wipe ( &wcr );
     }
@@ -496,7 +496,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         current_desktop = 0;
     }
 
-    g_debug("Get list from: %d", xcb->screen_nbr);
+    g_debug ( "Get list from: %d", xcb->screen_nbr );
     c = xcb_ewmh_get_client_list_stacking ( &xcb->ewmh, xcb->screen_nbr );
     xcb_ewmh_get_windows_reply_t clients = { 0, };
     if ( xcb_ewmh_get_client_list_stacking_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
@@ -566,29 +566,29 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                             char *output = NULL;
                             if ( pango_parse_markup ( _window_name_list_entry ( names.strings, names.strings_len,
                                                                                 c->wmdesktop ), -1, 0, NULL, &output, NULL, NULL ) ) {
-                                c->wmdesktopstr = g_strdup (  _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
+                                c->wmdesktopstr     = g_strdup (  _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
                                 c->wmdesktopstr_len = g_utf8_strlen ( output, -1 );
-                                pd->wmdn_len = MAX ( pd->wmdn_len, c->wmdesktopstr_len );
+                                pd->wmdn_len        = MAX ( pd->wmdn_len, c->wmdesktopstr_len );
                                 g_free ( output );
                             }
                             else {
                                 c->wmdesktopstr = g_strdup ( "Invalid name" );
-                                pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
+                                pd->wmdn_len    = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                             }
                         }
                         else {
                             c->wmdesktopstr = g_markup_escape_text ( _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ), -1 );
-                            pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
+                            pd->wmdn_len    = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                         }
                     }
                     else {
                         c->wmdesktopstr = g_strdup_printf ( "%u", (uint32_t) c->wmdesktop );
-                        pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
+                        pd->wmdn_len    = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                     }
                 }
                 else {
                     c->wmdesktopstr = g_strdup ( "" );
-                    pd->wmdn_len = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
+                    pd->wmdn_len    = MAX ( pd->wmdn_len, g_utf8_strlen ( c->wmdesktopstr, -1 ) );
                 }
                 if ( cd && c->wmdesktop != current_desktop ) {
                     continue;
@@ -727,7 +727,8 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
             retv = RELOAD_DIALOG;
         }
         g_free ( lf_cmd );
-    } else if ( mretv & MENU_CUSTOM_COMMAND ) {
+    }
+    else if ( mretv & MENU_CUSTOM_COMMAND ) {
         retv = ( mretv & MENU_LOWER_MASK );
     }
     return retv;
@@ -756,20 +757,20 @@ static void helper_eval_add_str ( GString *str, const char *input, int l, int ma
     // g_utf8 does not work with NULL string.
     const char *input_nn = input ? input : "";
     // Both l and max_len are in characters, not bytes.
-    int spaces = 0;
+    int        spaces = 0;
     if ( l == 0 ) {
         spaces = MAX ( 0, max_len - nc );
         g_string_append ( str, input_nn );
     }
     else {
         if ( nc > l ) {
-            int bl    = g_utf8_offset_to_pointer ( input_nn, l ) - input_nn;
+            int  bl   = g_utf8_offset_to_pointer ( input_nn, l ) - input_nn;
             char *tmp = g_markup_escape_text ( input_nn, bl );
             g_string_append ( str, tmp );
             g_free ( tmp );
         }
         else {
-            spaces    = l - nc;
+            spaces = l - nc;
             char *tmp = g_markup_escape_text ( input_nn, -1 );
             g_string_append ( str, tmp );
             g_free ( tmp );
@@ -811,7 +812,7 @@ static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer 
         else if ( match[1] == 'r' ) {
             helper_eval_add_str ( str, d->c->role, l, d->pd->role_len, g_utf8_strlen ( d->c->role, -1 ) );
         }
-        
+
         g_free ( match );
     }
     return FALSE;

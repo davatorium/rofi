@@ -233,9 +233,9 @@ static cairo_surface_t * rofi_icon_fetcher_get_surface_from_pixbuf ( GdkPixbuf
 
     cairo_surface_flush ( surface );
     while ( pixels < pixels_end ) {
-        line     = pixels;
+        line = pixels;
         const guchar *line_end = line + lo;
-        guchar *cline    = cpixels;
+        guchar       *cline    = cpixels;
 
         while ( line < line_end ) {
             if ( alpha ) {

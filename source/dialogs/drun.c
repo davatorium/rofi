@@ -400,7 +400,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     }
     else if ( !g_strcmp0 ( key, "Service" ) ) {
         desktop_entry_type = DRUN_DESKTOP_ENTRY_TYPE_SERVICE;
-        g_debug("Service file detected.");
+        g_debug ( "Service file detected." );
     }
     else {
         g_debug ( "[%s] [%s] Skipping desktop file: Not of type Application or Link (%s)", id, path, key );
@@ -575,7 +575,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
 
     pd->entry_list[pd->cmd_list_length].type = desktop_entry_type;
     if ( desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION ||
-            desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_SERVICE) {
+         desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_SERVICE ) {
         pd->entry_list[pd->cmd_list_length].exec = g_key_file_get_string ( kf, action, "Exec", NULL );
     }
     else {
@@ -726,9 +726,11 @@ static gint drun_int_sort_list ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED
     if ( da->sort_index < 0 && db->sort_index < 0 ) {
         if ( da->name == NULL && db->name == NULL ) {
             return 0;
-        } else if ( da->name == NULL ) {
+        }
+        else if ( da->name == NULL ) {
             return -1;
-        } else if ( db->name == NULL ) {
+        }
+        else if ( db->name == NULL ) {
             return 1;
         }
         return g_utf8_collate ( da->name, db->name );
@@ -1078,7 +1080,8 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
             rmpd->cmd_list_length--;
         }
         retv = RELOAD_DIALOG;
-    } else if ( mretv & MENU_CUSTOM_COMMAND ) {
+    }
+    else if ( mretv & MENU_CUSTOM_COMMAND ) {
         retv = ( mretv & MENU_LOWER_MASK );
     }
     return retv;
