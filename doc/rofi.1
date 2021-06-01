@@ -38,7 +38,7 @@ rofi \-show run
 
 .SS Emulating dmenu
 .PP
-\fBrofi\fP can emulate \fBdmenu(1)\fP (a dynamic menu for X) when launched with the \fB\fC\-dmenu\fR flag.
+\fBrofi\fP can emulate \fBdmenu(1)\fP (a dynamic menu for X11) when launched with the \fB\fC\-dmenu\fR flag.
 
 .PP
 The website for \fB\fCdmenu\fR can be found here
@@ -69,16 +69,11 @@ Markup support can be enabled, see CONFIGURATION options.
 .PP
 There are currently three methods of setting configuration options (evaluated in order below):
 .IP \(bu 2
-System configuration file  (for example \fB\fC/etc/rofi.rasi\fR or old format \fB\fC/etc/rofi.conf\fR).
+System configuration file  (for example \fB\fC/etc/rofi.rasi\fR).
 It first checks XDG\_CONFIG\_DIRS  and then SYSCONFDIR (that is passed at compile time).
 It loads the first config file it finds, it does not merge multiple system configuration files.
 .IP \(bu 2
 Rasi theme file: The new \fItheme\fP format can be used to set configuration values.
-.IP \(bu 2
-Configuration File: This uses the same format as the Xresources file.
-By default it looks in \fB\fCXDG\_CONFIG\_HOME\fR/rofi/config, but can be overridden on commandline.
-By default \fB\fCXDG\_CONFIG\_HOME\fR defaults to \fB\fC$HOME/.config\fR\&. (See \fB\fCrofi \-h\fR for current location).
-This is the recommended way of configuring \fBrofi\fP\&.
 .IP \(bu 2
 Command\-line options: Arguments passed to \fBrofi\fP\&.
 
@@ -86,7 +81,7 @@ Command\-line options: Arguments passed to \fBrofi\fP\&.
 \fBTIP\fP: To get a template config file run: \fB\fCrofi \-dump\-config > config.rasi\fR
 
 .PP
-To get a list of available options formatted as Xresources entries, run:
+To get a list of available options formatted in reasi format, run:
 
 .PP
 .RS
@@ -114,7 +109,11 @@ Boolean
 lists
 
 .PP
-Boolean options have a non\-default command\-line syntax. Example to enable option X:
+For the syntax of these options see the \fBrofi\-theme(5)\fP manpage.
+
+.PP
+For use on the commandline, Boolean options have a non\-default command\-line
+syntax. Example to enable option X:
 
 .PP
 .RS
