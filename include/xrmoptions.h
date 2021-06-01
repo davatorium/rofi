@@ -81,14 +81,6 @@ typedef enum
 } XrmOptionType;
 
 /**
- * @param filename The xresources file to parse
- *
- * Parses filename and updates the config
- * @ingroup CONFFile
- */
-void config_parse_xresource_options_file ( const char *filename );
-
-/**
  * Parse commandline options.
  * @ingroup CONFCommandline
  */

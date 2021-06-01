@@ -32,7 +32,6 @@
 #include <unistd.h>
 #include <xcb/xcb.h>
 #include <xcb/xkb.h>
-#include <xcb/xcb_xrm.h>
 #include <glib.h>
 #include "xcb.h"
 #include "xcb-internal.h"
@@ -260,94 +259,6 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
     num_extra_options++;
 }
 
-static void config_parser_set ( XrmOption *option, char *xrmValue, enum ConfigSource source )
-{
-    switch ( option->type )
-    {
-    case xrm_String:
-        if ( ( option )->mem != NULL ) {
-            g_free ( option->mem );
-            option->mem = NULL;
-        }
-        *( option->value.str ) = g_strchomp ( g_strdup ( xrmValue ) );
-
-        // Memory
-        ( option )->mem = *( option->value.str );
-        break;
-    case xrm_Number:
-        *( option->value.num ) = (unsigned int) g_ascii_strtoull ( xrmValue, NULL, 10 );
-        break;
-    case xrm_SNumber:
-        *( option->value.snum ) = (int) g_ascii_strtoll ( xrmValue, NULL, 10 );
-        break;
-    case xrm_Boolean:
-        if ( strlen ( xrmValue ) > 0 &&
-             g_ascii_strcasecmp ( xrmValue, "true" ) == 0 ) {
-            *( option->value.num ) = TRUE;
-        }
-        else{
-            *( option->value.num ) = FALSE;
-        }
-        break;
-    case xrm_Char:
-        *( option->value.charc ) = helper_parse_char ( xrmValue );
-        break;
-    }
-    option->source = source;
-}
-
-static void __config_parse_xresource_options ( xcb_xrm_database_t *xDB, enum ConfigSource source )
-{
-    const char * namePrefix = "rofi";
-
-    for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
-        char *name = g_strdup_printf ( "%s.%s", namePrefix, xrmOptions[i].name );
-
-        char *xrmValue = NULL;
-        if ( xcb_xrm_resource_get_string ( xDB, name, NULL, &xrmValue ) == 0 ) {
-            config_parser_set ( &( xrmOptions[i] ), xrmValue, source );
-        }
-        if ( xrmValue ) {
-            free ( xrmValue );
-        }
-
-        g_free ( name );
-    }
-}
-static void __config_parse_xresource_options_dynamic ( xcb_xrm_database_t *xDB, enum ConfigSource source )
-{
-    const char * namePrefix = "rofi";
-
-    for ( unsigned int i = 0; i < num_extra_options; ++i ) {
-        char *name;
-
-        name = g_strdup_printf ( "%s.%s", namePrefix, extra_options[i].name );
-        char *xrmValue = NULL;
-        if ( xcb_xrm_resource_get_string ( xDB, name, NULL, &xrmValue ) == 0 ) {
-            config_parser_set ( &( extra_options[i] ), xrmValue, source );
-        }
-        if ( xrmValue ) {
-            free ( xrmValue );
-        }
-
-        g_free ( name );
-    }
-}
-
-void config_parse_xresource_options_file ( const char *filename )
-{
-    if ( !filename ) {
-        return;
-    }
-    // Map Xresource entries to rofi config options.
-    xcb_xrm_database_t *xDB = xcb_xrm_database_from_file ( filename );
-    if ( xDB == NULL ) {
-        return;
-    }
-    __config_parse_xresource_options ( xDB, CONFIG_FILE );
-    __config_parse_xresource_options_dynamic ( xDB, CONFIG_FILE );
-    xcb_xrm_database_free ( xDB );
-}
 
 /**
  * Parse an option from the commandline vector.

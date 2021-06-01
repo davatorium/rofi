@@ -64,7 +64,6 @@ deps += [
     dependency('xkbcommon-x11'),
     dependency('xcb-ewmh'),
     dependency('xcb-icccm'),
-    dependency('xcb-xrm'),
     dependency('xcb-randr'),
     dependency('xcb-cursor'),
     dependency('xcb-xinerama'),

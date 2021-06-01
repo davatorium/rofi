@@ -95,7 +95,6 @@ void rofi_add_error_message ( GString *str )
 /** Path to the configuration file */
 G_MODULE_EXPORT char *config_path = NULL;
 /** Path to the configuration file in the new format */
-G_MODULE_EXPORT char *config_path_new = NULL;
 /** Array holding all activated modi. */
 Mode                 **modi = NULL;
 
@@ -119,8 +118,6 @@ static int      dmenu_mode = FALSE;
 /** Rofi's return code */
 int             return_code = EXIT_SUCCESS;
 
-/** Flag indicating we are using old config format. */
-static gboolean old_config_format = FALSE;
 
 void process_result ( RofiViewState *state );
 
@@ -298,7 +295,6 @@ static void print_main_application_options ( int is_term )
     print_help_msg ( "-no-plugins", "", "Disable loading of external plugins.", NULL, is_term );
     print_help_msg ( "-plugin-path", "", "Directory used to search for rofi plugins. *DEPRECATED*", NULL, is_term );
     print_help_msg ( "-dump-config", "", "Dump the current configuration in rasi format and exit.", NULL, is_term );
-    print_help_msg ( "-upgrade-config", "", "Upgrade the old-style configuration file in the new rasi format and exit.", NULL, is_term );
     print_help_msg ( "-dump-theme", "", "Dump the current theme in rasi format and exit.", NULL, is_term );
 }
 static void help ( G_GNUC_UNUSED int argc, char **argv )
@@ -350,10 +346,7 @@ static void help ( G_GNUC_UNUSED int argc, char **argv )
     printf ( "                 Support: %s"PACKAGE_URL "%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     printf ( "                          %s#rofi @ libera.chat%s\n", is_term ? color_bold : "", is_term ? color_reset : "" );
     if ( find_arg ( "-no-config" ) < 0 ) {
-        if ( config_path_new ) {
-            printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path_new, is_term ? color_reset : "" );
-        }
-        else {
+        if ( config_path ) {
             printf ( "      Configuration file: %s%s%s\n", is_term ? color_bold : "", config_path, is_term ? color_reset : "" );
         }
     }
@@ -454,7 +447,6 @@ static void cleanup ()
     g_free ( modi );
 
     g_free ( config_path );
-    g_free ( config_path_new );
 
     if ( list_of_error_msgs ) {
         for ( GList *iter = g_list_first ( list_of_error_msgs );
@@ -848,19 +840,13 @@ int main ( int argc, char *argv[] )
     if ( find_arg ( "-config" ) < 0 ) {
         const char *cpath = g_get_user_config_dir ();
         if ( cpath ) {
-            config_path     = g_build_filename ( cpath, "rofi", "config", NULL );
-            config_path_new = g_strconcat ( config_path, ".rasi", NULL );
+            config_path     = g_build_filename ( cpath, "rofi", "config.rasi", NULL );
         }
     }
     else {
         char *c = NULL;
         find_arg_str ( "-config", &c );
-        if ( g_str_has_suffix ( c, ".rasi" ) ) {
-            config_path_new = rofi_expand_path ( c );
-        }
-        else {
-            config_path = rofi_expand_path ( c );
-        }
+        config_path = rofi_expand_path ( c );
     }
 
     TICK ();
@@ -908,17 +894,6 @@ int main ( int argc, char *argv[] )
                     rofi_theme_parse_file ( etc );
                     found_system = TRUE;
                 }
-                else {
-                    /** Old format. */
-                    gchar *xetc = g_build_filename ( dirs[i], "rofi.conf", NULL );
-                    g_debug ( "Look for default config file: %s", xetc );
-                    if ( g_file_test ( xetc, G_FILE_TEST_IS_REGULAR ) ) {
-                        config_parse_xresource_options_file ( xetc );
-                        old_config_format = TRUE;
-                        found_system      = TRUE;
-                    }
-                    g_free ( xetc );
-                }
                 g_free ( etc );
             }
         }
@@ -930,31 +905,13 @@ int main ( int argc, char *argv[] )
                 g_debug ( "Look for default config file: %s", etc );
                 rofi_theme_parse_file ( etc );
             }
-            else {
-                /** Old format. */
-                gchar *xetc = g_build_filename ( SYSCONFDIR, "rofi.conf", NULL );
-                g_debug ( "Look for default config file: %s", xetc );
-                if ( g_file_test ( xetc, G_FILE_TEST_IS_REGULAR ) ) {
-                    config_parse_xresource_options_file ( xetc );
-                    old_config_format = TRUE;
-                }
-                g_free ( xetc );
-            }
             g_free ( etc );
         }
 
-        if ( config_path_new && g_file_test ( config_path_new, G_FILE_TEST_IS_REGULAR ) ) {
-            if ( rofi_theme_parse_file ( config_path_new ) ) {
+        if ( config_path && g_file_test ( config_path, G_FILE_TEST_IS_REGULAR ) ) {
+            if ( rofi_theme_parse_file ( config_path ) ) {
                 rofi_theme_free ( rofi_theme );
                 rofi_theme = NULL;
-            }
-        }
-        else {
-            g_free ( config_path_new );
-            config_path_new = NULL;
-            if ( g_file_test ( config_path, G_FILE_TEST_IS_REGULAR ) ) {
-                config_parse_xresource_options_file ( config_path );
-                old_config_format = TRUE;
             }
         }
     }
@@ -972,10 +929,6 @@ int main ( int argc, char *argv[] )
     config_parse_cmd_options ( );
     TICK_N ( "Load cmd config " );
 
-    if ( old_config_format ) {
-        g_warning ( "The old Xresources based configuration format is deprecated." );
-        g_warning ( "Please upgrade: rofi -upgrade-config." );
-    }
     parse_keys_abe ( bindings );
 
     // Get the path to the cache dir.
@@ -1049,52 +1002,6 @@ int main ( int argc, char *argv[] )
 
     if ( find_arg ( "-dump-theme" ) >= 0 ) {
         rofi_theme_print ( rofi_theme );
-        cleanup ();
-        return EXIT_SUCCESS;
-    }
-    if ( find_arg ( "-upgrade-config" ) >= 0 ) {
-        setup_modi ();
-
-        for ( unsigned int i = 0; i < num_modi; i++ ) {
-            mode_init ( modi[i] );
-        }
-
-        const char *cpath = g_get_user_config_dir ();
-        if ( cpath ) {
-            char *fcpath = g_build_filename ( cpath, "rofi", NULL );
-            if ( !g_file_test ( fcpath, G_FILE_TEST_IS_DIR ) && g_mkdir_with_parents ( fcpath, 0700 ) < 0 ) {
-                g_warning ( "Failed to create rofi configuration directory: %s", fcpath );
-                cleanup ();
-                g_free ( fcpath );
-                return EXIT_FAILURE;
-            }
-            g_free ( fcpath );
-            fcpath = g_build_filename ( cpath, "rofi", "config.rasi", NULL );
-            if ( g_file_test ( fcpath, G_FILE_TEST_IS_REGULAR ) ) {
-                g_warning ( "New configuration file already exists: %s", fcpath );
-                cleanup ();
-                g_free ( fcpath );
-                return EXIT_FAILURE;
-            }
-            FILE *fd = fopen ( fcpath, "w" );
-            if ( fd == NULL ) {
-                g_warning ( "Failed to open new rofi configuration file: %s: %s", fcpath, strerror ( errno ) );
-                cleanup ();
-                g_free ( fcpath );
-                return EXIT_FAILURE;
-            }
-            config_parse_dump_config_rasi_format ( fd, TRUE );
-            fprintf ( stdout, "\n***** Generated configuration file in: %s *****\n", fcpath );
-
-            fflush ( fd );
-            fclose ( fd );
-            g_free ( fcpath );
-        }
-        else {
-            g_warning ( "Failed to get user configuration directory." );
-            cleanup ();
-            return EXIT_FAILURE;
-        }
         cleanup ();
         return EXIT_SUCCESS;
     }
