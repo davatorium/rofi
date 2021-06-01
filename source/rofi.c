@@ -620,6 +620,7 @@ static int add_mode ( const char * token )
         if ( sw != NULL ) {
             // Add to available list, so combi can find it.
             rofi_collect_modi_add ( sw );
+            mode_set_config ( sw );
             modi[num_modi] = sw;
             num_modi++;
         }

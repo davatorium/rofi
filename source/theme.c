@@ -106,7 +106,7 @@ RofiDistance rofi_theme_property_copy_distance  ( RofiDistance const distance )
     return retv;
 }
 
-Property* rofi_theme_property_copy ( Property *p )
+Property* rofi_theme_property_copy ( const Property *p )
 {
     Property *retv = rofi_theme_property_create ( p->type );
     retv->name = g_strdup ( p->name );

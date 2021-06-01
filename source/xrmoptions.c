@@ -24,6 +24,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+/** Log domain for this module */
+#define G_LOG_DOMAIN    "XrmOptions"
 
 #include <config.h>
 #include <stdio.h>
@@ -40,6 +42,8 @@
 #include "settings.h"
 #include "helper.h"
 #include "rofi-types.h"
+
+
 
 /** Different sources of configuration. */
 const char * const ConfigSourceStr[] = {
@@ -237,6 +241,12 @@ XrmOption    *extra_options = NULL;
 /** Number of entries in extra options array */
 unsigned int num_extra_options = 0;
 
+/** This is a big hack, we need to fix this. */
+GList *extra_parsed_options = NULL;
+
+
+static gboolean __config_parser_set_property ( XrmOption *option, const Property *p, char **error  );
+
 void config_parser_add_option ( XrmOptionType type, const char *key, void **value, const char *comment )
 {
     extra_options = g_realloc ( extra_options, ( num_extra_options + 1 ) * sizeof ( XrmOption ) );
@@ -256,7 +266,21 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
         break;
     }
 
+
+    for ( GList *iter = g_list_first ( extra_parsed_options) ; iter != NULL; iter = g_list_next ( iter ) ) {
+      if ( g_strcmp0(((Property *)(iter->data))->name, key ) == 0 ){
+        char *error = NULL;
+        g_debug("Setting property from backup list: %s", key);
+        if ( __config_parser_set_property ( &(extra_options[num_extra_options]), (Property *)(iter->data), &error ) ){
+          g_debug("Failed to set property on custom entry: %s", key);
+          g_free( error );
+        }
+        num_extra_options++;
+        return;
+      }
+    }
     num_extra_options++;
+
 }
 
 /**
@@ -397,6 +421,7 @@ static gboolean __config_parser_set_property ( XrmOption *option, const Property
     return FALSE;
 }
 
+
 gboolean config_parse_set_property ( const Property *p, char **error )
 {
     for ( unsigned int i = 0; i < sizeof ( xrmOptions ) / sizeof ( XrmOption ); ++i ) {
@@ -412,6 +437,18 @@ gboolean config_parse_set_property ( const Property *p, char **error )
         }
     }
     *error = g_strdup_printf ( "Option: %s is not found.", p->name );
+
+    for ( GList *iter = g_list_first ( extra_parsed_options) ; iter != NULL; iter = g_list_next ( iter ) ) {
+      if ( g_strcmp0(((Property *)(iter->data))->name, p->name ) == 0 ){
+        
+        rofi_theme_property_free ( (Property *)(iter->data));
+        iter->data = (void *)rofi_theme_property_copy ( p ) ;
+        return TRUE;
+      }
+    }
+    g_debug("Adding option: %s to backup list.", p->name);
+    extra_parsed_options = g_list_append ( extra_parsed_options , rofi_theme_property_copy ( p ) );
+
     return TRUE;
 }
 
@@ -432,6 +469,7 @@ void config_xresource_free ( void )
     if ( extra_options != NULL ) {
         g_free ( extra_options );
     }
+    g_list_free_full ( extra_parsed_options, (GDestroyNotify)rofi_theme_property_free );
 }
 
 static void config_parse_dump_config_option ( FILE *out, XrmOption *option )
