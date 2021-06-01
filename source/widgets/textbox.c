@@ -135,7 +135,7 @@ static void textbox_initialize_font ( textbox *tb )
             if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
 
-                PangoLayout    *layout = pango_layout_new ( p_context );
+                PangoLayout *layout = pango_layout_new ( p_context );
                 pango_layout_set_font_description ( layout, tbfc->pfd );
                 pango_layout_set_text ( layout, "aAjb", -1 );
                 PangoRectangle rect;
@@ -188,10 +188,11 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     }
 
     // Allow overriding of markup.
-    if ( rofi_theme_get_boolean ( WIDGET ( tb ), "markup", (tb->flags&TB_MARKUP) == TB_MARKUP ) ) {
+    if ( rofi_theme_get_boolean ( WIDGET ( tb ), "markup", ( tb->flags & TB_MARKUP ) == TB_MARKUP ) ) {
         tb->flags |= TB_MARKUP;
-    } else {
-       tb->flags &= (~TB_MARKUP);
+    }
+    else {
+        tb->flags &= ( ~TB_MARKUP );
     }
 
     const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text );

@@ -179,11 +179,11 @@ static gchar *fuzzy_to_regex ( const char * input )
     return retv;
 }
 
-static gchar *prefix_regex (const char * input)
+static gchar *prefix_regex ( const char * input )
 {
-    gchar *r = g_regex_escape_string(input, -1);
-    char *retv = g_strconcat("\\b", r, NULL);
-    g_free(r);
+    gchar *r    = g_regex_escape_string ( input, -1 );
+    char  *retv = g_strconcat ( "\\b", r, NULL );
+    g_free ( r );
     return retv;
 }
 
@@ -257,9 +257,9 @@ static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
         g_free ( r );
         break;
     case MM_PREFIX:
-        r = prefix_regex(input);
-        retv = R(r, case_sensitive);
-        g_free(r);
+        r    = prefix_regex ( input );
+        retv = R ( r, case_sensitive );
+        g_free ( r );
         break;
     default:
         r    = g_regex_escape_string ( input, -1 );
@@ -645,7 +645,7 @@ int config_sanity_check ( void )
         else if ( g_strcmp0 ( config.matching, "normal" ) == 0 ) {
             config.matching_method = MM_NORMAL;;
         }
-        else if (g_strcmp0 (config.matching, "prefix") == 0) {
+        else if ( g_strcmp0 ( config.matching, "prefix" ) == 0 ) {
             config.matching_method = MM_PREFIX;
         }
         else {
@@ -710,7 +710,7 @@ int config_sanity_check ( void )
 
     if ( g_strcmp0 ( config.monitor, "-3" ) == 0 ) {
         // On -3, set to location 1.
-        config.location   = 1;
+        config.location = 1;
     }
 
     if ( found_error ) {

@@ -66,25 +66,25 @@ typedef enum
 typedef enum
 {
     /** Entry is selected. */
-    MENU_OK            = 0x00010000,
+    MENU_OK             = 0x00010000,
     /** User canceled the operation. (e.g. pressed escape) */
-    MENU_CANCEL        = 0x00020000,
+    MENU_CANCEL         = 0x00020000,
     /** User requested a mode switch */
-    MENU_NEXT          = 0x00040000,
+    MENU_NEXT           = 0x00040000,
     /** Custom (non-matched) input was entered. */
-    MENU_CUSTOM_INPUT  = 0x00080000,
+    MENU_CUSTOM_INPUT   = 0x00080000,
     /** User wanted to delete entry from history. */
-    MENU_ENTRY_DELETE  = 0x00100000,
+    MENU_ENTRY_DELETE   = 0x00100000,
     /** User wants to jump to another switcher. */
-    MENU_QUICK_SWITCH  = 0x00200000,
+    MENU_QUICK_SWITCH   = 0x00200000,
     /** User wants to jump to custom command. */
-    MENU_CUSTOM_COMMAND= 0x00800000,
+    MENU_CUSTOM_COMMAND = 0x00800000,
     /** Go to the previous menu. */
-    MENU_PREVIOUS      = 0x00400000,
+    MENU_PREVIOUS       = 0x00400000,
     /** Bindings specifics */
-    MENU_CUSTOM_ACTION = 0x10000000,
+    MENU_CUSTOM_ACTION  = 0x10000000,
     /** Mask */
-    MENU_LOWER_MASK    = 0x0000FFFF
+    MENU_LOWER_MASK     = 0x0000FFFF
 } MenuReturn;
 
 /**

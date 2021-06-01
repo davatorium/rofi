@@ -97,8 +97,8 @@ static void free_list ( FileBrowserModePrivateData *pd )
 
 static gint compare ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpointer data )
 {
-    FBFile *fa = (FBFile*) a;
-    FBFile *fb = (FBFile*) b;
+    FBFile *fa = (FBFile *) a;
+    FBFile *fb = (FBFile *) b;
     if ( fa->type != fb->type ) {
         return fa->type - fb->type;
     }
@@ -239,9 +239,11 @@ static ModeMode file_browser_mode_result ( Mode *sw, int mretv, char **input, un
     }
     else if ( mretv & MENU_QUICK_SWITCH ) {
         retv = ( mretv & MENU_LOWER_MASK );
-    } else if ( mretv & MENU_CUSTOM_COMMAND ) {
+    }
+    else if ( mretv & MENU_CUSTOM_COMMAND ) {
         retv = ( mretv & MENU_LOWER_MASK );
-    } else if ( ( mretv & MENU_OK ) ) {
+    }
+    else if ( ( mretv & MENU_OK ) ) {
         if ( selected_line < pd->array_length ) {
             if ( pd->array[selected_line].type == UP ) {
                 GFile *new = g_file_get_parent ( pd->current_dir );
@@ -265,10 +267,10 @@ static ModeMode file_browser_mode_result ( Mode *sw, int mretv, char **input, un
                 return RESET_DIALOG;
             }
             else if ( pd->array[selected_line].type == RFILE ) {
-                char *d   = g_filename_from_utf8 ( pd->array[selected_line].path, -1, NULL, NULL, NULL );
-                char *d_esc = g_shell_quote(d);
-                char *cmd = g_strdup_printf ( "xdg-open %s", d_esc );
-                g_free(d_esc);
+                char *d     = g_filename_from_utf8 ( pd->array[selected_line].path, -1, NULL, NULL, NULL );
+                char *d_esc = g_shell_quote ( d );
+                char *cmd   = g_strdup_printf ( "xdg-open %s", d_esc );
+                g_free ( d_esc );
                 g_free ( d );
                 char *cdir = g_file_get_path ( pd->current_dir );
                 helper_execute_command ( cdir, cmd, FALSE, NULL );

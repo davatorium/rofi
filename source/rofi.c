@@ -96,7 +96,7 @@ void rofi_add_error_message ( GString *str )
 G_MODULE_EXPORT char *config_path = NULL;
 /** Path to the configuration file in the new format */
 /** Array holding all activated modi. */
-Mode                 **modi = NULL;
+Mode **modi = NULL;
 
 /**  List of (possibly uninitialized) modi's */
 Mode         ** available_modi = NULL;
@@ -114,10 +114,9 @@ NkBindings *bindings = NULL;
 GMainLoop *main_loop = NULL;
 
 /** Flag indicating we are in dmenu mode. */
-static int      dmenu_mode = FALSE;
+static int dmenu_mode = FALSE;
 /** Rofi's return code */
-int             return_code = EXIT_SUCCESS;
-
+int        return_code = EXIT_SUCCESS;
 
 void process_result ( RofiViewState *state );
 
@@ -795,7 +794,6 @@ int main ( int argc, char *argv[] )
         return EXIT_FAILURE;
     }
 
-
     {
         const char *ro_pid = g_getenv ( "ROFI_OUTSIDE" );
         if ( ro_pid != NULL ) {
@@ -840,7 +838,7 @@ int main ( int argc, char *argv[] )
     if ( find_arg ( "-config" ) < 0 ) {
         const char *cpath = g_get_user_config_dir ();
         if ( cpath ) {
-            config_path     = g_build_filename ( cpath, "rofi", "config.rasi", NULL );
+            config_path = g_build_filename ( cpath, "rofi", "config.rasi", NULL );
         }
     }
     else {
@@ -1067,7 +1065,6 @@ int main ( int argc, char *argv[] )
     return return_code;
 }
 
-
 /** List of error messages.*/
 extern GList *list_of_error_msgs;
 int rofi_theme_rasi_validate ( const char *filename )
@@ -1078,8 +1075,8 @@ int rofi_theme_rasi_validate ( const char *filename )
     }
 
     for ( GList *iter = g_list_first ( list_of_error_msgs );
-            iter != NULL; iter = g_list_next ( iter ) ) {
-        fputs ( ((GString*)iter->data)->str, stderr );
+          iter != NULL; iter = g_list_next ( iter ) ) {
+        fputs ( ( (GString *) iter->data )->str, stderr );
     }
 
     return EXIT_FAILURE;

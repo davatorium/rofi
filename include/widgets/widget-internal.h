@@ -55,7 +55,7 @@ struct _widget
     RofiPadding                 border_radius;
 
     /** Cursor that is set when the widget is hovered */
-    RofiCursorType             cursor_type;
+    RofiCursorType              cursor_type;
 
     /** enabled or not */
     gboolean                    enabled;

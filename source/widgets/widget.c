@@ -87,7 +87,7 @@ void widget_init ( widget *wid, widget *parent, WidgetType type, const char *nam
     wid->border_radius = rofi_theme_get_padding ( wid, "border-radius", wid->def_border_radius );
     wid->margin        = rofi_theme_get_padding ( wid, "margin", wid->def_margin );
 
-    wid->cursor_type   = rofi_theme_get_cursor_type ( wid, "cursor", ROFI_CURSOR_DEFAULT );
+    wid->cursor_type = rofi_theme_get_cursor_type ( wid, "cursor", ROFI_CURSOR_DEFAULT );
 
     // enabled by default
     wid->enabled = rofi_theme_get_boolean ( wid, "enabled", TRUE );

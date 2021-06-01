@@ -100,7 +100,7 @@ static xcb_visualtype_t *root_visual = NULL;
 xcb_atom_t              netatoms[NUM_NETATOMS];
 const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 
-xcb_cursor_t cursors[NUM_CURSORS] = { XCB_CURSOR_NONE, XCB_CURSOR_NONE, XCB_CURSOR_NONE };
+xcb_cursor_t            cursors[NUM_CURSORS] = { XCB_CURSOR_NONE, XCB_CURSOR_NONE, XCB_CURSOR_NONE };
 
 const struct
 {
@@ -108,8 +108,8 @@ const struct
     const char *traditional_name;
 } cursor_names[] = {
     { "default", "left_ptr" },
-    { "pointer", "hand" },
-    { "text",    "xterm" }
+    { "pointer", "hand"     },
+    { "text",    "xterm"    }
 };
 
 static xcb_visualtype_t * lookup_visual ( xcb_screen_t   *s, xcb_visualid_t visual )
@@ -131,77 +131,84 @@ static xcb_visualtype_t * lookup_visual ( xcb_screen_t   *s, xcb_visualid_t visu
  * http://macslow.thepimp.net. I'm not entirely sure he's proud of it, but it has
  * proved immeasurably useful for me. */
 
-static uint32_t* create_kernel(double radius, double deviation, uint32_t *sum2) {
-	int size = 2 * (int)(radius) + 1;
-	uint32_t* kernel = (uint32_t*)(g_malloc(sizeof(uint32_t) * (size + 1)));
-	double radiusf = fabs(radius) + 1.0;
-	double value = -radius;
-	double sum = 0.0;
-	int i;
+static uint32_t* create_kernel ( double radius, double deviation, uint32_t *sum2 )
+{
+    int     size     = 2 * (int) ( radius ) + 1;
+    uint32_t* kernel = (uint32_t *) ( g_malloc ( sizeof ( uint32_t ) * ( size + 1 ) ) );
+    double  radiusf  = fabs ( radius ) + 1.0;
+    double  value    = -radius;
+    double  sum      = 0.0;
+    int     i;
 
-    if(deviation == 0.0) {
-        deviation = sqrt( -(radiusf * radiusf) / (2.0 * log(1.0 / 255.0)));
+    if ( deviation == 0.0 ) {
+        deviation = sqrt ( -( radiusf * radiusf ) / ( 2.0 * log ( 1.0 / 255.0 ) ) );
     }
 
-	kernel[0] = size;
+    kernel[0] = size;
 
-	for(i = 0; i < size; i++) {
-        kernel[1 + i] = INT16_MAX / (2.506628275 * deviation) * exp(-((value * value) / (2.0 * (deviation * deviation)))) ;
+    for ( i = 0; i < size; i++ ) {
+        kernel[1 + i] = INT16_MAX / ( 2.506628275 * deviation ) * exp ( -( ( value * value ) / ( 2.0 * ( deviation * deviation ) ) ) );
 
-		sum += kernel[1 + i];
-		value += 1.0;
-	}
+        sum   += kernel[1 + i];
+        value += 1.0;
+    }
 
     *sum2 = sum;
 
-	return kernel;
+    return kernel;
 }
 
-void cairo_image_surface_blur(cairo_surface_t* surface, double radius, double deviation)
+void cairo_image_surface_blur ( cairo_surface_t* surface, double radius, double deviation )
 {
-    uint32_t* horzBlur;
-    uint32_t * kernel = 0;
+    uint32_t       * horzBlur;
+    uint32_t       * kernel = 0;
     cairo_format_t format;
-    unsigned int channels;
+    unsigned int   channels;
 
-    if(cairo_surface_status(surface)) return ;
+    if ( cairo_surface_status ( surface ) ) {
+        return;
+    }
 
-    uint8_t *data = cairo_image_surface_get_data(surface);
-    format = cairo_image_surface_get_format(surface);
-    const int width = cairo_image_surface_get_width(surface);
-    const int height = cairo_image_surface_get_height(surface);
-    const int stride = cairo_image_surface_get_stride(surface);
+    uint8_t   *data = cairo_image_surface_get_data ( surface );
+    format = cairo_image_surface_get_format ( surface );
+    const int width  = cairo_image_surface_get_width ( surface );
+    const int height = cairo_image_surface_get_height ( surface );
+    const int stride = cairo_image_surface_get_stride ( surface );
 
-    if(format == CAIRO_FORMAT_ARGB32) channels = 4;
-    else return ;
+    if ( format == CAIRO_FORMAT_ARGB32 ) {
+        channels = 4;
+    }
+    else{
+        return;
+    }
 
-    horzBlur = (uint32_t*)(g_malloc(sizeof(uint32_t) * height * stride));
-    TICK();
+    horzBlur = (uint32_t *) ( g_malloc ( sizeof ( uint32_t ) * height * stride ) );
+    TICK ();
     uint32_t sum = 0;
-    kernel = create_kernel(radius, deviation, &sum);
-    TICK_N("BLUR: kernel");
+    kernel = create_kernel ( radius, deviation, &sum );
+    TICK_N ( "BLUR: kernel" );
 
     /* Horizontal pass. */
     uint32_t *horzBlur_ptr = horzBlur;
-    for(int iY = 0; iY < height; iY++) {
-        const int iYs = iY*stride;
-        for(int iX = 0; iX < width; iX++) {
-            uint32_t red = 0;
-            uint32_t green = 0;
-            uint32_t blue = 0;
-            uint32_t alpha = 0;
-            int offset = (int)(kernel[0]) / -2;
+    for ( int iY = 0; iY < height; iY++ ) {
+        const int iYs = iY * stride;
+        for ( int iX = 0; iX < width; iX++ ) {
+            uint32_t red    = 0;
+            uint32_t green  = 0;
+            uint32_t blue   = 0;
+            uint32_t alpha  = 0;
+            int      offset = (int) ( kernel[0] ) / -2;
 
-            for(int i = 0; i < (int)(kernel[0]); i++) {
+            for ( int i = 0; i < (int) ( kernel[0] ); i++ ) {
                 int x = iX + offset;
 
-                if(x < 0 || x >= width){
+                if ( x < 0 || x >= width ) {
                     offset++;
                     continue;
                 }
 
-                uint8_t *dataPtr = &data[iYs + x * channels];
-                const uint32_t kernip1 = kernel[i + 1];
+                uint8_t        *dataPtr = &data[iYs + x * channels];
+                const uint32_t kernip1  = kernel[i + 1];
 
                 blue  += kernip1 * dataPtr[0];
                 green += kernip1 * dataPtr[1];
@@ -210,35 +217,34 @@ void cairo_image_surface_blur(cairo_surface_t* surface, double radius, double de
                 offset++;
             }
 
-
-            *horzBlur_ptr++ = blue/sum;
-            *horzBlur_ptr++ = green/sum;
-            *horzBlur_ptr++ = red/sum;
-            *horzBlur_ptr++ = alpha/sum;
+            *horzBlur_ptr++ = blue / sum;
+            *horzBlur_ptr++ = green / sum;
+            *horzBlur_ptr++ = red / sum;
+            *horzBlur_ptr++ = alpha / sum;
         }
     }
-    TICK_N("BLUR: hori");
+    TICK_N ( "BLUR: hori" );
 
     /* Vertical pass. */
-    for(int iY = 0; iY < height; iY++) {
-        for(int iX = 0; iX < width; iX++) {
-            uint32_t red = 0;
-            uint32_t green = 0;
-            uint32_t blue = 0;
-            uint32_t alpha = 0;
-            int offset = (int)(kernel[0]) / -2;
+    for ( int iY = 0; iY < height; iY++ ) {
+        for ( int iX = 0; iX < width; iX++ ) {
+            uint32_t  red    = 0;
+            uint32_t  green  = 0;
+            uint32_t  blue   = 0;
+            uint32_t  alpha  = 0;
+            int       offset = (int) ( kernel[0] ) / -2;
 
-            const int iXs = iX*channels;
-            for(int i = 0; i < (int)(kernel[0]); i++) {
+            const int iXs = iX * channels;
+            for ( int i = 0; i < (int) ( kernel[0] ); i++ ) {
                 int y = iY + offset;
 
-                if(y < 0 || y >= height) {
+                if ( y < 0 || y >= height ) {
                     offset++;
                     continue;
                 }
 
-                uint32_t *dataPtr = &horzBlur[y * stride + iXs];
-                const uint32_t kernip1 = kernel[i + 1];
+                uint32_t       *dataPtr = &horzBlur[y * stride + iXs];
+                const uint32_t kernip1  = kernel[i + 1];
 
                 blue  += kernip1 * dataPtr[0];
                 green += kernip1 * dataPtr[1];
@@ -248,22 +254,19 @@ void cairo_image_surface_blur(cairo_surface_t* surface, double radius, double de
                 offset++;
             }
 
-
-            *data++ = blue/sum;
-            *data++ = green/sum;
-            *data++ = red/sum;
-            *data++ = alpha/sum;
+            *data++ = blue / sum;
+            *data++ = green / sum;
+            *data++ = red / sum;
+            *data++ = alpha / sum;
         }
     }
-    TICK_N("BLUR: vert");
+    TICK_N ( "BLUR: vert" );
 
-    free(kernel);
-    free(horzBlur);
+    free ( kernel );
+    free ( horzBlur );
 
-    return ;
+    return;
 }
-
-
 
 cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size )
 {
@@ -824,11 +827,11 @@ static int monitor_active_from_id_focused ( int mon_id, workarea *mon )
             mon->w = r->width;
             mon->h = r->height;
             retv   = TRUE;
-            if ( (current_window_manager&WM_ROOT_WINDOW_OFFSET) == WM_ROOT_WINDOW_OFFSET ){
-              mon->x += r->x;
-              mon->y += r->y;
+            if ( ( current_window_manager & WM_ROOT_WINDOW_OFFSET ) == WM_ROOT_WINDOW_OFFSET ) {
+                mon->x += r->x;
+                mon->y += r->y;
             }
-            g_debug("mon pos: %d %d %d-%d", mon->x, mon->y, mon->w, mon->h);
+            g_debug ( "mon pos: %d %d %d-%d", mon->x, mon->y, mon->w, mon->h );
         }
         else if ( mon_id == -4 ) {
             monitor_dimensions ( t->dst_x, t->dst_y, mon );
@@ -1051,10 +1054,9 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     case XCB_CLIENT_MESSAGE:
     {
         xcb_client_message_event_t *cme = (xcb_client_message_event_t *) event;
-        xcb_atom_t atom = cme->data.data32[0];
-        xcb_timestamp_t time = cme->data.data32[1];
-        if ( atom == netatoms[WM_TAKE_FOCUS] )
-        {
+        xcb_atom_t                 atom = cme->data.data32[0];
+        xcb_timestamp_t            time = cme->data.data32[1];
+        if ( atom == netatoms[WM_TAKE_FOCUS] ) {
             xcb_set_input_focus ( xcb->connection, XCB_INPUT_FOCUS_NONE, cme->window, time );
             xcb_flush ( xcb->connection );
         }
@@ -1211,25 +1213,27 @@ void rofi_xcb_set_input_focus ( xcb_window_t w )
         xcb->focus_revert = 0;
         return;
     }
-    xcb_generic_error_t *error;
-    xcb_get_input_focus_reply_t *freply;
+    xcb_generic_error_t          *error;
+    xcb_get_input_focus_reply_t  *freply;
     xcb_get_input_focus_cookie_t fcookie = xcb_get_input_focus ( xcb->connection );
     freply = xcb_get_input_focus_reply ( xcb->connection, fcookie, &error );
     if ( error != NULL ) {
         g_warning ( "Could not get input focus (error %d), will revert focus to best effort", error->error_code );
         free ( error );
         xcb->focus_revert = 0;
-    } else {
+    }
+    else {
         xcb->focus_revert = freply->focus;
     }
     xcb_set_input_focus ( xcb->connection, XCB_INPUT_FOCUS_POINTER_ROOT, w, XCB_CURRENT_TIME );
     xcb_flush ( xcb->connection );
 }
 
-void rofi_xcb_revert_input_focus (void)
+void rofi_xcb_revert_input_focus ( void )
 {
-    if ( xcb->focus_revert == 0 )
+    if ( xcb->focus_revert == 0 ) {
         return;
+    }
 
     xcb_set_input_focus ( xcb->connection, XCB_INPUT_FOCUS_POINTER_ROOT, xcb->focus_revert, XCB_CURRENT_TIME );
     xcb_flush ( xcb->connection );
@@ -1355,7 +1359,7 @@ static void x11_helper_discover_window_manager ( void )
                     current_window_manager = WM_DO_NOT_CHANGE_CURRENT_DESKTOP | WM_PANGO_WORKSPACE_NAMES;
                 }
                 else if ( g_strcmp0 ( wtitle.strings, "bspwm" ) == 0 ) {
-                  current_window_manager = WM_ROOT_WINDOW_OFFSET;
+                    current_window_manager = WM_ROOT_WINDOW_OFFSET;
                 }
             }
             xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
@@ -1526,11 +1530,12 @@ static void x11_create_visual_and_colormap ( void )
     }
 }
 
-static void x11_lookup_cursors ( void ) {
+static void x11_lookup_cursors ( void )
+{
     xcb_cursor_context_t *ctx;
 
-    if ( xcb_cursor_context_new( xcb->connection, xcb->screen, &ctx ) < 0 ) {
-      return;
+    if ( xcb_cursor_context_new ( xcb->connection, xcb->screen, &ctx ) < 0 ) {
+        return;
     }
 
     for ( int i = 0; i < NUM_CURSORS; ++i ) {
@@ -1683,7 +1688,7 @@ void x11_set_cursor ( xcb_window_t window, X11CursorType type )
     }
 
     if ( cursors[type] == XCB_CURSOR_NONE ) {
-      return;
+        return;
     }
 
     xcb_change_window_attributes ( xcb->connection, window, XCB_CW_CURSOR, &( cursors[type] ) );
