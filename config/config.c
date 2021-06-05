@@ -128,6 +128,9 @@ Settings config = {
     /** Desktop Link launch command */
     .drun_url_launcher         = "xdg-open",
 
+    /** Directory the file browser starts in */
+    .file_browser_directory = NULL,
+
     /** Window fields to match in window mode*/
     .window_match_fields       = "all",
     /** Monitor */
