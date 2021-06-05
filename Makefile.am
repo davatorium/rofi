@@ -543,6 +543,7 @@ mode_test_SOURCES=\
 				  test/mode-test.c\
 			      source/dialogs/help-keys.c\
 				  source/helper.c\
+				  source/theme.c\
 				  source/mode.c\
 				  source/rofi-types.c\
 				  include/rofi-types.h\
@@ -558,6 +559,7 @@ helper_tokenize_SOURCES=\
 					   include/mode.h\
 					   include/mode-private.h\
 					   source/helper.c\
+					   source/theme.c\
 					   source/rofi-types.c\
 					   include/rofi-types.h\
 					   include/helper.h\

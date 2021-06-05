@@ -441,6 +441,7 @@ if check.found()
             'config/config.c',
             'source/dialogs/help-keys.c',
             'source/helper.c',
+            'source/theme.c',
             'source/mode.c',
             'source/xrmoptions.c',
             'source/rofi-types.c',
@@ -455,6 +456,7 @@ if check.found()
         objects: rofi.extract_objects([
             'config/config.c',
             'source/helper.c',
+            'source/theme.c',
             'source/xrmoptions.c',
             'source/rofi-types.c',
         ]),

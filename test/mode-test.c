@@ -37,14 +37,31 @@
 #include <mode-private.h>
 #include <dialogs/help-keys.h>
 #include <xkbcommon/xkbcommon.h>
+#include "theme.h"
 #include "rofi.h"
 #include "display.h"
 #include "xcb.h"
+#include "widgets/textbox.h"
 #include <keyb.h>
 #include <helper.h>
 
 #include <check.h>
 
+ThemeWidget *rofi_theme = NULL;
+
+gboolean rofi_theme_parse_string ( const char *string )
+{
+  return FALSE;
+}
+
+double textbox_get_estimated_char_height ( void  )
+{
+  return 16.0;
+}
+double textbox_get_estimated_ch ( void )
+{
+  return 9.0;
+}
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
@@ -56,11 +73,6 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );
     return TRUE;
-}
-int textbox_get_estimated_char_height ( void );
-int textbox_get_estimated_char_height ( void )
-{
-    return 16;
 }
 void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
@@ -119,7 +131,7 @@ END_TEST
 START_TEST(test_mode_num_items)
 {
     unsigned int rows = mode_get_num_entries ( &help_keys_mode);
-    ck_assert_int_eq ( rows, 72);
+    ck_assert_int_eq ( rows, 73);
     for ( unsigned int i =0; i < rows; i++  ){
         int state = 0;
         GList *list = NULL;
