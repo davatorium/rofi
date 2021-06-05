@@ -40,6 +40,7 @@
 #include "mode-private.h"
 #include "dialogs/filebrowser.h"
 #include "rofi.h"
+#include "settings.h"
 #include "history.h"
 
 #include <stdint.h>
@@ -193,6 +194,36 @@ static void get_file_browser (  Mode *sw )
     g_qsort_with_data ( pd->array, pd->array_length, sizeof ( FBFile ), compare, NULL );
 }
 
+static void file_browser_mode_init_current_dir ( Mode *sw ) {
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+
+    gboolean config_has_valid_dir = config.file_browser_directory != NULL
+        && g_file_test ( config.file_browser_directory, G_FILE_TEST_IS_DIR );
+
+    if ( config_has_valid_dir ) {
+        pd->current_dir = g_file_new_for_path ( config.file_browser_directory );
+    } else {
+        char *current_dir = NULL;
+        char *cache_file = g_build_filename ( cache_dir, FILEBROWSER_CACHE_FILE, NULL );
+
+        if ( g_file_get_contents ( cache_file, &current_dir, NULL, NULL ) ) {
+            if ( g_file_test ( current_dir, G_FILE_TEST_IS_DIR ) ) {
+                pd->current_dir = g_file_new_for_path ( current_dir );
+            }
+
+            g_free ( current_dir );
+        }
+
+        // Store it based on the unique identifiers (desktop_id).
+        g_free ( cache_file );
+    }
+
+
+    if ( pd->current_dir == NULL ) {
+        pd->current_dir = g_file_new_for_path ( g_get_home_dir () );
+    }
+}
+
 static int file_browser_mode_init ( Mode *sw )
 {
     /**
@@ -201,21 +232,9 @@ static int file_browser_mode_init ( Mode *sw )
     if ( mode_get_private_data ( sw ) == NULL ) {
         FileBrowserModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
-        {
-            char *path = g_build_filename ( cache_dir, FILEBROWSER_CACHE_FILE, NULL );
-            char *file = NULL;
-            if ( g_file_get_contents ( path, &file, NULL, NULL ) ) {
-                if ( g_file_test ( file, G_FILE_TEST_IS_DIR ) ) {
-                    pd->current_dir = g_file_new_for_path ( file );
-                }
-                g_free ( file );
-            }
-            // Store it based on the unique identifiers (desktop_id).
-            g_free ( path );
-            if ( pd->current_dir == NULL ) {
-                pd->current_dir = g_file_new_for_path ( g_get_home_dir () );
-            }
-        }
+
+        file_browser_mode_init_current_dir ( sw );
+
         // Load content.
         get_file_browser ( sw );
     }
