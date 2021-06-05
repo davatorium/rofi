@@ -721,6 +721,12 @@ Set ellipsize mode to start. So end of string is visible.
 Pops up a message dialog (used internally for showing errors) with *message*.
 Message can be multi-line.
 
+### File browser settings
+
+`-file-browser-directory` *directory*
+
+Directory the file browser starts in.
+
 ### Other
 
 `-drun-use-desktop-cache`

@@ -145,6 +145,9 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "drun-url-launcher",         { .str   = &config.drun_url_launcher                    }, NULL,
       "Command to open an Desktop Entry that is a Link.", CONFIG_DEFAULT },
 
+    { xrm_String,  "file-browser-directory",    { .str   = &config.file_browser_directory               }, NULL,
+      "Directory the file browser starts in", CONFIG_DEFAULT },
+
     { xrm_Boolean, "disable-history",           { .num   = &config.disable_history                      }, NULL,
       "Disable history in run/ssh", CONFIG_DEFAULT },
     { xrm_String,  "ignored-prefixes",          { .str   = &config.ignored_prefixes                     }, NULL,
