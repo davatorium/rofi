@@ -68,6 +68,8 @@ Markup support can be enabled, see CONFIGURATION options.
 .SH CONFIGURATION
 .PP
 There are currently three methods of setting configuration options (evaluated in order below):
+
+.RS
 .IP \(bu 2
 System configuration file  (for example \fB\fC/etc/rofi.rasi\fR).
 It first checks XDG\_CONFIG\_DIRS  and then SYSCONFDIR (that is passed at compile time).
@@ -76,6 +78,8 @@ It loads the first config file it finds, it does not merge multiple system confi
 Rasi theme file: The new \fItheme\fP format can be used to set configuration values.
 .IP \(bu 2
 Command\-line options: Arguments passed to \fBrofi\fP\&.
+
+.RE
 
 .PP
 \fBTIP\fP: To get a template config file run: \fB\fCrofi \-dump\-config > config.rasi\fR
@@ -97,6 +101,8 @@ This will contain (commented) all current configuration options.
 
 .PP
 The configuration system supports the following types:
+
+.RS
 .IP \(bu 2
 string
 .IP \(bu 2
@@ -104,9 +110,11 @@ integer (signed and unsigned)
 .IP \(bu 2
 char
 .IP \(bu 2
-Boolean
+boolean
 .IP \(bu 2
 lists
+
+.RE
 
 .PP
 For the syntax of these options see the \fBrofi\-theme(5)\fP manpage.
@@ -177,12 +185,16 @@ Try to parse the file and 0 when succesful.
 
 .PP
 Specify the number of threads \fBrofi\fP should use:
+
+.RS
 .IP \(bu 2
 0: Autodetect the number of supported hardware threads.
 .IP \(bu 2
 1: Disable threading
 .IP \(bu 2
 2..N: Specify the maximum number of threads to use in the thread pool.
+
+.RE
 
 .PP
 \fB\fC\-display\fR \fIdisplay\fP
@@ -387,6 +399,8 @@ Make rofi steal focus on launch and restore close to window that held it when la
 .PP
 Specify the matching algorithm used.
 Current the following methods are supported.
+
+.RS
 .IP \(bu 2
 \fBnormal\fP: match the int string
 .IP \(bu 2
@@ -397,6 +411,8 @@ Current the following methods are supported.
 \fBfuzzy\fP: do a fuzzy match
 .IP \(bu 2
 \fBprefix\fP: match prefix
+
+.RE
 
 .PP
 Default: \fInormal\fP
@@ -422,6 +438,8 @@ Only show desktop files that are present in the listed categories.
 .PP
 When using \fB\fCdrun\fR, match only with the specified Desktop entry fields.
 The different fields are:
+
+.RS
 .IP \(bu 2
 \fBname\fP: the application's name
 .IP \(bu 2
@@ -439,11 +457,15 @@ The different fields are:
 .PP
 Default: \fIname,generic,exec,categories,keywords\fP
 
+.RE
+
 .PP
 \fB\fC\-drun\-display\-format\fR
 
 .PP
 The format string for the \fB\fCdrun\fR dialog:
+
+.RS
 .IP \(bu 2
 \fBname\fP: the application's name
 .IP \(bu 2
@@ -454,6 +476,8 @@ The format string for the \fB\fCdrun\fR dialog:
 \fBcategories\fP: the application's categories
 .IP \(bu 2
 \fBcomment\fP: the application comment
+
+.RE
 
 .PP
 Pango markup can be used to formatting the output.
@@ -491,6 +515,8 @@ Default: false
 .PP
 When using window mode, match only with the specified fields.
 The different fields are:
+
+.RS
 .IP \(bu 2
 \fBtitle\fP: window's title
 .IP \(bu 2
@@ -507,6 +533,8 @@ The different fields are:
 \fBall\fP: all of the above
 .PP
 Default: \fIall\fP
+
+.RE
 
 .PP
 \fB\fC\-matching\-negate\-char\fR \fIchar\fP
@@ -707,6 +735,8 @@ When one entry is left, automatically select it.
 Select monitor to display \fBrofi\fP on.
 It accepts as input: \fIprimary\fP (if primary output is set), the \fIxrandr\fP output name, or integer number (in order of
 detection). Negative numbers are handled differently:
+
+.RS
 .IP \(bu 2
 \fB\-1\fP: the currently focused monitor.
 .IP \(bu 2
@@ -722,6 +752,8 @@ behavior.)
 \fB\-5\fP: the monitor that shows the mouse pointer.
 .PP
 Default: \fI\-5\fP
+
+.RE
 
 .PP
 See \fB\fCrofi \-h\fR output for the detected monitors, their position, and size.
@@ -758,10 +790,14 @@ This option can be specified multiple times.
 
 .PP
 Override the default DPI setting.
+
+.RS
 .IP \(bu 2
 If set to \fB\fC0\fR, it tries to auto\-detect based on X11 screen size (similar to i3 and GTK).
 .IP \(bu 2
 If set to \fB\fC1\fR, it tries to auto\-detect based on the size of the monitor that \fBrofi\fP is displayed on (similar to latest Qt 5).
+
+.RE
 
 .PP
 \fB\fC\-selected\-row\fR \fIselected row\fP
@@ -881,6 +917,8 @@ Format what is being displayed for windows.
 
 .PP
 \fIfield\fP:
+
+.RS
 .IP \(bu 2
 \fBw\fP: desktop name
 .IP \(bu 2
@@ -891,6 +929,8 @@ Format what is being displayed for windows.
 \fBr\fP: role
 .IP \(bu 2
 \fBc\fP: class
+
+.RE
 
 .PP
 \fIlen\fP: maximum field length (0 for auto\-size). If length and window \fIwidth\fP are negative, field length is \fIwidth \- len\fP\&.
@@ -958,10 +998,14 @@ This setting can be changed at runtime (see \fB\fC\-kb\-toggle\-sort\fR).
 
 .PP
 There are 2 sorting method:
+
+.RS
 .IP \(bu 2
 levenshtein (Default)
 .IP \(bu 2
 fzf sorting.
+
+.RE
 
 .PP
 \fB\fC\-max\-history\-size\fR \fInumber\fP
@@ -1032,6 +1076,8 @@ Makes \fB\fCdmenu\fR searches case\-insensitive
 
 .PP
 Active row, mark \fIX\fP as active. Where \fIX\fP is a comma\-separated list of python(1)\-style indices and ranges, e.g.  indices start at 0, \-1 refers to the last row with \-2 preceding it, ranges are left\-open and right\-close, and so on. You can specify:
+
+.RS
 .IP \(bu 2
 A single row: '5'
 .IP \(bu 2
@@ -1042,6 +1088,8 @@ A range of (last 3) rows: '\-3:'
 A set of rows: '2,0,\-9'
 .IP \(bu 2
 Or any combination: '5,\-3:,7:11,2,0,\-9'
+
+.RE
 
 .PP
 \fB\fC\-u\fR \fIX\fP
@@ -1069,6 +1117,8 @@ This mode returns directly when no entries given.
 
 .PP
 Allows the output of dmenu to be customized (N is the total number of input entries):
+
+.RS
 .IP \(bu 2
 \&'s' selected string
 .IP \(bu 2
@@ -1083,6 +1133,8 @@ Allows the output of dmenu to be customized (N is the total number of input entr
 \&'f' filter string (user input)
 .IP \(bu 2
 \&'F' quoted filter string (user input)
+
+.RE
 
 .PP
 Default: 's'
@@ -1188,12 +1240,6 @@ Message can be multi\-line.
 .PP
 Directory the file browser starts in.
 
-.PP
-.RS
-
-.fi
-.RE
-
 .SS Other
 .PP
 \fB\fC\-drun\-use\-desktop\-cache\fR
@@ -1242,50 +1288,11 @@ Click the mouse outside of the \fBrofi\fP window to exit.
 .PP
 Default: \fIenabled\fP
 
-.SS Debug
-.PP
-\fB\fC\-no\-config\fR
-
-.PP
-Disable parsing of configuration. This runs rofi in \fIstock\fP mode.
-
-.PP
-\fB\fC\-no\-plugins\fR
-
-.PP
-Disables the loading of plugins.
-
-.PP
-To get a trace with (lots of) debug information, set the following environment variable when executing \fBrofi\fP:
-
-.PP
-.RS
-
-.nf
-G\_MESSAGES\_DEBUG=all
-
-.fi
-.RE
-
-.PP
-The trace can be filtered by only outputting the relevant domains, for example:
-
-.PP
-.RS
-
-.nf
-G\_MESSAGES\_DEBUG=Dialogs.DRun
-
-.fi
-.RE
-
-.PP
-For more information on debugging, see the wiki
-\[la]https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi\[ra]
-
 .SH PATTERN
 .PP
 To launch commands (for example, when using the ssh launcher), the user can enter the used command\-line. The following keys can be used that will be replaced at runtime:
+
+.RS
 .IP \(bu 2
 \fB\fC{host}\fR: the host to connect to
 .IP \(bu 2
@@ -1296,6 +1303,8 @@ To launch commands (for example, when using the ssh launcher), the user can ente
 \fB\fC{cmd}\fR: the command to execute
 .IP \(bu 2
 \fB\fC{window}\fR: the window ID of the selected window (in \fB\fCwindow\-command\fR)
+
+.RE
 
 .SH DMENU REPLACEMENT
 .PP
@@ -1313,11 +1322,13 @@ ln \-s /usr/bin/rofi /usr/bin/dmenu
 
 .SH THEMING
 .PP
-Please see rofi\-theme(5) manpage for more information on themeing.
+Please see \fBrofi\-theme(5)\fP manpage for more information on themeing.
 
 .SH KEY BINDINGS
 .PP
 \fBrofi\fP has the following key bindings:
+
+.RS
 .IP \(bu 2
 \fB\fCCtrl\-v, Insert\fR: Paste from clipboard
 .IP \(bu 2
@@ -1385,6 +1396,8 @@ Please see rofi\-theme(5) manpage for more information on themeing.
 .IP \(bu 2
 \fB\fCCtrl\-l\fR: File complete for run dialog.
 
+.RE
+
 .PP
 To get a full list of key bindings on the commandline, see \fB\fCrofi \-h\fR\&.
 The options starting with \fB\fC\-kb\fR are keybindings.
@@ -1402,6 +1415,9 @@ Pressing the \fB\fCdelete\-entry\fR binding (\fB\fCshift\-delete\fR) will close 
 Pressing the \fB\fCaccept\-custom\fR binding (\fB\fCcontrol\-enter\fR or \fB\fCshift\-enter\fR) will run a command on the window.
 (See option \fB\fCwindow\-command\fR );
 
+.PP
+If there is no match, it will try to launch the input.
+
 .SS windowcd
 .PP
 Shows a list of the windows on the current desktop and allows switching between them.
@@ -1418,12 +1434,24 @@ Shows a list of executables in \fB\fC$PATH\fR and can launch them (optional in a
 Pressing the \fB\fCdelete\-entry\fR binding (\fB\fCshift\-delete\fR) will remove this entry from the run history.
 Pressing the \fB\fCaccept\-custom\fR binding (\fB\fCcontrol\-enter\fR or \fB\fCshift\-enter\fR) will run the command in a terminal.
 
+.PP
+When pressing the \fB\fCmode\-complete\fR binding (\fB\fCControl\-l\fR), you can use the File Browser mode to launch the application
+with a file as the first argument.
+
 .SS drun
 .PP
 Same as the \fBrun\fP launches, but the list is created from the installed desktop files. It automatically launches them
 in a terminal if specified in the Desktop File.
 Pressing the \fB\fCdelete\-entry\fR binding (\fB\fCshift\-delete\fR) will remove this entry from the run history.
 Pressing the \fB\fCaccept\-custom\fR binding (\fB\fCcontrol\-enter\fR or \fB\fCshift\-enter\fR) will run the command in a terminal.
+
+.PP
+The DRUN mode tries to follows the XDG Desktop Entry
+Specification
+\[la]https://freedesktop.org/wiki/Specifications/desktop-entry-spec/\[ra] and should be compatible with
+applications using this standard.  Some application create invalid desktop files, \fBrofi\fP will discard these entries.
+See de debugging section how to get more information from the DRUN mode, this will print why desktop files are
+discarded.
 
 .SS ssh
 .PP
@@ -1435,7 +1463,7 @@ Shows a searchable list of key bindings.
 
 .SS script
 .PP
-Allows custom scripted Modi to be added.
+Allows custom scripted Modi to be added, see the \fBrofi\-script(5)\fP manpage for more information.
 
 .SS combi
 .PP
@@ -1636,14 +1664,85 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 .SH SUPPORT
 .PP
-\fBrofi\fP support can be obtained here
-\[la]irc://irc.libera.chat:6697/#rofi\[ra] (#rofi on irc.libera.chat), or via the
-forum
+\fBrofi\fP support can be obtained:
+ * GitHub Discussions
+\[la]https://github.com/davatorium/rofi/discussions\[ra]
+ * Forum (reddit)
 \[la]https://reddit.com/r/qtools//\[ra]
+ * IRC
+\[la]irc://irc.libera.chat:6697/#rofi\[ra] (#rofi on irc.libera.chat),
 
 .SH DEBUGGING
 .PP
-Please see this
+To debug it is smart to first try disabling your custom configuration:
+\fB\fC\-no\-config\fR
+
+.PP
+Disable parsing of configuration. This runs rofi in \fIstock\fP mode.
+
+.PP
+If you run custom C plugins, you can disable them using:
+
+.PP
+\fB\fC\-no\-plugins\fR
+
+.PP
+Disables the loading of plugins.
+
+.PP
+To further debug the plugin, you can get a trace with (lots of) debug information.  This debug output can be enabled for
+multiple parts in rofi using the glib debug framework. Debug domains can be enabled by setting the G\_MESSAGES\_DEBUG
+environment variable. At creation of this page the following debug domains exists:
+
+.RS
+.IP \(bu 2
+all: Show debug information from all domains.
+.IP \(bu 2
+X11Helper: The X11 Helper functions.
+.IP \(bu 2
+View: The main rofi\_view functions.
+.IP \(bu 2
+Widgets.Box: The Box widget.
+.IP \(bu 2
+Dialogs.DMenu: The dmenu mode.
+.IP \(bu 2
+Dialogs.Run: The run mode.
+.IP \(bu 2
+Dialogs.DRun: The desktop file run mode.
+.IP \(bu 2
+Dialogs.Window: The window mode.
+.IP \(bu 2
+Dialogs.Script: The script mode.
+.IP \(bu 2
+Dialogs.Combi: The script mode.
+.IP \(bu 2
+Dialogs.Ssh: The ssh mode.
+.IP \(bu 2
+Rofi: The main application.
+.IP \(bu 2
+Timings: Get timing output.
+.IP \(bu 2
+Theme: Theme engine debug output. (warning lots of output).
+.IP \(bu 2
+Widgets.Icon: The Icon widget.
+.IP \(bu 2
+Widgets.Line: The line widget.
+.IP \(bu 2
+Widgets.Box: The box widget.
+.IP \(bu 2
+Widgets.Container: The container widget.
+.IP \(bu 2
+Widgets.Window: The window widget.
+.IP \(bu 2
+Helpers.IconFetcher: Information about icon lookup.
+
+.RE
+
+.PP
+The output of this can provide useful information when writing an issue.
+
+.PP
+More information (possibly outdated) see this
 \[la]https://github.com/DaveDavenport/rofi/wiki/Debugging Rofi\[ra] wiki entry.
 
 .SH ISSUE TRACKER
@@ -1660,7 +1759,9 @@ first.
 .PP
 \fBrofi\-sensible\-terminal(1)\fP, \fBdmenu(1)\fP, \fBrofi\-theme(5)\fP, \fBrofi\-script(5)\fP, \fBrofi\-theme\-selector(1)\fP
 
-.SH AUTHOR.IP \(bu 2
+.SH AUTHOR
+.RS
+.IP \(bu 2
 Qball Cow 
 \[la]qball@gmpclient.org\[ra]
 .IP \(bu 2
@@ -1669,6 +1770,8 @@ Rasmus Steinke
 .IP \(bu 2
 Quentin Glidic 
 \[la]sardemff7+rofi@sardemff7.net\[ra]
+
+.RE
 
 .PP
 Original code based on work by: Sean Pringle 

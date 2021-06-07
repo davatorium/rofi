@@ -72,7 +72,7 @@ The configuration system supports the following types:
  * string
  * integer (signed and unsigned)
  * char
- * Boolean
+ * boolean
  * lists
 
 For the syntax of these options see the **rofi-theme(5)** manpage.
@@ -761,30 +761,6 @@ Click the mouse outside of the **rofi** window to exit.
 
 Default: *enabled*
 
-### Debug
-
-`-no-config`
-
-Disable parsing of configuration. This runs rofi in *stock* mode.
-
-`-no-plugins`
-
-Disables the loading of plugins.
-
-To get a trace with (lots of) debug information, set the following environment variable when executing **rofi**:
-
-```
-G_MESSAGES_DEBUG=all
-```
-
-The trace can be filtered by only outputting the relevant domains, for example:
-
-```
-G_MESSAGES_DEBUG=Dialogs.DRun
-```
-
-For more information on debugging, see the [wiki](https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi)
-
 ## PATTERN
 
 To launch commands (for example, when using the ssh launcher), the user can enter the used command-line. The following keys can be used that will be replaced at runtime:
@@ -804,7 +780,7 @@ This way it can be used as a drop-in replacement for dmenu. Just copy or symlink
 
 ## THEMING
 
-Please see rofi-theme(5) manpage for more information on themeing. 
+Please see **rofi-theme(5)** manpage for more information on themeing.
 
 ## KEY BINDINGS
 
@@ -860,6 +836,8 @@ Pressing the `delete-entry` binding (`shift-delete`) will close the window.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run a command on the window.
 (See option `window-command` );
 
+If there is no match, it will try to launch the input.
+
 ### windowcd
 
 Shows a list of the windows on the current desktop and allows switching between them.
@@ -875,12 +853,21 @@ Shows a list of executables in `$PATH` and can launch them (optional in a termin
 Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run the command in a terminal.
 
+When pressing the `mode-complete` binding (`Control-l`), you can use the File Browser mode to launch the application
+with a file as the first argument.
+
 ### drun
 
 Same as the **run** launches, but the list is created from the installed desktop files. It automatically launches them
 in a terminal if specified in the Desktop File.
 Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run the command in a terminal.
+
+The DRUN mode tries to follows the [XDG Desktop Entry
+Specification](https://freedesktop.org/wiki/Specifications/desktop-entry-spec/) and should be compatible with
+applications using this standard.  Some application create invalid desktop files, **rofi** will discard these entries.
+See de debugging section how to get more information from the DRUN mode, this will print why desktop files are
+discarded.
 
 ### ssh
 
@@ -892,7 +879,7 @@ Shows a searchable list of key bindings.
 
 ### script
 
-Allows custom scripted Modi to be added.
+Allows custom scripted Modi to be added, see the **rofi-script(5)** manpage for more information.
 
 ### combi
 
@@ -1003,12 +990,52 @@ been released.
 
 ## SUPPORT
 
-**rofi** support can be obtained [here](irc://irc.libera.chat:6697/#rofi) (#rofi on irc.libera.chat), or via the
-[forum](https://reddit.com/r/qtools//)
+**rofi** support can be obtained:
+ * [GitHub Discussions](https://github.com/davatorium/rofi/discussions)
+ * [Forum (reddit)](https://reddit.com/r/qtools//)
+ * [IRC](irc://irc.libera.chat:6697/#rofi) (#rofi on irc.libera.chat),
 
 ## DEBUGGING
 
-Please see [this](https://github.com/DaveDavenport/rofi/wiki/Debugging Rofi) wiki entry.
+To debug it is smart to first try disabling your custom configuration:
+`-no-config`
+
+Disable parsing of configuration. This runs rofi in *stock* mode.
+
+If you run custom C plugins, you can disable them using:
+
+`-no-plugins`
+
+Disables the loading of plugins.
+
+To further debug the plugin, you can get a trace with (lots of) debug information.  This debug output can be enabled for
+multiple parts in rofi using the glib debug framework. Debug domains can be enabled by setting the G_MESSAGES_DEBUG
+environment variable. At creation of this page the following debug domains exists:
+
+ * all: Show debug information from all domains.
+ * X11Helper: The X11 Helper functions.
+ * View: The main rofi_view functions.
+ * Widgets.Box: The Box widget.
+ * Dialogs.DMenu: The dmenu mode.
+ * Dialogs.Run: The run mode.
+ * Dialogs.DRun: The desktop file run mode.
+ * Dialogs.Window: The window mode.
+ * Dialogs.Script: The script mode.
+ * Dialogs.Combi: The script mode.
+ * Dialogs.Ssh: The ssh mode.
+ * Rofi: The main application.
+ * Timings: Get timing output.
+ * Theme: Theme engine debug output. (warning lots of output).
+ * Widgets.Icon: The Icon widget.
+ * Widgets.Line: The line widget.
+ * Widgets.Box: The box widget.
+ * Widgets.Container: The container widget.
+ * Widgets.Window: The window widget.
+ * Helpers.IconFetcher: Information about icon lookup.
+
+The output of this can provide useful information when writing an issue.
+
+More information (possibly outdated) see [this](https://github.com/DaveDavenport/rofi/wiki/Debugging Rofi) wiki entry.
 
 ## ISSUE TRACKER
 
