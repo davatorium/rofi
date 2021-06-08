@@ -561,7 +561,15 @@ Default: '\-'
 .fi
 .RE
 
-.SS Layout
+.SS Layout and Themeing
+.PP
+\fBIMPORTANT\fP
+  In newer \fBrofi\fP releases all the themeing options are moved into the new theme format. The are no longer normal
+  \fBrofi\fP options that can be passed directly on the commandline (there are to many).
+  Small snippets can be passed on the commandline: \fB\fCrofi \-theme\-str 'window {width: 50%;}'\fR to override a single
+  setting. The are merged into the current theme.
+  They can also be appened at the end of the \fBrofi\fP config file to override parts of the theme.
+
 .PP
 Most of the following options are \fBdeprecated\fP and should not be used. Please use the new theme format to customize
 \fBrofi\fP\&. More information about the new format can be found in the \fBrofi\-theme(5)\fP manpage.
@@ -703,6 +711,7 @@ rofi \-theme\-str '#window { fullscreen: true; }'
 
 .PP
 This option can be specified multiple times.
+This is now the method to tweak the theme via the commandline.
 
 .PP
 \fB\fC\-dpi\fR  \fInumber\fP

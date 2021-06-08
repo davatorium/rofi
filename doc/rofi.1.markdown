@@ -320,7 +320,14 @@ Set to '\x0' to disable.
     Default: '-'
 
 
-### Layout
+### Layout and Themeing
+
+**IMPORTANT**
+  In newer **rofi** releases all the themeing options are moved into the new theme format. The are no longer normal
+  **rofi** options that can be passed directly on the commandline (there are to many).
+  Small snippets can be passed on the commandline: `rofi -theme-str 'window {width: 50%;}'` to override a single
+  setting. The are merged into the current theme.
+  They can also be appened at the end of the **rofi** config file to override parts of the theme.
 
 Most of the following options are **deprecated** and should not be used. Please use the new theme format to customize
 **rofi**. More information about the new format can be found in the **rofi-theme(5)** manpage.
@@ -400,6 +407,7 @@ For example:
     rofi -theme-str '#window { fullscreen: true; }'
 
 This option can be specified multiple times.
+This is now the method to tweak the theme via the commandline.
 
 `-dpi`  *number*
 
