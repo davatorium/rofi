@@ -1027,7 +1027,6 @@ environment variable. At creation of this page the following debug domains exist
  * Timings: Get timing output.
  * Theme: Theme engine debug output. (warning lots of output).
  * Widgets.Icon: The Icon widget.
- * Widgets.Line: The line widget.
  * Widgets.Box: The box widget.
  * Widgets.Container: The container widget.
  * Widgets.Window: The window widget.

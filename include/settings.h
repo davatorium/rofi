@@ -160,9 +160,6 @@ typedef struct
     unsigned int   tokenize;
     /** Monitors */
     char           *monitor;
-    /** Line margin */
-    unsigned int   line_margin;
-    unsigned int   line_padding;
     /** filter */
     char           *filter;
     /** style */
