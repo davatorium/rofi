@@ -71,7 +71,18 @@ Below is a list of the different modi:
 
 # Manpage
 
-For more up to date information, please see the [manpage](doc/rofi.1.markdown), the [wiki](https://github.com/davatorium/rofi/wiki), or the [forum](https://reddit.com/r/qtools/).
+For more up to date information, please see the manpages:
+
+ * Manpages:
+     * [rofi](doc/rofi.1.markdown)
+     * [rofi-theme](doc/rofi.5.markdown)
+     * [rofi-script](doc/rofi-script.5.markdown)
+     * [rofi-theme-selector](doc/rofi-theme-selector.1.markdown)
+ * Discussion places:
+     * [Reddit](https://reddit.com/r/qtools/)
+     * [GitHub Discussions](https://github.com/davatorium/rofi/discussions)
+     * IRC (#rofi on irc.libera.chat)
+ * [wiki](https://github.com/davatorium/rofi/wiki) (Currently unmaintained).
 
 # Installation
 
@@ -82,9 +93,8 @@ install **Rofi**.
 
 Rofi is not:
 
-*   A preview application. In other words, it will not show a (small) preview of images, movies or other files.
 *   A UI toolkit.
 *   A library to be used in other applications.
 *   An application that can support every possible use-case. It tries to be generic enough to be usable by everybody.
-    * Specific functionality can be added using scripts or plugins.
+    * Specific functionality can be added using scripts or plugins, many exists.
 *   Just a dmenu replacement. The dmenu functionality is a nice 'extra' to **rofi**, not its main purpose.
