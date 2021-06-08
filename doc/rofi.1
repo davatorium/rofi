@@ -166,7 +166,7 @@ Dump the current active theme, in rasi format, to stdout and exit.
 \fB\fC\-rasi\-validate\fR \fIfilename\fP
 
 .PP
-Try to parse the file and 0 when succesful.
+Try to parse the file and return 0 when succesful, non\-zero when failed.
 
 .PP
 \fB\fC\-threads\fR \fInum\fP
@@ -180,7 +180,11 @@ Specify the number of threads \fBrofi\fP should use:
 .IP \(bu 2
 1: Disable threading
 .IP \(bu 2
+
+.PP
 2..N: Specify the maximum number of threads to use in the thread pool.
+.PP
+Default:  Autodetect
 
 .RE
 
