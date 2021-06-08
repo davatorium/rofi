@@ -169,10 +169,8 @@ static void listview_add_widget ( listview *lv, _listview_row *row, widget *wid,
 {
     TextboxFlags flags = ( lv->multi_select ) ? TB_INDICATOR : 0;
     if ( strcasecmp ( label, "element-icon" ) == 0 ) {
-        if ( config.show_icons ) {
-            row->icon = icon_create ( WIDGET ( wid ), "element-icon" );
-            box_add ( (box *) wid, WIDGET ( row->icon ), FALSE );
-        }
+        row->icon = icon_create ( WIDGET ( wid ), "element-icon" );
+        box_add ( (box *) wid, WIDGET ( row->icon ), FALSE );
     }
     else if ( strcasecmp ( label, "element-text" ) == 0 ) {
         row->textbox = textbox_create ( WIDGET ( wid ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT | flags, NORMAL, "DDD", 0, 0 );
@@ -196,7 +194,12 @@ static void listview_create_row ( listview *lv, _listview_row *row )
 {
     row->box = box_create ( WIDGET ( lv ), "element", ROFI_ORIENTATION_HORIZONTAL );
     widget_set_type ( WIDGET ( row->box ), WIDGET_TYPE_LISTVIEW_ELEMENT );
-    GList *list = rofi_theme_get_list ( WIDGET ( row->box ), "children", "element-icon,element-text" );
+    GList *list = NULL;
+    if ( config.show_icons ) {
+        list = rofi_theme_get_list ( WIDGET ( row->box ), "children", "element-icon,element-text" );
+    } else {
+        list = rofi_theme_get_list ( WIDGET ( row->box ), "children", "element-text" );
+    }
 
     row->textbox = NULL;
     row->icon    = NULL;
