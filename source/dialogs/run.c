@@ -87,6 +87,9 @@ typedef struct
 
     Mode         *completer;
     char         *old_completer_input;
+    /** fallback icon */
+    uint32_t      fallback_icon_fetch_uid;
+    cairo_surface_t *fallback_icon;
 } RunModePrivateData;
 
 /**
@@ -520,6 +523,18 @@ static char *run_get_message ( const Mode *sw )
     }
     return NULL;
 }
+static cairo_surface_t *fallback_icon ( RunModePrivateData *pd, int height )
+{
+    if ( config.application_fallback_icon ) {
+        // FALLBACK
+        if ( pd->fallback_icon_fetch_uid > 0 ) {
+            return rofi_icon_fetcher_get ( pd->fallback_icon_fetch_uid );
+        }
+        pd->fallback_icon_fetch_uid = rofi_icon_fetcher_query ( config.application_fallback_icon, height );
+    }
+    return NULL;
+
+}
 static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )
 {
     RunModePrivateData *pd = (RunModePrivateData *) mode_get_private_data ( sw );
@@ -528,16 +543,25 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     }
     g_return_val_if_fail ( pd->cmd_list != NULL, NULL );
     RunEntry       *dr = &( pd->cmd_list[selected_line] );
+
     if ( dr->icon_fetch_uid > 0 ) {
-        return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
+        cairo_surface_t *icon = rofi_icon_fetcher_get ( dr->icon_fetch_uid );
+        if ( icon ) {
+            return icon;
+        }
+        return fallback_icon ( pd, height );
     }
+    /** lookup icon */
     char ** str = g_strsplit(dr->entry, " ", 2);
     if ( str ) {
         dr->icon_fetch_uid = rofi_icon_fetcher_query ( str[0], height );
         g_strfreev ( str );
-        return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
+        cairo_surface_t *icon = rofi_icon_fetcher_get ( dr->icon_fetch_uid );
+        if ( icon ) {
+            return icon;
+        }
     }
-    return NULL;
+    return fallback_icon ( pd, height );
 }
 
 #include "mode-private.h"

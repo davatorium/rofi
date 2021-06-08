@@ -233,6 +233,8 @@ static XrmOption xrmOptions[] = {
       "Normalize string when matching (disables match highlighting).", CONFIG_DEFAULT },
     { xrm_Boolean, "steal-focus",               { .snum  = &config.steal_focus                          }, NULL,
       "Steal focus on launch and restore to window that had it on rofi start on close .", CONFIG_DEFAULT },
+    { xrm_String, "application-fallback-icon",              { .snum  = &(config.application_fallback_icon) }, NULL,
+      "Fallback icon to use when the application icon is not found in run/drun.", CONFIG_DEFAULT },
 };
 
 /** Dynamic array of extra options */
