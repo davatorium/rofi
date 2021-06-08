@@ -146,10 +146,6 @@ typedef struct
     char           *monitor;
     /** filter */
     char           *filter;
-    /** style */
-    char           *separator_style;
-    /** hide scrollbar */
-    unsigned int   hide_scrollbar;
     /** bg image */
     unsigned int   fake_transparency;
     /** dpi */
@@ -157,7 +153,6 @@ typedef struct
     /** Number threads (1 to disable) */
     unsigned int   threads;
     unsigned int   scroll_method;
-    unsigned int   scrollbar_width;
     /** Background type */
     char           *fake_background;
 
