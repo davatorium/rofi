@@ -220,6 +220,10 @@ Specify icon theme to be used.
 If not specified default theme from DE is used, *Adwaita* and *gnome* themes act as
 fallback themes.
 
+`-fallback-application-icon`
+
+Specify an icon to be used when the application icon in run/drun are not yet loaded or is not available.
+
 `-markup`
 
 Use Pango markup to format output wherever possible.
