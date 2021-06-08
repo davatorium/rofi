@@ -95,16 +95,8 @@ static XrmOption xrmOptions[] = {
 
     { xrm_String,  "font",                      { .str   = &config.menu_font                            }, NULL,
       "Font to use", CONFIG_DEFAULT },
-    { xrm_Number,  "borderwidth",               { .num   = &config.menu_bw                              }, NULL,
-      "", CONFIG_DEFAULT },
-    { xrm_Number,  "bw",                        { .num   = &config.menu_bw                              }, NULL,
-      "Border width", CONFIG_DEFAULT },
-
     { xrm_Number,  "location",                  { .num   = &config.location                             }, NULL,
       "Location on screen", CONFIG_DEFAULT },
-
-    { xrm_Number,  "padding",                   { .num   = &config.padding                              }, NULL,
-      "Padding", CONFIG_DEFAULT },
     { xrm_SNumber, "yoffset",                   { .snum  = &config.y_offset                             }, NULL,
       "Y-offset relative to location", CONFIG_DEFAULT },
     { xrm_SNumber, "xoffset",                   { .snum  = &config.x_offset                             }, NULL,
@@ -233,7 +225,7 @@ static XrmOption xrmOptions[] = {
       "Normalize string when matching (disables match highlighting).", CONFIG_DEFAULT },
     { xrm_Boolean, "steal-focus",               { .snum  = &config.steal_focus                          }, NULL,
       "Steal focus on launch and restore to window that had it on rofi start on close .", CONFIG_DEFAULT },
-    { xrm_String, "application-fallback-icon",              { .snum  = &(config.application_fallback_icon) }, NULL,
+    { xrm_String, "application-fallback-icon",              { .str  = &(config.application_fallback_icon) }, NULL,
       "Fallback icon to use when the application icon is not found in run/drun.", CONFIG_DEFAULT },
 };
 

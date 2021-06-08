@@ -1,7 +1,7 @@
 .TH ROFI 1 rofi
 .SH NAME
 .PP
-\fBrofi\fP \- A window switcher,  application launcher, ssh dialog and dmenu replacement
+\fBrofi\fP \- A window switcher, application launcher, ssh dialog, dmenu replacement and more
 
 .SH SYNOPSIS
 .PP
@@ -82,22 +82,10 @@ Command\-line options: Arguments passed to \fBrofi\fP\&.
 .RE
 
 .PP
-\fBTIP\fP: To get a template config file run: \fB\fCrofi \-dump\-config > config.rasi\fR
+To get a template config file run: \fB\fCrofi \-dump\-config > config.rasi\fR
 
 .PP
-To get a list of available options formatted in reasi format, run:
-
-.PP
-.RS
-
-.nf
-rofi \-dump\-config
-
-.fi
-.RE
-
-.PP
-This will contain (commented) all current configuration options.
+This will contain (commented) all current configuration options, modified options are uncommented.
 
 .PP
 The configuration system supports the following types:
@@ -252,6 +240,9 @@ rofi \-show run
 .RE
 
 .PP
+If \fB\fC\-show\fR is the last option passed to rofi, the first enabled modi is shown.
+
+.PP
 \fB\fC\-modi\fR \fImode1,mode2\fP
 
 .PP
@@ -296,6 +287,18 @@ rofi \-modi "window,run,ssh,Workspaces:i3\_switch\_workspaces.sh" \-show Workspa
 .PP
 Notes: The i3 window manager does not like commas in the command when specifying an exec command.
 For that case '#' can be used as an separator.
+
+.PP
+\fBTIP\fP: The name is allowed to contain spaces:
+
+.PP
+.RS
+
+.nf
+rofi \-modi "My File Browser:fb.sh" \-show "My File Browser"
+
+.fi
+.RE
 
 .PP
 \fB\fC\-case\-sensitive\fR
@@ -669,15 +672,6 @@ Default: \fI0\fP
 
 .PP
 Keep a fixed number of visible lines (See the \fB\fC\-lines\fR option.)
-
-.PP
-\fB\fC\-padding\fR
-
-.PP
-Define the inner margin of the window.
-
-.PP
-Default: \fI5\fP
 
 .PP
 \fB\fC\-sidebar\-mode\fR
@@ -1573,18 +1567,6 @@ rofi \-modi combi,window \-show combi \-combi\-modi run,drun
 .RE
 
 .PP
-Run \fBrofi\fP full monitor width at the top of the monitor like a dropdown menu:
-
-.PP
-.RS
-
-.nf
-rofi \-show run \-width 100 \-location 1 \-lines 5 \-bw 2 \-yoffset \-2
-
-.fi
-.RE
-
-.PP
 Pop up a text message claiming that this is the end:
 
 .PP
@@ -1777,7 +1759,7 @@ first.
 .RS
 .IP \(bu 2
 Qball Cow 
-\[la]qball@gmpclient.org\[ra]
+\[la]qball@blame.services\[ra]
 .IP \(bu 2
 Rasmus Steinke 
 \[la]rasi@xssn.at\[ra]
@@ -1788,7 +1770,8 @@ Quentin Glidic
 .RE
 
 .PP
-Original code based on work by: Sean Pringle 
+Original code based on work by: Sean Pringle
+\[la]https://github.com/seanpringle/simpleswitcher\[ra] 
 \[la]sean.pringle@gmail.com\[ra]
 
 .PP
