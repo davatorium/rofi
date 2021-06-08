@@ -143,7 +143,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "drun-display-format",       { .str   = &config.drun_display_format                  }, NULL,
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
     { xrm_String,  "drun-url-launcher",         { .str   = &config.drun_url_launcher                    }, NULL,
-      "Command to open an Desktop Entry that is a Link.", CONFIG_DEFAULT },
+      "Command to open a Desktop Entry that is a Link.", CONFIG_DEFAULT },
 
     { xrm_String,  "file-browser-directory",    { .str   = &config.file_browser_directory               }, NULL,
       "Directory the file browser starts in", CONFIG_DEFAULT },
