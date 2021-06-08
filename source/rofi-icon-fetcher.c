@@ -140,6 +140,11 @@ void rofi_icon_fetcher_init ( void )
     g_slist_free ( l );
 }
 
+static void free_wrapper ( gpointer data, G_GNUC_UNUSED gpointer user_data )
+{
+    g_free ( data ) ;
+}
+
 void rofi_icon_fetcher_destroy ( void )
 {
     if ( rofi_icon_fetcher_data == NULL ) {
@@ -151,7 +156,7 @@ void rofi_icon_fetcher_destroy ( void )
     g_hash_table_unref ( rofi_icon_fetcher_data->icon_cache_uid );
     g_hash_table_unref ( rofi_icon_fetcher_data->icon_cache );
 
-    g_list_foreach ( rofi_icon_fetcher_data->supported_extensions, (GFunc) g_free, NULL );
+    g_list_foreach ( rofi_icon_fetcher_data->supported_extensions, free_wrapper, NULL );
     g_list_free ( rofi_icon_fetcher_data->supported_extensions );
     g_free ( rofi_icon_fetcher_data );
 }

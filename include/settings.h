@@ -61,12 +61,6 @@ typedef struct
 {
     /** List of enabled modi */
     char           *modi;
-    /** Width (0-100 in %, > 100 in pixels, < 0 in char width.) */
-    int            menu_width;
-    /** # lines */
-    unsigned int   menu_lines;
-    /** # Columns */
-    unsigned int   menu_columns;
     /** Font string (pango format) */
     char           * menu_font;
 
@@ -206,6 +200,11 @@ typedef struct
     /** fallback icon */
     char            *application_fallback_icon;
 } Settings;
+
+#define DEFAULT_MENU_LINES  15
+#define DEFAULT_MENU_COLUMNS 1
+#define DEFAULT_MENU_WIDTH   50.0f
+
 /** Global Settings structure. */
 extern Settings config;
 #endif // ROFI_SETTINGS_H

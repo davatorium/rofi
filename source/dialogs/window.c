@@ -109,7 +109,7 @@ typedef struct
     long                              hint_flags;
     uint32_t                          wmdesktop;
     char                              *wmdesktopstr;
-    int                               wmdesktopstr_len;
+    unsigned int                      wmdesktopstr_len;
     cairo_surface_t                   *icon;
     gboolean                          icon_checked;
     uint32_t                          icon_fetch_uid;
@@ -790,9 +790,6 @@ static gboolean helper_eval_cb ( const GMatchInfo *info, GString *str, gpointer 
         int l = 0;
         if ( match[2] == ':' ) {
             l = (int) g_ascii_strtoll ( &match[3], NULL, 10 );
-            if ( l < 0 && config.menu_width < 0 ) {
-                l = -config.menu_width + l;
-            }
             if ( l < 0 ) {
                 l = 0;
             }

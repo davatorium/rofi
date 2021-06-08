@@ -661,17 +661,6 @@ int config_sanity_check ( void )
         config.element_height = 1;
         found_error           = TRUE;
     }
-    if ( config.menu_columns == 0 ) {
-        g_string_append_printf ( msg, "\t<b>config.menu_columns</b>=%d is invalid. You need at least one visible column.\n",
-                                 config.menu_columns );
-        config.menu_columns = 1;
-        found_error         = TRUE;
-    }
-    if ( config.menu_width == 0 ) {
-        g_string_append_printf ( msg, "<b>config.menu_width</b>=0 is invalid. You cannot have a window with no width." );
-        config.menu_columns = 50;
-        found_error         = TRUE;
-    }
     if ( !( config.location >= 0 && config.location <= 8 ) ) {
         g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
                                  config.location, 0, 8 );
