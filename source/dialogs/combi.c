@@ -172,6 +172,8 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
             }
             return MODE_EXIT;
         }
+    } else if ( ( mretv& MENU_COMPLETE) ) {
+        return RELOAD_DIALOG;
     }
 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
