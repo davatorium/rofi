@@ -2,7 +2,7 @@
 
 ## NAME
 
-**rofi** - A window switcher,  application launcher, ssh dialog and dmenu replacement
+**rofi** - A window switcher, application launcher, ssh dialog, dmenu replacement and more
 
 ## SYNOPSIS
 
@@ -59,13 +59,9 @@ There are currently three methods of setting configuration options (evaluated in
  * Rasi theme file: The new *theme* format can be used to set configuration values.
  * Command-line options: Arguments passed to **rofi**.
 
-**TIP**: To get a template config file run: `rofi -dump-config > config.rasi`
+To get a template config file run: `rofi -dump-config > config.rasi`
 
-To get a list of available options formatted in reasi format, run:
-
-    rofi -dump-config
-
-This will contain (commented) all current configuration options.
+This will contain (commented) all current configuration options, modified options are uncommented.
 
 The configuration system supports the following types:
 
@@ -146,6 +142,8 @@ To show the run-dialog:
 
     rofi -show run
 
+If `-show` is the last option passed to rofi, the first enabled modi is shown.
+
 `-modi` *mode1,mode2*
 
 Specify an ordered, comma-separated list of modes to enable.
@@ -165,6 +163,10 @@ Example: Have a mode called 'Workspaces' using the `i3_switch_workspaces.sh` scr
 
 Notes: The i3 window manager does not like commas in the command when specifying an exec command.
 For that case '#' can be used as an separator.
+
+**TIP**: The name is allowed to contain spaces:
+
+    rofi -modi "My File Browser:fb.sh" -show "My File Browser"
 
 `-case-sensitive`
 
@@ -186,7 +188,6 @@ Load an alternative configuration file.
 `-cache-dir` *filename*
 
 Directory that is used to place temporary files, like history.
-
 
 `-scroll-method` *method*
 
@@ -371,12 +372,6 @@ Default: *0*
 `-fixed-num-lines`
 
 Keep a fixed number of visible lines (See the `-lines` option.)
-
-`-padding`
-
-Define the inner margin of the window.
-
-Default: *5*
 
 `-sidebar-mode`
 
@@ -944,10 +939,6 @@ Combine the run and Desktop File run dialog (`drun`), and allow switching to win
 
     rofi -modi combi,window -show combi -combi-modi run,drun
 
-Run **rofi** full monitor width at the top of the monitor like a dropdown menu:
-
-    rofi -show run -width 100 -location 1 -lines 5 -bw 2 -yoffset -2
-
 Pop up a text message claiming that this is the end:
 
     rofi -e "This is the end"
@@ -1061,10 +1052,10 @@ first.
 
 ## AUTHOR
 
-* Qball Cow <qball@gmpclient.org>
+* Qball Cow <qball@blame.services>
 * Rasmus Steinke <rasi@xssn.at>
 * Quentin Glidic <sardemff7+rofi@sardemff7.net>
 
-Original code based on work by: Sean Pringle <sean.pringle@gmail.com>
+Original code based on work by: [Sean Pringle](https://github.com/seanpringle/simpleswitcher) <sean.pringle@gmail.com>
 
 For a full list of authors, check the `AUTHORS` file.
