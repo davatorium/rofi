@@ -1018,6 +1018,23 @@ It supports the following keys as constraint:
 }
 ```
 
+
+## Font Parsing
+
+Rofi uses [pango](https://pango.gnome.org/) for font rendering. The font should be specified in a format that pango
+understands.
+This normally is the font name followed by the font size. For example:
+
+```
+mono 18
+```
+
+Or
+
+```
+FontAwesome 22
+```
+
 ## Multiple file handling
 
 The rasi file format offers two methods of including other files.
