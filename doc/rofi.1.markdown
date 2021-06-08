@@ -106,7 +106,7 @@ Dump the current active theme, in rasi format, to stdout and exit.
 
 `-rasi-validate` *filename*
 
-Try to parse the file and 0 when succesful.
+Try to parse the file and return 0 when succesful, non-zero when failed.
 
 `-threads` *num*
 
@@ -115,6 +115,8 @@ Specify the number of threads **rofi** should use:
   * 0: Autodetect the number of supported hardware threads.
   * 1: Disable threading
   * 2..N: Specify the maximum number of threads to use in the thread pool.
+
+    Default:  Autodetect
 
 `-display` *display*
 
