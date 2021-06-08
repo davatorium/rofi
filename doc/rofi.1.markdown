@@ -325,40 +325,6 @@ Set to '\x0' to disable.
 Most of the following options are **deprecated** and should not be used. Please use the new theme format to customize
 **rofi**. More information about the new format can be found in the **rofi-theme(5)** manpage.
 
-`-lines`
-
-Maximum number of lines to show before scrolling.
-
-    rofi -lines 25
-
-Default: *15*
-
-`-columns`
-
-Number of columns to show before scrolling.
-
-    rofi -columns 2
-
-Default: *1*
-
-`-width` [value]
-
-Set width of menu. `[value]` is specified in percentage.
-
-    rofi -width 60
-
-If `[value]` is larger then 100, size is set in pixels. Example to span a full-HD monitor:
-
-    rofi -width 1920
-
-If `[value]` is negative, it tries to estimates a character width. To show 30 characters in a row:
-
-    rofi -width -30
-
-Character width is a rough estimate, and might not be correct, but should work for most monospaced fonts.
-
-Default: *50*
-
 `-location`
 
 Specify where the window should be located. The numbers map to the following locations on screen:

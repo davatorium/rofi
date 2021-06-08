@@ -86,13 +86,6 @@ static XrmOption xrmOptions[] = {
       "", CONFIG_DEFAULT },
     { xrm_String,  "modi",                      { .str   = &config.modi                                 }, NULL,
       "Enabled modi", CONFIG_DEFAULT },
-    { xrm_SNumber, "width",                     { .snum  = &config.menu_width                           }, NULL,
-      "Window width", CONFIG_DEFAULT },
-    { xrm_Number,  "lines",                     { .num   = &config.menu_lines                           }, NULL,
-      "Number of lines", CONFIG_DEFAULT },
-    { xrm_Number,  "columns",                   { .num   = &config.menu_columns                         }, NULL,
-      "Number of columns", CONFIG_DEFAULT },
-
     { xrm_String,  "font",                      { .str   = &config.menu_font                            }, NULL,
       "Font to use", CONFIG_DEFAULT },
     { xrm_Number,  "location",                  { .num   = &config.location                             }, NULL,

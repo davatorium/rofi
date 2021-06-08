@@ -40,12 +40,6 @@ Settings config = {
 #else
     .modi                      = "run,ssh",
 #endif
-    /** The width of the switcher. (0100 in % > 100 in pixels) */
-    .menu_width                = 50,
-    /** Maximum number of options to show. */
-    .menu_lines                = 15,
-    /** Number of columns */
-    .menu_columns              = 1,
     /** Font */
     .menu_font                 = "mono 12",
 

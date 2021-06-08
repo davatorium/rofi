@@ -388,7 +388,19 @@ static int dmenu_mode_init ( Mode *sw )
     }
 
     // DMENU COMPATIBILITY
-    find_arg_uint (  "-l", &( config.menu_lines ) );
+    unsigned int lines = DEFAULT_MENU_LINES;
+    find_arg_uint (  "-l", &( lines ) );
+    if (  lines != DEFAULT_MENU_LINES ) {
+        Property *p = rofi_theme_property_create ( P_INTEGER );
+        p->name = g_strdup("lines");
+        p->value.i = lines;
+        ThemeWidget *widget = rofi_theme_find_or_create_name ( rofi_theme, "listview" );
+        GHashTable  *table = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) rofi_theme_property_free );
+
+        g_hash_table_replace ( table, p->name, p );
+        rofi_theme_widget_add_properties ( widget, table );
+        g_hash_table_destroy ( table );
+    }
 
     str = NULL;
     find_arg_str ( "-window-title", &str );

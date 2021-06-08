@@ -521,7 +521,7 @@ void listview_set_num_elements ( listview *lv, unsigned int rows )
     if ( lv == NULL ) {
         return;
     }
-    TICK_N ( __FUNCTION__ );
+    TICK_N ( "listview_set_num_elements" );
     lv->req_elements = rows;
     listview_set_selected ( lv, lv->selected );
     TICK_N ( "Set selected" );
@@ -696,7 +696,7 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
 
     // Some settings.
     lv->spacing         = rofi_theme_get_distance ( WIDGET ( lv ), "spacing", DEFAULT_SPACING );
-    lv->menu_columns    = rofi_theme_get_integer  ( WIDGET ( lv ), "columns", config.menu_columns );
+    lv->menu_columns    = rofi_theme_get_integer  ( WIDGET ( lv ), "columns", DEFAULT_MENU_COLUMNS);
     lv->fixed_num_lines = rofi_theme_get_boolean  ( WIDGET ( lv ), "fixed-height", config.fixed_num_lines );
     lv->dynamic         = rofi_theme_get_boolean  ( WIDGET ( lv ), "dynamic", TRUE );
     lv->reverse         = rofi_theme_get_boolean  ( WIDGET ( lv ), "reverse", reverse );
