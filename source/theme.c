@@ -1194,18 +1194,6 @@ void rofi_theme_convert_old ( void )
             rofi_theme_parse_string ( str3 );
         } /* dash is default */
     }
-    /* Line Margin */
-    {
-        char *str = g_strdup_printf ( "#listview { spacing: %dpx;}", config.line_margin );
-        rofi_theme_parse_string ( str );
-        g_free ( str );
-    }
-    /* Line Padding */
-    {
-        char *str = g_strdup_printf ( "#element, inputbar, message { padding: %dpx;}", config.line_padding );
-        rofi_theme_parse_string ( str );
-        g_free ( str );
-    }
     if ( config.hide_scrollbar ) {
         const char *str = "#listview { scrollbar: false; }";
         rofi_theme_parse_string ( str );

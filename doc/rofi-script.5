@@ -64,8 +64,6 @@ Rofi sets the following environment variable when executing the script:
 .SS \fB\fCROFI\_RETV\fR
 .PP
 An integer number with the current state:
-
-.RS
 .IP \(bu 2
 \fB0\fP: Initial call of script.
 .IP \(bu 2
@@ -74,8 +72,6 @@ An integer number with the current state:
 \fB2\fP: Selected a custom entry.
 .IP \(bu 2
 \fB10\-28\fP: Custom keybinding 1\-19 ( need to be explicitely enabled by script ).
-
-.RE
 
 .SS \fB\fCROFI\_INFO\fR
 .PP
@@ -100,8 +96,6 @@ For example to set the prompt:
 
 .PP
 The following extra options exists:
-
-.RS
 .IP \(bu 2
 \fBprompt\fP:      Update the prompt text.
 .IP \(bu 2
@@ -118,8 +112,6 @@ The following extra options exists:
 \fBno\-custom\fP:   If set to 'true'; only accept listed entries, ignore custom input.
 .IP \(bu 2
 \fBuse\-hot\-keys\fP: If set to true, it enabled the Custom keybindings for script. Warning this breaks the normal rofi flow.
-
-.RE
 
 .SH Parsing row options
 .PP
@@ -140,8 +132,6 @@ For example:
 
 .PP
 The following options are supported:
-
-.RS
 .IP \(bu 2
 \fBicon\fP: Set the icon for that row.
 .IP \(bu 2
@@ -150,8 +140,6 @@ The following options are supported:
 \fBnonselectable\fP: If true the row cannot activated.
 .IP \(bu 2
 \fBinfo\fP: Info that, on selection, gets placed in the \fB\fCROFI\_INFO\fR environment variable. This entry does not get searched.
-
-.RE
 
 .PP
 multiple entries can be passed using the \fB\fC\\x1f\fR separator.
