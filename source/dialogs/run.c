@@ -62,13 +62,21 @@
  */
 #define RUN_CACHE_FILE    "rofi-3.runcache"
 
+typedef struct
+{
+    char            *entry;
+    uint32_t        icon_fetch_uid;
+    /* Surface holding the icon. */
+    cairo_surface_t *icon;
+} RunEntry;
+
 /**
  * The internal data structure holding the private data of the Run Mode.
  */
 typedef struct
 {
     /** list of available commands. */
-    char         **cmd_list;
+    RunEntry     *cmd_list;
     /** Length of the #cmd_list. */
     unsigned int cmd_list_length;
 
@@ -128,11 +136,11 @@ static gboolean exec_cmd ( const char *cmd, int run_in_term )
  *
  * Remove command from history.
  */
-static void delete_entry ( const char *cmd )
+static void delete_entry ( const RunEntry *cmd )
 {
     char *path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
 
-    history_remove ( path, cmd );
+    history_remove ( path, cmd->entry );
 
     g_free ( path );
 }
@@ -148,25 +156,25 @@ static void delete_entry ( const char *cmd )
  */
 static int sort_func ( const void *a, const void *b, G_GNUC_UNUSED void *data )
 {
-    const char *astr = *( const char * const * ) a;
-    const char *bstr = *( const char * const * ) b;
+    const RunEntry *astr = ( const RunEntry * ) a;
+    const RunEntry *bstr = ( const RunEntry * ) b;
 
-    if ( astr == NULL && bstr == NULL ) {
+    if ( astr->entry == NULL && bstr->entry == NULL ) {
         return 0;
     }
-    else if ( astr == NULL ) {
+    else if ( astr->entry == NULL ) {
         return 1;
     }
-    else if ( bstr == NULL ) {
+    else if ( bstr->entry == NULL ) {
         return -1;
     }
-    return g_strcmp0 ( astr, bstr );
+    return g_strcmp0 ( astr->entry , bstr->entry  );
 }
 
 /**
  * External spider to get list of executables.
  */
-static char ** get_apps_external ( char **retv, unsigned int *length, unsigned int num_favorites )
+static RunEntry * get_apps_external ( RunEntry *retv, unsigned int *length, unsigned int num_favorites )
 {
     int fd = execute_generator ( config.run_list_command );
     if ( fd >= 0 ) {
@@ -185,7 +193,7 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
                 // This is a nice little penalty, but doable? time will tell.
                 // given num_favorites is max 25.
                 for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ ) {
-                    if ( strcasecmp ( buffer, retv[j] ) == 0 ) {
+                    if ( strcasecmp ( buffer, retv[j].entry ) == 0 ) {
                         found = 1;
                     }
                 }
@@ -195,8 +203,10 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
                 }
 
                 // No duplicate, add it.
-                retv              = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                retv[( *length )] = g_strdup ( buffer );
+                retv                    = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( RunEntry ) );
+                retv[( *length )].entry = g_strdup ( buffer );
+                retv[( *length )].icon  = NULL;
+                retv[( *length )].icon_fetch_uid = 0;
 
                 ( *length )++;
             }
@@ -209,17 +219,19 @@ static char ** get_apps_external ( char **retv, unsigned int *length, unsigned i
             }
         }
     }
-    retv[( *length ) ] = NULL;
+    retv[( *length ) ].entry = NULL;
+    retv[( *length ) ].icon  = NULL;
+    retv[( *length ) ].icon_fetch_uid = 0;
     return retv;
 }
 
 /**
  * Internal spider used to get list of executables.
  */
-static char ** get_apps ( unsigned int *length )
+static RunEntry * get_apps ( unsigned int *length )
 {
     GError       *error        = NULL;
-    char         **retv        = NULL;
+    RunEntry    *retv        = NULL;
     unsigned int num_favorites = 0;
     char         *path;
 
@@ -228,7 +240,12 @@ static char ** get_apps ( unsigned int *length )
     }
     TICK_N ( "start" );
     path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
-    retv = history_get_list ( path, length );
+    char **hretv = history_get_list ( path, length );
+    retv = (RunEntry*)g_malloc0((*length+1)*sizeof(RunEntry));
+    for(unsigned int i =0; i < *length; i++ ){
+        retv[i].entry = hretv[i];
+    }
+    g_free(hretv);
     g_free ( path );
     // Keep track of how many where loaded as favorite.
     num_favorites = ( *length );
@@ -294,7 +311,7 @@ static char ** get_apps ( unsigned int *length )
                 // given num_favorites is max 25.
                 int found = 0;
                 for ( unsigned int j = 0; found == 0 && j < num_favorites; j++ ) {
-                    if ( g_strcmp0 ( name, retv[j] ) == 0 ) {
+                    if ( g_strcmp0 ( name, retv[j].entry ) == 0 ) {
                         found = 1;
                     }
                 }
@@ -304,9 +321,13 @@ static char ** get_apps ( unsigned int *length )
                     continue;
                 }
 
-                retv                  = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( char* ) );
-                retv[( *length )]     = name;
-                retv[( *length ) + 1] = NULL;
+                retv                        = g_realloc ( retv, ( ( *length ) + 2 ) * sizeof ( RunEntry ) );
+                retv[( *length )].entry     = name;
+                retv[( *length )].icon      = NULL;
+                retv[( *length )].icon_fetch_uid = 0;
+                retv[( *length ) + 1].entry = NULL;
+                retv[( *length ) + 1].icon  = NULL;
+                retv[( *length ) + 1].icon_fetch_uid = 0;
                 ( *length )++;
             }
 
@@ -325,21 +346,21 @@ static char ** get_apps ( unsigned int *length )
     }
     // TODO: check this is still fast enough. (takes 1ms on laptop.)
     if ( ( *length ) > num_favorites ) {
-        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ), sort_func, NULL );
+        g_qsort_with_data ( &(retv[num_favorites]), ( *length ) - num_favorites, sizeof ( RunEntry ), sort_func, NULL );
     }
     g_free ( path );
 
     unsigned int removed = 0;
     for ( unsigned int index = num_favorites; index < ( ( *length ) - 1 ); index++ ) {
-        if ( g_strcmp0 ( retv[index], retv[index + 1] ) == 0 ) {
-            g_free ( retv[index] );
-            retv[index] = NULL;
+        if ( g_strcmp0 ( retv[index].entry , retv[index + 1].entry ) == 0 ) {
+            g_free ( retv[index].entry );
+            retv[index].entry = NULL;
             removed++;
         }
     }
 
     if ( ( *length ) > num_favorites ) {
-        g_qsort_with_data ( &retv[num_favorites], ( *length ) - num_favorites, sizeof ( char* ),
+        g_qsort_with_data ( &(retv[num_favorites]), ( *length ) - num_favorites, sizeof ( RunEntry ),
                             sort_func,
                             NULL );
     }
@@ -366,7 +387,13 @@ static void run_mode_destroy ( Mode *sw )
 {
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
-        g_strfreev ( rmpd->cmd_list );
+        for ( unsigned int i = 0; i < rmpd->cmd_list_length; i++ ){
+            g_free ( rmpd->cmd_list[i].entry );
+            if ( rmpd->cmd_list[i].icon != NULL ) {
+                cairo_surface_destroy ( rmpd->cmd_list[i].icon );
+            }
+        }
+        g_free ( rmpd->cmd_list );
         g_free ( rmpd->old_input );
         g_free ( rmpd->old_completer_input );
         mode_destroy ( rmpd->completer );
@@ -410,9 +437,9 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
             if ( retv == MODE_EXIT ) {
                 if ( path == NULL )
                 {
-                    exec_cmd ( rmpd->cmd_list[rmpd->selected_line], run_in_term );
+                    exec_cmd ( rmpd->cmd_list[rmpd->selected_line].entry, run_in_term );
                 } else {
-                    char *arg= g_strdup_printf ( "%s '%s'",  rmpd->cmd_list[rmpd->selected_line], path);
+                    char *arg= g_strdup_printf ( "%s '%s'",  rmpd->cmd_list[rmpd->selected_line].entry, path);
                     exec_cmd ( arg, run_in_term );
                     g_free(arg);
                 }
@@ -423,8 +450,8 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
         return retv;
     }
 
-    if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line] != NULL ) {
-        if ( !exec_cmd ( rmpd->cmd_list[selected_line], run_in_term ) ) {
+    if ( ( mretv & MENU_OK ) && rmpd->cmd_list[selected_line].entry != NULL ) {
+        if ( !exec_cmd ( rmpd->cmd_list[selected_line].entry, run_in_term ) ) {
             retv = RELOAD_DIALOG;
         }
     }
@@ -433,8 +460,8 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
             retv = RELOAD_DIALOG;
         }
     }
-    else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line] ) {
-        delete_entry ( rmpd->cmd_list[selected_line] );
+    else if ( ( mretv & MENU_ENTRY_DELETE ) && rmpd->cmd_list[selected_line].entry ) {
+        delete_entry ( &(rmpd->cmd_list[selected_line]) );
 
         // Clear the list.
         retv = RELOAD_DIALOG;
@@ -466,7 +493,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
     if ( rmpd->file_complete ){
         return rmpd->completer->_get_display_value (rmpd->completer, selected_line, state, list, get_entry );
     }
-    return get_entry ? g_strdup ( rmpd->cmd_list[selected_line] ) : NULL;
+    return get_entry ? g_strdup ( rmpd->cmd_list[selected_line].entry ) : NULL;
 }
 
 static int run_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
@@ -475,7 +502,7 @@ static int run_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned
     if ( rmpd->file_complete ){
         return rmpd->completer->_token_match (rmpd->completer, tokens, index );
     }
-    return helper_token_match ( tokens, rmpd->cmd_list[index] );
+    return helper_token_match ( tokens, rmpd->cmd_list[index].entry );
 }
 static char *run_get_message ( const Mode *sw )
 {
@@ -484,12 +511,31 @@ static char *run_get_message ( const Mode *sw )
         if ( pd->selected_line < pd->cmd_list_length ) {
             char *msg =  mode_get_message ( pd->completer);
             if (msg ){
-                char *retv = g_strdup_printf("File complete for: %s\n%s", pd->cmd_list[pd->selected_line], msg);
+                char *retv = g_strdup_printf("File complete for: %s\n%s", pd->cmd_list[pd->selected_line].entry, msg);
                 g_free (msg);
                 return retv;
             }
-            return  g_strdup_printf("File complete for: %s", pd->cmd_list[pd->selected_line]);
+            return  g_strdup_printf("File complete for: %s", pd->cmd_list[pd->selected_line].entry);
         }
+    }
+    return NULL;
+}
+static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )
+{
+    RunModePrivateData *pd = (RunModePrivateData *) mode_get_private_data ( sw );
+    if ( pd->file_complete ) {
+        return pd->completer->_get_icon ( pd->completer, selected_line, height );
+    }
+    g_return_val_if_fail ( pd->cmd_list != NULL, NULL );
+    RunEntry       *dr = &( pd->cmd_list[selected_line] );
+    if ( dr->icon_fetch_uid > 0 ) {
+        return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
+    }
+    char ** str = g_strsplit(dr->entry, " ", 2);
+    if ( str ) {
+        dr->icon_fetch_uid = rofi_icon_fetcher_query ( str[0], height );
+        g_strfreev ( str );
+        return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
     }
     return NULL;
 }
@@ -506,7 +552,7 @@ Mode run_mode =
     ._token_match       = run_token_match,
     ._get_message       = run_get_message,
     ._get_display_value = _get_display_value,
-    ._get_icon          = NULL,
+    ._get_icon          = _get_icon,
     ._get_completion    = NULL,
     ._preprocess_input  = NULL,
     .private_data       = NULL,

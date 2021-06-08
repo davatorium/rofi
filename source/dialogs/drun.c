@@ -51,6 +51,8 @@
 #include "widgets/textbox.h"
 #include "history.h"
 #include "dialogs/drun.h"
+#include "dialogs/filebrowser.h"
+#include "mode-private.h"
 #include "xcb.h"
 
 #include "rofi-icon-fetcher.h"
@@ -160,11 +162,19 @@ struct _DRunModePrivateData
     const gchar   *icon_theme;
     // DE
     gchar         **current_desktop_list;
+
+
+    gboolean     file_complete;
+    Mode         *completer;
+    char         *old_completer_input;
+    uint32_t     selected_line;
+    char         *old_input;
 };
 
 struct RegexEvalArg
 {
     DRunModeEntry *e;
+    const char *path;
     gboolean      success;
 };
 
@@ -179,12 +189,19 @@ static gboolean drun_helper_eval_cb ( const GMatchInfo *info, GString *res, gpoi
     if ( match != NULL ) {
         switch ( match[1] )
         {
-        // Unsupported
         case 'f':
         case 'F':
         case 'u':
         case 'U':
+            g_string_append(res, e->path);
+            break;
+        // Unsupported
         case 'i':
+            // TODO
+            if ( e->e && e->e->icon ) {
+                g_string_append_printf(res, "--icon %s", e->e->icon_name );
+            }
+            break;
         // Deprecated
         case 'd':
         case 'D':
@@ -258,7 +275,7 @@ static void launch_link_entry ( DRunModeEntry *e )
         g_free ( path );
     }
 }
-static void exec_cmd_entry ( DRunModeEntry *e )
+static void exec_cmd_entry ( DRunModeEntry *e, const char *path )
 {
     GError *error = NULL;
     GRegex *reg   = g_regex_new ( "%[a-zA-Z%]", 0, 0, &error );
@@ -267,7 +284,7 @@ static void exec_cmd_entry ( DRunModeEntry *e )
         g_error_free ( error );
         return;
     }
-    struct RegexEvalArg earg = { .e = e, .success = TRUE };
+    struct RegexEvalArg earg = { .e = e, .path = path, .success = TRUE };
     char                *str = g_regex_replace_eval ( reg, e->exec, -1, 0, 0, drun_helper_eval_cb, &earg, &error );
     if ( error != NULL ) {
         g_warning ( "Internal error, failed replace field codes: %s.", error->message );
@@ -1017,6 +1034,9 @@ static int drun_mode_init ( Mode *sw )
 
     drun_mode_parse_entry_fields ();
     get_apps ( pd );
+
+    pd->completer    = create_new_file_browser ();
+    mode_init ( pd->completer );
     return TRUE;
 }
 static void drun_entry_clear ( DRunModeEntry *e )
@@ -1048,12 +1068,37 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( sw );
     ModeMode            retv  = MODE_EXIT;
 
+    if ( rmpd->file_complete == TRUE ) {
+
+        retv = RELOAD_DIALOG;
+
+        if ( ( mretv& (MENU_COMPLETE)) ) {
+            g_free ( rmpd->old_completer_input );
+            rmpd->old_completer_input = *input;
+            *input = NULL;
+            if ( rmpd->selected_line < rmpd->cmd_list_length ) {
+                (*input) = g_strdup ( rmpd->old_input );
+            }
+            rmpd->file_complete = FALSE;
+        } else if ( (mretv&MENU_CANCEL) ) {
+            retv = MODE_EXIT;
+        } else {
+            char *path = NULL;
+            retv = file_browser_mode_completer ( rmpd->completer, mretv, input, selected_line, &path );
+            if ( retv == MODE_EXIT ) {
+                exec_cmd_entry ( &( rmpd->entry_list[rmpd->selected_line] ), path );
+
+            }
+            g_free (path);
+        }
+        return retv;
+    }
     if ( ( mretv & MENU_OK )  ) {
         switch ( rmpd->entry_list[selected_line].type )
         {
         case DRUN_DESKTOP_ENTRY_TYPE_SERVICE:
         case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
-            exec_cmd_entry ( &( rmpd->entry_list[selected_line] ) );
+            exec_cmd_entry ( &( rmpd->entry_list[selected_line] ), NULL );
             break;
         case DRUN_DESKTOP_ENTRY_TYPE_LINK:
             launch_link_entry ( &( rmpd->entry_list[selected_line] ) );
@@ -1083,6 +1128,29 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     }
     else if ( mretv & MENU_CUSTOM_COMMAND ) {
         retv = ( mretv & MENU_LOWER_MASK );
+    } else if ( ( mretv& MENU_COMPLETE) ) {
+        retv = RELOAD_DIALOG;
+        if ( selected_line  < rmpd->cmd_list_length ) {
+            switch ( rmpd->entry_list[selected_line].type )
+            {
+                case DRUN_DESKTOP_ENTRY_TYPE_SERVICE:
+                case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
+                    {
+                        rmpd->selected_line = selected_line;
+                        // TODO add check if it supports passing file.
+
+                        g_free ( rmpd->old_input );
+                        rmpd->old_input = g_strdup ( *input );
+
+                        if ( *input ) g_free (*input);
+                        *input = g_strdup ( rmpd->old_completer_input );
+
+                        rmpd->file_complete =  TRUE;
+                    }
+                default:
+                    break;
+            }
+        }
     }
     return retv;
 }
@@ -1096,6 +1164,10 @@ static void drun_mode_destroy ( Mode *sw )
         g_hash_table_destroy ( rmpd->disabled_entries );
         g_free ( rmpd->entry_list );
 
+        g_free ( rmpd->old_completer_input );
+        g_free ( rmpd->old_input );
+        mode_destroy ( rmpd->completer );
+
         g_strfreev ( rmpd->current_desktop_list );
         g_strfreev ( rmpd->show_categories );
         g_free ( rmpd );
@@ -1106,6 +1178,10 @@ static void drun_mode_destroy ( Mode *sw )
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, G_GNUC_UNUSED GList **list, int get_entry )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
+
+    if ( pd->file_complete ){
+        return pd->completer->_get_display_value (pd->completer, selected_line, state, list, get_entry );
+    }
     *state |= MARKUP;
     if ( !get_entry ) {
         return NULL;
@@ -1164,6 +1240,9 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
 static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, int height )
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
+    if ( pd->file_complete ) {
+        return pd->completer->_get_icon ( pd->completer, selected_line, height );
+    }
     g_return_val_if_fail ( pd->entry_list != NULL, NULL );
     DRunModeEntry       *dr = &( pd->entry_list[selected_line] );
     if ( dr->icon_name == NULL ) {
@@ -1192,6 +1271,9 @@ static char *drun_get_completion ( const Mode *sw, unsigned int index )
 static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsigned int index )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( data );
+    if ( rmpd->file_complete ){
+        return rmpd->completer->_token_match (rmpd->completer, tokens, index );
+    }
     int                 match = 1;
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
@@ -1251,7 +1333,26 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
 static unsigned int drun_mode_get_num_entries ( const Mode *sw )
 {
     const DRunModePrivateData *pd = (const DRunModePrivateData *) mode_get_private_data ( sw );
+    if ( pd->file_complete ){
+        return pd->completer->_get_num_entries( pd->completer );
+    }
     return pd->cmd_list_length;
+}
+static char *drun_get_message ( const Mode *sw )
+{
+    DRunModePrivateData *pd = sw->private_data;
+    if ( pd->file_complete ) {
+        if ( pd->selected_line < pd->cmd_list_length ) {
+            char *msg =  mode_get_message ( pd->completer);
+            if (msg ){
+                char *retv = g_strdup_printf("File complete for: %s\n%s", pd->entry_list[pd->selected_line].name, msg);
+                g_free (msg);
+                return retv;
+            }
+            return  g_strdup_printf("File complete for: %s", pd->entry_list[pd->selected_line].name);
+        }
+    }
+    return NULL;
 }
 #include "mode-private.h"
 Mode drun_mode =
@@ -1263,6 +1364,7 @@ Mode drun_mode =
     ._result            = drun_mode_result,
     ._destroy           = drun_mode_destroy,
     ._token_match       = drun_token_match,
+    ._get_message       = drun_get_message,
     ._get_completion    = drun_get_completion,
     ._get_display_value = _get_display_value,
     ._get_icon          = _get_icon,
