@@ -610,12 +610,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     else {
         pd->entry_list[pd->cmd_list_length].comment = NULL;
     }
-    if ( config.show_icons ) {
-        pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "Icon", NULL, NULL );
-    }
-    else{
-        pd->entry_list[pd->cmd_list_length].icon_name = NULL;
-    }
+    pd->entry_list[pd->cmd_list_length].icon_name = g_key_file_get_locale_string ( kf, DRUN_GROUP_NAME, "Icon", NULL, NULL );
     pd->entry_list[pd->cmd_list_length].icon = NULL;
 
     // Keep keyfile around.
@@ -1265,20 +1260,19 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     }
     g_return_val_if_fail ( pd->entry_list != NULL, NULL );
     DRunModeEntry       *dr = &( pd->entry_list[selected_line] );
-    if ( dr->icon_name == NULL ) {
-        return NULL;
-    }
-    if ( dr->icon_fetch_uid > 0 ) {
+    if ( dr->icon_name != NULL ) {
+        if ( dr->icon_fetch_uid > 0 ) {
+            cairo_surface_t *icon = rofi_icon_fetcher_get ( dr->icon_fetch_uid );
+            if ( icon ) {
+                return icon;
+            }
+            return fallback_icon ( pd, height );
+        }
+        dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->icon_name, height );
         cairo_surface_t *icon = rofi_icon_fetcher_get ( dr->icon_fetch_uid );
         if ( icon ) {
             return icon;
         }
-        return fallback_icon ( pd, height );
-    }
-    dr->icon_fetch_uid = rofi_icon_fetcher_query ( dr->icon_name, height );
-    cairo_surface_t *icon = rofi_icon_fetcher_get ( dr->icon_fetch_uid );
-    if ( icon ) {
-        return icon;
     }
     return fallback_icon ( pd, height );
 }
