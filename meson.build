@@ -84,7 +84,6 @@ header_conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 header_conf.set_quoted('PACKAGE_BUGREPORT', 'https://github.com/davatorium/rofi/')
 header_conf.set_quoted('PACKAGE_URL', 'https://reddit.com/r/qtools/')
 
-header_conf.set('THEME_CONVERTER', true)
 header_conf.set('_GNU_SOURCE', true)
 
 header_conf.set('USE_NK_GIT_VERSION', true)

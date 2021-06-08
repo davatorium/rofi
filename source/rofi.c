@@ -992,7 +992,6 @@ int main ( int argc, char *argv[] )
             }
             g_bytes_unref ( theme_data );
         }
-        rofi_theme_convert_old ();
     }
 
     /**
