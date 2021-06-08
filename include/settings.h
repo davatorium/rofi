@@ -146,15 +146,11 @@ typedef struct
     char           *monitor;
     /** filter */
     char           *filter;
-    /** bg image */
-    unsigned int   fake_transparency;
     /** dpi */
     int            dpi;
     /** Number threads (1 to disable) */
     unsigned int   threads;
     unsigned int   scroll_method;
-    /** Background type */
-    char           *fake_background;
 
     char           *window_format;
     /** Click outside the window to exit */

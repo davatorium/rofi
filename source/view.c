@@ -881,9 +881,6 @@ void __create_window ( MenuFlags menu_flags )
     if ( transparency ) {
         rofi_view_setup_fake_transparency ( WIDGET ( win ), transparency  );
     }
-    else if ( config.fake_transparency && config.fake_background ) {
-        rofi_view_setup_fake_transparency ( WIDGET ( win ), config.fake_background );
-    }
     if ( xcb->sncontext != NULL ) {
         sn_launchee_context_setup_window ( xcb->sncontext, CacheState.main_window );
     }

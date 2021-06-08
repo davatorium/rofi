@@ -127,11 +127,9 @@ Settings config = {
     .monitor                   = "-5",
     /** Set filter */
     .filter                    = NULL,
-    .fake_transparency      = FALSE,
     .dpi                    = -1,
     .threads                = 0,
     .scroll_method          = 0,
-    .fake_background        = "screenshot",
     .window_format          = "{w}    {c}   {t}",
     .click_to_exit          = TRUE,
     .theme                  = NULL,
