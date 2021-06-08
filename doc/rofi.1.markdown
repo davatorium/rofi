@@ -863,6 +863,10 @@ in a terminal if specified in the Desktop File.
 Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
 Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run the command in a terminal.
 
+When pressing the `mode-complete` binding (`Control-l`), you can use the File Browser mode to launch the application
+passing a file as argument if specified in the desktop file.
+
+
 The DRUN mode tries to follows the [XDG Desktop Entry
 Specification](https://freedesktop.org/wiki/Specifications/desktop-entry-spec/) and should be compatible with
 applications using this standard.  Some application create invalid desktop files, **rofi** will discard these entries.

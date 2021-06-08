@@ -1136,16 +1136,21 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
                 case DRUN_DESKTOP_ENTRY_TYPE_SERVICE:
                 case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
                     {
-                        rmpd->selected_line = selected_line;
-                        // TODO add check if it supports passing file.
+                        GRegex *regex = g_regex_new ("%[fFuU]", 0, 0, NULL);
 
-                        g_free ( rmpd->old_input );
-                        rmpd->old_input = g_strdup ( *input );
+                        if (g_regex_match (regex, rmpd->entry_list[selected_line].exec, 0, NULL) ) {
+                            rmpd->selected_line = selected_line;
+                            // TODO add check if it supports passing file.
 
-                        if ( *input ) g_free (*input);
-                        *input = g_strdup ( rmpd->old_completer_input );
+                            g_free ( rmpd->old_input );
+                            rmpd->old_input = g_strdup ( *input );
 
-                        rmpd->file_complete =  TRUE;
+                            if ( *input ) g_free (*input);
+                            *input = g_strdup ( rmpd->old_completer_input );
+
+                            rmpd->file_complete =  TRUE;
+                        }
+                        g_regex_unref ( regex );
                     }
                 default:
                     break;
