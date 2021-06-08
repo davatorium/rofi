@@ -78,7 +78,7 @@ typedef struct
 /**
  * Shared function between DMENU and Script mode.
  */
-void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *entry, char *buffer, size_t length )
+void dmenuscript_parse_entry_extras ( G_GNUC_UNUSED Mode *sw, DmenuScriptEntry *entry, char *buffer, G_GNUC_UNUSED size_t length )
 {
     gchar **extras = g_strsplit ( buffer, "\x1f", -1 );
     gchar **extra;

@@ -155,7 +155,6 @@ rofi_CFLAGS=\
 	-I$(top_builddir)/\
 	-Werror=missing-prototypes\
 	-DSYSCONFDIR=\"$(sysconfdir)\"\
-	-DTHEME_CONVERTER\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"
 
