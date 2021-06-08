@@ -207,6 +207,8 @@ typedef struct
     gboolean       normalize_match;
     /** Steal focus */
     gboolean       steal_focus;
+    /** fallback icon */
+    char            *application_fallback_icon;
 } Settings;
 /** Global Settings structure. */
 extern Settings config;

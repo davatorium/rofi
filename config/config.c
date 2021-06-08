@@ -173,5 +173,7 @@ Settings config = {
     /** normalize match */
     .normalize_match           = FALSE,
     /** steal focus */
-    .steal_focus               = FALSE
+    .steal_focus               = FALSE,
+    /** fallback icon */
+    .application_fallback_icon             = NULL
 };
