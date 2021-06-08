@@ -741,6 +741,10 @@ Build and use a cache with the content of desktop files. Usable for systems with
 
 If `drun-use-desktop-cache` is enabled, rebuild a cache with the content of desktop files.
 
+`-drun-url-launcher` *command*
+
+Command to open a Desktop Entry that is a Link.
+
 `-pid` *path*
 
 Make **rofi** create a pid file and check this on startup. The pid file prevents multiple **rofi** instances from running simultaneously. This is useful when running **rofi** from a key-binding daemon.
