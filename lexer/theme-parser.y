@@ -237,6 +237,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_WHITESPACE                     "White space"
 %token T_PDEFAULTS                      "Default settings section ( '* { ... }')"
 %token T_CONFIGURATION                  "Configuration block"
+%token T_RESET_THEME                    "Reset Theme"
 
 %token T_COLOR_TRANSPARENT              "Transparent"
 
@@ -322,6 +323,12 @@ t_entry_list:
   %empty {
     $$ = g_slice_new0 ( ThemeWidget );
   }
+| t_entry_list T_RESET_THEME {
+    rofi_theme_reset();
+    rofi_theme_free($1);
+    $$ = g_slice_new0 ( ThemeWidget );
+}
+
 |  t_entry_list t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
 {
     for ( GList *liter = g_list_first ( $3); liter; liter = g_list_next ( liter ) ) {
