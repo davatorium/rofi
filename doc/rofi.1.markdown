@@ -322,14 +322,14 @@ Set to '\x0' to disable.
     Default: '-'
 
 
-### Layout and Themeing
+### Layout and Theming
 
-**IMPORTANT**
-  In newer **rofi** releases all the themeing options are moved into the new theme format. The are no longer normal
-  **rofi** options that can be passed directly on the commandline (there are to many).
+**IMPORTANT:**
+  In newer **rofi** releases, all the theming options have been moved into the new theme format. They are no longer normal
+  **rofi** options that can be passed directly on the commandline (there are too many).
   Small snippets can be passed on the commandline: `rofi -theme-str 'window {width: 50%;}'` to override a single
-  setting. The are merged into the current theme.
-  They can also be appened at the end of the **rofi** config file to override parts of the theme.
+  setting. They are merged into the current theme.
+  They can also be appended at the end of the **rofi** config file to override parts of the theme.
 
 Most of the following options are **deprecated** and should not be used. Please use the new theme format to customize
 **rofi**. More information about the new format can be found in the **rofi-theme(5)** manpage.
@@ -750,7 +750,7 @@ This way it can be used as a drop-in replacement for dmenu. Just copy or symlink
 
 ## THEMING
 
-Please see **rofi-theme(5)** manpage for more information on themeing.
+Please see **rofi-theme(5)** manpage for more information on theming.
 
 ## KEY BINDINGS
 
