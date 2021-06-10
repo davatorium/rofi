@@ -1,3 +1,4 @@
+.nh
 .TH ROFI 1 rofi
 .SH NAME
 .PP
@@ -46,7 +47,7 @@ The website for \fB\fCdmenu\fR can be found here
 
 .PP
 \fBrofi\fP does not aim to be 100% compatible with \fB\fCdmenu\fR\&. There are simply too many different flavors of \fB\fCdmenu\fR\&.
-The idea is that the basic usage command\-line flags are obeyed, theme\-related flags are not.
+The idea is that the basic usage command\-\&line flags are obeyed, theme\-\&related flags are not.
 Besides, \fBrofi\fP offers some extended features (like multi\-select, highlighting, message bar, extra key bindings).
 
 .SS Display Error message
@@ -180,11 +181,7 @@ Specify the number of threads \fBrofi\fP should use:
 .IP \(bu 2
 1: Disable threading
 .IP \(bu 2
-
-.PP
-2..N: Specify the maximum number of threads to use in the thread pool.
-.PP
-Default:  Autodetect
+2..N: Specify the maximum number of threads to use in the thread pool.Default:  Autodetect
 
 .RE
 
@@ -464,11 +461,7 @@ The different fields are:
 .IP \(bu 2
 \fBcomment\fP: the application comment
 .IP \(bu 2
-
-.PP
-\fBall\fP: all of the above
-.PP
-Default: \fIname,generic,exec,categories,keywords\fP
+\fBall\fP: all of the aboveDefault: \fIname,generic,exec,categories,keywords\fP
 
 .RE
 
@@ -541,11 +534,7 @@ The different fields are:
 .IP \(bu 2
 \fBdesktop\fP: window's current desktop
 .IP \(bu 2
-
-.PP
-\fBall\fP: all of the above
-.PP
-Default: \fIall\fP
+\fBall\fP: all of the aboveDefault: \fIall\fP
 
 .RE
 
@@ -572,7 +561,7 @@ Default: '\-'
   \fBrofi\fP options that can be passed directly on the commandline (there are too many).
   Small snippets can be passed on the commandline: \fB\fCrofi \-theme\-str 'window {width: 50%;}'\fR to override a single
   setting. They are merged into the current theme.
-  They can also be appended to the end of the \fBrofi\fP config file to override parts of the theme.
+  They can also be appended at the end of the \fBrofi\fP config file to override parts of the theme.
 
 .PP
 Most of the following options are \fBdeprecated\fP and should not be used. Please use the new theme format to customize
@@ -678,11 +667,7 @@ behavior.)
 .IP \(bu 2
 \fB\-4\fP: the monitor with the focused window.
 .IP \(bu 2
-
-.PP
-\fB\-5\fP: the monitor that shows the mouse pointer.
-.PP
-Default: \fI\-5\fP
+\fB\-5\fP: the monitor that shows the mouse pointer.Default: \fI\-5\fP
 
 .RE
 
@@ -1163,7 +1148,7 @@ Set ellipsize mode to start. So end of string is visible.
 
 .PP
 Pops up a message dialog (used internally for showing errors) with \fImessage\fP\&.
-Message can be multi\-line.
+Message can be multi\-\&line.
 
 .SS File browser settings
 .PP
@@ -1617,7 +1602,7 @@ all: Show debug information from all domains.
 .IP \(bu 2
 X11Helper: The X11 Helper functions.
 .IP \(bu 2
-View: The main rofi\_view functions.
+View: The main window view functions.
 .IP \(bu 2
 Widgets.Box: The Box widget.
 .IP \(bu 2
@@ -1677,21 +1662,21 @@ first.
 .SH AUTHOR
 .RS
 .IP \(bu 2
-Qball Cow 
-\[la]qball@blame.services\[ra]
+Qball Cow qball@blame.services
+\[la]mailto:qball@blame.services\[ra]
 .IP \(bu 2
-Rasmus Steinke 
-\[la]rasi@xssn.at\[ra]
+Rasmus Steinke rasi@xssn.at
+\[la]mailto:rasi@xssn.at\[ra]
 .IP \(bu 2
-Quentin Glidic 
-\[la]sardemff7+rofi@sardemff7.net\[ra]
+Quentin Glidic sardemff7+rofi@sardemff7.net
+\[la]mailto:sardemff7+rofi@sardemff7.net\[ra]
 
 .RE
 
 .PP
 Original code based on work by: Sean Pringle
-\[la]https://github.com/seanpringle/simpleswitcher\[ra] 
-\[la]sean.pringle@gmail.com\[ra]
+\[la]https://github.com/seanpringle/simpleswitcher\[ra] sean.pringle@gmail.com
+\[la]mailto:sean.pringle@gmail.com\[ra]
 
 .PP
 For a full list of authors, check the \fB\fCAUTHORS\fR file.

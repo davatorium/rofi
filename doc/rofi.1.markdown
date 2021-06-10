@@ -984,7 +984,7 @@ environment variable. At creation of this page the following debug domains exist
 
  * all: Show debug information from all domains.
  * X11Helper: The X11 Helper functions.
- * View: The main rofi_view functions.
+ * View: The main window view functions.
  * Widgets.Box: The Box widget.
  * Dialogs.DMenu: The dmenu mode.
  * Dialogs.Run: The run mode.
