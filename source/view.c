@@ -1470,7 +1470,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
     case SCOPE_MOUSE_MODE_SWITCHER:
     {
         gint   x = state->mouse.x, y = state->mouse.y;
-        widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), scope, x, y );
+        widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), (WidgetType) scope, x, y );
         if ( target == NULL ) {
             return FALSE;
         }
@@ -1550,7 +1550,7 @@ void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y, gbool
     rofi_view_set_cursor ( cursor_type );
 
     if ( find_mouse_target ) {
-        widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), SCOPE_MOUSE_LISTVIEW_ELEMENT, x, y );
+        widget *target = widget_find_mouse_target ( WIDGET ( state->main_window ), WIDGET_TYPE_LISTVIEW_ELEMENT, x, y );
 
         if ( target != NULL ) {
             state->mouse.motion_target = target;
