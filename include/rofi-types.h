@@ -187,8 +187,8 @@ typedef struct
     /** Stop color */
     ThemeColor stop;
 
+    /** cached image */
     uint32_t surface_id;
-    uint32_t surface_size;
 
 } RofiImage;
 

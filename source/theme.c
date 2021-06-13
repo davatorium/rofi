@@ -930,17 +930,15 @@ void rofi_theme_get_image ( const widget *widget, const char *property, cairo_t 
             return;
         }
         if ( p->value.image.type == ROFI_IMAGE_URL ) {
-            uint32_t maxs = MAX(widget->h, widget->w);
-            if ( p->value.image.surface_id == 0  || p->value.image.surface_size != maxs ) {
-                p->value.image.surface_id = rofi_icon_fetcher_query ( p->value.image.url, maxs );
-                p->value.image.surface_size = maxs;
+            if ( p->value.image.surface_id == 0 ) {
+                p->value.image.surface_id = rofi_icon_fetcher_query ( p->value.image.url, -1 );
             }
             cairo_surface_t *img = rofi_icon_fetcher_get ( p->value.image.surface_id );
 
             if ( img != NULL ) {
-                cairo_surface_reference ( img );
-                cairo_set_source_surface ( d, img, 0.0, 0.0 );
-                cairo_surface_destroy ( img );
+                cairo_pattern_t * pat = cairo_pattern_create_for_surface ( img );
+                cairo_set_source ( d, pat );
+                cairo_pattern_destroy ( pat );
             }
         } else if ( p->value.image.type == ROFI_IMAGE_LINEAR_GRADIENT ) {
             cairo_pattern_t * pat = cairo_pattern_create_linear (0.0,0.0, widget->w, 0.0);
