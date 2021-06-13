@@ -2,6 +2,7 @@
 #define INCLUDE_ROFI_TYPES_H
 
 #include <glib.h>
+#include <stdint.h>
 G_BEGIN_DECLS
 
 /**
@@ -21,6 +22,8 @@ typedef enum
     P_BOOLEAN,
     /** Color */
     P_COLOR,
+    /** Image */
+    P_IMAGE,
     /** RofiPadding */
     P_PADDING,
     /** Link to global setting */
@@ -168,6 +171,28 @@ typedef struct
 } ThemeColor;
 
 /**
+ * Theme Image
+ */
+typedef enum
+{
+    ROFI_IMAGE_URL,
+    ROFI_IMAGE_LINEAR_GRADIENT
+} RofiImageType;
+typedef struct
+{
+    RofiImageType type;
+    char *url;
+    /** Start color */
+    ThemeColor start;
+    /** Stop color */
+    ThemeColor stop;
+
+    uint32_t surface_id;
+    uint32_t surface_size;
+
+} RofiImage;
+
+/**
  * RofiPadding
  */
 typedef struct
@@ -248,6 +273,8 @@ typedef union _PropertyValue
     }                       link;
     /** Highlight Style */
     RofiHighlightColorStyle highlight;
+    /** Image */
+    RofiImage image;
     /** List */
     GList                   *list;
 } PropertyValue;

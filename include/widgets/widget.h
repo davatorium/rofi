@@ -348,5 +348,6 @@ int widget_get_absolute_xpos ( widget *wid );
  */
 int widget_get_absolute_ypos ( widget *wid );
 
+void rofi_theme_get_image ( const widget *widget, const char *property, cairo_t *d );
 /**@}*/
 #endif // ROFI_WIDGET_H
