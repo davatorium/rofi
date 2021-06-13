@@ -257,6 +257,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <theme>          t_entry_list
 %type <list>           t_entry_name_path
 %type <list>           t_entry_name_path_selectors
+%type <list>           t_color_list
 %type <property>       t_property
 %type <property>       t_property_element
 %type <property_list>  t_property_list
@@ -536,13 +537,24 @@ t_property_element
         $$->value.image.type = ROFI_IMAGE_URL;
         $$->value.image.url = $3;
 }
-| T_LINEAR_GRADIENT T_PARENT_LEFT t_property_color T_COMMA t_property_color T_PARENT_RIGHT {
+| T_LINEAR_GRADIENT T_PARENT_LEFT t_color_list T_PARENT_RIGHT {
         $$ = rofi_theme_property_create ( P_IMAGE );
         $$->value.image.type = ROFI_IMAGE_LINEAR_GRADIENT;
-        $$->value.image.start = $3;
-        $$->value.image.stop  = $5;
+        $$->value.image.colors = $3;
 }
 ;
+
+t_color_list
+: t_property_color {
+    $$ = g_list_append ( NULL, g_memdup ( (gconstpointer)&($1), sizeof ( ThemeColor )));
+}
+| t_color_list T_COMMA t_property_color {
+
+    $$ = g_list_append ($1, g_memdup ( (gconstpointer)&($3), sizeof ( ThemeColor )));
+}
+;
+
+
 
 /** List of elements */
 t_property_element_list_optional

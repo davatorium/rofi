@@ -182,10 +182,8 @@ typedef struct
 {
     RofiImageType type;
     char *url;
-    /** Start color */
-    ThemeColor start;
-    /** Stop color */
-    ThemeColor stop;
+    /** colors */
+    GList *colors;
 
     /** cached image */
     uint32_t surface_id;

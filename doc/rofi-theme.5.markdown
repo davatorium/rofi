@@ -255,9 +255,9 @@ dynamic: false;
 **rofi** support a very limited set of image formats.
 
 * Format: url("path to image");
-* Format: linear-gradient(start color,stop color);
+* Format: linear-gradient(stop color,stop1, color, stop2 color, ...);
 
-Where the path is a string, and start/stop color is of type color.
+Where the path is a string, and stop color is of type color.
 
 ## Color
 
