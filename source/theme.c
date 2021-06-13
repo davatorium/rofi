@@ -937,6 +937,7 @@ void rofi_theme_get_image ( const widget *widget, const char *property, cairo_t 
 
             if ( img != NULL ) {
                 cairo_pattern_t * pat = cairo_pattern_create_for_surface ( img );
+                cairo_pattern_set_extend ( pat, CAIRO_EXTEND_REPEAT );
                 cairo_set_source ( d, pat );
                 cairo_pattern_destroy ( pat );
             }
