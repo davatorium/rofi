@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <math.h>
 // GFile stuff.
 #include <gio/gio.h>
 #include "theme.h"
@@ -140,6 +141,12 @@ Property* rofi_theme_property_copy ( const Property *p )
     {
         retv->value = p->value;
         retv->value.image.url = g_strdup ( p->value.image.url );
+        retv->value.image.colors = NULL;
+        for ( GList *l = g_list_first ( p->value.image.colors );
+                l ; l = g_list_next(l)){
+            retv->value.image.colors = g_list_append ( retv->value.image.colors,
+                    g_memdup ( l->data, sizeof(ThemeColor)));
+        }
         break;
     }
     default:
@@ -196,6 +203,9 @@ void rofi_theme_property_free ( Property *p )
     else if ( p->type == P_IMAGE )  {
         if ( p->value.image.url ) {
             g_free( p->value.image.url );
+        }
+        if ( p->value.image.colors ) {
+            g_list_free_full ( p->value.image.colors, g_free );
         }
     }
     g_slice_free ( Property, p );
@@ -358,19 +368,6 @@ static void rofi_theme_print_distance ( RofiDistance d )
         printf ( "dash " );
     }
 }
-/** Textual representation of Window Location */
-const char * const WindowLocationStr[9] = {
-    "center",
-    "northwest",
-    "north",
-    "northeast",
-    "east",
-    "southeast",
-    "south",
-    "southwest",
-    "west"
-};
-
 /** Textual representation of RofiCursorType */
 const char *const RofiCursorTypeStr[3] = {
     "default",
@@ -420,8 +417,39 @@ static void int_rofi_theme_print_property ( Property *p )
         }
         break;
     case P_POSITION:
-        printf ( "%s", WindowLocationStr[p->value.i] );
-        break;
+        {
+            switch ( p->value.i)
+            {
+                case WL_CENTER:
+                    fputs("center",stdout);
+                    break;
+                case WL_NORTH:
+                    fputs("north",stdout);
+                    break;
+                case WL_SOUTH:
+                    fputs("south",stdout);
+                    break;
+                case WL_WEST:
+                    fputs("west",stdout);
+                    break;
+                case WL_EAST:
+                    fputs("east",stdout);
+                    break;
+                case WL_NORTH|WL_EAST:
+                    fputs("northeast",stdout);
+                    break;
+                case WL_SOUTH|WL_EAST:
+                    fputs("southeast",stdout);
+                    break;
+                case WL_NORTH|WL_WEST:
+                    fputs("northwest",stdout);
+                    break;
+                case WL_SOUTH|WL_WEST:
+                    fputs("southwest",stdout);
+                    break;
+            }
+            break;
+        }
     case P_STRING:
         printf ( "\"%s\"", p->value.s );
         break;
@@ -429,8 +457,13 @@ static void int_rofi_theme_print_property ( Property *p )
         printf ( "%d", p->value.i );
         break;
     case P_DOUBLE:
-        printf ( "%.2f", p->value.f );
-        break;
+        {
+            char sign = (p->value.f < 0);
+            int top = (int)fabs(p->value.f);
+            int bottom = (fabs(fmod(p->value.f,1.0)))*100;
+            printf ( "%s%d.%02d",sign?"-":"", top,bottom);
+            break;
+        }
     case P_BOOLEAN:
         printf ( "%s", p->value.b ? "true" : "false" );
         break;
@@ -441,6 +474,31 @@ static void int_rofi_theme_print_property ( Property *p )
                  ( p->value.color.blue * 255.0 ),
                  ( p->value.color.alpha * 100.0 ) );
         break;
+    case P_IMAGE:
+        {
+            if ( p->value.image.type == ROFI_IMAGE_URL ) {
+                printf("url (\"%s\")", p->value.s );
+            } else if ( p->value.image.type == ROFI_IMAGE_LINEAR_GRADIENT ) {
+                printf("linear-gradient ( ");
+                guint length = g_list_length ( p->value.image.colors);
+                guint index   = 0;
+                for ( GList *l = g_list_first ( p->value.image.colors); l != NULL; l = g_list_next(l)) {
+                    ThemeColor *color = (ThemeColor*)l->data;
+                    printf ( "rgba ( %.0f, %.0f, %.0f, %.0f %% )",
+                            ( color->red * 255.0 ),
+                            ( color->green * 255.0 ),
+                            ( color->blue * 255.0 ),
+                            ( color->alpha * 100.0 ) );
+                    index++;
+                    if ( index < length ) {
+                        printf(", ");
+                    }
+                }
+                printf(")");
+            }
+
+            break;
+        }
     case P_PADDING:
         if ( distance_compare ( p->value.padding.top, p->value.padding.bottom ) &&
              distance_compare ( p->value.padding.left, p->value.padding.right ) &&
@@ -944,15 +1002,31 @@ gboolean rofi_theme_get_image ( const widget *widget, const char *property, cair
             }
         } else if ( p->value.image.type == ROFI_IMAGE_LINEAR_GRADIENT ) {
             cairo_pattern_t * pat = cairo_pattern_create_linear (0.0,0.0, widget->w, 0.0);
-            cairo_pattern_add_color_stop_rgba ( pat, 0.0,
-                    p->value.image.start.red, p->value.image.start.green,
-                    p->value.image.start.blue, p->value.image.start.alpha);
-            cairo_pattern_add_color_stop_rgba ( pat, 1.0,
-                    p->value.image.stop.red, p->value.image.stop.green,
-                    p->value.image.stop.blue, p->value.image.stop.alpha);
-            cairo_set_source ( d, pat );
-            cairo_pattern_destroy ( pat );
-            return TRUE;
+            guint length = g_list_length ( p->value.image.colors );
+            if ( length > 1 ){
+                length--;
+                guint color_index = 0;
+                for ( GList *l = g_list_first ( p->value.image.colors); l != NULL ; l = g_list_next ( l ) )
+                {
+                    ThemeColor *c = (ThemeColor*) (l->data);
+                    cairo_pattern_add_color_stop_rgba ( pat,(color_index)/(double)length,
+                            c->red, c->green,
+                            c->blue, c->alpha);
+                    color_index++;
+                }
+                cairo_set_source ( d, pat );
+                cairo_pattern_destroy ( pat );
+                return TRUE;
+            } else if ( length == 1 ) {
+                ThemeColor *c = (ThemeColor*) (p->value.image.colors->data);
+                cairo_pattern_add_color_stop_rgba ( pat,0,
+                        c->red, c->green,
+                        c->blue, c->alpha);
+                cairo_set_source ( d, pat );
+                cairo_pattern_destroy ( pat );
+                return TRUE;
+            }
+
         }
     }
     else {
