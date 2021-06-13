@@ -209,6 +209,9 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_COL_HWB                        "hwb colorscheme"
 %token T_COL_CMYK                       "cmyk colorscheme"
 
+%token T_URL                            "an URL"
+%token T_LINEAR_GRADIENT                "a linear gradient"
+
 %token T_PARENT_LEFT                    "Parent left ('(')"
 %token T_PARENT_RIGHT                   "Parent right (')')"
 %token T_COMMA                          "comma separator (',')"
@@ -527,6 +530,17 @@ t_property_element
 | t_property_cursor {
         $$ = rofi_theme_property_create ( P_CURSOR );
         $$->value.i = $1;
+}
+| T_URL T_PARENT_LEFT T_STRING T_PARENT_RIGHT {
+        $$ = rofi_theme_property_create ( P_IMAGE );
+        $$->value.image.type = ROFI_IMAGE_URL;
+        $$->value.image.url = $3;
+}
+| T_LINEAR_GRADIENT T_PARENT_LEFT t_property_color T_COMMA t_property_color T_PARENT_RIGHT {
+        $$ = rofi_theme_property_create ( P_IMAGE );
+        $$->value.image.type = ROFI_IMAGE_LINEAR_GRADIENT;
+        $$->value.image.start = $3;
+        $$->value.image.stop  = $5;
 }
 ;
 

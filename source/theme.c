@@ -43,6 +43,7 @@
 #include "view.h"
 #include "rofi.h"
 #include "rofi-types.h"
+#include "rofi-icon-fetcher.h"
 
 void yyerror ( YYLTYPE *yylloc, const char *, const char * );
 static gboolean distance_compare ( RofiDistance d, RofiDistance e )
@@ -135,6 +136,12 @@ Property* rofi_theme_property_copy ( const Property *p )
         retv->value.padding.right  = rofi_theme_property_copy_distance ( p->value.padding.right );
         break;
     }
+    case P_IMAGE:
+    {
+        retv->value = p->value;
+        retv->value.image.url = g_strdup ( p->value.image.url );
+        break;
+    }
     default:
         retv->value = p->value;
     }
@@ -180,11 +187,16 @@ void rofi_theme_property_free ( Property *p )
             rofi_theme_property_free ( p->value.link.def_value );
         }
     }
-    if ( p->type == P_PADDING ) {
+    else  if ( p->type == P_PADDING ) {
         rofi_theme_distance_property_free ( &( p->value.padding.top ) );
         rofi_theme_distance_property_free ( &( p->value.padding.right ) );
         rofi_theme_distance_property_free ( &( p->value.padding.bottom ) );
         rofi_theme_distance_property_free ( &( p->value.padding.left ) );
+    }
+    else if ( p->type == P_IMAGE )  {
+        if ( p->value.image.url ) {
+            g_free( p->value.image.url );
+        }
     }
     g_slice_free ( Property, p );
 }
@@ -901,6 +913,46 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
                                 p->value.color.blue,
                                 p->value.color.alpha
                                 );
+    }
+    else {
+        g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
+    }
+}
+void rofi_theme_get_image ( const widget *widget, const char *property, cairo_t *d )
+{
+    ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
+    Property    *p   = rofi_theme_find_property ( wid, P_IMAGE , property, FALSE );
+    if ( p ) {
+        if ( p->type == P_INHERIT ) {
+            if ( widget->parent ) {
+                rofi_theme_get_image ( widget->parent, property, d );
+            }
+            return;
+        }
+        if ( p->value.image.type == ROFI_IMAGE_URL ) {
+            uint32_t maxs = MAX(widget->h, widget->w);
+            if ( p->value.image.surface_id == 0  || p->value.image.surface_size != maxs ) {
+                p->value.image.surface_id = rofi_icon_fetcher_query ( p->value.image.url, maxs );
+                p->value.image.surface_size = maxs;
+            }
+            cairo_surface_t *img = rofi_icon_fetcher_get ( p->value.image.surface_id );
+
+            if ( img != NULL ) {
+                cairo_surface_reference ( img );
+                cairo_set_source_surface ( d, img, 0.0, 0.0 );
+                cairo_surface_destroy ( img );
+            }
+        } else if ( p->value.image.type == ROFI_IMAGE_LINEAR_GRADIENT ) {
+            cairo_pattern_t * pat = cairo_pattern_create_linear (0.0,0.0, widget->w, 0.0);
+            cairo_pattern_add_color_stop_rgba ( pat, 0.0,
+                    p->value.image.start.red, p->value.image.start.green,
+                    p->value.image.start.blue, p->value.image.start.alpha);
+            cairo_pattern_add_color_stop_rgba ( pat, 1.0,
+                    p->value.image.stop.red, p->value.image.stop.green,
+                    p->value.image.stop.blue, p->value.image.stop.alpha);
+            cairo_set_source ( d, pat );
+            cairo_pattern_destroy ( pat );
+        }
     }
     else {
         g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );

@@ -181,6 +181,7 @@ The current theme format supports different types:
  * a fractional number
  * a boolean value
  * a color
+ * image
  * text style
  * line style
  * a distance
@@ -248,6 +249,15 @@ For example:
 ```
 dynamic: false;
 ```
+
+## Image
+
+**rofi** support a very limited set of image formats.
+
+* Format: url("path to image");
+* Format: linear-gradient(start color,stop color);
+
+Where the path is a string, and start/stop color is of type color.
 
 ## Color
 
@@ -622,6 +632,8 @@ The following properties are currently supported:
   Sets a radius on the corners of the borders.
 * **background-color**:      color
   Background color
+* **background-image**:      image
+  Background image
 * **border-color**:      color
   Color of the border
 * **cursor**:      cursor
@@ -1057,7 +1069,7 @@ If a filename is provided, it will try to resolve it in the following order:
  * `${XDG_CONFIG_HOME}/rofi/themes/`
  * `${XDG_CONFIG_HOME}/rofi/`
  * `${XDG_DATA_HOME}/rofi/themes/`
- * `${INSTALL PREFIX}/share/rofi/themes/` 
+ * `${INSTALL PREFIX}/share/rofi/themes/`
 
 A name is resolved as a filename by appending the `.rasi` extension.
 

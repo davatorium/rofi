@@ -239,6 +239,10 @@ HWB  (?i:hwb)
 CMYK (?i:cmyk)
 HSL  (?i:hsl[a]?)
 
+/* Image type  */
+URL (?i:url?)
+LINEAR_GRADIENT (?i:linear-gradient?)
+
 COLOR_TRANSPARENT (?i:transparent)
 
 S_T_PARENT_LEFT  \(
@@ -544,6 +548,9 @@ if ( queue == NULL ){
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>argb:{HEX}{7}       {
     return T_ERROR_ARGB_SPEC;
 }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{URL}             { return T_URL;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LINEAR_GRADIENT} { return T_LINEAR_GRADIENT;       }
+
  /* Color schemes */
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{RGBA}             { return T_COL_RGBA;       }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{HSL}              { return T_COL_HSL;        }
