@@ -260,6 +260,18 @@ double rofi_theme_get_double (  const widget *widget, const char *property, doub
  */
 void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d );
 
+
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param d        The drawable to apply color.
+ *
+ * Obtain the image of the widget and applies this to the drawable d.
+ *
+ * @return true if image is set.
+ */
+gboolean rofi_theme_get_image ( const widget *widget, const char *property, cairo_t *d );
+
 /**
  * @param widget   The widget to query
  * @param property The property to query.

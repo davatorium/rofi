@@ -267,8 +267,10 @@ void widget_draw ( widget *widget, cairo_t *d )
 
         cairo_set_source_rgba ( d, 1.0, 1.0, 1.0, 1.0 );
         rofi_theme_get_color ( widget, "background-color", d );
-        rofi_theme_get_image ( widget, "background-image", d );
         cairo_fill_preserve ( d );
+        if ( rofi_theme_get_image ( widget, "background-image", d ) ) {
+            cairo_fill_preserve ( d );
+        }
         cairo_clip ( d );
 
         widget->draw ( widget, d );

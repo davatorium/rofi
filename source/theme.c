@@ -918,16 +918,16 @@ void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t 
         g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     }
 }
-void rofi_theme_get_image ( const widget *widget, const char *property, cairo_t *d )
+gboolean rofi_theme_get_image ( const widget *widget, const char *property, cairo_t *d )
 {
     ThemeWidget *wid = rofi_theme_find_widget ( widget->name, widget->state, FALSE );
     Property    *p   = rofi_theme_find_property ( wid, P_IMAGE , property, FALSE );
     if ( p ) {
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
-                rofi_theme_get_image ( widget->parent, property, d );
+                return rofi_theme_get_image ( widget->parent, property, d );
             }
-            return;
+            return FALSE;
         }
         if ( p->value.image.type == ROFI_IMAGE_URL ) {
             if ( p->value.image.surface_id == 0 ) {
@@ -940,6 +940,7 @@ void rofi_theme_get_image ( const widget *widget, const char *property, cairo_t 
                 cairo_pattern_set_extend ( pat, CAIRO_EXTEND_REPEAT );
                 cairo_set_source ( d, pat );
                 cairo_pattern_destroy ( pat );
+                return TRUE;
             }
         } else if ( p->value.image.type == ROFI_IMAGE_LINEAR_GRADIENT ) {
             cairo_pattern_t * pat = cairo_pattern_create_linear (0.0,0.0, widget->w, 0.0);
@@ -951,11 +952,13 @@ void rofi_theme_get_image ( const widget *widget, const char *property, cairo_t 
                     p->value.image.stop.blue, p->value.image.stop.alpha);
             cairo_set_source ( d, pat );
             cairo_pattern_destroy ( pat );
+            return TRUE;
         }
     }
     else {
         g_debug ( "Theme entry: #%s %s property %s unset.", widget->name, widget->state ? widget->state : "", property );
     }
+    return FALSE;
 }
 RofiPadding rofi_theme_get_padding ( const widget *widget, const char *property, RofiPadding pad )
 {
