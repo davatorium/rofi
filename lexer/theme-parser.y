@@ -210,6 +210,13 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_COL_CMYK                       "cmyk colorscheme"
 
 %token T_URL                            "an URL"
+%token T_TO                             "an TO"
+%token T_LEFT                           "an LEFT"
+%token T_RIGHT                          "an RIGHT"
+%token T_TOP                            "an TOP"
+%token T_BOTTOM                         "an BOTTOM"
+
+%type <ival>                            t_property_direction
 %token T_LINEAR_GRADIENT                "a linear gradient"
 
 %token T_PARENT_LEFT                    "Parent left ('(')"
@@ -540,8 +547,22 @@ t_property_element
 | T_LINEAR_GRADIENT T_PARENT_LEFT t_color_list T_PARENT_RIGHT {
         $$ = rofi_theme_property_create ( P_IMAGE );
         $$->value.image.type = ROFI_IMAGE_LINEAR_GRADIENT;
+        $$->value.image.dir = ROFI_DIRECTION_RIGHT;
         $$->value.image.colors = $3;
 }
+| T_LINEAR_GRADIENT T_PARENT_LEFT T_TO t_property_direction T_COMMA t_color_list T_PARENT_RIGHT {
+        $$ = rofi_theme_property_create ( P_IMAGE );
+        $$->value.image.type = ROFI_IMAGE_LINEAR_GRADIENT;
+        $$->value.image.dir    = $4;
+        $$->value.image.colors = $6;
+}
+;
+
+t_property_direction
+: T_RIGHT   { $$ = ROFI_DIRECTION_RIGHT; } 
+| T_LEFT    { $$ = ROFI_DIRECTION_LEFT; } 
+| T_TOP     { $$ = ROFI_DIRECTION_TOP; } 
+| T_BOTTOM  { $$ = ROFI_DIRECTION_BOTTOM; } 
 ;
 
 t_color_list

@@ -243,6 +243,12 @@ HSL  (?i:hsl[a]?)
 URL (?i:url?)
 LINEAR_GRADIENT (?i:linear-gradient?)
 
+TO     (?i:to?)
+RIGHT  (?i:right?)
+LEFT   (?i:left?)
+TOP    (?i:top?)
+BOTTOM (?i:bottom?)
+
 COLOR_TRANSPARENT (?i:transparent)
 
 S_T_PARENT_LEFT  \(
@@ -550,6 +556,12 @@ if ( queue == NULL ){
 }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{URL}             { return T_URL;       }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LINEAR_GRADIENT} { return T_LINEAR_GRADIENT;       }
+
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{TO}              { return T_TO;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LEFT}            { return T_LEFT;     }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{RIGHT}           { return T_RIGHT;    }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{TOP}             { return T_TOP;      }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{BOTTOM}          { return T_BOTTOM;   }
 
  /* Color schemes */
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{RGBA}             { return T_COL_RGBA;       }

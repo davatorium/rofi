@@ -256,6 +256,8 @@ dynamic: false;
 
 * Format: url("path to image");
 * Format: linear-gradient(stop color,stop1, color, stop2 color, ...);
+* Format: linear-gradient(to direction, stop color,stop1, color, stop2 color, ...);
+  where direction is:   top,left,right,bottom.
 
 Where the path is a string, and stop color is of type color.
 

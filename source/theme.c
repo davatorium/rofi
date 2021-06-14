@@ -1001,7 +1001,21 @@ gboolean rofi_theme_get_image ( const widget *widget, const char *property, cair
                 return TRUE;
             }
         } else if ( p->value.image.type == ROFI_IMAGE_LINEAR_GRADIENT ) {
-            cairo_pattern_t * pat = cairo_pattern_create_linear (0.0,0.0, widget->w, 0.0);
+            cairo_pattern_t * pat = NULL;
+            switch ( p->value.image.dir ) {
+              case ROFI_DIRECTION_RIGHT:
+                pat = cairo_pattern_create_linear (0.0,0.0, widget->w, 0.0);
+                break;
+              case ROFI_DIRECTION_LEFT:
+                pat = cairo_pattern_create_linear (widget->w,0.0, 0.0, 0.0);
+                break;
+              case ROFI_DIRECTION_BOTTOM:
+                pat = cairo_pattern_create_linear (0.0,0.0, 0.0, widget->h);
+                break;
+              case ROFI_DIRECTION_TOP:
+                pat = cairo_pattern_create_linear (0.0,widget->h, 0.0, 0.0);
+                break;
+            };
             guint length = g_list_length ( p->value.image.colors );
             if ( length > 1 ){
                 length--;
