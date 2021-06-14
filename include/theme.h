@@ -88,6 +88,14 @@ typedef struct ThemeWidget
 extern ThemeWidget *rofi_theme;
 
 /**
+ * Used to store config options.
+ */
+extern ThemeWidget *rofi_theme;
+
+
+extern ThemeWidget *rofi_configuration;
+
+/**
  * @param base Handle to the current level in the theme.
  * @param name Name of the new element.
  *
@@ -333,6 +341,7 @@ void distance_get_linestyle ( RofiDistance d, cairo_t *draw );
  * @returns the ThemeWidget if found, otherwise NULL.
  */
 ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact );
+ThemeWidget *rofi_config_find_widget ( const char *name, const char *state, gboolean exact );
 
 /**
  * @param widget The widget to find the property on.

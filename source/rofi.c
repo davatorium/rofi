@@ -472,6 +472,11 @@ static void cleanup ()
     TIMINGS_STOP ();
     rofi_collect_modi_destroy ( );
     rofi_icon_fetcher_destroy ( );
+
+    if ( rofi_configuration ) {
+        rofi_theme_free ( rofi_configuration );
+        rofi_configuration = NULL;
+    }
 }
 
 /**

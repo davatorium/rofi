@@ -474,6 +474,14 @@ if ( queue == NULL ){
     return T_LINK;
 }
 
+<SECTION>"\{"       {
+  // Double to fit in scheme.
+  g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+  g_queue_push_head ( queue, GINT_TO_POINTER (SECTION) );
+  BEGIN(SECTION);
+  return T_BOPEN;
+}
+
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{EM}       { return T_UNIT_EM; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CH}       { return T_UNIT_CH; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PX}       { return T_UNIT_PX; }
