@@ -178,10 +178,22 @@ typedef enum
     ROFI_IMAGE_URL,
     ROFI_IMAGE_LINEAR_GRADIENT
 } RofiImageType;
+
+typedef enum 
+{
+    ROFI_DIRECTION_LEFT,
+    ROFI_DIRECTION_RIGHT,
+    ROFI_DIRECTION_TOP,
+    ROFI_DIRECTION_BOTTOM,
+} RofiDirection;
+
+
 typedef struct
 {
     RofiImageType type;
     char *url;
+
+    RofiDirection dir;
     /** colors */
     GList *colors;
 

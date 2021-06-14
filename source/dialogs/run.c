@@ -259,6 +259,10 @@ static RunEntry * get_apps ( unsigned int *length )
     gchar *homedir = g_locale_to_utf8 (  g_get_home_dir (), -1, NULL, &l, &error );
     if ( error != NULL ) {
         g_debug ( "Failed to convert homedir to UTF-8: %s", error->message );
+        for ( unsigned int i = 0; retv[i].entry != NULL ; i++ ) {
+          g_free ( retv[i].entry );
+        }
+        g_free(retv);
         g_clear_error ( &error );
         g_free ( homedir );
         return NULL;
