@@ -556,6 +556,14 @@ t_property_element
         $$->value.image.dir    = $4;
         $$->value.image.colors = $6;
 }
+| T_LINEAR_GRADIENT T_PARENT_LEFT t_property_color_value_angle T_COMMA t_color_list T_PARENT_RIGHT {
+        $$ = rofi_theme_property_create ( P_IMAGE );
+        $$->value.image.type = ROFI_IMAGE_LINEAR_GRADIENT;
+        $$->value.image.dir    = ROFI_DIRECTION_ANGLE;
+        $$->value.image.angle  = $3;
+        $$->value.image.colors = $5;
+}
+
 ;
 
 t_property_direction

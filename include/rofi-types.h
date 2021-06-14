@@ -185,6 +185,7 @@ typedef enum
     ROFI_DIRECTION_RIGHT,
     ROFI_DIRECTION_TOP,
     ROFI_DIRECTION_BOTTOM,
+    ROFI_DIRECTION_ANGLE,
 } RofiDirection;
 
 
@@ -194,6 +195,7 @@ typedef struct
     char *url;
 
     RofiDirection dir;
+    double angle;
     /** colors */
     GList *colors;
 

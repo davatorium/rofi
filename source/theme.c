@@ -1015,6 +1015,15 @@ gboolean rofi_theme_get_image ( const widget *widget, const char *property, cair
               case ROFI_DIRECTION_TOP:
                 pat = cairo_pattern_create_linear (0.0,widget->h, 0.0, 0.0);
                 break;
+              case ROFI_DIRECTION_ANGLE:
+              {
+                double offsety1 = sin(G_PI*2*p->value.image.angle)*(widget->h/2.0);
+                double offsetx1 = cos(G_PI*2*p->value.image.angle)*(widget->w/2.0);
+                pat = cairo_pattern_create_linear (
+                    widget->w/2.0 - offsetx1, widget->h/2.0 - offsety1,
+                    widget->w/2.0 + offsetx1, widget->h/2.0 + offsety1 );
+                break;
+              }
             };
             guint length = g_list_length ( p->value.image.colors );
             if ( length > 1 ){
