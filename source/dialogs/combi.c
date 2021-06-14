@@ -223,7 +223,7 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
             }
 
             if ( attr_list != NULL ) {
-                ThemeWidget *wid = rofi_theme_find_widget ( sw->name, NULL, TRUE );
+                ThemeWidget *wid = rofi_config_find_widget ( sw->name, NULL, TRUE );
                 Property    *p   = rofi_theme_find_property ( wid, P_COLOR, pd->switchers[i].mode->name, TRUE );
                 if ( p != NULL ) {
                     PangoAttribute *pa = pango_attr_foreground_new (

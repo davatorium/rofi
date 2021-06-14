@@ -798,6 +798,14 @@ Property *rofi_theme_find_property ( ThemeWidget *widget, PropertyType type, con
     }
     return NULL;
 }
+ThemeWidget *rofi_config_find_widget ( const char *name, const char *state, gboolean exact )
+{
+    // First find exact match based on name.
+    ThemeWidget *widget = rofi_theme_find_single ( rofi_configuration, name );
+    widget = rofi_theme_find ( widget, state, exact );
+
+    return widget;
+}
 ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact )
 {
     // First find exact match based on name.

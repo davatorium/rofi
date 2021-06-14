@@ -318,7 +318,12 @@ t_main
 ;
 
 t_configuration_list:
- %empty {}
+ %empty {
+    if ( rofi_configuration == NULL ) {
+      rofi_configuration       = g_slice_new0 ( ThemeWidget );
+      rofi_configuration->name = g_strdup ( "Configuration" );
+    }
+}
 | t_configuration_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {};
 
 
@@ -429,6 +434,18 @@ t_config_property
     // We don't keep any reference to this after this point, so the property can be free'ed.
     rofi_theme_property_free ( $1 );
 }
+|  t_property_name T_BOPEN t_property_list_optional T_BCLOSE
+{
+  ThemeWidget *widget = rofi_configuration;
+  widget = rofi_theme_find_or_create_name ( widget, $1 );
+  widget->set = TRUE;
+  rofi_theme_widget_add_properties ( widget, $3);
+  if ( $3 ) {
+    g_hash_table_destroy ( $3 );
+  }
+  g_free ( $1 );
+}
+;
 
 /**
  * properties

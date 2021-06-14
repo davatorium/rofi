@@ -44,6 +44,8 @@
 #include "rofi-types.h"
 
 
+ThemeWidget *rofi_configuration = NULL;
+
 
 /** Different sources of configuration. */
 const char * const ConfigSourceStr[] = {
