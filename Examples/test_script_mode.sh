@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ x"$@" = x"quit" ]
+if [ "$*" = "quit" ]
 then
     exit 0
 fi
@@ -24,6 +24,7 @@ else
     echo -en "aap\0icon\x1ffolder\n"
     echo "noot"
     echo "mies"
+    echo -en "-------------\0nonselectable\x1ftrue\n"
     echo "testing"
     echo "<b>Bold</b>"
     echo "quit"

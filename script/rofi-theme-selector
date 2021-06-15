@@ -24,7 +24,7 @@ then
     exit 1
 fi
 
-TMP_CONFIG_FILE=$(${MKTEMP})
+TMP_CONFIG_FILE=$(${MKTEMP}).rasi
 
 ##
 # Array with parts to the found themes.
@@ -103,7 +103,9 @@ function find_themes()
 ##
 function create_config_copy()
 {
-    ${ROFI} -dump-xresources > ${TMP_CONFIG_FILE}
+    ${ROFI} -dump-config > ${TMP_CONFIG_FILE}
+    # remove theme entry.
+    sed -i 's/^\s*theme:\s\+".*"\s*;//g' ${TMP_CONFIG_FILE}
 }
 
 ###
@@ -172,24 +174,9 @@ function set_theme()
     then
         mkdir -p ${CDIR}
     fi
-    if [ -f "${CDIR}/config.rasi" ]
-    then
-    	get_link=$(readlink -f "${CDIR}/config.rasi")
-        ${SED} -i "/@import.*/d" "${get_link}"
-        echo "@import \"${1}\"" >> "${get_link}"
-    else
-        if [ ! -e "${CDIR}/config" ]
-        then
-            # No file.
-            echo "rofi.theme: ${1}" >> "${CDIR}/config"
-        elif [ -f "${CDIR}/config" ]
-        then
-            # Regular file
-    		get_link=$(readlink -f "${CDIR}/config")
-            ${SED} -i "/rofi\.theme: .*\.rasi$/d" "${get_link}"
-            echo "rofi.theme: ${1}" >> "${get_link}"
-        fi
-	fi
+    get_link=$(readlink -f "${CDIR}/config.rasi")
+    ${SED} -i "/@import.*/d" "${get_link}"
+    echo "@import \"${1}\"" >> "${get_link}"
 }
 
 ############################################################################################################

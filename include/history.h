@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -67,5 +67,5 @@ void history_remove ( const char *filename, const char *entry ) __attribute__( (
  */
 char ** history_get_list ( const char *filename, unsigned int * length ) __attribute__( ( nonnull ) );
 
-/*@}*/
+/**@}*/
 #endif // ROFI_HISTORY_H

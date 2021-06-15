@@ -3,7 +3,7 @@
  *
  * MIT/X11 License
  * Copyright © 2012 Sean Pringle <sean.pringle@gmail.com>
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -38,14 +38,14 @@
 #include <glib.h>
 #include <cairo.h>
 #include <cairo-xcb.h>
-#include <librsvg/rsvg.h>
-
+#include <math.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_aux.h>
 #include <xcb/randr.h>
 #include <xcb/xinerama.h>
 #include <xcb/xcb_ewmh.h>
 #include <xcb/xproto.h>
+#include <xcb/xcb_cursor.h>
 #include <xcb/xkb.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-x11.h>
@@ -64,13 +64,14 @@
 
 #include <rofi.h>
 
-/** Minimal randr prefered for running rofi (1.5) (Major version number) */
+/** Minimal randr preferred for running rofi (1.5) (Major version number) */
 #define RANDR_PREF_MAJOR_VERSION    1
-/** Minimal randr prefered for running rofi (1.5) (Minor version number) */
+/** Minimal randr preferred for running rofi (1.5) (Minor version number) */
 #define RANDR_PREF_MINOR_VERSION    5
 
 /** Checks if the if x and y is inside rectangle. */
 #define INTERSECT( x, y, x1, y1, w1, h1 )    ( ( ( ( x ) >= ( x1 ) ) && ( ( x ) < ( x1 + w1 ) ) ) && ( ( ( y ) >= ( y1 ) ) && ( ( y ) < ( y1 + h1 ) ) ) )
+
 WindowManagerQuirk current_window_manager = WM_EWHM;
 
 /**
@@ -99,6 +100,229 @@ static xcb_visualtype_t *root_visual = NULL;
 xcb_atom_t              netatoms[NUM_NETATOMS];
 const char              *netatom_names[] = { EWMH_ATOMS ( ATOM_CHAR ) };
 
+xcb_cursor_t            cursors[NUM_CURSORS] = { XCB_CURSOR_NONE, XCB_CURSOR_NONE, XCB_CURSOR_NONE };
+
+const struct
+{
+    const char *css_name;
+    const char *traditional_name;
+} cursor_names[] = {
+    { "default", "left_ptr" },
+    { "pointer", "hand"     },
+    { "text",    "xterm"    }
+};
+
+static xcb_visualtype_t * lookup_visual ( xcb_screen_t   *s, xcb_visualid_t visual )
+{
+    xcb_depth_iterator_t d;
+    d = xcb_screen_allowed_depths_iterator ( s );
+    for (; d.rem; xcb_depth_next ( &d ) ) {
+        xcb_visualtype_iterator_t v = xcb_depth_visuals_iterator ( d.data );
+        for (; v.rem; xcb_visualtype_next ( &v ) ) {
+            if ( v.data->visual_id == visual ) {
+                return v.data;
+            }
+        }
+    }
+    return 0;
+}
+
+/* This blur function was originally created my MacSlow and published on his website:
+ * http://macslow.thepimp.net. I'm not entirely sure he's proud of it, but it has
+ * proved immeasurably useful for me. */
+
+static uint32_t* create_kernel ( double radius, double deviation, uint32_t *sum2 )
+{
+    int     size     = 2 * (int) ( radius ) + 1;
+    uint32_t* kernel = (uint32_t *) ( g_malloc ( sizeof ( uint32_t ) * ( size + 1 ) ) );
+    double  radiusf  = fabs ( radius ) + 1.0;
+    double  value    = -radius;
+    double  sum      = 0.0;
+    int     i;
+
+    if ( deviation == 0.0 ) {
+        deviation = sqrt ( -( radiusf * radiusf ) / ( 2.0 * log ( 1.0 / 255.0 ) ) );
+    }
+
+    kernel[0] = size;
+
+    for ( i = 0; i < size; i++ ) {
+        kernel[1 + i] = INT16_MAX / ( 2.506628275 * deviation ) * exp ( -( ( value * value ) / ( 2.0 * ( deviation * deviation ) ) ) );
+
+        sum   += kernel[1 + i];
+        value += 1.0;
+    }
+
+    *sum2 = sum;
+
+    return kernel;
+}
+
+void cairo_image_surface_blur ( cairo_surface_t* surface, double radius, double deviation )
+{
+    uint32_t       * horzBlur;
+    uint32_t       * kernel = 0;
+    cairo_format_t format;
+    unsigned int   channels;
+
+    if ( cairo_surface_status ( surface ) ) {
+        return;
+    }
+
+    uint8_t   *data = cairo_image_surface_get_data ( surface );
+    format = cairo_image_surface_get_format ( surface );
+    const int width  = cairo_image_surface_get_width ( surface );
+    const int height = cairo_image_surface_get_height ( surface );
+    const int stride = cairo_image_surface_get_stride ( surface );
+
+    if ( format == CAIRO_FORMAT_ARGB32 ) {
+        channels = 4;
+    }
+    else{
+        return;
+    }
+
+    horzBlur = (uint32_t *) ( g_malloc ( sizeof ( uint32_t ) * height * stride ) );
+    TICK ();
+    uint32_t sum = 0;
+    kernel = create_kernel ( radius, deviation, &sum );
+    TICK_N ( "BLUR: kernel" );
+
+    /* Horizontal pass. */
+    uint32_t *horzBlur_ptr = horzBlur;
+    for ( int iY = 0; iY < height; iY++ ) {
+        const int iYs = iY * stride;
+        for ( int iX = 0; iX < width; iX++ ) {
+            uint32_t red    = 0;
+            uint32_t green  = 0;
+            uint32_t blue   = 0;
+            uint32_t alpha  = 0;
+            int      offset = (int) ( kernel[0] ) / -2;
+
+            for ( int i = 0; i < (int) ( kernel[0] ); i++ ) {
+                int x = iX + offset;
+
+                if ( x < 0 || x >= width ) {
+                    offset++;
+                    continue;
+                }
+
+                uint8_t        *dataPtr = &data[iYs + x * channels];
+                const uint32_t kernip1  = kernel[i + 1];
+
+                blue  += kernip1 * dataPtr[0];
+                green += kernip1 * dataPtr[1];
+                red   += kernip1 * dataPtr[2];
+                alpha += kernip1 * dataPtr[3];
+                offset++;
+            }
+
+            *horzBlur_ptr++ = blue / sum;
+            *horzBlur_ptr++ = green / sum;
+            *horzBlur_ptr++ = red / sum;
+            *horzBlur_ptr++ = alpha / sum;
+        }
+    }
+    TICK_N ( "BLUR: hori" );
+
+    /* Vertical pass. */
+    for ( int iY = 0; iY < height; iY++ ) {
+        for ( int iX = 0; iX < width; iX++ ) {
+            uint32_t  red    = 0;
+            uint32_t  green  = 0;
+            uint32_t  blue   = 0;
+            uint32_t  alpha  = 0;
+            int       offset = (int) ( kernel[0] ) / -2;
+
+            const int iXs = iX * channels;
+            for ( int i = 0; i < (int) ( kernel[0] ); i++ ) {
+                int y = iY + offset;
+
+                if ( y < 0 || y >= height ) {
+                    offset++;
+                    continue;
+                }
+
+                uint32_t       *dataPtr = &horzBlur[y * stride + iXs];
+                const uint32_t kernip1  = kernel[i + 1];
+
+                blue  += kernip1 * dataPtr[0];
+                green += kernip1 * dataPtr[1];
+                red   += kernip1 * dataPtr[2];
+                alpha += kernip1 * dataPtr[3];
+
+                offset++;
+            }
+
+            *data++ = blue / sum;
+            *data++ = green / sum;
+            *data++ = red / sum;
+            *data++ = alpha / sum;
+        }
+    }
+    TICK_N ( "BLUR: vert" );
+
+    free ( kernel );
+    free ( horzBlur );
+
+    return;
+}
+
+cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size )
+{
+    xcb_get_geometry_cookie_t cookie;
+    xcb_get_geometry_reply_t  *reply;
+
+    cookie = xcb_get_geometry ( xcb->connection, window );
+    reply  = xcb_get_geometry_reply ( xcb->connection, cookie, NULL );
+    if ( reply == NULL ) {
+        return NULL;
+    }
+
+    xcb_get_window_attributes_cookie_t attributesCookie = xcb_get_window_attributes ( xcb->connection, window );
+    xcb_get_window_attributes_reply_t  *attributes      = xcb_get_window_attributes_reply ( xcb->connection,
+                                                                                            attributesCookie,
+                                                                                            NULL );
+    if ( attributes == NULL || ( attributes->map_state != XCB_MAP_STATE_VIEWABLE ) ) {
+        free ( reply );
+        if ( attributes ) {
+            free ( attributes );
+        }
+        return NULL;
+    }
+    // Create a cairo surface for the window.
+    xcb_visualtype_t * vt = lookup_visual ( xcb->screen, attributes->visual );
+    free ( attributes );
+
+    cairo_surface_t *t = cairo_xcb_surface_create ( xcb->connection, window, vt, reply->width, reply->height );
+
+    if ( cairo_surface_status ( t ) != CAIRO_STATUS_SUCCESS ) {
+        cairo_surface_destroy ( t );
+        free ( reply );
+        return NULL;
+    }
+
+    // Scale the image, as we don't want to keep large one around.
+    int             max   = MAX ( reply->width, reply->height );
+    double          scale = (double) size / max;
+
+    cairo_surface_t *s2 = cairo_surface_create_similar_image ( t, CAIRO_FORMAT_ARGB32, reply->width * scale, reply->height * scale );
+    free ( reply );
+
+    if ( cairo_surface_status ( s2 ) != CAIRO_STATUS_SUCCESS ) {
+        cairo_surface_destroy ( t );
+        return NULL;
+    }
+    // Paint it in.
+    cairo_t *d = cairo_create ( s2 );
+    cairo_scale ( d, scale, scale );
+    cairo_set_source_surface ( d, t, 0, 0 );
+    cairo_paint ( d );
+    cairo_destroy ( d );
+
+    cairo_surface_destroy ( t );
+    return s2;
+}
 /**
  * Holds for each supported modifier the possible modifier mask.
  * Check x11_mod_masks[MODIFIER]&mask != 0 to see if MODIFIER is activated.
@@ -362,8 +586,8 @@ static void x11_build_monitor_layout ()
     if ( rversion ) {
         g_debug ( "Found randr version: %d.%d", rversion->major_version, rversion->minor_version );
         // Check if we are 1.5 and up.
-        if ( ( ( rversion->major_version == XCB_RANDR_MAJOR_VERSION ) && ( rversion->minor_version >= XCB_RANDR_MINOR_VERSION ) ) ||
-             ( rversion->major_version > XCB_RANDR_MAJOR_VERSION ) ) {
+        if ( ( ( rversion->major_version == RANDR_PREF_MAJOR_VERSION ) && ( rversion->minor_version >= RANDR_PREF_MINOR_VERSION ) ) ||
+             ( rversion->major_version > RANDR_PREF_MAJOR_VERSION ) ) {
             xcb_randr_get_monitors_cookie_t t       = xcb_randr_get_monitors ( xcb->connection, xcb->screen->root, 1 );
             xcb_randr_get_monitors_reply_t  *mreply = xcb_randr_get_monitors_reply ( xcb->connection, t, NULL );
             if ( mreply ) {
@@ -603,6 +827,11 @@ static int monitor_active_from_id_focused ( int mon_id, workarea *mon )
             mon->w = r->width;
             mon->h = r->height;
             retv   = TRUE;
+            if ( ( current_window_manager & WM_ROOT_WINDOW_OFFSET ) == WM_ROOT_WINDOW_OFFSET ) {
+                mon->x += r->x;
+                mon->y += r->y;
+            }
+            g_debug ( "mon pos: %d %d %d-%d", mon->x, mon->y, mon->w, mon->h );
         }
         else if ( mon_id == -4 ) {
             monitor_dimensions ( t->dst_x, t->dst_y, mon );
@@ -822,6 +1051,17 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
 
     switch ( event->response_type & ~0x80 )
     {
+    case XCB_CLIENT_MESSAGE:
+    {
+        xcb_client_message_event_t *cme = (xcb_client_message_event_t *) event;
+        xcb_atom_t                 atom = cme->data.data32[0];
+        xcb_timestamp_t            time = cme->data.data32[1];
+        if ( atom == netatoms[WM_TAKE_FOCUS] ) {
+            xcb_set_input_focus ( xcb->connection, XCB_INPUT_FOCUS_NONE, cme->window, time );
+            xcb_flush ( xcb->connection );
+        }
+        break;
+    }
     case XCB_EXPOSE:
         rofi_view_frame_callback ();
         break;
@@ -833,11 +1073,12 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     }
     case XCB_MOTION_NOTIFY:
     {
-        if ( config.click_to_exit == TRUE ) {
+        xcb_motion_notify_event_t *xme        = (xcb_motion_notify_event_t *) event;
+        gboolean                  button_mask = xme->state & XCB_EVENT_MASK_BUTTON_1_MOTION;
+        if (  button_mask && config.click_to_exit == TRUE ) {
             xcb->mouse_seen = TRUE;
         }
-        xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *) event;
-        rofi_view_handle_mouse_motion ( state, xme->event_x, xme->event_y );
+        rofi_view_handle_mouse_motion ( state, xme->event_x, xme->event_y, !button_mask && config.hover_select );
         break;
     }
     case XCB_BUTTON_PRESS:
@@ -848,7 +1089,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
         gint32                   steps;
 
         xcb->last_timestamp = bpe->time;
-        rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y );
+        rofi_view_handle_mouse_motion ( state, bpe->event_x, bpe->event_y, FALSE );
         if ( x11_button_to_nk_bindings_button ( bpe->detail, &button ) ) {
             nk_bindings_seat_handle_button ( xcb->bindings_seat, NULL, button, NK_BINDINGS_BUTTON_STATE_PRESS, bpe->time );
         }
@@ -966,6 +1207,38 @@ static gboolean main_loop_x11_event_handler ( xcb_generic_event_t *ev, G_GNUC_UN
     return G_SOURCE_CONTINUE;
 }
 
+void rofi_xcb_set_input_focus ( xcb_window_t w )
+{
+    if ( config.steal_focus != TRUE ) {
+        xcb->focus_revert = 0;
+        return;
+    }
+    xcb_generic_error_t          *error;
+    xcb_get_input_focus_reply_t  *freply;
+    xcb_get_input_focus_cookie_t fcookie = xcb_get_input_focus ( xcb->connection );
+    freply = xcb_get_input_focus_reply ( xcb->connection, fcookie, &error );
+    if ( error != NULL ) {
+        g_warning ( "Could not get input focus (error %d), will revert focus to best effort", error->error_code );
+        free ( error );
+        xcb->focus_revert = 0;
+    }
+    else {
+        xcb->focus_revert = freply->focus;
+    }
+    xcb_set_input_focus ( xcb->connection, XCB_INPUT_FOCUS_POINTER_ROOT, w, XCB_CURRENT_TIME );
+    xcb_flush ( xcb->connection );
+}
+
+void rofi_xcb_revert_input_focus ( void )
+{
+    if ( xcb->focus_revert == 0 ) {
+        return;
+    }
+
+    xcb_set_input_focus ( xcb->connection, XCB_INPUT_FOCUS_POINTER_ROOT, xcb->focus_revert, XCB_CURRENT_TIME );
+    xcb_flush ( xcb->connection );
+}
+
 static int take_pointer ( xcb_window_t w, int iters )
 {
     int i = 0;
@@ -988,8 +1261,8 @@ static int take_pointer ( xcb_window_t w, int iters )
             break;
         }
         struct timespec del = {
-             .tv_sec  = 0,
-             .tv_nsec =  1000000
+            .tv_sec  = 0,
+            .tv_nsec = 1000000
         };
         nanosleep ( &del, NULL );
     }
@@ -1019,8 +1292,8 @@ static int take_keyboard ( xcb_window_t w, int iters )
             break;
         }
         struct timespec del = {
-             .tv_sec  = 0,
-             .tv_nsec =  1000000
+            .tv_sec  = 0,
+            .tv_nsec = 1000000
         };
         nanosleep ( &del, NULL );
     }
@@ -1081,9 +1354,12 @@ static void x11_helper_discover_window_manager ( void )
         xcb_get_property_cookie_t         cookie = xcb_ewmh_get_wm_name_unchecked ( &( xcb->ewmh ), wm_win );
         if (  xcb_ewmh_get_wm_name_reply ( &( xcb->ewmh ), cookie, &wtitle, (void *) 0 ) ) {
             if ( wtitle.strings_len > 0 ) {
-                g_debug ( "Found window manager: %s", wtitle.strings );
+                g_debug ( "Found window manager: |%s|", wtitle.strings );
                 if ( g_strcmp0 ( wtitle.strings, "i3" ) == 0 ) {
                     current_window_manager = WM_DO_NOT_CHANGE_CURRENT_DESKTOP | WM_PANGO_WORKSPACE_NAMES;
+                }
+                else if ( g_strcmp0 ( wtitle.strings, "bspwm" ) == 0 ) {
+                    current_window_manager = WM_ROOT_WINDOW_OFFSET;
                 }
             }
             xcb_ewmh_get_utf8_strings_reply_wipe ( &wtitle );
@@ -1254,6 +1530,25 @@ static void x11_create_visual_and_colormap ( void )
     }
 }
 
+static void x11_lookup_cursors ( void )
+{
+    xcb_cursor_context_t *ctx;
+
+    if ( xcb_cursor_context_new ( xcb->connection, xcb->screen, &ctx ) < 0 ) {
+        return;
+    }
+
+    for ( int i = 0; i < NUM_CURSORS; ++i ) {
+        cursors[i] = xcb_cursor_load_cursor ( ctx, cursor_names[i].css_name );
+
+        if ( cursors[i] == XCB_CURSOR_NONE ) {
+            cursors[i] = xcb_cursor_load_cursor ( ctx, cursor_names[i].traditional_name );
+        }
+    }
+
+    xcb_cursor_context_free ( ctx );
+}
+
 /** Retry count of grabbing keyboard. */
 unsigned int lazy_grab_retry_count_kb = 0;
 /** Retry count of grabbing pointer. */
@@ -1289,6 +1584,8 @@ static gboolean lazy_grab_keyboard ( G_GNUC_UNUSED gpointer data )
 gboolean display_late_setup ( void )
 {
     x11_create_visual_and_colormap ();
+
+    x11_lookup_cursors ();
 
     /**
      * Create window (without showing)
@@ -1382,4 +1679,17 @@ void x11_disable_decoration ( xcb_window_t window )
 
     xcb_atom_t ha = netatoms[_MOTIF_WM_HINTS];
     xcb_change_property ( xcb->connection, XCB_PROP_MODE_REPLACE, window, ha, ha, 32, 5, &hints );
+}
+
+void x11_set_cursor ( xcb_window_t window, X11CursorType type )
+{
+    if ( type < 0 || type >= NUM_CURSORS ) {
+        return;
+    }
+
+    if ( cursors[type] == XCB_CURSOR_NONE ) {
+        return;
+    }
+
+    xcb_change_window_attributes ( xcb->connection, window, XCB_CW_CURSOR, &( cursors[type] ) );
 }

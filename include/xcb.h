@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -84,6 +84,7 @@ void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, 
     X ( WM_WINDOW_ROLE ),         \
     X ( _XROOTPMAP_ID ),          \
     X ( _MOTIF_WM_HINTS ),        \
+    X ( WM_TAKE_FOCUS ),          \
     X ( ESETROOT_PMAP_ID )
 
 /** enumeration of the atoms. */
@@ -127,6 +128,18 @@ typedef struct _workarea
 int monitor_active ( workarea *mon );
 
 /**
+ * @param w rofis window
+ *
+ * Stores old input focus for reverting and set focus to rofi.
+ */
+void rofi_xcb_set_input_focus ( xcb_window_t w );
+
+/**
+ * IF set, revert the focus back to the original applications.
+ */
+void rofi_xcb_revert_input_focus ( void );
+
+/**
  * Depth of visual
  */
 extern xcb_depth_t *depth;
@@ -163,6 +176,28 @@ cairo_surface_t *x11_helper_get_screenshot_surface ( void );
 void x11_disable_decoration ( xcb_window_t window );
 
 /**
+ * List of cursor types.
+ */
+typedef enum
+{
+    /** Default arrow cursor */
+    CURSOR_DEFAULT = 0,
+    /** Cursor denoting a clickable area */
+    CURSOR_POINTER,
+    /** Cursor denoting an input field / selectable text */
+    CURSOR_TEXT,
+    NUM_CURSORS
+} X11CursorType;
+
+/**
+ * @param window
+ * @param type
+ *
+ * Change mouse cursor
+ */
+void x11_set_cursor ( xcb_window_t window, X11CursorType type );
+
+/**
  * List of window managers that need different behaviour to functioning.
  */
 typedef enum
@@ -173,6 +208,8 @@ typedef enum
     WM_DO_NOT_CHANGE_CURRENT_DESKTOP = 1,
     /** PANGO WORKSPACE NAMES */
     WM_PANGO_WORKSPACE_NAMES         = 2,
+    /** Root window offset (for bspwm) */
+    WM_ROOT_WINDOW_OFFSET            = 4,
 } WindowManagerQuirk;
 
 /**
@@ -180,5 +217,24 @@ typedef enum
  * This is used for work-arounds.
  */
 extern WindowManagerQuirk current_window_manager;
+
+/**
+ * @param window the window the screenshot
+ * @param size   Size of the thumbnail
+ *
+ * Creates a thumbnail of the window.
+ *
+ * @returns NULL if window was not found, or unmapped, otherwise returns a cairo_surface.
+ */
+cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size );
+
+/**
+ * @param surface
+ * @param radius
+ * @param deviation
+ *
+ * Blur the content of the surface with radius and deviation.
+ */
+void cairo_image_surface_blur ( cairo_surface_t* surface, double radius, double deviation );
 
 #endif

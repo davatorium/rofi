@@ -65,8 +65,8 @@ typedef enum
     WIDGET_TYPE_EDITBOX          = SCOPE_MOUSE_EDITBOX,
     /** The listview scrollbar */
     WIDGET_TYPE_SCROLLBAR        = SCOPE_MOUSE_SCROLLBAR,
-    /** A tab in the modi sidebar */
-    WIDGET_TYPE_SIDEBAR_MODI     = SCOPE_MOUSE_SIDEBAR_MODI,
+    /** A widget allowing user to swithc between modi */
+    WIDGET_TYPE_MODE_SWITCHER    = SCOPE_MOUSE_MODE_SWITCHER,
     /** Text-only textbox */
     WIDGET_TYPE_TEXTBOX_TEXT,
 } WidgetType;
@@ -144,23 +144,48 @@ WidgetType widget_type ( widget *widget );
 
 /**
  * @param widget Handle to widget
+ * @param type The widget type.
+ *
+ * Set the widget type.
+ */
+void widget_set_type ( widget *widget, WidgetType type );
+
+/**
+ * @param widget Handle to widget
  *
  * Check if widget is enabled.
  * @returns TRUE when widget is enabled.
  */
 gboolean widget_enabled ( widget *widget );
+
+/**
+ * @param widget Handle to widget
+ * @param enabled The new state
+ *
+ * Disable the widget.
+ */
+void widget_set_enabled ( widget *widget, gboolean enabled );
+
 /**
  * @param widget Handle to widget
  *
  * Disable the widget.
  */
-void widget_disable ( widget *widget );
+static inline
+void widget_disable ( widget *widget )
+{
+    widget_set_enabled ( widget, FALSE );
+}
 /**
  * @param widget Handle to widget
  *
  * Enable the widget.
  */
-void widget_enable ( widget *widget );
+static inline
+void widget_enable ( widget *widget )
+{
+    widget_set_enabled ( widget, TRUE );
+}
 
 /**
  * @param widget widget  Handle to the widget
@@ -219,7 +244,7 @@ int widget_get_x_pos ( widget *widget );
  * @param x A pointer to the absolute X coordinates
  * @param y A pointer to the absolute Y coordinates
  *
- * Will modify @param x and @param y to make them relative to @param widget .
+ * Will modify param x and param y to make them relative to param widget .
  */
 void widget_xy_to_relative ( widget *widget, gint *x, gint *y );
 
@@ -263,7 +288,7 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y 
  * @param y A pointer to the y coordinate of the click
  *
  * Trigger an action on widget.
- * @param x and @param y are relative to @param wid .
+ * param x and param y are relative to param wid .
  *
  * @returns Whether the action was handled or not
  */
@@ -322,6 +347,5 @@ int widget_get_absolute_xpos ( widget *wid );
  * @returns the absolute y-position of widget of the widget in pixels.
  */
 int widget_get_absolute_ypos ( widget *wid );
-
-/*@}*/
+/**@}*/
 #endif // ROFI_WIDGET_H

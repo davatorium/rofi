@@ -10,7 +10,7 @@
     font:            "Times New Roman 12";
 }
 
-#window {
+window {
     anchor:     north;
     location:   north;
     width:      100%;
@@ -18,25 +18,25 @@
     children:   [ horibox ];
 }
 
-#horibox {
+horibox {
     orientation: horizontal;
     children:   [ prompt, entry, listview ];
 }
 
-#listview {
+listview {
     layout:     horizontal;
     spacing:    5px;
     lines:      100;
 }
 
-#entry {
+entry {
     expand:     false;
     width:      10em;
 }
 
-#element {
+element {
     padding: 0px 2px;
 }
-#element selected {
+element selected {
     background-color: SteelBlue;
 }

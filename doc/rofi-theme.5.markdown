@@ -9,7 +9,7 @@
 The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed. From a very
 static drawing of lines and text to a nice structured form of packing widgets. This change made it possible to provide a
 more flexible theme framework. The old theme format and config file are not flexible enough to expose these options in a
-user-friendly way. Therefor, a new file format has been created, replacing the old one.
+user-friendly way. Therefore, a new file format has been created, replacing the old one.
 
 ## FORMAT SPECIFICATION
 
@@ -64,7 +64,7 @@ name
 The preferred file extension for the new theme format is **rasi**. This is an
 abbreviation for **r**ofi **a**dvanced **s**tyle **i**nformation.
 
-## BASIC STRUCTURE
+## Basic Structure
 
 Each element has a section with defined properties. Global properties can be defined in section `* { }`.
 Sub-section names begin with a hash symbol `#`.
@@ -137,6 +137,7 @@ In the following example:
 window {
  a: 1;
  b: 2;
+ children: [ mainbox ];
 }
 mainbox {
     a: inherit;
@@ -157,7 +158,7 @@ If multiple sections are defined with the same name, they are merged by the
 parser. If multiple properties with the same name are defined in one section,
 the last encountered property is used.
 
-## PROPERTIES FORMAT
+## Properties Format
 
 The properties in a section consist of:
 
@@ -180,6 +181,7 @@ The current theme format supports different types:
  * a fractional number
  * a boolean value
  * a color
+ * image
  * text style
  * line style
  * a distance
@@ -188,6 +190,7 @@ The current theme format supports different types:
  * a position
  * a reference
  * an orientation
+ * a cursor
  * a list of keywords
  * an environment variable
  * Inherit
@@ -246,6 +249,19 @@ For example:
 ```
 dynamic: false;
 ```
+
+## Image
+
+**rofi** support a very limited set of image formats.
+
+* Format: url("path to image");
+* Format: linear-gradient(stop color,stop1, color, stop2 color, ...);
+* Format: linear-gradient(to direction, stop color,stop1, color, stop2 color, ...);
+  where direction is:   top,left,right,bottom.
+* Format: linear-gradient(angle, stop color,stop1, color, stop2 color, ...);
+  Angle in deg,rad,grad (as used in color).
+
+Where the path is a string, and stop color is of type color.
 
 ## Color
 
@@ -314,9 +330,6 @@ should be applied.
  * `italic`: put the highlighted text in script type (slanted).
  * `underline`: put a line under the highlighted text.
  * `strikethrough`: put a line through the highlighted text.
- * `small caps`: emphasise the text using capitalization.
-
-> For some reason `small caps` does not work on some systems.
 
 ## Line style
 
@@ -333,12 +346,14 @@ It currently supports:
 * Format: `{Real}em`
 * Format: `{Real}ch`
 * Format: `{Real}%`
+* Format: `{Integer}mm`
 
 A distance can be specified in 3 different units:
 
 * `px`: Screen pixels.
 * `em`: Relative to text height.
 * `ch`: Relative to width of a single number.
+* `mm`: Actual size in millimeters (based on dpi).
 * `%`:  Percentage of the **monitor** size.
 
 Distances used in the horizontal direction use the monitor width. Distances in
@@ -351,6 +366,26 @@ For example:
 On a full-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left
 and right side and 108 pixels on the top and bottom.
 
+### Calculating sizes
+
+Rofi supports some maths in calculating sizes. For this it uses the CSS syntax:
+
+```
+width: calc( 100% - 37px );
+```
+
+It supports the following operations:
+
+* `+`   : Add
+* `-`   : Subtract
+* `/`   : Divide
+* `*`   : Multiply
+* `%`   : Multiply
+* `min` : Minimum of l or rvalue;
+* `max` : Maximum of l or rvalue;
+
+It uses the C precedence ordering.
+
 ## Padding
 
 * Format: `{Integer}`
@@ -359,7 +394,7 @@ and right side and 108 pixels on the top and bottom.
 * Format: `{Distance} {Distance} {Distance}`
 * Format: `{Distance} {Distance} {Distance} {Distance}`
 
-If no unit is specified, pixels are used.
+If no unit is specified, pixels are assumed.
 
 The different number of fields in the formats are parsed like:
 
@@ -383,6 +418,8 @@ The different number of fields in the formats are parsed like:
 
 Borders are identical to padding, except that each distance field has a line
 style property.
+
+> When no unit is specified, pixels are assumed.
 
 ## Position
 
@@ -436,6 +473,12 @@ window {
  * Format: `(horizontal|vertical)`
 
 Specify the orientation of the widget.
+
+## Cursor
+
+ * Format: `(default|pointer|text)`
+
+Specify the type of mouse cursor that is set when the mouse pointer is over the widget.
 
 ## List of keywords
 
@@ -509,16 +552,21 @@ The current widgets available in **rofi**:
       * `case-indicator`: the case/sort indicator @textbox
       * `prompt`: the prompt @textbox
       * `entry`: the main entry @textbox
+      * `num-rows`: Shows the total number of rows.
+      * `num-filtered-rows`: Shows the total number of rows after filtering.
     * `listview`: The listview.
        * `scrollbar`: the listview scrollbar
-       * `element`: the entries in the listview
-    * `sidebar`: the main horizontal @box packing the buttons.
+       * `element`: a box in the listview holding the entries
+           * `element-icon`: the widget in the listview's entry showing the (optional) icon
+           * `element-index`: the widget in the listview's entry keybindable index (1,2,3..0)
+           * `element-text`: the widget in the listview's entry showing the text.
+    * `mode-switcher`: the main horizontal @box packing the buttons.
       * `button`: the buttons @textbox for each mode
     * `message`: The container holding the textbox.
       * `textbox`: the message textbox
 
 Note that these path names match the default theme. Themes that provide a custom layout will have different
-element paths.
+elements, and structure.
 
 
 ## State
@@ -577,6 +625,7 @@ The following properties are currently supported:
 
 ###  all widgets:
 
+* **enabled**:         enable/disable the widget
 * **padding**:         padding
   Padding on the inside of the widget
 * **margin**:          padding
@@ -587,9 +636,12 @@ The following properties are currently supported:
   Sets a radius on the corners of the borders.
 * **background-color**:      color
   Background color
+* **background-image**:      image
+  Background image
 * **border-color**:      color
   Color of the border
-* **index**:           integer  (This one does not inherit it value from the parent widget)
+* **cursor**:      cursor
+  Type of mouse cursor that is set when the mouse pointer is hovered over the widget.
 
 ### window:
 
@@ -632,16 +684,21 @@ The following properties are currently supported:
 
 ### textbox:
 
-* **background-color**:       color
-* **border-color**:     the color used for the border around the widget.
-* **font**:             the font used by this textbox (string)
-* **str**:              the string to display by this textbox (string)
-* **vertical-align**:   vertical alignment of the text (`0` top, `1` bottom)
-* **horizontal-align**: horizontal alignment of the text (`0` left, `1` right)
-* **text-color**:       the text color to use 
-* **highlight**:        text style {color}
+* **background-color**:  color
+* **border-color**:      the color used for the border around the widget.
+* **font**:              the font used by this textbox (string).
+* **str**:               the string to display by this textbox (string).
+* **vertical-align**:    vertical alignment of the text (`0` top, `1` bottom).
+* **horizontal-align**:  horizontal alignment of the text (`0` left, `1` right).
+* **text-color**:        the text color to use.
+* **highlight**:         text style {color}.
     color is optional, multiple highlight styles can be added like: bold underline italic #000000;
-* **width**:            override the desired width for the textbox
+* **width**:             override the desired width for the textbox.
+* **content**:           Set the displayed text (String).
+* **placeholder**:       Set the displayed text (String) when nothing is entered.
+* **placeholder-color**: Color of the placeholder text.
+* **blink**:             Enable/Disable blinking on an input textbox (Boolean).
+* **markup**:            Force markup on, beware that only valid pango markup strings are shown.
 
 ### listview:
 * **columns**:         integer
@@ -662,6 +719,35 @@ The following properties are currently supported:
     Number of rows to show in the list view.
 * **layout**:           orientation
     Indicate how elements are stacked. Horizontal implements the dmenu style.
+* **reverse**:         boolean
+    Reverse the ordering (top down to bottom up).
+* **fixed-columns**:    boolean
+    Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.
+
+Each element is a `box` called `element`. Each `element` can contain an `element-icon` and `element-text`.
+
+### listview text highlight:
+
+The `element-text` widget in the `listview` is the one used to show the text.
+On this widget set the `highlight` property (only place this property is used) to change
+the style of highlighting.
+The `highlight` property consist of the `text-style` property and a color.
+
+To disable highlighting:
+
+```css
+  element-text {
+    highlight: None;
+  }
+```
+
+To set to red underlined:
+
+```css
+  element-text {
+    highlight: underline red;
+  }
+```
 
 ## Layout
 
@@ -700,7 +786,7 @@ The current layout of **rofi** is structured as follows:
 | | |-----------------------------------------------------------------------------|  |
 | |                                                                               |  |
 | | |---------------------------------------------------------------------------| |  |
-| | |  sidebar {BOX:horizontal}                                                 | |  |
+| | |  mode-switcher {BOX:horizontal}                                           | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |
 | | | | Button        |   | Button        |  | Button       | | Button        | | |  |
 | | | |---------------|   |---------------|  |--------------| |---------------| | |  |
@@ -736,25 +822,43 @@ The following widgets are fixed, as they provide core **rofi** functionality:
 
  * prompt
  * entry
+ * overlay
  * case-indicator
  * message
  * listview
- * sidebar
+ * mode-switcher
+ * num-rows
+ * num-filtered-rows
 
 The following keywords are defined and can be used to automatically pack a subset of the widgets.
 These are used in the default theme as depicted in the figure above.
 
  * mainbox
-   Packs: `inputbar, message, listview, sidebar`
+   Packs: `inputbar, message, listview, mode-switcher`
  * inputbar
    Packs: `prompt,entry,case-indicator`
 
 Any widget name starting with `textbox` is a textbox widget, others are box widgets and can pack other widgets.
+
+There are several special widgets that can be used by prefixing the name of the widget:
+
+* `textbox`:
+  This is a textbox widget. The displayed string can be set with `str`.
+* `icon`:
+  This is an icon widget. The displayed icon can be set with `filename` and size with `size`.
+* `button`:
+ This is a textbox widget that can have a 'clickable' action.
+ The `action` can be set to:
+ `ok` accept entry.
+ `custom` accept custom input.
+ `ok|alternate`: accept entry and launch alternate action (for run launch in terminal).
+ `custom|alternate`: accept custom input and launch alternate action.
+
 To specify children, set the `children`
 property (this always happens on the `box` child, see example below):
 
 ```
-children: [prompt,entry,case-indicator];
+children: [prompt,entry,overlay,case-indicator];
 ```
 
 The theme needs to be updated to match the hierarchy specified.
@@ -800,6 +904,7 @@ element selected {
     background-color: SteelBlue;
 }
 ```
+
 
 ### Padding and margin
 
@@ -900,6 +1005,79 @@ To print the current theme, run:
 rofi -dump-theme
 ```
 
+## Media support
+
+Parts of the theme can be conditionally loaded, like the CSS `@media` option.
+
+```
+@media ( min-width: 120 ) {
+
+}
+```
+
+It supports the following keys as constraint:
+
+ * `min-width`:         load when width is bigger or equal then value.
+ * `max-width`:         load when width is smaller then value.
+ * `min-height`:        load when height is bigger or equal then value.
+ * `max-height`:        load when height is smaller then value.
+ * `min-aspect-ratio`   load when aspect ratio is over value.
+ * `max-aspect-ratio`:  load when aspect ratio is under value.
+ * `monitor-id`:        The monitor id, see rofi -help for id's.
+
+@media takes an integer number or a fraction, for integer number `px` can be added.
+
+
+```
+@media ( min-width: 120 px ) {
+
+}
+```
+
+
+## Font Parsing
+
+Rofi uses [pango](https://pango.gnome.org/) for font rendering. The font should be specified in a format that pango
+understands.
+This normally is the font name followed by the font size. For example:
+
+```
+mono 18
+```
+
+Or
+
+```
+FontAwesome 22
+```
+
+## Multiple file handling
+
+The rasi file format offers two methods of including other files.
+This can be used to modify existing themes, or have multiple variations on a theme.
+
+ * import:  Import and parse a second file.
+ * theme:   Discard theme, and load file as a fresh theme.
+
+Syntax:
+
+```
+@import "myfile"
+@theme "mytheme"
+```
+
+The specified file can either by *name*, *filename*,*full path*.
+
+If a filename is provided, it will try to resolve it in the following order:
+
+ * `${XDG_CONFIG_HOME}/rofi/themes/`
+ * `${XDG_CONFIG_HOME}/rofi/`
+ * `${XDG_DATA_HOME}/rofi/themes/`
+ * `${INSTALL PREFIX}/share/rofi/themes/`
+
+A name is resolved as a filename by appending the `.rasi` extension.
+
+
 
 ## EXAMPLES
 
@@ -908,4 +1086,4 @@ Several examples are installed together with **rofi**. These can be found in `{d
 
 ## SEE ALSO
 
-rofi(1)
+rofi(1), rofi-script(5), rofi-theme-selector(1)

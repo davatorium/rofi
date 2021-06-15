@@ -138,6 +138,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 	int           ival;
 	double        fval;
     char          *sval;
+    char          cval;
     int           bval;
     WindowLocation wloc;
     ThemeColor    colorval;
@@ -146,6 +147,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
     Property      *property;
     GHashTable    *property_list;
     RofiDistance      distance;
+    RofiDistanceUnit  *distance_unit;
 }
 
 %token <ival>     T_END              0  "end of file"
@@ -159,6 +161,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token <ival>     T_INT                 "Integer number"
 %token <fval>     T_DOUBLE              "Floating-point number"
 %token <sval>     T_STRING              "UTF-8 encoded string"
+%token <cval>     T_CHAR                "Character"
 %token <sval>     T_PROP_NAME           "property name"
 %token <colorval> T_COLOR_NAME          "Color value by name"
 %token <sval>     T_NAME_ELEMENT        "Element name"
@@ -172,6 +175,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_POS_NORTH                      "North"
 %token T_POS_SOUTH                      "South"
 
+%token T_MEDIA                          "@media"
+
 %token T_NONE                           "None"
 %token T_BOLD                           "Bold"
 %token T_ITALIC                         "Italic"
@@ -182,6 +187,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_SOLID                          "Solid"
 
 %token T_UNIT_PX                        "pixels"
+%token T_UNIT_MM                        "mm"
 %token T_UNIT_EM                        "em"
 %token T_UNIT_CH                        "ch"
 %token T_UNIT_PERCENT                   "%"
@@ -194,13 +200,25 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token ORIENTATION_HORI                 "Horizontal"
 %token ORIENTATION_VERT                 "Vertical"
 
+%token CURSOR_DEF                       "Default"
+%token CURSOR_PTR                       "Pointer"
+%token CURSOR_TXT                       "Text"
+
 %token T_COL_RGBA                       "rgb[a] colorscheme"
 %token T_COL_HSL                        "hsl colorscheme"
 %token T_COL_HWB                        "hwb colorscheme"
 %token T_COL_CMYK                       "cmyk colorscheme"
 
-%token T_VAR_START                      "Variable"
-%token T_VAR_CLOSE                      "Variable close"
+%token T_URL                            "an URL"
+%token T_TO                             "an TO"
+%token T_LEFT                           "an LEFT"
+%token T_RIGHT                          "an RIGHT"
+%token T_TOP                            "an TOP"
+%token T_BOTTOM                         "an BOTTOM"
+
+%type <ival>                            t_property_direction
+%token T_LINEAR_GRADIENT                "a linear gradient"
+
 %token T_PARENT_LEFT                    "Parent left ('(')"
 %token T_PARENT_RIGHT                   "Parent right (')')"
 %token T_COMMA                          "comma separator (',')"
@@ -209,6 +227,15 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_PERCENT                        "Percent sign ('%')"
 %token T_LIST_OPEN                      "List open ('[')"
 %token T_LIST_CLOSE                     "List close (']')"
+
+%token T_MODIFIER_ADD                   "Add ('+')"
+%token T_MODIFIER_SUBTRACT              "Subtract ('-')"
+%token T_MODIFIER_MULTIPLY              "Multiply ('*')"
+
+%token T_MODIFIER_MAX                   "Max ('max')"
+%token T_MODIFIER_MIN                   "Min ('min')"
+
+%token T_CALC                           "calc"
 
 %token T_BOPEN                          "bracket open ('{')"
 %token T_BCLOSE                         "bracket close ('}')"
@@ -220,15 +247,24 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_WHITESPACE                     "White space"
 %token T_PDEFAULTS                      "Default settings section ( '* { ... }')"
 %token T_CONFIGURATION                  "Configuration block"
+%token T_RESET_THEME                    "Reset Theme"
 
 %token T_COLOR_TRANSPARENT              "Transparent"
 
 %token T_INHERIT                        "Inherit"
 
-%type <sval>           t_entry
+%token T_MEDIA_WIDTH                    "Width"
+%token T_MEDIA_HEIGHT                   "Height"
+
+%token T_MEDIA_MIN                      "Min"
+%token T_MEDIA_MONITOR_ID               "Monitor-ID"
+%token T_MEDIA_MAX                      "Max"
+%token T_MEDIA_SEP                      "-"
+
 %type <theme>          t_entry_list
 %type <list>           t_entry_name_path
 %type <list>           t_entry_name_path_selectors
+%type <list>           t_color_list
 %type <property>       t_property
 %type <property>       t_property_element
 %type <property_list>  t_property_list
@@ -242,6 +278,10 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <sval>           t_property_name
 %type <distance>       t_property_distance
 %type <distance>       t_property_distance_zero
+%type <distance_unit>  t_property_distance_unit_math
+%type <distance_unit>  t_property_distance_unit_math2
+%type <distance_unit>  t_property_distance_unit_math3
+%type <distance_unit>  t_property_distance_unit
 %type <ival>           t_property_unit
 %type <wloc>           t_property_position
 %type <wloc>           t_property_position_ew
@@ -252,6 +292,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %type <list>           t_property_element_list
 %type <list>           t_property_element_list_optional
 %type <ival>           t_property_orientation
+%type <ival>           t_property_cursor
 %type <ival>           t_name_prefix_optional
 %start t_main
 
@@ -263,24 +304,28 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 t_main
 : t_configuration_list t_entry_list {
     // Dummy at this point.
+    if (rofi_theme == NULL ){
+      rofi_theme_reset();
+    }
+
+
+    rofi_theme_widget_add_properties ( rofi_theme, $2->properties );
+    for ( unsigned int i = 0; i < $2->num_widgets;i++) {
+        ThemeWidget *d = $2->widgets[i];
+        rofi_theme_parse_merge_widgets(rofi_theme, d);
+    }
 }
 ;
 
 t_configuration_list:
- %empty {}
+ %empty {
+    if ( rofi_configuration == NULL ) {
+      rofi_configuration       = g_slice_new0 ( ThemeWidget );
+      rofi_configuration->name = g_strdup ( "Configuration" );
+    }
+}
 | t_configuration_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {};
 
-t_entry_list:
-  %empty {
-        // There is always a base widget.
-        if (rofi_theme == NULL ){
-            rofi_theme_reset();
-            $$ =  rofi_theme;
-        }
-  }
-|  t_entry_list t_entry {
-   }
-;
 
 /**
  * Small dummy object to make the prefix optional.
@@ -290,30 +335,76 @@ t_name_prefix_optional
 | %empty {}
 ;
 
-t_entry:
-t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
+t_entry_list:
+  %empty {
+    $$ = g_slice_new0 ( ThemeWidget );
+  }
+| t_entry_list T_RESET_THEME {
+    rofi_theme_reset();
+    rofi_theme_free($1);
+    $$ = g_slice_new0 ( ThemeWidget );
+}
+
+|  t_entry_list t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
 {
-    for ( GList *liter = g_list_first ( $2); liter; liter = g_list_next ( liter ) ) {
-        ThemeWidget *widget = rofi_theme;
-        for ( GList *iter = g_list_first ( (GList*)liter->data ); iter ; iter = g_list_next ( iter ) ) {
+    for ( GList *liter = g_list_first ( $3); liter; liter = g_list_next ( liter ) ) {
+        ThemeWidget *widget = $1;
+        for ( GList *iter = g_list_first ( (GList*)liter->data ); widget && iter ; iter = g_list_next ( iter ) ) {
             widget = rofi_theme_find_or_create_name ( widget, iter->data );
         }
-        g_list_foreach ( (GList*)liter->data, (GFunc)g_free , NULL );
-        g_list_free ( (GList*)liter->data );
+        g_list_free_full ( (GList*)liter->data, g_free );
         widget->set = TRUE;
-        rofi_theme_widget_add_properties ( widget, $4);
+        rofi_theme_widget_add_properties ( widget, $5);
     }
+    if ( $5 ) {
+        g_hash_table_destroy ( $5 );
+    }
+    g_list_free ( $3 );
+}
+| t_entry_list T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
+    rofi_theme_widget_add_properties ( $1, $4);
     if ( $4 ) {
         g_hash_table_destroy ( $4 );
     }
-    g_list_free ( $2 );
 }
-|
-    T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
-    rofi_theme_widget_add_properties ( rofi_theme, $3);
-    if ( $3 ) {
-        g_hash_table_destroy ( $3 );
+| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+    gchar *name = g_strdup_printf("@media ( %s: %d )",$4, $6);
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
+    widget->set = TRUE;
+    widget->media = g_slice_new0(ThemeMedia);
+    widget->media->type = rofi_theme_parse_media_type ( $4 );
+    widget->media->value = (double)$6;
+    for ( unsigned int i = 0; i < $9->num_widgets;i++) {
+        ThemeWidget *d = $9->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
     }
+    g_free ( name );
+}
+| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+    gchar *name = g_strdup_printf("@media ( %s: %f )",$4, $6);
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
+    widget->set = TRUE;
+    widget->media = g_slice_new0(ThemeMedia);
+    widget->media->type = rofi_theme_parse_media_type ( $4 );
+    widget->media->value = $6;
+    for ( unsigned int i = 0; i < $9->num_widgets;i++) {
+        ThemeWidget *d = $9->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+    g_free ( name );
+}
+| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+    gchar *name = g_strdup_printf("@media ( %s: %d px )",$4, $6);
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
+    widget->set = TRUE;
+    widget->media = g_slice_new0(ThemeMedia);
+    widget->media->type = rofi_theme_parse_media_type ( $4 );
+    widget->media->value = (double)$6;
+    for ( unsigned int i = 0; i < $10->num_widgets;i++) {
+        ThemeWidget *d = $10->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+    g_free ( name );
 }
 ;
 
@@ -343,6 +434,18 @@ t_config_property
     // We don't keep any reference to this after this point, so the property can be free'ed.
     rofi_theme_property_free ( $1 );
 }
+|  t_property_name T_BOPEN t_property_list_optional T_BCLOSE
+{
+  ThemeWidget *widget = rofi_configuration;
+  widget = rofi_theme_find_or_create_name ( widget, $1 );
+  widget->set = TRUE;
+  rofi_theme_widget_add_properties ( widget, $3);
+  if ( $3 ) {
+    g_hash_table_destroy ( $3 );
+  }
+  g_free ( $1 );
+}
+;
 
 /**
  * properties
@@ -368,12 +471,12 @@ t_property
     $$ = $3;
     $$->name = $1;
    }
-|   t_property_name T_PSEP T_VAR_START T_ELEMENT T_VAR_CLOSE T_PCLOSE{
+|   t_property_name T_PSEP T_PARENT_LEFT T_ELEMENT T_PARENT_RIGHT T_PCLOSE{
         $$ = rofi_theme_property_create ( P_LINK );
         $$->name = $1;
         $$->value.link.name = $4;
     }
-|   t_property_name T_PSEP T_VAR_START T_ELEMENT T_COMMA t_property_element T_VAR_CLOSE T_PCLOSE{
+|   t_property_name T_PSEP T_PARENT_LEFT T_ELEMENT T_COMMA t_property_element T_PARENT_RIGHT T_PCLOSE{
         $$ = rofi_theme_property_create ( P_LINK );
         $$->name = $1;
         $$->value.link.name = $4;
@@ -396,6 +499,10 @@ t_property_element
         $$ = rofi_theme_property_create ( P_STRING );
         $$->value.s = $1;
     }
+|   T_CHAR {
+        $$ = rofi_theme_property_create ( P_CHAR );
+        $$->value.c = $1;
+    }
 |   T_LINK {
         $$ = rofi_theme_property_create ( P_LINK );
         $$->value.link.name = $1;
@@ -406,15 +513,15 @@ t_property_element
     }
 |  t_property_distance {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->value.padding = (RofiPadding){ $1, $1, $1, $1 };
+        $$->value.padding = (RofiPadding){ $1, rofi_theme_property_copy_distance($1), rofi_theme_property_copy_distance($1), rofi_theme_property_copy_distance($1) };
 }
 |  t_property_distance_zero t_property_distance_zero {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->value.padding = (RofiPadding){ $1, $2, $1, $2 };
+        $$->value.padding = (RofiPadding){ $1, $2, rofi_theme_property_copy_distance($1), rofi_theme_property_copy_distance($2) };
 }
 |  t_property_distance_zero t_property_distance_zero t_property_distance_zero {
         $$ = rofi_theme_property_create ( P_PADDING );
-        $$->value.padding = (RofiPadding){ $1, $2, $3, $2 };
+        $$->value.padding = (RofiPadding){ $1, $2, $3, rofi_theme_property_copy_distance($2) };
 }
 |  t_property_distance_zero t_property_distance_zero t_property_distance_zero t_property_distance_zero {
         $$ = rofi_theme_property_create ( P_PADDING );
@@ -445,7 +552,55 @@ t_property_element
         $$ = rofi_theme_property_create ( P_ORIENTATION );
         $$->value.i = $1;
 }
+| t_property_cursor {
+        $$ = rofi_theme_property_create ( P_CURSOR );
+        $$->value.i = $1;
+}
+| T_URL T_PARENT_LEFT T_STRING T_PARENT_RIGHT {
+        $$ = rofi_theme_property_create ( P_IMAGE );
+        $$->value.image.type = ROFI_IMAGE_URL;
+        $$->value.image.url = $3;
+}
+| T_LINEAR_GRADIENT T_PARENT_LEFT t_color_list T_PARENT_RIGHT {
+        $$ = rofi_theme_property_create ( P_IMAGE );
+        $$->value.image.type = ROFI_IMAGE_LINEAR_GRADIENT;
+        $$->value.image.dir = ROFI_DIRECTION_RIGHT;
+        $$->value.image.colors = $3;
+}
+| T_LINEAR_GRADIENT T_PARENT_LEFT T_TO t_property_direction T_COMMA t_color_list T_PARENT_RIGHT {
+        $$ = rofi_theme_property_create ( P_IMAGE );
+        $$->value.image.type = ROFI_IMAGE_LINEAR_GRADIENT;
+        $$->value.image.dir    = $4;
+        $$->value.image.colors = $6;
+}
+| T_LINEAR_GRADIENT T_PARENT_LEFT t_property_color_value_angle T_COMMA t_color_list T_PARENT_RIGHT {
+        $$ = rofi_theme_property_create ( P_IMAGE );
+        $$->value.image.type = ROFI_IMAGE_LINEAR_GRADIENT;
+        $$->value.image.dir    = ROFI_DIRECTION_ANGLE;
+        $$->value.image.angle  = $3;
+        $$->value.image.colors = $5;
+}
+
 ;
+
+t_property_direction
+: T_RIGHT   { $$ = ROFI_DIRECTION_RIGHT; } 
+| T_LEFT    { $$ = ROFI_DIRECTION_LEFT; } 
+| T_TOP     { $$ = ROFI_DIRECTION_TOP; } 
+| T_BOTTOM  { $$ = ROFI_DIRECTION_BOTTOM; } 
+;
+
+t_color_list
+: t_property_color {
+    $$ = g_list_append ( NULL, g_memdup ( (gconstpointer)&($1), sizeof ( ThemeColor )));
+}
+| t_color_list T_COMMA t_property_color {
+
+    $$ = g_list_append ($1, g_memdup ( (gconstpointer)&($3), sizeof ( ThemeColor )));
+}
+;
+
+
 
 /** List of elements */
 t_property_element_list_optional
@@ -502,33 +657,150 @@ t_property_highlight_style
 
 t_property_distance_zero
 : T_INT t_property_line_style {
-    $$.distance = (double) $1;
-    $$.type     = ROFI_PU_PX;
+    $$.base.distance = (double) $1;
+    $$.base.type     = ROFI_PU_PX;
+    $$.base.left     = NULL;
+    $$.base.right    = NULL;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
     $$.style    = $2;
 }
 | t_property_distance { $$ = $1;}
 ;
+
 /** Distance. */
+t_property_distance_unit
+: T_INT t_property_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = (double)$1;
+    $$->type     = $2;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
+}
+| T_INT {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = (double)$1;
+    $$->type     = ROFI_PU_PX;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
+}
+| T_DOUBLE t_property_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = (double)$1;
+    $$->type     = $2;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_NONE;
+}
+| T_PARENT_LEFT t_property_distance_unit_math3 T_PARENT_RIGHT {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = 0;
+    $$->type     = ROFI_PU_PX;
+    $$->left     = $2;
+    $$->right    = 0;
+    $$->modtype  = ROFI_DISTANCE_MODIFIER_GROUP;
+};
+
+
+/**
+ * Multiply/divide with auto-grouping.
+ */
+t_property_distance_unit_math
+: t_property_distance_unit_math T_MODIFIER_MULTIPLY t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left  = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MULTIPLY;
+}
+| t_property_distance_unit_math T_FORWARD_SLASH t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left  = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_DIVIDE;
+}
+| t_property_distance_unit_math T_PERCENT t_property_distance_unit {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left  = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MODULO;
+}
+| t_property_distance_unit {
+    $$ = $1;
+};
+
+
+/** Level 2  (+-)*/
+t_property_distance_unit_math2
+: t_property_distance_unit_math2 T_MODIFIER_ADD t_property_distance_unit_math {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_ADD;
+}
+| t_property_distance_unit_math2 T_MODIFIER_SUBTRACT t_property_distance_unit_math {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_SUBTRACT;
+}
+| t_property_distance_unit_math  {
+    $$ = $1;
+};
+/** Level 3  (min max)*/
+t_property_distance_unit_math3
+: t_property_distance_unit_math3 T_MODIFIER_MIN t_property_distance_unit_math2 {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MIN;
+}
+| t_property_distance_unit_math3 T_MODIFIER_MAX t_property_distance_unit_math2 {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left = $1;
+    $$->right = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_MAX;
+}
+| t_property_distance_unit_math2  {
+    $$ = $1;
+};
+
+
 t_property_distance
 /** Integer unit and line style */
 : T_INT t_property_unit t_property_line_style {
-    $$.distance = (double)$1;
-    $$.type     = $2;
+    $$.base.distance = (double)$1;
+    $$.base.type     = $2;
+    $$.base.left = NULL;
+    $$.base.right = NULL;
+    $$.base.modtype = ROFI_DISTANCE_MODIFIER_NONE;
     $$.style    = $3;
 }
 /** Double unit and line style */
 | T_DOUBLE t_property_unit t_property_line_style {
-    $$.distance = (double)$1;
-    $$.type     = $2;
+    $$.base.distance = (double)$1;
+    $$.base.type     = $2;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
+    $$.base.left = NULL;
+    $$.base.right = NULL;
     $$.style    = $3;
+}
+| T_CALC T_PARENT_LEFT t_property_distance_unit_math3 T_PARENT_RIGHT t_property_line_style {
+    $$.base.distance = 0;
+    $$.base.type     = ROFI_PU_PX;
+    $$.base.left = $3;
+    $$.base.right = NULL;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_GROUP;
+    $$.style    = $5;
 };
 
 /** distance unit. px, em, % */
 t_property_unit
 : T_UNIT_PX      { $$ = ROFI_PU_PX; }
+| T_UNIT_MM      { $$ = ROFI_PU_MM; }
 | T_UNIT_EM      { $$ = ROFI_PU_EM; }
 | T_UNIT_CH      { $$ = ROFI_PU_CH; }
-| T_PERCENT        { $$ = ROFI_PU_PERCENT; }
+| T_PERCENT      { $$ = ROFI_PU_PERCENT; }
 ;
 /******
  * Line style
@@ -660,6 +932,12 @@ t_property_color_value
 t_property_orientation
 : ORIENTATION_HORI {  $$ = ROFI_ORIENTATION_HORIZONTAL; }
 | ORIENTATION_VERT {  $$ = ROFI_ORIENTATION_VERTICAL;   }
+;
+
+t_property_cursor
+: CURSOR_DEF {  $$ = ROFI_CURSOR_DEFAULT; }
+| CURSOR_PTR {  $$ = ROFI_CURSOR_POINTER; }
+| CURSOR_TXT {  $$ = ROFI_CURSOR_TEXT; }
 ;
 
 /** Property name */

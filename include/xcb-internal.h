@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -61,6 +61,7 @@ struct _xcb_stuff
     xcb_timestamp_t last_timestamp;
     NkBindingsSeat  *bindings_seat;
     gboolean        mouse_seen;
+    xcb_window_t    focus_revert;
 };
 
 #endif

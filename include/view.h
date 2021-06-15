@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -33,7 +33,11 @@
  * @defgroup View View
  *
  * The rofi Menu view.
- *
+ * @{
+ * @}
+ */
+
+/**
  * @defgroup ViewHandle ViewHandle
  * @ingroup View
  *
@@ -100,10 +104,11 @@ void rofi_view_handle_text ( RofiViewState *state, char *text );
  * @param state the Menu handle
  * @param x The X coordinates of the motion
  * @param y The Y coordinates of the motion
+ * @param find_mouse_target if we should handle pure mouse motion
  *
  * Update the state if needed.
  */
-void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y );
+void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y, gboolean find_mouse_target );
 /**
  * @param state the Menu handle
  *
@@ -187,13 +192,23 @@ void rofi_view_free ( RofiViewState *state );
 RofiViewState * rofi_view_get_active ( void );
 
 /**
- * @param state the new active view handle, NULL to clear.
+ * @param state the new active view handle.
  *
- * Set the current active view Handle.
+ * Set the current active view Handle, If NULL passed a queued  view is popped
+ * from stack.
  *
  */
+
 void rofi_view_set_active ( RofiViewState *state );
 
+/**
+ * @param state remove view handle.
+ *
+ * remove state handle from queue, if current view, pop view from
+ * stack.
+ *
+ */
+void rofi_view_remove_active ( RofiViewState *state );
 /**
  * @param msg The error message to show.
  * @param markup The error message uses pango markup.
@@ -265,6 +280,7 @@ void rofi_view_clear_input ( RofiViewState *state );
  * TODO: Internal call to view exposed.
  */
 void __create_window ( MenuFlags menu_flags );
+
 /**
  * Get the handle of the main window.
  *
@@ -292,9 +308,11 @@ void rofi_view_workers_initialize ( void );
 void rofi_view_workers_finalize ( void );
 
 /**
+ * @param width the width of the monitor.
+ * @param height the height of the monitor.
+ *
  * Return the current monitor workarea.
  *
- * @returns the current monitor workarea
  */
 void rofi_view_get_current_monitor ( int *width, int *height );
 
@@ -302,5 +320,14 @@ void rofi_view_get_current_monitor ( int *width, int *height );
  * Takes a screenshot.
  */
 void rofi_capture_screenshot ( void );
-/**@}*/
+/**
+ * Set the window title.
+ */
+void rofi_view_set_window_title ( const char * title  );
+
+/**
+ * set ellipsize mode to start.
+ */
+void rofi_view_ellipsize_start ( RofiViewState *state );
+/** @} */
 #endif

@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -48,8 +48,8 @@ typedef enum
 #define SCOPE_MIN_FIXED    SCOPE_MOUSE_EDITBOX
     SCOPE_MOUSE_EDITBOX,
     SCOPE_MOUSE_SCROLLBAR,
-    SCOPE_MOUSE_SIDEBAR_MODI,
-#define SCOPE_MAX_FIXED    SCOPE_MOUSE_SIDEBAR_MODI
+    SCOPE_MOUSE_MODE_SWITCHER,
+#define SCOPE_MAX_FIXED    SCOPE_MOUSE_MODE_SWITCHER
 } BindingsScope;
 
 /**
@@ -92,6 +92,7 @@ typedef enum
     ACCEPT_ALT,
     ACCEPT_CUSTOM,
     MODE_NEXT,
+    MODE_COMPLETE,
     MODE_PREVIOUS,
     TOGGLE_CASE_SENSITIVITY,
     DELETE_ENTRY,
@@ -126,6 +127,7 @@ typedef enum
     CUSTOM_18,
     CUSTOM_19,
     SCREENSHOT,
+    CHANGE_ELLIPSIZE,
     TOGGLE_SORT,
     SELECT_ELEMENT_1,
     SELECT_ELEMENT_2,
@@ -183,5 +185,5 @@ gboolean parse_keys_abe ( NkBindings *bindings );
  */
 void setup_abe ( void );
 
-/*@}*/
+/**@}*/
 #endif // ROFI_KEYB_H

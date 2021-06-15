@@ -94,7 +94,7 @@ scrollbar {
     padding:      0;
 }
 
-sidebar {
+mode-switcher {
     border:       2px 0 0;
     border-color: @separatorcolor;
 }

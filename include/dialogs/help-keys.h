@@ -40,5 +40,5 @@
  * #Mode object representing the help key mode view
  */
 extern Mode help_keys_mode;
-/*@}*/
+/**@}*/
 #endif // ROFI_DIALOG_HELPKEYS_H

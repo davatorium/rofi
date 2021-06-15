@@ -10,10 +10,14 @@ const char * const PropertyTypeName[P_NUM_TYPES] = {
     "Double",
     /** String */
     "String",
+    /** Character */
+    "Character",
     /** Boolean */
     "Boolean",
     /** Color */
     "Color",
+    /** Image */
+    "Iamge",
     /** Padding */
     "Padding",
     /** Link to global setting */
@@ -26,6 +30,8 @@ const char * const PropertyTypeName[P_NUM_TYPES] = {
     "List",
     /** Orientation */
     "Orientation",
+    /** Cursor */
+    "Cursor",
     /** Inherit */
     "Inherit",
 };

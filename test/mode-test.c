@@ -37,14 +37,42 @@
 #include <mode-private.h>
 #include <dialogs/help-keys.h>
 #include <xkbcommon/xkbcommon.h>
+#include "theme.h"
 #include "rofi.h"
 #include "display.h"
 #include "xcb.h"
+#include "widgets/textbox.h"
 #include <keyb.h>
 #include <helper.h>
 
 #include <check.h>
+#include "rofi-icon-fetcher.h"
 
+ThemeWidget *rofi_theme = NULL;
+
+uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
+{
+  return 0;
+}
+
+cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
+{
+  return NULL;
+}
+
+gboolean rofi_theme_parse_string ( const char *string )
+{
+  return FALSE;
+}
+
+double textbox_get_estimated_char_height ( void  )
+{
+  return 16.0;
+}
+double textbox_get_estimated_ch ( void )
+{
+  return 9.0;
+}
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
@@ -56,11 +84,6 @@ int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
     fputs ( msg, stderr );
     return TRUE;
-}
-int textbox_get_estimated_char_height ( void );
-int textbox_get_estimated_char_height ( void )
-{
-    return 16;
 }
 void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int *height )
 {
@@ -119,7 +142,7 @@ END_TEST
 START_TEST(test_mode_num_items)
 {
     unsigned int rows = mode_get_num_entries ( &help_keys_mode);
-    ck_assert_int_eq ( rows, 71);
+    ck_assert_int_eq ( rows, 73);
     for ( unsigned int i =0; i < rows; i++  ){
         int state = 0;
         GList *list = NULL;
@@ -135,12 +158,23 @@ END_TEST
 
 START_TEST(test_mode_result)
 {
-    char res[] = "";
-    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_NEXT, &res,0), NEXT_DIALOG);
-    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_PREVIOUS, &res,0), PREVIOUS_DIALOG);
-    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|1, &res,0), 1);
-    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|2, &res,0), 2);
+    char *res;
 
+    res = NULL;
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_NEXT, &res,0), NEXT_DIALOG);
+    g_free ( res );
+
+    res = NULL;
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_PREVIOUS, &res,0), PREVIOUS_DIALOG);
+    g_free ( res );
+
+    res = NULL;
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|1, &res,0), 1);
+    g_free ( res );
+
+    res = NULL;
+    ck_assert_int_eq ( mode_result ( &help_keys_mode, MENU_QUICK_SWITCH|2, &res,0), 2);
+    g_free ( res );
 }
 END_TEST
 

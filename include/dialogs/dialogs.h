@@ -43,4 +43,5 @@
 #include "dialogs/window.h"
 #include "dialogs/combi.h"
 #include "dialogs/help-keys.h"
+#include "dialogs/filebrowser.h"
 #endif // ROFI_DIALOGS_DIALOGS_H

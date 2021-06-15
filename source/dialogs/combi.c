@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -76,26 +76,36 @@ static void combi_mode_parse_switchers ( Mode *sw )
                                                    sizeof ( CombiMode ) * ( pd->num_switchers + 1 ) );
 
         Mode *mode = rofi_collect_modi_search ( token );
-        if (  mode ) {
+        if (  mode != NULL ) {
             pd->switchers[pd->num_switchers].disable = FALSE;
             pd->switchers[pd->num_switchers++].mode  = mode;
+            continue;
         }
-        else {
-            // If not build in, use custom switchers.
-            Mode *sw = script_switcher_parse_setup ( token );
-            if ( sw != NULL ) {
-                pd->switchers[pd->num_switchers].disable = FALSE;
-                pd->switchers[pd->num_switchers++].mode  = sw;
-            }
-            else {
-                // Report error, don't continue.
-                g_warning ( "Invalid script switcher: %s", token );
-                token = NULL;
-            }
+        // If not build in, use custom switchers.
+        mode = script_switcher_parse_setup ( token );
+        if ( mode != NULL ) {
+            pd->switchers[pd->num_switchers].disable = FALSE;
+            pd->switchers[pd->num_switchers++].mode  = mode;
+            continue;
         }
+        // Report error, don't continue.
+        g_warning ( "Invalid script switcher: %s", token );
+        token = NULL;
     }
     // Free string that was modified by strtok_r
     g_free ( switcher_str );
+}
+static unsigned int combi_mode_get_num_entries ( const Mode *sw )
+{
+    const CombiModePrivateData *pd    = (const CombiModePrivateData *) mode_get_private_data ( sw );
+    unsigned int               length = 0;
+    for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
+        unsigned int entries = mode_get_num_entries ( pd->switchers[i].mode );
+        pd->starts[i]  = length;
+        pd->lengths[i] = entries;
+        length        += entries;
+    }
+    return length;
 }
 
 static int combi_mode_init ( Mode *sw )
@@ -112,28 +122,10 @@ static int combi_mode_init ( Mode *sw )
             }
         }
         if ( pd->cmd_list_length == 0 ) {
-            pd->cmd_list_length = 0;
-            for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-                unsigned int length = mode_get_num_entries ( pd->switchers[i].mode );
-                pd->starts[i]        = pd->cmd_list_length;
-                pd->lengths[i]       = length;
-                pd->cmd_list_length += length;
-            }
+            pd->cmd_list_length = combi_mode_get_num_entries ( sw );
         }
     }
     return TRUE;
-}
-static unsigned int combi_mode_get_num_entries ( const Mode *sw )
-{
-    const CombiModePrivateData *pd    = (const CombiModePrivateData *) mode_get_private_data ( sw );
-    unsigned int               length = 0;
-    for ( unsigned int i = 0; i < pd->num_switchers; i++ ) {
-        unsigned int entries = mode_get_num_entries ( pd->switchers[i].mode );
-        pd->starts[i]  = length;
-        pd->lengths[i] = entries;
-        length        += entries;
-    }
-    return length;
 }
 static void combi_mode_destroy ( Mode *sw )
 {
@@ -155,15 +147,20 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
     CombiModePrivateData *pd = mode_get_private_data ( sw );
 
     if ( input[0][0] == '!' ) {
-        int     switcher = -1;
-        char    *eob     = strchrnul ( input[0], ' ' );
+        int  switcher = -1;
+        // Implement strchrnul behaviour.
+        char *eob = g_utf8_strchr ( input[0], -1, ' ' );
+        if ( eob == NULL ) {
+            eob = &( input[0][strlen ( input[0] )] );
+        }
         ssize_t bang_len = g_utf8_pointer_to_offset ( input[0], eob ) - 1;
         if ( bang_len > 0 ) {
-            for ( unsigned i = 0; switcher == -1 && i < pd->num_switchers; i++ ) {
+            for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
                 const char *mode_name    = mode_get_name ( pd->switchers[i].mode );
                 size_t     mode_name_len = g_utf8_strlen ( mode_name, -1 );
                 if ( (size_t) bang_len <= mode_name_len && utf8_strncmp ( &input[0][1], mode_name, bang_len ) == 0 ) {
                     switcher = i;
+                    break;
                 }
             }
         }
@@ -175,9 +172,8 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
             }
             return MODE_EXIT;
         }
-    }
-    if ( mretv & MENU_QUICK_SWITCH ) {
-        return mretv & MENU_LOWER_MASK;
+    } else if ( ( mretv& MENU_COMPLETE) ) {
+        return RELOAD_DIALOG;
     }
 
     for ( unsigned i = 0; i < pd->num_switchers; i++ ) {
@@ -185,6 +181,9 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
              selected_line < ( pd->starts[i] + pd->lengths[i] ) ) {
             return mode_result ( pd->switchers[i].mode, mretv, input, selected_line - pd->starts[i] );
         }
+    }
+    if ( ( mretv & MENU_CUSTOM_INPUT )  ) {
+        return mode_result ( pd->switchers[0].mode, mretv, input, selected_line );
     }
     return MODE_EXIT;
 }
@@ -219,22 +218,22 @@ static char * combi_mgrv ( const Mode *sw, unsigned int selected_line, int *stat
             char       * str  = retv = mode_get_display_value ( pd->switchers[i].mode, selected_line - pd->starts[i], state, attr_list, TRUE );
             const char *dname = mode_get_display_name ( pd->switchers[i].mode );
             if ( !config.combi_hide_mode_prefix ) {
-                retv = g_strdup_printf ( "%s %s", dname, str );
-                g_free ( str );
-            }
+              retv = g_strdup_printf ( "%s %s", dname, str );
+              g_free ( str );
 
-            if ( attr_list != NULL ) {
-                ThemeWidget *wid = rofi_theme_find_widget ( sw->name, NULL, TRUE );
+              if ( attr_list != NULL ) {
+                ThemeWidget *wid = rofi_config_find_widget ( sw->name, NULL, TRUE );
                 Property    *p   = rofi_theme_find_property ( wid, P_COLOR, pd->switchers[i].mode->name, TRUE );
                 if ( p != NULL ) {
-                    PangoAttribute *pa = pango_attr_foreground_new (
-                        p->value.color.red * 65535,
-                        p->value.color.green * 65535,
-                        p->value.color.blue * 65535 );
-                    pa->start_index = PANGO_ATTR_INDEX_FROM_TEXT_BEGINNING;
-                    pa->end_index   = strlen ( dname );
-                    *attr_list      = g_list_append ( *attr_list, pa );
+                  PangoAttribute *pa = pango_attr_foreground_new (
+                      p->value.color.red * 65535,
+                      p->value.color.green * 65535,
+                      p->value.color.blue * 65535 );
+                  pa->start_index = PANGO_ATTR_INDEX_FROM_TEXT_BEGINNING;
+                  pa->end_index   = strlen ( dname );
+                  *attr_list      = g_list_append ( *attr_list, pa );
                 }
+              }
             }
             return retv;
         }
@@ -277,7 +276,12 @@ static char * combi_preprocess_input ( Mode *sw, const char *input )
         pd->switchers[i].disable = FALSE;
     }
     if ( input != NULL && input[0] == '!' ) {
-        char    *eob     = strchrnul ( input, ' ' );
+        // Implement strchrnul behaviour.
+        const char *eob = g_utf8_strchr ( input, -1, ' ' );
+        if ( eob == NULL ) {
+            // Set it to end.
+            eob = &( input[strlen ( input )] );
+        }
         ssize_t bang_len = g_utf8_pointer_to_offset ( input, eob ) - 1;
         if ( bang_len > 0 ) {
             for ( unsigned i = 0; i < pd->num_switchers; i++ ) {

@@ -3,7 +3,7 @@
  *
  * MIT/X11 License
  * Copyright © 2012 Sean Pringle <sean.pringle@gmail.com>
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -55,16 +55,8 @@ static PangoContext     *p_context = NULL;
 /** The pango font metrics */
 static PangoFontMetrics *p_metrics = NULL;
 
-/** Cache to hold font descriptions. This it to avoid having to lookup each time. */
-typedef struct TBFontConfig
-{
-    /** Font description */
-    PangoFontDescription *pfd;
-    /** Font metrics */
-    PangoFontMetrics     *metrics;
-    /** height */
-    double               height;
-}TBFontConfig;
+/** Default tbfc */
+static TBFontConfig *tbfc_default = NULL;
 
 /** HashMap of previously parsed font descriptions. */
 static GHashTable *tbfc_cache = NULL;
@@ -97,7 +89,7 @@ static int textbox_get_desired_height ( widget *wid )
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
     }
-    int height = textbox_get_height ( tb );
+    int height = textbox_get_estimated_height ( tb, pango_layout_get_line_count ( tb->layout ) );
     return height;
 }
 
@@ -133,9 +125,8 @@ static WidgetTriggerActionResult textbox_editable_trigger_action ( widget *wid, 
 
 static void textbox_initialize_font ( textbox *tb )
 {
-    tb->metrics = p_metrics;
+    tb->tbfc = tbfc_default;
     const char * font = rofi_theme_get_string ( WIDGET ( tb ), "font", NULL );
-    tb->left_offset = textbox_get_estimated_char_height ();
     if ( font ) {
         TBFontConfig *tbfc = g_hash_table_lookup ( tbfc_cache, font );
         if ( tbfc == NULL ) {
@@ -143,7 +134,14 @@ static void textbox_initialize_font ( textbox *tb )
             tbfc->pfd = pango_font_description_from_string ( font );
             if ( helper_validate_font ( tbfc->pfd, font ) ) {
                 tbfc->metrics = pango_context_get_metrics ( p_context, tbfc->pfd, NULL );
-                tbfc->height  = pango_font_metrics_get_ascent ( tbfc->metrics ) + pango_font_metrics_get_descent ( tbfc->metrics );
+
+                PangoLayout *layout = pango_layout_new ( p_context );
+                pango_layout_set_font_description ( layout, tbfc->pfd );
+                pango_layout_set_text ( layout, "aAjb", -1 );
+                PangoRectangle rect;
+                pango_layout_get_pixel_extents ( layout, NULL, &rect );
+                tbfc->height = rect.y + rect.height;
+                g_object_unref ( layout );
 
                 // Cast away consts. (*yuck*) because table_insert does not know it is const.
                 g_hash_table_insert ( tbfc_cache, (char *) font, tbfc );
@@ -157,8 +155,7 @@ static void textbox_initialize_font ( textbox *tb )
         if ( tbfc ) {
             // Update for used font.
             pango_layout_set_font_description ( tb->layout, tbfc->pfd );
-            tb->metrics     = tbfc->metrics;
-            tb->left_offset = ( tbfc->height ) / (double) PANGO_SCALE;
+            tb->tbfc = tbfc;
         }
     }
 }
@@ -177,6 +174,7 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
     tb->widget.get_desired_height = textbox_get_desired_height;
     tb->widget.get_desired_width  = textbox_get_desired_width;
     tb->flags                     = flags;
+    tb->emode                     = PANGO_ELLIPSIZE_END;
 
     tb->changed = FALSE;
 
@@ -185,15 +183,26 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
 
     textbox_initialize_font ( tb );
 
-    if ( ( tb->flags & TB_ICON ) != TB_ICON ) {
-        tb->left_offset = 0;
-    }
-
-    if ( ( flags & TB_WRAP ) == TB_WRAP ) {
+    if ( ( tb->flags & TB_WRAP ) == TB_WRAP ) {
         pango_layout_set_wrap ( tb->layout, PANGO_WRAP_WORD_CHAR );
     }
 
+    // Allow overriding of markup.
+    if ( rofi_theme_get_boolean ( WIDGET ( tb ), "markup", ( tb->flags & TB_MARKUP ) == TB_MARKUP ) ) {
+        tb->flags |= TB_MARKUP;
+    }
+    else {
+        tb->flags &= ( ~TB_MARKUP );
+    }
+
     const char *txt = rofi_theme_get_string ( WIDGET  ( tb ), "str", text );
+    if ( txt == NULL || ( *txt ) == '\0' ) {
+        txt = rofi_theme_get_string ( WIDGET  ( tb ), "content", text );
+    }
+    const char *placeholder = rofi_theme_get_string ( WIDGET ( tb ), "placeholder", NULL );
+    if ( placeholder ) {
+        tb->placeholder = placeholder;
+    }
     textbox_text ( tb, txt ? txt : "" );
     textbox_cursor_end ( tb );
 
@@ -202,14 +211,16 @@ textbox* textbox_create ( widget *parent, WidgetType type, const char *name, Tex
 
     tb->blink_timeout = 0;
     tb->blink         = 1;
-    if ( ( flags & TB_EDITABLE ) == TB_EDITABLE ) {
-        tb->blink_timeout         = g_timeout_add ( 1200, textbox_blink, tb );
+    if ( ( tb->flags & TB_EDITABLE ) == TB_EDITABLE ) {
+        if ( rofi_theme_get_boolean ( WIDGET ( tb ), "blink", TRUE ) ) {
+            tb->blink_timeout = g_timeout_add ( 1200, textbox_blink, tb );
+        }
         tb->widget.trigger_action = textbox_editable_trigger_action;
     }
 
-    tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align", xalign );
+    tb->yalign = rofi_theme_get_double ( WIDGET ( tb ), "vertical-align", yalign );
     tb->yalign = MAX ( 0, MIN ( 1.0, tb->yalign ) );
-    tb->xalign = rofi_theme_get_double ( WIDGET ( tb ), "horizontal-align", yalign );
+    tb->xalign = rofi_theme_get_double ( WIDGET ( tb ), "horizontal-align", xalign );
     tb->xalign = MAX ( 0, MIN ( 1.0, tb->xalign ) );
 
     return tb;
@@ -264,6 +275,12 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft )
 static void __textbox_update_pango_text ( textbox *tb )
 {
     pango_layout_set_attributes ( tb->layout, NULL );
+    if ( tb->placeholder && ( tb->text == NULL || tb->text[0] == 0 ) ) {
+        tb->show_placeholder = TRUE;
+        pango_layout_set_text ( tb->layout, tb->placeholder, -1 );
+        return;
+    }
+    tb->show_placeholder = FALSE;
     if ( ( tb->flags & TB_PASSWORD ) == TB_PASSWORD ) {
         size_t l = g_utf8_strlen ( tb->text, -1 );
         char   string [l + 1];
@@ -333,25 +350,10 @@ void textbox_text ( textbox *tb, const char *text )
     widget_queue_redraw ( WIDGET ( tb ) );
 }
 
-void textbox_icon ( textbox *tb, cairo_surface_t *icon )
-{
-    // Add our reference to the surface.
-    if ( icon != NULL ) {
-        cairo_surface_reference ( icon );
-    }
-    if ( tb->icon ) {
-        // If we overwrite an old one, destroy the reference we hold.
-        cairo_surface_destroy ( tb->icon );
-    }
-    tb->icon = icon;
-
-    widget_queue_redraw ( WIDGET ( tb ) );
-}
-
 // within the parent handled auto width/height modes
 void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
 {
-    unsigned int offset = tb->left_offset * 1.2 + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
+    unsigned int offset = ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
     if ( tb->flags & TB_AUTOWIDTH ) {
         pango_layout_set_width ( tb->layout, -1 );
         w = textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( WIDGET ( tb ) ) + offset;
@@ -362,7 +364,10 @@ void textbox_moveresize ( textbox *tb, int x, int y, int w, int h )
             pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_MIDDLE );
         }
         else if ( ( tb->flags & TB_WRAP ) != TB_WRAP ) {
-            pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_END );
+            pango_layout_set_ellipsize ( tb->layout, tb->emode );
+        }
+        else {
+            pango_layout_set_ellipsize ( tb->layout, PANGO_ELLIPSIZE_NONE );
         }
     }
 
@@ -399,10 +404,6 @@ static void textbox_free ( widget *wid )
     }
     g_free ( tb->text );
 
-    if ( tb->icon ) {
-        cairo_surface_destroy ( tb->icon );
-        tb->icon = NULL;
-    }
     if ( tb->layout != NULL ) {
         g_object_unref ( tb->layout );
     }
@@ -416,7 +417,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         return;
     }
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset * 1.2 + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
+    unsigned int offset = ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
 
     if ( tb->changed ) {
         __textbox_update_pango_text ( tb );
@@ -425,7 +426,7 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     // Skip the side MARGIN on the X axis.
     int x = widget_padding_get_left ( WIDGET ( tb ) );
     int top = widget_padding_get_top ( WIDGET ( tb ) );
-    int y = ( pango_font_metrics_get_ascent ( tb->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
+    int y = ( pango_font_metrics_get_ascent ( tb->tbfc->metrics ) - pango_layout_get_baseline ( tb->layout ) ) / PANGO_SCALE;
     int line_width = 0, line_height = 0;
     // Get actual width.
     pango_layout_get_pixel_size ( tb->layout, &line_width, &line_height );
@@ -436,21 +437,6 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     }
     y += top;
 
-    // draw Icon
-    if ( ( tb->flags & TB_ICON ) == TB_ICON && tb->icon != NULL ) {
-        int iconheight = tb->left_offset;
-        cairo_save ( draw );
-
-        int    iconh = cairo_image_surface_get_height ( tb->icon );
-        int    iconw = cairo_image_surface_get_width ( tb->icon );
-        int    icons = MAX ( iconh, iconw );
-        double scale = (double) iconheight / icons;
-        cairo_translate ( draw, x + ( iconheight - iconw * scale ) / 2.0, y + ( iconheight - iconh * scale ) / 2.0 );
-        cairo_scale ( draw, scale, scale );
-        cairo_set_source_surface ( draw, tb->icon, 0, 0 );
-        cairo_paint ( draw );
-        cairo_restore ( draw );
-    }
     x += offset;
 
     if ( tb->xalign > 0.001 ) {
@@ -461,7 +447,20 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
     cairo_set_operator ( draw, CAIRO_OPERATOR_OVER );
     cairo_set_source_rgb ( draw, 0.0, 0.0, 0.0 );
     rofi_theme_get_color ( WIDGET ( tb ), "text-color", draw );
+
+    if ( tb->show_placeholder ) {
+        rofi_theme_get_color ( WIDGET ( tb ), "placeholder-color", draw );
+    }
+    // Set ARGB
+    // We need to set over, otherwise subpixel hinting wont work.
+    cairo_move_to ( draw, x, top );
+    cairo_save ( draw );
+    cairo_reset_clip ( draw );
+    pango_cairo_show_layout ( draw, tb->layout );
+    cairo_restore ( draw );
+
     // draw the cursor
+    rofi_theme_get_color ( WIDGET ( tb ), "text-color", draw );
     if ( tb->flags & TB_EDITABLE && tb->blink ) {
         // We want to place the cursor based on the text shown.
         const char     *text = pango_layout_get_text ( tb->layout );
@@ -479,13 +478,8 @@ static void textbox_draw ( widget *wid, cairo_t *draw )
         cairo_fill ( draw );
     }
 
-    // Set ARGB
-    // We need to set over, otherwise subpixel hinting wont work.
-    cairo_move_to ( draw, x, top );
-    pango_cairo_show_layout ( draw, tb->layout );
-
     if ( ( tb->flags & TB_INDICATOR ) == TB_INDICATOR && ( tb->tbft & ( SELECTED ) ) ) {
-        cairo_arc ( draw, tb->left_offset * 1.2 + DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
+        cairo_arc ( draw, DOT_OFFSET / 2.0, tb->widget.h / 2.0, 2.0, 0, 2.0 * M_PI );
         cairo_fill ( draw );
     }
 }
@@ -841,7 +835,15 @@ void textbox_set_pango_context ( const char *font, PangoContext *p )
     p_metrics = pango_context_get_metrics ( p_context, NULL, NULL );
     TBFontConfig *tbfc = g_malloc0 ( sizeof ( TBFontConfig ) );
     tbfc->metrics = p_metrics;
-    tbfc->height  = pango_font_metrics_get_ascent ( tbfc->metrics ) + pango_font_metrics_get_descent ( tbfc->metrics );
+
+    PangoLayout    *layout = pango_layout_new ( p_context );
+    pango_layout_set_text ( layout, "aAjb", -1 );
+    PangoRectangle rect;
+    pango_layout_get_pixel_extents ( layout, NULL, &rect );
+    tbfc->height = rect.y + rect.height;
+    g_object_unref ( layout );
+    tbfc_default = tbfc;
+
     g_hash_table_insert ( tbfc_cache, (gpointer *) ( font ? font : default_font_name ), tbfc );
 }
 
@@ -868,7 +870,7 @@ int _textbox_get_height ( widget *wid )
 {
     textbox *tb = (textbox *) wid;
     if ( tb->flags & TB_AUTOHEIGHT ) {
-        return textbox_get_height ( tb );
+        return textbox_get_estimated_height ( tb, pango_layout_get_line_count ( tb->layout ) );
     }
     return tb->widget.h;
 }
@@ -879,9 +881,9 @@ int textbox_get_height ( const textbox *tb )
 
 int textbox_get_font_height ( const textbox *tb )
 {
-    int height;
-    pango_layout_get_pixel_size ( tb->layout, NULL, &height );
-    return height;
+    PangoRectangle rect;
+    pango_layout_get_pixel_extents ( tb->layout, NULL, &rect );
+    return rect.height + rect.y;
 }
 
 int textbox_get_font_width ( const textbox *tb )
@@ -892,14 +894,9 @@ int textbox_get_font_width ( const textbox *tb )
 }
 
 /** Caching for the estimated character height. (em) */
-static double char_height = -1;
 double textbox_get_estimated_char_height ( void )
 {
-    if ( char_height < 0 ) {
-        int height = pango_font_metrics_get_ascent ( p_metrics ) + pango_font_metrics_get_descent ( p_metrics );
-        char_height = ( height ) / (double) PANGO_SCALE;
-    }
-    return char_height;
+    return tbfc_default->height;
 }
 
 /** Caching for the expected character width. */
@@ -926,13 +923,16 @@ double textbox_get_estimated_ch ( void )
 
 int textbox_get_estimated_height ( const textbox *tb, int eh )
 {
-    int height = pango_font_metrics_get_ascent ( tb->metrics ) + pango_font_metrics_get_descent ( tb->metrics );
-    return ( eh * height ) / PANGO_SCALE + widget_padding_get_padding_height ( WIDGET ( tb ) );
+    int height = tb->tbfc->height;
+    return ( eh * height ) + widget_padding_get_padding_height ( WIDGET ( tb ) );
 }
 int textbox_get_desired_width ( widget *wid )
 {
+    if ( wid == NULL ) {
+        return 0;
+    }
     textbox      *tb    = (textbox *) wid;
-    unsigned int offset = tb->left_offset * 1.2 + ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
+    unsigned int offset = ( ( tb->flags & TB_INDICATOR ) ? DOT_OFFSET : 0 );
     if ( wid->expand && tb->flags & TB_AUTOWIDTH ) {
         return textbox_get_font_width ( tb ) + widget_padding_get_padding_width ( wid ) + offset;
     }
@@ -949,4 +949,16 @@ int textbox_get_desired_width ( widget *wid )
     // Restore.
     pango_layout_set_width ( tb->layout, old_width );
     return width + padding + offset;
+}
+
+void textbox_set_ellipsize ( textbox *tb, PangoEllipsizeMode mode )
+{
+    if ( tb ) {
+        tb->emode = mode;
+        if ( ( tb->flags & TB_WRAP ) != TB_WRAP ) {
+            // Store the mode.
+            pango_layout_set_ellipsize ( tb->layout, tb->emode );
+            widget_queue_redraw ( WIDGET ( tb ) );
+        }
+    }
 }

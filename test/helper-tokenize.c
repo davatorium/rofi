@@ -33,14 +33,47 @@
 #include <string.h>
 #include <xcb/xcb_ewmh.h>
 #include "display.h"
+#include "theme.h"
 #include "xcb.h"
 #include "xcb-internal.h"
 #include "rofi.h"
 #include "settings.h"
 #include "rofi-types.h"
+#include "widgets/textbox.h"
+#include "rofi-icon-fetcher.h"
 
 #include <check.h>
 
+ThemeWidget *rofi_theme = NULL;
+
+uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
+{
+  return 0;
+}
+
+cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
+{
+  return NULL;
+}
+
+gboolean rofi_theme_parse_string ( G_GNUC_UNUSED const char *string )
+{
+  return FALSE;
+}
+
+double textbox_get_estimated_char_height ( void  )
+{
+  return 12.0;
+}
+void rofi_view_get_current_monitor ( int *width, int *height )
+{
+*width = 1920;
+*height = 1080;
+}
+double textbox_get_estimated_ch ( void )
+{
+  return 9.0;
+}
 void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
@@ -465,5 +498,5 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     number_failed = srunner_ntests_failed(sr);
     srunner_free(sr);
     return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
-    
+
 }

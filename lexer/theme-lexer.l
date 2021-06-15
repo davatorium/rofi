@@ -33,6 +33,7 @@
 %option bison-bridge
 
 %{
+#include "config.h"
 #include <stdio.h>
 #include <glib.h>
 #include <helper.h>
@@ -154,6 +155,7 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
 
 ASC     [\x00-\x7f]
 ASCN    [\x00-\t\v-\x7f]
+ASCNP    [\x00-\t\v-\x21\x23-\x7f]
 U       [\x80-\xbf]
 U2      [\xc2-\xdf]
 U3      [\xe0-\xef]
@@ -163,15 +165,21 @@ U4      [\xf0-\xf4]
 UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
  // UONLY   {U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 
+UANYNP   {ASCNP}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
+MEDIA_NAME [[:alpha:]-]+
 COLOR_NAME [[:alpha:]]+
 STRING     \"{UANYN}*\"
+STRING_LIST \"{UANYNP}*\"
+CHAR       \'({ASCN}|\\\\|\\\'|\\0)\'
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]
 PNNUMBER   [-+]?[[:digit:]]+
 PX         (px)
+MM         (mm)
 EM         (em)
 CH         (ch)
 PERCENT    (\%)
@@ -181,6 +189,12 @@ INHERIT    (inherit)
 ASTERIX    \*
 
 ENV        $\{[[:alnum:]]*\}
+
+MODIFIER_ADD      \+
+MODIFIER_SUBTRACT -
+MODIFIER_MULTIPLY \*
+MODIFIER_MIN      (min)
+MODIFIER_MAX      (max)
 
  /* Position */
 CENTER     (?i:center)
@@ -213,16 +227,33 @@ LS_SOLID   (?i:solid)
 ORIENTATION_HORI (?i:horizontal)
 ORIENTATION_VERT (?i:vertical)
 
+/* Cursor */
+
+CURSOR_DEF (?i:default)
+CURSOR_PTR (?i:pointer)
+CURSOR_TXT (?i:text)
+
  /* Color schema */
 RGBA (?i:rgb[a]?)
 HWB  (?i:hwb)
 CMYK (?i:cmyk)
 HSL  (?i:hsl[a]?)
 
+/* Image type  */
+URL (?i:url?)
+LINEAR_GRADIENT (?i:linear-gradient?)
+
+TO     (?i:to?)
+RIGHT  (?i:right?)
+LEFT   (?i:left?)
+TOP    (?i:top?)
+BOTTOM (?i:bottom?)
+
 COLOR_TRANSPARENT (?i:transparent)
 
 S_T_PARENT_LEFT  \(
 S_T_PARENT_RIGHT \)
+CALC    (?i:calc)
 COMMA            ,
 FORWARD_SLASH    \/
 
@@ -238,6 +269,8 @@ C_COMMENT_OPEN "/*"
 INCLUDE    "@import"
 THEME "@theme"
 
+MEDIA "@media"
+
 CONFIGURATION (?i:configuration)
 
 %x INCLUDE
@@ -249,6 +282,8 @@ CONFIGURATION (?i:configuration)
 %x NAMESTR
 %x SECTION
 %x DEFAULTS
+%x MEDIA
+%x MEDIA_CONTENT
 %%
 
 %{
@@ -314,9 +349,10 @@ if ( queue == NULL ){
     BEGIN(INCLUDE);
 }
 <INITIAL>{THEME} {
-    rofi_theme_reset();
+    //rofi_theme_reset();
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(INCLUDE);
+    return T_RESET_THEME;
 }
     /** Skip all whitespace */
 <INCLUDE>{WHITESPACE} {}
@@ -391,7 +427,7 @@ if ( queue == NULL ){
     BEGIN(SECTION);
     return T_BOPEN;
 }
-  /** Everythin not yet parsed is an error. */
+  /** Everything not yet parsed is an error. */
 <DEFAULTS>. {
     return T_ERROR_DEFAULTS;
 }
@@ -401,13 +437,13 @@ if ( queue == NULL ){
     BEGIN(NAMESTR);
     return T_NAME_PREFIX;
 }
-    /* Go into parsing an section*/
+    /* Go into parsing a section. */
 <NAMESTR>"\{"                    {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(SECTION);
     return T_BOPEN;
 }
-  /* Pop out of parsing an section. */
+  /* Pop out of parsing a section. */
 <SECTION>"\}"             {
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
@@ -423,28 +459,44 @@ if ( queue == NULL ){
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST,PROPERTIES_VAR>{WHITESPACE}+	; // ignore all whitespace
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST,PROPERTIES_VAR,MEDIA_CONTENT>{WHITESPACE}+	; // ignore all whitespace
 
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CHAR}                { yytext[yyleng-1] = '\0'; yylval->cval = g_strcompress(&yytext[1])[0]; return T_CHAR;}
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>@{WORD}               {
     yylval->sval = g_strdup(yytext+1);
     return T_LINK;
 }
 
+<SECTION>"\{"       {
+  // Double to fit in scheme.
+  g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+  g_queue_push_head ( queue, GINT_TO_POINTER (SECTION) );
+  BEGIN(SECTION);
+  return T_BOPEN;
+}
+
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{EM}       { return T_UNIT_EM; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CH}       { return T_UNIT_CH; }
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PX}       { return T_UNIT_PX; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PX}       { return T_UNIT_PX; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{MM}       { return T_UNIT_MM; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{PERCENT}  { return T_PERCENT; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LS_SOLID} { return T_SOLID;   }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LS_DASH}  { return T_DASH;    }
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{INHERIT}  { return T_INHERIT; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_ADD}       { return T_MODIFIER_ADD; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_SUBTRACT}  { return T_MODIFIER_SUBTRACT; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_MULTIPLY}  { return T_MODIFIER_MULTIPLY; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_MIN}  { return T_MODIFIER_MIN; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{MODIFIER_MAX}  { return T_MODIFIER_MAX; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CALC}  { return T_CALC; }
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ENV} {
     yytext[yyleng-1] = '\0';
@@ -510,6 +562,15 @@ if ( queue == NULL ){
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>argb:{HEX}{7}       {
     return T_ERROR_ARGB_SPEC;
 }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{URL}             { return T_URL;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LINEAR_GRADIENT} { return T_LINEAR_GRADIENT;       }
+
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{TO}              { return T_TO;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LEFT}            { return T_LEFT;     }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{RIGHT}           { return T_RIGHT;    }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{TOP}             { return T_TOP;      }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{BOTTOM}          { return T_BOTTOM;   }
+
  /* Color schemes */
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{RGBA}             { return T_COL_RGBA;       }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{HSL}              { return T_COL_HSL;        }
@@ -519,11 +580,11 @@ if ( queue == NULL ){
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{VAR_START}{S_T_PARENT_LEFT}        {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(PROPERTIES_VAR);
-    return T_VAR_START;
+    return T_PARENT_LEFT;
 }
 <PROPERTIES_VAR>{S_T_PARENT_RIGHT} {
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
-    return T_VAR_CLOSE;
+    return T_PARENT_RIGHT;
 }
 <PROPERTIES_VAR>{COMMA} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
@@ -534,10 +595,10 @@ if ( queue == NULL ){
     // Pop 2.
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
-    return T_VAR_CLOSE;
+    return T_PARENT_RIGHT;
 }
-<PROPERTIES,PROPERTIES_ENV>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
-<PROPERTIES,PROPERTIES_ENV>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>{COMMA}            { return T_COMMA;          }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LIST_OPEN}        {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
@@ -570,6 +631,10 @@ if ( queue == NULL ){
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ORIENTATION_HORI} { return ORIENTATION_HORI; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ORIENTATION_VERT} { return ORIENTATION_VERT; }
+
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CURSOR_DEF} { return CURSOR_DEF; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CURSOR_PTR} { return CURSOR_PTR; }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CURSOR_TXT} { return CURSOR_TXT; }
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{COLOR_TRANSPARENT} {
     return T_COLOR_TRANSPARENT;
@@ -618,6 +683,50 @@ if ( queue == NULL ){
         yylloc->last_line ++;
 };
 
+
+<INITIAL>{MEDIA} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(MEDIA);
+    return T_MEDIA;
+}
+
+<MEDIA>{S_T_PARENT_LEFT} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(MEDIA_CONTENT);
+    return T_PARENT_LEFT;
+}
+<MEDIA_CONTENT>{MEDIA_NAME} {
+    yylval->sval = g_strdup(yytext);
+    return T_STRING;
+}
+<MEDIA_CONTENT>":" {
+    return T_PSEP;
+}
+<MEDIA_CONTENT>{S_T_PARENT_RIGHT} {
+    int  id = GPOINTER_TO_INT(g_queue_pop_head ( queue ));
+    BEGIN(id);
+    return T_PARENT_RIGHT;
+}
+<MEDIA>"\{" {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(INITIAL);
+    return T_BOPEN;
+}
+
+<INITIAL>"\}" {
+    g_queue_pop_head ( queue );
+    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
+    return T_BCLOSE;
+}
+<MEDIA>{WHITESPACE}+	; // ignore all whitespace
+
+
+<MEDIA,MEDIA_CONTENT>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"found: |%s|\n", yytext);
+    return T_ERROR;
+}
+
  /**
   * If we just encounter a word, we assume it is a Widget name.
   * This makes include,theme, configuration a reserved keyword.
@@ -629,25 +738,33 @@ if ( queue == NULL ){
     return T_NAME_ELEMENT;
 }
 <INITIAL>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"initial found: |%s|\n", yytext);
     return T_ERROR;
 }
 <SECTION>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"section found: |%s|\n", yytext);
     return T_ERROR_SECTION;
 }
 <PROPERTIES_LIST,PROPERTIES_VAR>{WORD} {
     yylval->sval = g_strdup(yytext);
     return T_ELEMENT;
 }
-<PROPERTIES_LIST>{STRING} {
+<PROPERTIES_LIST>{STRING_LIST} {
     yytext[yyleng-1] = '\0';
     yylval->sval = g_strdup(yytext+1);
     return T_ELEMENT;
 }
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"prop found: |%s|\n", yytext);
     return T_ERROR_PROPERTY;
 }
 <NAMESTR>. {
+    yytext[yyleng-1] = '\0';
+    fprintf(stderr,"namestr found: |%s|\n", yytext);
     return T_ERROR_NAMESTRING;
 }
 %%
@@ -693,8 +810,7 @@ gboolean rofi_theme_parse_file ( const char *file )
         }
     }
     // Free up.
-    g_list_foreach ( imported_files, (GFunc)g_free, NULL);
-    g_list_free ( imported_files );
+    g_list_free_full ( imported_files, g_free );
     g_queue_free ( file_queue );
     imported_files = NULL;
     file_queue = NULL;
@@ -729,8 +845,7 @@ gboolean rofi_theme_parse_string ( const char *string )
         }
     }
     // Free up.
-    g_list_foreach ( imported_files, (GFunc)g_free, NULL);
-    g_list_free ( imported_files );
+    g_list_free_full ( imported_files, g_free );
     imported_files = NULL;
     g_queue_free ( file_queue );
     file_queue = NULL;

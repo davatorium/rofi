@@ -34,12 +34,14 @@
 #include <string.h>
 #include <widgets/scrollbar.h>
 #include <widgets/textbox.h>
+#include <widgets/icon.h>
 #include <widgets/listview.h>
 #include <widgets/widget.h>
 #include <widgets/widget-internal.h>
 #include "rofi.h"
 #include "xrmoptions.h"
 #include "helper.h"
+#include "rofi-icon-fetcher.h"
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
@@ -53,6 +55,23 @@ unsigned int test =0;
             printf ( "Test %u failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \
+}
+
+ThemeWidget *rofi_configuration = NULL;
+
+uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
+{
+  return 0;
+}
+
+cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
+{
+  return NULL;
+}
+
+int monitor_active ( G_GNUC_UNUSED workarea *mon )
+{
+    return 0;
 }
 
 char * helper_get_theme_path ( const char *file )
