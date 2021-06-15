@@ -16,6 +16,8 @@ const char * const PropertyTypeName[P_NUM_TYPES] = {
     "Boolean",
     /** Color */
     "Color",
+    /** Image */
+    "Iamge",
     /** Padding */
     "Padding",
     /** Link to global setting */

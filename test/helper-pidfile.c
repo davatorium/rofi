@@ -48,6 +48,16 @@ static int       test = 0;
 #include "theme.h"
 ThemeWidget *rofi_theme = NULL;
 
+uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
+{
+  return 0;
+}
+
+cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
+{
+  return NULL;
+}
+
 gboolean rofi_theme_parse_string ( const char *string )
 {
   return FALSE;

@@ -52,6 +52,19 @@ unsigned int normal_window_mode = 0;
 
 #include "view.h"
 
+
+ThemeWidget *rofi_configuration = NULL;
+
+uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
+{
+  return 0;
+}
+
+cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
+{
+  return NULL;
+}
+
 gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, G_GNUC_UNUSED char **error )
 {
     return FALSE;
