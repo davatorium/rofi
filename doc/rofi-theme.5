@@ -366,6 +366,8 @@ dynamic: false;
 .IP \(bu 2
 Format: url("path to image");
 .IP \(bu 2
+Format: url("path to image", scale);
+.IP \(bu 2
 Format: linear\-gradient(stop color,stop1, color, stop2 color, ...);
 .IP \(bu 2
 Format: linear\-gradient(to direction, stop color,stop1, color, stop2 color, ...);
@@ -375,7 +377,16 @@ Format: linear\-gradient(angle, stop color,stop1, color, stop2 color, ...);
 Angle in deg,rad,grad (as used in color).
 
 .PP
-Where the path is a string, and stop color is of type color.
+Where the \fB\fCpath\fR is a string, and \fB\fCstop\fR color is of type color.
+The \fB\fCscale\fR property can be:
+.IP \(bu 2
+none
+.IP \(bu 2
+both
+.IP \(bu 2
+width
+.IP \(bu 2
+height
 
 .SH Color
 .PP

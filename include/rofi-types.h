@@ -188,11 +188,22 @@ typedef enum
     ROFI_DIRECTION_ANGLE,
 } RofiDirection;
 
+typedef enum 
+{
+    ROFI_SCALE_BOTH,
+    ROFI_SCALE_HEIGHT,
+    ROFI_SCALE_WIDTH,
+    ROFI_SCALE_NONE,
+} RofiScaleType;
+
 
 typedef struct
 {
     RofiImageType type;
     char *url;
+    RofiScaleType scaling;
+    int wsize;
+    int hsize;
 
     RofiDirection dir;
     double angle;

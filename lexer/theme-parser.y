@@ -210,6 +210,9 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_COL_CMYK                       "cmyk colorscheme"
 
 %token T_URL                            "an URL"
+%token T_WIDTH                          "an WIDTH"
+%token T_HEIGHT                         "an HEIGHT"
+%token T_BOTH                           "an BOTH"
 %token T_TO                             "an TO"
 %token T_LEFT                           "an LEFT"
 %token T_RIGHT                          "an RIGHT"
@@ -217,6 +220,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b)
 %token T_BOTTOM                         "an BOTTOM"
 
 %type <ival>                            t_property_direction
+%type <ival>                            t_property_scale_type
 %token T_LINEAR_GRADIENT                "a linear gradient"
 
 %token T_PARENT_LEFT                    "Parent left ('(')"
@@ -561,6 +565,12 @@ t_property_element
         $$->value.image.type = ROFI_IMAGE_URL;
         $$->value.image.url = $3;
 }
+| T_URL T_PARENT_LEFT T_STRING T_COMMA t_property_scale_type T_PARENT_RIGHT {
+        $$ = rofi_theme_property_create ( P_IMAGE );
+        $$->value.image.type    = ROFI_IMAGE_URL;
+        $$->value.image.url     = $3;
+        $$->value.image.scaling = $5;
+}
 | T_LINEAR_GRADIENT T_PARENT_LEFT t_color_list T_PARENT_RIGHT {
         $$ = rofi_theme_property_create ( P_IMAGE );
         $$->value.image.type = ROFI_IMAGE_LINEAR_GRADIENT;
@@ -588,6 +598,12 @@ t_property_direction
 | T_LEFT    { $$ = ROFI_DIRECTION_LEFT; } 
 | T_TOP     { $$ = ROFI_DIRECTION_TOP; } 
 | T_BOTTOM  { $$ = ROFI_DIRECTION_BOTTOM; } 
+;
+t_property_scale_type
+: T_BOTH    { $$ = ROFI_SCALE_BOTH; } 
+| T_WIDTH   { $$ = ROFI_SCALE_WIDTH; } 
+| T_HEIGHT  { $$ = ROFI_SCALE_HEIGHT; } 
+| T_NONE    { $$ = ROFI_SCALE_NONE; } 
 ;
 
 t_color_list

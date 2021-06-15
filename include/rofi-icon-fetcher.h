@@ -35,6 +35,7 @@ void rofi_icon_fetcher_destroy ( void );
  * @returns the uid identifying the request.
  */
 uint32_t rofi_icon_fetcher_query ( const char *name, const int size );
+uint32_t rofi_icon_fetcher_query_advanced ( const char *name, const int wsize, const int hsize );
 
 /**
  * @param uid The unique id representing the matching request.

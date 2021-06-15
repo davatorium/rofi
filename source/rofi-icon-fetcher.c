@@ -77,7 +77,8 @@ typedef struct
     unsigned int         *acount;
 
     uint32_t             uid;
-    int                  size;
+    int                  wsize;
+    int                  hsize;
     cairo_surface_t      *surface;
 
     IconFetcherNameEntry *entry;
@@ -301,13 +302,13 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
         icon_path = sentry->entry->name;
     }
     else {
-        icon_path = icon_path_ = nk_xdg_theme_get_icon ( rofi_icon_fetcher_data->xdg_context, themes, NULL, sentry->entry->name, sentry->size, 1, TRUE );
+        icon_path = icon_path_ = nk_xdg_theme_get_icon ( rofi_icon_fetcher_data->xdg_context, themes, NULL, sentry->entry->name, MIN(sentry->wsize,sentry->hsize), 1, TRUE );
         if ( icon_path_ == NULL ) {
-            g_debug ( "failed to get icon %s(%d): n/a", sentry->entry->name, sentry->size  );
+            g_debug ( "failed to get icon %s(%dx%d): n/a", sentry->entry->name, sentry->wsize, sentry->hsize  );
             return;
         }
         else{
-            g_debug ( "found icon %s(%d): %s", sentry->entry->name, sentry->size, icon_path  );
+            g_debug ( "found icon %s(%dx%d): %s", sentry->entry->name, sentry->wsize, sentry->hsize, icon_path  );
         }
     }
     cairo_surface_t *icon_surf = NULL;
@@ -318,7 +319,7 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
     }
 
     GError    *error = NULL;
-    GdkPixbuf *pb    = gdk_pixbuf_new_from_file_at_scale ( icon_path, sentry->size, sentry->size, TRUE, &error );
+    GdkPixbuf *pb    = gdk_pixbuf_new_from_file_at_scale ( icon_path, sentry->wsize, sentry->hsize, TRUE, &error );
     if ( error != NULL ) {
         g_warning ( "Failed to load image: %s", error->message );
         g_error_free ( error );
@@ -336,6 +337,40 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
     rofi_view_reload ();
 }
 
+uint32_t rofi_icon_fetcher_query_advanced ( const char *name, const int wsize, const int hsize )
+{
+    g_debug ( "Query: %s(%dx%d)", name, wsize, hsize );
+    IconFetcherNameEntry *entry = g_hash_table_lookup ( rofi_icon_fetcher_data->icon_cache, name );
+    if ( entry == NULL ) {
+        entry       = g_new0 ( IconFetcherNameEntry, 1 );
+        entry->name = g_strdup ( name );
+        g_hash_table_insert ( rofi_icon_fetcher_data->icon_cache, entry->name, entry );
+    }
+    IconFetcherEntry *sentry;
+    for ( GList *iter = g_list_first ( entry->sizes ); iter; iter = g_list_next ( iter ) ) {
+        sentry = iter->data;
+        if ( sentry->wsize == wsize && sentry->hsize == hsize ) {
+            return sentry->uid;
+        }
+    }
+
+    // Not found.
+    sentry          = g_new0 ( IconFetcherEntry, 1 );
+    sentry->uid     = ++( rofi_icon_fetcher_data->last_uid );
+    sentry->wsize    = wsize;
+    sentry->hsize    = hsize;
+    sentry->entry   = entry;
+    sentry->surface = NULL;
+
+    entry->sizes = g_list_prepend ( entry->sizes, sentry );
+    g_hash_table_insert ( rofi_icon_fetcher_data->icon_cache_uid, GINT_TO_POINTER ( sentry->uid ), sentry );
+
+    // Push into fetching queue.
+    sentry->state.callback = rofi_icon_fetcher_worker;
+    g_thread_pool_push ( tpool, sentry, NULL );
+
+    return sentry->uid;
+}
 uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
 {
     g_debug ( "Query: %s(%d)", name, size );
@@ -348,7 +383,7 @@ uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
     IconFetcherEntry *sentry;
     for ( GList *iter = g_list_first ( entry->sizes ); iter; iter = g_list_next ( iter ) ) {
         sentry = iter->data;
-        if ( sentry->size == size ) {
+        if ( sentry->wsize == size && sentry->hsize == size ) {
             return sentry->uid;
         }
     }
@@ -356,7 +391,8 @@ uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
     // Not found.
     sentry          = g_new0 ( IconFetcherEntry, 1 );
     sentry->uid     = ++( rofi_icon_fetcher_data->last_uid );
-    sentry->size    = size;
+    sentry->wsize    = size;
+    sentry->hsize    = size;
     sentry->entry   = entry;
     sentry->surface = NULL;
 
