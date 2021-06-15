@@ -62,6 +62,7 @@ ActionBindingEntry rofi_bindings[] =
     { .id = REMOVE_TO_SOL,           .name  = "kb-remove-to-sol",           .binding = "Control+u",                            .comment = "Delete till the start of line"                                         },
     { .id = ACCEPT_ENTRY,            .name  = "kb-accept-entry",            .binding = "Control+j,Control+m,Return,KP_Enter",  .comment = "Accept entry"                                                          },
     { .id = ACCEPT_CUSTOM,           .name  = "kb-accept-custom",           .binding = "Control+Return",                       .comment = "Use entered text as command (in ssh/run modi)"                         },
+    { .id = ACCEPT_CUSTOM_ALT,       .name  = "kb-accept-custom-alt",       .binding = "Control+Shift+Return",                       .comment = "Use entered text as command (in ssh/run modi)"                         },
     { .id = ACCEPT_ALT,              .name  = "kb-accept-alt",              .binding = "Shift+Return",                         .comment = "Use alternate accept command."                                         },
     { .id = DELETE_ENTRY,            .name  = "kb-delete-entry",            .binding = "Shift+Delete",                         .comment = "Delete entry from history"                                             },
     { .id = MODE_NEXT,               .name  = "kb-mode-next",               .binding = "Shift+Right,Control+Tab",              .comment = "Switch to the next mode."                                              },
