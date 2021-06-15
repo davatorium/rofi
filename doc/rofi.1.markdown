@@ -789,6 +789,7 @@ Please see **rofi-theme(5)** manpage for more information on theming.
   * `Ctrl-Page Down`: Go to next column
   * `Ctrl-Enter`: Use entered text as a command (in `ssh/run modi`)
   * `Shift-Enter`: Launch the application in a terminal (in run mode)
+  * `Ctrl-Shift-Enter`: As Ctrl-Enter and run the command in terminal (in run mode)
   * `Shift-Enter`: Return the selected entry and move to the next item while keeping **rofi** open. (in dmenu)
   * `Shift-Right`: Switch to the next mode. The list can be customized with the `-switchers` argument.
   * `Shift-Left`: Switch to the previous mode. The list can be customized with the `-switchers` argument.
