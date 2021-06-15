@@ -38,6 +38,7 @@
 #include "rofi.h"
 #include "settings.h"
 #include "widgets/textbox.h"
+#include "rofi-icon-fetcher.h"
 
 static int       test = 0;
 

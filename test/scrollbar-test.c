@@ -41,6 +41,7 @@
 #include "rofi.h"
 #include "xrmoptions.h"
 #include "helper.h"
+#include "rofi-icon-fetcher.h"
 unsigned int test =0;
 #define TASSERT( a )    {                                 \
         assert ( a );                                     \
