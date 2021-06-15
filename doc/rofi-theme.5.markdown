@@ -255,13 +255,20 @@ dynamic: false;
 **rofi** support a very limited set of image formats.
 
 * Format: url("path to image");
+* Format: url("path to image", scale);
 * Format: linear-gradient(stop color,stop1, color, stop2 color, ...);
 * Format: linear-gradient(to direction, stop color,stop1, color, stop2 color, ...);
   where direction is:   top,left,right,bottom.
 * Format: linear-gradient(angle, stop color,stop1, color, stop2 color, ...);
   Angle in deg,rad,grad (as used in color).
 
-Where the path is a string, and stop color is of type color.
+Where the `path` is a string, and `stop` color is of type color.
+The `scale` property can be:
+
+* none
+* both
+* width
+* height
 
 ## Color
 

@@ -242,6 +242,11 @@ HSL  (?i:hsl[a]?)
 /* Image type  */
 URL (?i:url?)
 LINEAR_GRADIENT (?i:linear-gradient?)
+WIDTH  (?i:width?)
+HEIGHT (?i:height?)
+BOTH   (?i:both?)
+
+
 
 TO     (?i:to?)
 RIGHT  (?i:right?)
@@ -564,6 +569,9 @@ if ( queue == NULL ){
 }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{URL}             { return T_URL;       }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LINEAR_GRADIENT} { return T_LINEAR_GRADIENT;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{WIDTH}           { return T_WIDTH;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{HEIGHT}          { return T_HEIGHT;       }
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{BOTH}            { return T_BOTH;       }
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{TO}              { return T_TO;       }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LEFT}            { return T_LEFT;     }

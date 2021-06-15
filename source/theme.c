@@ -996,8 +996,27 @@ gboolean rofi_theme_get_image ( const widget *widget, const char *property, cair
             return FALSE;
         }
         if ( p->value.image.type == ROFI_IMAGE_URL ) {
-            if ( p->value.image.surface_id == 0 ) {
-                p->value.image.surface_id = rofi_icon_fetcher_query ( p->value.image.url, -1 );
+            int wsize = -1;
+            int hsize = -1;
+            switch ( p->value.image.scaling ) {
+              case ROFI_SCALE_BOTH:
+                wsize = widget->w;
+                hsize = widget->h;
+                break;
+              case ROFI_SCALE_WIDTH:
+                wsize = widget->w;
+                break;
+              case ROFI_SCALE_HEIGHT:
+                hsize = widget->h;
+                break;
+              case ROFI_SCALE_NONE:
+              default:
+                break;
+            }
+            if ( p->value.image.surface_id == 0  || p->value.image.wsize != wsize || p->value.image.hsize != hsize) {
+                p->value.image.surface_id = rofi_icon_fetcher_query_advanced ( p->value.image.url, wsize, hsize );
+                p->value.image.wsize = wsize;
+                p->value.image.hsize = hsize;
             }
             cairo_surface_t *img = rofi_icon_fetcher_get ( p->value.image.surface_id );
 
