@@ -40,6 +40,7 @@
 #include "settings.h"
 #include "rofi-types.h"
 #include "widgets/textbox.h"
+#include "rofi-icon-fetcher.h"
 
 #include <check.h>
 

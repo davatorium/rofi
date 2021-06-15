@@ -71,9 +71,6 @@ deps += [
     dependency('libstartup-notification-1.0'),
 ]
 
-libgif = c_compiler.find_library('libgif', required: false)
-deps += [ libgif ]
-
 check = dependency('check', version: '>= 0.11.0', required: get_option('check'))
 
 header_conf = configuration_data()
@@ -92,7 +89,6 @@ header_conf.set('GLIB_VERSION_MIN_REQUIRED', '(G_ENCODE_VERSION(@0@,@1@))'.forma
 header_conf.set('GLIB_VERSION_MAX_ALLOWED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
 
 header_conf.set('ENABLE_DRUN', get_option('drun'))
-header_conf.set('HAVE_LIBGIF', libgif.found())
 header_conf.set('WINDOW_MODE', get_option('window'))
 
 header_conf.set_quoted('MANPAGE_PATH', join_paths(get_option('prefix'), get_option('mandir')))

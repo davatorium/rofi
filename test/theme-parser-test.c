@@ -41,6 +41,7 @@
 #include "css-colors.h"
 #include "widgets/widget-internal.h"
 #include "widgets/textbox.h"
+#include "rofi-icon-fetcher.h"
 
 
 #include <check.h>
