@@ -1152,6 +1152,22 @@ Make \fBrofi\fP create a pid file and check this on startup. The pid file preven
 Set the name to use for mode. This is used as prompt and in combi\-browser.
 
 .PP
+It is now prefered to use the configuration file:
+
+.PP
+.RS
+
+.nf
+configuration {
+  {mode} {
+    display\-name: *string*;
+  }
+}
+
+.fi
+.RE
+
+.PP
 \fB\fC\-click\-to\-exit\fR
 \fB\fC\-no\-click\-to\-exit\fR
 
