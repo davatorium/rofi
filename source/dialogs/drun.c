@@ -947,30 +947,41 @@ static void get_apps ( DRunModePrivateData *pd )
     char *cache_file = g_build_filename ( cache_dir, DRUN_DESKTOP_CACHE_FILE, NULL );
     TICK_N ( "Get Desktop apps (start)" );
     if ( drun_read_cache ( pd, cache_file ) ) {
-        gchar *dir;
-        // First read the user directory.
-        dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
-        walk_dir ( pd, dir, dir );
-        g_free ( dir );
-        TICK_N ( "Get Desktop apps (user dir)" );
-        // Then read thee system data dirs.
-        const gchar * const * sys = g_get_system_data_dirs ();
-        for ( const gchar * const *iter = sys; *iter != NULL; ++iter ) {
+        ThemeWidget *wid = rofi_config_find_widget ( drun_mode.name, NULL, TRUE );
+
+        /** Load user entires */
+        Property    *p   = rofi_theme_find_property ( wid, P_BOOLEAN, "parse-user", TRUE );
+        if ( p == NULL || ( p->type == P_BOOLEAN && p->value.b )) {
+          gchar *dir;
+          // First read the user directory.
+          dir = g_build_filename ( g_get_user_data_dir (), "applications", NULL );
+          walk_dir ( pd, dir, dir );
+          g_free ( dir );
+          TICK_N ( "Get Desktop apps (user dir)" );
+        }
+
+        /** Load application entires */
+        p   = rofi_theme_find_property ( wid, P_BOOLEAN, "parse-system", TRUE );
+        if ( p == NULL || ( p->type == P_BOOLEAN && p->value.b )) {
+          // Then read thee system data dirs.
+          const gchar * const * sys = g_get_system_data_dirs ();
+          for ( const gchar * const *iter = sys; *iter != NULL; ++iter ) {
             gboolean unique = TRUE;
             // Stupid duplicate detection, better then walking dir.
             for ( const gchar *const *iterd = sys; iterd != iter; ++iterd ) {
-                if ( g_strcmp0 ( *iter, *iterd ) == 0 ) {
-                    unique = FALSE;
-                }
+              if ( g_strcmp0 ( *iter, *iterd ) == 0 ) {
+                unique = FALSE;
+              }
             }
             // Check, we seem to be getting empty string...
             if ( unique && ( **iter ) != '\0' ) {
-                dir = g_build_filename ( *iter, "applications", NULL );
-                walk_dir ( pd, dir, dir );
-                g_free ( dir );
+              char *dir = g_build_filename ( *iter, "applications", NULL );
+              walk_dir ( pd, dir, dir );
+              g_free ( dir );
             }
+          }
+          TICK_N ( "Get Desktop apps (system dirs)" );
         }
-        TICK_N ( "Get Desktop apps (system dirs)" );
         get_apps_history ( pd );
 
         g_qsort_with_data ( pd->entry_list, pd->cmd_list_length, sizeof ( DRunModeEntry ), drun_int_sort_list, NULL );
