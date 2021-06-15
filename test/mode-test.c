@@ -46,6 +46,7 @@
 #include <helper.h>
 
 #include <check.h>
+#include "rofi-icon-fetcher.h"
 
 ThemeWidget *rofi_theme = NULL;
 
