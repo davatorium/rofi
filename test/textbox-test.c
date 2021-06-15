@@ -42,6 +42,7 @@
 #include "settings.h"
 #include "xrmoptions.h"
 
+#include "rofi-icon-fetcher.h"
 static int   test               = 0;
 unsigned int normal_window_mode = 0;
 
