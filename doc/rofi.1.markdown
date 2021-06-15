@@ -724,6 +724,17 @@ Make **rofi** create a pid file and check this on startup. The pid file prevents
 
 Set the name to use for mode. This is used as prompt and in combi-browser.
 
+It is now prefered to use the configuration file:
+
+```css
+configuration {
+  {mode} {
+    display-name: *string*;
+  }
+}
+```
+
+
 `-click-to-exit`
 `-no-click-to-exit`
 
