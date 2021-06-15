@@ -1257,6 +1257,8 @@ Please see \fBrofi\-theme(5)\fP manpage for more information on theming.
 .IP \(bu 2
 \fB\fCShift\-Enter\fR: Launch the application in a terminal (in run mode)
 .IP \(bu 2
+\fB\fCCtrl\-Shift\-Enter\fR: As Ctrl\-Enter and run the command in terminal (in run mode)
+.IP \(bu 2
 \fB\fCShift\-Enter\fR: Return the selected entry and move to the next item while keeping \fBrofi\fP open. (in dmenu)
 .IP \(bu 2
 \fB\fCShift\-Right\fR: Switch to the next mode. The list can be customized with the \fB\fC\-switchers\fR argument.
@@ -1337,6 +1339,25 @@ Specification
 applications using this standard.  Some application create invalid desktop files, \fBrofi\fP will discard these entries.
 See de debugging section how to get more information from the DRUN mode, this will print why desktop files are
 discarded.
+
+.PP
+There are two advanced options to tweak the behaviour:
+
+.PP
+.RS
+
+.nf
+configuration {
+   drun {
+      /** Parse user desktop files. */
+      parse\-user:   true;
+      /** Parse system desktop files. */
+      parse\-system: false;
+   }
+}
+
+.fi
+.RE
 
 .SS ssh
 .PP

@@ -855,6 +855,21 @@ applications using this standard.  Some application create invalid desktop files
 See de debugging section how to get more information from the DRUN mode, this will print why desktop files are
 discarded.
 
+There are two advanced options to tweak the behaviour:
+
+```css
+configuration {
+   drun {
+      /** Parse user desktop files. */
+      parse-user:   true;
+      /** Parse system desktop files. */
+      parse-system: false;
+   }
+}
+```
+
+
+
 ### ssh
 
 Shows a list of SSH targets based on your `ssh` config file, and allows to quickly `ssh` into them.
