@@ -2,6 +2,7 @@
 #define INCLUDE_ROFI_TYPES_H
 
 #include <glib.h>
+#include <stdint.h>
 G_BEGIN_DECLS
 
 /**
@@ -15,10 +16,14 @@ typedef enum
     P_DOUBLE,
     /** String */
     P_STRING,
+    /** Character */
+    P_CHAR,
     /** Boolean */
     P_BOOLEAN,
     /** Color */
     P_COLOR,
+    /** Image */
+    P_IMAGE,
     /** RofiPadding */
     P_PADDING,
     /** Link to global setting */
@@ -31,6 +36,8 @@ typedef enum
     P_LIST,
     /** Orientation */
     P_ORIENTATION,
+    /** Cursor */
+    P_CURSOR,
     /** Inherit */
     P_INHERIT,
     /** Number of types. */
@@ -78,6 +85,8 @@ typedef enum
 {
     /** PixelWidth in pixels. */
     ROFI_PU_PX,
+    /** PixelWidth in millimeters. */
+    ROFI_PU_MM,
     /** PixelWidth in EM. */
     ROFI_PU_EM,
     /** PixelWidget in percentage */
@@ -89,14 +98,42 @@ typedef enum
 /**
  * Structure representing a distance.
  */
-typedef struct
+typedef enum
+{
+    ROFI_DISTANCE_MODIFIER_NONE,
+    ROFI_DISTANCE_MODIFIER_ADD,
+    ROFI_DISTANCE_MODIFIER_SUBTRACT,
+    ROFI_DISTANCE_MODIFIER_DIVIDE,
+    ROFI_DISTANCE_MODIFIER_MULTIPLY,
+    ROFI_DISTANCE_MODIFIER_MODULO,
+    ROFI_DISTANCE_MODIFIER_GROUP,
+    ROFI_DISTANCE_MODIFIER_MIN,
+    ROFI_DISTANCE_MODIFIER_MAX,
+} RofiDistanceModifier;
+
+typedef struct RofiDistanceUnit
 {
     /** Distance */
-    double        distance;
+    double                  distance;
     /** Unit type of the distance */
-    RofiPixelUnit type;
+    RofiPixelUnit           type;
+
+    /** Type */
+    RofiDistanceModifier    modtype;
+
+    /** Modifier */
+    struct RofiDistanceUnit *left;
+
+    /** Modifier */
+    struct RofiDistanceUnit *right;
+} RofiDistanceUnit;
+
+typedef struct
+{
+    /** Base */
+    RofiDistanceUnit base;
     /** Style of the line (optional)*/
-    RofiLineStyle style;
+    RofiLineStyle    style;
 } RofiDistance;
 
 /**
@@ -107,6 +144,16 @@ typedef enum
     ROFI_ORIENTATION_VERTICAL,
     ROFI_ORIENTATION_HORIZONTAL
 } RofiOrientation;
+
+/**
+ * Cursor type.
+ */
+typedef enum
+{
+    ROFI_CURSOR_DEFAULT,
+    ROFI_CURSOR_POINTER,
+    ROFI_CURSOR_TEXT
+} RofiCursorType;
 
 /**
  * Represent the color in theme.
@@ -122,6 +169,40 @@ typedef struct
     /**  alpha channel */
     double alpha;
 } ThemeColor;
+
+/**
+ * Theme Image
+ */
+typedef enum
+{
+    ROFI_IMAGE_URL,
+    ROFI_IMAGE_LINEAR_GRADIENT
+} RofiImageType;
+
+typedef enum 
+{
+    ROFI_DIRECTION_LEFT,
+    ROFI_DIRECTION_RIGHT,
+    ROFI_DIRECTION_TOP,
+    ROFI_DIRECTION_BOTTOM,
+    ROFI_DIRECTION_ANGLE,
+} RofiDirection;
+
+
+typedef struct
+{
+    RofiImageType type;
+    char *url;
+
+    RofiDirection dir;
+    double angle;
+    /** colors */
+    GList *colors;
+
+    /** cached image */
+    uint32_t surface_id;
+
+} RofiImage;
 
 /**
  * RofiPadding
@@ -176,7 +257,7 @@ typedef enum
     WL_SOUTH_WEST = WL_SOUTH | WL_WEST,
 } WindowLocation;
 
-typedef union
+typedef union _PropertyValue
 {
     /** integer */
     int         i;
@@ -184,6 +265,8 @@ typedef union
     double      f;
     /** String */
     char        *s;
+    /** Character */
+    char        c;
     /** boolean */
     gboolean    b;
     /** Color */
@@ -197,9 +280,13 @@ typedef union
         char            *name;
         /** Cached looked up ref */
         struct Property *ref;
+        /** Property default */
+        struct Property *def_value;
     }                       link;
     /** Highlight Style */
     RofiHighlightColorStyle highlight;
+    /** Image */
+    RofiImage image;
     /** List */
     GList                   *list;
 } PropertyValue;
@@ -222,8 +309,8 @@ typedef struct Property
  */
 typedef struct rofi_range_pair
 {
-    unsigned int start;
-    unsigned int stop;
+    int start;
+    int stop;
 } rofi_range_pair;
 
 /**

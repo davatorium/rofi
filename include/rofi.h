@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -105,8 +105,8 @@ Mode * rofi_collect_modi_search ( const char *name );
     " * Output of -dump-xresource\n"                                   \
     " * Steps to reproduce\n"                                          \
     " * The version of rofi you are running\n\n"                       \
-    " <i>https://github.com/DaveDavenport/rofi/</i>"
+    " <i>https://github.com/davatorium/rofi/</i>"
 /** Indicates if ERROR_MSG uses pango markup */
 #define ERROR_MSG_MARKUP    TRUE
-/*@}*/
+/**@}*/
 #endif

@@ -3,7 +3,7 @@
  *
  * MIT/X11 License
  * Copyright © 2012 Sean Pringle <sean.pringle@gmail.com>
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -47,7 +47,6 @@
 #include <pango/pango.h>
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
-#include <librsvg/rsvg.h>
 #include "display.h"
 #include "xcb.h"
 #include "helper.h"
@@ -71,38 +70,12 @@ static int        stored_argc = 0;
 /** copy of the argv pointer for use in the commandline argument parser */
 static char       **stored_argv = NULL;
 
+char *helper_string_replace_if_exists_v ( char * string, GHashTable *h );
+
 void cmd_set_arguments ( int argc, char **argv )
 {
     stored_argc = argc;
     stored_argv = argv;
-}
-
-/**
- * @param info To Match information on.
- * @param res  The string being generated.
- * @param data User data
- *
- * Replace the entries. This function gets called by g_regex_replace_eval.
- *
- * @returns TRUE to stop replacement, FALSE to continue
- */
-static gboolean helper_eval_cb ( const GMatchInfo *info, GString *res, gpointer data )
-{
-    gchar *match;
-    // Get the match
-    match = g_match_info_fetch ( info, 0 );
-    if ( match != NULL ) {
-        // Lookup the match, so we can replace it.
-        gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
-        if ( r != NULL ) {
-            // Append the replacement to the string.
-            g_string_append ( res, r );
-        }
-        // Free match.
-        g_free ( match );
-    }
-    // Continue replacement.
-    return FALSE;
 }
 
 int helper_parse_setup ( char * string, char ***output, int *length, ... )
@@ -129,11 +102,7 @@ int helper_parse_setup ( char * string, char ***output, int *length, ... )
     }
     va_end ( ap );
 
-    // Replace hits within {-\w+}.
-    GRegex *reg = g_regex_new ( "{[-\\w]+}", 0, 0, NULL );
-    char   *res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb, h, NULL );
-    // Free regex.
-    g_regex_unref ( reg );
+    char *res = helper_string_replace_if_exists_v ( string, h );
     // Destroy key-value storage.
     g_hash_table_destroy ( h );
     // Parse the string into shell arguments.
@@ -190,7 +159,7 @@ static gchar *fuzzy_to_regex ( const char * input )
             g_string_append ( str, "(" );
         }
         else {
-            g_string_append ( str, ".*(" );
+            g_string_append ( str, ".*?(" );
         }
         if ( *iter == '\\' ) {
             g_string_append_c ( str, '\\' );
@@ -210,10 +179,52 @@ static gchar *fuzzy_to_regex ( const char * input )
     return retv;
 }
 
+static gchar *prefix_regex ( const char * input )
+{
+    gchar *r    = g_regex_escape_string ( input, -1 );
+    char  *retv = g_strconcat ( "\\b", r, NULL );
+    g_free ( r );
+    return retv;
+}
+
+static char *utf8_helper_simplify_string ( const char *s )
+{
+    gunichar buf2[G_UNICHAR_MAX_DECOMPOSITION_LENGTH] = { 0, };
+    char     buf[6]                                   = { 0, };
+    // Compose the string in maximally composed form.
+    char     * str    = g_malloc0 ( ( g_utf8_strlen ( s, 0 ) * 6 + 2 ) );
+    char     *striter = str;
+    for ( const char *iter = s; iter && *iter; iter = g_utf8_next_char ( iter ) ) {
+        gunichar uc = g_utf8_get_char ( iter );
+        int      l  = 0;
+        gsize    dl = g_unichar_fully_decompose ( uc, FALSE, buf2, G_UNICHAR_MAX_DECOMPOSITION_LENGTH );
+        if ( dl ) {
+            l = g_unichar_to_utf8 ( buf2[0], buf );
+        }
+        else {
+            l = g_unichar_to_utf8 ( uc, buf );
+        }
+        memcpy ( striter, buf, l );
+        striter += l;
+    }
+
+    return str;
+}
+
 // Macro for quickly generating regex for matching.
 static inline GRegex * R ( const char *s, int case_sensitive  )
 {
-    return g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL );
+    if ( config.normalize_match ) {
+        char   *str = utf8_helper_simplify_string ( s );
+
+        GRegex *r = g_regex_new ( str, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL );
+
+        g_free ( str );
+        return r;
+    }
+    else {
+        return g_regex_new ( s, G_REGEX_OPTIMIZE | ( ( case_sensitive ) ? 0 : G_REGEX_CASELESS ), 0, NULL );
+    }
 }
 
 static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
@@ -221,7 +232,7 @@ static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
     GRegex           * retv = NULL;
     gchar            *r;
     rofi_int_matcher *rv = g_malloc0 ( sizeof ( rofi_int_matcher ) );
-    if ( input && input[0] == '-' ) {
+    if ( input && input[0] == config.matching_negate_char ) {
         rv->invert = 1;
         input++;
     }
@@ -242,6 +253,11 @@ static rofi_int_matcher * create_regex ( const char *input, int case_sensitive )
         break;
     case MM_FUZZY:
         r    = fuzzy_to_regex ( input );
+        retv = R ( r, case_sensitive );
+        g_free ( r );
+        break;
+    case MM_PREFIX:
+        r    = prefix_regex ( input );
         retv = R ( r, case_sensitive );
         g_free ( r );
         break;
@@ -410,6 +426,10 @@ int find_arg_char ( const char * const key, char *val )
 
 PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, rofi_int_matcher**tokens, const char *input, PangoAttrList *retv )
 {
+    // Disable highlighting for normalize match, not supported atm.
+    if ( config.normalize_match ) {
+        return retv;
+    }
     // Do a tokenized match.
     if ( tokens ) {
         for ( int j = 0; tokens[j]; j++ ) {
@@ -461,6 +481,13 @@ PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, r
                         pa->start_index = start;
                         pa->end_index   = end;
                         pango_attr_list_insert ( retv, pa );
+
+                        if ( th.color.alpha < 1.0 ) {
+                            pa              = pango_attr_foreground_alpha_new ( th.color.alpha * 65535 );
+                            pa->start_index = start;
+                            pa->end_index   = end;
+                            pango_attr_list_insert ( retv, pa );
+                        }
                     }
                 }
                 g_match_info_next ( gmi, NULL );
@@ -476,9 +503,19 @@ int helper_token_match ( rofi_int_matcher* const *tokens, const char *input )
     int match = TRUE;
     // Do a tokenized match.
     if ( tokens ) {
-        for ( int j = 0; match && tokens[j]; j++ ) {
-            match  = g_regex_match ( tokens[j]->regex, input, 0, NULL );
-            match ^= tokens[j]->invert;
+        if ( config.normalize_match ) {
+            char *r = utf8_helper_simplify_string ( input );
+            for ( int j = 0; match && tokens[j]; j++ ) {
+                match  = g_regex_match ( tokens[j]->regex, r, 0, NULL );
+                match ^= tokens[j]->invert;
+            }
+            g_free ( r );
+        }
+        else {
+            for ( int j = 0; match && tokens[j]; j++ ) {
+                match  = g_regex_match ( tokens[j]->regex, input, 0, NULL );
+                match ^= tokens[j]->invert;
+            }
         }
     }
     return match;
@@ -608,8 +645,11 @@ int config_sanity_check ( void )
         else if ( g_strcmp0 ( config.matching, "normal" ) == 0 ) {
             config.matching_method = MM_NORMAL;;
         }
+        else if ( g_strcmp0 ( config.matching, "prefix" ) == 0 ) {
+            config.matching_method = MM_PREFIX;
+        }
         else {
-            g_string_append_printf ( msg, "\t<b>config.matching</b>=%s is not a valid matching strategy.\nValid options are: glob, regex, fuzzy or normal.\n",
+            g_string_append_printf ( msg, "\t<b>config.matching</b>=%s is not a valid matching strategy.\nValid options are: glob, regex, fuzzy, prefix or normal.\n",
                                      config.matching );
             found_error = 1;
         }
@@ -620,17 +660,6 @@ int config_sanity_check ( void )
                                  config.element_height );
         config.element_height = 1;
         found_error           = TRUE;
-    }
-    if ( config.menu_columns == 0 ) {
-        g_string_append_printf ( msg, "\t<b>config.menu_columns</b>=%d is invalid. You need at least one visible column.\n",
-                                 config.menu_columns );
-        config.menu_columns = 1;
-        found_error         = TRUE;
-    }
-    if ( config.menu_width == 0 ) {
-        g_string_append_printf ( msg, "<b>config.menu_width</b>=0 is invalid. You cannot have a window with no width." );
-        config.menu_columns = 50;
-        found_error         = TRUE;
     }
     if ( !( config.location >= 0 && config.location <= 8 ) ) {
         g_string_append_printf ( msg, "\t<b>config.location</b>=%d is invalid. Value should be between %d and %d.\n",
@@ -670,8 +699,7 @@ int config_sanity_check ( void )
 
     if ( g_strcmp0 ( config.monitor, "-3" ) == 0 ) {
         // On -3, set to location 1.
-        config.location   = 1;
-        config.fullscreen = 0;
+        config.location = 1;
     }
 
     if ( found_error ) {
@@ -879,33 +907,6 @@ static int rofi_scorer_get_score_for ( enum CharClass prev, enum CharClass curr 
     return 0;
 }
 
-/**
- * @param pattern   The user input to match against.
- * @param plen      Pattern length.
- * @param str       The input to match against pattern.
- * @param slen      Length of str.
- *
- *  rofi_scorer_fuzzy_evaluate implements a global sequence alignment algorithm to find the maximum accumulated score by
- *  aligning `pattern` to `str`. It applies when `pattern` is a subsequence of `str`.
- *
- *  Scoring criteria
- *  - Prefer matches at the start of a word, or the start of subwords in CamelCase/camelCase/camel123 words. See WORD_START_SCORE/CAMEL_SCORE.
- *  - Non-word characters matter. See NON_WORD_SCORE.
- *  - The first characters of words of `pattern` receive bonus because they usually have more significance than the rest.
- *  See PATTERN_START_MULTIPLIER/PATTERN_NON_START_MULTIPLIER.
- *  - Superfluous characters in `str` will reduce the score (gap penalty). See GAP_SCORE.
- *  - Prefer early occurrence of the first character. See LEADING_GAP_SCORE/GAP_SCORE.
- *
- *  The recurrence of the dynamic programming:
- *  dp[i][j]: maximum accumulated score by aligning pattern[0..i] to str[0..j]
- *  dp[0][j] = leading_gap_penalty(0, j) + score[j]
- *  dp[i][j] = max(dp[i-1][j-1] + CONSECUTIVE_SCORE, max(dp[i-1][k] + gap_penalty(k+1, j) + score[j] : k < j))
- *
- *  The first dimension can be suppressed since we do not need a matching scheme, which reduces the space complexity from
- *  O(N*M) to O(M)
- *
- * @returns the sorting weight.
- */
 int rofi_scorer_fuzzy_evaluate ( const char *pattern, glong plen, const char *str, glong slen )
 {
     if ( slen > FUZZY_SCORER_MAX_LENGTH ) {
@@ -1027,6 +1028,10 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
         helper_parse_setup ( config.run_command, &args, &argc, "{cmd}", cmd, (char *) 0 );
     }
 
+    if ( args == NULL ) {
+        return FALSE;
+    }
+
     if ( context != NULL ) {
         if ( context->name == NULL ) {
             context->name = args[0];
@@ -1064,8 +1069,18 @@ char *helper_get_theme_path ( const char *file )
     else {
         filename = g_strconcat ( file, ".rasi", NULL );
     }
-    // Check config directory.
+    // Check config's themes directory.
     const char *cpath = g_get_user_config_dir ();
+    if ( cpath ) {
+        char *themep = g_build_filename ( cpath, "rofi", "themes", filename, NULL );
+        g_debug ( "Opening theme, testing: %s\n", themep );
+        if ( themep && g_file_test ( themep, G_FILE_TEST_EXISTS ) ) {
+            g_free ( filename );
+            return themep;
+        }
+        g_free ( themep );
+    }
+    // Check config directory.
     if ( cpath ) {
         char *themep = g_build_filename ( cpath, "rofi", filename, NULL );
         g_debug ( "Opening theme, testing: %s\n", themep );
@@ -1100,68 +1115,39 @@ char *helper_get_theme_path ( const char *file )
     return filename;
 }
 
-cairo_surface_t* cairo_image_surface_create_from_svg ( const gchar* file, int height )
+static gboolean parse_pair ( char  *input, rofi_range_pair  *item )
 {
-    GError          *error   = NULL;
-    cairo_surface_t *surface = NULL;
-    RsvgHandle      * handle;
-
-    handle = rsvg_handle_new_from_file ( file, &error );
-    if ( G_LIKELY ( handle != NULL ) ) {
-        RsvgDimensionData dimensions;
-        // Update DPI.
-        rsvg_handle_set_dpi ( handle, config.dpi );
-        // Get size.
-        rsvg_handle_get_dimensions ( handle, &dimensions );
-        // Create cairo surface in the right size.
-        double scale = (double) height / dimensions.height;
-        surface = cairo_image_surface_create ( CAIRO_FORMAT_ARGB32,
-                                               (double) dimensions.width * scale,
-                                               (double) dimensions.height * scale );
-        gboolean failed = cairo_surface_status ( surface ) != CAIRO_STATUS_SUCCESS;
-        if ( G_LIKELY ( failed == FALSE ) ) {
-            cairo_t *cr = cairo_create ( surface );
-            cairo_scale ( cr, scale, scale );
-            failed = rsvg_handle_render_cairo ( handle, cr ) == FALSE;
-            cairo_destroy ( cr );
-        }
-
-        rsvg_handle_close ( handle, &error );
-        g_object_unref ( handle );
-
-        /** Rendering fails */
-        if ( G_UNLIKELY ( failed ) ) {
-            g_warning ( "Failed to render file: '%s'", file );
-            cairo_surface_destroy ( surface );
-            surface = NULL;
-        }
-    }
-    if ( G_UNLIKELY ( error != NULL ) ) {
-        g_warning ( "Failed to render SVG file: '%s': %s", file, error->message );
-        g_error_free ( error );
+    // Skip leading blanks.
+    while ( input != NULL && isblank ( *input ) ) {
+        ++input;
     }
 
-    return surface;
-}
+    if ( input == NULL ) {
+        return FALSE;
+    }
 
-static void parse_pair ( char  *input, rofi_range_pair  *item )
-{
-    int                index = 0;
-    const char * const sep   = "-";
-    for ( char *token = strsep ( &input, sep ); token != NULL; token = strsep ( &input, sep ) ) {
+    const char *sep[]   = { "-", ":" };
+    int        pythonic = ( strchr ( input, ':' ) || input[0] == '-' ) ? 1 : 0;
+    int        index    = 0;
+
+    for (  char *token = strsep ( &input, sep[pythonic] ); token != NULL; token = strsep ( &input, sep[pythonic] ) ) {
         if ( index == 0 ) {
-            item->start = item->stop = (unsigned int) strtoul ( token, NULL, 10 );
+            item->start = item->stop = (int) strtol ( token, NULL, 10 );
             index++;
+            continue;
         }
-        else {
-            if ( token[0] == '\0' ) {
-                item->stop = 0xFFFFFFFF;
-            }
-            else{
-                item->stop = (unsigned int) strtoul ( token, NULL, 10 );
-            }
+
+        if ( token[0] == '\0' ) {
+            item->stop = -1;
+            continue;
+        }
+
+        item->stop = (int) strtol ( token, NULL, 10 );
+        if ( pythonic ) {
+            --item->stop;
         }
     }
+    return TRUE;
 }
 void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length )
 {
@@ -1174,29 +1160,11 @@ void parse_ranges ( char *input, rofi_range_pair **list, unsigned int *length )
         // Make space.
         *list = g_realloc ( ( *list ), ( ( *length ) + 1 ) * sizeof ( struct rofi_range_pair ) );
         // Parse a single pair.
-        parse_pair ( token, &( ( *list )[*length] ) );
-
-        ( *length )++;
+        if ( parse_pair ( token, &( ( *list )[*length] ) ) ) {
+            ( *length )++;
+        }
     }
 }
-/**
- * @param format The format string used. See below for possible syntax.
- * @param string The selected entry.
- * @param selected_line The selected line index.
- * @param filter The entered filter.
- *
- * Function that outputs the selected line in the user-specified format.
- * Currently the following formats are supported:
- *   * i: Print the index (0-(N-1))
- *   * d: Print the index (1-N)
- *   * s: Print input string.
- *   * q: Print quoted input string.
- *   * f: Print the entered filter.
- *   * F: Print the entered filter, quoted
- *
- * This functions outputs the formatted string to stdout, appends a newline (\n) character and
- * calls flush on the file descriptor.
- */
 void rofi_output_formatted_line ( const char *format, const char *string, int selected_line, const char *filter )
 {
     for ( int i = 0; format && format[i]; i++ ) {
@@ -1208,6 +1176,17 @@ void rofi_output_formatted_line ( const char *format, const char *string, int se
         }
         else if ( format[i] == 's' ) {
             fputs ( string, stdout );
+        }
+        else if ( format[i] == 'p' ) {
+            char *esc = NULL;
+            pango_parse_markup ( string, -1, 0, NULL, &esc, NULL, NULL );
+            if ( esc ) {
+                fputs ( esc, stdout );
+                g_free ( esc );
+            }
+            else {
+                fputs ( "invalid string", stdout );
+            }
         }
         else if ( format[i] == 'q' ) {
             char *quote = g_shell_quote ( string );
@@ -1234,16 +1213,14 @@ void rofi_output_formatted_line ( const char *format, const char *string, int se
     fflush ( stdout );
 }
 
-
 static gboolean helper_eval_cb2 ( const GMatchInfo *info, GString *res, gpointer data )
 {
-    GHashTable *h = (GHashTable*)h;
     gchar *match;
     // Get the match
-    int num_match = g_match_info_get_match_count(info);
+    int   num_match = g_match_info_get_match_count ( info );
     // Just {text} This is inside () 5.
     if ( num_match == 5 ) {
-        match = g_match_info_fetch ( info, 4);
+        match = g_match_info_fetch ( info, 4 );
         if ( match != NULL ) {
             // Lookup the match, so we can replace it.
             gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
@@ -1257,21 +1234,21 @@ static gboolean helper_eval_cb2 ( const GMatchInfo *info, GString *res, gpointer
     }
     // {} with [] guard around it.
     else if ( num_match == 4 ) {
-        match = g_match_info_fetch ( info, 2);
+        match = g_match_info_fetch ( info, 2 );
         if ( match != NULL ) {
             // Lookup the match, so we can replace it.
             gchar *r = g_hash_table_lookup ( (GHashTable *) data, match );
             if ( r != NULL ) {
                 // Add (optional) prefix
-                gchar *prefix = g_match_info_fetch (info, 1);
+                gchar *prefix = g_match_info_fetch ( info, 1 );
                 g_string_append ( res, prefix );
-                g_free (prefix );
+                g_free ( prefix );
                 // Append the replacement to the string.
                 g_string_append ( res, r );
                 // Add (optional) postfix
-                gchar *post = g_match_info_fetch (info, 3);
+                gchar *post = g_match_info_fetch ( info, 3 );
                 g_string_append ( res, post );
-                g_free (post );
+                g_free ( post );
             }
             // Free match.
             g_free ( match );
@@ -1284,12 +1261,11 @@ static gboolean helper_eval_cb2 ( const GMatchInfo *info, GString *res, gpointer
 
 char *helper_string_replace_if_exists ( char * string, ... )
 {
-    GError     *error = NULL;
     GHashTable *h;
     h = g_hash_table_new ( g_str_hash, g_str_equal );
-    // Add list from variable arguments.
-    va_list ap;
+    va_list    ap;
     va_start ( ap, string );
+    // Add list from variable arguments.
     while ( 1 ) {
         char * key = va_arg ( ap, char * );
         if ( key == (char *) 0 ) {
@@ -1298,17 +1274,39 @@ char *helper_string_replace_if_exists ( char * string, ... )
         char *value = va_arg ( ap, char * );
         g_hash_table_insert ( h, key, value );
     }
+    char *retv = helper_string_replace_if_exists_v ( string, h );
     va_end ( ap );
-
-    // Replace hits within {-\w+}.
-    GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", 0, 0, NULL );
-    char   *res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb2, h, NULL );
-    // Free regex.
-    g_regex_unref ( reg );
     // Destroy key-value storage.
     g_hash_table_destroy ( h );
+    return retv;
+}
+/**
+ * @param string The string with elements to be replaced
+ * @param h      Hash table with set of {key}, value that will be replaced, terminated by  a NULL
+ *
+ * Items {key} are replaced by the value if '{key}' is passed as key/value pair, otherwise removed from string.
+ * If the {key} is in between []  all the text between [] are removed if {key}
+ * is not found. Otherwise key is replaced and [ & ] removed.
+ *
+ * This allows for optional replacement, f.e.   '{ssh-client} [-t  {title}] -e
+ * "{cmd}"' the '-t {title}' is only there if {title} is set.
+ *
+ * @returns a new string with the keys replaced.
+ */
+char *helper_string_replace_if_exists_v ( char * string, GHashTable *h )
+{
+    GError *error = NULL;
+    char   *res   = NULL;
+
+    // Replace hits within {-\w+}.
+    GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", G_REGEX_UNGREEDY, 0, &error );
+    if ( error == NULL ) {
+        res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb2, h, &error );
+    }
+    // Free regex.
+    g_regex_unref ( reg );
     // Throw error if shell parsing fails.
-    if ( error ) {
+    if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to parse: '%s'\nError: '%s'", string, error->message );
         rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );

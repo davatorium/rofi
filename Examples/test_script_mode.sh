@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 
-if [ x"$@" = x"quit" ]
+if [ "$*" = "quit" ]
 then
     exit 0
 fi
 
 if [ "$@" ]
 then
+    # Override the previously set prompt.
+    echo -en "\x00prompt\x1fChange prompt\n"
     for a in {1..10}
     do
         echo "$a"
@@ -22,6 +24,7 @@ else
     echo -en "aap\0icon\x1ffolder\n"
     echo "noot"
     echo "mies"
+    echo -en "-------------\0nonselectable\x1ftrue\n"
     echo "testing"
     echo "<b>Bold</b>"
     echo "quit"

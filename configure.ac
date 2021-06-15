@@ -1,4 +1,4 @@
-AC_INIT([rofi], [1.5.1-dev], [https://github.com/DaveDavenport/rofi/],[],[https://reddit.com/r/qtools/])
+AC_INIT([rofi], [1.6.1-dev], [https://github.com/davatorium/rofi/],[],[https://reddit.com/r/qtools/])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
@@ -7,10 +7,30 @@ AH_BOTTOM([#include "gitconfig.h"])
 dnl ---------------------------------------------------------------------
 dnl Lex & Bison language parser.
 dnl ---------------------------------------------------------------------
-AC_PROG_LEX([flex])
+AC_PROG_LEX
 AC_PROG_YACC
 
-AS_IF([test "x${YACC}" != "xbison -y" ], [AC_MSG_ERROR( "Failed to find bison")])
+
+AC_DEFUN([AX_PROG_BISON], [
+  AC_REQUIRE([AC_PROG_YACC])
+  AC_REQUIRE([AC_PROG_EGREP])
+
+  AC_CACHE_CHECK([if bison is the parser generator],[ax_cv_prog_bison],[
+    AS_IF([$YACC --version 2>/dev/null | $EGREP -q '^bison '],
+      [ax_cv_prog_bison=yes], [ax_cv_prog_bison=no])
+  ])
+  AS_IF([test "$ax_cv_prog_bison" = "yes"], [
+      dnl replace the yacc-compatible compiler with the real bison, as
+      dnl otherwise autoconf limits us to the POSIX yacc.
+      dnl We also change the generated filename to the old one, so that
+      dnl automake's ylwrap can deal with it.
+      YACC="${YACC% -y} -o y.tab.c"
+    ] m4_ifnblank([$1], [[$1]]),
+    m4_ifnblank([$2], [[$2]])
+  )
+])
+
+AX_PROG_BISON([],[AC_MSG_ERROR("Failed to find bison")])
 
 m4_include([m4/ax_prog_flex_version.m4])
 m4_include([m4/ax_compare_version.m4])
@@ -85,11 +105,6 @@ dnl ---------------------------------------------------------------------
 AC_ARG_ENABLE([windowmode], AS_HELP_STRING([--disable-windowmode],[Disable window mode]))
 AS_IF([ test "x$enable_windowmode" != "xno"], [AC_DEFINE([WINDOW_MODE],[1],[Enable the window mode])])
 
-dnl ---------------------------------------------------------------------
-dnl Output timing information
-dnl ---------------------------------------------------------------------
-AC_ARG_ENABLE([timings], AS_HELP_STRING([--enable-timings],[Enable timing output]))
-AS_IF( [ test "x$enable_timings" = "xyes"], [AC_DEFINE([TIMINGS],[1], [Enable timings output])])
 
 dnl ---------------------------------------------------------------------
 dnl Check for C functions.
@@ -104,10 +119,14 @@ AC_CHECK_FUNC([fcntl],,    AC_MSG_ERROR("Could not find fcntl"))
 AC_CHECK_FUNC([setlocale],,AC_MSG_ERROR("Could not find setlocale"))
 AC_CHECK_FUNC([atexit],,   AC_MSG_ERROR("Could not find atexit in c library"))
 AC_CHECK_FUNC([glob],,     AC_MSG_ERROR("Could not find glob in c library"))
+AC_CHECK_FUNC([readdir],,  AC_MSG_ERROR("Could not find readdir in c library"))
 
 AC_CHECK_HEADER([math.h],, AC_MSG_ERROR("Could not find math.h header file"))
 AC_SEARCH_LIBS([floor],[m],,      AC_MSG_ERROR("Could not find floor in math library"))
 AC_SEARCH_LIBS([ceil], [m],,      AC_MSG_ERROR("Could not find ceil in math library"))
+
+AC_CHECK_HEADER([sysexits.h],, AC_MSG_ERROR("Could not find the sysexists.h header file"))
+AC_CHECK_HEADER([setjmp.h],,   AC_MSG_ERROR("Could not find the setjmp.h header file"))
 
 dnl ---------------------------------------------------------------------
 dnl Check dependencies
@@ -118,13 +137,18 @@ PKG_PROG_PKG_CONFIG
 dnl ---------------------------------------------------------------------
 dnl PKG_CONFIG based dependencies
 dnl ---------------------------------------------------------------------
+glib_min_major="2"
+glib_min_minor="40"
+glib_min_version="${glib_min_major}.${glib_min_minor}"
 NK_INIT([bindings xdg-theme])
-PKG_CHECK_MODULES([glib],     [glib-2.0 >= 2.40 gio-unix-2.0 gmodule-2.0])
-GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-xrm xcb-randr xcb-xinerama])
+PKG_CHECK_MODULES([glib],     [glib-2.0 >= ${glib_min_version} gio-unix-2.0 gmodule-2.0])
+AC_DEFINE_UNQUOTED([GLIB_VERSION_MIN_REQUIRED], [(G_ENCODE_VERSION(${glib_min_major},${glib_min_minor}))], [The lower GLib version supported])
+AC_DEFINE_UNQUOTED([GLIB_VERSION_MAX_ALLOWED], [(G_ENCODE_VERSION(${glib_min_major},${glib_min_minor}))], [The highest GLib version supported])
+GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-cursor xcb-randr xcb-xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
-PKG_CHECK_MODULES([librsvg],    [librsvg-2.0 ])
+PKG_CHECK_MODULES([gdkpixbuf],    [gdk-pixbuf-2.0])
 
 dnl ---------------------------------------------------------------------
 dnl check - Unit testing.
@@ -140,7 +164,6 @@ dnl Gets the resource compile tool path.
 dnl ---------------------------------------------------------------------
 AM_PATH_GLIB_2_0
 
-
 dnl ---------------------------------------------------------------------
 dnl Add extra compiler flags
 dnl ---------------------------------------------------------------------
@@ -151,11 +174,6 @@ AC_OUTPUT
 
 echo ""
 echo "-------------------------------------"
-if test x$enable_timings = xyes; then
-echo "Timing output:               Enabled"
-else
-echo "Timing output:               Disabled"
-fi
 if test x$enable_drun != xno; then
 echo "Desktop File drun dialog     Enabled"
 else

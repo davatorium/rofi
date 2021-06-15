@@ -64,5 +64,5 @@ box * box_create ( widget *parent, const char *name, RofiOrientation type );
  * Add a widget to the box.
  */
 void box_add ( box *box, widget *child, gboolean expand );
-/*@}*/
+/**@}*/
 #endif // ROFI_HBOX_H

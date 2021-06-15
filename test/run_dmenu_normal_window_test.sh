@@ -24,7 +24,7 @@ then
     echo "thread apply all bt" | gdb rofi core.*
 fi
 
-OUTPUT=$(cat output.txt | tr '\n' ' ')
+OUTPUT=$( tr '\n' ' ' < output.txt )
 if [ "${OUTPUT}" != 'noot mies ' ]
 then
     echo "Got: '${OUTPUT}' expected 'noot mies '"

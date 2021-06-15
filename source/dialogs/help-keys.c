@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -71,18 +71,11 @@ static ModeMode help_keys_mode_result ( G_GNUC_UNUSED Mode *sw,
                                         G_GNUC_UNUSED char **input,
                                         G_GNUC_UNUSED unsigned int selected_line )
 {
-    ModeMode retv = MODE_EXIT;
-
-    if ( mretv & MENU_NEXT ) {
-        retv = NEXT_DIALOG;
+    if ( mretv & MENU_CUSTOM_COMMAND ) {
+        int retv = ( mretv & MENU_LOWER_MASK );
+        return retv;
     }
-    else if ( mretv & MENU_PREVIOUS ) {
-        retv = PREVIOUS_DIALOG;
-    }
-    else if ( mretv & MENU_QUICK_SWITCH ) {
-        retv = ( mretv & MENU_LOWER_MASK );
-    }
-    return retv;
+    return MODE_EXIT;
 }
 static void help_keys_mode_destroy ( Mode *sw )
 {

@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -33,6 +33,38 @@
 #include "rofi-types.h"
 
 /**
+ * Describe the media constraint type.
+ */
+typedef enum
+{
+    /** Minimum width constraint. */
+    THEME_MEDIA_TYPE_MIN_WIDTH,
+    /** Maximum width constraint. */
+    THEME_MEDIA_TYPE_MAX_WIDTH,
+    /** Minimum height constraint. */
+    THEME_MEDIA_TYPE_MIN_HEIGHT,
+    /** Maximum height constraint. */
+    THEME_MEDIA_TYPE_MAX_HEIGHT,
+    /** Monitor id constraint. */
+    THEME_MEDIA_TYPE_MON_ID,
+    /** Minimum aspect ratio constraint. */
+    THEME_MEDIA_TYPE_MIN_ASPECT_RATIO,
+    /** Maximum aspect ratio constraint. */
+    THEME_MEDIA_TYPE_MAX_ASPECT_RATIO,
+    /** Invalid entry. */
+    THEME_MEDIA_TYPE_INVALID,
+} ThemeMediaType;
+
+/**
+ * Theme Media description.
+ */
+typedef struct ThemeMedia
+{
+    ThemeMediaType type;
+    double         value;
+} ThemeMedia;
+
+/**
  * ThemeWidget.
  */
 typedef struct ThemeWidget
@@ -43,6 +75,8 @@ typedef struct ThemeWidget
     unsigned int       num_widgets;
     struct ThemeWidget **widgets;
 
+    ThemeMedia         *media;
+
     GHashTable         *properties;
 
     struct ThemeWidget *parent;
@@ -52,6 +86,14 @@ typedef struct ThemeWidget
  * Global pointer to the current active theme.
  */
 extern ThemeWidget *rofi_theme;
+
+/**
+ * Used to store config options.
+ */
+extern ThemeWidget *rofi_theme;
+
+
+extern ThemeWidget *rofi_configuration;
 
 /**
  * @param base Handle to the current level in the theme.
@@ -91,7 +133,7 @@ void rofi_theme_property_free ( Property *p );
  *
  * @returns a copy of p
  */
-Property* rofi_theme_property_copy ( Property *p );
+Property* rofi_theme_property_copy ( const Property *p );
 /**
  * @param widget
  *
@@ -183,6 +225,17 @@ int rofi_theme_get_boolean   (  const widget *widget, const char *property, int 
  * @returns The orientation of this property for this widget or %def not found.
  */
 RofiOrientation rofi_theme_get_orientation ( const widget *widget, const char *property, RofiOrientation def );
+
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param def      The default value.
+ *
+ * Obtain the cursor indicated by %property of the widget.
+ *
+ * @returns The cursor for this widget or %def if not found.
+ */
+RofiCursorType rofi_theme_get_cursor_type ( const widget *widget, const char *property, RofiCursorType def );
 /**
  * @param widget   The widget to query
  * @param property The property to query.
@@ -214,6 +267,27 @@ double rofi_theme_get_double (  const widget *widget, const char *property, doub
  *
  */
 void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d );
+
+
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ * @param d        The drawable to apply color.
+ *
+ * Obtain the image of the widget and applies this to the drawable d.
+ *
+ * @return true if image is set.
+ */
+gboolean rofi_theme_get_image ( const widget *widget, const char *property, cairo_t *d );
+
+/**
+ * @param widget   The widget to query
+ * @param property The property to query.
+ *
+ * Check if a rofi theme has a property set.
+ *
+ */
+gboolean rofi_theme_has_property ( const widget *widget, const char *property );
 
 /**
  * @param widget   The widget to query
@@ -267,6 +341,7 @@ void distance_get_linestyle ( RofiDistance d, cairo_t *draw );
  * @returns the ThemeWidget if found, otherwise NULL.
  */
 ThemeWidget *rofi_theme_find_widget ( const char *name, const char *state, gboolean exact );
+ThemeWidget *rofi_config_find_widget ( const char *name, const char *state, gboolean exact );
 
 /**
  * @param widget The widget to find the property on.
@@ -300,12 +375,6 @@ gboolean rofi_theme_is_empty ( void );
  * Reset the current theme.
  */
 void rofi_theme_reset ( void );
-#ifdef THEME_CONVERTER
-/**
- * Convert old theme colors into default one.
- */
-void rofi_theme_convert_old ( void );
-#endif
 
 /**
  * @param file File name passed to option.
@@ -323,4 +392,39 @@ char *helper_get_theme_path ( const char *file );
  * @returns full path to file.
  */
 char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file );
+
+/**
+ * Process conditionals.
+ */
+void rofi_theme_parse_process_conditionals ( void );
+
+/**
+ * @param parent target theme tree
+ * @param child source theme three
+ *
+ * Merge all the settings from child into parent.
+ */
+void rofi_theme_parse_merge_widgets ( ThemeWidget *parent, ThemeWidget *child );
+
+/**
+ * @param type the media type to parse.
+ *
+ * Returns the media type described by type.
+ */
+ThemeMediaType rofi_theme_parse_media_type ( const char *type );
+
+/**
+ * @param distance The distance object to copy.
+ *
+ * @returns a copy of the distance.
+ */
+RofiDistance rofi_theme_property_copy_distance  ( RofiDistance const distance );
+
+/**
+ * @param filename The file to validate.
+ *
+ * @returns the program exit code.
+ */
+int rofi_theme_rasi_validate ( const char *filename );
+
 #endif

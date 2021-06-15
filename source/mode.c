@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -96,9 +96,20 @@ char * mode_get_completion ( const Mode *mode, unsigned int selected_line )
 
 ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int selected_line )
 {
+    if ( menu_retv & MENU_NEXT ) {
+        return NEXT_DIALOG;
+    }
+    else if ( menu_retv & MENU_PREVIOUS ) {
+        return PREVIOUS_DIALOG;
+    }
+    else if ( menu_retv & MENU_QUICK_SWITCH ) {
+        return menu_retv & MENU_LOWER_MASK;
+    }
+
     g_assert ( mode != NULL );
     g_assert ( mode->_result != NULL );
-    g_assert ( ( *input ) != NULL );
+    g_assert ( input != NULL );
+
     return mode->_result ( mode, menu_retv, input, selected_line );
 }
 
@@ -142,8 +153,17 @@ void mode_set_private_data ( Mode *mode, void *pd )
 
 const char *mode_get_display_name ( const Mode *mode )
 {
-    if ( mode->display_name != NULL ) {
-        return mode->display_name;
+  /** Find the widget */
+  ThemeWidget *wid = rofi_config_find_widget ( mode->name, NULL, TRUE );
+  if ( wid ) {
+    /** Check string property */
+    Property    *p   = rofi_theme_find_property ( wid, P_STRING, "display-name", FALSE );
+    if ( p != NULL && p->type == P_STRING ) {
+      return p->value.s;
+    }
+  }
+  if ( mode->display_name != NULL ) {
+    return mode->display_name;
     }
     return mode->name;
 }
@@ -168,4 +188,4 @@ char *mode_get_message ( const Mode *mode )
     }
     return NULL;
 }
-/*@}*/
+/**@}*/

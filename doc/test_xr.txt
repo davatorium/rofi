@@ -31,7 +31,7 @@ rofi.ssh-command:                    {terminal} -e {ssh-client} {host}
 ! "Run command to execute" Set from: File
 rofi.run-command:                    bash -c "{cmd}"
 ! "Command to get extra run targets" Set from: Default
-! rofi.run-list-command:               
+! rofi.run-list-command:
 ! "Run command to execute that runs in shell" Set from: File
 rofi.run-shell-command:              {terminal} -e {cmd}
 ! "Command executed on accep-entry-custom for window modus" Set from: File
@@ -39,19 +39,23 @@ rofi.window-command:                 xkill -id {window}
 ! "Window fields to match in window mode" Set from: Default
 ! rofi.window-match-fields:            all
 ! "Theme to use to look for icons" Set from: Default
-! rofi.icon-theme:                     
+! rofi.icon-theme:
 ! "Desktop entry fields to match in drun" Set from: Default
-! rofi.drun-match-fields:              name,generic,exec,categories
+! rofi.drun-match-fields:              name,generic,exec,categories,keywords
+! "Only show Desktop entry from these categories" Set from: Default
+! rofi.drun-categories:
 ! "Desktop entry show actions." Set from: Default
 ! rofi.drun-show-actions:              false
 ! "DRUN format string. (Supports: generic,name,comment,exec,categories)" Set from: Default
 ! rofi.drun-display-format:            {name} [<span weight='light' size='small'><i>({generic})</i></span>]
 ! "Disable history in run/ssh" Set from: File
 rofi.disable-history:                false
+! "Programs ignored for history" Set from: Default
+! rofi.ignored-prefixes:
 ! "Use sorting" Set from: Default
 ! rofi.sort:                           false
 ! "Choose the strategy used for sorting: normal (levenshtein) or fzf." Set from: Default
-! rofi.sorting-method:                 
+! rofi.sorting-method:
 ! "Set case-sensitivity" Set from: File
 rofi.case-sensitive:                 false
 ! "Cycle through the results list" Set from: File
@@ -68,7 +72,7 @@ rofi.parse-hosts:                    false
 rofi.parse-known-hosts:              true
 ! "Set the modi to combine in combi mode" Set from: File
 rofi.combi-modi:                     window,drun,run,ssh
-! "Set the matching algorithm. (normal, regex, glob, fuzzy)" Set from: Default
+! "Set the matching algorithm. (normal, regex, glob, fuzzy, prefix)" Set from: Default
 ! rofi.matching:                       normal
 ! "Tokenize input string" Set from: File
 rofi.tokenize:                       true
@@ -79,7 +83,7 @@ rofi.m:                              -1
 ! "Padding within rows *DEPRECATED*" Set from: Default
 ! rofi.line-padding:                   1
 ! "Pre-set filter" Set from: Default
-! rofi.filter:                         
+! rofi.filter:
 ! "Separator style (none, dash, solid) *DEPRECATED*" Set from: Default
 ! rofi.separator-style:                dash
 ! "Hide scroll-bar *DEPRECATED*" Set from: Default
@@ -96,28 +100,32 @@ rofi.threads:                        8
 ! rofi.scrollbar-width:                8
 ! "Scrolling method. (0: Page, 1: Centered)" Set from: File
 rofi.scroll-method:                  0
-! "Background to use for fake transparency. (background or screenshot)" Set from: Default
+! "Background to use for fake transparency. (background or screenshot) *DEPRECATED*" Set from: Default
 ! rofi.fake-background:                screenshot
-! "Window Format. w (desktop name), t (title), n (name), r (role), c (class) *DEPRECATED*" Set from: Default
-! rofi.window-format:                  {w}    {i}{c}   {t}
+! "Window Format. w (desktop name), t (title), n (name), r (role), c (class)" Set from: Default
+! rofi.window-format:                  {w}    {c}   {t}
 ! "Click outside the window to exit" Set from: Default
 ! rofi.click-to-exit:                  true
-! "Indicate how it match by underlining it." Set from: Default
-! rofi.show-match:                     true
 ! "New style theme file" Set from: Default
-! rofi.theme:                          
+! rofi.theme:
 ! "Color scheme for normal row" Set from: Default
-! rofi.color-normal:                   
+! rofi.color-normal:
 ! "Color scheme for urgent row" Set from: Default
-! rofi.color-urgent:                   
+! rofi.color-urgent:
 ! "Color scheme for active row" Set from: Default
-! rofi.color-active:                   
+! rofi.color-active:
 ! "Color scheme window" Set from: Default
-! rofi.color-window:                   
+! rofi.color-window:
 ! "Max history size (WARNING: can cause slowdowns when set to high)." Set from: Default
 ! rofi.max-history-size:               25
 ! "Hide the prefix mode prefix on the combi view." Set from: Default
 ! rofi.combi-hide-mode-prefix:         false
+! "Set the character used to negate the matching. ('\0' to disable)" Set from: Default
+! rofi.matching-negate-char:           -
+! "Directory where history and temporary files are stored." Set from: Default
+! rofi.cache-dir:
+! "Show window thumbnail in window switcher if availalbe." Set from: Default
+! rofi.window-thumbnail:               false
 ! "Pidfile location" Set from: File
 rofi.pid:                            /tmp/rofi.pid
 ! "Paste primary selection" Set from: File
@@ -184,6 +192,8 @@ rofi.kb-row-last:                    End,KP_End
 rofi.kb-row-select:                  Control+space
 ! "Take a screenshot of the rofi window" Set from: File
 rofi.kb-screenshot:                  Alt+S
+! "Toggle between ellipsize modes for displayed data" Set from: Default
+! rofi.kb-ellipsize:                   Alt+period
 ! "Toggle case sensitivity" Set from: File
 rofi.kb-toggle-case-sensitivity:     grave,dead_grave
 ! "Toggle sort" Set from: File
@@ -214,7 +224,7 @@ rofi.kb-custom-10:                   Alt+0
 rofi.kb-custom-11:                   Alt+Shift+1
 ! "Custom keybinding 12" Set from: File
 rofi.kb-custom-12:                   Alt+at
-! "Csutom keybinding 13" Set from: File
+! "Custom keybinding 13" Set from: File
 rofi.kb-custom-13:                   Alt+numbersign
 ! "Custom keybinding 14" Set from: File
 rofi.kb-custom-14:                   Alt+dollar

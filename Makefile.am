@@ -89,6 +89,7 @@ SOURCES=\
 	source/dialogs/window.c\
 	source/dialogs/script.c\
 	source/dialogs/help-keys.c\
+	source/dialogs/filebrowser.c\
 	include/display.h\
 	include/xcb.h\
 	include/xcb-internal.h\
@@ -125,6 +126,8 @@ SOURCES=\
 	include/dialogs/window.h\
 	include/dialogs/dialogs.h\
 	include/dialogs/help-keys.h\
+	include/dialogs/filebrowser.h\
+	include/dialogs/dmenuscriptshared.h\
 	resources/resources.c\
 	resources/resources.h
 
@@ -142,7 +145,7 @@ rofi_CFLAGS=\
 	$(pango_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
-	$(librsvg_CFLAGS)\
+	$(gdkpixbuf_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
 	-I$(top_builddir)/lexer/\
@@ -152,7 +155,6 @@ rofi_CFLAGS=\
 	-I$(top_builddir)/\
 	-Werror=missing-prototypes\
 	-DSYSCONFDIR=\"$(sysconfdir)\"\
-	-DTHEME_CONVERTER\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"
 
@@ -163,7 +165,7 @@ rofi_LDADD=\
 	$(libsn_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
-	$(librsvg_LIBS)\
+	$(gdkpixbuf_LIBS)\
 	$(LIBS)
 
 ##
@@ -175,11 +177,14 @@ dist_man1_MANS=\
 	doc/rofi-sensible-terminal.1
 
 dist_man5_MANS=\
-	doc/rofi-theme.5
+	doc/rofi-theme.5\
+	doc/rofi-script.5
 
 EXTRA_DIST += \
 	doc/rofi-theme.5.markdown \
+	doc/rofi-script.5.markdown \
 	doc/rofi-theme-selector.1.markdown \
+	doc/rofi-sensible-terminal.1.markdown \
 	doc/rofi.1.markdown
 
 
@@ -218,6 +223,7 @@ theme_DATA=\
 		   themes/blue.rasi\
 		   themes/c64.rasi\
 		   themes/dmenu.rasi\
+		   themes/docu.rasi\
 		   themes/glue_pro_blue.rasi\
 		   themes/gruvbox-common.rasi\
 		   themes/gruvbox-dark-hard.rasi\
@@ -231,7 +237,8 @@ theme_DATA=\
 		   themes/purple.rasi\
 		   themes/sidebar.rasi\
 		   themes/solarized.rasi\
-		   themes/solarized_alternate.rasi
+		   themes/solarized_alternate.rasi\
+		   themes/fancy.rasi
 
 ##
 # Extra DIST
@@ -255,10 +262,12 @@ EXTRA_DIST+=\
 ##
 
 
-update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown
-	ronn --roff $(top_srcdir)/doc/rofi.1.markdown
-	ronn --roff $(top_srcdir)/doc/rofi-theme-selector.1.markdown
-	ronn --roff $(top_srcdir)/doc/rofi-theme.5.markdown
+update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown ${top_srcdir}/doc/rofi-sensible-terminal.1.markdown
+	go-md2man -in $(top_srcdir)/doc/rofi.1.markdown -out $(top_srcdir)/doc/rofi.1
+	go-md2man -in $(top_srcdir)/doc/rofi-theme-selector.1.markdown -out $(top_srcdir)/doc/rofi-theme-selector.1
+	go-md2man -in $(top_srcdir)/doc/rofi-theme.5.markdown -out $(top_srcdir)/doc/rofi-theme.5
+	go-md2man -in $(top_srcdir)/doc/rofi-script.5.markdown -out $(top_srcdir)/doc/rofi-script.5
+	go-md2man -in $(top_srcdir)/doc/rofi-sensible-terminal.1.markdown -out $(top_srcdir)/doc/rofi-sensible-terminal.1
 
 ##
 # Rofi test program
@@ -315,7 +324,7 @@ textbox_test_CFLAGS=\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
-	$(librsvg_CFLAGS)\
+	$(gdkpixbuf_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
@@ -330,7 +339,6 @@ textbox_test_LDADD=\
 	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
-	$(librsvg_LIBS)\
 	$(libsn_LIBS)
 
 helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
@@ -341,6 +349,7 @@ helper_pidfile_SOURCES=\
 					   include/mode.h\
 					   include/mode-private.h\
 					   source/helper.c\
+					   source/theme.c\
 					   source/rofi-types.c\
 					   include/rofi-types.h\
 					   include/helper.h\
@@ -377,6 +386,7 @@ box_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
+      config/config.c\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -392,6 +402,7 @@ scrollbar_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
+      config/config.c\
 			test/scrollbar-test.c
 
 textbox_test_SOURCES=\
@@ -453,6 +464,7 @@ helper_test_SOURCES=\
 	include/helper-theme.h\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
+	source/theme.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	test/helper-test.c
@@ -465,7 +477,7 @@ helper_test_CFLAGS=\
 	$(NKUTILS_CFLAGS)\
 	$(GW_XCB_CFLAGS)\
 	$(cairo_CFLAGS)\
-	$(librsvg_CFLAGS)\
+	$(gdkpixbuf_CFLAGS)\
 	$(libsn_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
@@ -481,7 +493,6 @@ helper_test_LDADD=\
 	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
-	$(librsvg_LIBS)\
 	$(cairo_LIBS)
 
 
@@ -491,6 +502,7 @@ helper_expand_SOURCES=\
 	include/mode.h\
 	include/mode-private.h\
 	source/helper.c\
+	source/theme.c\
 	include/helper.h\
 	include/helper-theme.h\
 	include/xrmoptions.h\
@@ -512,6 +524,7 @@ helper_config_cmdline_parser_SOURCES=\
 	include/mode.h\
 	include/mode-private.h\
 	source/helper.c\
+	source/theme.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	include/helper.h\
@@ -529,6 +542,7 @@ mode_test_SOURCES=\
 				  test/mode-test.c\
 			      source/dialogs/help-keys.c\
 				  source/helper.c\
+				  source/theme.c\
 				  source/mode.c\
 				  source/rofi-types.c\
 				  include/rofi-types.h\
@@ -544,6 +558,7 @@ helper_tokenize_SOURCES=\
 					   include/mode.h\
 					   include/mode-private.h\
 					   source/helper.c\
+					   source/theme.c\
 					   source/rofi-types.c\
 					   include/rofi-types.h\
 					   include/helper.h\

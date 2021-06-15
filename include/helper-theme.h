@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -52,5 +52,5 @@ PangoAttrList *helper_token_match_get_pango_attr ( RofiHighlightColorStyle th, r
  * @returns true if font is valid.
  */
 gboolean helper_validate_font ( PangoFontDescription *pfd, const char *font );
-/* @} */
+/** @} */
 #endif // ROFI_HELPER_THEME_H

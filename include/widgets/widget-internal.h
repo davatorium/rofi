@@ -54,6 +54,9 @@ struct _widget
     RofiPadding                 border;
     RofiPadding                 border_radius;
 
+    /** Cursor that is set when the widget is hovered */
+    RofiCursorType              cursor_type;
+
     /** enabled or not */
     gboolean                    enabled;
     /** Expand the widget when packed */
@@ -80,6 +83,8 @@ struct _widget
 
     int                         ( *get_desired_height )( struct _widget * );
     int                         ( *get_desired_width )( struct _widget * );
+
+    void                        ( *set_state ) ( struct _widget *, const char * );
 
     /** widget find_mouse_target callback */
     widget_find_mouse_target_cb find_mouse_target;

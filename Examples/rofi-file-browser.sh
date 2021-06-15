@@ -64,7 +64,7 @@ then
             sed -i "s|${ROFI_FB_CUR_DIR}|##deleted##|g" "${ROFI_FB_HISTORY_FILE}"
             sed -i '/##deleted##/d' "${ROFI_FB_HISTORY_FILE}"
             echo "${ROFI_FB_CUR_DIR}" >> "${ROFI_FB_HISTORY_FILE}"
-            if [ $(cat "${ROFI_FB_HISTORY_FILE}" | wc -l) -gt ${ROFI_FB_HISTORY_MAXCOUNT} ]
+            if [ $( wc -l < "${ROFI_FB_HISTORY_FILE}" ) -gt ${ROFI_FB_HISTORY_MAXCOUNT} ]
             then
                 sed -i 1d "${ROFI_FB_HISTORY_FILE}"
             fi

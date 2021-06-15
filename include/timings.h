@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,22 +25,22 @@
  *
  */
 
-#ifndef ROFI_TIMINGS_H
-#define ROFI_TIMINGS_H
-#include <config.h>
-
 /**
  * @defgroup TIMINGS Timings
  * @ingroup HELPERS
  * @{
  */
-#ifdef TIMINGS
+#ifndef ROFI_TIMINGS_H
+#define ROFI_TIMINGS_H
+#include <config.h>
+
 /**
  * Init the timestamping mechanism .
  * implementation.
  */
 void rofi_timings_init ( void );
 /**
+ * @param file filename tick originates from
  * @param str function name.
  * @param line line number
  * @param msg message
@@ -93,6 +93,5 @@ void rofi_timings_quit ( void );
  */
 #define TICK_N( a )
 
-#endif // TIMINGS
-/*@}*/
 #endif // ROFI_TIMINGS_H
+/**@}*/

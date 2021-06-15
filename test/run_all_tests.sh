@@ -4,16 +4,14 @@ tests=(
     run_errormsg_test
     run_switchdialog_test
     run_dmenu_test
-    run_dmenu_custom_test
     run_run_test
     run_script_test
+    run_script_meta_test
     run_issue_256
     run_issue_275
     run_dmenu_empty
     run_dmenu_issue_292
     run_screenshot_test
-    xr_dump_test
-    run_drun_test
     run_combi_test
     run_regex_test
     run_glob_test
@@ -45,5 +43,5 @@ for test in "${tests[@]}"; do
         exit ${ret}
     fi
     echo "PASS"
-    display=$(( ${display} + 1 ))
+    display=$(( display + 1 ))
 done

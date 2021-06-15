@@ -21,7 +21,7 @@ xdotool key Escape
 #  Get result, kill xvfb
 wait ${RPID}
 RETV=$?
-OUTPUT=$(cat output.txt | tr '\n' ' ')
+OUTPUT=$(tr '\n' ' ' < output.txt)
 if [ "${OUTPUT}" != '' ]
 then
     echo "Got: '${OUTPUT}' expected nothing"

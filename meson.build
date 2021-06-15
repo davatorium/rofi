@@ -1,10 +1,9 @@
 project('rofi', 'c',
-    version: '1.5.1-dev',
+    version: '1.6.1-dev',
     meson_version: '>=0.47.0',
     license: [ 'MIT' ],
     default_options: [
         'c_std=c99',
-        'warning_level=3',
     ],
 )
 
@@ -13,6 +12,7 @@ c_compiler = meson.get_compiler('c')
 add_project_arguments(
     '-I@0@'.format(meson.build_root()),
     '-I@0@'.format(join_paths(meson.source_root(), 'include')),
+    '-D_DEFAULT_SOURCE=1',
     language: 'c'
 )
 
@@ -21,72 +21,80 @@ flags = [
     '-Winline',
     '-Wunreachable-code',
     '-Werror=missing-prototypes',
+    '-Wno-inline', # A bit too noisy with Bison…
 ]
-if get_option('enable-asan')
-    flags += [
-        '-fsanitize=address',
-        '-fno-omit-frame-pointer',
-    ]
-endif
 foreach f : flags
     if c_compiler.has_argument(f)
         add_project_arguments(f, language: 'c')
     endif
 endforeach
 
-plugindir = join_paths(get_option('prefix'), get_option('libdir'), meson.project_name())
-themedir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name(), 'themes')
+plugindir = join_paths(get_option('libdir'), meson.project_name())
+themedir = join_paths(get_option('datadir'), meson.project_name(), 'themes')
 
-deps = [
-    dependency('glib-2.0', version: '>= 2.40'),
-    dependency('gio-unix-2.0'),
+glib_min_major=2
+glib_min_minor=40
+glib_min_version='@0@.@1@'.format(glib_min_major, glib_min_minor)
+plugins_deps = [
+    dependency('glib-2.0', version: '>= @0@'.format(glib_min_version)),
     dependency('gmodule-2.0'),
     dependency('cairo'),
+]
+
+dep_lm = c_compiler.find_library('m', required : false)
+
+deps = [
+    plugins_deps,
+    dependency('gio-unix-2.0'),
     dependency('pango'),
     dependency('pangocairo'),
     dependency('xkbcommon'),
-    dependency('librsvg-2.0'),
-    c_compiler.find_library('m', required: false),
+    dependency('gdk-pixbuf-2.0'),
+    dep_lm,
 ]
 
+
+libgwater = subproject('libgwater')
 # XCB stuff
 deps += [
-    subproject('libgwater/xcb').get_variable('libgwater_xcb'),
+    libgwater.get_variable('libgwater_xcb'),
+    dependency('xcb'),
     dependency('xcb-aux'),
     dependency('xcb-xkb'),
     dependency('xkbcommon-x11'),
     dependency('xcb-ewmh'),
     dependency('xcb-icccm'),
-    dependency('xcb-xrm'),
     dependency('xcb-randr'),
+    dependency('xcb-cursor'),
     dependency('xcb-xinerama'),
     dependency('cairo-xcb'),
     dependency('libstartup-notification-1.0'),
 ]
 
-check = dependency('check', version: '>= 0.11.0', required: get_option('enable-check'))
+check = dependency('check', version: '>= 0.11.0', required: get_option('check'))
 
 header_conf = configuration_data()
 header_conf.set_quoted('PACKAGE_NAME', meson.project_name())
 header_conf.set_quoted('PACKAGE_VERSION', meson.project_version())
 header_conf.set_quoted('VERSION', meson.project_version())
 header_conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
-header_conf.set_quoted('PACKAGE_BUGREPORT', 'https://github.com/DaveDavenport/rofi/')
+header_conf.set_quoted('PACKAGE_BUGREPORT', 'https://github.com/davatorium/rofi/')
 header_conf.set_quoted('PACKAGE_URL', 'https://reddit.com/r/qtools/')
 
-header_conf.set('THEME_CONVERTER', true)
 header_conf.set('_GNU_SOURCE', true)
 
 header_conf.set('USE_NK_GIT_VERSION', true)
 
-header_conf.set('ENABLE_DRUN', get_option('enable-drun'))
-header_conf.set('WINDOW_MODE', get_option('enable-window'))
-header_conf.set('TIMINGS', get_option('enable-timings'))
+header_conf.set('GLIB_VERSION_MIN_REQUIRED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
+header_conf.set('GLIB_VERSION_MAX_ALLOWED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
+
+header_conf.set('ENABLE_DRUN', get_option('drun'))
+header_conf.set('WINDOW_MODE', get_option('window'))
 
 header_conf.set_quoted('MANPAGE_PATH', join_paths(get_option('prefix'), get_option('mandir')))
 header_conf.set_quoted('SYSCONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir')))
-header_conf.set_quoted('PLUGIN_PATH', plugindir)
-header_conf.set_quoted('THEME_DIR', themedir)
+header_conf.set_quoted('PLUGIN_PATH', join_paths(get_option('prefix'), plugindir))
+header_conf.set_quoted('THEME_DIR', join_paths(get_option('prefix'), themedir))
 
 config_h = configure_file(output: 'config.h', configuration: header_conf)
 
@@ -126,7 +134,7 @@ flex = generator(find_program('flex'),
 )
 bison = generator(find_program('bison'),
     output: [ '@BASENAME@.c', '@BASENAME@.h' ],
-    arguments: [ '-y', '@INPUT@', '--defines=@OUTPUT1@', '--output=@OUTPUT0@' ]
+    arguments: [ '-d', '@INPUT@', '--defines=@OUTPUT1@', '--output=@OUTPUT0@' ]
 )
 
 rofi_sources = files(
@@ -159,6 +167,7 @@ rofi_sources = files(
         'source/dialogs/window.c',
         'source/dialogs/script.c',
         'source/dialogs/help-keys.c',
+        'source/dialogs/filebrowser.c',
         'include/display.h',
         'include/xcb.h',
         'include/xcb-internal.h',
@@ -195,6 +204,8 @@ rofi_sources = files(
         'include/dialogs/window.h',
         'include/dialogs/dialogs.h',
         'include/dialogs/help-keys.h',
+        'include/dialogs/filebrowser.h',
+        'include/dialogs/dmenuscriptshared.h',
 )
 theme_lexer_sources = files('lexer/theme-lexer.l')
 theme_parser_sources = files('lexer/theme-parser.y')
@@ -219,6 +230,7 @@ install_man(
     'doc/rofi.1',
     'doc/rofi-theme-selector.1',
     'doc/rofi-sensible-terminal.1',
+    'doc/rofi-script.5',
     'doc/rofi-theme.5',
 )
 
@@ -236,6 +248,7 @@ install_data(
     'themes/blue.rasi',
     'themes/c64.rasi',
     'themes/dmenu.rasi',
+    'themes/docu.rasi',
     'themes/glue_pro_blue.rasi',
     'themes/gruvbox-common.rasi',
     'themes/gruvbox-dark-hard.rasi',
@@ -250,24 +263,22 @@ install_data(
     'themes/sidebar.rasi',
     'themes/solarized.rasi',
     'themes/solarized_alternate.rasi',
+    'themes/fancy.rasi',
     install_dir: themedir
 )
 
 pkg = import('pkgconfig')
-pkgconfig_conf = configuration_data()
-pkgconfig_conf.set('prefix', get_option('prefix'))
-pkgconfig_conf.set('exec_prefix', '${prefix}')
-pkgconfig_conf.set('VERSION', meson.project_version())
-pkgconfig_conf.set('libdir',  join_paths('${prefix}',get_option('libdir')))
-pkgconfig_conf.set('includedir',  join_paths('${prefix}',get_option('includedir')))
 
-configure_file(
-    input: 'pkgconfig/rofi.pc.in',
-    output: 'rofi.pc',
-    configuration: pkgconfig_conf,
-    install_dir: join_paths(get_option('libdir'), 'pkgconfig'),
+pkg.generate(
+    filebase: 'rofi',
+    name: 'rofi',
+    version: meson.project_version(),
+    description: 'Header files for rofi plugins',
+    variables: [
+        'pluginsdir=@0@'.format(join_paths('${libdir}', meson.project_name())),
+    ],
+    requires_private: plugins_deps,
 )
-
 
 
 test('history test', executable('history.test', [
@@ -285,6 +296,7 @@ test('helper_pidfile test', executable('helper_pidfile.test', [
     ],
     objects: rofi.extract_objects([
         'config/config.c',
+        'source/theme.c',
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
@@ -364,6 +376,7 @@ test('helper test', executable('helper.test', [
     ],
     objects: rofi.extract_objects([
         'config/config.c',
+        'source/theme.c',
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
@@ -376,6 +389,7 @@ test('helper_expand test', executable('helper_expand.test', [
     ],
     objects: rofi.extract_objects([
         'config/config.c',
+        'source/theme.c',
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
@@ -388,6 +402,7 @@ test('helper_config_cmdline_parser test', executable('helper_config_cmdline_pars
     ],
     objects: rofi.extract_objects([
         'config/config.c',
+        'source/theme.c',
         'source/helper.c',
         'source/xrmoptions.c',
         'source/rofi-types.c',
@@ -421,6 +436,7 @@ if check.found()
             'config/config.c',
             'source/dialogs/help-keys.c',
             'source/helper.c',
+            'source/theme.c',
             'source/mode.c',
             'source/xrmoptions.c',
             'source/rofi-types.c',
@@ -435,6 +451,7 @@ if check.found()
         objects: rofi.extract_objects([
             'config/config.c',
             'source/helper.c',
+            'source/theme.c',
             'source/xrmoptions.c',
             'source/rofi-types.c',
         ]),

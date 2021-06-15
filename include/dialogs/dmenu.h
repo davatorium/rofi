@@ -47,5 +47,5 @@ int dmenu_switcher_dialog ( void );
  */
 void print_dmenu_options ( void );
 
-/*@}*/
+/**@}*/
 #endif // ROFI_DIALOG_DMENU_H

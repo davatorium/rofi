@@ -41,80 +41,70 @@
     // Bold, Italic, Underline
     highlight:     bold #ffffff;
 }
-#window {
-    fullscreen: true;
+window {
+    height:   100%;
+    width: 30em;
     location: west;
     anchor:   west;
     border:  0px 2px 0px 0px;
     text-color: @lightwhite;
-
-    orientation: horizontal;
-    children: [mainbox, dummy];
 }
 
-#dummy {
-    expand: true;
-}
-
-#sidebar {
+mode-switcher {
     border: 2px 0px 0px 0px;
     background-color: @lightblack;
-    padding: 10px;
+    padding: 4px;
 }
-#button selected {
+button selected {
     border-color: @lightgreen;
     text-color: @lightgreen;
 }
-#entry {
-    width: 20em;
-}
-#inputbar {
+inputbar {
     background-color: @lightblack;
     text-color: @lightgreen;
     padding: 4px;
     border: 0px 0px 2px 0px;
 }
-#mainbox {
-    expand: false;
+mainbox {
+    expand: true;
     background-color: #1c1c1cee;
     spacing: 1em;
 }
-#listview {
+listview {
     padding: 0em 0.4em 0em 1em;
     dynamic: false;
     lines: 0;
 }
-#element selected  normal {
+element selected  normal {
     background-color: @blue;
 }
-#element normal active {
+element normal active {
     text-color: @lightblue;
 }
-#element normal urgent {
+element normal urgent {
     text-color: @lightred;
 }
-#element alternate normal {
+element alternate normal {
 }
-#element alternate active {
+element alternate active {
     text-color: @lightblue;
 }
-#element alternate urgent {
+element alternate urgent {
     text-color: @lightred;
 }
-#element selected active {
+element selected active {
     background-color: @lightblue;
     text-color: @dark;
 }
-#element selected urgent {
+element selected urgent {
     background-color: @lightred;
     text-color: @dark;
 }
-#inputbar {
-    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
-}
-#textbox-prompt-colon {
-    expand:     false;
-    str:        ":";
-    margin:     0px 0.3em 0em 0em ;
-    text-color: @normal-foreground;
+
+error-message {
+    expand: true;
+    background-color: red;
+    border-color: darkred;
+    border: 2px;
+    padding: 1em;
 }

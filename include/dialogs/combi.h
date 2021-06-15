@@ -46,5 +46,5 @@
 /** #Mode object representing the combi dialog. */
 extern Mode combi_mode;
 
-/*@}*/
+/**@}*/
 #endif // ROFI_DIALOG_COMBI_H
