@@ -153,8 +153,15 @@ void mode_set_private_data ( Mode *mode, void *pd )
 
 const char *mode_get_display_name ( const Mode *mode )
 {
-    if ( mode->display_name != NULL ) {
-        return mode->display_name;
+  ThemeWidget *wid = rofi_config_find_widget ( mode->name, NULL, TRUE );
+  if ( wid ) {
+    Property    *p   = rofi_theme_find_property ( wid, P_STRING, "display-name", FALSE );
+    if ( p != NULL ) {
+      return p->value.s;
+    }
+  }
+  if ( mode->display_name != NULL ) {
+    return mode->display_name;
     }
     return mode->name;
 }
