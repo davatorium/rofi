@@ -190,10 +190,10 @@ typedef enum
 
 typedef enum 
 {
+    ROFI_SCALE_NONE,
     ROFI_SCALE_BOTH,
     ROFI_SCALE_HEIGHT,
     ROFI_SCALE_WIDTH,
-    ROFI_SCALE_NONE,
 } RofiScaleType;
 
 
