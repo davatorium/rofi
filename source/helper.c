@@ -1299,7 +1299,7 @@ char *helper_string_replace_if_exists_v ( char * string, GHashTable *h )
     char   *res   = NULL;
 
     // Replace hits within {-\w+}.
-    GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", 0, 0, &error );
+    GRegex *reg = g_regex_new ( "\\[(.*)({[-\\w]+})(.*)\\]|({[\\w-]+})", G_REGEX_UNGREEDY, 0, &error );
     if ( error == NULL ) {
         res = g_regex_replace_eval ( reg, string, -1, 0, 0, helper_eval_cb2, h, &error );
     }
