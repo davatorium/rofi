@@ -82,6 +82,17 @@ typedef struct
     unsigned int array_length;
 } FileBrowserModePrivateData;
 
+struct
+{
+    char *directory;
+} file_browser_config = {
+    .directory = NULL,
+};
+
+static XrmOption xrm_options[] = {
+    { xrm_String, "directory", { .str = &file_browser_config.directory }, NULL, "", CONFIG_DEFAULT },
+};
+
 static void free_list ( FileBrowserModePrivateData *pd )
 {
     for ( unsigned int i = 0; i < pd->array_length; i++ ) {
@@ -197,11 +208,11 @@ static void get_file_browser (  Mode *sw )
 static void file_browser_mode_init_current_dir ( Mode *sw ) {
     FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
 
-    gboolean config_has_valid_dir = config.file_browser_directory != NULL
-        && g_file_test ( config.file_browser_directory, G_FILE_TEST_IS_DIR );
+    gboolean config_has_valid_dir = file_browser_config.directory != NULL
+        && g_file_test ( file_browser_config.directory, G_FILE_TEST_IS_DIR );
 
     if ( config_has_valid_dir ) {
-        pd->current_dir = g_file_new_for_path ( config.file_browser_directory );
+        pd->current_dir = g_file_new_for_path ( file_browser_config.directory );
     } else {
         char *current_dir = NULL;
         char *cache_file = g_build_filename ( cache_dir, FILEBROWSER_CACHE_FILE, NULL );
@@ -503,4 +514,6 @@ Mode file_browser_mode =
     ._preprocess_input  = NULL,
     .private_data       = NULL,
     .free               = NULL,
+    .xrm_options        = xrm_options,
+    .num_options        = sizeof ( xrm_options ) / sizeof ( XrmOption ),
 };

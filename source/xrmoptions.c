@@ -54,31 +54,6 @@ const char * const ConfigSourceStr[] = {
     "Rasi File",
     "Commandline",
 };
-/** Enumerator of different sources of configuration. */
-enum ConfigSource
-{
-    CONFIG_DEFAULT    = 0,
-    CONFIG_FILE       = 1,
-    CONFIG_FILE_THEME = 2,
-    CONFIG_CMDLINE    = 3
-};
-
-typedef struct
-{
-    int        type;
-    const char * name;
-    union
-    {
-        unsigned int * num;
-        int          * snum;
-        char         ** str;
-        void         *pointer;
-        char         * charc;
-    }                 value;
-    char              *mem;
-    const char        *comment;
-    enum ConfigSource source;
-} XrmOption;
 /**
  * Map X resource and commandline options to internal options
  * Currently supports string, boolean and number (signed and unsigned).
@@ -410,7 +385,7 @@ gboolean config_parse_set_property ( const Property *p, char **error )
 
     for ( GList *iter = g_list_first ( extra_parsed_options) ; iter != NULL; iter = g_list_next ( iter ) ) {
       if ( g_strcmp0(((Property *)(iter->data))->name, p->name ) == 0 ){
-        
+
         rofi_theme_property_free ( (Property *)(iter->data));
         iter->data = (void *)rofi_theme_property_copy ( p ) ;
         return TRUE;
@@ -418,6 +393,18 @@ gboolean config_parse_set_property ( const Property *p, char **error )
     }
     g_debug("Adding option: %s to backup list.", p->name);
     extra_parsed_options = g_list_append ( extra_parsed_options , rofi_theme_property_copy ( p ) );
+
+    return TRUE;
+}
+
+gboolean config_mode_parse_set_property ( const Property *p, XrmOption *options, unsigned int num_options, char **error ) {
+    for ( unsigned int i = 0; i < num_options; ++i ) {
+        XrmOption *op = &( options[i] );
+
+        if ( g_strcmp0 ( op->name, p->name ) == 0 ) {
+            return __config_parser_set_property ( op, p, error );
+        }
+    }
 
     return TRUE;
 }

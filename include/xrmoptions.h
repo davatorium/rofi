@@ -63,6 +63,15 @@
  * @{
  */
 
+/** Enumerator of different sources of configuration. */
+enum ConfigSource
+{
+    CONFIG_DEFAULT    = 0,
+    CONFIG_FILE       = 1,
+    CONFIG_FILE_THEME = 2,
+    CONFIG_CMDLINE    = 3
+};
+
 /**
  *  Type of the config options.
  */
@@ -79,6 +88,23 @@ typedef enum
     /** Config option is a character */
     xrm_Char    = 4
 } XrmOptionType;
+
+typedef struct
+{
+    int        type;
+    const char * name;
+    union
+    {
+        unsigned int * num;
+        int          * snum;
+        char         ** str;
+        void         *pointer;
+        char         * charc;
+    }                 value;
+    char              *mem;
+    const char        *comment;
+    enum ConfigSource source;
+} XrmOption;
 
 /**
  * Parse commandline options.
@@ -139,6 +165,8 @@ char ** config_parser_return_display_help ( unsigned int *length );
  * @returns true when failed to set property.
  */
 gboolean config_parse_set_property ( const Property *p, char **error );
+
+gboolean config_mode_parse_set_property ( const Property *p, XrmOption *options, unsigned int num_options, char **error );
 
 /**
  * @param out The destination.

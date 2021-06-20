@@ -63,6 +63,8 @@ unsigned int rofi_get_num_enabled_modi ( void );
  */
 const Mode * rofi_get_mode ( unsigned int index );
 
+const Mode * rofi_find_available_mode ( const char *name );
+
 /**
  * @param str A GString with an error message to display.
  *

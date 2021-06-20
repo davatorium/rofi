@@ -28,6 +28,7 @@
 #ifndef ROFI_MODE_PRIVATE_H
 #define ROFI_MODE_PRIVATE_H
 #include <gmodule.h>
+#include "xrmoptions.h"
 G_BEGIN_DECLS
 
 /** ABI version to check if loaded plugin is compatible. */
@@ -195,6 +196,10 @@ struct rofi_mode
 
     /** Module */
     GModule    *module;
+
+    unsigned int num_options;
+
+    XrmOption   *xrm_options;
 };
 G_END_DECLS
 #endif // ROFI_MODE_PRIVATE_H

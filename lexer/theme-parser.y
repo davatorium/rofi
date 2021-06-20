@@ -33,6 +33,8 @@
 %debug
 %parse-param {const char *what}
 %code requires {
+#include "rofi.h"
+#include "mode.h"
 #include "theme.h"
 #include "xrmoptions.h"
 #include "css-colors.h"
@@ -440,13 +442,43 @@ t_config_property
 }
 |  t_property_name T_BOPEN t_property_list_optional T_BCLOSE
 {
-  ThemeWidget *widget = rofi_configuration;
-  widget = rofi_theme_find_or_create_name ( widget, $1 );
-  widget->set = TRUE;
-  rofi_theme_widget_add_properties ( widget, $3);
-  if ( $3 ) {
-    g_hash_table_destroy ( $3 );
+  if ( !$3 ) {
+    goto out;
   }
+
+  const Mode *mode = rofi_find_available_mode ( $1 );
+
+  if ( mode ) {
+    GHashTableIter iter;
+    gpointer       key, value;
+
+    char *error = NULL;
+
+    g_hash_table_iter_init ( &iter, $3 );
+
+    while ( g_hash_table_iter_next ( &iter, &key, &value ) ) {
+        Property *p = (Property *) value;
+
+        unsigned int num_options = 0;
+
+        XrmOption *options = mode_get_options ( mode, &num_options );
+
+        if ( config_mode_parse_set_property ( p, options, num_options, &error ) ) {
+          // TODO Generate error.
+#ifdef FATAL_CONFIG_ERROR
+          yyerror ( &(@$), @$.filename, error );
+#else
+          g_warning("%s:%d:%d: %s\n", @$.filename, @$.first_line, @$.first_column, error);
+#endif
+          g_free(error);
+        }
+    }
+
+  }
+
+  g_hash_table_destroy ( $3 );
+
+out:
   g_free ( $1 );
 }
 ;

@@ -135,6 +135,16 @@ const Mode * rofi_get_mode ( unsigned int index )
     return modi[index];
 }
 
+const Mode * rofi_find_available_mode ( const char *name )
+{
+    for ( unsigned int i = 0; i < num_available_modi; i++ ) {
+        if ( strcmp ( mode_get_name ( available_modi[i] ), name ) == 0 ) {
+            return available_modi[i];
+        }
+    }
+    return NULL;
+}
+
 /**
  * @param name Name of the switcher to lookup.
  *

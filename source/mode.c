@@ -94,6 +94,14 @@ char * mode_get_completion ( const Mode *mode, unsigned int selected_line )
     }
 }
 
+XrmOption * mode_get_options ( const Mode *mode, unsigned int *num_options ) {
+    g_assert ( mode != NULL );
+
+    *num_options = mode->num_options;
+
+    return mode->xrm_options;
+}
+
 ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int selected_line )
 {
     if ( menu_retv & MENU_NEXT ) {

@@ -29,6 +29,7 @@
 #define ROFI_MODE_H
 #include <cairo.h>
 #include "rofi-types.h"
+#include "xrmoptions.h"
 G_BEGIN_DECLS
 /**
  * @defgroup MODE Mode
@@ -147,6 +148,8 @@ cairo_surface_t * mode_get_icon ( const Mode *mode, unsigned int selected_line, 
  * @returns allocated string.
  */
 char * mode_get_completion ( const Mode *mode, unsigned int selected_line );
+
+XrmOption * mode_get_options ( const Mode *mode, unsigned int *num_options );
 
 /**
  * @param mode The mode to query
