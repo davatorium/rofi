@@ -698,7 +698,7 @@ Message can be multi-line.
 
 ### File browser settings
 
-`-file-browser-directory` *directory*
+`-filebrowser-directory` *directory*
 
 Directory the file browser starts in.
 
