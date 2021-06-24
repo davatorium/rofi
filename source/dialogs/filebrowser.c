@@ -489,8 +489,8 @@ Mode file_browser_mode =
 {
     .display_name       = NULL,
     .abi_version        = ABI_VERSION,
-    .name               = "file-browser",
-    .cfg_name_key       = "display-file_browser",
+    .name               = "filebrowser",
+    .cfg_name_key       = "display-filebrowser",
     ._init              = file_browser_mode_init,
     ._get_num_entries   = file_browser_mode_get_num_entries,
     ._result            = file_browser_mode_result,

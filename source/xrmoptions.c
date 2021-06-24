@@ -132,7 +132,7 @@ static XrmOption xrmOptions[] = {
     { xrm_String,  "drun-url-launcher",         { .str   = &config.drun_url_launcher                    }, NULL,
       "Command to open a Desktop Entry that is a Link.", CONFIG_DEFAULT },
 
-    { xrm_String,  "file-browser-directory",    { .str   = &config.file_browser_directory               }, NULL,
+    { xrm_String,  "filebrowser-directory",    { .str   = &config.file_browser_directory               }, NULL,
       "Directory the file browser starts in", CONFIG_DEFAULT },
 
     { xrm_Boolean, "disable-history",           { .num   = &config.disable_history                      }, NULL,
