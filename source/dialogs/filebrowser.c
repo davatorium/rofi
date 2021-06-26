@@ -41,7 +41,6 @@
 #include "mode-private.h"
 #include "dialogs/filebrowser.h"
 #include "rofi.h"
-#include "settings.h"
 #include "history.h"
 
 #include <stdint.h>
@@ -344,11 +343,15 @@ static void file_browser_mode_init_config ( Mode *sw )
 static void file_browser_mode_init_current_dir ( Mode *sw ) {
     FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
 
-    gboolean config_has_valid_dir = config.file_browser_directory != NULL
-        && g_file_test ( config.file_browser_directory, G_FILE_TEST_IS_DIR );
+    ThemeWidget *wid = rofi_config_find_widget ( sw->name, NULL, TRUE );
+
+    Property    *p   = rofi_theme_find_property ( wid, P_STRING, "directory", TRUE );
+
+    gboolean config_has_valid_dir = p != NULL && p->type == P_STRING
+        && g_file_test ( p->value.s, G_FILE_TEST_IS_DIR );
 
     if ( config_has_valid_dir ) {
-        pd->current_dir = g_file_new_for_path ( config.file_browser_directory );
+        pd->current_dir = g_file_new_for_path ( p->value.s );
     } else {
         char *current_dir = NULL;
         char *cache_file = g_build_filename ( cache_dir, FILEBROWSER_CACHE_FILE, NULL );

@@ -1167,12 +1167,6 @@ Message can be multi\-line.
 
 .SS File browser settings
 .PP
-\fB\fC\-filebrowser\-directory\fR \fIdirectory\fP
-
-.PP
-Directory the file browser starts in.
-
-.PP
 File browser behavior can be controlled via the following options:
 
 .PP
@@ -1181,6 +1175,8 @@ File browser behavior can be controlled via the following options:
 .nf
 configuration {
    filebrowser {
+      /** Directory the file browser starts in. */
+      directory: "/some/directory";
       /**
         * Sorting method. Can be set to:
         *   - "name"
