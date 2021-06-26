@@ -1172,6 +1172,26 @@ Message can be multi\-line.
 .PP
 Directory the file browser starts in.
 
+.PP
+File browser behavior can be controlled via the following options:
+
+.PP
+.RS
+
+.nf
+configuration {
+   filebrowser {
+      /**
+        * Sorting method. Can be set to:
+        *   - "name"
+        *   - "mtime" (modification time)
+        *   - "atime" (access time)
+        *   - "ctime" (change time)
+        */
+      sorting-method: "name";
+   }
+}
+
 .SS Other
 .PP
 \fB\fC\-drun\-use\-desktop\-cache\fR
