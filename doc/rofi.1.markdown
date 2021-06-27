@@ -698,9 +698,24 @@ Message can be multi-line.
 
 ### File browser settings
 
-`-filebrowser-directory` *directory*
+File browser behavior can be controlled via the following options:
 
-Directory the file browser starts in.
+```css
+configuration {
+   filebrowser {
+      /** Directory the file browser starts in. */
+      directory: "/some/directory";
+      /**
+        * Sorting method. Can be set to:
+        *   - "name"
+        *   - "mtime" (modification time)
+        *   - "atime" (access time)
+        *   - "ctime" (change time)
+        */
+      sorting-method: "name";
+   }
+}
+```
 
 ### Other
 

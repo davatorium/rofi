@@ -116,9 +116,6 @@ typedef struct
     /** Desktop Link launch command */
     char           * drun_url_launcher;
 
-    /** Directory the file browser starts in */
-    char           * file_browser_directory;
-
     /** Search case sensitivity */
     unsigned int   case_sensitive;
     /** Cycle through in the element list */
