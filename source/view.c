@@ -1097,6 +1097,9 @@ static void _rofi_view_reload_row ( RofiViewState *state )
 
 static void rofi_view_refilter ( RofiViewState *state )
 {
+    if ( state->sw == NULL ) {
+        return;
+    }
     TICK_N ( "Filter start" );
     if ( state->reload ) {
         _rofi_view_reload_row ( state );
