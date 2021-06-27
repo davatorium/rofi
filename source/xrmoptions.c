@@ -349,12 +349,9 @@ void config_parse_cmd_options ( void )
                     char *esc = g_strescape(stored_argv[in+1], NULL);
                     g_string_append_printf ( str, "%s: \"%s\";", tokens[count-1], esc);
                     g_free(esc);
-                    printf("%s %s\r\n", stored_argv[in], stored_argv[in+1]);
-
                     for ( int j = 0; j < (count-1); j++ ){
                         g_string_append(str, " } ");
                     }
-                    printf("str: %s\n", str->str);
                     if ( rofi_theme_parse_string(str->str) == 1 ) {
                         printf("failed\n");
                     }
