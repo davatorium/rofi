@@ -66,9 +66,9 @@ const char *const monitor_position_entries[] = {
     "on monitor that has mouse pointer"
 };
 /** copy of the argc for use in commandline argument parser. */
-static int        stored_argc = 0;
+int        stored_argc = 0;
 /** copy of the argv pointer for use in the commandline argument parser */
-static char       **stored_argv = NULL;
+char       **stored_argv = NULL;
 
 char *helper_string_replace_if_exists_v ( char * string, GHashTable *h );
 
