@@ -91,6 +91,17 @@ void rofi_add_error_message ( GString *str )
 {
     list_of_error_msgs = g_list_append ( list_of_error_msgs, str );
 }
+void rofi_clear_error_messages ( void )
+{
+    if ( list_of_error_msgs ) {
+        for ( GList *iter = g_list_first ( list_of_error_msgs );
+              iter != NULL; iter = g_list_next ( iter ) ) {
+            g_string_free ( (GString *) iter->data, TRUE );
+        }
+        g_list_free ( list_of_error_msgs );
+        list_of_error_msgs = NULL;
+    }
+}
 
 /** Path to the configuration file */
 G_MODULE_EXPORT char *config_path = NULL;
@@ -457,13 +468,7 @@ static void cleanup ()
 
     g_free ( config_path );
 
-    if ( list_of_error_msgs ) {
-        for ( GList *iter = g_list_first ( list_of_error_msgs );
-              iter != NULL; iter = g_list_next ( iter ) ) {
-            g_string_free ( (GString *) iter->data, TRUE );
-        }
-        g_list_free ( list_of_error_msgs );
-    }
+    rofi_clear_error_messages();
 
     if ( rofi_theme ) {
         rofi_theme_free ( rofi_theme );

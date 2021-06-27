@@ -27,6 +27,7 @@
 /** Log domain for this module */
 #define G_LOG_DOMAIN    "XrmOptions"
 
+#include <ctype.h>
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -301,6 +302,8 @@ static void config_parse_cmd_option ( XrmOption *option )
         break;
     }
     g_free ( key );
+
+
 }
 
 void config_parse_cmd_options ( void )
@@ -312,6 +315,55 @@ void config_parse_cmd_options ( void )
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
         XrmOption *op = &( extra_options[i] );
         config_parse_cmd_option ( op  );
+    }
+
+
+    /** copy of the argc for use in commandline argument parser. */
+    extern int        stored_argc;
+    /** copy of the argv pointer for use in the commandline argument parser */
+    extern char       **stored_argv;
+    for ( int in = 1; in < (stored_argc-1) ; in ++ ) {
+        if ( stored_argv[in][0] == '-' ) {
+            /** TODO: This is a hack, and should be fixed in a nicer way. */
+            char **tokens = g_strsplit(stored_argv[in], "-", 3);
+            int count = 1;
+            for ( int j = 1; tokens && tokens[j]; j++ ){
+                count++;
+            }
+            if ( count > 2 && g_strcmp0(tokens[1], "no") != 0 ){
+                GString *str = g_string_new("configuration { ");
+                for ( int j = 1; j < (count-1); j++ ){
+                    g_string_append_printf(str, "%s { ", tokens[j]);
+                }
+                g_string_append_printf ( str, "%s: %s;", tokens[count-1], stored_argv[in+1]);
+                for ( int j = 0; j < (count-1); j++ ){
+                    g_string_append(str, " } ");
+                }
+                if ( rofi_theme_parse_string(str->str) == 1 ) {
+                    /** Failed to parse, try again as string. */
+                    rofi_clear_error_messages();
+                    g_string_assign ( str, "configuration { ");
+                    for ( int j = 1; j < (count-1); j++ ){
+                        g_string_append_printf(str, "%s { ", tokens[j]);
+                    }
+                    char *esc = g_strescape(stored_argv[in+1], NULL);
+                    g_string_append_printf ( str, "%s: \"%s\";", tokens[count-1], esc);
+                    g_free(esc);
+                    printf("%s %s\r\n", stored_argv[in], stored_argv[in+1]);
+
+                    for ( int j = 0; j < (count-1); j++ ){
+                        g_string_append(str, " } ");
+                    }
+                    printf("str: %s\n", str->str);
+                    if ( rofi_theme_parse_string(str->str) == 1 ) {
+                        printf("failed\n");
+                    }
+                }
+                g_string_free(str,TRUE);
+                in++;
+            }
+            g_strfreev(tokens);
+        }
     }
 }
 
@@ -407,7 +459,6 @@ gboolean config_parse_set_property ( const Property *p, char **error )
 
     for ( GList *iter = g_list_first ( extra_parsed_options) ; iter != NULL; iter = g_list_next ( iter ) ) {
       if ( g_strcmp0(((Property *)(iter->data))->name, p->name ) == 0 ){
-        
         rofi_theme_property_free ( (Property *)(iter->data));
         iter->data = (void *)rofi_theme_property_copy ( p ) ;
         return TRUE;
