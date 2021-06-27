@@ -36,11 +36,11 @@
 #include <dirent.h>
 
 #include "mode.h"
+#include "theme.h"
 #include "helper.h"
 #include "mode-private.h"
 #include "dialogs/filebrowser.h"
 #include "rofi.h"
-#include "settings.h"
 #include "history.h"
 
 #include <stdint.h>
@@ -59,6 +59,26 @@ enum FBFileType
     RFILE,
     NUM_FILE_TYPES,
 };
+
+/**
+ * Possible sorting methods
+ */
+enum FBSortingMethod
+{
+    FB_SORT_NAME,
+    FB_SORT_TIME,
+};
+
+/**
+ * Type of time to sort by
+ */
+enum FBSortingTime
+{
+    FB_MTIME,
+    FB_ATIME,
+    FB_CTIME,
+};
+
 /** Icons to use for the file type  */
 const char *icon_name[NUM_FILE_TYPES] =
 {
@@ -73,6 +93,7 @@ typedef struct
     enum FBFileType type;
     uint32_t        icon_fetch_uid;
     gboolean        link;
+    time_t          time;
 } FBFile;
 
 typedef struct
@@ -81,6 +102,15 @@ typedef struct
     FBFile       *array;
     unsigned int array_length;
 } FileBrowserModePrivateData;
+
+struct
+{
+    enum FBSortingMethod sorting_method;
+    enum FBSortingTime   sorting_time;
+} file_browser_config = {
+    .sorting_method = FB_SORT_NAME,
+    .sorting_time   = FB_MTIME,
+};
 
 static void free_list ( FileBrowserModePrivateData *pd )
 {
@@ -96,10 +126,11 @@ static void free_list ( FileBrowserModePrivateData *pd )
 #include <sys/types.h>
 #include <dirent.h>
 
-static gint compare ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpointer data )
+static gint compare_name ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpointer data )
 {
     FBFile *fa = (FBFile *) a;
     FBFile *fb = (FBFile *) b;
+
     if ( fa->type != fb->type ) {
         return fa->type - fb->type;
     }
@@ -107,7 +138,74 @@ static gint compare ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpointer d
     return g_strcmp0 ( fa->name, fb->name );
 }
 
-static void get_file_browser (  Mode *sw )
+static gint compare_time ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpointer data )
+{
+    FBFile *fa = (FBFile *) a;
+    FBFile *fb = (FBFile *) b;
+
+    if ( fa->time < 0 ) {
+        return -1;
+    }
+
+    if ( fb->time < 0 ) {
+        return 1;
+    }
+
+    return fb->time - fa->time;
+}
+
+static gint compare ( gconstpointer a, gconstpointer b, gpointer data )
+{
+    GCompareDataFunc comparator = NULL;
+
+    switch ( file_browser_config.sorting_method )
+    {
+    case FB_SORT_NAME:
+        comparator = compare_name;
+        break;
+    case FB_SORT_TIME:
+        comparator = compare_time;
+        break;
+    default:
+        comparator = compare_name;
+        break;
+    }
+
+    return comparator ( a, b, data );
+}
+
+static time_t get_time ( const struct stat *statbuf )
+{
+    switch ( file_browser_config.sorting_time )
+    {
+    case FB_MTIME:
+        return statbuf->st_mtim.tv_sec;
+    case FB_ATIME:
+        return statbuf->st_atim.tv_sec;
+    case FB_CTIME:
+        return statbuf->st_ctim.tv_sec;
+    default:
+        return 0;
+    }
+}
+
+static void set_time ( FBFile *file )
+{
+    gchar* path = g_filename_from_utf8 ( file->path, -1, NULL, NULL, NULL );
+
+    struct stat statbuf;
+
+    if ( stat ( path, &statbuf ) == 0 ) {
+        file->time = get_time ( &statbuf );
+    }
+    else {
+        g_warning ( "Failed to stat file: %s, %s", path, strerror ( errno ) );
+    }
+
+    g_free ( path );
+}
+
+static void get_file_browser ( Mode *sw )
 {
     FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
     /**
@@ -127,6 +225,7 @@ static void get_file_browser (  Mode *sw )
                 pd->array[pd->array_length].type           = UP;
                 pd->array[pd->array_length].icon_fetch_uid = 0;
                 pd->array[pd->array_length].link           = FALSE;
+                pd->array[pd->array_length].time           = -1;
                 pd->array_length++;
                 continue;
             }
@@ -152,6 +251,11 @@ static void get_file_browser (  Mode *sw )
                 pd->array[pd->array_length].type           = ( rd->d_type == DT_DIR ) ? DIRECTORY : RFILE;
                 pd->array[pd->array_length].icon_fetch_uid = 0;
                 pd->array[pd->array_length].link           = FALSE;
+
+                if ( file_browser_config.sorting_method == FB_SORT_TIME ) {
+                    set_time ( &pd->array[pd->array_length] );
+                }
+
                 pd->array_length++;
                 break;
             case DT_LNK:
@@ -177,6 +281,10 @@ static void get_file_browser (  Mode *sw )
                             else if ( S_ISREG ( statbuf.st_mode ) ) {
                                 pd->array[pd->array_length].type = RFILE;
                             }
+
+                            if ( file_browser_config.sorting_method == FB_SORT_TIME ) {
+                                pd->array[pd->array_length].time = get_time ( &statbuf );
+                            }
                         }
                         else {
                             g_warning ( "Failed to stat file: %s, %s", file, strerror ( errno ) );
@@ -194,14 +302,56 @@ static void get_file_browser (  Mode *sw )
     g_qsort_with_data ( pd->array, pd->array_length, sizeof ( FBFile ), compare, NULL );
 }
 
+static void file_browser_mode_init_config ( Mode *sw )
+{
+    char     *msg        = NULL;
+    gboolean found_error = FALSE;
+
+    ThemeWidget *wid = rofi_config_find_widget ( sw->name, NULL, TRUE );
+
+    Property    *p   = rofi_theme_find_property ( wid, P_STRING, "sorting-method", TRUE );
+    if ( p != NULL && p->type == P_STRING ) {
+        if ( g_strcmp0 ( p->value.s, "name" ) == 0 ) {
+            file_browser_config.sorting_method = FB_SORT_NAME;
+        }
+        else if ( g_strcmp0 ( p->value.s, "mtime" ) == 0 ) {
+            file_browser_config.sorting_method = FB_SORT_TIME;
+            file_browser_config.sorting_time = FB_MTIME;
+        }
+        else if ( g_strcmp0 ( p->value.s, "atime" ) == 0 ) {
+            file_browser_config.sorting_method = FB_SORT_TIME;
+            file_browser_config.sorting_time = FB_ATIME;
+        }
+        else if ( g_strcmp0 ( p->value.s, "ctime" ) == 0 ) {
+            file_browser_config.sorting_method = FB_SORT_TIME;
+            file_browser_config.sorting_time = FB_CTIME;
+        }
+        else {
+            found_error = TRUE;
+
+            msg = g_strdup_printf ( "\"%s\" is not a valid filebrowser sorting method", p->value.s );
+        }
+    }
+
+    if ( found_error ) {
+        rofi_view_error_dialog ( msg, FALSE );
+
+        g_free ( msg );
+    }
+}
+
 static void file_browser_mode_init_current_dir ( Mode *sw ) {
     FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
 
-    gboolean config_has_valid_dir = config.file_browser_directory != NULL
-        && g_file_test ( config.file_browser_directory, G_FILE_TEST_IS_DIR );
+    ThemeWidget *wid = rofi_config_find_widget ( sw->name, NULL, TRUE );
+
+    Property    *p   = rofi_theme_find_property ( wid, P_STRING, "directory", TRUE );
+
+    gboolean config_has_valid_dir = p != NULL && p->type == P_STRING
+        && g_file_test ( p->value.s, G_FILE_TEST_IS_DIR );
 
     if ( config_has_valid_dir ) {
-        pd->current_dir = g_file_new_for_path ( config.file_browser_directory );
+        pd->current_dir = g_file_new_for_path ( p->value.s );
     } else {
         char *current_dir = NULL;
         char *cache_file = g_build_filename ( cache_dir, FILEBROWSER_CACHE_FILE, NULL );
@@ -233,6 +383,7 @@ static int file_browser_mode_init ( Mode *sw )
         FileBrowserModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
         mode_set_private_data ( sw, (void *) pd );
 
+        file_browser_mode_init_config ( sw );
         file_browser_mode_init_current_dir ( sw );
 
         // Load content.
