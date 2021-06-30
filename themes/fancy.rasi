@@ -44,7 +44,33 @@ window {
     y-offset:       -15.5em;
 
 
-    children: [ inputbar, message, wrapper-mode-switcher, listview ];
+    children: [ inputbar, message, wrapper-mode-switcher, listview , pagerbox ];
+}
+
+
+pagerbox {
+    expand: false;
+    orientation: horizontal;
+    children: [ icon-left, pad, icon-right ];
+}
+
+pad {
+  expand: true;
+}
+icon-left {
+    expand: false;
+    filename: "go-previous";
+    size: 24;
+    vertical-align: 0.5;
+    action: "kb-page-prev";
+}
+
+icon-right {
+    expand: false;
+    filename: "go-next";
+    size: 24;
+    vertical-align: 0.5;
+    action: "kb-page-next";
 }
 
 
@@ -191,8 +217,22 @@ wrapper {
     border: 2px;
     border-radius: 5px;
     padding: 4px;
-    children:   [ icon-k, entry ];
+    children:   [ icon-k, entry, icon-paste];
     spacing:  0.5em;
+}
+button-paste {
+    expand: false;
+    str: "gtk-paste";
+    size: 24;
+    vertical-align: 0.5;
+    action: "kb-cancel";
+}
+icon-paste {
+    expand: false;
+    filename: "gtk-paste";
+    size: 24;
+    vertical-align: 0.5;
+    action: "kb-primary-paste";
 }
 icon-k {
     expand: false;
