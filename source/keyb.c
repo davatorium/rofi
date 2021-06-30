@@ -147,6 +147,18 @@ static gboolean binding_trigger_action ( guint64 scope, G_GNUC_UNUSED gpointer t
     return rofi_view_trigger_action ( rofi_view_get_active (), scope, GPOINTER_TO_UINT ( user_data ) );
 }
 
+guint key_binding_get_action_from_name ( const char *name )
+{
+  for ( gsize i = 0; i < G_N_ELEMENTS ( rofi_bindings ); ++i ) {
+    ActionBindingEntry *b = &rofi_bindings[i];
+    if ( g_strcmp0(b->name, name) == 0  ){
+      return b->id;
+    }
+  }
+  return UINT32_MAX;
+}
+
+
 gboolean parse_keys_abe ( NkBindings *bindings )
 {
     GError  *error     = NULL;
