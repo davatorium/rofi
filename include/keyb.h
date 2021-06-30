@@ -186,5 +186,11 @@ gboolean parse_keys_abe ( NkBindings *bindings );
  */
 void setup_abe ( void );
 
+/**
+ * @param name Don't have the name.
+ *
+ * @returns id, or UINT32_MAX if not found.
+ */
+guint key_binding_get_action_from_name ( const char *name );
 /**@}*/
 #endif // ROFI_KEYB_H

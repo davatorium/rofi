@@ -112,6 +112,8 @@ struct
     workarea           mon;
     /** timeout for reloading */
     guint              idle_timeout;
+    /** timeout handling */
+    guint              user_timeout;
     /** debug counter for redraws */
     unsigned long long count;
     /** redraw idle time. */
@@ -129,6 +131,7 @@ struct
     .flags          = MENU_NORMAL,
     .views          = G_QUEUE_INIT,
     .idle_timeout   = 0,
+    .user_timeout   = 0,
     .count          = 0L,
     .repaint_source = 0,
     .fullscreen     = FALSE,
@@ -475,6 +478,48 @@ static gboolean rofi_view_reload_idle ( G_GNUC_UNUSED gpointer data )
     CacheState.idle_timeout = 0;
     return G_SOURCE_REMOVE;
 }
+static gboolean rofi_view_user_timeout ( G_GNUC_UNUSED gpointer data )
+{
+    CacheState.user_timeout = 0;
+    ThemeWidget *wid = rofi_config_find_widget ( "timeout", NULL, TRUE );
+    if ( wid ) {
+      /** Check string property */
+      Property    *p   = rofi_theme_find_property ( wid, P_STRING, "action", TRUE);
+      if ( p != NULL && p->type == P_STRING ) {
+        const char *action = p->value.s;
+        guint id = key_binding_get_action_from_name(action);
+        if ( id != UINT32_MAX )
+        {
+          rofi_view_trigger_action ( rofi_view_get_active (), SCOPE_GLOBAL, id); 
+        } else {
+          g_warning("Failed to parse keybinding: %s\r\n", action);
+        }
+      }
+    }
+    return G_SOURCE_REMOVE;
+}
+
+static void rofi_view_set_user_timeout ( G_GNUC_UNUSED gpointer data )
+{
+  if ( CacheState.user_timeout > 0 ) {
+    g_source_remove ( CacheState.user_timeout );
+    CacheState.user_timeout = 0;
+  }
+  {
+    /** Find the widget */
+    ThemeWidget *wid = rofi_config_find_widget ( "timeout", NULL, TRUE );
+    if ( wid ) {
+      /** Check string property */
+      Property    *p   = rofi_theme_find_property ( wid, P_INTEGER, "delay", TRUE);
+      if ( p != NULL && p->type == P_INTEGER) {
+        int delay = p->value.i;
+        CacheState.user_timeout = g_timeout_add ( delay*1000 , rofi_view_user_timeout, NULL );
+      }
+    }
+  }
+
+}
+
 
 void rofi_view_reload ( void  )
 {
@@ -1996,6 +2041,8 @@ RofiViewState *rofi_view_create ( Mode *sw,
     rofi_view_ping_mouse ( state );
     xcb_flush ( xcb->connection );
 
+
+    rofi_view_set_user_timeout ( NULL );
     /* When Override Redirect, the WM will not let us know we can take focus, so just steal it */
     if ( ( ( menu_flags & MENU_NORMAL_WINDOW ) == 0 ) ) {
         rofi_xcb_set_input_focus ( CacheState.main_window );
@@ -2065,6 +2112,10 @@ void rofi_view_cleanup ()
     if ( CacheState.idle_timeout > 0 ) {
         g_source_remove ( CacheState.idle_timeout );
         CacheState.idle_timeout = 0;
+    }
+    if ( CacheState.user_timeout > 0 ) {
+        g_source_remove ( CacheState.user_timeout );
+        CacheState.user_timeout = 0;
     }
     if ( CacheState.repaint_source > 0 ) {
         g_source_remove ( CacheState.repaint_source );
