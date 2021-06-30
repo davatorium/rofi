@@ -1722,27 +1722,16 @@ static WidgetTriggerActionResult textbox_button_trigger_action ( widget *wid, Mo
     {
     case MOUSE_CLICK_DOWN:
     {
-        const char * type = rofi_theme_get_string ( wid, "action", "ok" );
-        ( state->selected_line ) = state->line_map[listview_get_selected ( state->list_view )];
-        if ( strcmp ( type, "ok" ) == 0 ) {
-            state->retv = MENU_OK;
+        const char * type = rofi_theme_get_string ( wid, "action", NULL );
+        if ( type ) {
+          ( state->selected_line ) = state->line_map[listview_get_selected ( state->list_view )];
+          guint id = key_binding_get_action_from_name(type);
+          if ( id != UINT32_MAX ) {
+            rofi_view_trigger_global_action ( id );
+          }
+          state->skip_absorb = TRUE;
+          return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
         }
-        else if ( strcmp ( type, "ok|alternate" ) == 0 ) {
-            state->retv = MENU_CUSTOM_ACTION | MENU_OK;
-        }
-        else if ( strcmp ( type, "custom" ) ) {
-            state->retv = MENU_CUSTOM_INPUT;
-        }
-        else if ( strcmp ( type, "custom|alternate" ) == 0 ) {
-            state->retv = MENU_CUSTOM_ACTION | MENU_CUSTOM_INPUT;
-        }
-        else {
-            g_warning ( "Invalid action specified." );
-            return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
-        }
-        state->quit        = TRUE;
-        state->skip_absorb = TRUE;
-        return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
     }
     case MOUSE_CLICK_UP:
     case MOUSE_DCLICK_DOWN:
@@ -1939,7 +1928,13 @@ static void rofi_view_add_widget ( RofiViewState *state, widget *parent_widget, 
     }
     else if (  g_ascii_strncasecmp ( name, "icon", 4 ) == 0 ) {
         icon *t = icon_create ( parent_widget, name );
+        /* small hack to make it clickable */
+        const char * type = rofi_theme_get_string ( WIDGET(t), "action", NULL );
+        if ( type ) {
+          WIDGET(t)->type = WIDGET_TYPE_EDITBOX;
+        }
         box_add ( (box *) parent_widget, WIDGET ( t ), TRUE );
+        widget_set_trigger_action_handler ( WIDGET ( t ), textbox_button_trigger_action, state );
     }
     else {
         wid = (widget *) box_create ( parent_widget, name, ROFI_ORIENTATION_VERTICAL );

@@ -1370,14 +1370,13 @@ This is a textbox widget. The displayed string can be set with \fB\fCstr\fR\&.
 .IP \(bu 2
 \fB\fCicon\fR:
 This is an icon widget. The displayed icon can be set with \fB\fCfilename\fR and size with \fB\fCsize\fR\&.
+If the property \fB\fCaction\fR is set, it acts as a button.
+\fB\fCaction\fR can be set to a keybinding name and completes that action. (see rofi \-show keys for a list).
 .IP \(bu 2
 \fB\fCbutton\fR:
 This is a textbox widget that can have a 'clickable' action.
 The \fB\fCaction\fR can be set to:
-\fB\fCok\fR accept entry.
-\fB\fCcustom\fR accept custom input.
-\fB\fCok|alternate\fR: accept entry and launch alternate action (for run launch in terminal).
-\fB\fCcustom|alternate\fR: accept custom input and launch alternate action.
+\fB\fCkeybinding\fR: accepts a keybinging name and completes that action. (see rofi \-show keys for a list).
 
 .RE
 

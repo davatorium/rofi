@@ -848,13 +848,12 @@ There are several special widgets that can be used by prefixing the name of the 
   This is a textbox widget. The displayed string can be set with `str`.
 * `icon`:
   This is an icon widget. The displayed icon can be set with `filename` and size with `size`.
+  If the property `action` is set, it acts as a button.
+  `action` can be set to a keybinding name and completes that action. (see rofi -show keys for a list).
 * `button`:
  This is a textbox widget that can have a 'clickable' action.
  The `action` can be set to:
- `ok` accept entry.
- `custom` accept custom input.
- `ok|alternate`: accept entry and launch alternate action (for run launch in terminal).
- `custom|alternate`: accept custom input and launch alternate action.
+ `keybinding`: accepts a keybinging name and completes that action. (see rofi -show keys for a list).
 
 To specify children, set the `children`
 property (this always happens on the `box` child, see example below):
