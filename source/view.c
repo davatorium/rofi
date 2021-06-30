@@ -1513,6 +1513,7 @@ static void rofi_view_trigger_global_action ( KeyBindingAction action )
 
 gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, guint action )
 {
+    rofi_view_set_user_timeout ( NULL );
     switch ( scope )
     {
     case SCOPE_GLOBAL:
