@@ -771,9 +771,9 @@ The current layout of **rofi** is structured as follows:
 | | mainbox  {BOX:vertical}                                                       |  |
 | | |---------------------------------------------------------------------------| |  |
 | | | inputbar {BOX:horizontal}                                                 | |  |
-| | | |---------| |-----------------------------------------------------| |---| | |  |
-| | | | prompt  | | entry                                               | |ci | | |  |
-| | | |---------| |-----------------------------------------------------| |---| | |  |
+| | | |---------| |-| |---------------------------------|---| |---| |---| |---| | |  |
+| | | | prompt  | |:| | entry                           |#fr| | / | |#ns| |ci | | |  |
+| | | |---------| |_| |---------------------------------|---| |---| |---| |---| | |  |
 | | |---------------------------------------------------------------------------| |  |
 | |                                                                               |  |
 | | |---------------------------------------------------------------------------| |  |
@@ -799,6 +799,8 @@ The current layout of **rofi** is structured as follows:
 
 ```
 > ci is the case-indicator
+> fr is the num-filtered-rows
+> ns is the num-rows
 
 ### Error message structure
 
@@ -844,22 +846,65 @@ Any widget name starting with `textbox` is a textbox widget, others are box widg
 
 There are several special widgets that can be used by prefixing the name of the widget:
 
-* `textbox`:
-  This is a textbox widget. The displayed string can be set with `str`.
-* `icon`:
-  This is an icon widget. The displayed icon can be set with `filename` and size with `size`.
-  If the property `action` is set, it acts as a button.
-  `action` can be set to a keybinding name and completes that action. (see rofi -show keys for a list).
-* `button`:
- This is a textbox widget that can have a 'clickable' action.
- The `action` can be set to:
- `keybinding`: accepts a keybinging name and completes that action. (see rofi -show keys for a list).
+#### textbox
+
+This is a read-only textbox widget. The displayed string can be set with `content`.
+
+
+Example:
+
+```css
+textbox-custom {
+  expand: false;
+  content: "My Message"; 
+}
+```
+
+#### Icon
+
+This is an icon widget. The displayed icon can be set with `filename` and size with `size`.
+If the property `action` is set, it acts as a button.
+`action` can be set to a keybinding name and completes that action. (see rofi -show keys for a list).
+
+
+Example:
+
+```css
+icon-paste {
+    expand: false;
+    filename: "gtk-paste";
+    size: 24;
+    vertical-align: 0.5;
+    action: "kb-primary-paste";
+}
+```
+
+
+#### button
+
+This is a textbox widget that can have a 'clickable' action.
+The `action` can be set to:
+`keybinding`: accepts a keybinging name and completes that action. (see rofi -show keys for a list).
+
+```css
+button-paste {
+    expand: false;
+    content: "My Clickable Message";
+    vertical-align: 0.5;
+    action: "kb-primary-paste";
+}
+```
+
+
+#### Children
 
 To specify children, set the `children`
 property (this always happens on the `box` child, see example below):
 
-```
-children: [prompt,entry,overlay,case-indicator];
+```css
+inputbar {
+  children: [prompt,entry,overlay,case-indicator];
+}
 ```
 
 The theme needs to be updated to match the hierarchy specified.
@@ -997,7 +1042,7 @@ G_MESSAGES_DEBUG=Theme rofi -show run
 To test minor changes, part of the theme can be passed on the command line, for example to set it to full-screen:
 
 ```
-rofi -theme-str '#window { fullscreen:true;}' -show run
+rofi -theme-str 'window { fullscreen:true;}' -show run
 ```
 
 To print the current theme, run:
