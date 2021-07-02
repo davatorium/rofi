@@ -211,58 +211,11 @@ void rofi_theme_property_free ( Property *p )
     g_slice_free ( Property, p );
 }
 
-/**
- * This function is a hack to insert backward support for older theme with the updated listvie structure.
- */
-static void rofi_theme_insert_listview_backwards_fix ( void )
-{
-    GHashTable  *table = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) rofi_theme_property_free );
-    ThemeWidget *t     = rofi_theme_find_or_create_name ( rofi_theme, "element" );
-    ThemeWidget *tt    = rofi_theme_find_or_create_name ( rofi_theme, "element-text" );
-    ThemeWidget *ti    = rofi_theme_find_or_create_name ( rofi_theme, "element-icon" );
-
-    // Inherit text color
-    Property *ptc = rofi_theme_property_create ( P_INHERIT );
-    ptc->name = g_strdup ( "text-color" );
-    g_hash_table_replace ( table, ptc->name, ptc );
-    // Transparent background
-    Property *ptb = rofi_theme_property_create ( P_COLOR );
-    ptb->name              = g_strdup ( "background-color" );
-    ptb->value.color.red   = 0.0;
-    ptb->value.color.green = 0.0;
-    ptb->value.color.blue  = 0.0;
-    ptb->value.color.alpha = 0.0;
-    g_hash_table_replace ( table, ptb->name, ptb );
-
-    rofi_theme_widget_add_properties ( tt, table );
-
-    RofiDistance dsize = (RofiDistance){ .base = { 1.2, ROFI_PU_CH, ROFI_DISTANCE_MODIFIER_NONE, NULL, NULL }, .style = ROFI_HL_SOLID };
-    Property     *pts  = rofi_theme_property_create ( P_PADDING );
-    pts->value.padding.top = pts->value.padding.right = pts->value.padding.bottom = pts->value.padding.left = dsize;
-    pts->name              = g_strdup ( "size" );
-    g_hash_table_replace ( table, pts->name, pts );
-
-    rofi_theme_widget_add_properties ( ti, table );
-
-    /** Add spacing between icon and text. */
-    g_hash_table_destroy ( table );
-    table = g_hash_table_new_full ( g_str_hash, g_str_equal, NULL, (GDestroyNotify) rofi_theme_property_free );
-    Property     *psp = rofi_theme_property_create ( P_PADDING );
-    psp->name = g_strdup ( "spacing" );
-    RofiDistance d = (RofiDistance){ .base = { 5, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL, NULL }, .style = ROFI_HL_SOLID };
-    psp->value.padding = (RofiPadding){ d, d, d, d };
-    g_hash_table_replace ( table, psp->name, psp );
-    rofi_theme_widget_add_properties ( t, table );
-    g_hash_table_destroy ( table );
-}
-
 void rofi_theme_reset ( void )
 {
     rofi_theme_free ( rofi_theme );
     rofi_theme       = g_slice_new0 ( ThemeWidget );
     rofi_theme->name = g_strdup ( "Root" );
-    // Hack to fix backwards compatibility.
-    rofi_theme_insert_listview_backwards_fix ( );
 }
 
 void rofi_theme_free ( ThemeWidget *widget )
