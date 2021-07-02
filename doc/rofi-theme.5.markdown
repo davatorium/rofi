@@ -29,14 +29,14 @@ Comments can be nested and the C comments can be inline.
 
 The following is valid:
 
-```
+```css
 // Magic comment.
 property: /* comment */ value;
 ```
 
 However, this is not:
 
-```
+```css
 prop/*comment*/erty: value;
 ```
 
@@ -46,13 +46,13 @@ White space and newlines, like comments, are ignored by the parser.
 
 This:
 
-```
+```css
 property: name;
 ```
 
 Is identical to:
 
-```
+```css
      property             :
 name
 
@@ -72,7 +72,7 @@ Sub-section names begin with a hash symbol `#`.
 It is advised to define the *global properties section* on top of the file to
 make inheritance of properties clearer.
 
-```
+```css
 /* Global properties section */
 * {
     // list of properties
@@ -112,7 +112,7 @@ Multiple elements can be specified by a `,`.
 
 This is a valid element name:
 
-```
+```css
 element normal.normal {
     background-color: blue;
 }
@@ -123,7 +123,7 @@ button {
 
 And is identical to:
 
-```
+```css
 element normal normal, button {
     background-color: blue;
 }
@@ -133,7 +133,7 @@ Each section inherits the global properties. Properties can be explicitly inheri
 `inherit` keyword.
 In the following example:
 
-```
+```css
 window {
  a: 1;
  b: 2;
@@ -148,7 +148,7 @@ mainbox {
 
 The element `mainbox` will have the following set of properties (if `mainbox` is a child of `window`):
 
-```
+```css
 a: 1;
 b: 4;
 c: 8;
@@ -162,7 +162,7 @@ the last encountered property is used.
 
 The properties in a section consist of:
 
-```
+```css
 {identifier}: {value};
 ```
 
@@ -205,7 +205,7 @@ A string is always surrounded by double quotes (`"`). Between the quotes there c
 
 For example:
 
-```
+```css
 font: "Awasome 12";
 ```
 
@@ -219,7 +219,7 @@ An integer may contain any number.
 
 For examples:
 
-```
+```css
 lines: 12;
 ```
 
@@ -231,7 +231,7 @@ A real is an integer with an optional fraction.
 
 For example:
 
-```
+```css
 real: 3.4;
 ```
 
@@ -246,7 +246,7 @@ Boolean value is either `true` or `false`. This is case-sensitive.
 
 For example:
 
-```
+```css
 dynamic: false;
 ```
 
@@ -309,14 +309,14 @@ The different values are:
 
 For example:
 
-```
+```css
 background-color: #FF0000;
 border-color: rgba(0,0,1, 0.5);
 text-color: SeaGreen;
 ```
 or
 
-```
+```css
 background-color: transparent;
 text-color: Black;
 ```
@@ -362,7 +362,7 @@ Distances used in the horizontal direction use the monitor width. Distances in
 the vertical direction use the monitor height.
 For example:
 
-```
+```css
    padding: 10%;
 ```
 On a full-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left
@@ -372,7 +372,7 @@ and right side and 108 pixels on the top and bottom.
 
 Rofi supports some maths in calculating sizes. For this it uses the CSS syntax:
 
-```
+```css
 width: calc( 100% - 37px );
 ```
 
@@ -454,13 +454,13 @@ A reference can point to another reference. Currently, the maximum number of red
 A property always refers to another property. It cannot be used for a subpart of the property.
 For example, this is not valid:
 
-```
+```css
 highlight: bold @pink;
 ```
 
 But this is:
 
-```
+```css
 * {
     myhigh: bold #FAA;
 }
@@ -496,7 +496,7 @@ The `keyword` in the list refers to an widget name.
 This will parse the environment variable as the property value. (that then can be any of the above types).
 The environment variable should be an alphanumeric string without white-space.
 
-```
+```css
 * {
     background-color: ${BG};
 }
@@ -508,7 +508,7 @@ The environment variable should be an alphanumeric string without white-space.
 
 Inherits the property from its parent widget.
 
-```
+```css
 mainbox {
     border-color: inherit;
 }
@@ -522,7 +522,7 @@ Some widgets have an extra state.
 
 For example:
 
-```
+```css
 element selected {
 }
 ```
@@ -531,7 +531,7 @@ Here `element selected` is the name of the widget, `selected` is the state of th
 
 The difference between dots and spaces is purely cosmetic. These are all the same:
 
-```
+```css
 element .selected {
 
 element.selected {
@@ -605,7 +605,7 @@ These can be mixed.
 
 Example:
 
-```
+```css
 nametotextbox selected.active {
     background-color: #003642;
     text-color: #008ed4;
@@ -798,9 +798,9 @@ The current layout of **rofi** is structured as follows:
 
 
 ```
-> ci is the case-indicator
-> fr is the num-filtered-rows
-> ns is the num-rows
+> * ci is the case-indicator
+> * fr is the num-filtered-rows
+> * ns is the num-rows
 
 ### Error message structure
 
