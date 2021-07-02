@@ -1257,9 +1257,9 @@ The current layout of \fBrofi\fP is structured as follows:
 | | mainbox  {BOX:vertical}                                                       |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
 | | | inputbar {BOX:horizontal}                                                 | |  |
-| | | |\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-| | |  |
-| | | | prompt  | | entry                                               | |ci | | |  |
-| | | |\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-| | |  |
+| | | |\-\-\-\-\-\-\-\-\-| |\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-| |\-\-\-| |\-\-\-| |\-\-\-| | |  |
+| | | | prompt  | |:| | entry                           |#fr| | / | |#ns| |ci | | |  |
+| | | |\-\-\-\-\-\-\-\-\-| |\_| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-| |\-\-\-| |\-\-\-| |\-\-\-| | |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
 | |                                                                               |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
@@ -1292,6 +1292,8 @@ The current layout of \fBrofi\fP is structured as follows:
 
 .PP
 ci is the case\-indicator
+fr is the num\-filtered\-rows
+ns is the num\-rows
 .RE
 
 .SS Error message structure
@@ -1363,23 +1365,70 @@ Any widget name starting with \fB\fCtextbox\fR is a textbox widget, others are b
 .PP
 There are several special widgets that can be used by prefixing the name of the widget:
 
+.SS textbox
+.PP
+This is a read\-only textbox widget. The displayed string can be set with \fB\fCcontent\fR\&.
+
+.PP
+Example:
+
+.PP
 .RS
-.IP \(bu 2
-\fB\fCtextbox\fR:
-This is a textbox widget. The displayed string can be set with \fB\fCstr\fR\&.
-.IP \(bu 2
-\fB\fCicon\fR:
+
+.nf
+textbox\-custom {
+  expand: false;
+  content: "My Message"; 
+}
+
+.fi
+.RE
+
+.SS Icon
+.PP
 This is an icon widget. The displayed icon can be set with \fB\fCfilename\fR and size with \fB\fCsize\fR\&.
 If the property \fB\fCaction\fR is set, it acts as a button.
 \fB\fCaction\fR can be set to a keybinding name and completes that action. (see rofi \-show keys for a list).
-.IP \(bu 2
-\fB\fCbutton\fR:
+
+.PP
+Example:
+
+.PP
+.RS
+
+.nf
+icon\-paste {
+    expand: false;
+    filename: "gtk\-paste";
+    size: 24;
+    vertical\-align: 0.5;
+    action: "kb\-primary\-paste";
+}
+
+.fi
+.RE
+
+.SS button
+.PP
 This is a textbox widget that can have a 'clickable' action.
 The \fB\fCaction\fR can be set to:
 \fB\fCkeybinding\fR: accepts a keybinging name and completes that action. (see rofi \-show keys for a list).
 
+.PP
+.RS
+
+.nf
+button\-paste {
+    expand: false;
+    content: "My Clickable Message";
+    vertical\-align: 0.5;
+    action: "kb\-primary\-paste";
+}
+
+.fi
 .RE
 
+.SS Children
 .PP
 To specify children, set the \fB\fCchildren\fR
 property (this always happens on the \fB\fCbox\fR child, see example below):
@@ -1388,7 +1437,9 @@ property (this always happens on the \fB\fCbox\fR child, see example below):
 .RS
 
 .nf
-children: [prompt,entry,overlay,case\-indicator];
+inputbar {
+  children: [prompt,entry,overlay,case\-indicator];
+}
 
 .fi
 .RE
@@ -1576,7 +1627,7 @@ To test minor changes, part of the theme can be passed on the command line, for 
 .RS
 
 .nf
-rofi \-theme\-str '#window { fullscreen:true;}' \-show run
+rofi \-theme\-str 'window { fullscreen:true;}' \-show run
 
 .fi
 .RE
