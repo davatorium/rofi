@@ -848,7 +848,8 @@ If there is no match, it will try to launch the input.
 
 Shows a list of executables in `$PATH` and can launch them (optional in a terminal).
 Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
-Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run the command in a terminal.
+Pressing the `accept-custom` binding (`control-enter`) will run the command as entered in the entry box.
+Pressing the `accept-alt` binding (`shift-enter`) will run the command in a terminal.
 
 When pressing the `mode-complete` binding (`Control-l`), you can use the File Browser mode to launch the application
 with a file as the first argument.
@@ -858,7 +859,8 @@ with a file as the first argument.
 Same as the **run** launches, but the list is created from the installed desktop files. It automatically launches them
 in a terminal if specified in the Desktop File.
 Pressing the `delete-entry` binding (`shift-delete`) will remove this entry from the run history.
-Pressing the `accept-custom` binding (`control-enter` or `shift-enter`) will run the command in a terminal.
+Pressing the `accept-custom` binding (`control-enter`) will run the command as entered in the entry box.
+Pressing the `accept-alt` binding (`shift-enter`) will run the command in a terminal.
 
 When pressing the `mode-complete` binding (`Control-l`), you can use the File Browser mode to launch the application
 passing a file as argument if specified in the desktop file.
