@@ -26,6 +26,6 @@ else
     echo "mies"
     echo -en "-------------\0nonselectable\x1ftrue\n"
     echo "testing"
-    echo "<b>Bold</b>"
+    echo -en "<b>Bold</b>\x00meta\x1fclapton.\n"
     echo "quit"
 fi

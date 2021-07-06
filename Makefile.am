@@ -145,6 +145,7 @@ rofi_CFLAGS=\
 	$(pango_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
+	$(unwind_CFLAGS)\
 	$(gdkpixbuf_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
@@ -165,6 +166,7 @@ rofi_LDADD=\
 	$(libsn_LIBS)\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
+	$(unwind_LIBS)\
 	$(gdkpixbuf_LIBS)\
 	$(LIBS)
 

@@ -47,6 +47,9 @@
 
 #include <libgwater-xcb.h>
 
+#define UNW_LOCAL_ONLY
+#include <libunwind.h>
+
 #ifdef USE_NK_GIT_VERSION
 #include "nkutils-git-version.h"
 #ifdef NK_GIT_VERSION
@@ -679,6 +682,47 @@ static gboolean main_loop_signal_handler_int ( G_GNUC_UNUSED gpointer data )
     g_main_loop_quit ( main_loop );
     return G_SOURCE_CONTINUE;
 }
+
+static void send_backtrace_to_monitor(void) {
+    unw_cursor_t cursor;
+    unw_context_t context;
+
+    fprintf(stderr, "----------===== Backtrace =====----------\n");
+    // grab the machine context and initialize the cursor
+    if (unw_getcontext(&context) < 0) {
+        fprintf(stderr, "ERROR: cannot get local machine state\n");
+    }
+    if (unw_init_local(&cursor, &context) < 0) {
+        fprintf(stderr,"ERROR: cannot initialize cursor for local unwinding\n");
+    }
+
+
+    // currently the IP is within backtrace() itself so this loop
+    // deliberately skips the first frame.
+    while (unw_step(&cursor) > 0) {
+        unw_word_t offset = 0, pc = 0;
+        char sym[4096];
+        if (unw_get_reg(&cursor, UNW_REG_IP, &pc)) {
+            fprintf(stderr,"ERROR: cannot read program counter\n");
+        }
+
+        fprintf(stderr, "0x%lx: ", pc);
+
+        if (unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0) {
+            fprintf(stderr,"(%s +0x%lx)\n", sym, offset);
+        } else {
+            fprintf(stderr, "-- no symbol name found\n");
+        }
+    }
+    fprintf(stderr, "----------===== Backtrace =====----------\n");
+}
+
+static void main_loop_signal_handler_sigsegv_int ( int signr )
+{
+    signal(signr, SIG_DFL); /* Set it back immediately. */
+    send_backtrace_to_monitor();
+    raise(signr);
+}
 static void show_error_dialog ()
 {
     GString *emesg = g_string_new ( "The following errors were detected when starting rofi:\n" );
@@ -1072,6 +1116,8 @@ int main ( int argc, char *argv[] )
     // Setup signal handling sources.
     // SIGINT
     g_unix_signal_add ( SIGINT, main_loop_signal_handler_int, NULL );
+
+    signal ( SIGSEGV, main_loop_signal_handler_sigsegv_int );
 
     g_idle_add ( startup, NULL );
 

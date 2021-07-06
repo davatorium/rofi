@@ -69,6 +69,7 @@ deps += [
     dependency('xcb-xinerama'),
     dependency('cairo-xcb'),
     dependency('libstartup-notification-1.0'),
+    dependency('libunwind'),
 ]
 
 check = dependency('check', version: '>= 0.11.0', required: get_option('check'))

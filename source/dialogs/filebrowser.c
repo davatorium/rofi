@@ -541,12 +541,34 @@ static cairo_surface_t *_get_icon ( const Mode *sw, unsigned int selected_line, 
     return rofi_icon_fetcher_get ( dr->icon_fetch_uid );
 }
 
+static const char * _get_sort_method ( void )
+{
+    switch ( file_browser_config.sorting_method )
+    {
+        default:
+        case FB_SORT_NAME:
+            return "name";
+        case FB_SORT_TIME:
+            switch ( file_browser_config.sorting_time )
+            {
+                case FB_MTIME:
+                    return "modification time";
+                case FB_ATIME:
+                    return "access time";
+                case FB_CTIME:
+                default:
+                   return "creation time"; 
+            }
+    }
+}
+
 static char * _get_message ( const Mode *sw )
 {
     FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
     if ( pd->current_dir ) {
         char *dirname = g_file_get_parse_name ( pd->current_dir );
-        char *str     = g_markup_printf_escaped ( "<b>Current directory:</b> %s", dirname );
+        char *str     = g_markup_printf_escaped ( "<b>Current directory:</b> %s\n\<b>Sort by:</b>  %s", dirname,
+                _get_sort_method());
         g_free ( dirname );
         return str;
     }

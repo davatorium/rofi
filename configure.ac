@@ -149,6 +149,7 @@ PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
 PKG_CHECK_MODULES([gdkpixbuf],    [gdk-pixbuf-2.0])
+PKG_CHECK_MODULES([unwind],    [libunwind])
 
 dnl ---------------------------------------------------------------------
 dnl check - Unit testing.
