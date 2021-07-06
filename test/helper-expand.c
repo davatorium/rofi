@@ -56,7 +56,7 @@ static int       test = 0;
         }                                                                                \
 }
 ThemeWidget *rofi_theme = NULL;
-
+void rofi_clear_error_messages ( void ) {}
 uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
 {
   return 0;

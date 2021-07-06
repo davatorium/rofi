@@ -69,6 +69,9 @@ cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
 {
   return NULL;
 }
+void rofi_clear_error_messages (void )
+{
+}
 
 
 gboolean rofi_theme_parse_string ( const char *string )

@@ -58,7 +58,7 @@ uint32_t rofi_icon_fetcher_query_advanced ( const char *name, const int wsize, c
 {
   return 0;
 }
-
+void rofi_clear_error_messages ( void ) {}
 cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
 {
   return NULL;
