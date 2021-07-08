@@ -177,7 +177,7 @@ static void listview_add_widget ( listview *lv, _listview_row *row, widget *wid,
         box_add ( (box *) wid, WIDGET ( row->textbox ), TRUE );
     }
     else if ( strcasecmp ( label, "element-index" ) == 0 ) {
-        row->index = textbox_create ( WIDGET ( wid ), WIDGET_TYPE_TEXTBOX_TEXT, "element-text", TB_AUTOHEIGHT, NORMAL, " ", 0, 0 );
+        row->index = textbox_create ( WIDGET ( wid ), WIDGET_TYPE_TEXTBOX_TEXT, "element-index", TB_AUTOHEIGHT, NORMAL, " ", 0, 0 );
         box_add ( (box *) wid, WIDGET ( row->index ), FALSE );
     }
     else {
