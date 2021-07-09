@@ -325,7 +325,7 @@ t_configuration_list:
  %empty {
     if ( rofi_configuration == NULL ) {
       rofi_configuration       = g_slice_new0 ( ThemeWidget );
-      rofi_configuration->name = g_strdup ( "Configuration" );
+      rofi_configuration->name = g_strdup ( "Root" );
     }
 }
 | t_configuration_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {};
