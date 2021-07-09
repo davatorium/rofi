@@ -553,6 +553,10 @@ void config_parse_dump_config_rasi_format ( FILE *out, gboolean changes )
         }
     }
 
+    for ( unsigned int index = 0; index < rofi_configuration->num_widgets; index ++ ) {
+        rofi_theme_print_index ( rofi_configuration->widgets[index], 2 );
+    }
+
     fprintf ( out, "}\n" );
 }
 

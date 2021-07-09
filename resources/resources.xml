@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/org/qtools/rofi">
     <file alias="default_theme.rasi">doc/default_theme.rasi</file>
+    <file alias="default_configuration.rasi">doc/default_configuration.rasi</file>
   </gresource>
 </gresources>

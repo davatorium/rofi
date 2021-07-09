@@ -111,6 +111,7 @@ ThemeWidget *rofi_theme_find_or_create_name ( ThemeWidget *base, const char *nam
  * Print out the widget to the commandline.
  */
 void rofi_theme_print ( ThemeWidget *widget );
+void rofi_theme_print_index ( ThemeWidget *widget, int index );
 
 /**
  * @param type The type of the property to create.
