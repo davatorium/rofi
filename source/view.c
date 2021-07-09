@@ -511,7 +511,7 @@ static void rofi_view_set_user_timeout ( G_GNUC_UNUSED gpointer data )
     if ( wid ) {
       /** Check string property */
       Property    *p   = rofi_theme_find_property ( wid, P_INTEGER, "delay", TRUE);
-      if ( p != NULL && p->type == P_INTEGER) {
+      if ( p != NULL && p->type == P_INTEGER && p->value.i > 0 ) {
         int delay = p->value.i;
         CacheState.user_timeout = g_timeout_add ( delay*1000 , rofi_view_user_timeout, NULL );
       }

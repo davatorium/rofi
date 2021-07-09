@@ -856,6 +856,33 @@ int main ( int argc, char *argv[] )
     }
     config_parser_add_option ( xrm_String, "pid", (void * *) &pidfile, "Pidfile location" );
 
+
+    /** default configuration */
+    {
+        GBytes *theme_data = g_resource_lookup_data (
+                resources_get_resource (),
+                "/org/qtools/rofi/default_configuration.rasi",
+                G_RESOURCE_LOOKUP_FLAGS_NONE,
+                NULL );
+        if ( theme_data ) {
+            const char *theme = g_bytes_get_data ( theme_data, NULL );
+            if ( rofi_theme_parse_string ( (const char *) theme ) ) {
+                g_warning ( "Failed to parse default configuration. Giving up.." );
+                if ( list_of_error_msgs ) {
+                    for ( GList *iter = g_list_first ( list_of_error_msgs );
+                            iter != NULL; iter = g_list_next ( iter ) ) {
+                        g_warning ( "Error: %s%s%s",
+                                color_bold, ( (GString *) iter->data )->str, color_reset );
+                    }
+                }
+                rofi_configuration = NULL;
+                cleanup ();
+                return EXIT_FAILURE;
+            }
+            g_bytes_unref ( theme_data );
+        }
+    }
+
     if ( find_arg ( "-config" ) < 0 ) {
         const char *cpath = g_get_user_config_dir ();
         if ( cpath ) {

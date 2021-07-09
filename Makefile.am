@@ -256,6 +256,7 @@ EXTRA_DIST+=\
 	script/get_git_rev.sh\
 	$(theme_DATA)\
 	doc/default_theme.rasi\
+	doc/default_configuration.rasi\
 	Changelog
 ##
 # Indent

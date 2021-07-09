@@ -503,7 +503,7 @@ static void rofi_theme_print_property_index ( size_t pnl, int depth, Property *p
     putchar ( '\n' );
 }
 
-static void rofi_theme_print_index ( ThemeWidget *widget, int index )
+void rofi_theme_print_index ( ThemeWidget *widget, int index )
 {
     GHashTableIter iter;
     gpointer       key, value;
