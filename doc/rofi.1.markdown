@@ -713,6 +713,8 @@ configuration {
         *   - "ctime" (change time)
         */
       sorting-method: "name";
+      /** Group directories before files. */
+      directories-first: true;
    }
 }
 ```
