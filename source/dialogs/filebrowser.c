@@ -107,9 +107,11 @@ struct
 {
     enum FBSortingMethod sorting_method;
     enum FBSortingTime   sorting_time;
+    gboolean             directories_first;
 } file_browser_config = {
-    .sorting_method = FB_SORT_NAME,
-    .sorting_time   = FB_MTIME,
+    .sorting_method    = FB_SORT_NAME,
+    .sorting_time      = FB_MTIME,
+    .directories_first = TRUE,
 };
 
 static void free_list ( FileBrowserModePrivateData *pd )
@@ -131,7 +133,7 @@ static gint compare_name ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpoin
     FBFile *fa = (FBFile *) a;
     FBFile *fb = (FBFile *) b;
 
-    if ( fa->type != fb->type ) {
+    if ( file_browser_config.directories_first && fa->type != fb->type ) {
         return fa->type - fb->type;
     }
 
@@ -142,6 +144,10 @@ static gint compare_time ( gconstpointer a, gconstpointer b, G_GNUC_UNUSED gpoin
 {
     FBFile *fa = (FBFile *) a;
     FBFile *fb = (FBFile *) b;
+
+    if ( file_browser_config.directories_first && fa->type != fb->type ) {
+        return fa->type - fb->type;
+    }
 
     if ( fa->time < 0 ) {
         return -1;
@@ -331,6 +337,11 @@ static void file_browser_mode_init_config ( Mode *sw )
 
             msg = g_strdup_printf ( "\"%s\" is not a valid filebrowser sorting method", p->value.s );
         }
+    }
+
+    p = rofi_theme_find_property ( wid, P_BOOLEAN, "directories-first", TRUE );
+    if ( p != NULL && p->type == P_BOOLEAN ) {
+        file_browser_config.directories_first = p->value.b;
     }
 
     if ( found_error ) {
