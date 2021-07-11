@@ -8,4 +8,10 @@ configuration {
         action: "kb-cancel";
     }
 
+    // File browser modi.
+    filebrowser {
+        sorting-method:    "name";
+        directories-first: true;
+    }
+
 }
