@@ -869,6 +869,7 @@ This is an icon widget. The displayed icon can be set with `filename` and size w
 If the property `action` is set, it acts as a button.
 `action` can be set to a keybinding name and completes that action. (see rofi -show keys for a list).
 
+If the `squared` property is set to **false** the widget height and width are not forced to be equal.
 
 Example:
 
