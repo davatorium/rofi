@@ -44,6 +44,8 @@ struct _icon
     // Size of the icon.
     int             size;
 
+    int             squared;
+
     uint32_t        icon_fetch_id;
 
     double          yalign, xalign;
@@ -56,6 +58,15 @@ static int icon_get_desired_height ( widget *widget )
 {
     icon *b     = (icon *) widget;
     int  height = b->size;
+    if ( b->squared == FALSE  ){
+        if( b->icon ) {
+            int    iconh = cairo_image_surface_get_height ( b->icon );
+            int    iconw = cairo_image_surface_get_width ( b->icon );
+            int    icons = MAX ( iconh, iconw );
+            double scale = (double) b->size / icons;
+            height = iconh*scale;
+        }
+    }
     height += widget_padding_get_padding_height ( widget );
     return height;
 }
@@ -63,6 +74,15 @@ static int icon_get_desired_width ( widget *widget )
 {
     icon *b    = (icon *) widget;
     int  width = b->size;
+    if ( b->squared == FALSE ){
+        if( b->icon ) {
+            int    iconh = cairo_image_surface_get_height ( b->icon );
+            int    iconw = cairo_image_surface_get_width ( b->icon );
+            int    icons = MAX ( iconh, iconw );
+            double scale = (double) b->size / icons;
+            width = iconw*scale;
+        }
+    }
     width += widget_padding_get_padding_width ( widget );
     return width;
 }
@@ -151,6 +171,8 @@ icon * icon_create ( widget *parent, const char *name )
 
     RofiDistance d = rofi_theme_get_distance ( WIDGET ( b ), "size", b->size );
     b->size = distance_get_pixel ( d, ROFI_ORIENTATION_VERTICAL );
+
+    b->squared = rofi_theme_get_boolean ( WIDGET ( b ), "squared", TRUE );
 
     const char * filename = rofi_theme_get_string ( WIDGET ( b ), "filename", NULL );
     if ( filename ) {
