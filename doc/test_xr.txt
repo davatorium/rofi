@@ -116,7 +116,7 @@ rofi.scroll-method:                  0
 ! rofi.color-active:
 ! "Color scheme window" Set from: Default
 ! rofi.color-window:
-! "Max history size (WARNING: can cause slowdowns when set to high)." Set from: Default
+! "Max history size (WARNING: can cause slowdowns when set too high)." Set from: Default
 ! rofi.max-history-size:               25
 ! "Hide the prefix mode prefix on the combi view." Set from: Default
 ! rofi.combi-hide-mode-prefix:         false
