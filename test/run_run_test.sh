@@ -15,8 +15,8 @@ xdotool key 'e'
 sleep 0.4
 xdotool key Return
 
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
 
-exit ${RETV}
+exit "${RETV}"

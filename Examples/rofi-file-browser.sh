@@ -14,11 +14,11 @@ ROFI_FB_START_DIR=$HOME # starting directory
 
 # Beginning of the script:
 # Create the directory for the files of the script
-if [ ! -d $(dirname "${ROFI_FB_PREV_LOC_FILE}") ]
+if [ ! -d "$(dirname "${ROFI_FB_PREV_LOC_FILE}")" ]
 then
     mkdir -p "$(dirname "${ROFI_FB_PREV_LOC_FILE}")"
 fi
-if [ ! -d $(dirname "${ROFI_FB_HISTORY_FILE}") ]
+if [ ! -d "$(dirname "${ROFI_FB_HISTORY_FILE}")" ]
 then
     mkdir -p "$(dirname "${ROFI_FB_HISTORY_FILE}")"
 fi
@@ -64,7 +64,7 @@ then
             sed -i "s|${ROFI_FB_CUR_DIR}|##deleted##|g" "${ROFI_FB_HISTORY_FILE}"
             sed -i '/##deleted##/d' "${ROFI_FB_HISTORY_FILE}"
             echo "${ROFI_FB_CUR_DIR}" >> "${ROFI_FB_HISTORY_FILE}"
-            if [ $( wc -l < "${ROFI_FB_HISTORY_FILE}" ) -gt ${ROFI_FB_HISTORY_MAXCOUNT} ]
+            if [ "$( wc -l < "${ROFI_FB_HISTORY_FILE}" )" -gt "${ROFI_FB_HISTORY_MAXCOUNT}" ]
             then
                 sed -i 1d "${ROFI_FB_HISTORY_FILE}"
             fi

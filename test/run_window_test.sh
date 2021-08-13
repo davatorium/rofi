@@ -24,23 +24,23 @@ xdotool key Ctrl+d
 sleep 1;
 
 echo -n "Killing TermUnwanted: "
-if kill ${TPID}; then
+if kill "${TPID}"; then
     echo "done"
-    wait ${TPID}
+    wait "${TPID}"
 fi
 
-if ps -q ${XPID} # pgrep -u $USER xterm
+if ps -q "${XPID}" # pgrep -u $USER xterm
 then
-    echo "Found remaining xterms: $(pgrep -u $USER xterm)"
-    kill ${XPID}
+    echo "Found remaining xterms: $(pgrep -u "$USER" xterm)"
+    kill "${XPID}"
 fi
-if ps -q ${RPID}
+if ps -q "${RPID}"
 then
     echo "Rofi still running"
-    kill ${RPID}
+    kill "${RPID}"
     exit 1
 fi
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
-exit ${RETV}
+exit "${RETV}"

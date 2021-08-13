@@ -35,8 +35,8 @@ xdotool key Shift+Return
 #32
 xdotool key Return
 
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
 OUTPUT=$(tr '\n' ' ' < output.txt)
 if [ "${OUTPUT}" != '2 12 20 21 22 23 24 25 26 27 28 29 ' ]
@@ -44,5 +44,5 @@ then
     echo "Got: '${OUTPUT}' expected '2 12 20 21 22 23 24 25 26 27 28 29 '"
     exit 1
 fi
-echo ${RETV}
-exit ${RETV}
+echo "${RETV}"
+exit "${RETV}"

@@ -12,7 +12,7 @@ update_color()
     then
         echo "#${var:5}"
     else
-        echo ${var}
+        echo "${var}"
     fi
 }
 

@@ -80,10 +80,10 @@ find_themes()
             do
                 if [ -f "${file}" ]
                 then
-                    themes+=(${file})
-                    FN=$(basename ${file})
+                    themes+=("${file}")
+                    FN=$(basename "${file}")
                     NAME=${FN%.*}
-                    USER=$(${SED} -n 's/^.*User: \(.*\)/\1/p' ${file} | head -n 1 )
+                    USER=$(${SED} -n 's/^.*User: \(.*\)/\1/p' "${file}" | head -n 1 )
                     if [ -z "${USER}" ]
                     then
                         theme_names+=(${NAME})
@@ -103,9 +103,9 @@ find_themes()
 ##
 create_config_copy()
 {
-    ${ROFI} -dump-config > ${TMP_CONFIG_FILE}
+    ${ROFI} -dump-config > "${TMP_CONFIG_FILE}"
     # remove theme entry.
-    sed -i 's/^\s*theme:\s\+".*"\s*;//g' ${TMP_CONFIG_FILE}
+    sed -i 's/^\s*theme:\s\+".*"\s*;//g' "${TMP_CONFIG_FILE}"
 }
 
 ###
@@ -117,7 +117,7 @@ create_theme_list()
     IFS='|'
     for themen in  ${theme_names[@]}
     do
-        echo ${themen}
+        echo "${themen}"
     done
     IFS=${OLDIFS}
 }
@@ -129,7 +129,7 @@ declare -i SELECTED
 
 select_theme()
 {
-    local MORE_FLAGS=(-dmenu -format i -no-custom -p "Theme" -markup -config ${TMP_CONFIG_FILE} -i)
+    local MORE_FLAGS=(-dmenu -format i -no-custom -p "Theme" -markup -config "${TMP_CONFIG_FILE}" -i)
     MORE_FLAGS+=(-kb-custom-1 "Alt-a")
     MORE_FLAGS+=(-u 2,3 -a 4,5 )
     local CUR="default"
@@ -148,13 +148,13 @@ Current theme: <b>${CUR}</b>"""
         fi
 		RES=$( create_theme_list | ${ROFI} ${THEME_FLAG} ${MORE_FLAGS[@]} -cycle -selected-row "${SELECTED}" -mesg "${MESG}")
         RTR=$?
-        if [ ${RTR} = 10 ]
+        if [ "${RTR}" = 10 ]
         then
             return 0;
-        elif [ ${RTR} = 1 ]
+        elif [ "${RTR}" = 1 ]
         then
             return 1;
-        elif [ ${RTR} = 65 ]
+        elif [ "${RTR}" = 65 ]
         then
             return 1;
         fi
@@ -172,7 +172,7 @@ set_theme()
     CDIR="${XDG_CONFIG_HOME:-${HOME}/.config}/rofi"
     if [ ! -d "${CDIR}" ]
     then
-        mkdir -p ${CDIR}
+        mkdir -p "${CDIR}"
     fi
     get_link=$(readlink -f "${CDIR}/config.rasi")
     ${SED} -i "/@import.*/d" "${get_link}"
@@ -213,4 +213,4 @@ fi
 ##
 # Remove temp. config.
 ##
-rm ${TMP_CONFIG_FILE}
+rm -- "${TMP_CONFIG_FILE}"

@@ -7,7 +7,7 @@ RPID=$!
 # send enter.
 sleep 5 && xdotool key Return
 
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
-exit ${RETV}
+exit "${RETV}"

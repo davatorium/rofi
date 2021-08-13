@@ -16,8 +16,8 @@ xdotool key Alt+Shift+s
 sleep 0.4
 xdotool key Return
 
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
 
 if [ ! -f out.png ]
@@ -25,4 +25,4 @@ then
     echo "Failed to create screenshot"
     exit 1
 fi
-exit ${RETV}
+exit "${RETV}"

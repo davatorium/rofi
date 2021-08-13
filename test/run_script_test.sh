@@ -14,13 +14,13 @@ xdotool key 'Down'
 sleep 0.4
 xdotool key Return
 
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
 OUTPUT=$( tr '\n' ' ' < output.txt )
-echo ${OUTPUT}
+echo "${OUTPUT}"
 if [ "${OUTPUT}" != 'noot ' ]
 then
     exit 1
 fi
-exit ${RETV}
+exit "${RETV}"

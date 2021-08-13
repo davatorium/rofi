@@ -18,8 +18,8 @@ xdotool key "Control+a"
 sleep 0.4
 xdotool key Escape
 
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
 OUTPUT=$(tr '\n' ' ' < output.txt)
 if [ "${OUTPUT}" != '' ]
@@ -27,7 +27,7 @@ then
     echo "Got: '${OUTPUT}' expected nothing"
     exit 1
 fi
-if [ ${RETV} != 1 ]
+if [ "${RETV}" != 1 ]
 then
     exit 1 
 fi

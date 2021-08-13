@@ -14,4 +14,4 @@ sleep 5
 scrot
 sleep 1
 killall rofi
-wait $P
+wait "$P"

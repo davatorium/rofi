@@ -33,7 +33,7 @@ create_fake_x()
 {
     export DISPLAY=":$1"
     echo "Starting fake X: ${DISPLAY}"
-    ${XVFB} ${DISPLAY}  -screen 0 800x600x24 &
+    ${XVFB} "${DISPLAY}" -screen 0 800x600x24 &
     XPID=$!
     sleep 1
 }
@@ -43,8 +43,8 @@ destroy_fake_x()
     if [ -n "${XPID}" ]
     then
         echo "Stopping fake X: ${XPID}"
-        kill ${XPID}
-        wait ${XPID}
+        kill "${XPID}"
+        wait "${XPID}"
     fi
 }
 
@@ -84,13 +84,13 @@ then
 fi
 
 # Create fake X11
-create_fake_x ${VDISPLAY}
+create_fake_x "${VDISPLAY}"
 
 # Load Xresources if specified.
 if [ -n "${XRDB_FILE}" ]
 then
     echo -e "${COLOR_YELLOW}Loading Xresources:${RESET} ${XRDB_FILE}"
-    ${XRDB} -retain -load ${XRDB_FILE}
+    ${XRDB} -retain -load "${XRDB_FILE}"
 fi
 
 (generate | ${ROFI} -config "${XRDB_FILE}" -dmenu ${ROFI_OPTIONS} > /dev/null )&

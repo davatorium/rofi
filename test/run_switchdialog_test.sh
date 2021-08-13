@@ -14,10 +14,10 @@ xdotool key 'shift+slash'
 sleep 0.4
 xdotool key Escape
 
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
 
 sleep 1
 
-exit ${RETV}
+exit "${RETV}"
