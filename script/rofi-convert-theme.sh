@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# This code is released in public domain by Dave Davenport <qball@gmpclient.org> 
+# This code is released in public domain by Dave Davenport <qball@gmpclient.org>
 # This converts from old style theme (< 1.4) to new style theme (>= 1.4)
 #
 update_color()
@@ -62,13 +62,13 @@ while read LINE
 do
     if [[ ${LINE} =~ ^rofi\.color-normal: ]]
     then
-        parse_color "normal" "${LINE:18}" 
+        parse_color "normal" "${LINE:18}"
     elif [[ ${LINE} =~ ^rofi\.color-urgent: ]]
     then
-        parse_color "urgent" "${LINE:18}" 
+        parse_color "urgent" "${LINE:18}"
     elif [[ ${LINE} =~ ^rofi\.color-active: ]]
     then
-        parse_color "active" "${LINE:18}" 
+        parse_color "active" "${LINE:18}"
     elif [[ ${LINE} =~ ^rofi\.color-window: ]]
     then
         parse_window_color "${LINE:18}"

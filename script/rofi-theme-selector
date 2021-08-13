@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 #
-# This code is released in public domain by Dave Davenport <qball@gmpclient.org> 
+# This code is released in public domain by Dave Davenport <qball@gmpclient.org>
 #
-
 
 ROFI=$(which rofi)
 SED=$(which sed)
@@ -70,8 +69,8 @@ find_themes()
     # Add user dir.
     DIRS+=":${XDG_DATA_HOME:-${HOME}/.local/share}"
     DIRS+=":${XDG_CONFIG_HOME:-${HOME}/.config}"
-    for p in ${DIRS}; do 
-    	p=${p%/}
+    for p in ${DIRS}; do
+        p=${p%/}
         TD=${p}/rofi/themes
         if [ -n "${p}" ] && [ -d "${TD}" ]
         then
@@ -95,7 +94,6 @@ find_themes()
         fi
     done
     IFS=${OLDIFS}
-
 }
 
 ##
@@ -115,7 +113,7 @@ create_theme_list()
 {
     OLDIFS=${IFS}
     IFS='|'
-    for themen in  ${theme_names[@]}
+    for themen in ${theme_names[@]}
     do
         echo "${themen}"
     done
@@ -143,10 +141,10 @@ select_theme()
 Current theme: <b>${CUR}</b>"""
         THEME_FLAG=
         if [ -n "${SELECTED}" ]
-        then 
-			THEME_FLAG="-theme ${themes[${SELECTED}]}"
+        then
+            THEME_FLAG="-theme ${themes[${SELECTED}]}"
         fi
-		RES=$( create_theme_list | ${ROFI} ${THEME_FLAG} ${MORE_FLAGS[@]} -cycle -selected-row "${SELECTED}" -mesg "${MESG}")
+        RES=$( create_theme_list | ${ROFI} ${THEME_FLAG} ${MORE_FLAGS[@]} -cycle -selected-row "${SELECTED}" -mesg "${MESG}")
         RTR=$?
         if [ "${RTR}" = 10 ]
         then
@@ -159,7 +157,7 @@ Current theme: <b>${CUR}</b>"""
             return 1;
         fi
         CUR=${theme_names[${RES}]}
-		SELECTED=${RES}
+        SELECTED=${RES}
     done
 }
 

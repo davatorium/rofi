@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # wait till it is up, run rofi with error message
-sleep 1;
-echo {0..100} | tr " " "\n" | rofi -dmenu  -multi-select > output.txt &
+sleep 1
+echo {0..100} | tr " " "\n" | rofi -dmenu -multi-select > output.txt &
 RPID=$!
 
 # send enter.
-sleep 5;
-xdotool key '2' 
+sleep 5
+xdotool key '2'
 sleep 0.4
 xdotool key Shift+Return
 #2

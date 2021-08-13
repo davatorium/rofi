@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 export ROFI_PNG_OUTPUT=out.png
-rofi -show run   &
+rofi -show run &
 RPID=$!
 
 # send enter.
-sleep 5;
-xdotool key 't' 
+sleep 5
+xdotool key 't'
 sleep 0.4
 xdotool key 'r'
 sleep 0.4

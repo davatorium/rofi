@@ -9,7 +9,7 @@ create_fake_x()
     Xvfb -nolisten tcp +extension XINERAMA +xinerama -screen 0 1280x1024x24 "${DISPLAY}" &>$2-server.log &
     XPID=$!
     echo "pid ${XPID}"
-    sleep 1;
+    sleep 1
     if [ -x "$(which fluxbox 2>/dev/null)" ]; then
         echo -n "Starting fluxbox for display ${DISPLAY}: "
         timeout -k 30s 30s fluxbox &>$2-fluxbox.log &

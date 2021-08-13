@@ -2,13 +2,13 @@
 
 # wait till it is up, run rofi with error message
 rm -f output.txt
-sleep 1;
+sleep 1
 echo -e -n "aap\nnoot\nmies" | rofi -dmenu -no-custom -kb-custom-1 F5 -kb-move-front "" -kb-custom-2 "Control+a" > output.txt &
 RPID=$!
 
 # send enter.
-sleep 5;
-xdotool key 'q' 
+sleep 5
+xdotool key 'q'
 sleep 0.4
 xdotool key Return
 sleep 0.4
@@ -29,5 +29,5 @@ then
 fi
 if [ "${RETV}" != 1 ]
 then
-    exit 1 
+    exit 1
 fi

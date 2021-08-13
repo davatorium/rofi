@@ -10,7 +10,7 @@
 # preferred terminal emulator. On Debian, there is the x-terminal-emulator
 # symlink for example.
 for terminal in $TERMINAL x-terminal-emulator urxvt rxvt st terminology qterminal Eterm aterm uxterm xterm roxterm xfce4-terminal.wrapper mate-terminal lxterminal konsole alacritty kitty; do
-    if command -v $terminal > /dev/null 2>&1; then
+    if command -v $terminal >/dev/null 2>&1; then
         exec $terminal "$@"
     fi
 done

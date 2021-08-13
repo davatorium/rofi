@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-rofi -dmenu & < /dev/null
+rofi -dmenu & </dev/null
 RPID=$!
 sleep 4
 xdotool key Return

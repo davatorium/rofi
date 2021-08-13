@@ -4,8 +4,8 @@ rofi -show combi -modi combi -combi-modi run,drun &
 RPID=$!
 
 # send enter.
-sleep 5;
-xdotool key 't' 
+sleep 5
+xdotool key 't'
 sleep 0.4
 xdotool key 'r'
 sleep 0.4

@@ -14,10 +14,10 @@ shift
 OUTPUT_PNG=$1
 shift
 
-XVFB=$(which Xvfb 2> /dev/null)
-XDOTOOL=$(which xdotool 2> /dev/null)
-XRDB=$(which xrdb 2> /dev/null)
-ROFI=$(which rofi 2> /dev/null)
+XVFB=$(which Xvfb 2>/dev/null)
+XDOTOOL=$(which xdotool 2>/dev/null)
+XRDB=$(which xrdb 2>/dev/null)
+ROFI=$(which rofi 2>/dev/null)
 
 check_tool()
 {

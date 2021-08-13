@@ -3,14 +3,13 @@
 # Various options for the file browser script:
 ROFI_FB_GENERIC_FO="xdg-open" # command used for opening the selection
 ROFI_FB_PREV_LOC_FILE=~/.local/share/rofi/rofi_fb_prevloc
-ROFI_FB_HISTORY_FILE=~/.local/share/rofi/rofi_fb_history 
+ROFI_FB_HISTORY_FILE=~/.local/share/rofi/rofi_fb_history
 ROFI_FB_HISTORY_MAXCOUNT=5 # maximum number of history entries
 # Comment the next variable to always start in the last visited directory,
 # otherwise rofi_fb will start in the specified directory:
 ROFI_FB_START_DIR=$HOME # starting directory
 # Uncomment the following line to disable history:
 # ROFI_FB_NO_HISTORY=1
-
 
 # Beginning of the script:
 # Create the directory for the files of the script
@@ -34,8 +33,8 @@ fi
 # Read last location, otherwise we default to $ROFI_FB_START_DIR or $PWD.
 if [ -f "${ROFI_FB_PREV_LOC_FILE}" ]
 then
-    ROFI_FB_CUR_DIR=$(cat "${ROFI_FB_PREV_LOC_FILE}") 
-fi 
+    ROFI_FB_CUR_DIR=$(cat "${ROFI_FB_PREV_LOC_FILE}")
+fi
 
 # Handle argument.
 if [ -n "$@" ]
@@ -53,7 +52,7 @@ if [ ! -d "${ROFI_FB_CUR_DIR}" ]
 then
     if [ -x "${ROFI_FB_CUR_DIR}" ]
     then
-        coproc ( "${ROFI_FB_CUR_DIR}"  > /dev/null 2>&1 )
+        coproc ( "${ROFI_FB_CUR_DIR}" >/dev/null 2>&1 )
         exec 1>&-
         exit;
     elif [ -f "${ROFI_FB_CUR_DIR}" ]
@@ -70,7 +69,7 @@ then
             fi
         fi
         # Open the selected entry with $ROFI_FB_GENERIC_FO
-        coproc ( "${ROFI_FB_GENERIC_FO}" "${ROFI_FB_CUR_DIR}"  > /dev/null  2>&1 )
+        coproc ( "${ROFI_FB_GENERIC_FO}" "${ROFI_FB_CUR_DIR}" >/dev/null 2>&1 )
         if [ -d "${ROFI_FB_START_DIR}" ]
         then
             echo "${ROFI_FB_START_DIR}" > "${ROFI_FB_PREV_LOC_FILE}"

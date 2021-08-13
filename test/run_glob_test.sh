@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-echo -en "nooty\naap\nnoot\nmies" | rofi -matching glob -dmenu   > output.txt  &
+echo -en "nooty\naap\nnoot\nmies" | rofi -matching glob -dmenu > output.txt &
 RPID=$!
 
 # send enter.
-sleep 5;
+sleep 5
 xdotool key 'n'
 sleep 0.4
 xdotool key Shift+'8'
