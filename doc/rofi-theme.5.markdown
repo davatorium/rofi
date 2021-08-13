@@ -888,7 +888,7 @@ icon-paste {
 
 This is a textbox widget that can have a 'clickable' action.
 The `action` can be set to:
-`keybinding`: accepts a keybinging name and completes that action. (see rofi -show keys for a list).
+`keybinding`: accepts a keybinding name and completes that action. (see rofi -show keys for a list).
 
 ```css
 button-paste {

@@ -32,7 +32,7 @@ separator character.
 If you have very long entries in your view that get ellipsized (cut off at the end indicated by ...) you can now select,
 at runtime, where they are cut off (start, middle or end).
 
-You cycle through the options with the the `alt+.` keybinding.
+You cycle through the options with the `alt+.` keybinding.
 
 Start:
 

@@ -30,7 +30,7 @@ they are available they can be used for keybindings, if not, the user gets a war
 
 ### DMenu reading from stdin
 
-**Rofi** used to have a custom `fgets` implementation that supported custom separators. The has been repaced by the
+**Rofi** used to have a custom `fgets` implementation that supported custom separators. The has been replaced by the
 `getdelim` feature of POSIX '08, this gave a speedup of 6x (from 648 ms for 202000 lines down to 108ms).
 
 ### Multi-Core power
