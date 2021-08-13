@@ -12,7 +12,7 @@ echo empty; gen_workspaces
 else
     WORKSPACE=$@
 
-    if [ x"empty" = x"${WORKSPACE}" ]
+    if [ "${WORKSPACE}" = "empty" ]
     then
         i3_empty_workspace.sh >/dev/null
     elif [ -n "${WORKSPACE}" ]
