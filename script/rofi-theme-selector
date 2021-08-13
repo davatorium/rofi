@@ -37,7 +37,7 @@ declare -a theme_names
 # Function that tries to find all installed rofi themes.
 # This fills in #themes array and formats a displayable string #theme_names
 ##
-function find_themes()
+find_themes()
 {
     DIRS=${XDG_DATA_DIRS}
     OLDIFS=${IFS}
@@ -101,7 +101,7 @@ function find_themes()
 ##
 # Create a copy of rofi
 ##
-function create_config_copy()
+create_config_copy()
 {
     ${ROFI} -dump-config > ${TMP_CONFIG_FILE}
     # remove theme entry.
@@ -111,7 +111,7 @@ function create_config_copy()
 ###
 # Print the list out so it can be displayed by rofi.
 ##
-function create_theme_list()
+create_theme_list()
 {
     OLDIFS=${IFS}
     IFS='|'
@@ -127,7 +127,7 @@ function create_theme_list()
 ##
 declare -i SELECTED
 
-function select_theme () 
+select_theme()
 {
     local MORE_FLAGS=(-dmenu -format i -no-custom -p "Theme" -markup -config ${TMP_CONFIG_FILE} -i)
     MORE_FLAGS+=(-kb-custom-1 "Alt-a")
@@ -167,7 +167,7 @@ Current theme: <b>${CUR}</b>"""
 # Create if not exists, then removes #include of .theme file (if present) and add the selected theme to the end.
 # Repeated calls should leave the config clean-ish
 ###
-function set_theme()
+set_theme()
 {
     CDIR="${XDG_CONFIG_HOME:-${HOME}/.config}/rofi"
     if [ ! -d "${CDIR}" ]

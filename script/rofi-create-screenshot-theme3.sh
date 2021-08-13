@@ -20,7 +20,7 @@ SCROT=$(which scrot 2> /dev/null)
 FEH=$(which feh 2> /dev/null)
 COMPTON=$(which compton 2> /dev/null)
 
-function check_tool()
+check_tool()
 {
     if [ -z "${1}" ]
     then
@@ -30,7 +30,7 @@ function check_tool()
 }
 
 XPID=
-function create_fake_x ( )
+create_fake_x()
 {
     export DISPLAY=":$1"
     echo "Starting fake X: ${DISPLAY}"
@@ -39,7 +39,7 @@ function create_fake_x ( )
     sleep 1
 }
 
-function destroy_fake_x ( )
+destroy_fake_x()
 {
     if [ -n "${XPID}" ]
     then
@@ -49,7 +49,7 @@ function destroy_fake_x ( )
     fi
 }
 
-function generate()
+generate()
 {
     echo "Normal"
     echo "Alternative"

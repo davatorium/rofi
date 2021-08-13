@@ -2,7 +2,7 @@
 
 XPID=
 FPID=
-function create_fake_x ( )
+create_fake_x()
 {
     export DISPLAY=":$1"
     echo -n "Starting fake X for display ${DISPLAY}: "
@@ -19,7 +19,7 @@ function create_fake_x ( )
     fi
 }
 
-function destroy_fake_x ( )
+destroy_fake_x()
 {
     if [ -n "${XPID}" ]
     then

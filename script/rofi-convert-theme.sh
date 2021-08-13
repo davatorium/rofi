@@ -3,7 +3,7 @@
 # This code is released in public domain by Dave Davenport <qball@gmpclient.org> 
 # This converts from old style theme (< 1.4) to new style theme (>= 1.4)
 #
-function update_color ()
+update_color()
 {
     var=${1}
     var="${var#"${var%%[![:space:]]*}"}"   # remove leading whitespace characters
@@ -16,7 +16,7 @@ function update_color ()
     fi
 }
 
-function parse_window_color ()
+parse_window_color()
 {
     OLDIFS=${IFS}
     IFS=","
@@ -37,7 +37,7 @@ function parse_window_color ()
     IFS=${OLDIFS}
 }
 
-function parse_color ()
+parse_color()
 {
     state=$1
     OLDIFS=${IFS}
