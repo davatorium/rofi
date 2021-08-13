@@ -173,7 +173,7 @@ static void delete_ssh ( const char *host )
  * @param retv list of hosts
  * @param length pointer to length of list [in][out]
  *
- * Read 'known_hosts' file when entries are not hashsed.
+ * Read 'known_hosts' file when entries are not hashed.
  *
  * @returns updated list of hosts.
  */

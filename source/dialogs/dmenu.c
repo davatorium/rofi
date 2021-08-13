@@ -434,7 +434,7 @@ static int dmenu_mode_init ( Mode *sw )
         }
         g_free ( estr );
     }
-    // If input is stdin, and a tty, do not read as rofi grabs input and therefor blocks.
+    // If input is stdin, and a tty, do not read as rofi grabs input and therefore blocks.
     if ( !( fd == STDIN_FILENO && isatty ( fd ) == 1 ) ) {
         pd->cancel            = g_cancellable_new ();
         pd->cancel_source     = g_cancellable_connect ( pd->cancel, G_CALLBACK ( async_read_cancel ), pd, NULL );

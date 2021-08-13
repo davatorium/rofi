@@ -62,7 +62,7 @@ typedef enum
  * @param sw the Mode to show.
  * @param input A pointer to a string where the inputted data is placed.
  * @param menu_flags   Flags indicating state of the menu.
- * @param finalize the finailze callback
+ * @param finalize the finalize callback
  *
  * Main menu callback.
  *

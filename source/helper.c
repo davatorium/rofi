@@ -656,7 +656,7 @@ int config_sanity_check ( void )
     }
 
     if ( config.element_height < 1 ) {
-        g_string_append_printf ( msg, "\t<b>config.element_height</b>=%d is invalid. An element needs to be atleast 1 line high.\n",
+        g_string_append_printf ( msg, "\t<b>config.element_height</b>=%d is invalid. An element needs to be at least 1 line high.\n",
                                  config.element_height );
         config.element_height = 1;
         found_error           = TRUE;

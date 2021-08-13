@@ -1052,7 +1052,7 @@ static int drun_mode_init ( Mode *sw )
     DRunModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
     pd->disabled_entries = g_hash_table_new_full ( g_str_hash, g_str_equal, g_free, NULL );
     mode_set_private_data ( sw, (void *) pd );
-    // current destkop
+    // current desktop
     const char *current_desktop = g_getenv ( "XDG_CURRENT_DESKTOP" );
     pd->current_desktop_list = current_desktop ? g_strsplit ( current_desktop, ":", 0 ) : NULL;
 
@@ -1147,7 +1147,7 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         }
     }
     else if ( ( mretv & MENU_ENTRY_DELETE ) && selected_line < rmpd->cmd_list_length ) {
-        // Possitive sort index means it is in history.
+        // Positive sort index means it is in history.
         if ( rmpd->entry_list[selected_line].sort_index >= 0 ) {
             delete_entry_history ( &( rmpd->entry_list[selected_line] ) );
             drun_entry_clear ( &( rmpd->entry_list[selected_line] ) );

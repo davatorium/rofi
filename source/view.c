@@ -2074,7 +2074,7 @@ int rofi_view_error_dialog ( const char *msg, int markup )
     // resize window vertically to suit
     state->height = widget_get_desired_height ( WIDGET ( state->main_window ) );
 
-    // Calculte window position.
+    // Calculate window position.
     rofi_view_calculate_window_position ( state );
 
     // Move the window to the correct x,y position.
