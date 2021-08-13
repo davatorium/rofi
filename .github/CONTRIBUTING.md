@@ -69,10 +69,10 @@ When reporting a feature request include the following information:
 * A use-case for the feature.
 
 If possible try to explain how you would expect to use feature.
-For example, should it be a configuration option or a hot-key. 
+For example, should it be a configuration option or a hot-key.
 
 Requesting a feature is no guarantee it will be added.
- 
+
 **Please do not submit reports related to wayland, see
 [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more
 information.**

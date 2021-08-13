@@ -11,7 +11,7 @@ This means, that next rofi version will either be
 
 * 0.15.13 (bugfix release)
 * 0.16.0 (minor release) or (if no major bugs are discovered)
-* 1.0.0 (major release) 
+* 1.0.0 (major release)
 
 ## Keyboard Layouts
 
@@ -52,7 +52,7 @@ themes (with live preview) and a themes repository.
 To make things even easier, you can now take screenshots of **rofi** from within **rofi** with a simple keybinding.
 
 ![Rofi Internal Screenshot](rofi-screenshot.png)
- 
+
 ### Theme repository
 
 This has been requested several times and rofi's website actually has a theming page. This however got outdated quickly
@@ -71,7 +71,7 @@ The repository can be found [here](https://github.com/DaveDavenport/rofi-themes/
 The second tool is a website allowing you to easily create themes and preview all changes life, the
 [themenator](https://davedavenport.github.io/rofi/generator.html) Big thanks to
 [SardemFF7](https://github.com/sardemff7) who got tired of me complaining, took the very rough prototype and turned it
-into something beautiful. 
+into something beautiful.
 
 Hopefully people will make beautiful themes and submit them to the [theme repository](https://github.com/DaveDavenport/rofi-themes/).
 

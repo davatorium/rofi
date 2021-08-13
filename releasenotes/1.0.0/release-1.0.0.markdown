@@ -79,7 +79,7 @@ Below is a more complete changelog between the 0.15.12 and the 1.0.0 release.
 ## Bug fixes
 
 * Fix subpixel rendering. (#303)
-* Fix basic tests on OpenBSD  (#272)
+* Fix basic tests on OpenBSD (#272)
 * Fix wrong use of memcpy (thx to Jasperia).
 * Work around for sigwaitinfo on OpenBSD.
 * Ignore invalid entries (non-utf8) in dmenu mode.
@@ -94,4 +94,3 @@ Below is a more complete changelog between the 0.15.12 and the 1.0.0 release.
 
 * Removal of old themeing method. Given it was incomplete.
 * Removal of daemon mode, given this duplicates Window Manager functionality.
-

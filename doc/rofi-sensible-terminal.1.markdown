@@ -2,7 +2,7 @@
 
 ## NAME
 
-**rofi-sensible-terminal** -  launches $TERMINAL with fallbacks 
+**rofi-sensible-terminal** -  launches $TERMINAL with fallbacks
 
 ## SYNOPSIS
 
@@ -21,7 +21,7 @@ It tries to start one of the following (in that order):
 * x-terminal-emulator
 * urxvt
 * rxvt
-* st 
+* st
 * terminology
 * qterminal
 * Eterm
@@ -47,4 +47,3 @@ Dave Davenport and contributors
 
 Copied script from i3:
 Michael Stapelberg and contributors
-

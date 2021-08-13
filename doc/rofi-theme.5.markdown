@@ -859,7 +859,7 @@ Example:
 ```css
 textbox-custom {
   expand: false;
-  content: "My Message"; 
+  content: "My Message";
 }
 ```
 

@@ -35,7 +35,7 @@ element {
     padding: 1px ;
     spacing: 5px ;
     border:  0;
-    cursor: pointer;
+    cursor:  pointer;
 }
 element normal.normal {
     background-color: var(normal-background);
@@ -124,7 +124,7 @@ sidebar {
 button {
     spacing:    0;
     text-color: var(normal-foreground);
-    cursor: pointer;
+    cursor:     pointer;
 }
 button selected {
     background-color: var(selected-normal-background);
@@ -133,12 +133,12 @@ button selected {
 
 num-filtered-rows, num-rows {
     text-color: grey;
-    expand: false;
+    expand:     false;
 }
 textbox-num-sep {
     text-color: grey;
-    expand: false;
-    str: "/";
+    expand:     false;
+    str:        "/";
 }
 inputbar {
     padding:    1px ;
@@ -151,11 +151,11 @@ case-indicator {
     text-color: var(normal-foreground);
 }
 entry {
-    spacing:    0;
-    text-color: var(normal-foreground);
+    spacing:           0;
+    text-color:        var(normal-foreground);
     placeholder-color: grey;
-    placeholder: "Type to filter";
-    cursor: text;
+    placeholder:       "Type to filter";
+    cursor:            text;
 }
 prompt {
     spacing:    0;
