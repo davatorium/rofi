@@ -58,8 +58,8 @@ static int icon_get_desired_height ( widget *widget )
 {
     icon *b     = (icon *) widget;
     int  height = b->size;
-    if ( b->squared == FALSE  ){
-        if( b->icon ) {
+    if ( b->squared == FALSE ) {
+        if ( b->icon ) {
             int    iconh = cairo_image_surface_get_height ( b->icon );
             int    iconw = cairo_image_surface_get_width ( b->icon );
             int    icons = MAX ( iconh, iconw );
@@ -74,8 +74,8 @@ static int icon_get_desired_width ( widget *widget )
 {
     icon *b    = (icon *) widget;
     int  width = b->size;
-    if ( b->squared == FALSE ){
-        if( b->icon ) {
+    if ( b->squared == FALSE ) {
+        if ( b->icon ) {
             int    iconh = cairo_image_surface_get_height ( b->icon );
             int    iconw = cairo_image_surface_get_width ( b->icon );
             int    icons = MAX ( iconh, iconw );
@@ -97,7 +97,7 @@ static void icon_draw ( widget *wid, cairo_t *draw )
             cairo_surface_reference ( b->icon );
         }
     }
-    if ( b->icon == NULL  ) {
+    if ( b->icon == NULL ) {
         return;
     }
     int    iconh = cairo_image_surface_get_height ( b->icon );

@@ -49,7 +49,7 @@ static int       test = 0;
 #define TASSERTE( a, b )    {                                                            \
         if ( ( a ) == ( b ) ) {                                                          \
             printf ( "Test %i passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
-        }else {                                                                          \
+        } else {                                                                         \
             printf ( "Test %i failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \
@@ -73,13 +73,12 @@ void rofi_clear_error_messages (void )
 {
 }
 
-
 gboolean rofi_theme_parse_string ( const char *string )
 {
   return FALSE;
 }
 
-double textbox_get_estimated_char_height ( void  )
+double textbox_get_estimated_char_height ( void )
 {
   return 12.0;
 }
@@ -110,7 +109,7 @@ void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *cont
 {
 }
 
-int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
+int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
 
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
@@ -137,12 +136,12 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     TASSERT ( strcmp ( list[9], "4" ) == 0 );
 
     cmd_set_arguments ( llength, list);
-    TASSERT( find_arg ( "-e")  == 2 );
-    TASSERT( find_arg ( "-x")  == -1 );
+    TASSERT ( find_arg ( "-e") == 2 );
+    TASSERT ( find_arg ( "-x") == -1 );
     char *str;
-    TASSERT( find_arg_str ( "-e", &str)  == TRUE );
+    TASSERT ( find_arg_str ( "-e", &str) == TRUE );
     TASSERT ( str == list[3] );
-    TASSERT( find_arg_str ( "-x", &str)  == FALSE );
+    TASSERT ( find_arg_str ( "-x", &str) == FALSE );
     // Should be unmodified.
     TASSERT ( str == list[3] );
 

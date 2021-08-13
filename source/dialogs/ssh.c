@@ -198,14 +198,14 @@ static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsi
             }
             // Find end of hostname set.
             char *end = strstr ( start, " " );
-            if ( end == NULL  ) {
+            if ( end == NULL ) {
                 // Something is wrong.
                 continue;
             }
             *end = '\0';
             char *sep = start;
             start = strsep ( &sep, ", " );
-            while (  start ) {
+            while ( start ) {
                 int port = 0;
                 if ( start[0] == '[' ) {
                     start++;
@@ -215,7 +215,7 @@ static SshEntry *read_known_hosts_file ( const char *path, SshEntry * retv, unsi
                         errno = 0;
                         gchar  *endptr = NULL;
                         gint64 number  = g_ascii_strtoll ( &( end[2] ), &endptr, 10 );
-                        if ( errno != 0  ) {
+                        if ( errno != 0 ) {
                             g_warning ( "Failed to parse port number: %s.", &( end[2] ) );
                         }
                         else if ( endptr == &( end[2] ) ) {
@@ -466,7 +466,7 @@ static void parse_ssh_config_file ( SSHModePrivateData *pd, const char *filename
  *
  * @returns an array of strings containing all the hosts.
  */
-static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
+static SshEntry * get_ssh ( SSHModePrivateData *pd, unsigned int *length )
 {
     SshEntry     *retv         = NULL;
     unsigned int num_favorites = 0;
@@ -488,7 +488,7 @@ static SshEntry * get_ssh (  SSHModePrivateData *pd, unsigned int *length )
             errno    = 0;
             gchar  *endptr = NULL;
             gint64 number  = g_ascii_strtoll ( &( portstr[1] ), &endptr, 10 );
-            if ( errno != 0  ) {
+            if ( errno != 0 ) {
                 g_warning ( "Failed to parse port number: %s.", &( portstr[1] ) );
             }
             else if ( endptr == &( portstr[1] ) ) {

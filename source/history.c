@@ -168,7 +168,7 @@ static _element ** __history_get_element_list ( FILE *fd, unsigned int *length )
 
         ( *length )++;
     }
-    if ( buffer != NULL  ) {
+    if ( buffer != NULL ) {
         free ( buffer );
         buffer = NULL;
     }

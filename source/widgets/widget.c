@@ -184,7 +184,7 @@ void widget_draw ( widget *widget, cairo_t *d )
             radius_tl = MIN ( radius_tl, j );
         }
         if ( ( radius_br + radius_tr ) > ( vspace ) ) {
-            int j = ( ( vspace  ) / 2.0 );
+            int j = ( ( vspace ) / 2.0 );
             radius_br = MIN ( radius_br, j );
             radius_tr = MIN ( radius_tr, j );
         }

@@ -203,14 +203,14 @@ static void run_switcher ( ModeMode mode )
     // User can pre-select a row.
     if ( find_arg ( "-selected-row" ) >= 0 ) {
         unsigned int sr = 0;
-        find_arg_uint (  "-selected-row", &( sr ) );
+        find_arg_uint ( "-selected-row", &( sr ) );
         rofi_view_set_selected_line ( state, sr );
     }
     if ( state ) {
         rofi_view_set_active ( state );
     }
     if ( rofi_view_get_active () == NULL ) {
-        g_main_loop_quit ( main_loop  );
+        g_main_loop_quit ( main_loop );
     }
 }
 void process_result ( RofiViewState *state )
@@ -223,7 +223,7 @@ void process_result ( RofiViewState *state )
         char         *input        = g_strdup ( rofi_view_get_user_input ( state ) );
         ModeMode     retv          = mode_result ( sw, mretv, &input, selected_line );
         {
-          if ( state->text ){
+          if ( state->text ) {
             if ( input == NULL ) {
               textbox_text ( state->text, "" );
             } else  if ( strcmp ( rofi_view_get_user_input ( state ), input ) != 0 ) {
@@ -303,7 +303,7 @@ static void print_list_of_modi ( int is_term )
 static void print_main_application_options ( int is_term )
 {
     print_help_msg ( "-no-config", "", "Do not load configuration, use default values.", NULL, is_term );
-    print_help_msg ( "-v,-version", "", "Print the version number and exit.", NULL, is_term  );
+    print_help_msg ( "-v,-version", "", "Print the version number and exit.", NULL, is_term );
     print_help_msg ( "-dmenu", "", "Start in dmenu mode.", NULL, is_term );
     print_help_msg ( "-display", "[string]", "X server to contact.", "${DISPLAY}", is_term );
     print_help_msg ( "-h,-help", "", "This help message.", NULL, is_term );
@@ -453,7 +453,7 @@ static void cleanup ()
         mode_destroy ( modi[i] );
     }
     rofi_view_workers_finalize ();
-    if ( main_loop != NULL  ) {
+    if ( main_loop != NULL ) {
         g_main_loop_unref ( main_loop );
         main_loop = NULL;
     }
@@ -733,12 +733,12 @@ static gboolean startup ( G_GNUC_UNUSED gpointer data )
             g_main_loop_quit ( main_loop );
         }
     }
-    else if ( find_arg_str (  "-e", &( msg ) ) ) {
+    else if ( find_arg_str ( "-e", &( msg ) ) ) {
         int markup = FALSE;
         if ( find_arg ( "-markup" ) >= 0 ) {
             markup = TRUE;
         }
-        if (  !rofi_view_error_dialog ( msg, markup ) ) {
+        if ( !rofi_view_error_dialog ( msg, markup ) ) {
             g_main_loop_quit ( main_loop );
         }
     }
@@ -794,7 +794,7 @@ int main ( int argc, char *argv[] )
     cmd_set_arguments ( argc, argv );
 
     // Version
-    if ( find_arg (  "-v" ) >= 0 || find_arg (  "-version" ) >= 0 ) {
+    if ( find_arg ( "-v" ) >= 0 || find_arg ( "-version" ) >= 0 ) {
 #ifdef GIT_VERSION
         g_print ( "Version: "GIT_VERSION "\n" );
 #else
@@ -829,7 +829,7 @@ int main ( int argc, char *argv[] )
     // Detect if we are in dmenu mode.
     // This has two possible causes.
     // 1 the user specifies it on the command-line.
-    if ( find_arg (  "-dmenu" ) >= 0 ) {
+    if ( find_arg ( "-dmenu" ) >= 0 ) {
         dmenu_mode = TRUE;
     }
     // 2 the binary that executed is called dmenu (e.g. symlink to rofi)
@@ -943,7 +943,7 @@ int main ( int argc, char *argv[] )
                 g_free ( etc );
             }
         }
-        if ( !found_system  ) {
+        if ( !found_system ) {
             /** New format. */
             gchar *etc = g_build_filename ( SYSCONFDIR, "rofi.rasi", NULL );
             g_debug ( "Look for default config file: %s", etc );
@@ -1057,7 +1057,7 @@ int main ( int argc, char *argv[] )
     }
     // Dump.
     // catch help request
-    if ( find_arg (  "-h" ) >= 0 || find_arg (  "-help" ) >= 0 || find_arg (  "--help" ) >= 0 ) {
+    if ( find_arg ( "-h" ) >= 0 || find_arg ( "-help" ) >= 0 || find_arg ( "--help" ) >= 0 ) {
         help ( argc, argv );
         cleanup ();
         return EXIT_SUCCESS;

@@ -92,7 +92,6 @@ extern ThemeWidget *rofi_theme;
  */
 extern ThemeWidget *rofi_theme;
 
-
 extern ThemeWidget *rofi_configuration;
 
 /**
@@ -192,7 +191,7 @@ RofiDistance rofi_theme_get_distance ( const widget *widget, const char *propert
  *
  * @returns The integer value of this property for this widget.
  */
-int rofi_theme_get_integer   (  const widget *widget, const char *property, int def );
+int rofi_theme_get_integer ( const widget *widget, const char *property, int def );
 
 /**
  * @param widget   The widget to query
@@ -214,7 +213,7 @@ int rofi_theme_get_position ( const widget *widget, const char *property, int de
  *
  * @returns The boolean value of this property for this widget.
  */
-int rofi_theme_get_boolean   (  const widget *widget, const char *property, int def );
+int rofi_theme_get_boolean ( const widget *widget, const char *property, int def );
 
 /**
  * @param widget   The widget to query
@@ -246,7 +245,7 @@ RofiCursorType rofi_theme_get_cursor_type ( const widget *widget, const char *pr
  *
  * @returns The string value of this property for this widget.
  */
-const char *rofi_theme_get_string  (  const widget *widget, const char *property, const char *def );
+const char *rofi_theme_get_string ( const widget *widget, const char *property, const char *def );
 
 /**
  * @param widget   The widget to query
@@ -257,7 +256,7 @@ const char *rofi_theme_get_string  (  const widget *widget, const char *property
  *
  * @returns The double value of this property for this widget.
  */
-double rofi_theme_get_double (  const widget *widget, const char *property, double def );
+double rofi_theme_get_double ( const widget *widget, const char *property, double def );
 
 /**
  * @param widget   The widget to query
@@ -268,7 +267,6 @@ double rofi_theme_get_double (  const widget *widget, const char *property, doub
  *
  */
 void rofi_theme_get_color ( const widget *widget, const char *property, cairo_t *d );
-
 
 /**
  * @param widget   The widget to query
@@ -419,7 +417,7 @@ ThemeMediaType rofi_theme_parse_media_type ( const char *type );
  *
  * @returns a copy of the distance.
  */
-RofiDistance rofi_theme_property_copy_distance  ( RofiDistance const distance );
+RofiDistance rofi_theme_property_copy_distance ( RofiDistance const distance );
 
 /**
  * @param filename The file to validate.

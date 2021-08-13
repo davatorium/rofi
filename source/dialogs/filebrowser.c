@@ -79,7 +79,7 @@ enum FBSortingTime
     FB_CTIME,
 };
 
-/** Icons to use for the file type  */
+/** Icons to use for the file type */
 const char *icon_name[NUM_FILE_TYPES] =
 {
     "go-up",
@@ -275,7 +275,7 @@ static void get_file_browser ( Mode *sw )
                 pd->array[pd->array_length].type = RFILE;
                 {
                     // If we have link, use a stat to fine out what it is, if we fail, we mark it as file.
-                    // TODO have a 'broken link'  mode?
+                    // TODO have a 'broken link' mode?
                     // Convert full path to right encoding.
                     char *file = g_filename_from_utf8 ( pd->array[pd->array_length].path, -1, NULL, NULL, NULL );
                     if ( file ) {
@@ -466,7 +466,7 @@ static ModeMode file_browser_mode_result ( Mode *sw, int mretv, char **input, un
         char *p   = rofi_expand_path ( *input );
         char *dir = g_filename_from_utf8 ( p, -1, NULL, NULL, NULL );
         g_free ( p );
-        if ( g_file_test ( dir, G_FILE_TEST_EXISTS )  ) {
+        if ( g_file_test ( dir, G_FILE_TEST_EXISTS ) ) {
             if ( g_file_test ( dir, G_FILE_TEST_IS_DIR ) ) {
                 g_object_unref ( pd->current_dir );
                 pd->current_dir = g_file_new_for_path ( dir );
@@ -627,7 +627,7 @@ ModeMode file_browser_mode_completer ( Mode *sw, int mretv, char **input, unsign
         char *p   = rofi_expand_path ( *input );
         char *dir = g_filename_from_utf8 ( p, -1, NULL, NULL, NULL );
         g_free ( p );
-        if ( g_file_test ( dir, G_FILE_TEST_EXISTS )  ) {
+        if ( g_file_test ( dir, G_FILE_TEST_EXISTS ) ) {
             if ( g_file_test ( dir, G_FILE_TEST_IS_DIR ) ) {
                 g_object_unref ( pd->current_dir );
                 pd->current_dir = g_file_new_for_path ( dir );

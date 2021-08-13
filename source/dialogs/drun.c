@@ -468,7 +468,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
             if ( list ) {
                 for ( gsize lcd = 0; show && pd->current_desktop_list[lcd]; lcd++ ) {
                     for ( gsize lle = 0; show && lle < llength; lle++ ) {
-                        show = !( g_strcmp0  ( pd->current_desktop_list[lcd], list[lle] ) == 0 );
+                        show = !( g_strcmp0 ( pd->current_desktop_list[lcd], list[lle] ) == 0 );
                     }
                 }
                 g_strfreev ( list );
@@ -534,7 +534,7 @@ static void read_desktop_file ( DRunModePrivateData *pd, const char *root, const
     char **categories = NULL;
     if ( pd->show_categories ) {
         categories = g_key_file_get_locale_string_list ( kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL );
-        if (  !rofi_strv_contains ( (const char * const *) categories, (const char * const *) pd->show_categories ) ) {
+        if ( !rofi_strv_contains ( (const char * const *) categories, (const char * const *) pd->show_categories ) ) {
             g_strfreev ( categories );
             g_key_file_free ( kf );
             return;
@@ -961,7 +961,7 @@ static void get_apps ( DRunModePrivateData *pd )
         }
 
         /** Load application entires */
-        p   = rofi_theme_find_property ( wid, P_BOOLEAN, "parse-system", TRUE );
+        p  = rofi_theme_find_property ( wid, P_BOOLEAN, "parse-system", TRUE );
         if ( p == NULL || ( p->type == P_BOOLEAN && p->value.b )) {
           // Then read thee system data dirs.
           const gchar * const * sys = g_get_system_data_dirs ();
@@ -1033,7 +1033,7 @@ static void drun_mode_parse_entry_fields ()
 }
 
 static void drun_mode_parse_display_format() {
-    for (int i = 0; i < DRUN_MATCH_NUM_FIELDS; i++) {
+    for ( int i = 0; i < DRUN_MATCH_NUM_FIELDS; i++ ) {
         if ( matching_entry_fields[i].enabled_display ) continue;
 
         gchar* search_term = g_strdup_printf("{%s}",matching_entry_fields[i].entry_field_name);
@@ -1109,9 +1109,11 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
                 (*input) = g_strdup ( rmpd->old_input );
             }
             rmpd->file_complete = FALSE;
-        } else if ( (mretv&MENU_CANCEL) ) {
+        }
+        else if ( (mretv&MENU_CANCEL) ) {
             retv = MODE_EXIT;
-        } else {
+        }
+        else {
             char *path = NULL;
             retv = file_browser_mode_completer ( rmpd->completer, mretv, input, selected_line, &path );
             if ( retv == MODE_EXIT ) {
@@ -1122,7 +1124,7 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
         }
         return retv;
     }
-    if ( ( mretv & MENU_OK )  ) {
+    if ( ( mretv & MENU_OK ) ) {
         switch ( rmpd->entry_list[selected_line].type )
         {
         case DRUN_DESKTOP_ENTRY_TYPE_SERVICE:
@@ -1157,9 +1159,10 @@ static ModeMode drun_mode_result ( Mode *sw, int mretv, char **input, unsigned i
     }
     else if ( mretv & MENU_CUSTOM_COMMAND ) {
         retv = ( mretv & MENU_LOWER_MASK );
-    } else if ( ( mretv& MENU_COMPLETE) ) {
+    }
+    else if ( ( mretv& MENU_COMPLETE) ) {
         retv = RELOAD_DIALOG;
-        if ( selected_line  < rmpd->cmd_list_length ) {
+        if ( selected_line < rmpd->cmd_list_length ) {
             switch ( rmpd->entry_list[selected_line].type )
             {
                 case DRUN_DESKTOP_ENTRY_TYPE_SERVICE:
@@ -1213,7 +1216,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, in
 {
     DRunModePrivateData *pd = (DRunModePrivateData *) mode_get_private_data ( sw );
 
-    if ( pd->file_complete ){
+    if ( pd->file_complete ) {
         return pd->completer->_get_display_value (pd->completer, selected_line, state, list, get_entry );
     }
     *state |= MARKUP;
@@ -1323,10 +1326,10 @@ static char *drun_get_completion ( const Mode *sw, unsigned int index )
 static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsigned int index )
 {
     DRunModePrivateData *rmpd = (DRunModePrivateData *) mode_get_private_data ( data );
-    if ( rmpd->file_complete ){
+    if ( rmpd->file_complete ) {
         return rmpd->completer->_token_match (rmpd->completer, tokens, index );
     }
-    int                 match = 1;
+    int match = 1;
     if ( tokens ) {
         for ( int j = 0; match && tokens != NULL && tokens[j] != NULL; j++ ) {
             int              test        = 0;
@@ -1386,7 +1389,7 @@ static int drun_token_match ( const Mode *data, rofi_int_matcher **tokens, unsig
 static unsigned int drun_mode_get_num_entries ( const Mode *sw )
 {
     const DRunModePrivateData *pd = (const DRunModePrivateData *) mode_get_private_data ( sw );
-    if ( pd->file_complete ){
+    if ( pd->file_complete ) {
         return pd->completer->_get_num_entries( pd->completer );
     }
     return pd->cmd_list_length;
@@ -1397,12 +1400,12 @@ static char *drun_get_message ( const Mode *sw )
     if ( pd->file_complete ) {
         if ( pd->selected_line < pd->cmd_list_length ) {
             char *msg =  mode_get_message ( pd->completer);
-            if (msg ){
+            if ( msg ) {
                 char *retv = g_strdup_printf("File complete for: %s\n%s", pd->entry_list[pd->selected_line].name, msg);
                 g_free (msg);
                 return retv;
             }
-            return  g_strdup_printf("File complete for: %s", pd->entry_list[pd->selected_line].name);
+            return g_strdup_printf("File complete for: %s", pd->entry_list[pd->selected_line].name);
         }
     }
     return NULL;

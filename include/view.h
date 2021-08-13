@@ -215,7 +215,7 @@ void rofi_view_remove_active ( RofiViewState *state );
  *
  * The error message to show.
  */
-int rofi_view_error_dialog ( const char *msg, int markup  );
+int rofi_view_error_dialog ( const char *msg, int markup );
 
 /**
  * Queue a redraw.
@@ -248,7 +248,7 @@ void rofi_view_hide ( void );
  *
  * The reloading happens 'lazy', multiple calls might be handled at once.
  */
-void rofi_view_reload ( void  );
+void rofi_view_reload ( void );
 
 /**
  * @param state The handle to the view
@@ -323,7 +323,7 @@ void rofi_capture_screenshot ( void );
 /**
  * Set the window title.
  */
-void rofi_view_set_window_title ( const char * title  );
+void rofi_view_set_window_title ( const char * title );
 
 /**
  * set ellipsize mode to start.

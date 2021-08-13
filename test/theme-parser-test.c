@@ -51,19 +51,18 @@
 
 uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
 {
-  return 0;
+    return 0;
 }
 void rofi_clear_error_messages ( void ) {}
 uint32_t rofi_icon_fetcher_query_advanced ( const char *name, const int wsize, const int hsize )
 {
-  return 0;
+    return 0;
 }
 
 cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
 {
-  return NULL;
+    return NULL;
 }
-
 
 int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
 {
@@ -127,7 +126,6 @@ void rofi_add_error_message ( GString *msg )
 static void theme_parser_setup ( void )
 {
     error = 0;
-
 }
 static void theme_parser_teardown ( void )
 {
@@ -135,7 +133,6 @@ static void theme_parser_teardown ( void )
     ck_assert_int_eq ( error, 0);
     rofi_theme_free ( rofi_theme );
     rofi_theme = NULL;
-
 }
 
 START_TEST (test_core_empty_string )
@@ -259,9 +256,9 @@ START_TEST ( test_properties_distance_em)
     RofiDistance d = (RofiDistance){ {1, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE,NULL, NULL }, ROFI_HL_SOLID};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_int_eq (  p.left.base.distance , 10 );
-    ck_assert_int_eq(  p.left.base.type , ROFI_PU_EM );
-    ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
+    ck_assert_int_eq ( p.left.base.distance , 10 );
+    ck_assert_int_eq( p.left.base.type , ROFI_PU_EM );
+    ck_assert_int_eq( p.left.style, ROFI_HL_SOLID);
 
 }
 END_TEST
@@ -275,14 +272,14 @@ START_TEST ( test_properties_distance_em_linestyle)
     RofiDistance d = (RofiDistance){ {1, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE,NULL, NULL }, ROFI_HL_SOLID};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "sol", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 1.3 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq(  p.left.base.type , ROFI_PU_EM );
-    ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
+    ck_assert_double_eq_tol ( p.left.base.distance , 1.3 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq( p.left.base.type , ROFI_PU_EM );
+    ck_assert_int_eq( p.left.style, ROFI_HL_SOLID);
 
     p = rofi_theme_get_padding ( &wid, "dash", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 1.5 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq(  p.left.base.type , ROFI_PU_EM );
-    ck_assert_int_eq(  p.left.style, ROFI_HL_DASH);
+    ck_assert_double_eq_tol ( p.left.base.distance , 1.5 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq( p.left.base.type , ROFI_PU_EM );
+    ck_assert_int_eq( p.left.style, ROFI_HL_DASH);
 }
 END_TEST
 START_TEST ( test_properties_distance_px)
@@ -295,9 +292,9 @@ START_TEST ( test_properties_distance_px)
     RofiDistance d = (RofiDistance){ {1, ROFI_PU_EM, ROFI_DISTANCE_MODIFIER_NONE,NULL, NULL }, ROFI_HL_DASH};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 10.0 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq(  p.left.base.type , ROFI_PU_PX );
-    ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
+    ck_assert_double_eq_tol ( p.left.base.distance , 10.0 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq( p.left.base.type , ROFI_PU_PX );
+    ck_assert_int_eq( p.left.style, ROFI_HL_SOLID);
 }
 END_TEST
 START_TEST ( test_properties_distance_px_linestyle)
@@ -310,13 +307,13 @@ START_TEST ( test_properties_distance_px_linestyle)
     RofiDistance d = (RofiDistance){ {1, ROFI_PU_EM, ROFI_DISTANCE_MODIFIER_NONE,NULL, NULL }, ROFI_HL_DASH};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "sol", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 10.0 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq(  p.left.base.type , ROFI_PU_PX );
-    ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
+    ck_assert_double_eq_tol ( p.left.base.distance , 10.0 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq( p.left.base.type , ROFI_PU_PX );
+    ck_assert_int_eq( p.left.style, ROFI_HL_SOLID);
     p = rofi_theme_get_padding ( &wid, "dash", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 14.0 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq(  p.left.base.type , ROFI_PU_PX );
-    ck_assert_int_eq(  p.left.style, ROFI_HL_DASH);
+    ck_assert_double_eq_tol ( p.left.base.distance , 14.0 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq( p.left.base.type , ROFI_PU_PX );
+    ck_assert_int_eq( p.left.style, ROFI_HL_DASH);
 }
 END_TEST
 START_TEST ( test_properties_distance_percent)
@@ -329,9 +326,9 @@ START_TEST ( test_properties_distance_percent)
     RofiDistance d = (RofiDistance){ {1, ROFI_PU_EM, ROFI_DISTANCE_MODIFIER_NONE,NULL, NULL }, ROFI_HL_DASH};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 10.0 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq(  p.left.base.type , ROFI_PU_PERCENT);
-    ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
+    ck_assert_double_eq_tol ( p.left.base.distance , 10.0 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq( p.left.base.type , ROFI_PU_PERCENT);
+    ck_assert_int_eq( p.left.style, ROFI_HL_SOLID);
 }
 END_TEST
 START_TEST ( test_properties_distance_percent_linestyle)
@@ -344,13 +341,13 @@ START_TEST ( test_properties_distance_percent_linestyle)
     RofiDistance d = (RofiDistance){ {1, ROFI_PU_EM, ROFI_DISTANCE_MODIFIER_NONE,NULL, NULL }, ROFI_HL_DASH};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "sol", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 10.0 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq(  p.left.base.type , ROFI_PU_PERCENT);
-    ck_assert_int_eq(  p.left.style, ROFI_HL_SOLID);
+    ck_assert_double_eq_tol ( p.left.base.distance , 10.0 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq( p.left.base.type , ROFI_PU_PERCENT);
+    ck_assert_int_eq( p.left.style, ROFI_HL_SOLID);
     p = rofi_theme_get_padding ( &wid, "dash", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 10 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq(  p.left.base.type , ROFI_PU_PERCENT);
-    ck_assert_int_eq(  p.left.style, ROFI_HL_DASH);
+    ck_assert_double_eq_tol ( p.left.base.distance , 10 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq( p.left.base.type , ROFI_PU_PERCENT);
+    ck_assert_int_eq( p.left.style, ROFI_HL_DASH);
 }
 END_TEST
 START_TEST ( test_properties_position)
@@ -999,14 +996,14 @@ START_TEST ( test_properties_padding_2 )
     RofiDistance d = (RofiDistance){ {1, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE,NULL, NULL }, ROFI_HL_SOLID};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 20, REAL_COMPARE_DELTA );
-    ck_assert_int_eq (  p.left.base.type , ROFI_PU_PX );
-    ck_assert_double_eq_tol (  p.right.base.distance , 20, REAL_COMPARE_DELTA  );
-    ck_assert_int_eq (  p.right.base.type , ROFI_PU_PX );
-    ck_assert_double_eq_tol (  p.top.base.distance , 10, REAL_COMPARE_DELTA);
-    ck_assert_int_eq (  p.top.base.type , ROFI_PU_PX );
-    ck_assert_double_eq_tol (  p.bottom.base.distance , 10, REAL_COMPARE_DELTA );
-    ck_assert_int_eq (  p.bottom.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.left.base.distance , 20, REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.left.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.right.base.distance , 20, REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.right.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.top.base.distance , 10, REAL_COMPARE_DELTA);
+    ck_assert_int_eq ( p.top.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.bottom.base.distance , 10, REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.bottom.base.type , ROFI_PU_PX );
 
 }
 END_TEST
@@ -1019,14 +1016,14 @@ START_TEST ( test_properties_padding_3 )
     RofiDistance d = (RofiDistance){ {1, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE,NULL, NULL }, ROFI_HL_SOLID};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 30, REAL_COMPARE_DELTA);
-    ck_assert_int_eq (  p.left.base.type , ROFI_PU_PX );
-    ck_assert_double_eq_tol (  p.right.base.distance , 30, REAL_COMPARE_DELTA );
-    ck_assert_int_eq (  p.right.base.type , ROFI_PU_PX );
-    ck_assert_double_eq_tol (  p.top.base.distance , 10, REAL_COMPARE_DELTA );
-    ck_assert_int_eq (  p.top.base.type , ROFI_PU_PX );
-    ck_assert_double_eq_tol (  p.bottom.base.distance , 20, REAL_COMPARE_DELTA );
-    ck_assert_int_eq (  p.bottom.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.left.base.distance , 30, REAL_COMPARE_DELTA);
+    ck_assert_int_eq ( p.left.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.right.base.distance , 30, REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.right.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.top.base.distance , 10, REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.top.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.bottom.base.distance , 20, REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.bottom.base.type , ROFI_PU_PX );
 
 }
 END_TEST
@@ -1039,14 +1036,14 @@ START_TEST ( test_properties_padding_4 )
     RofiDistance d = (RofiDistance){ {1, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE,NULL, NULL }, ROFI_HL_SOLID};
     RofiPadding pi = (RofiPadding){d,d,d,d};
     RofiPadding p = rofi_theme_get_padding ( &wid, "test", pi);
-    ck_assert_double_eq_tol (  p.left.base.distance , 40 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq (  p.left.base.type , ROFI_PU_PX );
-    ck_assert_double_eq_tol (  p.right.base.distance , 30 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq (  p.right.base.type , ROFI_PU_PX );
-    ck_assert_double_eq_tol (  p.top.base.distance , 10 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq (  p.top.base.type , ROFI_PU_PX );
-    ck_assert_double_eq_tol (  p.bottom.base.distance , 20 , REAL_COMPARE_DELTA );
-    ck_assert_int_eq (  p.bottom.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.left.base.distance , 40 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.left.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.right.base.distance , 30 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.right.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.top.base.distance , 10 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.top.base.type , ROFI_PU_PX );
+    ck_assert_double_eq_tol ( p.bottom.base.distance , 20 , REAL_COMPARE_DELTA );
+    ck_assert_int_eq ( p.bottom.base.type , ROFI_PU_PX );
 
 }
 END_TEST
@@ -1097,8 +1094,7 @@ START_TEST ( test_properties_integer)
 }
 END_TEST
 
-
-START_TEST  ( test_properties_orientation )
+START_TEST ( test_properties_orientation )
 {
     widget wid;
     wid.name = "blaat";
@@ -1112,7 +1108,7 @@ START_TEST  ( test_properties_orientation )
 
 }
 END_TEST
-START_TEST  ( test_properties_orientation_case )
+START_TEST ( test_properties_orientation_case )
 {
     widget wid;
     wid.name = "blaat";
@@ -1123,7 +1119,7 @@ START_TEST  ( test_properties_orientation_case )
 
 }
 END_TEST
-START_TEST  ( test_properties_cursor )
+START_TEST ( test_properties_cursor )
 {
     widget wid;
     wid.name = "blaat";
@@ -1134,7 +1130,7 @@ START_TEST  ( test_properties_cursor )
     ck_assert_int_eq ( rofi_theme_get_cursor_type( &wid, "txt", ROFI_CURSOR_DEFAULT), ROFI_CURSOR_TEXT);
 }
 END_TEST
-START_TEST  ( test_properties_cursor_case )
+START_TEST ( test_properties_cursor_case )
 {
     widget wid;
     wid.name = "blaat";
@@ -1145,7 +1141,7 @@ START_TEST  ( test_properties_cursor_case )
     ck_assert_int_eq ( rofi_theme_get_cursor_type( &wid, "txt", ROFI_CURSOR_DEFAULT), ROFI_CURSOR_TEXT);
 }
 END_TEST
-START_TEST  ( test_properties_list )
+START_TEST ( test_properties_list )
 {
     widget wid;
     wid.name = "blaat";
@@ -1238,13 +1234,11 @@ START_TEST ( test_core_properties_error )
     g_string_free ( error_msg, TRUE);
     error_msg = NULL;
     error = 0;
-
 }
 END_TEST
 
 START_TEST ( test_import_error )
 {
-
     rofi_theme_parse_string("@import \"/non-existing-file.rasi\"");
 
     const char *errstr =
@@ -1277,12 +1271,11 @@ START_TEST ( test_prepare_path )
     f = rofi_theme_parse_prepare_file ( "/tmp/test.rasi" , "/random/");
     ck_assert_ptr_nonnull ( f );
     ck_assert_str_eq ( f, "/tmp/test.rasi" );
-    g_free ( f  );
+    g_free ( f );
 
     g_free ( current_dir );
 }
 END_TEST
-
 
 START_TEST(test_properties_types_names)
 {
@@ -1297,7 +1290,6 @@ START_TEST(test_properties_types_names)
     ck_assert_str_eq ( PropertyTypeName[P_HIGHLIGHT],   "Highlight");
     ck_assert_str_eq ( PropertyTypeName[P_LIST],        "List");
     ck_assert_str_eq ( PropertyTypeName[P_ORIENTATION], "Orientation");
-
 }
 END_TEST
 
@@ -1455,7 +1447,7 @@ static Suite * theme_parser_suite (void)
     return s;
 }
 
-int main ( int argc, char ** argv )
+int main ( int argc, char **argv )
 {
     cmd_set_arguments ( argc, argv );
 
@@ -1463,7 +1455,6 @@ int main ( int argc, char ** argv )
         fprintf ( stderr, "Failed to set locale.\n" );
         return EXIT_FAILURE;
     }
-
 
     Suite *s;
     SRunner *sr;

@@ -159,7 +159,7 @@ static void async_read_callback ( GObject *source_object, GAsyncResult *res, gpo
         // Absorb separator, already in buffer so should not block.
         // If error == NULL end of stream..
         g_data_input_stream_read_byte ( stream, NULL, &error );
-        if (  error == NULL ) {
+        if ( error == NULL ) {
             // Add empty line.
             read_add ( pd, "", 0 );
             rofi_view_reload ();
@@ -204,7 +204,7 @@ static int get_dmenu_async ( DmenuModePrivateData *pd, int sync_pre_read )
 }
 static void get_dmenu_sync ( DmenuModePrivateData *pd )
 {
-    while  ( TRUE ) {
+    while ( TRUE ) {
         gsize len   = 0;
         char  *data = g_data_input_stream_read_upto ( pd->data_input_stream, &( pd->separator ), 1, &len, NULL, NULL );
         if ( data == NULL ) {
@@ -298,7 +298,7 @@ static void dmenu_mode_free ( Mode *sw )
     }
     DmenuModePrivateData *pd = (DmenuModePrivateData *) mode_get_private_data ( sw );
     if ( pd != NULL ) {
-        if ( pd->cancel  ) {
+        if ( pd->cancel ) {
             // If open, cancel reads.
             if ( pd->input_stream && !g_input_stream_is_closed ( pd->input_stream ) ) {
                 g_cancellable_cancel ( pd->cancel );
@@ -368,7 +368,7 @@ static int dmenu_mode_init ( Mode *sw )
     // Input data separator.
     find_arg_char ( "-sep", &( pd->separator ) );
 
-    find_arg_uint (  "-selected-row", &( pd->selected_line ) );
+    find_arg_uint ( "-selected-row", &( pd->selected_line ) );
     // By default we print the unescaped line back.
     pd->format = "s";
 
@@ -376,21 +376,21 @@ static int dmenu_mode_init ( Mode *sw )
     find_arg_str ( "-format", &( pd->format ) );
     // Urgent.
     char *str = NULL;
-    find_arg_str (  "-u", &str );
+    find_arg_str ( "-u", &str );
     if ( str != NULL ) {
         parse_ranges ( str, &( pd->urgent_list ), &( pd->num_urgent_list ) );
     }
     // Active
     str = NULL;
-    find_arg_str (  "-a", &str );
+    find_arg_str ( "-a", &str );
     if ( str != NULL ) {
         parse_ranges ( str, &( pd->active_list ), &( pd->num_active_list ) );
     }
 
     // DMENU COMPATIBILITY
     unsigned int lines = DEFAULT_MENU_LINES;
-    find_arg_uint (  "-l", &( lines ) );
-    if (  lines != DEFAULT_MENU_LINES ) {
+    find_arg_uint ( "-l", &( lines ) );
+    if ( lines != DEFAULT_MENU_LINES ) {
         Property *p = rofi_theme_property_create ( P_INTEGER );
         p->name = g_strdup("lines");
         p->value.i = lines;
@@ -516,7 +516,7 @@ static void dmenu_finish ( RofiViewState *state, int retv )
     else if ( retv >= 10 ) {
         rofi_set_return_code ( retv );
     }
-    else{
+    else {
         rofi_set_return_code ( EXIT_SUCCESS );
     }
     rofi_view_set_active ( NULL );
@@ -616,7 +616,7 @@ static void dmenu_finalize ( RofiViewState *state )
     // We normally do not want to restart the loop.
     restart = FALSE;
     // Normal mode
-    if ( ( mretv & MENU_OK  ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line].entry != NULL ) {
+    if ( ( mretv & MENU_OK ) && pd->selected_line != UINT32_MAX && cmd_list[pd->selected_line].entry != NULL ) {
         // Check if entry is non-selectable.
         if ( cmd_list[pd->selected_line].nonselectable == TRUE ) {
             g_free ( input );
@@ -748,7 +748,7 @@ int dmenu_switcher_dialog ( void )
         g_free ( input );
         return TRUE;
     }
-    find_arg_str (  "-p", &( dmenu_mode.display_name ) );
+    find_arg_str ( "-p", &( dmenu_mode.display_name ) );
     RofiViewState *state = rofi_view_create ( &dmenu_mode, input, menu_flags, dmenu_finalize );
 
     if ( find_arg ( "-keep-right" ) >= 0 ) {

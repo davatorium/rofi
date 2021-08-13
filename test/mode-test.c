@@ -69,7 +69,7 @@ gboolean rofi_theme_parse_string ( const char *string )
   return FALSE;
 }
 
-double textbox_get_estimated_char_height ( void  )
+double textbox_get_estimated_char_height ( void )
 {
   return 16.0;
 }
@@ -125,7 +125,7 @@ static void test_mode_setup ( void )
 {
     ck_assert_int_eq ( mode_init ( &help_keys_mode ), TRUE);
 }
-static void test_mode_teardown (void )
+static void test_mode_teardown ( void )
 {
     mode_destroy ( &help_keys_mode );
 }
@@ -147,7 +147,7 @@ START_TEST(test_mode_num_items)
 {
     unsigned int rows = mode_get_num_entries ( &help_keys_mode);
     ck_assert_int_eq ( rows, 74);
-    for ( unsigned int i =0; i < rows; i++  ){
+    for ( unsigned int i =0; i < rows; i++ ) {
         int state = 0;
         GList *list = NULL;
         char *v = mode_get_display_value ( &help_keys_mode, i, &state, &list, TRUE );
@@ -220,7 +220,6 @@ static Suite * mode_suite (void)
 
     return s;
 }
-
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {

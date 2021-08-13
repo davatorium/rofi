@@ -466,7 +466,7 @@ static workarea * x11_get_monitor_from_output ( xcb_randr_output_t out )
 }
 
 #if  ( ( ( XCB_RANDR_MAJOR_VERSION >= RANDR_PREF_MAJOR_VERSION ) && ( XCB_RANDR_MINOR_VERSION >= RANDR_PREF_MINOR_VERSION ) ) \
-    || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION  )
+    || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION )
 /**
  * @param mon The randr monitor to parse.
  *
@@ -579,7 +579,7 @@ static void x11_build_monitor_layout ()
 
     g_debug ( "Randr XCB api version: %d.%d.", XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION );
 #if  ( ( ( XCB_RANDR_MAJOR_VERSION == RANDR_PREF_MAJOR_VERSION ) && ( XCB_RANDR_MINOR_VERSION >= RANDR_PREF_MINOR_VERSION ) ) \
-    || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION  )
+    || XCB_RANDR_MAJOR_VERSION > RANDR_PREF_MAJOR_VERSION )
     xcb_randr_query_version_cookie_t cversion = xcb_randr_query_version ( xcb->connection,
                                                                           RANDR_PREF_MAJOR_VERSION, RANDR_PREF_MINOR_VERSION );
     xcb_randr_query_version_reply_t  *rversion = xcb_randr_query_version_reply ( xcb->connection, cversion, NULL );
@@ -1075,7 +1075,7 @@ static void main_loop_x11_event_handler_view ( xcb_generic_event_t *event )
     {
         xcb_motion_notify_event_t *xme        = (xcb_motion_notify_event_t *) event;
         gboolean                  button_mask = xme->state & XCB_EVENT_MASK_BUTTON_1_MOTION;
-        if (  button_mask && config.click_to_exit == TRUE ) {
+        if ( button_mask && config.click_to_exit == TRUE ) {
             xcb->mouse_seen = TRUE;
         }
         rofi_view_handle_mouse_motion ( state, xme->event_x, xme->event_y, !button_mask && config.hover_select );
@@ -1352,7 +1352,7 @@ static void x11_helper_discover_window_manager ( void )
     if ( xcb_ewmh_get_supporting_wm_check_reply ( &xcb->ewmh, cc, &wm_win, NULL ) ) {
         xcb_ewmh_get_utf8_strings_reply_t wtitle;
         xcb_get_property_cookie_t         cookie = xcb_ewmh_get_wm_name_unchecked ( &( xcb->ewmh ), wm_win );
-        if (  xcb_ewmh_get_wm_name_reply ( &( xcb->ewmh ), cookie, &wtitle, (void *) 0 ) ) {
+        if ( xcb_ewmh_get_wm_name_reply ( &( xcb->ewmh ), cookie, &wtitle, (void *) 0 ) ) {
             if ( wtitle.strings_len > 0 ) {
                 g_debug ( "Found window manager: |%s|", wtitle.strings );
                 if ( g_strcmp0 ( wtitle.strings, "i3" ) == 0 ) {
@@ -1372,7 +1372,7 @@ gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings )
     // Get DISPLAY, first env, then argument.
     // We never modify display_str content.
     char *display_str = ( char *) g_getenv ( "DISPLAY" );
-    find_arg_str (  "-display", &display_str );
+    find_arg_str ( "-display", &display_str );
 
     xcb->main_loop = main_loop;
     xcb->source    = g_water_xcb_source_new ( g_main_loop_get_context ( xcb->main_loop ), display_str, &xcb->screen_nbr, main_loop_x11_event_handler, NULL, NULL );
