@@ -55,6 +55,10 @@ element {
     padding: 2px;
     highlight: bold ;
 }
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
 element normal.normal {
     text-color: #002B36FF;
     background-color: #F5F5F500;

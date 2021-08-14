@@ -125,3 +125,7 @@ textbox-prompt-sep {
     text-color: @normal-foreground;
     margin:     0 0.3em 0 0;
 }
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}

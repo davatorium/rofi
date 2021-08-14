@@ -767,12 +767,10 @@ if ( queue == NULL ) {
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>. {
     yytext[yyleng-1] = '\0';
-    fprintf(stderr,"prop found: |%s|\n", yytext);
     return T_ERROR_PROPERTY;
 }
 <NAMESTR>. {
     yytext[yyleng-1] = '\0';
-    fprintf(stderr,"namestr found: |%s|\n", yytext);
     return T_ERROR_NAMESTRING;
 }
 %%
