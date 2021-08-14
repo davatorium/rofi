@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# This code is released in public domain by Dave Davenport <qball@gmpclient.org> 
+# This code is released in public domain by Dave Davenport <qball@gmpclient.org>
 # This converts from old style theme (< 1.4) to new style theme (>= 1.4)
 #
-function update_color ()
+update_color()
 {
     var=${1}
     var="${var#"${var%%[![:space:]]*}"}"   # remove leading whitespace characters
@@ -12,11 +12,11 @@ function update_color ()
     then
         echo "#${var:5}"
     else
-        echo ${var}
+        echo "${var}"
     fi
 }
 
-function parse_window_color ()
+parse_window_color()
 {
     OLDIFS=${IFS}
     IFS=","
@@ -37,7 +37,7 @@ function parse_window_color ()
     IFS=${OLDIFS}
 }
 
-function parse_color ()
+parse_color()
 {
     state=$1
     OLDIFS=${IFS}
@@ -62,13 +62,13 @@ while read LINE
 do
     if [[ ${LINE} =~ ^rofi\.color-normal: ]]
     then
-        parse_color "normal" "${LINE:18}" 
+        parse_color "normal" "${LINE:18}"
     elif [[ ${LINE} =~ ^rofi\.color-urgent: ]]
     then
-        parse_color "urgent" "${LINE:18}" 
+        parse_color "urgent" "${LINE:18}"
     elif [[ ${LINE} =~ ^rofi\.color-active: ]]
     then
-        parse_color "active" "${LINE:18}" 
+        parse_color "active" "${LINE:18}"
     elif [[ ${LINE} =~ ^rofi\.color-window: ]]
     then
         parse_window_color "${LINE:18}"

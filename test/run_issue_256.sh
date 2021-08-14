@@ -4,8 +4,8 @@ rofi -show window -modi window &
 RPID=$!
 
 # send enter.
-sleep 5;
-xdotool key 't' 
+sleep 5
+xdotool key 't'
 sleep 0.4
 xdotool key 'r'
 sleep 0.4
@@ -15,8 +15,8 @@ xdotool key 'e'
 sleep 0.4
 xdotool key Return
 
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
 
-exit ${RETV}
+exit "${RETV}"

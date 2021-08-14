@@ -6,7 +6,7 @@ before_script:
     - apt-get install --force-yes -y autoconf automake make libx11-dev libpango1.0-dev libcairo2-dev libstartup-notification0-dev libxcb-icccm4-dev libxcb-util0-dev libxcb-xinerama0-dev libxcb-xkb-dev libx11-xcb-dev
     - apt-get install --force-yes -y libxcb1-dev xvfb discount xdotool fluxbox libxkbcommon-dev libxkbcommon-x11-dev libxcb-ewmh-dev xutils-dev libtool lcov libxcb-randr0-dev doxygen python flex bison librsvg2-dev texinfo 
     - git clone --recursive https://github.com/Airblader/xcb-util-xrm.git
-    - cd xcb-util-xrm 
+    - cd xcb-util-xrm
     - ./autogen.sh --prefix=/usr
     - make
     - sudo make install
@@ -34,5 +34,5 @@ build-rofi:
     artifacts:
         expire_in: 2 weeks
         paths:
-            - coverage 
+            - coverage
             - doc/html

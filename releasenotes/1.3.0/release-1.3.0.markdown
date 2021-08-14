@@ -53,7 +53,7 @@ Async mode is not always possible, and will be disabled if not possible.
 In this release rofi is more efficient in drawing its content to the X11 window. The basic redraw on expose has been
 speedup by a factor 1000. This was obtained by using a server side copy of the internal surface, instead of painting it
 with cairo each time. Especially for large (4k and higher) screens, in fullscreen mode, this reduces redrawing from +-
-180ms to 0.1 ms. A second improvement was made by configuring X11  not repaint the window background when resized, this
+180ms to 0.1 ms. A second improvement was made by configuring X11 not repaint the window background when resized, this
 caused some flickering (it was painted black before being drawn). It now keeps the old content and tells rofi to
 repaint. This causes trailing, but overall looks nicer.
 

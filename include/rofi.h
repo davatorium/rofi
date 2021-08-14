@@ -102,7 +102,7 @@ Mode * rofi_collect_modi_search ( const char *name );
 #define ERROR_MSG( a )    a "\n"                                       \
     "If you suspect this is caused by a bug in rofi,\n"                \
     "please report the following information to rofi's github page:\n" \
-    " * The generated commandline output when the error occored.\n"    \
+    " * The generated commandline output when the error occurred.\n"   \
     " * Output of -dump-xresource\n"                                   \
     " * Steps to reproduce\n"                                          \
     " * The version of rofi you are running\n\n"                       \

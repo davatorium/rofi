@@ -4,10 +4,6 @@
  * Copyright: Dave Davenport
  */
 
-/**
- * User: Qball
- * Copyright: Dave Davenport
- */
 * {
     foreground:  #ffeedd;
     backlight:   #ccffeedd;
@@ -66,12 +62,10 @@ window {
     children:  [mainbox];
     orientation: horizontal;
 }
-
 mainbox {
     spacing: 0;
     children: [ inputbar, message, listview ];
 }
-
 message {
     border-color: @foreground;
     border:  0px 2px 2px 2px;
@@ -83,7 +77,6 @@ message {
     font: "Source Code Pro 8";
     color: @black;
 }
-
 inputbar {
     color: @lightgreen;
     padding: 11px;
@@ -146,7 +139,6 @@ element selected urgent {
 element normal normal {
 
 }
-
 vertb {
     expand: false;
     children: [ dummy0, mode-switcher, dummy1  ];
@@ -154,7 +146,6 @@ vertb {
 dummy0,  dummy1 {
     expand: true;
 }
-
 mode-switcher {
     expand: false;
     orientation: vertical;
@@ -177,7 +168,6 @@ button selected normal {
     background-color: @backlight;
     border-color: @foreground;
 }
-
 error-message {
     expand: true;
     background-color: red;

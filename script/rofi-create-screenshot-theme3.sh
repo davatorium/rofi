@@ -13,14 +13,14 @@ shift
 OUTPUT_PNG=$1
 shift
 
-XVFB=$(which Xvfb 2> /dev/null)
-XDOTOOL=$(which xdotool 2> /dev/null)
-ROFI=$(which rofi 2> /dev/null)
-SCROT=$(which scrot 2> /dev/null)
-FEH=$(which feh 2> /dev/null)
-COMPTON=$(which compton 2> /dev/null)
+XVFB=$(which Xvfb 2>/dev/null)
+XDOTOOL=$(which xdotool 2>/dev/null)
+ROFI=$(which rofi 2>/dev/null)
+SCROT=$(which scrot 2>/dev/null)
+FEH=$(which feh 2>/dev/null)
+COMPTON=$(which compton 2>/dev/null)
 
-function check_tool()
+check_tool()
 {
     if [ -z "${1}" ]
     then
@@ -30,26 +30,26 @@ function check_tool()
 }
 
 XPID=
-function create_fake_x ( )
+create_fake_x()
 {
     export DISPLAY=":$1"
     echo "Starting fake X: ${DISPLAY}"
-    ${XVFB} ${DISPLAY}  -screen 0 1024x600x24&
+    ${XVFB} "${DISPLAY}" -screen 0 1024x600x24 &
     XPID=$!
     sleep 1
 }
 
-function destroy_fake_x ( )
+destroy_fake_x()
 {
     if [ -n "${XPID}" ]
     then
         echo "Stopping fake X: ${XPID}"
-        kill ${XPID}
-        wait ${XPID}
+        kill "${XPID}"
+        wait "${XPID}"
     fi
 }
 
-function generate()
+generate()
 {
     echo "Normal"
     echo "Alternative"
@@ -81,16 +81,16 @@ ROFI_OPTIONS="-selected-row 6 -u 2,3 -a 4,5 -location 0 -width 100 -lines 7 -col
 export DISPLAY=${VDISPLAY}
 
 # Create fake X11
-create_fake_x ${VDISPLAY}
+create_fake_x "${VDISPLAY}"
 sleep 1
 fluxbox &
-sleep 1;
-compton -b 
+sleep 1
+compton -b
 feh --bg-center background.jpg
-(generate | ${ROFI} -no-config -theme "${THEME_FILE}" -dmenu ${ROFI_OPTIONS} > /dev/null )&
+(generate | ${ROFI} -no-config -theme "${THEME_FILE}" -dmenu ${ROFI_OPTIONS} >/dev/null )&
 sleep 1
 #${XDOTOOL} key Alt+S
-scrot ${OUTPUT_PNG}
+scrot "${OUTPUT_PNG}"
 ${XDOTOOL} key Return
 sleep 2
 destroy_fake_x

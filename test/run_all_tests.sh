@@ -23,7 +23,7 @@ tests=(
     run_window_test
 )
 
-cd ${MESON_BUILD_ROOT}
+cd -- "${MESON_BUILD_ROOT}"
 mkdir -p test-x-logs
 rm -f core
 display=200
@@ -36,11 +36,11 @@ for test in "${tests[@]}"; do
         echo "COREDUMP"
         echo "bt" | gdb ./rofi core
         more ${log_prefix}*.log | cat
-        exit ${ret}
+        exit "${ret}"
     elif [[ ${ret} != 0 ]]; then
         echo "FAIL"
         more ${log_prefix}*.log | cat
-        exit ${ret}
+        exit "${ret}"
     fi
     echo "PASS"
     display=$(( display + 1 ))

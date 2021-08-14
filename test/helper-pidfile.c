@@ -71,7 +71,7 @@ gboolean rofi_theme_parse_string ( const char *string )
 {
   return FALSE;
 }
-double textbox_get_estimated_char_height ( void  )
+double textbox_get_estimated_char_height ( void )
 {
   return 12.0;
 }
@@ -101,7 +101,7 @@ void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *cont
 {
 }
 
-int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
+int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
         fprintf ( stderr, "Failed to set locale.\n" );
@@ -113,15 +113,15 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
     {
         const char *tmpd = g_get_tmp_dir ();
         char *path = g_build_filename (tmpd, "rofi-pid.pid", NULL);
-        TASSERT( create_pid_file ( NULL ) == -1 );
+        TASSERT ( create_pid_file ( NULL ) == -1 );
         int fd = create_pid_file ( path );
-        TASSERT( fd >= 0 );
+        TASSERT ( fd >= 0 );
         int fd2 = create_pid_file ( path );
         TASSERT ( fd2 <  0 );
 
         remove_pid_file ( fd );
         fd = create_pid_file ( path );
-        TASSERT( fd >= 0 );
+        TASSERT ( fd >= 0 );
         remove_pid_file ( fd );
         free ( path );
     }

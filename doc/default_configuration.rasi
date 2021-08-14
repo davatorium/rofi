@@ -13,5 +13,4 @@ configuration {
         sorting-method:    "name";
         directories-first: true;
     }
-
 }

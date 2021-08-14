@@ -53,14 +53,13 @@ unsigned int normal_window_mode = 0;
 
 #include "view.h"
 
-
 ThemeWidget *rofi_configuration = NULL;
 
 uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
 {
   return 0;
 }
-uint32_t rofi_icon_fetcher_query_advanced ( const char *name, const int wsize, const int hsize)
+uint32_t rofi_icon_fetcher_query_advanced ( const char *name, const int wsize, const int hsize )
 {
   return 0;
 }
@@ -75,7 +74,7 @@ gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, G_GNUC_UNU
     return FALSE;
 }
 
-void rofi_add_error_message ( G_GNUC_UNUSED GString *msg)
+void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
 {
 }
 void rofi_view_queue_redraw ()
@@ -130,8 +129,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT ( widget_get_width ( WIDGET ( box ) ) > 0 );
     TASSERT ( textbox_get_height ( box ) > 0 );
 
-    TASSERT ( widget_get_width ( WIDGET ( box ) ) >= textbox_get_font_width ( box )  );
-    TASSERT ( textbox_get_height ( box ) >= textbox_get_font_height ( box )  );
+    TASSERT ( widget_get_width ( WIDGET ( box ) ) >= textbox_get_font_width ( box ) );
+    TASSERT ( textbox_get_height ( box ) >= textbox_get_font_height ( box ) );
 
     TASSERT ( textbox_get_estimated_char_width ( ) > 0 );
 
@@ -183,18 +182,18 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     textbox_cursor ( box, 8 );
     textbox_keybinding ( box, REMOVE_WORD_BACK );
     TASSERT ( box->cursor == 4 );
-    TASSERT (  strcmp ( box->text, "aap  mies" ) == 0 );
+    TASSERT ( strcmp ( box->text, "aap  mies" ) == 0 );
     textbox_keybinding ( box, REMOVE_TO_EOL );
     TASSERT ( box->cursor == 4 );
-    TASSERT (  strcmp ( box->text, "aap " ) == 0 );
+    TASSERT ( strcmp ( box->text, "aap " ) == 0 );
     textbox_text ( box, "aap noot mies" );
     textbox_cursor ( box, 8 );
     textbox_keybinding ( box, REMOVE_WORD_FORWARD );
-    TASSERT (  strcmp ( box->text, "aap noot" ) == 0 );
+    TASSERT ( strcmp ( box->text, "aap noot" ) == 0 );
     textbox_keybinding ( box, MOVE_FRONT );
     TASSERT ( box->cursor == 0 );
     textbox_keybinding ( box, CLEAR_LINE );
-    TASSERT (  strcmp ( box->text, "" ) == 0 );
+    TASSERT ( strcmp ( box->text, "" ) == 0 );
     textbox_text ( box, "aap noot mies" );
     textbox_keybinding ( box, MOVE_END );
     textbox_keybinding ( box, MOVE_WORD_BACK );
@@ -202,7 +201,7 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     textbox_keybinding ( box, MOVE_WORD_BACK );
     TASSERT ( box->cursor == 4 );
     textbox_keybinding ( box, REMOVE_TO_SOL );
-    TASSERT (  strcmp ( box->text, "noot mies" ) == 0 );
+    TASSERT ( strcmp ( box->text, "noot mies" ) == 0 );
     TASSERT ( box->cursor == 0 );
 
     textbox_font ( box, HIGHLIGHT );

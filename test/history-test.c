@@ -117,7 +117,7 @@ static void history_test ( void )
     unlink ( file );
 }
 
-int main (  G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
+int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
     history_test ();
 

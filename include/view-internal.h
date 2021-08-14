@@ -69,7 +69,7 @@ struct RofiViewState
     /** #textbox containing the message entry */
     textbox          *mesg_tb;
 
-    /** Array with the levenshtein distance for each eleemnt. */
+    /** Array with the levenshtein distance for each element. */
     int              *distance;
     /** Array with the translation between the filtered and unfiltered list. */
     unsigned int     *line_map;
@@ -132,7 +132,7 @@ struct RofiViewState
         int    x;
         /** Y position */
         int    y;
-        /** Widget being targetted. */
+        /** Widget being targeted. */
         widget *motion_target;
     }                mouse;
 

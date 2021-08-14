@@ -218,7 +218,7 @@ static DmenuScriptEntry *execute_executor ( Mode *sw, char *arg, unsigned int *l
                     retv[( *length )].info           = NULL;
                     retv[( *length )].icon_fetch_uid = 0;
                     retv[( *length )].nonselectable  = FALSE;
-                    if ( buf_length > 0 && ( read_length > (ssize_t) buf_length )  ) {
+                    if ( buf_length > 0 && ( read_length > (ssize_t) buf_length ) ) {
                         dmenuscript_parse_entry_extras ( sw, &( retv[( *length )] ), buffer + buf_length, read_length - buf_length );
                     }
                     retv[( *length ) + 1].entry = NULL;

@@ -1,6 +1,6 @@
 # 1.5.2: Procrastination in progress
 
-Rofi 1.5.2 is another bug-fix release in the 1.5 series. 
+Rofi 1.5.2 is another bug-fix release in the 1.5 series.
 
 
 ## Fix border drawing
@@ -74,14 +74,14 @@ An often requested feature is the ability to change the display string for the d
 The `-drun-display-format` option is added that allows just this.
 
 > -drun-display-format
-> 
+>
 > The format string for the drun dialog:
 > * name: the application's name
 > * generic: the application's generic name
 > * exec: the application's executable
 > * categories: the application's categories
 > * comment: the application comment
-> 
+>
 > Default: {name} [({generic})]
 
 Items between `[]` are only displayed when the field within is set. So in the above example, the `()` are omitted when

@@ -405,7 +405,7 @@ static void listview_draw ( widget *wid, cairo_t *draw )
         scrollbar_set_handle ( lv->scrollbar, lv->req_elements - lv->selected - 1 );
     }
     else {
-        scrollbar_set_handle ( lv->scrollbar, lv->selected  );
+        scrollbar_set_handle ( lv->scrollbar, lv->selected );
     }
     lv->last_offset = offset;
     int spacing_vert = distance_get_pixel ( lv->spacing, ROFI_ORIENTATION_VERTICAL );
@@ -503,7 +503,7 @@ static void listview_recompute_elements ( listview *lv )
         widget_free ( WIDGET ( lv->boxes[i].box ) );
     }
     lv->boxes = g_realloc ( lv->boxes, newne * sizeof ( _listview_row ) );
-    if ( newne > 0   ) {
+    if ( newne > 0 ) {
         for ( unsigned int i = lv->cur_elements; i < newne; i++ ) {
             listview_create_row ( lv, &( lv->boxes[i] ) );
             widget *wid = WIDGET ( lv->boxes[i].box );
@@ -565,7 +565,7 @@ static void listview_resize ( widget *wid, short w, short h )
                   lv->widget.w - widget_padding_get_right ( WIDGET ( lv ) ) - widget_get_width ( WIDGET ( lv->scrollbar ) ),
                   widget_padding_get_top ( WIDGET ( lv ) ) );
 
-    widget_resize (  WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), height );
+    widget_resize ( WIDGET ( lv->scrollbar ), widget_get_width ( WIDGET ( lv->scrollbar ) ), height );
 
     if ( lv->type == BARVIEW ) {
         lv->max_elements = lv->menu_lines;
@@ -985,7 +985,7 @@ gboolean listview_get_fixed_num_lines ( listview *lv )
 }
 void listview_set_fixed_num_lines ( listview *lv )
 {
-    if ( lv  ) {
+    if ( lv ) {
         lv->fixed_num_lines = TRUE;
     }
 }

@@ -213,7 +213,7 @@ unsigned int num_extra_options = 0;
 GList *extra_parsed_options = NULL;
 
 
-static gboolean __config_parser_set_property ( XrmOption *option, const Property *p, char **error  );
+static gboolean __config_parser_set_property ( XrmOption *option, const Property *p, char **error );
 
 void config_parser_add_option ( XrmOptionType type, const char *key, void **value, const char *comment )
 {
@@ -236,10 +236,10 @@ void config_parser_add_option ( XrmOptionType type, const char *key, void **valu
 
 
     for ( GList *iter = g_list_first ( extra_parsed_options) ; iter != NULL; iter = g_list_next ( iter ) ) {
-      if ( g_strcmp0(((Property *)(iter->data))->name, key ) == 0 ){
+      if ( g_strcmp0(((Property *)(iter->data))->name, key ) == 0 ) {
         char *error = NULL;
         g_debug("Setting property from backup list: %s", key);
-        if ( __config_parser_set_property ( &(extra_options[num_extra_options]), (Property *)(iter->data), &error ) ){
+        if ( __config_parser_set_property ( &(extra_options[num_extra_options]), (Property *)(iter->data), &error ) ) {
           g_debug("Failed to set property on custom entry: %s", key);
           g_free( error );
         }
@@ -266,12 +266,12 @@ static void config_parse_cmd_option ( XrmOption *option )
         }
         break;
     case xrm_SNumber:
-        if ( find_arg_int (  key, option->value.snum ) == TRUE ) {
+        if ( find_arg_int ( key, option->value.snum ) == TRUE ) {
             option->source = CONFIG_CMDLINE;
         }
         break;
     case xrm_String:
-        if ( find_arg_str (  key, option->value.str ) == TRUE ) {
+        if ( find_arg_str ( key, option->value.str ) == TRUE ) {
             if ( option->mem != NULL ) {
                 g_free ( option->mem );
                 option->mem = NULL;
@@ -280,21 +280,21 @@ static void config_parse_cmd_option ( XrmOption *option )
         }
         break;
     case xrm_Boolean:
-        if ( find_arg (  key ) >= 0 ) {
+        if ( find_arg ( key ) >= 0 ) {
             *( option->value.num ) = TRUE;
             option->source         = CONFIG_CMDLINE;
         }
         else {
             g_free ( key );
             key = g_strdup_printf ( "-no-%s", option->name );
-            if ( find_arg (  key ) >= 0 ) {
+            if ( find_arg ( key ) >= 0 ) {
                 *( option->value.num ) = FALSE;
                 option->source         = CONFIG_CMDLINE;
             }
         }
         break;
     case xrm_Char:
-        if ( find_arg_char (  key, option->value.charc ) == TRUE ) {
+        if ( find_arg_char ( key, option->value.charc ) == TRUE ) {
             option->source = CONFIG_CMDLINE;
         }
         break;
@@ -314,7 +314,7 @@ void config_parse_cmd_options ( void )
     }
     for ( unsigned int i = 0; i < num_extra_options; ++i ) {
         XrmOption *op = &( extra_options[i] );
-        config_parse_cmd_option ( op  );
+        config_parse_cmd_option ( op );
     }
 
 
@@ -327,29 +327,29 @@ void config_parse_cmd_options ( void )
             /** TODO: This is a hack, and should be fixed in a nicer way. */
             char **tokens = g_strsplit(stored_argv[in], "-", 3);
             int count = 1;
-            for ( int j = 1; tokens && tokens[j]; j++ ){
+            for ( int j = 1; tokens && tokens[j]; j++ ) {
                 count++;
             }
-            if ( count > 2 && g_strcmp0(tokens[1], "no") != 0 ){
+            if ( count > 2 && g_strcmp0(tokens[1], "no") != 0 ) {
                 GString *str = g_string_new("configuration { ");
-                for ( int j = 1; j < (count-1); j++ ){
+                for ( int j = 1; j < (count-1); j++ ) {
                     g_string_append_printf(str, "%s { ", tokens[j]);
                 }
                 g_string_append_printf ( str, "%s: %s;", tokens[count-1], stored_argv[in+1]);
-                for ( int j = 0; j < (count-1); j++ ){
+                for ( int j = 0; j < (count-1); j++ ) {
                     g_string_append(str, " } ");
                 }
                 if ( rofi_theme_parse_string(str->str) == 1 ) {
                     /** Failed to parse, try again as string. */
                     rofi_clear_error_messages();
                     g_string_assign ( str, "configuration { ");
-                    for ( int j = 1; j < (count-1); j++ ){
+                    for ( int j = 1; j < (count-1); j++ ) {
                         g_string_append_printf(str, "%s { ", tokens[j]);
                     }
                     char *esc = g_strescape(stored_argv[in+1], NULL);
                     g_string_append_printf ( str, "%s: \"%s\";", tokens[count-1], esc);
                     g_free(esc);
-                    for ( int j = 0; j < (count-1); j++ ){
+                    for ( int j = 0; j < (count-1); j++ ) {
                         g_string_append(str, " } ");
                     }
                     if ( rofi_theme_parse_string(str->str) == 1 ) {
@@ -364,7 +364,7 @@ void config_parse_cmd_options ( void )
     }
 }
 
-static gboolean __config_parser_set_property ( XrmOption *option, const Property *p, char **error  )
+static gboolean __config_parser_set_property ( XrmOption *option, const Property *p, char **error )
 {
     if ( option->type == xrm_String ) {
         if ( p->type != P_STRING && p->type != P_LIST ) {
@@ -455,7 +455,7 @@ gboolean config_parse_set_property ( const Property *p, char **error )
     *error = g_strdup_printf ( "Option: %s is not found.", p->name );
 
     for ( GList *iter = g_list_first ( extra_parsed_options) ; iter != NULL; iter = g_list_next ( iter ) ) {
-      if ( g_strcmp0(((Property *)(iter->data))->name, p->name ) == 0 ){
+      if ( g_strcmp0(((Property *)(iter->data))->name, p->name ) == 0 ) {
         rofi_theme_property_free ( (Property *)(iter->data));
         iter->data = (void *)rofi_theme_property_copy ( p ) ;
         return TRUE;

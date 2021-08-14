@@ -106,7 +106,7 @@ Dump the current active theme, in rasi format, to stdout and exit.
 
 `-rasi-validate` *filename*
 
-Try to parse the file and return 0 when succesful, non-zero when failed.
+Try to parse the file and return 0 when successful, non-zero when failed.
 
 `-threads` *num*
 
@@ -741,7 +741,7 @@ Make **rofi** create a pid file and check this on startup. The pid file prevents
 
 Set the name to use for mode. This is used as prompt and in combi-browser.
 
-It is now prefered to use the configuration file:
+It is now preferred to use the configuration file:
 
 ```css
 configuration {

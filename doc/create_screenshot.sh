@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function shout()
+shout()
 {
 echo -en "Normal Row\nAlternateRow\nNormal Row active\nAlternateRow Active\nNormal Row urgent\nAlternateRow urgent"
 echo -en "\nSelected Row"
@@ -14,4 +14,4 @@ sleep 5
 scrot
 sleep 1
 killall rofi
-wait $P
+wait "$P"

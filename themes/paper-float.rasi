@@ -4,6 +4,7 @@
  * User: Qball
  * Copyright: Dave Davenport
  */
+
 * {
     blue:  #0000FF;
     white: #FFFFFF;
@@ -105,7 +106,6 @@ inputbar normal {
     foreground-color: #002B36FF;
     background-color: #F5F5F500;
 }
-
 mode-switcher {
     border: 2px;
     padding: 0.5em 1em;
@@ -124,7 +124,6 @@ textbox-prompt-colon {
     margin:     0px 0.3em 0em 0em ;
     text-color: @normal-foreground;
 }
-
 error-message {
     border: 2px;
     padding: 1em;

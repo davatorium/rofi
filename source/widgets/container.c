@@ -41,7 +41,7 @@ struct _container
     widget *child;
 };
 
-static void container_update ( widget *wid  );
+static void container_update ( widget *wid );
 
 static int container_get_desired_height ( widget *widget )
 {
@@ -75,7 +75,7 @@ void container_add ( container *container, widget *child )
         return;
     }
     container->child = child;
-    g_assert ( child->parent == WIDGET ( container  ) );
+    g_assert ( child->parent == WIDGET ( container ) );
     widget_update ( WIDGET ( container ) );
 }
 
@@ -122,7 +122,7 @@ container * container_create ( widget *parent, const char *name )
     return b;
 }
 
-static void container_update ( widget *wid  )
+static void container_update ( widget *wid )
 {
     container *b = (container *) wid;
     if ( b->child && b->child->enabled ) {

@@ -1,7 +1,9 @@
 /**
- * User: qball
+ * ROFI Color theme
+ * User: Qball
  * Copyright: Dave Davenport
  */
+
 * {
     text-color:  #ffeedd;
     background-color:  rgba(0,0,0,0);
@@ -49,7 +51,6 @@ window {
     border:  0px 2px 0px 0px;
     text-color: @lightwhite;
 }
-
 mode-switcher {
     border: 2px 0px 0px 0px;
     background-color: @lightblack;
@@ -100,7 +101,6 @@ element selected urgent {
     background-color: @lightred;
     text-color: @dark;
 }
-
 error-message {
     expand: true;
     background-color: red;

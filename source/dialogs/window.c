@@ -459,7 +459,7 @@ static unsigned int window_mode_get_num_entries ( const Mode *sw )
  * Is there a call for this?
  */
 const char *invalid_desktop_name = "n/a";
-static const char * _window_name_list_entry  ( const char *str, uint32_t length, int entry )
+static const char * _window_name_list_entry ( const char *str, uint32_t length, int entry )
 {
     uint32_t offset = 0;
     int      index  = 0;
@@ -504,7 +504,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
     }
     else {
         c = xcb_ewmh_get_client_list ( &xcb->ewmh, xcb->screen_nbr );
-        if  ( xcb_ewmh_get_client_list_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
+        if ( xcb_ewmh_get_client_list_reply ( &xcb->ewmh, c, &clients, NULL ) ) {
             found = 1;
         }
     }
@@ -512,7 +512,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
         return;
     }
 
-    if (  clients.windows_len > 0 ) {
+    if ( clients.windows_len > 0 ) {
         int i;
         // windows we actually display. May be slightly different to _NET_CLIENT_LIST_STACKING
         // if we happen to have a window destroyed while we're working...
@@ -566,7 +566,7 @@ static void _window_mode_load_data ( Mode *sw, unsigned int cd )
                             char *output = NULL;
                             if ( pango_parse_markup ( _window_name_list_entry ( names.strings, names.strings_len,
                                                                                 c->wmdesktop ), -1, 0, NULL, &output, NULL, NULL ) ) {
-                                c->wmdesktopstr     = g_strdup (  _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
+                                c->wmdesktopstr     = g_strdup ( _window_name_list_entry ( names.strings, names.strings_len, c->wmdesktop ) );
                                 c->wmdesktopstr_len = g_utf8_strlen ( output, -1 );
                                 pd->wmdn_len        = MAX ( pd->wmdn_len, c->wmdesktopstr_len );
                                 g_free ( output );
@@ -645,7 +645,7 @@ static inline int act_on_window ( xcb_window_t window )
     g_spawn_async ( NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error );
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute action for window: '%s'\nError: '%s'", window_regex, error->message );
-        rofi_view_error_dialog ( msg, FALSE  );
+        rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
         g_error_free ( error );
@@ -723,7 +723,7 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
         }
 
         RofiHelperExecuteContext context = { .name = NULL };
-        if (  !helper_execute_command ( NULL, lf_cmd, run_in_term, run_in_term ? &context : NULL ) ) {
+        if ( !helper_execute_command ( NULL, lf_cmd, run_in_term, run_in_term ? &context : NULL ) ) {
             retv = RELOAD_DIALOG;
         }
         g_free ( lf_cmd );

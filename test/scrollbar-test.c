@@ -51,7 +51,7 @@ unsigned int test =0;
 #define TASSERTE( a, b )    {                                                            \
         if ( ( a ) == ( b ) ) {                                                          \
             printf ( "Test %u passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
-        }else {                                                                          \
+        } else {                                                                         \
             printf ( "Test %u failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \

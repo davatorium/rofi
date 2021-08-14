@@ -1,5 +1,5 @@
 # Specify automake version.
-AUTOMAKE_OPTIONS  = 1.11.3
+AUTOMAKE_OPTIONS = 1.11.3
 
 ACLOCAL_AMFLAGS = -I subprojects/libnkutils -I subprojects/libgwater ${ACLOCAL_FLAGS}
 
@@ -18,7 +18,6 @@ include $(top_srcdir)/libgwater-xcb-nolibtool.mk
 ##
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = pkgconfig/rofi.pc
-
 
 BUILT_SOURCES=\
 			  lexer/theme-parser.h\
@@ -187,7 +186,6 @@ EXTRA_DIST += \
 	doc/rofi-sensible-terminal.1.markdown \
 	doc/rofi.1.markdown
 
-
 ##
 # Readme.md
 ##
@@ -262,7 +260,6 @@ EXTRA_DIST+=\
 # Indent
 ##
 
-
 update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown ${top_srcdir}/doc/rofi-sensible-terminal.1.markdown
 	go-md2man -in $(top_srcdir)/doc/rofi.1.markdown -out $(top_srcdir)/doc/rofi.1
 	go-md2man -in $(top_srcdir)/doc/rofi-theme-selector.1.markdown -out $(top_srcdir)/doc/rofi-theme-selector.1
@@ -288,8 +285,6 @@ if USE_CHECK
 check_PROGRAMS+=mode_test theme_parser_test helper_tokenize
 endif
 
-
-
 history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
@@ -305,7 +300,6 @@ history_test_CFLAGS=\
 history_test_LDADD=\
 	$(glib_LIBS)\
 	$(NKUTILS_LIBS)
-
 
 history_test_SOURCES=\
 	source/history.c\
@@ -387,7 +381,7 @@ box_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
-      config/config.c\
+			config/config.c\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -403,7 +397,7 @@ scrollbar_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
-      config/config.c\
+			config/config.c\
 			test/scrollbar-test.c
 
 textbox_test_SOURCES=\
@@ -470,7 +464,6 @@ helper_test_SOURCES=\
 	include/rofi-types.h\
 	test/helper-test.c
 
-
 helper_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
@@ -495,7 +488,6 @@ helper_test_LDADD=\
 	$(GW_XCB_LIBS)\
 	$(libsn_LIBS)\
 	$(cairo_LIBS)
-
 
 helper_expand_SOURCES=\
 	config/config.c\
@@ -534,14 +526,13 @@ helper_config_cmdline_parser_SOURCES=\
 	source/xrmoptions.c\
 	test/helper-config-cmdline-parser.c
 
-
 if USE_CHECK
 mode_test_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
 mode_test_LDADD=$(textbox_test_LDADD) $(check_LIBS)
 mode_test_SOURCES=\
 				  config/config.c\
 				  test/mode-test.c\
-			      source/dialogs/help-keys.c\
+				  source/dialogs/help-keys.c\
 				  source/helper.c\
 				  source/theme.c\
 				  source/mode.c\
@@ -567,7 +558,6 @@ helper_tokenize_SOURCES=\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
 					   test/helper-tokenize.c
-
 endif
 
 TESTS+=\
@@ -593,18 +583,15 @@ test-x: $(bin_PROGRAMS)
 	MESON_BUILD_ROOT="$(top_builddir)" \
 	$(top_srcdir)/test/run_all_tests.sh
 
-
 .PHONY: indent
 indent: $(SOURCES)
 	uncrustify -c $(top_srcdir)/data/uncrustify.cfg --replace $^
 
 .PHONY: cppcheck
-
 cppcheck: $(rofi_SOURCES)
 	cppcheck --std=c99 --platform=unix64 --enable=all -Uerror_dialog --inconclusive -I $(top_srcdir)/include/  $^
 
 .PHONY: ohcount
-
 ohcount: $(rofi_SOURCES)
 	ohcount -i $(top_srcdir)/source/ $(top_srcdir)/include/
 
@@ -628,7 +615,7 @@ coverage: coverage/index.html
 coverage-cli: coverage.info
 	lcov -l $^
 coverage.info: $(top_builddir)/test/*.gcda $(top_builddir)/source/*.gcda  $(top_builddir)/source/**/*.gcda
-	lcov --capture  --directory $(top_builddir) --output-file coverage.info
+	lcov --capture --directory $(top_builddir) --output-file coverage.info
 	lcov -r $@ /usr/include/\* -o $@
 
 coverage/index.html: coverage.info

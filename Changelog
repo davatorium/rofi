@@ -139,14 +139,14 @@ v1.5.0:
 	- Fix drun history implementation. (#579)
 	- Add gentoo install instruction. (#685)
 
-v1.4.2: 
+v1.4.2:
 	- Add sort to manpage. (#682)
 	- Add tranaparent to theme manpage. (#688)
 	- Re-add theme headers. (#679)
 	- Fix super key. (#684)
 	- Unknown option libnkutils:uuid. (#677)
 	- Mode window is not found. (#686)
-	- Fix meson build in dist file. 
+	- Fix meson build in dist file.
 
 v1.4.1: All Hail Rasi
 	- Bump meson release version
@@ -233,7 +233,7 @@ v1.3.0: Dan vs. Greg: The never ending story.
 		- Add Control+G for cancel (#452)
 		- Add padding option to textbox (#449)
 		- Ctrl-click does alternate accept entry. (#429)
-		- Hide window decoration in normal window mode. 
+		- Hide window decoration in normal window mode.
 		- Click to exit option. (#460)
 		- Fix cursor blinking on moving. (#462)
 		- Remove entry from history if fails to execute (#466)
@@ -244,16 +244,16 @@ v1.3.0: Dan vs. Greg: The never ending story.
 		- Improve scrollbar behaviour.
 	Removals
 		- opacity option. The transparency support in the theme can do the same and more.
-	
+
 v1.2.0
 	New Features
 		- Highlight matched part of the string.
 		- Make window switcher string customizable.
 	Improvements
-		- Improved selection mode in dmenu with selection counter. 
+		- Improved selection mode in dmenu with selection counter.
 		- Improved selection mode with 'dot' indicator.
 		- Fix Current Desktop window switcher.
-		- Fix  launching in terminal.
+		- Fix launching in terminal.
 		- Supports include in config.
 		- Add Control+k remove till eol keybinding.
 		- Change clear line to Control+w and make Control+u remove till sol (matching readline)
@@ -471,7 +471,7 @@ v1.1.0
         - Better way to determine font height.
         - Fix font vertical centering.
         - One-off when pasting text.
-        - Improve rendering of boxes (fixed height     and margins)
+        - Improve rendering of boxes (fixed height and margins)
         - Fix modi switcher boxes size+layout.
         - Reduce work on redraws (do not always calculate new size/position), set text, etc.
         - OO-ify the switchers.
