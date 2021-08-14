@@ -76,6 +76,10 @@ listview {
     dynamic: false;
     lines: 0;
 }
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
 element selected  normal {
     background-color: @blue;
 }

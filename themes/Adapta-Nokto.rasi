@@ -65,7 +65,12 @@ element {
     border:  0;
     padding: 1px ;
 }
-element.normal.normal {
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+
+element normal.normal {
     background-color: @normal-background;
     text-color:       @normal-foreground;
 }

@@ -60,6 +60,10 @@ listview {
 element {
     border: 0;
 }
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
 element.normal.normal {
     text-color: @normal-foreground;
     background-color: @normal-background;

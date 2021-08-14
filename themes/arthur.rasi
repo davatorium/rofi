@@ -111,6 +111,10 @@ element {
     color: @foreground;
     font:inherit;
 }
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
 element selected.normal {
     background-color: @blue;
 }

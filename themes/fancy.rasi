@@ -148,6 +148,10 @@ element {
     border-color: transparent;
     padding: 4px ;
 }
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
 element.normal.normal {
     background-color: @normal-background;
     text-color:       @normal-foreground;
