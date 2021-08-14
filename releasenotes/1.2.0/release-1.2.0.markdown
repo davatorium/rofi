@@ -1,14 +1,14 @@
-# V1.2.0 - 8397 
+# V1.2.0 - 8397
 
 ## New Features
 
-Despite me saying after every release that it is mostly feature complete;  new **Rofi**, new features. 
+Despite me saying after every release that it is mostly feature complete;  new **Rofi**, new features.
 However these new features are mostly to improve current functionality and debugging.
 Below the 4 most important ones.
 
 ### Underline Match
 
-A new, hopefully welcome, addition is that **Rofi** now  highlights the match in each row:
+A new, hopefully welcome, addition is that **Rofi** now highlights the match in each row:
 
 ![Rofi Underline](./rofi-underline-match.png)
 
@@ -40,7 +40,7 @@ rofi.window-format: {t:-16} ({c:10})
 ## Track configuration option origin
 
 **Rofi** now keeps track of how configuration options are set. It will now display if it is the default value, set in
-Xresources, configuration file or commnadline.
+Xresources, configuration file or commandline.
 
 ![Rofi configuration tracking](./rofi-options.png)
 

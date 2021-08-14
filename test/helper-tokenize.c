@@ -66,7 +66,7 @@ gboolean rofi_theme_parse_string ( G_GNUC_UNUSED const char *string )
   return FALSE;
 }
 
-double textbox_get_estimated_char_height ( void  )
+double textbox_get_estimated_char_height ( void )
 {
   return 12.0;
 }
@@ -485,7 +485,7 @@ static Suite * helper_tokenizer_suite (void)
     return s;
 }
 
-int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char ** argv )
+int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {
     if ( setlocale ( LC_ALL, "" ) == NULL ) {
         fprintf ( stderr, "Failed to set locale.\n" );

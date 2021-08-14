@@ -151,7 +151,7 @@ guint key_binding_get_action_from_name ( const char *name )
 {
   for ( gsize i = 0; i < G_N_ELEMENTS ( rofi_bindings ); ++i ) {
     ActionBindingEntry *b = &rofi_bindings[i];
-    if ( g_strcmp0(b->name, name) == 0  ){
+    if ( g_strcmp0(b->name, name) == 0 ) {
       return b->id;
     }
   }

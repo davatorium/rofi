@@ -49,7 +49,7 @@ unsigned int test =0;
 #define TASSERTE( a, b )    {                                                            \
         if ( ( a ) == ( b ) ) {                                                          \
             printf ( "Test %u passed (%s == %s) (%d == %d)\n", ++test, # a, # b, a, b ); \
-        }else {                                                                          \
+        } else {                                                                         \
             printf ( "Test %u failed (%s == %s) (%d != %d)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \
@@ -58,7 +58,7 @@ unsigned int test =0;
 #define TASSERTW( a, b )    {                                                                            \
         if ( ( a ) == ( b ) ) {                                                                          \
             printf ( "Test %u passed (%s == %s) (%p == %p)\n", ++test, # a, # b, (void *)a, (void *)b ); \
-        }else {                                                                                          \
+        } else {                                                                                         \
             printf ( "Test %u failed (%s == %s) (%p != %p)\n", ++test, # a, # b, (void *)a, (void *)b ); \
             abort ( );                                                                                   \
         }                                                                                                \
@@ -78,7 +78,6 @@ cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
 {
   return NULL;
 }
-
 
 int monitor_active ( G_GNUC_UNUSED workarea *mon )
 {
@@ -115,7 +114,6 @@ void rofi_view_get_current_monitor ( G_GNUC_UNUSED int *width, G_GNUC_UNUSED int
 {
 
 }
-
 
 int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
 {

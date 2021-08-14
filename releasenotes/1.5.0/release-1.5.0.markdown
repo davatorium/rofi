@@ -4,7 +4,7 @@ After the last release turned out to be fairly large we are hopefully back to mo
 This release focuses on squashing some bugs and hopefully improving the user experience.
 Nevertheless this release also includes some new features.
 
-Big thanks to [SardemFF7](https://www.sardemff7.net/), without whose  help and contributions this release would not have been possible.
+Big thanks to [SardemFF7](https://www.sardemff7.net/), without whose help and contributions this release would not have been possible.
 
 
 ## New features
@@ -21,7 +21,7 @@ The different fields are:
 
 * **name**: the application's name
 * **generic**: the application's generic name
-* **exec**: the application's  executable
+* **exec**: the application's executable
 * **categories**: the application's categories
 * **comment**: the application comment
 * **all**: all of the above

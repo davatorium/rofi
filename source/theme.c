@@ -143,7 +143,7 @@ Property* rofi_theme_property_copy ( const Property *p )
         retv->value.image.url = g_strdup ( p->value.image.url );
         retv->value.image.colors = NULL;
         for ( GList *l = g_list_first ( p->value.image.colors );
-                l ; l = g_list_next(l)){
+                l ; l = g_list_next(l)) {
             retv->value.image.colors = g_list_append ( retv->value.image.colors,
                     g_memdup ( l->data, sizeof(ThemeColor)));
         }
@@ -1006,7 +1006,7 @@ gboolean rofi_theme_get_image ( const widget *widget, const char *property, cair
               }
             };
             guint length = g_list_length ( p->value.image.colors );
-            if ( length > 1 ){
+            if ( length > 1 ) {
                 length--;
                 guint color_index = 0;
                 for ( GList *l = g_list_first ( p->value.image.colors); l != NULL ; l = g_list_next ( l ) )
@@ -1221,7 +1221,7 @@ char * rofi_theme_parse_prepare_file ( const char *file, const char *parent_file
 {
     char *filename = rofi_expand_path ( file );
     // If no absolute path specified, expand it.
-    if ( parent_file != NULL && !g_path_is_absolute ( filename )   ) {
+    if ( parent_file != NULL && !g_path_is_absolute ( filename ) ) {
         char *basedir = g_path_get_dirname ( parent_file );
         char *path    = g_build_filename ( basedir, filename, NULL );
         g_free ( filename );

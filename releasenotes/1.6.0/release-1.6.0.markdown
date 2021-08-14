@@ -115,7 +115,7 @@ This is a very initial implementation of CSS like `@media` support. This allows 
 based on screen size or ratio.
 
 We currently support: minimum width, minimum height, maximum width, maximum
-height, monitor id, minimum acpect ratio or maximum acpect ratio.
+height, monitor id, minimum aspect ratio or maximum aspect ratio.
 
 
 For example, go to fullscreen mode on screens smaller then full HD:

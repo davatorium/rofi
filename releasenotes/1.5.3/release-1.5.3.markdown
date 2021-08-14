@@ -1,6 +1,6 @@
 # 1.5.3: Time delayed progress
 
-Rofi 1.5.3 is another bug-fix release in the 1.5 series. 
+Rofi 1.5.3 is another bug-fix release in the 1.5 series.
 
 There is one breaking change in the theme naming and there are a few small new features (tweaks) in this release.
 
@@ -32,7 +32,7 @@ separator character.
 If you have very long entries in your view that get ellipsized (cut off at the end indicated by ...) you can now select,
 at runtime, where they are cut off (start, middle or end).
 
-You cycle through the options with the the `alt+.` keybinding.
+You cycle through the options with the `alt+.` keybinding.
 
 Start:
 
@@ -53,7 +53,7 @@ End:
 
 The full list of fixes and updates:
 
-* Update manpage with missing entry. (#937)                                  
+* Update manpage with missing entry. (#937)
 * Rename sidebar widget to mode-switcher and allow configuration from theme.
 * Timing: Moving timing output to glib debug system.
 * SSH: Fix unitialized variable issue.
@@ -70,4 +70,3 @@ The full list of fixes and updates:
 * Update libnkutils, libgwater.
 * DMENU: Add format option to strip pango markup from return value.
 * ListView: allow user to change ellipsizing displayed value at run-time.
-

@@ -250,7 +250,7 @@ double textbox_get_estimated_ch ( void );
  *
  * @returns the height of a character in pixels.
  */
-double textbox_get_estimated_char_height ( void  );
+double textbox_get_estimated_char_height ( void );
 
 /**
  * @param tb Handle to the textbox

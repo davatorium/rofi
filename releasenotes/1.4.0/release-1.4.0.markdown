@@ -13,7 +13,7 @@ possible.
 
 Because of The great work done by [SardemFF7](https://github.com/SardemFF7/) the
 code base is simplified and the key and mouse handling improved. The libraries
-provided by SardemFF7  also made it possible to add a often requested feature of
+provided by SardemFF7 also made it possible to add a often requested feature of
 icons (correctly using the icon-theme). A feature I never expected to be added.
 To top this off, SardemFF7 added support to build rofi using
 [meson](http://mesonbuild.com/).
@@ -77,7 +77,7 @@ widgets.
 
 > Note that opening a fonts is one of the slowest operations during rofi
 > startup; having multiple fonts could have a significant impact on startup
-> times. 
+> times.
 
 ### Flexible layout
 
@@ -104,7 +104,7 @@ The new theme parser also support importing and overriding. This allow you to
 make make modifications to an existing theme, without having to completely copy
 it. For example, I want to use the `arthur` theme (shipped with rofi) but use
 fake transparency, change the font off the result list and import a set of
-overriding colors from `mycolors`. 
+overriding colors from `mycolors`.
 
 ```css
 // Import the default arthur theme
@@ -118,9 +118,9 @@ overriding colors from `mycolors`.
     transparency: "screenshot";
 }
 /* Override the font on the listview elements */
-#element { 
+#element {
     font: "Ubuntu Mono 18";
-}                          
+}
 ```
 
 ## Icons
@@ -182,7 +182,7 @@ See [here](https://gitcrate.org/qtools/rofi-top).
 
 ## Configuration File
 
-> This feature is in  alpha stage.
+> This feature is in alpha stage.
 
 The new theme format can now (as an alpha) feature be used to set rofi's
 configuration. In the future, when we add wayland support, we want to get rid of
@@ -236,4 +236,3 @@ would look using: `rofi -dump-config`.
 * Allow rofi to be placed above window based on window id.
 * Support different font per textbox.
   * Keep cache of previous used fonts.
-

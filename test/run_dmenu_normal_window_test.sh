@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 
 # wait till it is up, run rofi with error message
-sleep 1;
+sleep 1
 ulimit -c unlimited
-echo -e -n "aap\nnoot\nmies" | rofi -dmenu  -normal-window  -multi-select > output.txt & 
+echo -e -n "aap\nnoot\nmies" | rofi -dmenu -normal-window -multi-select > output.txt &
 RPID=$!
 sleep 4
 xdotool getactivewindow windowsize 100% 100%
 echo "Window resized"
 # send enter.
 sleep 1
-xdotool key 'Down' 
+xdotool key 'Down'
 sleep 0.4
 xdotool key Shift+Return
 xdotool key Shift+Return
 xdotool key Return
 
-#  Get result, kill xvfb
-wait ${RPID}
+# Get result, kill xvfb
+wait "${RPID}"
 RETV=$?
 if [ "${RETV}" == "139" ]
 then
@@ -30,5 +30,5 @@ then
     echo "Got: '${OUTPUT}' expected 'noot mies '"
     exit 1
 fi
-echo ${RETV}
-exit ${RETV}
+echo "${RETV}"
+exit "${RETV}"

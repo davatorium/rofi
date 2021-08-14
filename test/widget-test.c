@@ -49,16 +49,16 @@ ThemeWidget *rofi_configuration = NULL;
 
 uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
 {
-  return 0;
+    return 0;
 }
 uint32_t rofi_icon_fetcher_query_advanced ( const char *name, const int wsize, const int hsize )
 {
-  return 0;
+    return 0;
 }
 
 cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
 {
-  return NULL;
+    return NULL;
 }
 
 gboolean config_parse_set_property ( G_GNUC_UNUSED const Property *p, G_GNUC_UNUSED char **error )
@@ -98,8 +98,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     widget_move ( wid, 10, 10);
     // Getter, setter x pos
     //
-    TASSERT( widget_get_x_pos ( wid )  == 10 );
-    TASSERT( widget_get_y_pos ( wid )  == 10 );
+    TASSERT ( widget_get_x_pos ( wid ) == 10 );
+    TASSERT ( widget_get_y_pos ( wid ) == 10 );
 
     // Left of box
     TASSERT ( widget_intersect ( wid, 0, 0) == 0 );
@@ -190,14 +190,13 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT ( widget_intersect ( wid, 20+30, 20+40) == 0 );
     TASSERT ( widget_intersect ( wid, 20+30, 20+50) == 0 );
 
-
     TASSERT ( widget_intersect ( wid, -100, -100) == 0);
     TASSERT ( widget_intersect ( wid, INT_MIN, INT_MIN) == 0);
     TASSERT ( widget_intersect ( wid, INT_MAX, INT_MAX) == 0);
 
     // Other wrappers.
-    TASSERT ( widget_get_height ( wid ) ==  wid->h);
-    TASSERT ( widget_get_width ( wid ) ==  wid->w);
+    TASSERT ( widget_get_height ( wid ) == wid->h);
+    TASSERT ( widget_get_width ( wid ) == wid->w);
 
     TASSERT ( widget_enabled ( wid ) == FALSE );
     widget_enable ( wid );
@@ -207,8 +206,8 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     // Null pointer tests.
     TASSERT ( widget_intersect ( NULL, 0, 0) == 0 );
     widget_move ( NULL, 0, 0 );
-    TASSERT ( widget_get_height ( NULL ) ==  0);
-    TASSERT ( widget_get_width ( NULL ) ==  0);
+    TASSERT ( widget_get_height ( NULL ) == 0);
+    TASSERT ( widget_get_width ( NULL ) == 0);
     TASSERT ( widget_enabled ( NULL ) == 0);
     widget_disable ( NULL );
     widget_enable ( NULL );
@@ -220,7 +219,6 @@ int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
     TASSERT (widget_need_redraw ( NULL ) == FALSE);
     widget_trigger_action ( NULL, 0, 0, 0 );
     widget_set_trigger_action_handler ( NULL, NULL, NULL );
-
 
     g_free(wid);
 }

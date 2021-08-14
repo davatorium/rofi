@@ -179,7 +179,7 @@ typedef enum
     ROFI_IMAGE_LINEAR_GRADIENT
 } RofiImageType;
 
-typedef enum 
+typedef enum
 {
     ROFI_DIRECTION_LEFT,
     ROFI_DIRECTION_RIGHT,
@@ -188,14 +188,13 @@ typedef enum
     ROFI_DIRECTION_ANGLE,
 } RofiDirection;
 
-typedef enum 
+typedef enum
 {
     ROFI_SCALE_NONE,
     ROFI_SCALE_BOTH,
     ROFI_SCALE_HEIGHT,
     ROFI_SCALE_WIDTH,
 } RofiScaleType;
-
 
 typedef struct
 {

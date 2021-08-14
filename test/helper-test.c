@@ -49,7 +49,7 @@ static int       test = 0;
 #define TASSERTE( a, b )    {                                                            \
         if ( ( a ) == ( b ) ) {                                                          \
             printf ( "Test %i passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
-        }else {                                                                          \
+        } else {                                                                         \
             printf ( "Test %i failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \
@@ -57,7 +57,7 @@ static int       test = 0;
 #define TASSERTL( a, b )    {                                                            \
         if ( ( a ) == ( b ) ) {                                                          \
             printf ( "Test %i passed (%s == %s) (%d == %d)\n", ++test, # a, # b, a, b ); \
-        }else {                                                                          \
+        } else {                                                                         \
             printf ( "Test %i failed (%s == %s) (%d != %d)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \
@@ -87,7 +87,7 @@ cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
   return NULL;
 }
 
-double textbox_get_estimated_char_height ( void  )
+double textbox_get_estimated_char_height ( void )
 {
   return 12.0;
 }
@@ -120,7 +120,7 @@ void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *cont
 {
 }
 
-int main ( int argc, char ** argv )
+int main ( int argc, char **argv )
 {
     cmd_set_arguments ( argc, argv );
 

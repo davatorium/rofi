@@ -102,10 +102,10 @@ Settings config = {
     /** Parse ~/.ssh/known_hosts file in ssh view. */
     .parse_known_hosts         = TRUE,
     /** Modi to combine into one view. */
-    .combi_modi      = "window,run",
-    .tokenize        = TRUE,
-    .matching        = "normal",
-    .matching_method = MM_NORMAL,
+    .combi_modi                = "window,run",
+    .tokenize                  = TRUE,
+    .matching                  = "normal",
+    .matching_method           = MM_NORMAL,
 
     /** Desktop entries to match in drun */
     .drun_match_fields         = "name,generic,exec,categories,keywords",
@@ -124,20 +124,20 @@ Settings config = {
     .monitor                   = "-5",
     /** Set filter */
     .filter                    = NULL,
-    .dpi                    = -1,
-    .threads                = 0,
-    .scroll_method          = 0,
-    .window_format          = "{w}    {c}   {t}",
-    .click_to_exit          = TRUE,
-    .theme                  = NULL,
-    .plugin_path            = PLUGIN_PATH,
-    .max_history_size       = 25,
-    .combi_hide_mode_prefix = FALSE,
+    .dpi                       = -1,
+    .threads                   = 0,
+    .scroll_method             = 0,
+    .window_format             = "{w}    {c}   {t}",
+    .click_to_exit             = TRUE,
+    .theme                     = NULL,
+    .plugin_path               = PLUGIN_PATH,
+    .max_history_size          = 25,
+    .combi_hide_mode_prefix    = FALSE,
 
     .matching_negate_char      = '-',
 
-    .cache_dir        = NULL,
-    .window_thumbnail = FALSE,
+    .cache_dir                 = NULL,
+    .window_thumbnail          = FALSE,
 
     /** drun cache */
     .drun_use_desktop_cache    = FALSE,
@@ -151,5 +151,5 @@ Settings config = {
     /** steal focus */
     .steal_focus               = FALSE,
     /** fallback icon */
-    .application_fallback_icon             = NULL
+    .application_fallback_icon = NULL
 };

@@ -115,7 +115,7 @@ static gboolean exec_cmd ( const char *cmd, int run_in_term )
     char                     *path   = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
     RofiHelperExecuteContext context = { .name = NULL };
     // FIXME: assume startup notification support for terminals
-    if (  helper_execute_command ( NULL, lf_cmd, run_in_term, run_in_term ? &context : NULL ) ) {
+    if ( helper_execute_command ( NULL, lf_cmd, run_in_term, run_in_term ? &context : NULL ) ) {
         /**
          * This happens in non-critical time (After launching app)
          * It is allowed to be a bit slower.
@@ -171,7 +171,7 @@ static int sort_func ( const void *a, const void *b, G_GNUC_UNUSED void *data )
     else if ( bstr->entry == NULL ) {
         return -1;
     }
-    return g_strcmp0 ( astr->entry , bstr->entry  );
+    return g_strcmp0 ( astr->entry , bstr->entry );
 }
 
 /**
@@ -245,7 +245,7 @@ static RunEntry * get_apps ( unsigned int *length )
     path = g_build_filename ( cache_dir, RUN_CACHE_FILE, NULL );
     char **hretv = history_get_list ( path, length );
     retv = (RunEntry*)g_malloc0((*length+1)*sizeof(RunEntry));
-    for(unsigned int i =0; i < *length; i++ ){
+    for ( unsigned int i = 0; i < *length; i++ ) {
         retv[i].entry = hretv[i];
     }
     g_free(hretv);
@@ -256,11 +256,11 @@ static RunEntry * get_apps ( unsigned int *length )
     path = g_strdup ( g_getenv ( "PATH" ) );
 
     gsize l        = 0;
-    gchar *homedir = g_locale_to_utf8 (  g_get_home_dir (), -1, NULL, &l, &error );
+    gchar *homedir = g_locale_to_utf8 ( g_get_home_dir (), -1, NULL, &l, &error );
     if ( error != NULL ) {
         g_debug ( "Failed to convert homedir to UTF-8: %s", error->message );
         for ( unsigned int i = 0; retv[i].entry != NULL ; i++ ) {
-          g_free ( retv[i].entry );
+            g_free ( retv[i].entry );
         }
         g_free(retv);
         g_clear_error ( &error );
@@ -394,7 +394,7 @@ static void run_mode_destroy ( Mode *sw )
 {
     RunModePrivateData *rmpd = (RunModePrivateData *) sw->private_data;
     if ( rmpd != NULL ) {
-        for ( unsigned int i = 0; i < rmpd->cmd_list_length; i++ ){
+        for ( unsigned int i = 0; i < rmpd->cmd_list_length; i++ ) {
             g_free ( rmpd->cmd_list[i].entry );
             if ( rmpd->cmd_list[i].icon != NULL ) {
                 cairo_surface_destroy ( rmpd->cmd_list[i].icon );
@@ -412,7 +412,7 @@ static void run_mode_destroy ( Mode *sw )
 static unsigned int run_mode_get_num_entries ( const Mode *sw )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
-    if ( rmpd->file_complete ){
+    if ( rmpd->file_complete ) {
         return rmpd->completer->_get_num_entries( rmpd->completer );
     }
     return rmpd->cmd_list_length;
@@ -436,17 +436,19 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
                 (*input) = g_strdup ( rmpd->old_input );
             }
             rmpd->file_complete = FALSE;
-        } else if ( (mretv&MENU_CANCEL) ) {
+        }
+        else if ( (mretv&MENU_CANCEL) ) {
             retv = MODE_EXIT;
-        } else {
+        }
+        else {
             char *path = NULL;
             retv = file_browser_mode_completer ( rmpd->completer, mretv, input, selected_line, &path );
             if ( retv == MODE_EXIT ) {
-                if ( path == NULL )
-                {
+                if ( path == NULL ) {
                     exec_cmd ( rmpd->cmd_list[rmpd->selected_line].entry, run_in_term );
-                } else {
-                    char *arg= g_strdup_printf ( "%s '%s'",  rmpd->cmd_list[rmpd->selected_line].entry, path);
+                }
+                else {
+                    char *arg= g_strdup_printf ( "%s '%s'", rmpd->cmd_list[rmpd->selected_line].entry, path);
                     exec_cmd ( arg, run_in_term );
                     g_free(arg);
                 }
@@ -477,9 +479,10 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
     }
     else if ( mretv & MENU_CUSTOM_COMMAND ) {
         retv = ( mretv & MENU_LOWER_MASK );
-    } else if ( ( mretv& MENU_COMPLETE) ) {
+    }
+    else if ( ( mretv& MENU_COMPLETE) ) {
         retv = RELOAD_DIALOG;
-        if ( selected_line  < rmpd->cmd_list_length ) {
+        if ( selected_line < rmpd->cmd_list_length ) {
             rmpd->selected_line = selected_line;
 
             g_free ( rmpd->old_input );
@@ -488,7 +491,7 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
             if ( *input ) g_free (*input);
             *input = g_strdup ( rmpd->old_completer_input );
 
-            rmpd->file_complete =  TRUE;
+            rmpd->file_complete = TRUE;
         }
     }
     return retv;
@@ -497,7 +500,7 @@ static ModeMode run_mode_result ( Mode *sw, int mretv, char **input, unsigned in
 static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **list, int get_entry )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
-    if ( rmpd->file_complete ){
+    if ( rmpd->file_complete ) {
         return rmpd->completer->_get_display_value (rmpd->completer, selected_line, state, list, get_entry );
     }
     return get_entry ? g_strdup ( rmpd->cmd_list[selected_line].entry ) : NULL;
@@ -506,7 +509,7 @@ static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_
 static int run_token_match ( const Mode *sw, rofi_int_matcher **tokens, unsigned int index )
 {
     const RunModePrivateData *rmpd = (const RunModePrivateData *) sw->private_data;
-    if ( rmpd->file_complete ){
+    if ( rmpd->file_complete ) {
         return rmpd->completer->_token_match (rmpd->completer, tokens, index );
     }
     return helper_token_match ( tokens, rmpd->cmd_list[index].entry );
@@ -516,13 +519,13 @@ static char *run_get_message ( const Mode *sw )
     RunModePrivateData *pd = sw->private_data;
     if ( pd->file_complete ) {
         if ( pd->selected_line < pd->cmd_list_length ) {
-            char *msg =  mode_get_message ( pd->completer);
-            if (msg ){
+            char *msg = mode_get_message ( pd->completer);
+            if ( msg ) {
                 char *retv = g_strdup_printf("File complete for: %s\n%s", pd->cmd_list[pd->selected_line].entry, msg);
                 g_free (msg);
                 return retv;
             }
-            return  g_strdup_printf("File complete for: %s", pd->cmd_list[pd->selected_line].entry);
+            return g_strdup_printf("File complete for: %s", pd->cmd_list[pd->selected_line].entry);
         }
     }
     return NULL;

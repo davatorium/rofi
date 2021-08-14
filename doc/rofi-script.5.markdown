@@ -57,7 +57,7 @@ An integer number with the current state:
  * **0**: Initial call of script.
  * **1**: Selected an entry.
  * **2**: Selected a custom entry.
- * **10-28**: Custom keybinding 1-19 ( need to be explicitely enabled by script ).
+ * **10-28**: Custom keybinding 1-19 ( need to be explicitly enabled by script ).
 
 ### `ROFI_INFO`
 

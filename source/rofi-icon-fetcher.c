@@ -271,7 +271,7 @@ gboolean rofi_icon_fetcher_file_is_image ( const char * const path )
         return FALSE;
     }
     const char *suf = strrchr ( path, '.' );
-    if ( suf == NULL  ) {
+    if ( suf == NULL ) {
         return FALSE;
     }
     suf++;
@@ -304,17 +304,17 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
     else {
         icon_path = icon_path_ = nk_xdg_theme_get_icon ( rofi_icon_fetcher_data->xdg_context, themes, NULL, sentry->entry->name, MIN(sentry->wsize,sentry->hsize), 1, TRUE );
         if ( icon_path_ == NULL ) {
-            g_debug ( "failed to get icon %s(%dx%d): n/a", sentry->entry->name, sentry->wsize, sentry->hsize  );
+            g_debug ( "failed to get icon %s(%dx%d): n/a", sentry->entry->name, sentry->wsize, sentry->hsize );
             return;
         }
         else{
-            g_debug ( "found icon %s(%dx%d): %s", sentry->entry->name, sentry->wsize, sentry->hsize, icon_path  );
+            g_debug ( "found icon %s(%dx%d): %s", sentry->entry->name, sentry->wsize, sentry->hsize, icon_path );
         }
     }
     cairo_surface_t *icon_surf = NULL;
 
     const char      *suf = strrchr ( icon_path, '.' );
-    if ( suf == NULL  ) {
+    if ( suf == NULL ) {
         return;
     }
 

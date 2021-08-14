@@ -212,7 +212,7 @@ static char *utf8_helper_simplify_string ( const char *s )
 }
 
 // Macro for quickly generating regex for matching.
-static inline GRegex * R ( const char *s, int case_sensitive  )
+static inline GRegex * R ( const char *s, int case_sensitive )
 {
     if ( config.normalize_match ) {
         char   *str = utf8_helper_simplify_string ( s );
@@ -335,7 +335,7 @@ const char ** find_arg_strv ( const char *const key )
     const char **retv = NULL;
     int        length = 0;
     for ( int i = 0; i < stored_argc; i++ ) {
-        if (  i < ( stored_argc - 1 ) && strcasecmp ( stored_argv[i], key ) == 0 ) {
+        if ( i < ( stored_argc - 1 ) && strcasecmp ( stored_argv[i], key ) == 0 ) {
             length++;
         }
     }
@@ -656,7 +656,7 @@ int config_sanity_check ( void )
     }
 
     if ( config.element_height < 1 ) {
-        g_string_append_printf ( msg, "\t<b>config.element_height</b>=%d is invalid. An element needs to be atleast 1 line high.\n",
+        g_string_append_printf ( msg, "\t<b>config.element_height</b>=%d is invalid. An element needs to be at least 1 line high.\n",
                                  config.element_height );
         config.element_height = 1;
         found_error           = TRUE;
@@ -1004,7 +1004,7 @@ gboolean helper_execute ( const char *wd, char **args, const char *error_precmd,
     g_spawn_async ( wd, args, NULL, G_SPAWN_SEARCH_PATH, child_setup, user_data, NULL, &error );
     if ( error != NULL ) {
         char *msg = g_strdup_printf ( "Failed to execute: '%s%s'\nError: '%s'", error_precmd, error_cmd, error->message );
-        rofi_view_error_dialog ( msg, FALSE  );
+        rofi_view_error_dialog ( msg, FALSE );
         g_free ( msg );
         // print error.
         g_error_free ( error );
@@ -1130,7 +1130,7 @@ static gboolean parse_pair ( char  *input, rofi_range_pair  *item )
     int        pythonic = ( strchr ( input, ':' ) || input[0] == '-' ) ? 1 : 0;
     int        index    = 0;
 
-    for (  char *token = strsep ( &input, sep[pythonic] ); token != NULL; token = strsep ( &input, sep[pythonic] ) ) {
+    for ( char *token = strsep ( &input, sep[pythonic] ); token != NULL; token = strsep ( &input, sep[pythonic] ) ) {
         if ( index == 0 ) {
             item->start = item->stop = (int) strtol ( token, NULL, 10 );
             index++;

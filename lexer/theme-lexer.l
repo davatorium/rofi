@@ -116,7 +116,7 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
                 errno =0; \
                 while ( (result = (int) fread(buf, 1, max_size, current->filein))==0 && ferror(current->filein)) \
                 { \
-                    if( errno != EINTR) \
+                    if ( errno != EINTR ) \
                     { \
                         YY_FATAL_ERROR( "input in flex scanner failed" ); \
                         break; \
@@ -130,7 +130,7 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
             case PT_STRING:\
             {\
                 yy_size_t len = MIN (max_size, current->str_len);\
-                if ( len > 0 ){\
+                if ( len > 0 ) {\
                     memcpy (buf, current->input_str, len);\
                     current->input_str+=len;\
                     current->str_len-=len;\
@@ -295,7 +295,7 @@ CONFIGURATION (?i:configuration)
 YY_LLOC_START
 %}
 %{
-if ( queue == NULL ){
+if ( queue == NULL ) {
     queue = g_queue_new ( );
     yylloc->filename = current->filename;
     // unsure why todo this.
@@ -311,8 +311,8 @@ if ( queue == NULL ){
 
 <*>{CPP_COMMENT}            {
     int c = input();
-    while ( c != 0 && c != EOF){
-        if (c == '\n') {
+    while ( c != 0 && c != EOF) {
+        if ( c == '\n' ) {
             yylloc->last_column = 1;
             yylloc->last_line ++;
             break;
@@ -329,8 +329,8 @@ if ( queue == NULL ){
         p = c;
         c = input();
         switch (c) {
-        case '*': yylloc->last_column++; if (p == '/') { c = 0; nesting_depth++; } break;
-        case '/': yylloc->last_column++; if (p == '*') { c = 0; nesting_depth--; } break;
+        case '*': yylloc->last_column++; if ( p == '/' ) { c = 0; nesting_depth++; } break;
+        case '/': yylloc->last_column++; if ( p == '*' ) { c = 0; nesting_depth--; } break;
         case '\n':  {
             yylloc->last_column = 1;
             yylloc->last_line ++;
@@ -648,7 +648,7 @@ if ( queue == NULL ){
     return T_COLOR_TRANSPARENT;
 }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{COLOR_NAME} {
-    for ( unsigned int iter = 0; iter < num_CSSColors; iter++){
+    for ( unsigned int iter = 0; iter < num_CSSColors; iter++) {
         if ( strcasecmp(yytext, CSSColors[iter].name )== 0 ) {
             yylval->colorval.alpha = 1.0;
             yylval->colorval.red   = CSSColors[iter].r/255.0;
@@ -663,10 +663,10 @@ if ( queue == NULL ){
 <INITIAL,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT><<EOF>>  {
     ParseObject *po = g_queue_pop_head ( file_queue );
     if ( po ) {
-        if ( po->type == PT_FILE ){
+        if ( po->type == PT_FILE ) {
             fclose ( po->filein );
         }
-        g_free (  po );
+        g_free ( po );
     }
     po = g_queue_peek_head ( file_queue );
     if ( po == NULL ) {
@@ -811,7 +811,7 @@ gboolean rofi_theme_parse_file ( const char *file )
 
     while ( (po = g_queue_pop_head ( file_queue ) )) {
         if ( po ) {
-            if ( po->type == PT_FILE ){
+            if ( po->type == PT_FILE ) {
                 fclose ( po->filein );
             }
             g_free ( po );
@@ -846,7 +846,7 @@ gboolean rofi_theme_parse_string ( const char *string )
 
     while ( (po = g_queue_pop_head ( file_queue ) )) {
         if ( po ) {
-            if ( po->type == PT_FILE ){
+            if ( po->type == PT_FILE ) {
                 fclose ( po->filein );
             }
             g_free ( po );

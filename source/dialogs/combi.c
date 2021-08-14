@@ -76,7 +76,7 @@ static void combi_mode_parse_switchers ( Mode *sw )
                                                    sizeof ( CombiMode ) * ( pd->num_switchers + 1 ) );
 
         Mode *mode = rofi_collect_modi_search ( token );
-        if (  mode != NULL ) {
+        if ( mode != NULL ) {
             pd->switchers[pd->num_switchers].disable = FALSE;
             pd->switchers[pd->num_switchers++].mode  = mode;
             continue;
@@ -182,7 +182,7 @@ static ModeMode combi_mode_result ( Mode *sw, int mretv, char **input, unsigned 
             return mode_result ( pd->switchers[i].mode, mretv, input, selected_line - pd->starts[i] );
         }
     }
-    if ( ( mretv & MENU_CUSTOM_INPUT )  ) {
+    if ( ( mretv & MENU_CUSTOM_INPUT ) ) {
         return mode_result ( pd->switchers[0].mode, mretv, input, selected_line );
     }
     return MODE_EXIT;
