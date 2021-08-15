@@ -2,16 +2,25 @@
 
 ![Iggy](./iggy.jpg)
 
-Rofi 1.7.0 is another bug-fix release that also removes a lot of deprecated features.  Even though this might not be
-popular, the deprecation of these options is needed to keep **rofi** maintainable.
+Rofi 1.7.0 is another bug-fix release that also removes a lot of deprecated features.   One of the biggest changes is
+the removal of the (deprecated) xresources based configuration setup. With this removal, also a lot of hack-ish code has
+been removed that tried to patch old config setups.  While the deprecation might be frustrating for people who have not
+yet converted to the new format, I hope for some understanding. Even though this move might not be popular, the
+deprecation in previous releases and consequential removal of these options is needed for two reasons.
+The most important one is to keep rofi maintainable and secondary to open possibility to overhaul the config system in
+the future and with that fixing some long standing bugs and add new options that
+where hindered by the almost 10 year old system.
 
-Beside mostly bug-fixes some changes where made to improve the theming and 'abnormal' use of rofi.
+Beside mostly bug-fixes and removal of deprecated options, we also improved the theming and added features to help in
+some of the more 'off-script' use of rofi.
 
+This release was made possible by many contributors, see below for a full list. Big thanks again to SardemF77 and
+TonCherAmi.
 
-## FileBrowser
+## File Browser
 
 TonCherAmi made several very nice usability improvements to the file-browser. His changes allow you to define sorting
-and ordering of the entries and chaneg the default start directory.
+and ordering of the entries and changing the default start directory.
 
 These options can be set using the new 'nested' configuration format that we are testing in rofi:
 
@@ -39,8 +48,10 @@ configuration {
 
 ## Timeout actions
 
+You can now configure an action to be taken when rofi has not been interacted with for a certain amount of seconds.
+You can specify a keybinding to trigger after X seconds.
 
-These options can be set using the new 'nested' configuration format that we are testing in rofi:
+This option can be set using the new 'nested' configuration format that we are testing in rofi:
 
 ```css
 configuration {
@@ -50,6 +61,8 @@ configuration {
   }
 }
 ```
+
+This setting will close rofi after 15 seconds of no interaction.
 
 ## Background image and gradients
 
@@ -154,4 +167,4 @@ Big thanks to:
 * Eduard Lucena
 * Lars Wendler
 
-Apologis if I mistyped or missed anybody.
+Apologies if I mistyped or missed anybody.
