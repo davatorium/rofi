@@ -75,7 +75,7 @@ For more up to date information, please see the manpages:
 
  * Manpages:
      * [rofi](doc/rofi.1.markdown)
-     * [rofi-theme](doc/rofi.5.markdown)
+     * [rofi-theme](doc/rofi-theme.5.markdown)
      * [rofi-script](doc/rofi-script.5.markdown)
      * [rofi-theme-selector](doc/rofi-theme-selector.1.markdown)
  * Discussion places:
