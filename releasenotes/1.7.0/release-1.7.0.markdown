@@ -34,29 +34,6 @@ configuration {
 }
 ```
 
-## Clickable button and icons
-
-```css
-icon-paste {
-    expand: false;
-    filename: "gtk-paste";
-    size: 24;
-    vertical-align: 0.5;
-    action: "kb-primary-paste";
-}
-```
-
-```css
-button-paste {
-    expand: false;
-    content: "My Clickable Message";
-    vertical-align: 0.5;
-    action: "kb-primary-paste";
-}
-```
-
-
-
 
 ## File Completion
 
@@ -85,6 +62,36 @@ element {
     background-image: linear-gradient(to bottom, black/20%, white/20%, black/10%);
 }
 ```
+
+The below screenshot shows both background image and gradients.
+
+![background image](./background-image.png)
+
+
+## Clickable button and icons
+
+```css
+icon-paste {
+    expand: false;
+    filename: "gtk-paste";
+    size: 24;
+    vertical-align: 0.5;
+    action: "kb-primary-paste";
+}
+```
+
+```css
+button-paste {
+    expand: false;
+    content: "My Clickable Message";
+    vertical-align: 0.5;
+    action: "kb-primary-paste";
+}
+```
+
+The screenshot below shows a non-squared image and clickable buttons (the close icon in the top right) 
+
+![rofi icons](./rofi-icons.png)
 
 # Changelog
 
