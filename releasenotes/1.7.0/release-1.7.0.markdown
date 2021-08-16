@@ -46,6 +46,16 @@ configuration {
 
 ## File Completion
 
+In run and drun you can add a file argument to the executable by pressing
+`Control-l` (In drun this only works, if the desktop file indicates that the
+application supports this.)
+
+
+![completer](./complete.gif)
+
+This is not the final implementation, I plan to extend this and make this more configurable.
+
+
 ## Timeout actions
 
 You can now configure an action to be taken when rofi has not been interacted with for a certain amount of seconds.
