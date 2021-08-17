@@ -1,6 +1,7 @@
 #ifndef ROFI_INCLUDE_CSS_COLORS_H
 #define ROFI_INCLUDE_CSS_COLORS_H
 
+#include <stdint.h>
 /**
  * @defgroup CSSCOLORS CssColors
  * @ingroup HELPERS
@@ -13,16 +14,16 @@
 /**
  * Structure of colors.
  */
-typedef struct CSSColor
-{
-    /** CSS name of the color. */
-    char    *name;
-    /** BGRA 8 bit color components. */
-    uint8_t b, g, r, a;
-}CSSColor;
+typedef struct CSSColor {
+  /** CSS name of the color. */
+  char *name;
+  /** BGRA 8 bit color components. */
+  uint8_t b, g, r, a;
+} CSSColor;
 
 /**
- * Array with all the named colors. Of type #CSSColor, there are #num_CSSColors items in this array.
+ * Array with all the named colors. Of type #CSSColor, there are #num_CSSColors
+ * items in this array.
  */
 extern const CSSColor CSSColors[];
 /**

@@ -28,6 +28,8 @@
 #ifndef ROFI_LISTVIEW_H
 #define ROFI_LISTVIEW_H
 
+#include "widgets/textbox.h"
+
 /**
  * @defgroup listview listview
  * @ingroup widget

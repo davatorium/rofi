@@ -26,113 +26,100 @@
  */
 
 /** The log domain of this widget. */
-#define G_LOG_DOMAIN    "Widgets.Container"
+#define G_LOG_DOMAIN "Widgets.Container"
 
-#include <config.h>
-#include <stdio.h>
-#include "widgets/widget.h"
-#include "widgets/widget-internal.h"
 #include "widgets/container.h"
 #include "theme.h"
+#include "widgets/widget-internal.h"
+#include "widgets/widget.h"
+#include <stdio.h>
 
-struct _container
-{
-    widget widget;
-    widget *child;
+struct _container {
+  widget widget;
+  widget *child;
 };
 
-static void container_update ( widget *wid );
+static void container_update(widget *wid);
 
-static int container_get_desired_height ( widget *widget )
-{
-    container *b     = (container *) widget;
-    int       height = 0;
-    if ( b->child ) {
-        height += widget_get_desired_height ( b->child );
-    }
-    height += widget_padding_get_padding_height ( widget );
-    return height;
+static int container_get_desired_height(widget *widget) {
+  container *b = (container *)widget;
+  int height = 0;
+  if (b->child) {
+    height += widget_get_desired_height(b->child);
+  }
+  height += widget_padding_get_padding_height(widget);
+  return height;
 }
 
-static void container_draw ( widget *wid, cairo_t *draw )
-{
-    container *b = (container *) wid;
+static void container_draw(widget *wid, cairo_t *draw) {
+  container *b = (container *)wid;
 
-    widget_draw ( b->child, draw );
+  widget_draw(b->child, draw);
 }
 
-static void container_free ( widget *wid )
-{
-    container *b = (container *) wid;
+static void container_free(widget *wid) {
+  container *b = (container *)wid;
 
-    widget_free ( b->child );
-    g_free ( b );
+  widget_free(b->child);
+  g_free(b);
 }
 
-void container_add ( container *container, widget *child )
-{
-    if ( container == NULL ) {
-        return;
-    }
-    container->child = child;
-    g_assert ( child->parent == WIDGET ( container ) );
-    widget_update ( WIDGET ( container ) );
+void container_add(container *container, widget *child) {
+  if (container == NULL) {
+    return;
+  }
+  container->child = child;
+  g_assert(child->parent == WIDGET(container));
+  widget_update(WIDGET(container));
 }
 
-static void container_resize ( widget *widget, short w, short h )
-{
-    container *b = (container *) widget;
-    if ( b->widget.w != w || b->widget.h != h ) {
-        b->widget.w = w;
-        b->widget.h = h;
-        widget_update ( widget );
-    }
+static void container_resize(widget *widget, short w, short h) {
+  container *b = (container *)widget;
+  if (b->widget.w != w || b->widget.h != h) {
+    b->widget.w = w;
+    b->widget.h = h;
+    widget_update(widget);
+  }
 }
 
-static widget *container_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y )
-{
-    container *b = (container *) wid;
-    if ( !widget_intersect ( b->child, x, y ) ) {
-        return NULL;
-    }
+static widget *container_find_mouse_target(widget *wid, WidgetType type, gint x,
+                                           gint y) {
+  container *b = (container *)wid;
+  if (!widget_intersect(b->child, x, y)) {
+    return NULL;
+  }
 
-    x -= b->child->x;
-    y -= b->child->y;
-    return widget_find_mouse_target ( b->child, type, x, y );
+  x -= b->child->x;
+  y -= b->child->y;
+  return widget_find_mouse_target(b->child, type, x, y);
 }
 
-static void container_set_state ( widget *wid, const char *state )
-{
-    container *b = (container *) wid;
-    widget_set_state ( b->child, state );
+static void container_set_state(widget *wid, const char *state) {
+  container *b = (container *)wid;
+  widget_set_state(b->child, state);
 }
 
-container * container_create ( widget *parent, const char *name )
-{
-    container *b = g_malloc0 ( sizeof ( container ) );
-    // Initialize widget.
-    widget_init ( WIDGET ( b ), parent, WIDGET_TYPE_UNKNOWN, name );
-    b->widget.draw               = container_draw;
-    b->widget.free               = container_free;
-    b->widget.resize             = container_resize;
-    b->widget.update             = container_update;
-    b->widget.find_mouse_target  = container_find_mouse_target;
-    b->widget.get_desired_height = container_get_desired_height;
-    b->widget.set_state          = container_set_state;
-    return b;
+container *container_create(widget *parent, const char *name) {
+  container *b = g_malloc0(sizeof(container));
+  // Initialize widget.
+  widget_init(WIDGET(b), parent, WIDGET_TYPE_UNKNOWN, name);
+  b->widget.draw = container_draw;
+  b->widget.free = container_free;
+  b->widget.resize = container_resize;
+  b->widget.update = container_update;
+  b->widget.find_mouse_target = container_find_mouse_target;
+  b->widget.get_desired_height = container_get_desired_height;
+  b->widget.set_state = container_set_state;
+  return b;
 }
 
-static void container_update ( widget *wid )
-{
-    container *b = (container *) wid;
-    if ( b->child && b->child->enabled ) {
-        widget_resize ( WIDGET ( b->child ),
-                        widget_padding_get_remaining_width  ( WIDGET ( b ) ),
-                        widget_padding_get_remaining_height ( WIDGET ( b ) )
-                        );
-        widget_move ( WIDGET ( b->child ),
-                      widget_padding_get_left ( WIDGET ( b ) ),
-                      widget_padding_get_top ( WIDGET ( b ) )
-                      );
-    }
+static void container_update(widget *wid) {
+  container *b = (container *)wid;
+  if (b->child && b->child->enabled) {
+    widget_resize(WIDGET(b->child),
+                  widget_padding_get_remaining_width(WIDGET(b)),
+                  widget_padding_get_remaining_height(WIDGET(b)));
+    widget_move(WIDGET(b->child), widget_padding_get_left(WIDGET(b)),
+                widget_padding_get_top(WIDGET(b)));
+  }
 }

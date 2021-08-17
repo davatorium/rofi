@@ -25,7 +25,7 @@
  *
  */
 
-#include <config.h>
+#include "config.h"
 #include <string.h>
 #include "rofi.h"
 #include "nkutils-bindings.h"

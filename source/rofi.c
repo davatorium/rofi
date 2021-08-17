@@ -29,7 +29,7 @@
 /** Log domain */
 #define G_LOG_DOMAIN "Rofi"
 
-#include <config.h>
+#include "config.h"
 #include <errno.h>
 #include <gmodule.h>
 #include <locale.h>
