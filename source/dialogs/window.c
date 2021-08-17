@@ -58,6 +58,7 @@
 #include "timings.h"
 
 #include "rofi-icon-fetcher.h"
+#include "mode-private.h"
 
 #define WINLIST             32
 
@@ -181,20 +182,27 @@ static int winlist_append ( winlist *l, xcb_window_t w, client *d )
     return l->len - 1;
 }
 
+static void client_free ( client *c )
+{
+  if ( c == NULL ) {
+    return;
+  }
+  if ( c->icon ) {
+    cairo_surface_destroy ( c->icon );
+  }
+  g_free ( c->title );
+  g_free ( c->class );
+  g_free ( c->name );
+  g_free ( c->role );
+  g_free ( c->wmdesktopstr );
+}
 static void winlist_empty ( winlist *l )
 {
     while ( l->len > 0 ) {
         client *c = l->data[--l->len];
         if ( c != NULL ) {
-            if ( c->icon ) {
-                cairo_surface_destroy ( c->icon );
-            }
-            g_free ( c->title );
-            g_free ( c->class );
-            g_free ( c->name );
-            g_free ( c->role );
-            g_free ( c->wmdesktopstr );
-            g_free ( c );
+          client_free ( c );
+          g_free ( c );
         }
     }
 }
@@ -710,6 +718,18 @@ static ModeMode window_mode_result ( Mode *sw, int mretv, G_GNUC_UNUSED char **i
     else if ( ( mretv & ( MENU_ENTRY_DELETE ) ) == MENU_ENTRY_DELETE ) {
         xcb_ewmh_request_close_window ( &( xcb->ewmh ), xcb->screen_nbr, rmpd->ids->array[selected_line], XCB_CURRENT_TIME, XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER );
         xcb_flush ( xcb->connection );
+        ThemeWidget *wid = rofi_config_find_widget ( sw->name, NULL, TRUE );
+        Property    *p   = rofi_theme_find_property ( wid, P_BOOLEAN, "close-on-delete", TRUE );
+        if ( p && p->type == P_BOOLEAN && p->value.b == FALSE ){
+          // Force a reload.
+          client_free ( rmpd->ids->data[selected_line] );
+          g_free      ( rmpd->ids->data[selected_line] );
+          memmove(&(rmpd->ids->array[selected_line]), &(rmpd->ids->array[selected_line+1]), rmpd->ids->len-selected_line);
+          memmove(&(rmpd->ids->data[selected_line]),  &(rmpd->ids->data[selected_line+1]),  rmpd->ids->len-selected_line);
+          rmpd->ids->len--;
+
+          retv = RELOAD_DIALOG;
+        } 
     }
     else if ( ( mretv & MENU_CUSTOM_INPUT ) && *input != NULL && *input[0] != '\0' ) {
         GError   *error      = NULL;
