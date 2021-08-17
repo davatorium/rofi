@@ -263,6 +263,17 @@ See above.
 Allows you to use pango-markup in the window format option.
 
 
+* ADD: [Window] Allow rofi to stay open after closing window.
+
+```css
+configuration {
+  window {
+      close-on-delete: false;
+  }
+}
+
+```
+
 * FIX: [DSL] Move theme reset into grammar parser from lexer.
 
 Given how the lexer and the grammar parser interact, the reset did not happen at
