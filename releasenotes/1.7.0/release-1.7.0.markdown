@@ -46,22 +46,29 @@ configuration {
 
 ## File Completion
 
-In run and drun you can add a file argument to the executable by pressing
-`Control-l` (In drun this only works, if the desktop file indicates that the
-application supports this.)
-
+In rofi 1.7.0 a long awaited patch I wrote many years ago landed into the rofi.
+This patch adds some basic completion support by changing modi. Currently it
+only supports chaining the FileBrowser mode. This allows you to launch an
+application with a file as argument.  This is currently supported in the Run
+and the DRun modi by pressing the `Control-l` keybinding.  For the Run mode it
+will add it as first argument, in DRun it only works if the Desktop file
+indicates support for this.
 
 ![completer](./complete.gif)
 
-This is not the final implementation, I plan to extend this and make this more configurable.
+This is not the final implementation, but a first investigation in how to
+add/extend this feature. Ideally you can have multiple completers (including
+custom ones) you can choose from.
 
 
 ## Timeout actions
 
-You can now configure an action to be taken when rofi has not been interacted with for a certain amount of seconds.
-You can specify a keybinding to trigger after X seconds.
+You can now configure an action to be taken when rofi has not been interacted
+with for a certain amount of seconds. You can specify a keybinding to trigger
+after X seconds.
 
-This option can be set using the new 'nested' configuration format that we are testing in rofi:
+This option can be set using the new 'nested' configuration format that we are
+testing in rofi:
 
 ```css
 configuration {
@@ -74,7 +81,21 @@ configuration {
 
 This setting will close rofi after 15 seconds of no interaction.
 
+```css
+configuration {
+  timeout {
+      delay:  5;
+      action: "kb-accept";
+  }
+}
+```
+This setting will accept the current selection after 5 seconds of no
+interaction.
+
 ## Background image and gradients
+
+To improve theming the `background-image` property was added with support for
+setting images `url()` or a gradient `linear-gradient()`.
 
 ```css
 window {
@@ -89,6 +110,10 @@ element {
 The below screenshot shows both background image and gradients.
 
 ![background image](./background-image.png)
+
+Or a more subtle change is the gradient on the tabs here:
+
+![iggy-theme](./iggy-theme.png)
 
 
 ## Clickable button and icons
@@ -112,49 +137,163 @@ button-paste {
 }
 ```
 
-The screenshot below shows a non-squared image and clickable buttons (the close icon in the top right) 
+The screenshot below shows a non-squared image and clickable buttons (the close icon in the top right)
 
 ![rofi icons](./rofi-icons.png)
+
 
 # Changelog
 
 * ADD: -steal-focus option.
+Explicitly steal focus from from the current window and restore it on closing.
+Enabling this might break the window switching mode.
+
 * ADD: [Config] Add nested configuration option support.
-* ADD: [Config] Support for handling dynamic config files.
+Allow for nested configuration options, this allows for options to be grouped.
+
+```css
+configuration {
+  timeout {
+      delay:  15;
+      action: "kb-cancel";
+  }
+  combi {
+    display-name: "Combi";
+  }
+}
+
+```
+
+
+* ADD: [Config] Support for handling dynamic config options.
+A quick work-around for handling old-style dynamic options. This should be resolved when all options are
+converted to the new (internal) config system.
+
 * ADD: [DRun] Add fallback icon option.
+This option allows you to set a fallback icon from applications.
+```css
+configuration {
+  application_fallback_icon: "my-icon";
+}
+```
+
+* ADD: [IconFetcher] Find images shipped with the theme.
+If you have an icon widget you can specify an image that exists in the theme directory.
+```css
+
+window {
+  background-image: url("iggy.jpg", width);
+}
+```
+
 * ADD: [DRun] Add support for passing file (using file-browser) completer for desktop files that support his.
+See above.
+
 * ADD: [DRun] Support for service files.
-* ADD: [File Browser] Allow setting startup directory (#1325)
-* ADD: [File Browser]: Add sorting-method. (#1340)
+Support KDE service desktop files.
+
+* ADD: [FileBrowser] Allow setting startup directory (#1325)
+* ADD: [FileBrowser]: Add sorting-method. (#1340)
 * ADD: [FileBrowser] Add option to group directories ahead of files. (#1352)
+See above.
+
 * ADD: [Filtering] Add prefix matching method. (#1237)
+This matching method matches each entered word to start of words in the target
+entry.
+
 * ADD: [Icon] Add option to square the widget.
+By default all icons are squared, this can now be disabled. The icon will
+occupy the actual space the image occupies.
+
 * ADD: [Icon|Button] Make action available on icon, button and keybinding name.
+See above.
+
 * ADD: [KeyBinding] Add Ctrl-Shift-Enter option. (#874)
+This combines the custom and alt keybinding. Allowing a custom command to be
+launched in terminal.
+
 * ADD: [ListView]-hover-select option. (#1234)
+Automatically select the entry under the mouse cursor.
+
 * ADD: [Run] Add support for passing file (using file-browser) completer.
+See above.
+
 * ADD: [Textbox] Allow theme to force markup on text widget.
-* ADD: [Theme] Remove backwards compatiblity hack.
+Force markup on text widgets.
+
 * ADD: [Theme] theme validation option. (`-rasi-validate`)
 * ADD: [View] Add support for user timeout and keybinding action.
 * ADD: [Widget] Add cursor property (#1313)
+Add support for setting the mouse cursor on widgets.
+For example the entry cursor on the textbox, or click hand cursor on the entry.
+
+```css
+element,element-text,element-icon, button {
+    cursor: pointer;
+}
+
+```
+
 * ADD: [Widget] Add scaling option to background-image.
+Allows you to scale the `background-image` on width, height and both.
+See above example.
+
 * ADD: [Widget] Add support background-image and lineair gradient option.
+See above.
+
 * ADD: [Window] Add pango markup for window format (#1288)
+Allows you to use pango-markup in the window format option.
+
+
 * FIX: [DSL] Move theme reset into grammar parser from lexer.
+Given how the lexer and the grammar parser interact, the reset did not happen at
+the right point in the parsing process, causing unexpected behaviour.
+
 * FIX: [Drun]: fix sorting on broken desktop files. (thanks to nick87720z)
+Broken desktop files could cause a rofi crash.
+
 * FIX: [File Browser]: Fix escaping of paths.
+Fix opening files with special characters that needs to be escaped.
+
 * FIX: [ListView] Fix wrong subwidget name.
+Fixes theming of `element-index`.
+
 * FIX: [Script] Don't enable custom keybindings by default.
+The quick switch between modi was broken when on a script mode. This now by default works,
+unless the mode overrides this.
+
 * FIX: [TextBox] Fix height estimation.
+This should fix themes that mix differently sized fonts.
+
 * FIX: [Theme] widget state and inherited properties. This should help fixing some old themes with changes from 1.6.1.
+An old pre-1.6.1 rasi theme should work with the following section added:
+
+```css
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+```
+
 * FIX: [Widget] Fix rendering of border and dashes. (Thanks to nick87720z)
+This fixes the long broken feature of dashed borders.
+
+```css
+message {
+    padding:      1px ;
+    border-color: var(separatorcolor);
+    border:       2px dash 0px 0px ;
+}
+
+```
+
 * REMOVE: -dump-xresources
 * REMOVE: -fullscreen
 * REMOVE: -show-match
 * REMOVE: Old xresources based configuration file.
 * REMOVE: fake transparency/background option, part of theme now.
 * REMOVE: xresources parsing via Xserver
+* Remove: [Theme] Remove backwards compatiblity hack.
 * DOC: Update changes to manpages
 
 
