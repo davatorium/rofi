@@ -28,9 +28,9 @@
 #ifndef ROFI_DISPLAY_H
 #define ROFI_DISPLAY_H
 
-#include <glib.h>
 #include "helper.h"
 #include "nkutils-bindings.h"
+#include <glib.h>
 
 /**
  * @param main_loop The GMainLoop
@@ -40,29 +40,29 @@
  *
  * @returns Whether the setup succeeded or not
  */
-gboolean display_setup ( GMainLoop *main_loop, NkBindings *bindings );
+gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings);
 
 /**
  * Do some late setup of the display backend
  *
  * @returns Whether the setup succeeded or not
  */
-gboolean display_late_setup ( void );
+gboolean display_late_setup(void);
 
 /**
  * Do some early cleanup, like unmapping the surface
  */
-void display_early_cleanup ( void );
+void display_early_cleanup(void);
 
 /**
  * Cleanup any remaining display related stuff
  */
-void display_cleanup ( void );
+void display_cleanup(void);
 
 /**
  * Dumps the display layout for -help output
  */
-void display_dump_monitor_layout ( void );
+void display_dump_monitor_layout(void);
 
 /**
  * @param context The startup notification context for the application to launch
@@ -71,6 +71,8 @@ void display_dump_monitor_layout ( void );
  *
  * Provides the needed child setup function
  */
-void display_startup_notification ( RofiHelperExecuteContext *context, GSpawnChildSetupFunc *child_setup, gpointer *user_data );
+void display_startup_notification(RofiHelperExecuteContext *context,
+                                  GSpawnChildSetupFunc *child_setup,
+                                  gpointer *user_data);
 
 #endif

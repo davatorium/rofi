@@ -28,6 +28,7 @@
 #ifndef ROFI_DIALOG_HELPKEYS_H
 #define ROFI_DIALOG_HELPKEYS_H
 
+#include "mode.h"
 /**
  * @defgroup HELPKEYSMode KeysHelp
  * @ingroup MODES

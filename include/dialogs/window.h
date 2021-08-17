@@ -28,13 +28,14 @@
 #ifndef ROFI_DIALOG_WINDOW_H
 #define ROFI_DIALOG_WINDOW_H
 
+#include "mode.h"
+
 /**
  * @defgroup WINDOWMode Window
  * @ingroup MODES
  *
  * @{
  */
-#include <config.h>
 #ifdef WINDOW_MODE
 
 extern Mode window_mode;

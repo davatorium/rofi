@@ -28,7 +28,7 @@
 /** The log domain of this Helper. */
 #define G_LOG_DOMAIN "Helpers.IconFetcher"
 
-#include <config.h>
+#include "config.h"
 #include <stdlib.h>
 #include <xcb/xproto.h>
 

@@ -28,6 +28,8 @@
 #ifndef ROFI_DIALOG_SCRIPT_H
 #define ROFI_DIALOG_SCRIPT_H
 
+#include "mode.h"
+
 /**
  * @defgroup SCRIPTMode Script
  * @ingroup MODES
@@ -42,7 +44,7 @@
  *
  * @returns NULL when it fails, a newly allocated ScriptOptions when successful.
  */
-Mode *script_switcher_parse_setup ( const char *str );
+Mode *script_switcher_parse_setup(const char *str);
 
 /**
  * @param token The modi str to check
@@ -51,6 +53,6 @@ Mode *script_switcher_parse_setup ( const char *str );
  *
  * @returns true when valid.
  */
-gboolean script_switcher_is_valid ( const char *token );
+gboolean script_switcher_is_valid(const char *token);
 /**@}*/
 #endif // ROFI_DIALOG_SCRIPT_H

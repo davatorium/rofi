@@ -27,7 +27,7 @@
 
 #ifndef ROFI_DIALOG_SSH_H
 #define ROFI_DIALOG_SSH_H
-
+#include "mode.h"
 /**
  * @defgroup SSHMode SSH
  * @ingroup MODES

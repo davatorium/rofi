@@ -29,6 +29,7 @@
 #define ROFI_HBOX_H
 
 #include "widget.h"
+#include "rofi-types.h"
 
 /**
  * @defgroup box box
