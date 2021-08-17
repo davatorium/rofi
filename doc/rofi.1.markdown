@@ -525,6 +525,16 @@ Default: *"wmctrl -i -R {window}"*
 Show window thumbnail (if available) as icon in the window switcher.
 
 
+You can stop rofi from existing when closing a window (allowing multiple to be closed in a row).
+
+```css
+configuration {
+  window {
+      close-on-delete: false;
+  }
+}
+```
+
 ### Combi settings
 
 `-combi-modi` *mode1*,*mode2*
