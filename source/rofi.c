@@ -964,6 +964,7 @@ int main ( int argc, char *argv[] )
     find_arg_str ( "-theme", &( config.theme ) );
     if ( config.theme ) {
         TICK_N ( "Parse theme" );
+        rofi_theme_reset ( );
         if ( rofi_theme_parse_file ( config.theme ) ) {
             // TODO: instantiate fallback theme.?
             rofi_theme_free ( rofi_theme );
