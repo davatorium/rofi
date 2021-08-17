@@ -57,7 +57,7 @@ listview, inputbar, message {
   border-radius: 10px;
   background-color: black/70%;
 
-  columns: 3;
+  columns: 4;
   lines:   4;
 }
 listview {
@@ -68,12 +68,12 @@ listview {
 
 element {
     border:  0;
-    padding:      0.25em;
+    padding:      10px;
     font:         "Mono 8";
     orientation: vertical;
 }
 element-icon {
-  size: 3em;
+  size: 6em;
 }
 
 element  selected {
