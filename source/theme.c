@@ -774,7 +774,7 @@ static int rofi_theme_get_position_inside ( Property *p, const widget *widget, c
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_POSITION, property, FALSE );
                 return rofi_theme_get_position_inside ( p, widget, property, def );
             }
             return def;
@@ -796,7 +796,7 @@ static int rofi_theme_get_integer_inside ( Property *p, const widget *widget, co
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_INTEGER, property, FALSE );
                 return rofi_theme_get_integer_inside ( p, widget, property, def );
             }
             return def;
@@ -818,7 +818,7 @@ static RofiDistance rofi_theme_get_distance_inside ( Property *p, const widget *
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_PADDING, property, FALSE );
                 return rofi_theme_get_distance_inside ( p, widget->parent, property, def );
             }
             return (RofiDistance){ .base = { def, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL, NULL }, .style = ROFI_HL_SOLID };
@@ -846,7 +846,7 @@ static int rofi_theme_get_boolean_inside ( Property *p, const widget *widget, co
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_BOOLEAN, property, FALSE );
                 return rofi_theme_get_boolean_inside ( p, widget, property, def );
             }
             return def;
@@ -869,7 +869,7 @@ static RofiOrientation rofi_theme_get_orientation_inside ( Property *p,  const w
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_ORIENTATION, property, FALSE );
                 return rofi_theme_get_orientation_inside ( p, widget, property, def );
             }
             return def;
@@ -892,7 +892,7 @@ static RofiCursorType rofi_theme_get_cursor_type_inside ( Property *p, const wid
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_CURSOR, property, FALSE );
                 return rofi_theme_get_cursor_type_inside ( p, widget, property, def );
             }
             return def;
@@ -914,7 +914,7 @@ static const char *rofi_theme_get_string_inside ( Property *p, const widget *wid
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_STRING, property, FALSE );
                 return rofi_theme_get_string_inside ( p, widget, property, def );
             }
             return def;
@@ -936,7 +936,7 @@ static double rofi_theme_get_double_inside ( ThemeWidget *wid, Property *p, cons
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_DOUBLE, property, FALSE );
                 return rofi_theme_get_double_inside  ( parent, p, widget, property, def );
             }
             return def;
@@ -949,7 +949,7 @@ static double rofi_theme_get_double_inside ( ThemeWidget *wid, Property *p, cons
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_INTEGER, property, FALSE );
                 return rofi_theme_get_double_inside ( parent, p, widget->parent, property, def );
             }
             return def;
@@ -1002,7 +1002,7 @@ static gboolean rofi_theme_get_image_inside ( Property *p, const widget *widget,
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_IMAGE, property, FALSE );
                 return rofi_theme_get_image_inside ( p, widget, property, d );
             }
             return FALSE;
@@ -1108,7 +1108,7 @@ static RofiPadding rofi_theme_get_padding_inside ( Property *p, const widget *wi
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_PADDING, property, FALSE );
                 return rofi_theme_get_padding_inside ( p, widget, property, pad );
             }
             return pad;
@@ -1137,7 +1137,7 @@ static GList *rofi_theme_get_list_inside ( Property *p, const widget *widget, co
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_LIST, property, FALSE );
                 return rofi_theme_get_list_inside ( p, widget, property, defaults );
             }
         }
@@ -1169,7 +1169,7 @@ static RofiHighlightColorStyle rofi_theme_get_highlight_inside ( Property *p, wi
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_HIGHLIGHT, property, FALSE );
                 return rofi_theme_get_highlight_inside ( p, widget->parent, property, th );
             }
             return th;
@@ -1482,7 +1482,7 @@ static gboolean rofi_theme_has_property_inside ( Property *p, const widget *widg
         if ( p->type == P_INHERIT ) {
             if ( widget->parent ) {
                 ThemeWidget *parent= rofi_theme_find_widget ( widget->parent->name, widget->state, FALSE );
-                Property    *p   = rofi_theme_find_property ( parent, P_COLOR, property, FALSE );
+                Property    *p   = rofi_theme_find_property ( parent, P_STRING, property, FALSE );
                 return rofi_theme_has_property_inside ( p, widget, property );
             }
             return FALSE;
