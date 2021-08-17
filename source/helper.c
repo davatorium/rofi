@@ -1054,7 +1054,7 @@ gboolean helper_execute_command ( const char *wd, const char *cmd, gboolean run_
     return helper_execute ( wd, args, "", cmd, context );
 }
 
-char *helper_get_theme_path ( const char *file )
+char *helper_get_theme_path ( const char *file, const char *ext )
 {
     char *filename = rofi_expand_path ( file );
     g_debug ( "Opening theme, testing: %s\n", filename );
@@ -1063,11 +1063,11 @@ char *helper_get_theme_path ( const char *file )
     }
     g_free ( filename );
 
-    if ( g_str_has_suffix ( file, ".rasi" ) ) {
+    if ( g_str_has_suffix ( file, ext ) ) {
         filename = g_strdup ( file );
     }
     else {
-        filename = g_strconcat ( file, ".rasi", NULL );
+        filename = g_strconcat ( file, ext, NULL );
     }
     // Check config's themes directory.
     const char *cpath = g_get_user_config_dir ();

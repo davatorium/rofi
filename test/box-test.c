@@ -93,7 +93,7 @@ char * rofi_expand_path ( G_GNUC_UNUSED const char *path )
     return NULL;
 }
 
-char * helper_get_theme_path ( const char *file )
+char * helper_get_theme_path ( const char *file, const char *ext)
 {
     return g_strdup ( file );
 }

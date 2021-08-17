@@ -380,6 +380,17 @@ void rofi_output_formatted_line ( const char *format, const char *string, int se
  * @returns a new string with the keys replaced.
  */
 char *helper_string_replace_if_exists ( char * string, ... );
+
+/**
+ * @param file File name passed to option.
+ * @param ext File extension passed to option.
+ *
+ * @returns path to theme or copy of filename if not found.
+ */
+char *helper_get_theme_path ( const char *file, const char *ext );
+
+
+
 G_END_DECLS
 
 /**@} */
