@@ -1,0 +1,134 @@
+
+
+* {
+  /* Default background color */
+  background-color: transparent;
+  text-color:       white;
+}
+
+
+window {
+  padding: 1em;
+
+  border-color: lightgreen;
+  border:       5px;
+  border-radius: 10px;
+
+  width:  1024px; 
+//  height: 768px;
+
+  background-color: darkgreen;
+
+  background-image: url("iggy.jpg", width);
+}
+
+mainbox {
+  spacing: 0px;
+  children: [inputbar,wrapper-mode-switcher,listview];
+}
+
+element {
+  background: transparent;
+  children: [ element-icon, element-text ];
+}
+element,element-text,element-icon, button {
+    cursor: pointer;
+}
+
+inputbar {
+  margin: 0px 0px 0.5em 0em;
+  spacing: 0.2em;
+  children: [ button-iggy1, entry,overlay,case-indicator, button-iggy2];
+}
+
+button-iggy1, button-iggy2 {
+  expand: false;
+  content: "🐢";
+  action: "kb-primary-paste";
+}
+button-iggy2 {
+  action: "kb-screenshot";
+}
+
+listview, inputbar, message {
+  padding: 0.5em;  
+  border-color: lightgreen;
+  border:        5px;
+  border-radius: 10px;
+  background-color: black/70%;
+
+  columns: 3;
+  lines:   4;
+}
+listview {
+  border:       0px 5px 5px 5px;
+  border-radius: 0px 0px 10px 10px;
+}
+
+
+element {
+    border:  0;
+    padding:      0.25em;
+    font:         "Mono 8";
+    orientation: vertical;
+}
+element-icon {
+  size: 3em;
+}
+
+element  selected {
+  border-color: lightgreen;
+  border:       5px;
+  border-radius: 10px;
+  background-color: lightgreen/20%;
+}
+
+element-text {
+  font:             inherit; 
+  horizontal-align: 0.5;
+}
+
+wrapper-mode-switcher {
+    orientation: horizontal;
+
+    expand:     false;
+    spacing:    0;
+    children: [ icon-ms-ic1, mode-switcher, icon-ms-ic2 ];
+}
+icon-ms-ic1 {
+    filename: "go-previous";
+}
+icon-ms-ic2 {
+    filename: "go-next";
+}
+icon-ms-ic1,icon-ms-ic2 {
+    size: 16;
+    vertical-align: 0.8;
+    expand:        false;
+    border:       0px 0px 5px ;
+    border-color: lightgreen;
+}
+
+mode-switcher {
+    border:  0px;
+    spacing: 0px;
+    expand: true;
+}
+button {
+    text-color: white;
+    border:       0px 0px 5px ;
+    border-color: lightgreen;
+    border-radius:    10px 10px 0 0;
+    background-image: linear-gradient(to bottom, darkgreen/50%, black/70%);
+}
+button selected.normal {
+    text-color: white;
+    margin: 0px;
+padding: 0px;
+
+    border:       5px 5px 0px ;
+    border-color: lightgreen;
+    border-radius:    10px 10px 0 0;
+    background-image: linear-gradient(to bottom, darkgreen, black/70%);
+}
+

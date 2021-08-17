@@ -236,7 +236,9 @@ theme_DATA=\
 		   themes/sidebar.rasi\
 		   themes/solarized.rasi\
 		   themes/solarized_alternate.rasi\
-		   themes/fancy.rasi
+		   themes/fancy.rasi\
+		   themes/iggy.rasi\
+		   themes/iggy.jpg
 
 ##
 # Extra DIST
