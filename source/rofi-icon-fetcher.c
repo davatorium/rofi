@@ -46,6 +46,7 @@
 #include <stdint.h>
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include "helper.h"
 
 typedef struct
 {
@@ -305,7 +306,15 @@ static void rofi_icon_fetcher_worker ( thread_state *sdata, G_GNUC_UNUSED gpoint
         icon_path = icon_path_ = nk_xdg_theme_get_icon ( rofi_icon_fetcher_data->xdg_context, themes, NULL, sentry->entry->name, MIN(sentry->wsize,sentry->hsize), 1, TRUE );
         if ( icon_path_ == NULL ) {
             g_debug ( "failed to get icon %s(%dx%d): n/a", sentry->entry->name, sentry->wsize, sentry->hsize );
-            return;
+
+            const char *ext = g_strrstr(sentry->entry->name, ".");
+            if ( ext ) {
+printf("%s %s\r\n", sentry->entry->name, ext);
+              icon_path = helper_get_theme_path ( sentry->entry->name, ext );
+            }
+            if ( icon_path == NULL ) {
+              return;
+            }
         }
         else{
             g_debug ( "found icon %s(%dx%d): %s", sentry->entry->name, sentry->wsize, sentry->hsize, icon_path );

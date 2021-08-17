@@ -375,12 +375,6 @@ gboolean rofi_theme_is_empty ( void );
  */
 void rofi_theme_reset ( void );
 
-/**
- * @param file File name passed to option.
- *
- * @returns path to theme or copy of filename if not found.
- */
-char *helper_get_theme_path ( const char *file );
 
 /**
  * @param file File name to prepare.

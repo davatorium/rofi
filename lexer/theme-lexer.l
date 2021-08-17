@@ -367,7 +367,7 @@ if ( queue == NULL ) {
     yytext[yyleng-1] = '\0';
     ParseObject *top = g_queue_peek_head ( file_queue );
     g_assert ( top != NULL );
-    char *file2 = helper_get_theme_path ( &yytext[1] );
+    char *file2 = helper_get_theme_path ( &yytext[1], ".rasi" );
     char *filename = rofi_theme_parse_prepare_file ( file2, top->filename );
     g_free ( file2 );
     if ( g_list_find_custom ( imported_files, filename, (GCompareFunc)g_strcmp0 ) != NULL ) {
@@ -778,7 +778,7 @@ if ( queue == NULL ) {
 
 gboolean rofi_theme_parse_file ( const char *file )
 {
-    char *file2 = helper_get_theme_path ( file );
+    char *file2 = helper_get_theme_path ( file, ".rasi" );
     char *filename = rofi_theme_parse_prepare_file ( file2, NULL );
     g_free ( file2 );
 

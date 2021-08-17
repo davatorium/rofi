@@ -78,7 +78,7 @@ int monitor_active ( G_GNUC_UNUSED workarea *mon )
     return 0;
 }
 
-char * helper_get_theme_path ( const char *file )
+char * helper_get_theme_path ( const char *file, const char *ext )
 {
     return g_strdup ( file );
 }
