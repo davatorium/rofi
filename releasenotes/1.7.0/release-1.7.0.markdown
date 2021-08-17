@@ -145,10 +145,12 @@ The screenshot below shows a non-squared image and clickable buttons (the close 
 # Changelog
 
 * ADD: -steal-focus option.
+
 Explicitly steal focus from from the current window and restore it on closing.
 Enabling this might break the window switching mode.
 
 * ADD: [Config] Add nested configuration option support.
+
 Allow for nested configuration options, this allows for options to be grouped.
 
 ```css
@@ -166,6 +168,7 @@ configuration {
 
 
 * ADD: [Config] Support for handling dynamic config options.
+
 A quick work-around for handling old-style dynamic options. This should be resolved when all options are
 converted to the new (internal) config system.
 
@@ -178,6 +181,7 @@ configuration {
 ```
 
 * ADD: [IconFetcher] Find images shipped with the theme.
+
 If you have an icon widget you can specify an image that exists in the theme directory.
 ```css
 
@@ -187,43 +191,54 @@ window {
 ```
 
 * ADD: [DRun] Add support for passing file (using file-browser) completer for desktop files that support his.
+
 See above.
 
 * ADD: [DRun] Support for service files.
+
 Support KDE service desktop files.
 
 * ADD: [FileBrowser] Allow setting startup directory (#1325)
 * ADD: [FileBrowser]: Add sorting-method. (#1340)
 * ADD: [FileBrowser] Add option to group directories ahead of files. (#1352)
+
 See above.
 
 * ADD: [Filtering] Add prefix matching method. (#1237)
+
 This matching method matches each entered word to start of words in the target
 entry.
 
 * ADD: [Icon] Add option to square the widget.
+
 By default all icons are squared, this can now be disabled. The icon will
 occupy the actual space the image occupies.
 
 * ADD: [Icon|Button] Make action available on icon, button and keybinding name.
+
 See above.
 
 * ADD: [KeyBinding] Add Ctrl-Shift-Enter option. (#874)
+
 This combines the custom and alt keybinding. Allowing a custom command to be
 launched in terminal.
 
 * ADD: [ListView]-hover-select option. (#1234)
+
 Automatically select the entry under the mouse cursor.
 
 * ADD: [Run] Add support for passing file (using file-browser) completer.
+
 See above.
 
 * ADD: [Textbox] Allow theme to force markup on text widget.
+
 Force markup on text widgets.
 
 * ADD: [Theme] theme validation option. (`-rasi-validate`)
 * ADD: [View] Add support for user timeout and keybinding action.
 * ADD: [Widget] Add cursor property (#1313)
+
 Add support for setting the mouse cursor on widgets.
 For example the entry cursor on the textbox, or click hand cursor on the entry.
 
@@ -235,37 +250,47 @@ element,element-text,element-icon, button {
 ```
 
 * ADD: [Widget] Add scaling option to background-image.
+
 Allows you to scale the `background-image` on width, height and both.
 See above example.
 
 * ADD: [Widget] Add support background-image and lineair gradient option.
+
 See above.
 
 * ADD: [Window] Add pango markup for window format (#1288)
+
 Allows you to use pango-markup in the window format option.
 
 
 * FIX: [DSL] Move theme reset into grammar parser from lexer.
+
 Given how the lexer and the grammar parser interact, the reset did not happen at
 the right point in the parsing process, causing unexpected behaviour.
 
 * FIX: [Drun]: fix sorting on broken desktop files. (thanks to nick87720z)
+
 Broken desktop files could cause a rofi crash.
 
 * FIX: [File Browser]: Fix escaping of paths.
+
 Fix opening files with special characters that needs to be escaped.
 
 * FIX: [ListView] Fix wrong subwidget name.
+
 Fixes theming of `element-index`.
 
 * FIX: [Script] Don't enable custom keybindings by default.
+
 The quick switch between modi was broken when on a script mode. This now by default works,
 unless the mode overrides this.
 
 * FIX: [TextBox] Fix height estimation.
+
 This should fix themes that mix differently sized fonts.
 
 * FIX: [Theme] widget state and inherited properties. This should help fixing some old themes with changes from 1.6.1.
+
 An old pre-1.6.1 rasi theme should work with the following section added:
 
 ```css
@@ -276,6 +301,7 @@ element-text {
 ```
 
 * FIX: [Widget] Fix rendering of border and dashes. (Thanks to nick87720z)
+
 This fixes the long broken feature of dashed borders.
 
 ```css
