@@ -46,29 +46,31 @@ typedef struct _listview listview;
 /**
  * The scrolling type used in the list view
  */
-typedef enum
-{
-    /** Flip through the pages. */
-    LISTVIEW_SCROLL_PER_PAGE,
-    /** keep selected item centered */
-    LISTVIEW_SCROLL_CONTINIOUS
+typedef enum {
+  /** Flip through the pages. */
+  LISTVIEW_SCROLL_PER_PAGE,
+  /** keep selected item centered */
+  LISTVIEW_SCROLL_CONTINIOUS
 } ScrollType;
 
 /**
  * @param tb The textbox to set
  * @param entry The position of the textbox
  * @param udata User data
- * @param type The textbox font style to apply to this entry (normal, selected, alternative row)
+ * @param type The textbox font style to apply to this entry (normal, selected,
+ * alternative row)
  * @param full If true Set both text and style.
  *
  * Update callback, this is called to set the value of each (visible) element.
  */
-typedef void ( *listview_update_callback )( textbox *tb, icon *ico, unsigned int entry, void *udata, TextBoxFontType *type, gboolean full );
+typedef void (*listview_update_callback)(textbox *tb, icon *ico,
+                                         unsigned int entry, void *udata,
+                                         TextBoxFontType *type, gboolean full);
 
 /**
  * Callback when a element is activated.
  */
-typedef void ( *listview_mouse_activated_cb )( listview *, gboolean, void * );
+typedef void (*listview_mouse_activated_cb)(listview *, gboolean, void *);
 
 /**
  * @param parent The widget's parent.
@@ -80,7 +82,9 @@ typedef void ( *listview_mouse_activated_cb )( listview *, gboolean, void * );
  *
  * @returns a new listview
  */
-listview *listview_create ( widget *parent, const char *name, listview_update_callback cb, void *udata, unsigned int eh, gboolean reverse );
+listview *listview_create(widget *parent, const char *name,
+                          listview_update_callback cb, void *udata,
+                          unsigned int eh, gboolean reverse);
 
 /**
  * @param lv The listview handle
@@ -88,7 +92,7 @@ listview *listview_create ( widget *parent, const char *name, listview_update_ca
  *
  * Set the maximum number of elements to display.
  */
-void listview_set_num_elements ( listview *lv, unsigned int rows );
+void listview_set_num_elements(listview *lv, unsigned int rows);
 
 /**
  * @param lv The listview handle
@@ -96,7 +100,7 @@ void listview_set_num_elements ( listview *lv, unsigned int rows );
  *
  * Select the row, if selected > the number of rows, it selects the last one.
  */
-void listview_set_selected ( listview *lv, unsigned int selected );
+void listview_set_selected(listview *lv, unsigned int selected);
 
 /**
  * @param lv The listview handle
@@ -105,7 +109,7 @@ void listview_set_selected ( listview *lv, unsigned int selected );
  *
  * @returns the selected row.
  */
-unsigned int listview_get_selected ( listview *lv );
+unsigned int listview_get_selected(listview *lv);
 
 /**
  * @param lv The listview handle
@@ -113,14 +117,14 @@ unsigned int listview_get_selected ( listview *lv );
  * Move the selection one row up.
  * - Wrap around.
  */
-void listview_nav_up ( listview *lv );
+void listview_nav_up(listview *lv);
 /**
  * @param lv listview handle.
  *
  * Move the selection one row down.
  * - Wrap around.
  */
-void listview_nav_down ( listview *lv );
+void listview_nav_down(listview *lv);
 /**
  * @param lv The listview handle
  *
@@ -128,14 +132,14 @@ void listview_nav_down ( listview *lv );
  * - No wrap around.
  * - Do not move to top row when at start.
  */
-void listview_nav_right ( listview *lv );
+void listview_nav_right(listview *lv);
 /**
  * @param lv The listview handle
  *
  * Move the selection one column to the left.
  * - No wrap around.
  */
-void listview_nav_left ( listview *lv );
+void listview_nav_left(listview *lv);
 /**
  * @param lv The listview handle
  *
@@ -143,7 +147,7 @@ void listview_nav_left ( listview *lv );
  * - No wrap around.
  * - Clip at top/bottom
  */
-void listview_nav_page_next ( listview *lv );
+void listview_nav_page_next(listview *lv);
 
 /**
  * @param lv The listview handle
@@ -152,7 +156,7 @@ void listview_nav_page_next ( listview *lv );
  * - No wrap around.
  * - Clip at top/bottom
  */
-void listview_nav_page_prev ( listview *lv );
+void listview_nav_page_prev(listview *lv);
 
 /**
  * @param lv Handler to the listview object
@@ -160,14 +164,14 @@ void listview_nav_page_prev ( listview *lv );
  *
  * Hide the scrollbar.
  */
-void listview_set_show_scrollbar ( listview *lv, gboolean enabled );
+void listview_set_show_scrollbar(listview *lv, gboolean enabled);
 /**
  * @param lv Handler to the listview object
  * @param width Width in pixels
  *
  * Set the width of the scrollbar
  */
-void listview_set_scrollbar_width ( listview *lv, unsigned int width );
+void listview_set_scrollbar_width(listview *lv, unsigned int width);
 
 /**
  * @param lv Handler to the listview object
@@ -175,14 +179,15 @@ void listview_set_scrollbar_width ( listview *lv, unsigned int width );
  *
  * Set cycle mode. On last entry go to first.
  */
-void listview_set_cycle ( listview *lv, gboolean cycle );
+void listview_set_cycle(listview *lv, gboolean cycle);
 /**
  * @param lv Handler to the listview object
  * @param type ScrollType
  *
- * Set the scroll type ScrollType::LISTVIEW_SCROLL_CONTINIOUS or ScrollType::LISTVIEW_SCROLL_PER_PAGE
+ * Set the scroll type ScrollType::LISTVIEW_SCROLL_CONTINIOUS or
+ * ScrollType::LISTVIEW_SCROLL_PER_PAGE
  */
-void listview_set_scroll_type ( listview *lv, ScrollType type );
+void listview_set_scroll_type(listview *lv, ScrollType type);
 
 /**
  * @param lv Handler to the listview object
@@ -191,21 +196,23 @@ void listview_set_scroll_type ( listview *lv, ScrollType type );
  *
  * Set the mouse activated callback.
  */
-void listview_set_mouse_activated_cb ( listview *lv, listview_mouse_activated_cb cb, void *udata );
+void listview_set_mouse_activated_cb(listview *lv,
+                                     listview_mouse_activated_cb cb,
+                                     void *udata);
 /**
  * @param lv Handler to the listview object
  * @param enable boolean to enable/disable multi-select
  *
  * Enable,disable multi-select.
  */
-void listview_set_multi_select ( listview *lv, gboolean enable );
+void listview_set_multi_select(listview *lv, gboolean enable);
 /**
  * @param lv Handler to the listview object.
  * @param num_lines the maximum number of lines to display.
  *
  * Set the maximum number of lines to display.
  */
-void listview_set_num_lines ( listview *lv, unsigned int num_lines );
+void listview_set_num_lines(listview *lv, unsigned int num_lines);
 
 /**
  * @param lv Handler to the listview object.
@@ -214,7 +221,7 @@ void listview_set_num_lines ( listview *lv, unsigned int num_lines );
  *
  * @returns get the number of lines to display.
  */
-unsigned int listview_get_num_lines ( listview *lv );
+unsigned int listview_get_num_lines(listview *lv);
 
 /**
  * @param lv Handler to the listview object.
@@ -223,14 +230,14 @@ unsigned int listview_get_num_lines ( listview *lv );
  *
  * @returns get fixed-height.
  */
-gboolean listview_get_fixed_num_lines ( listview *lv );
+gboolean listview_get_fixed_num_lines(listview *lv);
 
 /**
  * @param lv Handler to the listview object.
  *
  * Set fixed num lines mode.
  */
-void listview_set_fixed_num_lines ( listview *lv );
+void listview_set_fixed_num_lines(listview *lv);
 
 /**
  * @param lv Handler to the listview object.
@@ -238,14 +245,14 @@ void listview_set_fixed_num_lines ( listview *lv );
  *
  * Set the maximum number of lines to display.
  */
-void listview_set_max_lines ( listview *lv, unsigned int max_lines );
+void listview_set_max_lines(listview *lv, unsigned int max_lines);
 
 /**
  * @param lv Handler to the listview object.
  *
  * Set ellipsize mode.
  */
-void listview_toggle_ellipsizing ( listview *lv );
+void listview_toggle_ellipsizing(listview *lv);
 
 /**
  * @param lv Handler to the listview object.
@@ -253,7 +260,7 @@ void listview_toggle_ellipsizing ( listview *lv );
  * Set ellipsize mode to start.
  */
 
-void listview_set_ellipsize_start ( listview *lv );
+void listview_set_ellipsize_start(listview *lv);
 /** @} */
 
 #endif // ROFI_LISTVIEW_H

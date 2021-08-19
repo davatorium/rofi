@@ -28,6 +28,8 @@
 #ifndef ROFI_DIALOG_RUN_H
 #define ROFI_DIALOG_RUN_H
 
+#include "mode.h"
+
 /**
  * @defgroup RUNMode Run
  * @ingroup MODES

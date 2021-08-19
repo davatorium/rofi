@@ -27,20 +27,22 @@
 
 #ifndef ROFI_XRMOPTIONS_H
 #define ROFI_XRMOPTIONS_H
-#include "xcb.h"
 #include "theme.h"
+#include "xcb.h"
 // Big thanks to Sean Pringle for this code.
 
 /**
  * @defgroup CONFXResources XResources Configuration
  * @ingroup CONFIGURATION
  *
- * Configuration described in Xresource format. This can be loaded from the X server or file.
+ * Configuration described in Xresource format. This can be loaded from the X
+ * server or file.
  *
  * @defgroup CONFXServer XServer Configuration
  * @ingroup CONFXResources
  *
- * Loads the configuration directly from the X server using the XResources system.
+ * Loads the configuration directly from the X server using the XResources
+ * system.
  *
  * @defgroup CONFCommandline Commandline Configuration
  * @ingroup CONFIGURATION
@@ -50,7 +52,8 @@
  * @defgroup CONFFile File Configuration
  * @ingroup CONFXResources
  *
- * Loads the configuration from a config file that uses the XResource file format.
+ * Loads the configuration from a config file that uses the XResource file
+ * format.
  *
  * @defgroup CONFIGURATION Configuration
  *
@@ -66,32 +69,31 @@
 /**
  *  Type of the config options.
  */
-typedef enum
-{
-    /** Config option is string */
-    xrm_String  = 0,
-    /** Config option is an unsigned number */
-    xrm_Number  = 1,
-    /** Config option is a signed number */
-    xrm_SNumber = 2,
-    /** Config option is a boolean (true/false) value*/
-    xrm_Boolean = 3,
-    /** Config option is a character */
-    xrm_Char    = 4
+typedef enum {
+  /** Config option is string */
+  xrm_String = 0,
+  /** Config option is an unsigned number */
+  xrm_Number = 1,
+  /** Config option is a signed number */
+  xrm_SNumber = 2,
+  /** Config option is a boolean (true/false) value*/
+  xrm_Boolean = 3,
+  /** Config option is a character */
+  xrm_Char = 4
 } XrmOptionType;
 
 /**
  * Parse commandline options.
  * @ingroup CONFCommandline
  */
-void config_parse_cmd_options ( void );
+void config_parse_cmd_options(void);
 
 /**
  * Free any allocated memory.
  *
  * @ingroup CONFXResources
  */
-void config_xresource_free ( void );
+void config_xresource_free(void);
 
 /**
  * @param type The type of the value
@@ -101,12 +103,14 @@ void config_xresource_free ( void );
  *
  * Add option (at runtime) to the dynamic option parser.
  */
-void config_parser_add_option ( XrmOptionType type, const char *key, void **value, const char *comment );
+void config_parser_add_option(XrmOptionType type, const char *key, void **value,
+                              const char *comment);
 
 /**
- * Print the current configuration to stdout. Uses bold/italic when printing to terminal.
+ * Print the current configuration to stdout. Uses bold/italic when printing to
+ * terminal.
  */
-void print_options ( void );
+void print_options(void);
 
 /**
  * @param option The name of the option
@@ -117,7 +121,8 @@ void print_options ( void );
  *
  * Function that does the markup for printing an configuration option to stdout.
  */
-void print_help_msg ( const char *option, const char *type, const char*text, const char *def, int isatty );
+void print_help_msg(const char *option, const char *type, const char *text,
+                    const char *def, int isatty);
 
 /**
  * @param length the length of the returned array
@@ -126,7 +131,7 @@ void print_help_msg ( const char *option, const char *type, const char*text, con
  *
  * @returns an array of string with length elements
  */
-char ** config_parser_return_display_help ( unsigned int *length );
+char **config_parser_return_display_help(unsigned int *length);
 
 /**
  * @brief Set config option.
@@ -138,7 +143,7 @@ char ** config_parser_return_display_help ( unsigned int *length );
  *
  * @returns true when failed to set property.
  */
-gboolean config_parse_set_property ( const Property *p, char **error );
+gboolean config_parse_set_property(const Property *p, char **error);
 
 /**
  * @param out The destination.
@@ -146,6 +151,6 @@ gboolean config_parse_set_property ( const Property *p, char **error );
  *
  * @brief Dump configuration in rasi format.
  */
-void config_parse_dump_config_rasi_format ( FILE *out, gboolean changes );
+void config_parse_dump_config_rasi_format(FILE *out, gboolean changes);
 /** @}*/
 #endif

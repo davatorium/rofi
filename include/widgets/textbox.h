@@ -28,14 +28,14 @@
 #ifndef ROFI_TEXTBOX_H
 #define ROFI_TEXTBOX_H
 
-#include <xkbcommon/xkbcommon.h>
-#include <pango/pango.h>
-#include <pango/pango-fontmap.h>
-#include <pango/pangocairo.h>
-#include <cairo.h>
-#include "widgets/widget.h"
-#include "widgets/widget-internal.h"
 #include "keyb.h"
+#include "widgets/widget-internal.h"
+#include "widgets/widget.h"
+#include <cairo.h>
+#include <pango/pango-fontmap.h>
+#include <pango/pango.h>
+#include <pango/pangocairo.h>
+#include <xkbcommon/xkbcommon.h>
 
 /**
  * @defgroup Textbox Textbox
@@ -44,83 +44,80 @@
  * @{
  */
 
-/** Cache to hold font descriptions. This it to avoid having to lookup each time. */
-typedef struct TBFontConfig
-{
-    /** Font description */
-    PangoFontDescription *pfd;
-    /** Font metrics */
-    PangoFontMetrics     *metrics;
-    /** height */
-    double               height;
-}TBFontConfig;
+/** Cache to hold font descriptions. This it to avoid having to lookup each
+ * time. */
+typedef struct TBFontConfig {
+  /** Font description */
+  PangoFontDescription *pfd;
+  /** Font metrics */
+  PangoFontMetrics *metrics;
+  /** height */
+  double height;
+} TBFontConfig;
 /**
  * Internal structure of a textbox widget.
  * TODO make this internal to textbox
  */
-typedef struct
-{
-    widget             widget;
-    unsigned long      flags;
-    short              cursor;
-    char               *text;
-    const char         *placeholder;
-    int                show_placeholder;
-    PangoLayout        *layout;
-    int                tbft;
-    int                markup;
-    int                changed;
+typedef struct {
+  widget widget;
+  unsigned long flags;
+  short cursor;
+  char *text;
+  const char *placeholder;
+  int show_placeholder;
+  PangoLayout *layout;
+  int tbft;
+  int markup;
+  int changed;
 
-    int                blink;
-    guint              blink_timeout;
+  int blink;
+  guint blink_timeout;
 
-    double             yalign;
-    double             xalign;
+  double yalign;
+  double xalign;
 
-    TBFontConfig       *tbfc;
+  TBFontConfig *tbfc;
 
-    PangoEllipsizeMode emode;
-    //
-    const char         *theme_name;
+  PangoEllipsizeMode emode;
+  //
+  const char *theme_name;
 } textbox;
 
 /**
  * Flags for configuring textbox behaviour and looks during creation.
  */
-typedef enum
-{
-    TB_AUTOHEIGHT = 1 << 0,
-    TB_AUTOWIDTH  = 1 << 1,
-    TB_EDITABLE   = 1 << 19,
-    TB_MARKUP     = 1 << 20,
-    TB_WRAP       = 1 << 21,
-    TB_PASSWORD   = 1 << 22,
-    TB_INDICATOR  = 1 << 23,
+typedef enum {
+  TB_AUTOHEIGHT = 1 << 0,
+  TB_AUTOWIDTH = 1 << 1,
+  TB_EDITABLE = 1 << 19,
+  TB_MARKUP = 1 << 20,
+  TB_WRAP = 1 << 21,
+  TB_PASSWORD = 1 << 22,
+  TB_INDICATOR = 1 << 23,
 } TextboxFlags;
 /**
  * Flags indicating current state of the textbox.
  */
-typedef enum
-{
-    /** Normal */
-    NORMAL     = 0,
-    /** Text in box is urgent. */
-    URGENT     = 1,
-    /** Text in box is active. */
-    ACTIVE     = 2,
-    /** Text in box is selected. */
-    SELECTED   = 4,
-    /** Text in box has pango markup. */
-    MARKUP     = 8,
+typedef enum {
+  /** Normal */
+  NORMAL = 0,
+  /** Text in box is urgent. */
+  URGENT = 1,
+  /** Text in box is active. */
+  ACTIVE = 2,
+  /** Text in box is selected. */
+  SELECTED = 4,
+  /** Text in box has pango markup. */
+  MARKUP = 8,
 
-    /** Text is on an alternate row */
-    ALT        = 16,
-    /** Render font highlighted (inverted colors.) */
-    HIGHLIGHT  = 32,
-    /** Mask for alternate and highlighted */
-    FMOD_MASK  = ( ALT | HIGHLIGHT ),
-    /** Mask of bits indicating state */
-    STATE_MASK = ~( SELECTED | MARKUP | ALT | HIGHLIGHT )
+  /** Text is on an alternate row */
+  ALT = 16,
+  /** Render font highlighted (inverted colors.) */
+  HIGHLIGHT = 32,
+  /** Mask for alternate and highlighted */
+  FMOD_MASK = (ALT | HIGHLIGHT),
+  /** Mask of bits indicating state */
+  STATE_MASK = ~(SELECTED | MARKUP | ALT | HIGHLIGHT)
 } TextBoxFontType;
 
 /**
@@ -138,15 +135,16 @@ typedef enum
  * free with #widget_free
  * @returns a new #textbox
  */
-textbox* textbox_create ( widget *parent, WidgetType type, const char *name, TextboxFlags flags,
-                          TextBoxFontType tbft, const char *text, double xalign, double yalign );
+textbox *textbox_create(widget *parent, WidgetType type, const char *name,
+                        TextboxFlags flags, TextBoxFontType tbft,
+                        const char *text, double xalign, double yalign);
 /**
  * @param tb  Handle to the textbox
  * @param tbft The style of font to render.
  *
  * Set the font render style.
  */
-void textbox_font ( textbox *tb, TextBoxFontType tbft );
+void textbox_font(textbox *tb, TextBoxFontType tbft);
 
 /**
  * @param tb  Handle to the textbox
@@ -154,7 +152,7 @@ void textbox_font ( textbox *tb, TextBoxFontType tbft );
  *
  * Set the text to show. Cursor is moved to end (if visible)
  */
-void textbox_text ( textbox *tb, const char *text );
+void textbox_text(textbox *tb, const char *text);
 
 /**
  * @param tb Handle to the textbox
@@ -164,16 +162,16 @@ void textbox_text ( textbox *tb, const char *text );
  *
  * @return TRUE if action was taken.
  */
-int textbox_keybinding ( textbox *tb, KeyBindingAction action );
+int textbox_keybinding(textbox *tb, KeyBindingAction action);
 /**
  * @param tb Handle to the textbox
  * @param pad The text to insert
  * @param pad_len the length of the text
  *
- * The text should be one insert from a keypress..  the first gunichar is validated to be (or not) control
- * return TRUE if inserted
+ * The text should be one insert from a keypress..  the first gunichar is
+ * validated to be (or not) control return TRUE if inserted
  */
-gboolean textbox_append_text ( textbox *tb, const char *pad, const int pad_len );
+gboolean textbox_append_text(textbox *tb, const char *pad, const int pad_len);
 
 /**
  * @param tb  Handle to the textbox
@@ -181,7 +179,7 @@ gboolean textbox_append_text ( textbox *tb, const char *pad, const int pad_len )
  *
  * Set the cursor position (string index)
  */
-void textbox_cursor ( textbox *tb, int pos );
+void textbox_cursor(textbox *tb, int pos);
 
 /**
  * @param tb   Handle to the textbox
@@ -191,19 +189,20 @@ void textbox_cursor ( textbox *tb, int pos );
  *
  * Insert the string str at position pos.
  */
-void textbox_insert ( textbox *tb, const int char_pos, const char *str, const int slen );
+void textbox_insert(textbox *tb, const int char_pos, const char *str,
+                    const int slen);
 
 /**
  * Setup the cached fonts. This is required to do
  * before any of the textbox_ functions is called.
  * Clean with textbox_cleanup()
  */
-void textbox_setup ( void );
+void textbox_setup(void);
 
 /**
  * Cleanup the allocated colors and fonts by textbox_setup().
  */
-void textbox_cleanup ( void );
+void textbox_cleanup(void);
 
 /**
  * @param tb Handle to the textbox
@@ -212,7 +211,7 @@ void textbox_cleanup ( void );
  *
  * @returns the height of the textbox in pixels.
  */
-int textbox_get_height ( const textbox *tb );
+int textbox_get_height(const textbox *tb);
 
 /**
  * @param tb Handle to the textbox
@@ -221,7 +220,7 @@ int textbox_get_height ( const textbox *tb );
  *
  * @returns the height of the string in pixels.
  */
-int textbox_get_font_height ( const textbox *tb );
+int textbox_get_font_height(const textbox *tb);
 
 /**
  * @param tb Handle to the textbox
@@ -230,27 +229,27 @@ int textbox_get_font_height ( const textbox *tb );
  *
  * @returns the width of the string in pixels.
  */
-int textbox_get_font_width ( const textbox *tb );
+int textbox_get_font_width(const textbox *tb);
 
 /**
  * Estimate the width of a character.
  *
  * @returns the width of a character in pixels.
  */
-double textbox_get_estimated_char_width ( void );
+double textbox_get_estimated_char_width(void);
 
 /**
  * Estimate the width of a 0.
  *
  * @returns the width of a 0 in pixels.
  */
-double textbox_get_estimated_ch ( void );
+double textbox_get_estimated_ch(void);
 /**
  * Estimate the height of a character.
  *
  * @returns the height of a character in pixels.
  */
-double textbox_get_estimated_char_height ( void );
+double textbox_get_estimated_char_height(void);
 
 /**
  * @param tb Handle to the textbox
@@ -259,7 +258,7 @@ double textbox_get_estimated_char_height ( void );
  *
  * Remove dlen bytes from position pos.
  */
-void textbox_delete ( textbox *tb, int pos, int dlen );
+void textbox_delete(textbox *tb, int pos, int dlen);
 
 /**
  * @param tb Handle to the textbox
@@ -271,32 +270,32 @@ void textbox_delete ( textbox *tb, int pos, int dlen );
  * Move and resize the textbox.
  * TODO remove for #widget_resize and #widget_move
  */
-void textbox_moveresize ( textbox *tb, int x, int y, int w, int h );
+void textbox_moveresize(textbox *tb, int x, int y, int w, int h);
 
 /**
  * @param tb Handle to the textbox
  * @param eh The number of rows to display
  *
- * Get the (estimated) with of a character, can be used to calculate window width.
- * This includes padding.
+ * Get the (estimated) with of a character, can be used to calculate window
+ * width. This includes padding.
  *
  * @returns the estimated width of a character.
  */
-int textbox_get_estimated_height ( const textbox *tb, int eh );
+int textbox_get_estimated_height(const textbox *tb, int eh);
 /**
  * @param font The name of the font used.
  * @param p The new default PangoContext
  *
  * Set the default pango context (with font description) for all textboxes.
  */
-void textbox_set_pango_context ( const char *font, PangoContext *p );
+void textbox_set_pango_context(const char *font, PangoContext *p);
 /**
  * @param tb Handle to the textbox
  * @param list New pango attributes
  *
  * Sets list as active pango attributes.
  */
-void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
+void textbox_set_pango_attributes(textbox *tb, PangoAttrList *list);
 
 /**
  * @param tb Handle to the textbox
@@ -305,14 +304,14 @@ void textbox_set_pango_attributes ( textbox *tb, PangoAttrList *list );
  *
  * @returns the pango attributes
  */
-PangoAttrList *textbox_get_pango_attributes ( textbox *tb );
+PangoAttrList *textbox_get_pango_attributes(textbox *tb);
 
 /**
  * @param tb Handle to the textbox
  *
  * @returns the visible text.
  */
-const char *textbox_get_visible_text ( const textbox *tb );
+const char *textbox_get_visible_text(const textbox *tb);
 /**
  * @param wid The handle to the textbox.
  *
@@ -320,14 +319,14 @@ const char *textbox_get_visible_text ( const textbox *tb );
  *
  * @returns the desired width of the textbox.
  */
-int textbox_get_desired_width ( widget *wid );
+int textbox_get_desired_width(widget *wid);
 
 /**
  * @param tb  Handle to the textbox
  *
  * Move the cursor to the end of the string.
  */
-void textbox_cursor_end ( textbox *tb );
+void textbox_cursor_end(textbox *tb);
 
 /**
  * @param tb  Handle to the textbox
@@ -335,6 +334,6 @@ void textbox_cursor_end ( textbox *tb );
  *
  * Set the ellipsizing mode used on the string.
  */
-void textbox_set_ellipsize ( textbox *tb, PangoEllipsizeMode mode );
+void textbox_set_ellipsize(textbox *tb, PangoEllipsizeMode mode);
 /**@}*/
-#endif //ROFI_TEXTBOX_H
+#endif // ROFI_TEXTBOX_H
