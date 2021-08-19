@@ -14,7 +14,7 @@ where hindered by the almost 10 year old system.
 Beside mostly bug-fixes and removal of deprecated options, we also improved the theming and added features to help in
 some of the more 'off-script' use of rofi.
 
-This release was made possible by many contributors, see below for a full list. Big thanks again to SardemF77 and
+This release was made possible by many contributors, see below for a full list. Big thanks again to SardemFF7 and
 TonCherAmi.
 
 ## File Browser
