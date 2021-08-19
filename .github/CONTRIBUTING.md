@@ -10,6 +10,7 @@ your description.
 This is an attempt to keep the issue tracker clean and searchable.
 
 Questions or discussions about new features belong on
+[GITHUB Discussions](https://github.com/davatorium/rofi/discussions) or
 [FORUM](https://reddit.com/r/qtools/),
 [IRC](https://webchat.freenode.net/?channels=#rofi), frequently asked questions
 will be added to the [F.A.Q](https://github.com/DaveDavenport/rofi/wiki#faq) on
@@ -19,6 +20,7 @@ Questions filled in on the bug tracker will be marked `question`, locked and
 closed.
 
 It is preferred to have feature requests discussed via
+[GITHUB Discussions](https://github.com/davatorium/rofi/discussions) or
 [FORUM](https://reddit.com/r/qtools/) or
 [IRC](https://webchat.freenode.net/?channels=#rofi) first.
 
