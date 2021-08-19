@@ -47,7 +47,7 @@ configuration {
 ## File Completion
 
 In rofi 1.7.0 a long awaited patch I wrote many years ago landed into the rofi.
-This patch adds some basic completion support by changing modi. Currently it
+This patch adds some basic completion support by chaining modi. Currently it
 only supports chaining the FileBrowser mode. This allows you to launch an
 application with a file as argument.  This is currently supported in the Run
 and the DRun modi by pressing the `Control-l` keybinding.  For the Run mode it
