@@ -49,7 +49,7 @@ typedef struct _container container;
  *
  * @returns a newly created container, free with #widget_free
  */
-container * container_create ( widget *parent, const char *name );
+container *container_create(widget *parent, const char *name);
 
 /**
  * @param container   Handle to the container widget.
@@ -57,6 +57,6 @@ container * container_create ( widget *parent, const char *name );
  *
  * Add a widget to the container.
  */
-void container_add ( container *container, widget *child );
+void container_add(container *container, widget *child);
 /**@}*/
 #endif // ROFI_CONTAINER_H

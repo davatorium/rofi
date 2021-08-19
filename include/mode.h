@@ -27,8 +27,8 @@
 
 #ifndef ROFI_MODE_H
 #define ROFI_MODE_H
-#include <cairo.h>
 #include "rofi-types.h"
+#include <cairo.h>
 G_BEGIN_DECLS
 /**
  * @defgroup MODE Mode
@@ -46,47 +46,45 @@ typedef struct rofi_mode Mode;
 /**
  * Enum used to sum the possible states of ROFI.
  */
-typedef enum
-{
-    /** Exit. */
-    MODE_EXIT       = 1000,
-    /** Skip to the next cycle-able dialog. */
-    NEXT_DIALOG     = 1001,
-    /** Reload current DIALOG */
-    RELOAD_DIALOG   = 1002,
-    /** Previous dialog */
-    PREVIOUS_DIALOG = 1003,
-    /** Reloads the dialog and unset user input */
-    RESET_DIALOG    = 1004,
+typedef enum {
+  /** Exit. */
+  MODE_EXIT = 1000,
+  /** Skip to the next cycle-able dialog. */
+  NEXT_DIALOG = 1001,
+  /** Reload current DIALOG */
+  RELOAD_DIALOG = 1002,
+  /** Previous dialog */
+  PREVIOUS_DIALOG = 1003,
+  /** Reloads the dialog and unset user input */
+  RESET_DIALOG = 1004,
 } ModeMode;
 
 /**
  * State returned by the rofi window.
  */
-typedef enum
-{
-    /** Entry is selected. */
-    MENU_OK             = 0x00010000,
-    /** User canceled the operation. (e.g. pressed escape) */
-    MENU_CANCEL         = 0x00020000,
-    /** User requested a mode switch */
-    MENU_NEXT           = 0x00040000,
-    /** Custom (non-matched) input was entered. */
-    MENU_CUSTOM_INPUT   = 0x00080000,
-    /** User wanted to delete entry from history. */
-    MENU_ENTRY_DELETE   = 0x00100000,
-    /** User wants to jump to another switcher. */
-    MENU_QUICK_SWITCH   = 0x00200000,
-    /** User wants to jump to custom command. */
-    MENU_CUSTOM_COMMAND = 0x00800000,
-    /** Go to the previous menu. */
-    MENU_PREVIOUS       = 0x00400000,
-    /** Go to the complete. */
-    MENU_COMPLETE       = 0x01000000,
-    /** Bindings specifics */
-    MENU_CUSTOM_ACTION  = 0x10000000,
-    /** Mask */
-    MENU_LOWER_MASK     = 0x0000FFFF
+typedef enum {
+  /** Entry is selected. */
+  MENU_OK = 0x00010000,
+  /** User canceled the operation. (e.g. pressed escape) */
+  MENU_CANCEL = 0x00020000,
+  /** User requested a mode switch */
+  MENU_NEXT = 0x00040000,
+  /** Custom (non-matched) input was entered. */
+  MENU_CUSTOM_INPUT = 0x00080000,
+  /** User wanted to delete entry from history. */
+  MENU_ENTRY_DELETE = 0x00100000,
+  /** User wants to jump to another switcher. */
+  MENU_QUICK_SWITCH = 0x00200000,
+  /** User wants to jump to custom command. */
+  MENU_CUSTOM_COMMAND = 0x00800000,
+  /** Go to the previous menu. */
+  MENU_PREVIOUS = 0x00400000,
+  /** Go to the complete. */
+  MENU_COMPLETE = 0x01000000,
+  /** Bindings specifics */
+  MENU_CUSTOM_ACTION = 0x10000000,
+  /** Mask */
+  MENU_LOWER_MASK = 0x0000FFFF
 } MenuReturn;
 
 /**
@@ -96,14 +94,14 @@ typedef enum
  *
  * @returns FALSE if there was a failure, TRUE if successful
  */
-int mode_init ( Mode *mode );
+int mode_init(Mode *mode);
 
 /**
  * @param mode The mode to destroy
  *
  * Destroy the mode
  */
-void mode_destroy ( Mode *mode );
+void mode_destroy(Mode *mode);
 
 /**
  * @param mode The mode to query
@@ -112,20 +110,24 @@ void mode_destroy ( Mode *mode );
  *
  * @returns an unsigned int with the number of entries.
  */
-unsigned int mode_get_num_entries ( const Mode *mode );
+unsigned int mode_get_num_entries(const Mode *mode);
 
 /**
  * @param mode The mode to query
  * @param selected_line The entry to query
  * @param state The state of the entry [out]
- * @param attribute_list List of extra (pango) attribute to apply when displaying. [out][null]
+ * @param attribute_list List of extra (pango) attribute to apply when
+ * displaying. [out][null]
  * @param get_entry If the should be returned.
  *
- * Returns the string as it should be displayed for the entry and the state of how it should be displayed.
+ * Returns the string as it should be displayed for the entry and the state of
+ * how it should be displayed.
  *
- * @returns allocated new string and state when get_entry is TRUE otherwise just the state.
+ * @returns allocated new string and state when get_entry is TRUE otherwise just
+ * the state.
  */
-char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, int *state, GList **attribute_list, int get_entry );
+char *mode_get_display_value(const Mode *mode, unsigned int selected_line,
+                             int *state, GList **attribute_list, int get_entry);
 
 /**
  * @param mode The mode to query
@@ -136,17 +138,19 @@ char * mode_get_display_value ( const Mode *mode, unsigned int selected_line, in
  *
  * @returns allocated new cairo_surface_t if applicable
  */
-cairo_surface_t * mode_get_icon ( const Mode *mode, unsigned int selected_line, int height );
+cairo_surface_t *mode_get_icon(const Mode *mode, unsigned int selected_line,
+                               int height);
 
 /**
  * @param mode The mode to query
  * @param selected_line The entry to query
  *
- * Return a string that can be used for completion. It has should have no markup.
+ * Return a string that can be used for completion. It has should have no
+ * markup.
  *
  * @returns allocated string.
  */
-char * mode_get_completion ( const Mode *mode, unsigned int selected_line );
+char *mode_get_completion(const Mode *mode, unsigned int selected_line);
 
 /**
  * @param mode The mode to query
@@ -158,7 +162,8 @@ char * mode_get_completion ( const Mode *mode, unsigned int selected_line );
  *
  * @returns the next #ModeMode.
  */
-ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int selected_line );
+ModeMode mode_result(Mode *mode, int menu_retv, char **input,
+                     unsigned int selected_line);
 
 /**
  * @param mode The mode to query
@@ -169,7 +174,8 @@ ModeMode mode_result ( Mode *mode, int menu_retv, char **input, unsigned int sel
  *
  * @returns TRUE if matches
  */
-int mode_token_match ( const Mode *mode, rofi_int_matcher **tokens, unsigned int selected_line );
+int mode_token_match(const Mode *mode, rofi_int_matcher **tokens,
+                     unsigned int selected_line);
 
 /**
  * @param mode The mode to query
@@ -178,14 +184,14 @@ int mode_token_match ( const Mode *mode, rofi_int_matcher **tokens, unsigned int
  *
  * @returns the name of the mode.
  */
-const char * mode_get_name ( const Mode *mode );
+const char *mode_get_name(const Mode *mode);
 
 /**
  * @param mode The mode to query
  *
  * Free the resources allocated for this mode.
  */
-void mode_free ( Mode **mode );
+void mode_free(Mode **mode);
 
 /**
  * @param mode The mode to query
@@ -193,7 +199,7 @@ void mode_free ( Mode **mode );
  * Helper functions for mode.
  * Get the private data object.
  */
-void *mode_get_private_data ( const Mode *mode );
+void *mode_get_private_data(const Mode *mode);
 
 /**
  * @param mode The mode to query
@@ -202,7 +208,7 @@ void *mode_get_private_data ( const Mode *mode );
  * Helper functions for mode.
  * Set the private data object.
  */
-void mode_set_private_data ( Mode *mode, void *pd );
+void mode_set_private_data(Mode *mode, void *pd);
 
 /**
  * @param mode The mode to query
@@ -211,14 +217,15 @@ void mode_set_private_data ( Mode *mode, void *pd );
  *
  * @return the user visible name of the mode
  */
-const char *mode_get_display_name ( const Mode *mode );
+const char *mode_get_display_name(const Mode *mode);
 
 /**
  * @param mode The mode to query
  *
- * Should be called once for each mode. This adds the display-name configuration option for the mode.
+ * Should be called once for each mode. This adds the display-name configuration
+ * option for the mode.
  */
-void mode_set_config ( Mode *mode );
+void mode_set_config(Mode *mode);
 
 /**
  * @param mode The mode to query
@@ -229,16 +236,17 @@ void mode_set_config ( Mode *mode );
  *
  * @returns a newly allocated string
  */
-char * mode_preprocess_input ( Mode *mode, const char *input );
+char *mode_preprocess_input(Mode *mode, const char *input);
 
 /**
  * @param mode The mode to query
  *
  * Query the mode for a user display.
  *
- * @return a new allocated (valid pango markup) message to display (user should free).
+ * @return a new allocated (valid pango markup) message to display (user should
+ * free).
  */
-char *mode_get_message ( const Mode *mode );
+char *mode_get_message(const Mode *mode);
 /**@}*/
 G_END_DECLS
 #endif

@@ -27,15 +27,15 @@
 
 #ifndef ROFI_MAIN_H
 #define ROFI_MAIN_H
-#include <xcb/xcb.h>
-#include <xkbcommon/xkbcommon.h>
-#include <glib.h>
-#include <string.h>
-#include <stdlib.h>
-#include "rofi-types.h"
 #include "keyb.h"
 #include "mode.h"
+#include "rofi-types.h"
 #include "view.h"
+#include <glib.h>
+#include <stdlib.h>
+#include <string.h>
+#include <xcb/xcb.h>
+#include <xkbcommon/xkbcommon.h>
 
 /**
  * @defgroup Main Main
@@ -52,62 +52,64 @@ extern const char *cache_dir;
  *
  * @returns the number of enabled modi.
  */
-unsigned int rofi_get_num_enabled_modi ( void );
+unsigned int rofi_get_num_enabled_modi(void);
 
 /**
- * @param index The mode to return. (should be smaller then rofi_get_num_enabled_mode)
+ * @param index The mode to return. (should be smaller then
+ * rofi_get_num_enabled_mode)
  *
  * Get an enabled mode handle.
  *
  * @returns a Mode handle.
  */
-const Mode * rofi_get_mode ( unsigned int index );
+const Mode *rofi_get_mode(unsigned int index);
 
 /**
  * @param str A GString with an error message to display.
  *
  * Queue an error.
  */
-void rofi_add_error_message ( GString *str );
+void rofi_add_error_message(GString *str);
 
-void rofi_clear_error_messages ( void );
+void rofi_clear_error_messages(void);
 /**
  * @param code the code to return
  *
  * Return value are used for integrating dmenu rofi in scripts.
  * This function sets the code that rofi will return on exit.
  */
-void rofi_set_return_code ( int code );
+void rofi_set_return_code(int code);
 
-void rofi_quit_main_loop ( void );
+void rofi_quit_main_loop(void);
 
 /**
  * @param name Search for mode with this name.
  *
  * @return returns Mode * when found, NULL if not.
  */
-Mode * rofi_collect_modi_search ( const char *name );
+Mode *rofi_collect_modi_search(const char *name);
 /** Reset terminal */
-#define  color_reset     "\033[0m"
+#define color_reset "\033[0m"
 /** Set terminal text bold */
-#define  color_bold      "\033[1m"
+#define color_bold "\033[1m"
 /** Set terminal text italic */
-#define  color_italic    "\033[2m"
+#define color_italic "\033[2m"
 /** Set terminal foreground text green */
-#define color_green      "\033[0;32m"
+#define color_green "\033[0;32m"
 /** Set terminal foreground text red */
-#define color_red        "\033[0;31m"
+#define color_red "\033[0;31m"
 
 /** Appends instructions on how to report an error. */
-#define ERROR_MSG( a )    a "\n"                                       \
-    "If you suspect this is caused by a bug in rofi,\n"                \
-    "please report the following information to rofi's github page:\n" \
-    " * The generated commandline output when the error occurred.\n"   \
-    " * Output of -dump-xresource\n"                                   \
-    " * Steps to reproduce\n"                                          \
-    " * The version of rofi you are running\n\n"                       \
+#define ERROR_MSG(a)                                                           \
+  a "\n"                                                                       \
+    "If you suspect this is caused by a bug in rofi,\n"                        \
+    "please report the following information to rofi's github page:\n"         \
+    " * The generated commandline output when the error occurred.\n"           \
+    " * Output of -dump-xresource\n"                                           \
+    " * Steps to reproduce\n"                                                  \
+    " * The version of rofi you are running\n\n"                               \
     " <i>https://github.com/davatorium/rofi/</i>"
 /** Indicates if ERROR_MSG uses pango markup */
-#define ERROR_MSG_MARKUP    TRUE
+#define ERROR_MSG_MARKUP TRUE
 /**@}*/
 #endif

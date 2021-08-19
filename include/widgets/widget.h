@@ -27,19 +27,19 @@
 
 #ifndef ROFI_WIDGET_H
 #define ROFI_WIDGET_H
-#include <glib.h>
+#include "keyb.h"
 #include <cairo.h>
+#include <glib.h>
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
-#include "keyb.h"
 /**
  * @defgroup widget widget
  *
- * Generic abstract widget class. Widgets should 'inherit' from this class (first structure in there structure should be
- * widget).
- * The generic widget implements generic functions like get_width, get_height, draw, resize, update, free and
- * clicked.
- * It also holds information about how the widget should be packed.
+ * Generic abstract widget class. Widgets should 'inherit' from this class
+ * (first structure in there structure should be widget). The generic widget
+ * implements generic functions like get_width, get_height, draw, resize,
+ * update, free and clicked. It also holds information about how the widget
+ * should be packed.
  *
  * @{
  */
@@ -53,37 +53,35 @@ typedef struct _widget widget;
 /**
  * Type of the widget. It is used to bubble events to the relevant widget.
  */
-typedef enum
-{
-    /** Default type */
-    WIDGET_TYPE_UNKNOWN,
-    /** The listview widget */
-    WIDGET_TYPE_LISTVIEW         = SCOPE_MOUSE_LISTVIEW,
-    /** An element in the listview */
-    WIDGET_TYPE_LISTVIEW_ELEMENT = SCOPE_MOUSE_LISTVIEW_ELEMENT,
-    /** The input bar edit box */
-    WIDGET_TYPE_EDITBOX          = SCOPE_MOUSE_EDITBOX,
-    /** The listview scrollbar */
-    WIDGET_TYPE_SCROLLBAR        = SCOPE_MOUSE_SCROLLBAR,
-    /** A widget allowing user to swithc between modi */
-    WIDGET_TYPE_MODE_SWITCHER    = SCOPE_MOUSE_MODE_SWITCHER,
-    /** Text-only textbox */
-    WIDGET_TYPE_TEXTBOX_TEXT,
+typedef enum {
+  /** Default type */
+  WIDGET_TYPE_UNKNOWN,
+  /** The listview widget */
+  WIDGET_TYPE_LISTVIEW = SCOPE_MOUSE_LISTVIEW,
+  /** An element in the listview */
+  WIDGET_TYPE_LISTVIEW_ELEMENT = SCOPE_MOUSE_LISTVIEW_ELEMENT,
+  /** The input bar edit box */
+  WIDGET_TYPE_EDITBOX = SCOPE_MOUSE_EDITBOX,
+  /** The listview scrollbar */
+  WIDGET_TYPE_SCROLLBAR = SCOPE_MOUSE_SCROLLBAR,
+  /** A widget allowing user to swithc between modi */
+  WIDGET_TYPE_MODE_SWITCHER = SCOPE_MOUSE_MODE_SWITCHER,
+  /** Text-only textbox */
+  WIDGET_TYPE_TEXTBOX_TEXT,
 } WidgetType;
 
 /**
  * Whether and how the action was handled
  */
-typedef enum
-{
-    /** The action was ignore and should bubble */
-    WIDGET_TRIGGER_ACTION_RESULT_IGNORED,
-    /** The action was handled directly */
-    WIDGET_TRIGGER_ACTION_RESULT_HANDLED,
-    /** The action was handled and should start the grab for motion events */
-    WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN,
-    /** The action was handled and should stop the grab for motion events */
-    WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END,
+typedef enum {
+  /** The action was ignore and should bubble */
+  WIDGET_TRIGGER_ACTION_RESULT_IGNORED,
+  /** The action was handled directly */
+  WIDGET_TRIGGER_ACTION_RESULT_HANDLED,
+  /** The action was handled and should start the grab for motion events */
+  WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN,
+  /** The action was handled and should stop the grab for motion events */
+  WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END,
 } WidgetTriggerActionResult;
 
 /**
@@ -92,11 +90,13 @@ typedef enum
  * @param x The X coordination of the mouse event relative to @param widget
  * @param y The Y coordination of the mouse event relative to @param widget
  *
- * This callback must only iterate over the children of a Widget, and return NULL if none of them is relevant.
+ * This callback must only iterate over the children of a Widget, and return
+ * NULL if none of them is relevant.
  *
  * @returns A child widget if found, NULL otherwise
  */
-typedef widget * ( *widget_find_mouse_target_cb )( widget *widget, WidgetType type, gint x, gint y );
+typedef widget *(*widget_find_mouse_target_cb)(widget *widget, WidgetType type,
+                                               gint x, gint y);
 
 /**
  * @param widget The target widget
@@ -105,14 +105,18 @@ typedef widget * ( *widget_find_mouse_target_cb )( widget *widget, WidgetType ty
  * @param y The Y coordination of the mouse event relative to @param widget
  * @param user_data The data passed to widget_set_trigger_action_handler()
  *
- * This callback should handle the action if relevant, and returns whether it did or not.
+ * This callback should handle the action if relevant, and returns whether it
+ * did or not.
  *
  * @returns Whether the action was handled or not, see enum values for details
  */
-typedef WidgetTriggerActionResult ( *widget_trigger_action_cb )( widget *widget, guint action, gint x, gint y, void *user_data );
+typedef WidgetTriggerActionResult (*widget_trigger_action_cb)(widget *widget,
+                                                              guint action,
+                                                              gint x, gint y,
+                                                              void *user_data);
 
 /** Macro to get widget from an implementation (e.g. textbox/scrollbar) */
-#define WIDGET( a )    ( (widget *) ( a ) )
+#define WIDGET(a) ((widget *)(a))
 
 /**
  * @param widget The widget to check
@@ -123,7 +127,7 @@ typedef WidgetTriggerActionResult ( *widget_trigger_action_cb )( widget *widget,
  *
  * @return TRUE if x,y falls within the widget
  */
-int widget_intersect ( const widget *widget, int x, int y );
+int widget_intersect(const widget *widget, int x, int y);
 
 /**
  * @param widget The widget to move
@@ -132,7 +136,7 @@ int widget_intersect ( const widget *widget, int x, int y );
  *
  * Moves the widget.
  */
-void widget_move ( widget *widget, short x, short y );
+void widget_move(widget *widget, short x, short y);
 
 /**
  * @param widget Handle to widget
@@ -140,7 +144,7 @@ void widget_move ( widget *widget, short x, short y );
  * Get the type of the widget.
  * @returns The type of the widget.
  */
-WidgetType widget_type ( widget *widget );
+WidgetType widget_type(widget *widget);
 
 /**
  * @param widget Handle to widget
@@ -148,7 +152,7 @@ WidgetType widget_type ( widget *widget );
  *
  * Set the widget type.
  */
-void widget_set_type ( widget *widget, WidgetType type );
+void widget_set_type(widget *widget, WidgetType type);
 
 /**
  * @param widget Handle to widget
@@ -156,7 +160,7 @@ void widget_set_type ( widget *widget, WidgetType type );
  * Check if widget is enabled.
  * @returns TRUE when widget is enabled.
  */
-gboolean widget_enabled ( widget *widget );
+gboolean widget_enabled(widget *widget);
 
 /**
  * @param widget Handle to widget
@@ -164,27 +168,23 @@ gboolean widget_enabled ( widget *widget );
  *
  * Disable the widget.
  */
-void widget_set_enabled ( widget *widget, gboolean enabled );
+void widget_set_enabled(widget *widget, gboolean enabled);
 
 /**
  * @param widget Handle to widget
  *
  * Disable the widget.
  */
-static inline
-void widget_disable ( widget *widget )
-{
-    widget_set_enabled ( widget, FALSE );
+static inline void widget_disable(widget *widget) {
+  widget_set_enabled(widget, FALSE);
 }
 /**
  * @param widget Handle to widget
  *
  * Enable the widget.
  */
-static inline
-void widget_enable ( widget *widget )
-{
-    widget_set_enabled ( widget, TRUE );
+static inline void widget_enable(widget *widget) {
+  widget_set_enabled(widget, TRUE);
 }
 
 /**
@@ -193,14 +193,14 @@ void widget_enable ( widget *widget )
  *
  * Render the textbox.
  */
-void widget_draw ( widget *widget, cairo_t *d );
+void widget_draw(widget *widget, cairo_t *d);
 
 /**
  * @param wid Handle to the widget
  *
  * Free the widget and all allocated memory.
  */
-void widget_free ( widget *wid );
+void widget_free(widget *wid);
 
 /**
  * @param widget The widget toresize
@@ -209,35 +209,35 @@ void widget_free ( widget *wid );
  *
  * Resizes the widget.
  */
-void widget_resize ( widget *widget, short w, short h );
+void widget_resize(widget *widget, short w, short h);
 
 /**
  * @param widget The widget handle
  *
  * @returns the height of the widget.
  */
-int widget_get_height ( widget *widget );
+int widget_get_height(widget *widget);
 
 /**
  * @param widget The widget handle
  *
  * @returns the width of the widget.
  */
-int widget_get_width ( widget *widget );
+int widget_get_width(widget *widget);
 
 /**
  * @param widget The widget handle
  *
  * @returns the y position of the widget relative to its parent.
  */
-int widget_get_y_pos ( widget *widget );
+int widget_get_y_pos(widget *widget);
 
 /**
  * @param widget The widget handle
  *
  * @returns the x position of the widget relative to its parent.
  */
-int widget_get_x_pos ( widget *widget );
+int widget_get_x_pos(widget *widget);
 
 /**
  * @param widget The widget handle
@@ -246,7 +246,7 @@ int widget_get_x_pos ( widget *widget );
  *
  * Will modify param x and param y to make them relative to param widget .
  */
-void widget_xy_to_relative ( widget *widget, gint *x, gint *y );
+void widget_xy_to_relative(widget *widget, gint *x, gint *y);
 
 /**
  * @param widget The widget handle
@@ -254,20 +254,20 @@ void widget_xy_to_relative ( widget *widget, gint *x, gint *y );
  * Update the widget, and its parent recursively.
  * This should be called when size of widget changes.
  */
-void widget_update ( widget *widget );
+void widget_update(widget *widget);
 /**
  * @param wid The widget handle
  *
  * Indicate that the widget needs to be redrawn.
  * This is done by setting the redraw flag on the toplevel widget.
  */
-void widget_queue_redraw ( widget *wid );
+void widget_queue_redraw(widget *wid);
 /**
  * @param wid The widget handle
  *
  * Check the flag indicating the widget needs to be redrawn.
  */
-gboolean widget_need_redraw ( widget *wid );
+gboolean widget_need_redraw(widget *wid);
 
 /**
  * @param wid The widget handle
@@ -279,7 +279,7 @@ gboolean widget_need_redraw ( widget *wid );
  *
  * @returns returns the widget that should handle the mouse event.
  */
-widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y );
+widget *widget_find_mouse_target(widget *wid, WidgetType type, gint x, gint y);
 
 /**
  * @param wid The widget handle
@@ -292,7 +292,8 @@ widget *widget_find_mouse_target ( widget *wid, WidgetType type, gint x, gint y 
  *
  * @returns Whether the action was handled or not
  */
-WidgetTriggerActionResult widget_trigger_action ( widget *wid, guint action, gint x, gint y );
+WidgetTriggerActionResult widget_trigger_action(widget *wid, guint action,
+                                                gint x, gint y);
 
 /**
  * @param wid The widget handle
@@ -301,7 +302,8 @@ WidgetTriggerActionResult widget_trigger_action ( widget *wid, guint action, gin
  *
  * Override the widget trigger action handler on widget.
  */
-void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb cb, void *cb_data );
+void widget_set_trigger_action_handler(widget *wid, widget_trigger_action_cb cb,
+                                       void *cb_data);
 
 /**
  * @param wid The widget handle
@@ -312,7 +314,7 @@ void widget_set_trigger_action_handler ( widget *wid, widget_trigger_action_cb c
  *
  * @returns TRUE when handled.
  */
-gboolean widget_motion_notify ( widget *wid, gint x, gint y );
+gboolean widget_motion_notify(widget *wid, gint x, gint y);
 
 /**
  * @param wid The widget handle
@@ -321,7 +323,7 @@ gboolean widget_motion_notify ( widget *wid, gint x, gint y );
  *
  * @returns the desired height of the widget in pixels.
  */
-int widget_get_desired_height ( widget *wid );
+int widget_get_desired_height(widget *wid);
 
 /**
  * @param wid The widget handle
@@ -330,7 +332,7 @@ int widget_get_desired_height ( widget *wid );
  *
  * @returns the desired width of the widget in pixels.
  */
-int widget_get_desired_width ( widget *wid );
+int widget_get_desired_width(widget *wid);
 /**
  * @param wid The widget handle
  *
@@ -338,7 +340,7 @@ int widget_get_desired_width ( widget *wid );
  *
  * @returns the absolute x-position of widget of the widget in pixels.
  */
-int widget_get_absolute_xpos ( widget *wid );
+int widget_get_absolute_xpos(widget *wid);
 /**
  * @param wid The widget handle
  *
@@ -346,6 +348,6 @@ int widget_get_absolute_xpos ( widget *wid );
  *
  * @returns the absolute y-position of widget of the widget in pixels.
  */
-int widget_get_absolute_ypos ( widget *wid );
+int widget_get_absolute_ypos(widget *wid);
 /**@}*/
 #endif // ROFI_WIDGET_H

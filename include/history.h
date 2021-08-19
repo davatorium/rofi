@@ -48,7 +48,8 @@
  * Sets the entry in the history, if it exists its use-count is incremented.
  *
  */
-void history_set ( const char *filename, const char *entry ) __attribute__( ( nonnull ) );
+void history_set(const char *filename, const char *entry)
+    __attribute__((nonnull));
 
 /**
  * @param filename The filename of the history cache.
@@ -56,7 +57,8 @@ void history_set ( const char *filename, const char *entry ) __attribute__( ( no
  *
  * Removes the entry from the history.
  */
-void history_remove ( const char *filename, const char *entry ) __attribute__( ( nonnull ) );
+void history_remove(const char *filename, const char *entry)
+    __attribute__((nonnull));
 
 /**
  * @param filename The filename of the history cache.
@@ -65,7 +67,8 @@ void history_remove ( const char *filename, const char *entry ) __attribute__( (
  * Gets the entries in the list (in order of usage)
  * @returns a list of entries length long. (and NULL terminated).
  */
-char ** history_get_list ( const char *filename, unsigned int * length ) __attribute__( ( nonnull ) );
+char **history_get_list(const char *filename, unsigned int *length)
+    __attribute__((nonnull));
 
 /**@}*/
 #endif // ROFI_HISTORY_H

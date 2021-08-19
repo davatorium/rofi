@@ -27,8 +27,9 @@
 
 #ifndef ROFI_VIEW_H
 #define ROFI_VIEW_H
-#include "mode.h"
 
+#include "mode.h"
+#include <xcb/xcb.h>
 /**
  * @defgroup View View
  *
@@ -44,18 +45,17 @@
  * @{
  */
 typedef struct RofiViewState RofiViewState;
-typedef enum
-{
-    /** Create a menu for entering text */
-    MENU_NORMAL        = 0,
-    /** Create a menu for entering passwords */
-    MENU_PASSWORD      = 1,
-    /** Create amanaged window. */
-    MENU_NORMAL_WINDOW = 2,
-    /** ERROR dialog */
-    MENU_ERROR_DIALOG  = 4,
-    /** INDICATOR */
-    MENU_INDICATOR     = 8,
+typedef enum {
+  /** Create a menu for entering text */
+  MENU_NORMAL = 0,
+  /** Create a menu for entering passwords */
+  MENU_PASSWORD = 1,
+  /** Create amanaged window. */
+  MENU_NORMAL_WINDOW = 2,
+  /** ERROR dialog */
+  MENU_ERROR_DIALOG = 4,
+  /** INDICATOR */
+  MENU_INDICATOR = 8,
 } MenuFlags;
 
 /**
@@ -68,14 +68,16 @@ typedef enum
  *
  * @returns The command issued (see MenuReturn)
  */
-RofiViewState *rofi_view_create ( Mode *sw, const char *input, MenuFlags menu_flags, void ( *finalize )( RofiViewState * ) );
+RofiViewState *rofi_view_create(Mode *sw, const char *input,
+                                MenuFlags menu_flags,
+                                void (*finalize)(RofiViewState *));
 
 /**
  * @param state The Menu Handle
  *
  * Check if a finalize function is set, and if sets executes it.
  */
-void rofi_view_finalize ( RofiViewState *state );
+void rofi_view_finalize(RofiViewState *state);
 
 /**
  * @param state the Menu handle
@@ -84,7 +86,7 @@ void rofi_view_finalize ( RofiViewState *state );
  *
  * @returns the return value
  */
-MenuReturn rofi_view_get_return_value ( const RofiViewState *state );
+MenuReturn rofi_view_get_return_value(const RofiViewState *state);
 /**
  * @param state the Menu handle
  *
@@ -92,14 +94,14 @@ MenuReturn rofi_view_get_return_value ( const RofiViewState *state );
  *
  * @return the next position.
  */
-unsigned int rofi_view_get_next_position ( const RofiViewState *state );
+unsigned int rofi_view_get_next_position(const RofiViewState *state);
 /**
  * @param state the Menu handle
  * @param text The text to add to the input box
  *
  * Update the state if needed.
  */
-void rofi_view_handle_text ( RofiViewState *state, char *text );
+void rofi_view_handle_text(RofiViewState *state, char *text);
 /**
  * @param state the Menu handle
  * @param x The X coordinates of the motion
@@ -108,31 +110,33 @@ void rofi_view_handle_text ( RofiViewState *state, char *text );
  *
  * Update the state if needed.
  */
-void rofi_view_handle_mouse_motion ( RofiViewState *state, gint x, gint y, gboolean find_mouse_target );
+void rofi_view_handle_mouse_motion(RofiViewState *state, gint x, gint y,
+                                   gboolean find_mouse_target);
 /**
  * @param state the Menu handle
  *
  * Update the state if needed.
  */
-void rofi_view_maybe_update ( RofiViewState *state );
-void rofi_view_temp_configure_notify ( RofiViewState *state, xcb_configure_notify_event_t *xce );
-void rofi_view_temp_click_to_exit ( RofiViewState *state, xcb_window_t target );
+void rofi_view_maybe_update(RofiViewState *state);
+void rofi_view_temp_configure_notify(RofiViewState *state,
+                                     xcb_configure_notify_event_t *xce);
+void rofi_view_temp_click_to_exit(RofiViewState *state, xcb_window_t target);
 /**
  * Update the state if needed.
  */
-void rofi_view_frame_callback ( void );
+void rofi_view_frame_callback(void);
 /**
  * @param state the Menu handle
  *
  * @returns returns if this state is completed.
  */
-unsigned int rofi_view_get_completed ( const RofiViewState *state );
+unsigned int rofi_view_get_completed(const RofiViewState *state);
 /**
  * @param state the Menu handle
  *
  * @returns the raw user input.
  */
-const char * rofi_view_get_user_input ( const RofiViewState *state );
+const char *rofi_view_get_user_input(const RofiViewState *state);
 
 /**
  * @param state The Menu Handle
@@ -140,7 +144,8 @@ const char * rofi_view_get_user_input ( const RofiViewState *state );
  *
  * Select a line.
  */
-void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_line );
+void rofi_view_set_selected_line(RofiViewState *state,
+                                 unsigned int selected_line);
 
 /**
  * @param state The Menu Handle
@@ -149,14 +154,14 @@ void rofi_view_set_selected_line ( RofiViewState *state, unsigned int selected_l
  *
  * @returns the selected line or UINT32_MAX if none selected.
  */
-unsigned int rofi_view_get_selected_line ( const RofiViewState *state );
+unsigned int rofi_view_get_selected_line(const RofiViewState *state);
 /**
  * @param state The Menu Handle
  *
  * Restart the menu so it can be displayed again.
  * Resets RofiViewState::quit and RofiViewState::retv.
  */
-void rofi_view_restart ( RofiViewState *state );
+void rofi_view_restart(RofiViewState *state);
 
 /**
  * @param state The handle to the view
@@ -165,7 +170,8 @@ void rofi_view_restart ( RofiViewState *state );
  *
  * @returns TRUE if action was handled.
  */
-gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, guint action );
+gboolean rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
+                                  guint action);
 
 /**
  * @param state The handle to the view
@@ -173,7 +179,7 @@ gboolean rofi_view_trigger_action ( RofiViewState *state, BindingsScope scope, g
  * Free's the memory allocated for this handle.
  * After a call to this function, state is invalid and can no longer be used.
  */
-void rofi_view_free ( RofiViewState *state );
+void rofi_view_free(RofiViewState *state);
 /** @} */
 /**
  * @defgroup ViewGlobal ViewGlobal
@@ -189,7 +195,7 @@ void rofi_view_free ( RofiViewState *state );
  *
  * @returns the active view handle or NULL
  */
-RofiViewState * rofi_view_get_active ( void );
+RofiViewState *rofi_view_get_active(void);
 
 /**
  * @param state the new active view handle.
@@ -199,7 +205,7 @@ RofiViewState * rofi_view_get_active ( void );
  *
  */
 
-void rofi_view_set_active ( RofiViewState *state );
+void rofi_view_set_active(RofiViewState *state);
 
 /**
  * @param state remove view handle.
@@ -208,25 +214,25 @@ void rofi_view_set_active ( RofiViewState *state );
  * stack.
  *
  */
-void rofi_view_remove_active ( RofiViewState *state );
+void rofi_view_remove_active(RofiViewState *state);
 /**
  * @param msg The error message to show.
  * @param markup The error message uses pango markup.
  *
  * The error message to show.
  */
-int rofi_view_error_dialog ( const char *msg, int markup );
+int rofi_view_error_dialog(const char *msg, int markup);
 
 /**
  * Queue a redraw.
  * This triggers a X11 Expose Event.
  */
-void rofi_view_queue_redraw ( void );
+void rofi_view_queue_redraw(void);
 
 /**
  * Cleanup internal data of the view.
  */
-void rofi_view_cleanup ( void );
+void rofi_view_cleanup(void);
 
 /**
  * @param state The handle to the view
@@ -235,12 +241,12 @@ void rofi_view_cleanup ( void );
  *
  * @returns the mode currently displayed by the view
  */
-Mode * rofi_view_get_mode ( RofiViewState *state );
+Mode *rofi_view_get_mode(RofiViewState *state);
 
 /**
  * Unmap the current view.
  */
-void rofi_view_hide ( void );
+void rofi_view_hide(void);
 
 /**
  * Indicate the current view needs to reload its data.
@@ -248,7 +254,7 @@ void rofi_view_hide ( void );
  *
  * The reloading happens 'lazy', multiple calls might be handled at once.
  */
-void rofi_view_reload ( void );
+void rofi_view_reload(void);
 
 /**
  * @param state The handle to the view
@@ -256,7 +262,7 @@ void rofi_view_reload ( void );
  *
  * Change the current view to show a different mode.
  */
-void rofi_view_switch_mode ( RofiViewState *state, Mode *mode );
+void rofi_view_switch_mode(RofiViewState *state, Mode *mode);
 
 /**
  * @param state The handle to the view
@@ -264,14 +270,14 @@ void rofi_view_switch_mode ( RofiViewState *state, Mode *mode );
  *
  * Overlays text over the current view. Passing NULL for text hides the overlay.
  */
-void rofi_view_set_overlay ( RofiViewState *state, const char *text );
+void rofi_view_set_overlay(RofiViewState *state, const char *text);
 
 /**
  * @param state The handle to the view.
  *
  * Clears the user entry box, set selected to 0.
  */
-void rofi_view_clear_input ( RofiViewState *state );
+void rofi_view_clear_input(RofiViewState *state);
 
 /**
  * @param menu_flags The state of the new window.
@@ -279,33 +285,33 @@ void rofi_view_clear_input ( RofiViewState *state );
  * Creates the internal 'Cached' window that gets reused between views.
  * TODO: Internal call to view exposed.
  */
-void __create_window ( MenuFlags menu_flags );
+void __create_window(MenuFlags menu_flags);
 
 /**
  * Get the handle of the main window.
  *
  * @returns the xcb_window_t for rofi's view or XCB_WINDOW_NONE.
  */
-xcb_window_t rofi_view_get_window ( void );
+xcb_window_t rofi_view_get_window(void);
 /** @} */
 
 /***
  * @defgroup ViewThreadPool ViewThreadPool
  * @ingroup View
  *
- * The view can (optionally) keep a set of worker threads around to parallize work.
- * This includes filtering and sorting.
+ * The view can (optionally) keep a set of worker threads around to parallize
+ * work. This includes filtering and sorting.
  *
  * @{
  */
 /**
  * Initialize the threadpool
  */
-void rofi_view_workers_initialize ( void );
+void rofi_view_workers_initialize(void);
 /**
  * Stop all threads and free the resources used by the threadpool
  */
-void rofi_view_workers_finalize ( void );
+void rofi_view_workers_finalize(void);
 
 /**
  * @param width the width of the monitor.
@@ -314,20 +320,20 @@ void rofi_view_workers_finalize ( void );
  * Return the current monitor workarea.
  *
  */
-void rofi_view_get_current_monitor ( int *width, int *height );
+void rofi_view_get_current_monitor(int *width, int *height);
 
 /**
  * Takes a screenshot.
  */
-void rofi_capture_screenshot ( void );
+void rofi_capture_screenshot(void);
 /**
  * Set the window title.
  */
-void rofi_view_set_window_title ( const char * title );
+void rofi_view_set_window_title(const char *title);
 
 /**
  * set ellipsize mode to start.
  */
-void rofi_view_ellipsize_start ( RofiViewState *state );
+void rofi_view_ellipsize_start(RofiViewState *state);
 /** @} */
 #endif

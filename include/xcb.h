@@ -28,8 +28,8 @@
 #ifndef ROFI_XCB_H
 #define ROFI_XCB_H
 
-#include <xcb/xcb.h>
 #include <cairo.h>
+#include <xcb/xcb.h>
 
 /**
  * xcb data structure type declaration.
@@ -46,7 +46,7 @@ extern xcb_stuff *xcb;
  *
  * @returns the root window.
  */
-xcb_window_t xcb_stuff_get_root_window ( void );
+xcb_window_t xcb_stuff_get_root_window(void);
 
 /**
  * @param w The xcb_window_t to read property from.
@@ -57,7 +57,7 @@ xcb_window_t xcb_stuff_get_root_window ( void );
  *
  * @returns a newly allocated string with the result or NULL
  */
-char* window_get_text_prop ( xcb_window_t w, xcb_atom_t atom );
+char *window_get_text_prop(xcb_window_t w, xcb_atom_t atom);
 
 /**
  * @param w The xcb_window_t to set property on
@@ -67,28 +67,22 @@ char* window_get_text_prop ( xcb_window_t w, xcb_atom_t atom );
  *
  * Set property on window.
  */
-void window_set_atom_prop ( xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms, int count );
+void window_set_atom_prop(xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms,
+                          int count);
 
 /** For getting the atoms in an enum  */
-#define ATOM_ENUM( x )    x
+#define ATOM_ENUM(x) x
 /** Get the atoms as strings. */
-#define ATOM_CHAR( x )    # x
+#define ATOM_CHAR(x) #x
 
 /** Atoms we want to pre-load */
-#define EWMH_ATOMS( X )           \
-    X ( _NET_WM_WINDOW_OPACITY ), \
-    X ( I3_SOCKET_PATH ),         \
-    X ( UTF8_STRING ),            \
-    X ( STRING ),                 \
-    X ( CLIPBOARD ),              \
-    X ( WM_WINDOW_ROLE ),         \
-    X ( _XROOTPMAP_ID ),          \
-    X ( _MOTIF_WM_HINTS ),        \
-    X ( WM_TAKE_FOCUS ),          \
-    X ( ESETROOT_PMAP_ID )
+#define EWMH_ATOMS(X)                                                          \
+  X(_NET_WM_WINDOW_OPACITY), X(I3_SOCKET_PATH), X(UTF8_STRING), X(STRING),     \
+      X(CLIPBOARD), X(WM_WINDOW_ROLE), X(_XROOTPMAP_ID), X(_MOTIF_WM_HINTS),   \
+      X(WM_TAKE_FOCUS), X(ESETROOT_PMAP_ID)
 
 /** enumeration of the atoms. */
-enum { EWMH_ATOMS ( ATOM_ENUM ), NUM_NETATOMS };
+enum { EWMH_ATOMS(ATOM_ENUM), NUM_NETATOMS };
 /** atoms as string */
 extern const char *netatom_names[];
 /** atoms */
@@ -97,25 +91,24 @@ extern xcb_atom_t netatoms[NUM_NETATOMS];
 /**
  * Structure describing a workarea/monitor.
  */
-typedef struct _workarea
-{
-    /** numeric monitor id. */
-    int              monitor_id;
-    /** if monitor is set as primary monitor. */
-    int              primary;
-    /** Horizontal location (in pixels) of the monitor. */
-    int              x;
-    /** Vertical location  (in pixels) of the monitor. */
-    int              y;
-    /** Width of the monitor. */
-    int              w;
-    /** Height of the monitor */
-    int              h;
-    int              mw, mh;
-    /** Output name of the monitor, e.g. eDP1 or VGA-1 */
-    char             *name;
-    /** Pointer to next monitor */
-    struct _workarea *next;
+typedef struct _workarea {
+  /** numeric monitor id. */
+  int monitor_id;
+  /** if monitor is set as primary monitor. */
+  int primary;
+  /** Horizontal location (in pixels) of the monitor. */
+  int x;
+  /** Vertical location  (in pixels) of the monitor. */
+  int y;
+  /** Width of the monitor. */
+  int w;
+  /** Height of the monitor */
+  int h;
+  int mw, mh;
+  /** Output name of the monitor, e.g. eDP1 or VGA-1 */
+  char *name;
+  /** Pointer to next monitor */
+  struct _workarea *next;
 } workarea;
 
 /**
@@ -125,19 +118,19 @@ typedef struct _workarea
  *
  * @returns TRUE if monitor is found, FALSE if no monitor could be detected.
  */
-int monitor_active ( workarea *mon );
+int monitor_active(workarea *mon);
 
 /**
  * @param w rofis window
  *
  * Stores old input focus for reverting and set focus to rofi.
  */
-void rofi_xcb_set_input_focus ( xcb_window_t w );
+void rofi_xcb_set_input_focus(xcb_window_t w);
 
 /**
  * IF set, revert the focus back to the original applications.
  */
-void rofi_xcb_revert_input_focus ( void );
+void rofi_xcb_revert_input_focus(void);
 
 /**
  * Depth of visual
@@ -157,7 +150,7 @@ extern xcb_colormap_t map;
  *
  * @returns a cairo surface with the background image of the desktop.
  */
-cairo_surface_t * x11_helper_get_bg_surface ( void );
+cairo_surface_t *x11_helper_get_bg_surface(void);
 /**
  * Gets a surface for the root window of the desktop.
  *
@@ -165,7 +158,7 @@ cairo_surface_t * x11_helper_get_bg_surface ( void );
  *
  * @returns a cairo surface for the root window of the desktop.
  */
-cairo_surface_t *x11_helper_get_screenshot_surface ( void );
+cairo_surface_t *x11_helper_get_screenshot_surface(void);
 
 /**
  * @param window The X11 window to modify
@@ -173,20 +166,19 @@ cairo_surface_t *x11_helper_get_screenshot_surface ( void );
  * Set the right hints to disable the window decoration.
  * (Set MOTIF_WM_HINTS, decoration field)
  */
-void x11_disable_decoration ( xcb_window_t window );
+void x11_disable_decoration(xcb_window_t window);
 
 /**
  * List of cursor types.
  */
-typedef enum
-{
-    /** Default arrow cursor */
-    CURSOR_DEFAULT = 0,
-    /** Cursor denoting a clickable area */
-    CURSOR_POINTER,
-    /** Cursor denoting an input field / selectable text */
-    CURSOR_TEXT,
-    NUM_CURSORS
+typedef enum {
+  /** Default arrow cursor */
+  CURSOR_DEFAULT = 0,
+  /** Cursor denoting a clickable area */
+  CURSOR_POINTER,
+  /** Cursor denoting an input field / selectable text */
+  CURSOR_TEXT,
+  NUM_CURSORS
 } X11CursorType;
 
 /**
@@ -195,21 +187,20 @@ typedef enum
  *
  * Change mouse cursor
  */
-void x11_set_cursor ( xcb_window_t window, X11CursorType type );
+void x11_set_cursor(xcb_window_t window, X11CursorType type);
 
 /**
  * List of window managers that need different behaviour to functioning.
  */
-typedef enum
-{
-    /** Default EWHM compatible window manager */
-    WM_EWHM                          = 0,
-    /** I3 Window manager */
-    WM_DO_NOT_CHANGE_CURRENT_DESKTOP = 1,
-    /** PANGO WORKSPACE NAMES */
-    WM_PANGO_WORKSPACE_NAMES         = 2,
-    /** Root window offset (for bspwm) */
-    WM_ROOT_WINDOW_OFFSET            = 4,
+typedef enum {
+  /** Default EWHM compatible window manager */
+  WM_EWHM = 0,
+  /** I3 Window manager */
+  WM_DO_NOT_CHANGE_CURRENT_DESKTOP = 1,
+  /** PANGO WORKSPACE NAMES */
+  WM_PANGO_WORKSPACE_NAMES = 2,
+  /** Root window offset (for bspwm) */
+  WM_ROOT_WINDOW_OFFSET = 4,
 } WindowManagerQuirk;
 
 /**
@@ -224,9 +215,11 @@ extern WindowManagerQuirk current_window_manager;
  *
  * Creates a thumbnail of the window.
  *
- * @returns NULL if window was not found, or unmapped, otherwise returns a cairo_surface.
+ * @returns NULL if window was not found, or unmapped, otherwise returns a
+ * cairo_surface.
  */
-cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window, int size );
+cairo_surface_t *x11_helper_get_screenshot_surface_window(xcb_window_t window,
+                                                          int size);
 
 /**
  * @param surface
@@ -235,6 +228,7 @@ cairo_surface_t *x11_helper_get_screenshot_surface_window ( xcb_window_t window,
  *
  * Blur the content of the surface with radius and deviation.
  */
-void cairo_image_surface_blur ( cairo_surface_t* surface, double radius, double deviation );
+void cairo_image_surface_blur(cairo_surface_t *surface, double radius,
+                              double deviation);
 
 #endif

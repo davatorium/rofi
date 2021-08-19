@@ -35,13 +35,13 @@
  * List of available dialogs.
  */
 
-#include "dialogs/run.h"
-#include "dialogs/ssh.h"
-#include "dialogs/drun.h"
-#include "dialogs/dmenu.h"
-#include "dialogs/script.h"
-#include "dialogs/window.h"
 #include "dialogs/combi.h"
-#include "dialogs/help-keys.h"
+#include "dialogs/dmenu.h"
+#include "dialogs/drun.h"
 #include "dialogs/filebrowser.h"
+#include "dialogs/help-keys.h"
+#include "dialogs/run.h"
+#include "dialogs/script.h"
+#include "dialogs/ssh.h"
+#include "dialogs/window.h"
 #endif // ROFI_DIALOGS_DIALOGS_H

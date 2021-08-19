@@ -27,9 +27,9 @@
 
 #ifndef ROFI_SCROLLBAR_H
 #define ROFI_SCROLLBAR_H
-#include <cairo.h>
-#include "widgets/widget.h"
 #include "widgets/widget-internal.h"
+#include "widgets/widget.h"
+#include <cairo.h>
 
 /**
  * @defgroup Scrollbar Scrollbar
@@ -40,13 +40,12 @@
 /**
  * Internal structure for the scrollbar.
  */
-typedef struct _scrollbar
-{
-    widget       widget;
-    unsigned int length;
-    unsigned int pos;
-    unsigned int pos_length;
-    RofiDistance width;
+typedef struct _scrollbar {
+  widget widget;
+  unsigned int length;
+  unsigned int pos;
+  unsigned int pos_length;
+  RofiDistance width;
 } scrollbar;
 
 /**
@@ -57,7 +56,7 @@ typedef struct _scrollbar
  *
  * @returns the scrollbar object.
  */
-scrollbar *scrollbar_create ( widget *parent, const char *name );
+scrollbar *scrollbar_create(widget *parent, const char *name);
 
 /**
  * @param sb scrollbar object
@@ -65,7 +64,7 @@ scrollbar *scrollbar_create ( widget *parent, const char *name );
  *
  * set the length of the handle relative to the max value of bar.
  */
-void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length );
+void scrollbar_set_handle_length(scrollbar *sb, unsigned int pos_length);
 
 /**
  * @param sb scrollbar object
@@ -73,7 +72,7 @@ void scrollbar_set_handle_length ( scrollbar *sb, unsigned int pos_length );
  *
  * set the position of the handle relative to the set max value of bar.
  */
-void scrollbar_set_handle ( scrollbar *sb, unsigned int pos );
+void scrollbar_set_handle(scrollbar *sb, unsigned int pos);
 
 /**
  * @param sb scrollbar object
@@ -81,7 +80,7 @@ void scrollbar_set_handle ( scrollbar *sb, unsigned int pos );
  *
  * set the max value of the bar.
  */
-void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
+void scrollbar_set_max_value(scrollbar *sb, unsigned int max);
 
 /**
  * @param sb scrollbar object
@@ -89,7 +88,7 @@ void scrollbar_set_max_value ( scrollbar *sb, unsigned int max );
  *
  * Calculate the position of the click relative to the max value of bar
  */
-guint scrollbar_scroll_get_line ( const scrollbar *sb, int y );
+guint scrollbar_scroll_get_line(const scrollbar *sb, int y);
 
 /**@}*/
 #endif // ROFI_SCROLLBAR_H

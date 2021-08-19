@@ -28,17 +28,17 @@
 #ifndef ROFI_HBOX_H
 #define ROFI_HBOX_H
 
-#include "widget.h"
 #include "rofi-types.h"
+#include "widget.h"
 
 /**
  * @defgroup box box
  * @ingroup widget
  *
  * Widget used to pack multiple widgets either horizontally or vertically.
- * It supports packing widgets horizontally or vertically. Child widgets are always
- * expanded to the maximum size in the opposite direction of the packing direction.
- * e.g. vertically packed widgets use the full box width.
+ * It supports packing widgets horizontally or vertically. Child widgets are
+ * always expanded to the maximum size in the opposite direction of the packing
+ * direction. e.g. vertically packed widgets use the full box width.
  *
  * @{
  */
@@ -55,7 +55,7 @@ typedef struct _box box;
  *
  * @returns a newly created box, free with #widget_free
  */
-box * box_create ( widget *parent, const char *name, RofiOrientation type );
+box *box_create(widget *parent, const char *name, RofiOrientation type);
 
 /**
  * @param box   Handle to the box widget.
@@ -64,6 +64,6 @@ box * box_create ( widget *parent, const char *name, RofiOrientation type );
  *
  * Add a widget to the box.
  */
-void box_add ( box *box, widget *child, gboolean expand );
+void box_add(box *box, widget *child, gboolean expand);
 /**@}*/
 #endif // ROFI_HBOX_H
