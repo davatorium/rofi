@@ -85,10 +85,13 @@ typedef struct ThemeWidget {
 extern ThemeWidget *rofi_theme;
 
 /**
- * Used to store config options.
+ * Used to store theme.
  */
 extern ThemeWidget *rofi_theme;
 
+/**
+ * Used to store config options.
+ */
 extern ThemeWidget *rofi_configuration;
 
 /**
@@ -108,6 +111,13 @@ ThemeWidget *rofi_theme_find_or_create_name(ThemeWidget *base,
  * Print out the widget to the commandline.
  */
 void rofi_theme_print(ThemeWidget *widget);
+
+/**
+ * @param widget The widget handle.
+ * @param index The indenting index.
+ *
+ * Print out the widget to the commandline indented by index.
+ */
 void rofi_theme_print_index(ThemeWidget *widget, int index);
 
 /**
@@ -353,6 +363,17 @@ void distance_get_linestyle(RofiDistance d, cairo_t *draw);
  */
 ThemeWidget *rofi_theme_find_widget(const char *name, const char *state,
                                     gboolean exact);
+
+/**
+ * @param name The name of the element to find.
+ * @param state The state of the element.
+ * @param exact If the match should be exact, or parent can be included.
+ *
+ * Find the configuration element. If not exact, the closest specified element
+ * is returned.
+ *
+ * @returns the ThemeWidget if found, otherwise NULL.
+ */
 ThemeWidget *rofi_config_find_widget(const char *name, const char *state,
                                      gboolean exact);
 

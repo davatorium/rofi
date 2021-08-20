@@ -29,9 +29,9 @@
 /** Log domain for this module */
 #define G_LOG_DOMAIN "X11Helper"
 
+#include "config.h"
 #include <cairo-xcb.h>
 #include <cairo.h>
-#include "config.h"
 #include <glib.h>
 #include <math.h>
 #include <stdint.h>
@@ -100,11 +100,17 @@ static xcb_visualtype_t *root_visual = NULL;
 xcb_atom_t netatoms[NUM_NETATOMS];
 const char *netatom_names[] = {EWMH_ATOMS(ATOM_CHAR)};
 
+/**
+ * Cached X11 cursors.
+ */
 xcb_cursor_t cursors[NUM_CURSORS] = {XCB_CURSOR_NONE, XCB_CURSOR_NONE,
                                      XCB_CURSOR_NONE};
 
+/** Mapping between theme name and system name for mouse cursor. */
 const struct {
+  /** Theme name */
   const char *css_name;
+  /** System name */
   const char *traditional_name;
 } cursor_names[] = {
     {"default", "left_ptr"}, {"pointer", "hand"}, {"text", "xterm"}};

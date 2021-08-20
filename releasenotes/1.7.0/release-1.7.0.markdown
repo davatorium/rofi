@@ -9,7 +9,7 @@ yet converted to the new format, I hope for some understanding. Even though this
 deprecation in previous releases and consequential removal of these options is needed for two reasons.
 The most important one is to keep rofi maintainable and secondary to open possibility to overhaul the config system in
 the future and with that fixing some long standing bugs and add new options that
-where hindered by the almost 10 year old system.
+where hindered by the almost 10 year old system, the new system has been around for more than 4 years.
 
 Beside mostly bug-fixes and removal of deprecated options, we also improved the theming and added features to help in
 some of the more 'off-script' use of rofi.

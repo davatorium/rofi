@@ -71,6 +71,9 @@ const Mode *rofi_get_mode(unsigned int index);
  */
 void rofi_add_error_message(GString *str);
 
+/**
+ * Clear the list of stored error messages.
+ */
 void rofi_clear_error_messages(void);
 /**
  * @param code the code to return

@@ -177,8 +177,11 @@ typedef struct {
   char *application_fallback_icon;
 } Settings;
 
+/** Default number of lines in the list view */
 #define DEFAULT_MENU_LINES 15
+/** Default number of columns in the list view */
 #define DEFAULT_MENU_COLUMNS 1
+/** Default window width */
 #define DEFAULT_MENU_WIDTH 50.0f
 
 /** Global Settings structure. */
