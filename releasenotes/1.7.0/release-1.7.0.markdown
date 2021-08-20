@@ -324,6 +324,8 @@ message {
 
 ```
 
+* FIX: [Build] Fix CI.
+
 * REMOVE: -dump-xresources
 * REMOVE: -fullscreen
 * REMOVE: -show-match
