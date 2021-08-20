@@ -296,9 +296,9 @@ static RunEntry *get_apps(unsigned int *length) {
           continue;
         }
         if (is_homedir) {
-          gchar *fpath = g_build_filename(dirname, dent->d_name, NULL);
-          gboolean b = g_file_test(fpath, G_FILE_TEST_IS_EXECUTABLE);
-          g_free(fpath);
+          gchar *full_path = g_build_filename(dirname, dent->d_name, NULL);
+          gboolean b = g_file_test(full_path, G_FILE_TEST_IS_EXECUTABLE);
+          g_free(full_path);
           if (!b) {
             continue;
           }

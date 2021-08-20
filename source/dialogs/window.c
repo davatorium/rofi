@@ -538,90 +538,97 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
     // we're working...
     pd->ids = winlist_new();
 
-    xcb_get_property_cookie_t c =
+    xcb_get_property_cookie_t prop_cookie =
         xcb_ewmh_get_desktop_names(&xcb->ewmh, xcb->screen_nbr);
     xcb_ewmh_get_utf8_strings_reply_t names;
     int has_names = FALSE;
-    if (xcb_ewmh_get_desktop_names_reply(&xcb->ewmh, c, &names, NULL)) {
+    if (xcb_ewmh_get_desktop_names_reply(&xcb->ewmh, prop_cookie, &names,
+                                         NULL)) {
       has_names = TRUE;
     }
     // calc widths of fields
     for (i = clients.windows_len - 1; i > -1; i--) {
-      client *c = window_client(pd, clients.windows[i]);
-      if ((c != NULL) && !c->xattr.override_redirect &&
-          !client_has_window_type(c, xcb->ewmh._NET_WM_WINDOW_TYPE_DOCK) &&
-          !client_has_window_type(c, xcb->ewmh._NET_WM_WINDOW_TYPE_DESKTOP) &&
-          !client_has_state(c, xcb->ewmh._NET_WM_STATE_SKIP_PAGER) &&
-          !client_has_state(c, xcb->ewmh._NET_WM_STATE_SKIP_TASKBAR)) {
+      client *winclient = window_client(pd, clients.windows[i]);
+      if ((winclient != NULL) && !winclient->xattr.override_redirect &&
+          !client_has_window_type(winclient,
+                                  xcb->ewmh._NET_WM_WINDOW_TYPE_DOCK) &&
+          !client_has_window_type(winclient,
+                                  xcb->ewmh._NET_WM_WINDOW_TYPE_DESKTOP) &&
+          !client_has_state(winclient, xcb->ewmh._NET_WM_STATE_SKIP_PAGER) &&
+          !client_has_state(winclient, xcb->ewmh._NET_WM_STATE_SKIP_TASKBAR)) {
         pd->clf_len =
-            MAX(pd->clf_len,
-                (c->class != NULL) ? (g_utf8_strlen(c->class, -1)) : 0);
+            MAX(pd->clf_len, (winclient->class != NULL)
+                                 ? (g_utf8_strlen(winclient->class, -1))
+                                 : 0);
 
-        if (client_has_state(c, xcb->ewmh._NET_WM_STATE_DEMANDS_ATTENTION)) {
-          c->demands = TRUE;
+        if (client_has_state(winclient,
+                             xcb->ewmh._NET_WM_STATE_DEMANDS_ATTENTION)) {
+          winclient->demands = TRUE;
         }
-        if ((c->hint_flags & XCB_ICCCM_WM_HINT_X_URGENCY) != 0) {
-          c->demands = TRUE;
+        if ((winclient->hint_flags & XCB_ICCCM_WM_HINT_X_URGENCY) != 0) {
+          winclient->demands = TRUE;
         }
 
-        if (c->window == curr_win_id) {
-          c->active = TRUE;
+        if (winclient->window == curr_win_id) {
+          winclient->active = TRUE;
         }
         // find client's desktop.
         xcb_get_property_cookie_t cookie;
         xcb_get_property_reply_t *r;
 
-        c->wmdesktop = 0xFFFFFFFF;
-        cookie = xcb_get_property(xcb->connection, 0, c->window,
+        winclient->wmdesktop = 0xFFFFFFFF;
+        cookie = xcb_get_property(xcb->connection, 0, winclient->window,
                                   xcb->ewmh._NET_WM_DESKTOP, XCB_ATOM_CARDINAL,
                                   0, 1);
         r = xcb_get_property_reply(xcb->connection, cookie, NULL);
         if (r) {
           if (r->type == XCB_ATOM_CARDINAL) {
-            c->wmdesktop = *((uint32_t *)xcb_get_property_value(r));
+            winclient->wmdesktop = *((uint32_t *)xcb_get_property_value(r));
           }
           free(r);
         }
-        if (c->wmdesktop != 0xFFFFFFFF) {
+        if (winclient->wmdesktop != 0xFFFFFFFF) {
           if (has_names) {
             if ((current_window_manager & WM_PANGO_WORKSPACE_NAMES) ==
                 WM_PANGO_WORKSPACE_NAMES) {
               char *output = NULL;
-              if (pango_parse_markup(_window_name_list_entry(names.strings,
-                                                             names.strings_len,
-                                                             c->wmdesktop),
-                                     -1, 0, NULL, &output, NULL, NULL)) {
-                c->wmdesktopstr = g_strdup(_window_name_list_entry(
-                    names.strings, names.strings_len, c->wmdesktop));
-                c->wmdesktopstr_len = g_utf8_strlen(output, -1);
-                pd->wmdn_len = MAX(pd->wmdn_len, c->wmdesktopstr_len);
+              if (pango_parse_markup(
+                      _window_name_list_entry(names.strings, names.strings_len,
+                                              winclient->wmdesktop),
+                      -1, 0, NULL, &output, NULL, NULL)) {
+                winclient->wmdesktopstr = g_strdup(_window_name_list_entry(
+                    names.strings, names.strings_len, winclient->wmdesktop));
+                winclient->wmdesktopstr_len = g_utf8_strlen(output, -1);
+                pd->wmdn_len = MAX(pd->wmdn_len, winclient->wmdesktopstr_len);
                 g_free(output);
               } else {
-                c->wmdesktopstr = g_strdup("Invalid name");
-                pd->wmdn_len =
-                    MAX(pd->wmdn_len, g_utf8_strlen(c->wmdesktopstr, -1));
+                winclient->wmdesktopstr = g_strdup("Invalid name");
+                pd->wmdn_len = MAX(pd->wmdn_len,
+                                   g_utf8_strlen(winclient->wmdesktopstr, -1));
               }
             } else {
-              c->wmdesktopstr = g_markup_escape_text(
+              winclient->wmdesktopstr = g_markup_escape_text(
                   _window_name_list_entry(names.strings, names.strings_len,
-                                          c->wmdesktop),
+                                          winclient->wmdesktop),
                   -1);
               pd->wmdn_len =
-                  MAX(pd->wmdn_len, g_utf8_strlen(c->wmdesktopstr, -1));
+                  MAX(pd->wmdn_len, g_utf8_strlen(winclient->wmdesktopstr, -1));
             }
           } else {
-            c->wmdesktopstr = g_strdup_printf("%u", (uint32_t)c->wmdesktop);
+            winclient->wmdesktopstr =
+                g_strdup_printf("%u", (uint32_t)winclient->wmdesktop);
             pd->wmdn_len =
-                MAX(pd->wmdn_len, g_utf8_strlen(c->wmdesktopstr, -1));
+                MAX(pd->wmdn_len, g_utf8_strlen(winclient->wmdesktopstr, -1));
           }
         } else {
-          c->wmdesktopstr = g_strdup("");
-          pd->wmdn_len = MAX(pd->wmdn_len, g_utf8_strlen(c->wmdesktopstr, -1));
+          winclient->wmdesktopstr = g_strdup("");
+          pd->wmdn_len =
+              MAX(pd->wmdn_len, g_utf8_strlen(winclient->wmdesktopstr, -1));
         }
-        if (cd && c->wmdesktop != current_desktop) {
+        if (cd && winclient->wmdesktop != current_desktop) {
           continue;
         }
-        winlist_append(pd->ids, c->window, NULL);
+        winlist_append(pd->ids, winclient->window, NULL);
       }
     }
 

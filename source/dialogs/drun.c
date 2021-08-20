@@ -353,14 +353,14 @@ static void exec_cmd_entry(DRunModeEntry *e, const char *path) {
 
   if (e->key_file == NULL) {
     GKeyFile *kf = g_key_file_new();
-    GError *error = NULL;
-    gboolean res = g_key_file_load_from_file(kf, e->path, 0, &error);
+    GError *key_error = NULL;
+    gboolean res = g_key_file_load_from_file(kf, e->path, 0, &key_error);
     if (res) {
       e->key_file = kf;
     } else {
       g_warning("[%s] [%s] Failed to parse desktop file because: %s.",
-                e->app_id, e->path, error->message);
-      g_error_free(error);
+                e->app_id, e->path, key_error->message);
+      g_error_free(key_error);
       g_key_file_free(kf);
 
       return;
@@ -395,10 +395,10 @@ static void exec_cmd_entry(DRunModeEntry *e, const char *path) {
   gboolean terminal =
       g_key_file_get_boolean(e->key_file, e->action, "Terminal", NULL);
   if (helper_execute_command(exec_path, fp, terminal, sn ? &context : NULL)) {
-    char *path = g_build_filename(cache_dir, DRUN_CACHE_FILE, NULL);
+    char *drun_cach_path = g_build_filename(cache_dir, DRUN_CACHE_FILE, NULL);
     // Store it based on the unique identifiers (desktop_id).
-    history_set(path, e->desktop_id);
-    g_free(path);
+    history_set(drun_cach_path, e->desktop_id);
+    g_free(drun_cach_path);
   }
   g_free(wmclass);
   g_free(exec_path);
