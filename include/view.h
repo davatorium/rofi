@@ -295,7 +295,7 @@ void __create_window(MenuFlags menu_flags);
 xcb_window_t rofi_view_get_window(void);
 /** @} */
 
-/***
+/**
  * @defgroup ViewThreadPool ViewThreadPool
  * @ingroup View
  *
