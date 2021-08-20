@@ -1,0 +1,57 @@
+name: CI Build
+
+on:
+  push:
+    branches:
+      - next
+    paths-ignore:
+      - "**.md"
+      - "**.markdown"
+      - "**.rasi"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - "**.markdown"
+      - "**.rasi"
+
+jobs:
+  build-meson-gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/meson
+        with:
+          cc: gcc
+  build-meson-clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/meson
+        with:
+          cc: clang
+  build-autotools-gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/autotools
+        with:
+          cc: gcc
+  build-autotools-clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/autotools
+        with:
+          cc: clang

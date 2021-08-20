@@ -1,0 +1,32 @@
+name: Meson Build
+description: Builds Rofi using Meson
+
+inputs:
+  cc:
+    description: Compiler to use
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - id: pip
+      run: pip install meson ninja
+      shell: bash
+    - id: setup
+      run: meson setup builddir -Db_coverage=true
+      shell: bash
+      env:
+        CC: ${{ inputs.cc }}
+    - id: build
+      run: ninja -C builddir
+      shell: bash
+    - id: test
+      run: ninja -C builddir test
+      shell: bash
+    - id: doxy
+      run: ninja -C builddir doc/html 2>&1 > doxygen.log
+      shell: bash
+    - id: doxycheck
+      uses: ./.github/actions/doxycheck
+      with:
+        logfile: doxygen.log

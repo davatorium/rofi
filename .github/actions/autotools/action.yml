@@ -1,0 +1,32 @@
+name: Autotools Build
+description: Builds Rofi using Autotools
+
+inputs:
+  cc:
+    description: Compiler to use
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - id: setup
+      run: |
+        autoreconf --install
+
+        mkdir builddir && cd builddir
+
+        ../configure CC=${{ inputs.cc }}
+      shell: bash
+    - id: build
+      run: cd builddir && make
+      shell: bash
+    - id: test
+      run: cd builddir && make distcheck
+      shell: bash
+    - id: doxy
+      run: cd builddir && make doxy 2>&1 > doxygen.log
+      shell: bash
+    - id: doxycheck
+      uses: ./.github/actions/doxycheck
+      with:
+        logfile: builddir/doxygen.log
