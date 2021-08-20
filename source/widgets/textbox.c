@@ -407,7 +407,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     return;
   }
   textbox *tb = (textbox *)wid;
-  unsigned int offset = ((tb->flags & TB_INDICATOR) ? DOT_OFFSET : 0);
+  unsigned int dot_offset = ((tb->flags & TB_INDICATOR) ? DOT_OFFSET : 0);
 
   if (tb->changed) {
     __textbox_update_pango_text(tb);
@@ -429,7 +429,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   }
   y += top;
 
-  x += offset;
+  x += dot_offset;
 
   if (tb->xalign > 0.001) {
     int rem =

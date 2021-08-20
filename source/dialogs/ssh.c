@@ -201,20 +201,20 @@ static SshEntry *read_known_hosts_file(const char *path, SshEntry *retv,
         int port = 0;
         if (start[0] == '[') {
           start++;
-          char *end = strchr(start, ']');
-          if (end[1] == ':') {
-            *end = '\0';
+          char *strend = strchr(start, ']');
+          if (strend[1] == ':') {
+            *strend = '\0';
             errno = 0;
             gchar *endptr = NULL;
-            gint64 number = g_ascii_strtoll(&(end[2]), &endptr, 10);
+            gint64 number = g_ascii_strtoll(&(strend[2]), &endptr, 10);
             if (errno != 0) {
-              g_warning("Failed to parse port number: %s.", &(end[2]));
-            } else if (endptr == &(end[2])) {
+              g_warning("Failed to parse port number: %s.", &(strend[2]));
+            } else if (endptr == &(strend[2])) {
               g_warning("Failed to parse port number: %s, invalid number.",
-                        &(end[2]));
+                        &(strend[2]));
             } else if (number < 0 || number > 65535) {
               g_warning("Failed to parse port number: %s, out of range.",
-                        &(end[2]));
+                        &(strend[2]));
             } else {
               port = number;
             }
@@ -499,15 +499,16 @@ static SshEntry *get_ssh(SSHModePrivateData *pd, unsigned int *length) {
   parse_ssh_config_file(pd, path, &retv, length, num_favorites);
 
   if (config.parse_known_hosts == TRUE) {
-    char *path =
+    char *known_hosts_path =
         g_build_filename(g_get_home_dir(), ".ssh", "known_hosts", NULL);
-    retv = read_known_hosts_file(path, retv, length);
-    g_free(path);
+    retv = read_known_hosts_file(known_hosts_path, retv, length);
+    g_free(known_hosts_path);
     for (GList *iter = g_list_first(pd->user_known_hosts); iter;
          iter = g_list_next(iter)) {
-      char *path = rofi_expand_path((const char *)iter->data);
-      retv = read_known_hosts_file((const char *)path, retv, length);
-      g_free(path);
+      char *user_known_hosts_path = rofi_expand_path((const char *)iter->data);
+      retv = read_known_hosts_file((const char *)user_known_hosts_path, retv,
+                                   length);
+      g_free(user_known_hosts_path);
     }
   }
   if (config.parse_hosts == TRUE) {
