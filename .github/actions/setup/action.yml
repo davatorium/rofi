@@ -1,0 +1,56 @@
+name: CI Build Setup
+description: Sets up build dependencies
+
+runs:
+  using: composite
+  steps:
+    - id: python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - id: apt
+      run: |
+        sudo apt-get install -y \
+          discount \
+          doxygen \
+          fluxbox \
+          gdb \
+          graphviz \
+          jq \
+          lcov \
+          libpango1.0-dev \
+          libstartup-notification0-dev \
+          libxcb-ewmh-dev \
+          libxcb-icccm4-dev \
+          libxcb-randr0-dev \
+          libxcb-util0-dev \
+          libxcb-xinerama0-dev \
+          libxcb-xkb-dev \
+          libxcb-xrm-dev \
+          libxcb-cursor-dev \
+          libxkbcommon-dev \
+          libxkbcommon-dev \
+          libxkbcommon-x11-dev \
+          ninja-build \
+          python3-pip \
+          python3-setuptools \
+          python3-wheel \
+          texi2html \
+          texinfo \
+          xdotool \
+          xfonts-base \
+          xterm \
+          xutils-dev
+      shell: bash
+    - id: doxy
+      run: git clone https://github.com/alobbs/doxy-coverage
+      shell: bash
+    - id: check
+      run: |
+        curl -L https://github.com/libcheck/check/releases/download/0.14.0/check-0.14.0.tar.gz | tar xzf -
+        cd check-0.14.0
+        ./configure
+        make
+        sudo make install
+        sudo ldconfig
+      shell: bash
