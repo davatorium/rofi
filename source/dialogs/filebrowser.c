@@ -93,9 +93,15 @@ typedef struct {
   unsigned int array_length;
 } FileBrowserModePrivateData;
 
+/**
+ * The sorting settings used in file-browser.
+ */
 struct {
+  /** Field to sort on. */
   enum FBSortingMethod sorting_method;
+  /** If sorting on time, what time entry. */
   enum FBSortingTime sorting_time;
+  /** If we want to display directories above files. */
   gboolean directories_first;
 } file_browser_config = {
     .sorting_method = FB_SORT_NAME,

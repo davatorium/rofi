@@ -57,18 +57,33 @@
 
 #include "rofi-icon-fetcher.h"
 
+/** The filename of the history cache file. */
 #define DRUN_CACHE_FILE "rofi3.druncache"
+
+/** The filename of the drun quick-load cache file. */
 #define DRUN_DESKTOP_CACHE_FILE "rofi-drun-desktop.cache"
 
+/** The group name used in desktop files */
 char *DRUN_GROUP_NAME = "Desktop Entry";
 
+/**
+ *The Internal data structure for the drun mode.
+ */
 typedef struct _DRunModePrivateData DRunModePrivateData;
 
+/**
+ * Used to determine the type of desktop file.
+ */
 typedef enum {
+  /** Unknown. */
   DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED = 0,
+  /** Application */
   DRUN_DESKTOP_ENTRY_TYPE_APPLICATION,
+  /** Link */
   DRUN_DESKTOP_ENTRY_TYPE_LINK,
+  /** KDE Service File */
   DRUN_DESKTOP_ENTRY_TYPE_SERVICE,
+  /** Directory */
   DRUN_DESKTOP_ENTRY_TYPE_DIRECTORY,
 } DRunDesktopEntryType;
 
@@ -90,9 +105,9 @@ typedef struct {
   char *desktop_id;
   /* Icon stuff */
   char *icon_name;
-  /* Icon size is used to indicate what size is requested by the gui.
-   * secondary it indicates if the request for a lookup has been issued (0 not
-   * issued )
+  /* Icon size is used to indicate what size is requested by the
+   * gui. secondary it indicates if the request for a lookup has
+   * been issued (0 not issued )
    */
   int icon_size;
   /* Surface holding the icon. */
@@ -109,13 +124,13 @@ typedef struct {
   char **keywords;
   /* Comments */
   char *comment;
-
+  /* Underlying key-file. */
   GKeyFile *key_file;
-
+  /* Used for sorting. */
   gint sort_index;
-
+  /* UID for the icon to display */
   uint32_t icon_fetch_uid;
-
+  /* Type of desktop file */
   DRunDesktopEntryType type;
 } DRunModeEntry;
 
@@ -125,16 +140,26 @@ typedef struct {
   gboolean enabled_display;
 } DRunEntryField;
 
+/** The fields that can be displayed and used for matching */
 typedef enum {
+  /** Name */
   DRUN_MATCH_FIELD_NAME,
+  /** Generic Name */
   DRUN_MATCH_FIELD_GENERIC,
+  /** Exec */
   DRUN_MATCH_FIELD_EXEC,
+  /** List of categories */
   DRUN_MATCH_FIELD_CATEGORIES,
+  /** List of keywords */
   DRUN_MATCH_FIELD_KEYWORDS,
+  /** Comment */
   DRUN_MATCH_FIELD_COMMENT,
+  /** Number of DRunMatchingFields entries. */
   DRUN_MATCH_NUM_FIELDS,
 } DRunMatchingFields;
 
+/** Stores what fields should be matched on user input. based on user setting.
+ */
 static DRunEntryField matching_entry_fields[DRUN_MATCH_NUM_FIELDS] = {
     {
         .entry_field_name = "name",
@@ -802,6 +827,7 @@ static gint drun_int_sort_list(gconstpointer a, gconstpointer b,
  * Cache voodoo                            *
  *******************************************/
 
+/** Version of the DRUN cache file format. */
 #define CACHE_VERSION 2
 static void drun_write_str(FILE *fd, const char *str) {
   size_t l = (str == NULL ? 0 : strlen(str));
@@ -1441,6 +1467,7 @@ static char *drun_get_message(const Mode *sw) {
   return NULL;
 }
 #include "mode-private.h"
+/** The DRun Mode interface. */
 Mode drun_mode = {.name = "drun",
                   .cfg_name_key = "display-drun",
                   ._init = drun_mode_init,
