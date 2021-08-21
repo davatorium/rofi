@@ -579,16 +579,6 @@ TESTS+=theme_parser_test\
 	mode_test
 endif
 
-.PHONY: test-x
-test-x: $(bin_PROGRAMS)
-	MESON_SOURCE_ROOT="$(top_srcdir)" \
-	MESON_BUILD_ROOT="$(top_builddir)" \
-	$(top_srcdir)/test/run_all_tests.sh
-
-.PHONY: indent
-indent: $(SOURCES)
-	uncrustify -c $(top_srcdir)/data/uncrustify.cfg --replace $^
-
 .PHONY: cppcheck
 cppcheck: $(rofi_SOURCES)
 	cppcheck --std=c99 --platform=unix64 --enable=all -Uerror_dialog --inconclusive -I $(top_srcdir)/include/  $^
