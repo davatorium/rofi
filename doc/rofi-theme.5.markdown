@@ -695,6 +695,7 @@ The following properties are currently supported:
 * **text-color**:        the text color to use.
 * **highlight**:         text style {color}.
     color is optional, multiple highlight styles can be added like: bold underline italic #000000;
+    This option is only available on the `element-text` widget.
 * **width**:             override the desired width for the textbox.
 * **content**:           Set the displayed text (String).
 * **placeholder**:       Set the displayed text (String) when nothing is entered.
