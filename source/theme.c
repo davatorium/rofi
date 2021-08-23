@@ -1313,16 +1313,6 @@ gboolean rofi_theme_is_empty(void) {
   if (rofi_theme->properties == NULL && rofi_theme->num_widgets == 0) {
     return TRUE;
   }
-  if (rofi_theme->num_widgets == 3) {
-    // HACK: check for default added elements.
-    for (unsigned int i = 0; i < rofi_theme->num_widgets; i++) {
-      if (strncmp(rofi_theme->widgets[i]->name, "element", 7) != 0) {
-        return FALSE;
-      }
-    }
-    return TRUE;
-  }
-
   return FALSE;
 }
 
