@@ -326,6 +326,18 @@ message {
 
 * FIX: [Build] Fix CI.
 
+* FIX: [Theme] Discard old theme, when explicitly passing one on command line.
+
+In previous version there was a bug when passing `-theme` on commandline did not discard old theme.
+This caused problems loading themes (as it merged two themes instead of loading them).
+
+To get old behaviour on commandline do:
+
+```bash
+
+rofi -theme-str '@import "mytheme"' -show drun
+````
+
 * REMOVE: -dump-xresources
 * REMOVE: -fullscreen
 * REMOVE: -show-match
