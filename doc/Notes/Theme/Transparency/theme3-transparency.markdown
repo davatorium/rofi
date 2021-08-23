@@ -9,7 +9,7 @@ Remember the general widget structure:
 
 ![structure](structure.svg)
 
-This means if you set every widget to be 30% transparent on a black background: it will look like: 
+This means if you set every widget to be 30% transparent on a white background: it will look like: 
 
 ![images](rofi-transp.png)
 
@@ -31,7 +31,7 @@ Specify fully transparent background on the highest level.
 
 ```css
 * {
-    background:  rgba(0,0,0,0);
+    background:  transparent;
 }
 ```
 
@@ -70,7 +70,7 @@ background is white.)
 
 This tries to emulate a transparent window by taking a screenshot of the window
 before showing and then drawing everything on top of this. While this is not an
-idea solution (it won't update if something changes in the background) it is
+ideal solution (it won't update if something changes in the background) it is
 often a very usable facsimile.
 
 ![rofi fake](rofi-fake.png)
