@@ -841,7 +841,7 @@ int main(int argc, char *argv[]) {
                            "Pidfile location");
 
   /** default configuration */
-  {
+  if (find_arg("-no-default-config") < 0) {
     GBytes *theme_data = g_resource_lookup_data(
         resources_get_resource(), "/org/qtools/rofi/default_configuration.rasi",
         G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
@@ -985,30 +985,6 @@ int main(int argc, char *argv[]) {
     if (find_arg_str("-w", &windowid) == TRUE) {
       config.monitor = g_strdup_printf("wid:%s", windowid);
       windowid = config.monitor;
-    }
-  }
-  // Load default theme, if no theme was set and we don't have a current theme
-  // loaded.
-  if (config.theme == NULL && rofi_theme_is_empty()) {
-    GBytes *theme_data = g_resource_lookup_data(
-        resources_get_resource(), "/org/qtools/rofi/default.rasi",
-        G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
-    if (theme_data) {
-      const char *theme = g_bytes_get_data(theme_data, NULL);
-      if (rofi_theme_parse_string((const char *)theme)) {
-        g_warning("Failed to parse default theme. Giving up..");
-        if (list_of_error_msgs) {
-          for (GList *iter = g_list_first(list_of_error_msgs); iter != NULL;
-               iter = g_list_next(iter)) {
-            g_warning("Error: %s%s%s", color_bold, ((GString *)iter->data)->str,
-                      color_reset);
-          }
-        }
-        rofi_theme = NULL;
-        cleanup();
-        return EXIT_FAILURE;
-      }
-      g_bytes_unref(theme_data);
     }
   }
 

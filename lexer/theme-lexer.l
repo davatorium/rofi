@@ -34,8 +34,10 @@
 
 %{
 #include "config.h"
+#include "resources.h"
 #include <stdio.h>
 #include <glib.h>
+#include <gio/gio.h>
 #include <helper.h>
 #include <math.h>
 #include <strings.h>
@@ -56,6 +58,8 @@ typedef enum {
     PT_FILE,
     /** Parse a string */
     PT_STRING,
+    /** Parse a string */
+    PT_STRING_ALLOC,
     /** Parse environment */
     PT_ENV
 } ParseType;
@@ -75,6 +79,8 @@ typedef struct _ParseObject {
     int str_len;
     /** String */
     const char *input_str;
+    /** For where we need to free at end. (PT_STRING_ALLOC); */
+    char *malloc_str;
     /** Position in file */
     YYLTYPE  location;
 } ParseObject;
@@ -127,6 +133,7 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
                 break;\
             }\
             case PT_ENV:\
+            case PT_STRING_ALLOC:\
             case PT_STRING:\
             {\
                 yy_size_t len = MIN (max_size, current->str_len);\
@@ -273,6 +280,7 @@ C_COMMENT_OPEN "/*"
 
 INCLUDE    "@import"
 THEME "@theme"
+DEFAULT (?i:\"default\"?) 
 
 MEDIA "@media"
 
@@ -363,6 +371,26 @@ if ( queue == NULL ) {
 <INCLUDE>{WHITESPACE} {}
 
     /** Parse path. Last element in this INCLUDE */
+<INCLUDE>{DEFAULT} {
+    yytext[yyleng-1] = '\0';
+    /** Add Parse object */
+    GBytes *theme_data = g_resource_lookup_data( resources_get_resource(),
+    "/org/qtools/rofi/default.rasi", G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
+    if (theme_data) {
+      const char *theme = g_bytes_get_data(theme_data, NULL);
+      file_queue = g_queue_new ();
+      ParseObject *po = g_malloc0(sizeof(ParseObject));
+      po->type = PT_STRING_ALLOC;
+      po->malloc_str = g_strdup(theme);
+      po->input_str  = po->malloc_str;
+      po->str_len   = strlen(po->malloc_str);
+      current = po;
+      g_queue_push_head ( file_queue, po );
+      g_bytes_unref(theme_data);
+    }
+    // Pop out of include. */
+    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
+}
 <INCLUDE>{STRING} {
     yytext[yyleng-1] = '\0';
     ParseObject *top = g_queue_peek_head ( file_queue );
@@ -666,6 +694,9 @@ if ( queue == NULL ) {
         if ( po->type == PT_FILE ) {
             fclose ( po->filein );
         }
+        if ( po->type == PT_STRING_ALLOC ) {
+          g_free( po->malloc_str);
+        }
         g_free ( po );
     }
     po = g_queue_peek_head ( file_queue );
@@ -812,6 +843,9 @@ gboolean rofi_theme_parse_file ( const char *file )
             if ( po->type == PT_FILE ) {
                 fclose ( po->filein );
             }
+            if ( po->type == PT_STRING_ALLOC ) {
+                g_free( po->malloc_str);
+            }
             g_free ( po );
         }
     }
@@ -846,6 +880,9 @@ gboolean rofi_theme_parse_string ( const char *string )
         if ( po ) {
             if ( po->type == PT_FILE ) {
                 fclose ( po->filein );
+            }
+            if ( po->type == PT_STRING_ALLOC ) {
+              g_free( po->malloc_str);
             }
             g_free ( po );
         }

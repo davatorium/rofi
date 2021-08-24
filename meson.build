@@ -266,7 +266,6 @@ install_data(
     'themes/fancy.rasi',
     'themes/iggy.rasi',
     'themes/iggy.jpg',
-    'themes/default.rasi',
     install_dir: themedir
 )
 
@@ -312,6 +311,7 @@ test('widget test', executable('widget.test', [
         'test/widget-test.c',
         theme_parser,
         theme_lexer,
+        default_theme,
     ],
     objects: rofi.extract_objects([
         'source/widgets/widget.c',
@@ -329,6 +329,7 @@ test('box test', executable('box.test', [
         'test/box-test.c',
         theme_parser,
         theme_lexer,
+        default_theme,
     ],
     objects: rofi.extract_objects([
         'source/widgets/widget.c',
@@ -345,6 +346,7 @@ test('scrollbar test', executable('scrollbar.test', [
         'test/scrollbar-test.c',
         theme_parser,
         theme_lexer,
+        default_theme,
     ],
     objects: rofi.extract_objects([
         'source/widgets/widget.c',
@@ -361,6 +363,7 @@ test('textbox test', executable('textbox.test', [
         'test/textbox-test.c',
         theme_parser,
         theme_lexer,
+        default_theme,
     ],
     objects: rofi.extract_objects([
         'source/widgets/widget.c',
@@ -428,6 +431,7 @@ if check.found()
             'source/theme.c',
             'source/rofi-types.c',
             'source/css-colors.c',
+            'resources/resources.c',
         ]),
         dependencies: deps,
     ))

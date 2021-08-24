@@ -17,6 +17,31 @@ some of the more 'off-script' use of rofi.
 This release was made possible by many contributors, see below for a full list. Big thanks again to SardemFF7 and
 TonCherAmi.
 
+
+## Default theme loading
+
+In older version of **rofi** the default theme was (almost) always loaded based on some unclear rules, sometimes 
+some random patch code was loaded and sometimes no theme was loaded before loading another theme.
+
+The current version of rofi this is hopefully more logic.  It loads the default
+theme by default using the default configuration. (Can be disabled by `-no-default-config`).
+Using `-theme`, or `@theme` primitive will discard the theme completely.
+
+So the below css completely removes the default theme, and loads `iggy`.
+
+```css
+configuration {
+
+
+}
+
+@theme "iggy"
+
+element {
+    children: [element-icon, element-text];
+}
+```
+
 ## File Browser
 
 TonCherAmi made several very nice usability improvements to the file-browser. His changes allow you to define sorting
