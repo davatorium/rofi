@@ -238,7 +238,8 @@ theme_DATA=\
 		   themes/solarized_alternate.rasi\
 		   themes/fancy.rasi\
 		   themes/iggy.rasi\
-		   themes/iggy.jpg
+		   themes/iggy.jpg\
+			 themes/default.rasi
 
 ##
 # Extra DIST
@@ -255,7 +256,6 @@ EXTRA_DIST+=\
 	doc/rofi.doxy.in\
 	script/get_git_rev.sh\
 	$(theme_DATA)\
-	doc/default_theme.rasi\
 	doc/default_configuration.rasi\
 	Changelog
 ##

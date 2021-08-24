@@ -991,7 +991,7 @@ int main(int argc, char *argv[]) {
   // loaded.
   if (config.theme == NULL && rofi_theme_is_empty()) {
     GBytes *theme_data = g_resource_lookup_data(
-        resources_get_resource(), "/org/qtools/rofi/default_theme.rasi",
+        resources_get_resource(), "/org/qtools/rofi/default.rasi",
         G_RESOURCE_LOOKUP_FLAGS_NONE, NULL);
     if (theme_data) {
       const char *theme = g_bytes_get_data(theme_data, NULL);
