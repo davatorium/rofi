@@ -89,7 +89,7 @@ mostly useful when used fullscreen.
 ### Picture
 
 If instead of one of the above option, you specify a path to a png file this is
-used as background image. This can create 'fun' theme where you use paper as
+used as background image. This can create a theme where you use paper as
 background.
 
 ![rofi paper](rofi-paper.png)
