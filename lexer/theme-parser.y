@@ -30,7 +30,6 @@
 %locations
 %glr-parser
 %skeleton "glr.c"
-%debug
 %parse-param {const char *what}
 %code requires {
 #include "theme.h"
@@ -267,6 +266,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_MEDIA_SEP                      "-"
 
 %type <theme>          t_entry_list
+%type <theme>          t_entry_list_included
 %type <list>           t_entry_name_path
 %type <list>           t_entry_name_path_selectors
 %type <list>           t_color_list
@@ -307,12 +307,11 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
  * First have the configuration blocks, then the theme.
  */
 t_main
-: t_configuration_list t_entry_list {
+: t_configuration_list t_entry_list_included {
     // Dummy at this point.
     if ( rofi_theme == NULL ) {
       rofi_theme_reset();
     }
-
 
     rofi_theme_widget_add_properties ( rofi_theme, $2->properties );
     for ( unsigned int i = 0; i < $2->num_widgets; i++ ) {
@@ -340,16 +339,21 @@ t_name_prefix_optional
 | %empty {}
 ;
 
+t_entry_list_included:
+t_entry_list {
+  $$ =$1;
+}
+| t_entry_list_included T_RESET_THEME t_entry_list {
+    rofi_theme_reset();
+    rofi_theme_free($1);
+    $$ = $3;
+}
+
+
 t_entry_list:
   %empty {
     $$ = g_slice_new0 ( ThemeWidget );
   }
-| t_entry_list T_RESET_THEME {
-    rofi_theme_reset();
-    rofi_theme_free($1);
-    $$ = g_slice_new0 ( ThemeWidget );
-}
-
 |  t_entry_list t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
 {
     for ( GList *liter = g_list_first ( $3); liter; liter = g_list_next ( liter ) ) {
