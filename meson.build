@@ -266,6 +266,7 @@ install_data(
     'themes/fancy.rasi',
     'themes/iggy.rasi',
     'themes/iggy.jpg',
+    'themes/default.rasi',
     install_dir: themedir
 )
 
