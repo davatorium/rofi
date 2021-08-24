@@ -362,7 +362,6 @@ if ( queue == NULL ) {
     BEGIN(INCLUDE);
 }
 <INITIAL>{THEME} {
-    //rofi_theme_reset();
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(INCLUDE);
     return T_RESET_THEME;
