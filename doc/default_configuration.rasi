@@ -14,3 +14,5 @@ configuration {
         directories-first: true;
     }
 }
+
+@theme "default"

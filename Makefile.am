@@ -238,8 +238,7 @@ theme_DATA=\
 		   themes/solarized_alternate.rasi\
 		   themes/fancy.rasi\
 		   themes/iggy.rasi\
-		   themes/iggy.jpg\
-			 themes/default.rasi
+		   themes/iggy.jpg
 
 ##
 # Extra DIST
@@ -257,6 +256,7 @@ EXTRA_DIST+=\
 	script/get_git_rev.sh\
 	$(theme_DATA)\
 	doc/default_configuration.rasi\
+	doc/default_theme.rasi\
 	Changelog
 ##
 # Indent
@@ -328,6 +328,7 @@ textbox_test_CFLAGS=\
 	-I$(top_builddir)/lexer/\
 	-I$(top_srcdir)/lexer/\
 	-I$(top_srcdir)/config/\
+	-I$(top_builddir)/resources/\
 	-I$(top_builddir)/
 
 textbox_test_LDADD=\
@@ -368,7 +369,8 @@ widget_test_SOURCES=\
 			config/config.c\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
-			test/widget-test.c
+			test/widget-test.c\
+			resources/resources.c
 
 box_test_LDADD=$(textbox_test_LDADD)
 box_test_CFLAGS=$(textbox_test_CFLAGS)
@@ -384,6 +386,7 @@ box_test_SOURCES=\
 			include/theme.h\
 			include/css-colors.h\
 			config/config.c\
+			resources/resources.c\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -400,7 +403,8 @@ scrollbar_test_SOURCES=\
 			include/theme.h\
 			include/css-colors.h\
 			config/config.c\
-			test/scrollbar-test.c
+			test/scrollbar-test.c\
+			resources/resources.c
 
 textbox_test_SOURCES=\
 	source/widgets/widget.c\
@@ -424,6 +428,7 @@ textbox_test_SOURCES=\
 	include/xrmoptions.h\
 	include/helper.h\
 	include/helper-theme.h\
+  resources/resources.c\
 	test/textbox-test.c
 
 if USE_CHECK
@@ -448,6 +453,7 @@ theme_parser_test_SOURCES=\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	source/css-colors.c\
+	resources/resources.c\
 	test/theme-parser-test.c
 endif
 
@@ -481,6 +487,7 @@ helper_test_CFLAGS=\
 	-I$(top_builddir)/lexer/\
 	-I$(top_srcdir)/lexer/\
 	-I$(top_srcdir)/config/\
+	-I$(top_builddir)/resources/\
 	-I$(top_builddir)/
 
 helper_test_LDADD=\
