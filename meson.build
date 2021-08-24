@@ -423,6 +423,7 @@ if check.found()
             'test/theme-parser-test.c',
             theme_lexer,
             theme_parser,
+            default_theme,
         ],
         objects: rofi.extract_objects([
             'config/config.c',
@@ -431,7 +432,6 @@ if check.found()
             'source/theme.c',
             'source/rofi-types.c',
             'source/css-colors.c',
-            'resources/resources.c',
         ]),
         dependencies: deps,
     ))
