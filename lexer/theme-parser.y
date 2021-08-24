@@ -344,6 +344,7 @@ t_entry_list {
   $$ =$1;
 }
 | t_entry_list_included T_RESET_THEME t_entry_list {
+
     rofi_theme_reset();
     rofi_theme_free($1);
     $$ = $3;
