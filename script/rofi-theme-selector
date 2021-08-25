@@ -138,7 +138,9 @@ select_theme()
         local MESG="""You can preview themes by hitting <b>Enter</b>.
 <b>Alt-a</b> to accept the new theme.
 <b>Escape</b> to cancel
-Current theme: <b>${CUR}</b>"""
+Current theme: <b>${CUR}</b>
+<span weight=\"bold\" size=\"xx-small\">When setting a new theme this will override previous theme settings.
+Please update your config file if you have local modifications.</span>"""
         THEME_FLAG=
         if [ -n "${SELECTED}" ]
         then
@@ -173,8 +175,8 @@ set_theme()
         mkdir -p "${CDIR}"
     fi
     get_link=$(readlink -f "${CDIR}/config.rasi")
-    ${SED} -i "/@import.*/d" "${get_link}"
-    echo "@import \"${1}\"" >> "${get_link}"
+    ${SED} -i "/@theme.*/d" "${get_link}"
+    echo "@theme \"${1}\"" >> "${get_link}"
 }
 
 ############################################################################################################
