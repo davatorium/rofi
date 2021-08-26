@@ -755,7 +755,7 @@ static int rofi_theme_get_position_inside(Property *p, const widget *widget,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_POSITION, property, FALSE);
-        return rofi_theme_get_position_inside(pv, widget, property, def);
+        return rofi_theme_get_position_inside(pv, widget->parent, property, def);
       }
       return def;
     }
@@ -780,7 +780,7 @@ static int rofi_theme_get_integer_inside(Property *p, const widget *widget,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_INTEGER, property, FALSE);
-        return rofi_theme_get_integer_inside(pv, widget, property, def);
+        return rofi_theme_get_integer_inside(pv, widget->parent, property, def);
       }
       return def;
     }
@@ -843,7 +843,7 @@ static int rofi_theme_get_boolean_inside(Property *p, const widget *widget,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_BOOLEAN, property, FALSE);
-        return rofi_theme_get_boolean_inside(pv, widget, property, def);
+        return rofi_theme_get_boolean_inside(pv, widget->parent, property, def);
       }
       return def;
     }
@@ -871,7 +871,7 @@ static RofiOrientation rofi_theme_get_orientation_inside(Property *p,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_ORIENTATION, property, FALSE);
-        return rofi_theme_get_orientation_inside(pv, widget, property, def);
+        return rofi_theme_get_orientation_inside(pv, widget->parent, property, def);
       }
       return def;
     }
@@ -900,7 +900,7 @@ static RofiCursorType rofi_theme_get_cursor_type_inside(Property *p,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_CURSOR, property, FALSE);
-        return rofi_theme_get_cursor_type_inside(pv, widget, property, def);
+        return rofi_theme_get_cursor_type_inside(pv, widget->parent, property, def);
       }
       return def;
     }
@@ -928,7 +928,7 @@ static const char *rofi_theme_get_string_inside(Property *p,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_STRING, property, FALSE);
-        return rofi_theme_get_string_inside(pv, widget, property, def);
+        return rofi_theme_get_string_inside(pv, widget->parent, property, def);
       }
       return def;
     }
@@ -944,7 +944,7 @@ const char *rofi_theme_get_string(const widget *widget, const char *property,
   Property *p = rofi_theme_find_property(wid, P_STRING, property, FALSE);
   return rofi_theme_get_string_inside(p, widget, property, def);
 }
-static double rofi_theme_get_double_inside(ThemeWidget *wid, Property *p,
+static double rofi_theme_get_double_inside(Property *p,
                                            const widget *widget,
                                            const char *property, double def) {
   if (p) {
@@ -954,37 +954,23 @@ static double rofi_theme_get_double_inside(ThemeWidget *wid, Property *p,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_DOUBLE, property, FALSE);
-        return rofi_theme_get_double_inside(parent, pv, widget, property, def);
+        return rofi_theme_get_double_inside(pv, widget, property, def);
       }
       return def;
     }
     return p->value.f;
   }
+  ThemeWidget *wid =
+	  rofi_theme_find_widget(widget->name, widget->state, FALSE);
   // Fallback to integer if double is not found.
   p = rofi_theme_find_property(wid, P_INTEGER, property, FALSE);
-  if (p) {
-    if (p->type == P_INHERIT) {
-      if (widget->parent) {
-        ThemeWidget *parent =
-            rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
-        Property *pv =
-            rofi_theme_find_property(parent, P_INTEGER, property, FALSE);
-        return rofi_theme_get_double_inside(parent, pv, widget->parent,
-                                            property, def);
-      }
-      return def;
-    }
-    return (double)p->value.i;
-  }
-  g_debug("Theme entry: #%s %s property %s unset.", widget->name,
-          widget->state ? widget->state : "", property);
-  return def;
+  return rofi_theme_get_integer_inside(p, widget, property, def);
 }
 double rofi_theme_get_double(const widget *widget, const char *property,
                              double def) {
   ThemeWidget *wid = rofi_theme_find_widget(widget->name, widget->state, FALSE);
   Property *p = rofi_theme_find_property(wid, P_DOUBLE, property, FALSE);
-  return rofi_theme_get_double_inside(wid, p, widget, property, def);
+  return rofi_theme_get_double_inside(p, widget, property, def);
 }
 static void rofi_theme_get_color_inside(const widget *widget, Property *p,
                                         const char *property, cairo_t *d) {
@@ -995,7 +981,7 @@ static void rofi_theme_get_color_inside(const widget *widget, Property *p,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_COLOR, property, FALSE);
-        rofi_theme_get_color_inside(widget, pv, property, d);
+        rofi_theme_get_color_inside(widget->parent, pv, property, d);
       }
       return;
     }
@@ -1023,7 +1009,7 @@ static gboolean rofi_theme_get_image_inside(Property *p, const widget *widget,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_IMAGE, property, FALSE);
-        return rofi_theme_get_image_inside(pv, widget, property, d);
+        return rofi_theme_get_image_inside(pv, widget->parent, property, d);
       }
       return FALSE;
     }
@@ -1135,7 +1121,7 @@ static RofiPadding rofi_theme_get_padding_inside(Property *p,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_PADDING, property, FALSE);
-        return rofi_theme_get_padding_inside(pv, widget, property, pad);
+        return rofi_theme_get_padding_inside(pv, widget->parent, property, pad);
       }
       return pad;
     }
@@ -1170,7 +1156,7 @@ static GList *rofi_theme_get_list_inside(Property *p, const widget *widget,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_LIST, property, FALSE);
-        return rofi_theme_get_list_inside(pv, widget, property, defaults);
+        return rofi_theme_get_list_inside(pv, widget->parent, property, defaults);
       }
     } else if (p->type == P_LIST) {
       return g_list_copy_deep(p->value.list, rofi_g_list_strdup, NULL);
@@ -1497,7 +1483,7 @@ static gboolean rofi_theme_has_property_inside(Property *p,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pp =
             rofi_theme_find_property(parent, P_STRING, property, FALSE);
-        return rofi_theme_has_property_inside(pp, widget, property);
+        return rofi_theme_has_property_inside(pp, widget->parent, property);
       }
       return FALSE;
     }
