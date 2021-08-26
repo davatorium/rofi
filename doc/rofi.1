@@ -1,3 +1,4 @@
+.nh
 .TH ROFI 1 rofi
 .SH NAME
 .PP
@@ -45,8 +46,8 @@ The website for \fB\fCdmenu\fR can be found here
 \[la]http://tools.suckless.org/dmenu/\[ra]\&.
 
 .PP
-\fBrofi\fP does not aim to be 100% compatible with \fB\fCdmenu\fR\&. There are simply too many different flavors of \fB\fCdmenu\fR\&.
-The idea is that the basic usage command\-line flags are obeyed, theme\-related flags are not.
+\fBrofi\fP does not aim to be 100% compatible with \fB\fCdmenu\fR\&. There are simply too many flavors of \fB\fCdmenu\fR\&.
+The idea is that the basic usage command\-\&line flags are obeyed, theme\-\&related flags are not.
 Besides, \fBrofi\fP offers some extended features (like multi\-select, highlighting, message bar, extra key bindings).
 
 .SS Display Error message
@@ -72,7 +73,7 @@ There are currently three methods of setting configuration options (evaluated in
 .RS
 .IP \(bu 2
 System configuration file  (for example \fB\fC/etc/rofi.rasi\fR).
-It first checks XDG\_CONFIG\_DIRS  and then SYSCONFDIR (that is passed at compile time).
+It first checks \fB\fCXDG\_CONFIG\_DIRS\fR, and then \fB\fCSYSCONFDIR\fR (that is passed at compile time).
 It loads the first config file it finds, it does not merge multiple system configuration files.
 .IP \(bu 2
 Rasi theme file: The new \fItheme\fP format can be used to set configuration values.
@@ -82,7 +83,7 @@ Command\-line options: Arguments passed to \fBrofi\fP\&.
 .RE
 
 .PP
-To get a template config file run: \fB\fCrofi \-dump\-config > config.rasi\fR
+To get a template config file, run: \fB\fCrofi \-dump\-config > config.rasi\fR
 
 .PP
 This will contain (commented) all current configuration options, modified options are uncommented.
@@ -105,10 +106,10 @@ lists
 .RE
 
 .PP
-For the syntax of these options see the \fBrofi\-theme(5)\fP manpage.
+For the syntax of these options, see the \fBrofi\-theme(5)\fP manpage.
 
 .PP
-For use on the commandline, Boolean options have a non\-default command\-line
+For use on the command line, Boolean options have a non\-default command\-line
 syntax. Example to enable option X:
 
 .PP
@@ -180,11 +181,7 @@ Specify the number of threads \fBrofi\fP should use:
 .IP \(bu 2
 1: Disable threading
 .IP \(bu 2
-
-.PP
-2..N: Specify the maximum number of threads to use in the thread pool.
-.PP
-Default:  Autodetect
+2..n: Specify the maximum number of threads to use in the thread pool.Default:  Autodetect
 
 .RE
 
@@ -289,8 +286,8 @@ rofi \-modi "window,run,ssh,Workspaces:i3\_switch\_workspaces.sh" \-show Workspa
 .RE
 
 .PP
-Notes: The i3 window manager does not like commas in the command when specifying an exec command.
-For that case '#' can be used as an separator.
+Notes: The i3 window manager dislikes commas in the command when specifying an exec command.
+For that case, \fB\fC#\fR can be used as a separator.
 
 .PP
 \fBTIP\fP: The name is allowed to contain spaces:
@@ -308,7 +305,7 @@ rofi \-modi "My File Browser:fb.sh" \-show "My File Browser"
 \fB\fC\-case\-sensitive\fR
 
 .PP
-Start in case sensitive mode.
+Start in case\-sensitive mode.
 This option can be changed at run\-time using the \fB\fC\-kb\-toggle\-case\-sensitivity\fR key binding.
 
 .PP
@@ -345,9 +342,9 @@ Select the scrolling method. 0: Per page, 1: continuous.
 \fB\fC\-normalize\-match\fR
 
 .PP
-Normalize the string before matching, so o will match ö, and é matches e.
-This is not a perfect implementation, but works.
-For now it disabled highlighting of the matched part.
+Normalize the string before matching, so \fB\fCo\fR will match \fB\fCö\fR, and \fB\fCé\fR matches \fB\fCe\fR\&.
+.br
+This is not a perfect implementation, but works. For now, it disables highlighting of the matched part.
 
 .PP
 \fB\fC\-no\-lazy\-grab\fR
@@ -411,7 +408,7 @@ Make rofi steal focus on launch and restore close to window that held it when la
 
 .PP
 Specify the matching algorithm used.
-Current the following methods are supported.
+Currently, the following methods are supported:
 
 .RS
 .IP \(bu 2
@@ -464,11 +461,7 @@ The different fields are:
 .IP \(bu 2
 \fBcomment\fP: the application comment
 .IP \(bu 2
-
-.PP
-\fBall\fP: all of the above
-.PP
-Default: \fIname,generic,exec,categories,keywords\fP
+\fBall\fP: all the aboveDefault: \fIname,generic,exec,categories,keywords\fP
 
 .RE
 
@@ -541,11 +534,7 @@ The different fields are:
 .IP \(bu 2
 \fBdesktop\fP: window's current desktop
 .IP \(bu 2
-
-.PP
-\fBall\fP: all of the above
-.PP
-Default: \fIall\fP
+\fBall\fP: all the aboveDefault: \fIall\fP
 
 .RE
 
@@ -553,7 +542,7 @@ Default: \fIall\fP
 \fB\fC\-matching\-negate\-char\fR \fIchar\fP
 
 .PP
-Set the character used to negate the query (i.e. if it does \fBnot\fP match the next keyword ).
+Set the character used to negate the query (i.e. if it does \fBnot\fP match the next keyword).
 Set to '\\x0' to disable.
 
 .PP
@@ -569,8 +558,8 @@ Default: '\-'
 .PP
 \fBIMPORTANT:\fP
   In newer \fBrofi\fP releases, all the theming options have been moved into the new theme format. They are no longer normal
-  \fBrofi\fP options that can be passed directly on the commandline (there are too many).
-  Small snippets can be passed on the commandline: \fB\fCrofi \-theme\-str 'window {width: 50%;}'\fR to override a single
+  \fBrofi\fP options that can be passed directly on the command line (there are too many).
+  Small snippets can be passed on the command line: \fB\fCrofi \-theme\-str 'window {width: 50%;}'\fR to override a single
   setting. They are merged into the current theme.
   They can also be appended at the end of the \fBrofi\fP config file to override parts of the theme.
 
@@ -608,7 +597,7 @@ Keep a fixed number of visible lines (See the \fB\fC\-lines\fR option.)
 \fB\fC\-sidebar\-mode\fR
 
 .PP
-Open in sidebar\-mode. In this mode a list of all enabled modes is shown at the bottom.
+Open in sidebar\-mode. In this mode, a list of all enabled modes is shown at the bottom.
 (See \fB\fC\-modi\fR option)
 To show sidebar, use:
 
@@ -673,16 +662,12 @@ detection). Negative numbers are handled differently:
 .IP \(bu 2
 \fB\-2\fP: the currently focused window (that is, \fBrofi\fP will be displayed on top of the focused window).
 .IP \(bu 2
-\fB\-3\fP: Position at mouse (overrides the location setting to get normal context menu
+\fB\-3\fP: Position of mouse (overrides the location setting to get normal context menu
 behavior.)
 .IP \(bu 2
 \fB\-4\fP: the monitor with the focused window.
 .IP \(bu 2
-
-.PP
-\fB\-5\fP: the monitor that shows the mouse pointer.
-.PP
-Default: \fI\-5\fP
+\fB\-5\fP: the monitor that shows the mouse pointer.Default: \fI\-5\fP
 
 .RE
 
@@ -715,7 +700,7 @@ rofi \-theme\-str '#window { fullscreen: true; }'
 
 .PP
 This option can be specified multiple times.
-This is now the method to tweak the theme via the commandline.
+This is now the method to tweak the theme via the command line.
 
 .PP
 \fB\fC\-dpi\fR  \fInumber\fP
@@ -779,7 +764,7 @@ Default: \fIssh\fP
 \fB\fC\-ssh\-command\fR \fIcmd\fP
 
 .PP
-Set the command to execute when starting a ssh session.
+Set the command to execute when starting an ssh session.
 The pattern \fI{host}\fP is replaced by the selected ssh entry.
 
 .PP
@@ -832,7 +817,7 @@ Default: \fI{terminal} \-e {cmd}\fP
 \fB\fC\-run\-list\-command\fR \fIcmd\fP
 
 .PP
-If set, use an external tool to generate list of executable commands. Uses \fB\fCrun\-command\fR\&.
+If set, use an external tool to generate a list of executable commands. Uses \fB\fCrun\-command\fR\&.
 
 .PP
 Default: \fI{cmd}\fP
@@ -866,7 +851,8 @@ Format what is being displayed for windows.
 
 .PP
 \fIlen\fP: maximum field length (0 for auto\-size). If length and window \fIwidth\fP are negative, field length is \fIwidth \- len\fP\&.
-if length is positive, the entry will be truncated or padded to fill that length.
+.br
+If length is positive, the entry will be truncated or padded to fill that length.
 
 .PP
 default: {w}  {c}   {t}
@@ -875,7 +861,7 @@ default: {w}  {c}   {t}
 \fB\fC\-window\-command\fR \fIcmd\fP
 
 .PP
-Set command to execute on selected window for a alt action (\fB\fC\-kb\-accept\-alt\fR).
+Set command to execute on selected window for an alt action (\fB\fC\-kb\-accept\-alt\fR).
 See \fIPATTERN\fP\&.
 
 .PP
@@ -922,8 +908,8 @@ rofi \-show combi \-combi\-modi "window,run,ssh" \-modi combi
 .RE
 
 .PP
-\fBNOTE\fP: The i3 window manager does not like commas in the command when specifying an exec command.
-For that case '#' can be used as a separator.
+\fBNOTE\fP: The i3 window manager dislikes commas in the command when specifying an exec command.
+For that case, \fB\fC#\fR can be used as a separator.
 
 .SS History and Sorting
 .PP
@@ -945,7 +931,7 @@ This setting can be changed at runtime (see \fB\fC\-kb\-toggle\-sort\fR).
 \fB\fC\-sorting\-method\fR 'method' to specify the sorting method.
 
 .PP
-There are 2 sorting method:
+There are 2 sorting methods:
 
 .RS
 .IP \(bu 2
@@ -1098,7 +1084,7 @@ Select first line that matches the given string
 
 .PP
 Add a message line below the filter entry box. Supports Pango markup.
-For more information on supported markup see here
+For more information on supported markup, see here
 \[la]https://developer.gnome.org/pygtk/stable/pango-markup-language.html\[ra]
 
 .PP
@@ -1171,7 +1157,7 @@ Position \fBrofi\fP over the window with the given X11 window ID.
 \fB\fC\-keep\-right\fR
 
 .PP
-Set ellipsize mode to start. So end of string is visible.
+Set ellipsize mode to start. So, the end of the string is visible.
 
 .SS Message dialog
 .PP
@@ -1179,7 +1165,7 @@ Set ellipsize mode to start. So end of string is visible.
 
 .PP
 Pops up a message dialog (used internally for showing errors) with \fImessage\fP\&.
-Message can be multi\-line.
+Message can be multi\-\&line.
 
 .SS File browser settings
 .PP
@@ -1261,7 +1247,7 @@ configuration {
 \fB\fC\-no\-click\-to\-exit\fR
 
 .PP
-Click the mouse outside of the \fBrofi\fP window to exit.
+Click the mouse outside the \fBrofi\fP window to exit.
 
 .PP
 Default: \fIenabled\fP
@@ -1287,7 +1273,7 @@ To launch commands (for example, when using the ssh launcher), the user can ente
 .SH DMENU REPLACEMENT
 .PP
 If \fB\fCargv[0]\fR (calling command) is dmenu, \fBrofi\fP will start in dmenu mode.
-This way it can be used as a drop\-in replacement for dmenu. Just copy or symlink \fBrofi\fP to dmenu in \fB\fC$PATH\fR\&.
+This way, it can be used as a drop\-in replacement for dmenu. Just copy or symlink \fBrofi\fP to dmenu in \fB\fC$PATH\fR\&.
 
 .PP
 .RS
@@ -1379,7 +1365,7 @@ Please see \fBrofi\-theme(5)\fP manpage for more information on theming.
 .RE
 
 .PP
-To get a full list of key bindings on the commandline, see \fB\fCrofi \-h\fR\&.
+To get a full list of key bindings on the command line, see \fB\fCrofi \-h\fR\&.
 The options starting with \fB\fC\-kb\fR are keybindings.
 Key bindings can be modified using the configuration systems.
 To get a searchable list of key bindings, run \fB\fCrofi \-show keys\fR\&.
@@ -1432,11 +1418,11 @@ When pressing the \fB\fCmode\-complete\fR binding (\fB\fCControl\-l\fR), you can
 passing a file as argument if specified in the desktop file.
 
 .PP
-The DRUN mode tries to follows the XDG Desktop Entry
+The DRUN mode tries to follow the XDG Desktop Entry
 Specification
 \[la]https://freedesktop.org/wiki/Specifications/desktop-entry-spec/\[ra] and should be compatible with
-applications using this standard.  Some application create invalid desktop files, \fBrofi\fP will discard these entries.
-See de debugging section how to get more information from the DRUN mode, this will print why desktop files are
+applications using this standard.  Some applications create invalid desktop files, \fBrofi\fP will discard these entries.
+See the debugging section for more info on DRUN mode, this will print why desktop files are
 discarded.
 
 .PP
@@ -1660,14 +1646,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 \fBrofi\fP support can be obtained:
  * GitHub Discussions
 \[la]https://github.com/davatorium/rofi/discussions\[ra]
- * Forum (reddit)
+ * Forum (Reddit)
 \[la]https://reddit.com/r/qtools//\[ra]
  * IRC
 \[la]irc://irc.libera.chat:6697/#rofi\[ra] (#rofi on irc.libera.chat),
 
 .SH DEBUGGING
 .PP
-To debug it is smart to first try disabling your custom configuration:
+To debug, it is smart to first try disabling your custom configuration:
 \fB\fC\-no\-config\fR
 
 .PP
@@ -1685,7 +1671,7 @@ Disables the loading of plugins.
 .PP
 To further debug the plugin, you can get a trace with (lots of) debug information.  This debug output can be enabled for
 multiple parts in rofi using the glib debug framework. Debug domains can be enabled by setting the G\_MESSAGES\_DEBUG
-environment variable. At creation of this page the following debug domains exists:
+environment variable. At the time of creation of this page, the following debug domains exist:
 
 .RS
 .IP \(bu 2
@@ -1734,7 +1720,7 @@ The output of this can provide useful information when writing an issue.
 
 .PP
 More information (possibly outdated) see this
-\[la]https://github.com/DaveDavenport/rofi/wiki/Debugging Rofi\[ra] wiki entry.
+\[la]https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi\[ra] wiki entry.
 
 .SH ISSUE TRACKER
 .PP
@@ -1753,21 +1739,21 @@ first.
 .SH AUTHOR
 .RS
 .IP \(bu 2
-Qball Cow 
-\[la]qball@blame.services\[ra]
+Qball Cow qball@blame.services
+\[la]mailto:qball@blame.services\[ra]
 .IP \(bu 2
-Rasmus Steinke 
-\[la]rasi@xssn.at\[ra]
+Rasmus Steinke rasi@xssn.at
+\[la]mailto:rasi@xssn.at\[ra]
 .IP \(bu 2
-Quentin Glidic 
-\[la]sardemff7+rofi@sardemff7.net\[ra]
+Quentin Glidic sardemff7+rofi@sardemff7.net
+\[la]mailto:sardemff7+rofi@sardemff7.net\[ra]
 
 .RE
 
 .PP
 Original code based on work by: Sean Pringle
-\[la]https://github.com/seanpringle/simpleswitcher\[ra] 
-\[la]sean.pringle@gmail.com\[ra]
+\[la]https://github.com/seanpringle/simpleswitcher\[ra] sean.pringle@gmail.com
+\[la]mailto:sean.pringle@gmail.com\[ra]
 
 .PP
 For a full list of authors, check the \fB\fCAUTHORS\fR file.
