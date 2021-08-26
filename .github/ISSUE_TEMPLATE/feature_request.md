@@ -11,6 +11,10 @@ First read the [guidelines](https://github.com/DaveDavenport/rofi/blob/next/.git
 This is not optional for any report/question. People must be able to understand the full context of the report when reading it, at any time.
 If you feel like you “just have a simple question”, please consider you’re wrong and still fill the full report.
 Any report missing these informations will be labeled as “Incomplete Report - Please follow the guidelines” and may not be answered in a timely fashion.
+
+If you are unsure, please use the
+[discussion](https://github.com/davatorium/rofi/discussions) forum first. It is
+easy to upgrade a question to a feature request in github.
 :exclamation:
 
 ## Before creating a feature request
