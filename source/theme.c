@@ -944,7 +944,7 @@ const char *rofi_theme_get_string(const widget *widget, const char *property,
   Property *p = rofi_theme_find_property(wid, P_STRING, property, FALSE);
   return rofi_theme_get_string_inside(p, widget, property, def);
 }
-static double rofi_theme_get_double_inside(Property *p,
+static double rofi_theme_get_double_inside(const widget *orig, Property *p,
                                            const widget *widget,
                                            const char *property, double def) {
   if (p) {
@@ -954,14 +954,14 @@ static double rofi_theme_get_double_inside(Property *p,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_DOUBLE, property, FALSE);
-        return rofi_theme_get_double_inside(pv, widget, property, def);
+        return rofi_theme_get_double_inside(orig, pv, widget, property, def);
       }
       return def;
     }
     return p->value.f;
   }
   ThemeWidget *wid =
-	  rofi_theme_find_widget(widget->name, widget->state, FALSE);
+	  rofi_theme_find_widget(orig->name, widget->state, FALSE);
   // Fallback to integer if double is not found.
   p = rofi_theme_find_property(wid, P_INTEGER, property, FALSE);
   return rofi_theme_get_integer_inside(p, widget, property, def);
@@ -970,7 +970,7 @@ double rofi_theme_get_double(const widget *widget, const char *property,
                              double def) {
   ThemeWidget *wid = rofi_theme_find_widget(widget->name, widget->state, FALSE);
   Property *p = rofi_theme_find_property(wid, P_DOUBLE, property, FALSE);
-  return rofi_theme_get_double_inside(p, widget, property, def);
+  return rofi_theme_get_double_inside(widget, p, widget, property, def);
 }
 static void rofi_theme_get_color_inside(const widget *widget, Property *p,
                                         const char *property, cairo_t *d) {
