@@ -793,44 +793,47 @@ Please see **rofi-theme(5)** manpage for more information on theming.
 
 **rofi** has the following key bindings:
 
-  * `Ctrl-v, Insert`: Paste from clipboard
-  * `Ctrl-Shift-v, Shift-Insert`: Paste primary selection
-  * `Ctrl-u`: Clear the line
-  * `Ctrl-a`: Beginning of line
-  * `Ctrl-e`: End of line
-  * `Ctrl-f, Right`: Forward one character
-  * `Alt-f, Ctrl-Right`: Forward one word
-  * `Ctrl-b, Left`: Back one character
-  * `Alt-b, Ctrl-Left`: Back one word
-  * `Ctrl-d, Delete`: Delete character
-  * `Ctrl-Alt-d`: Delete word
-  * `Ctrl-h, Backspace, Shift-Backspace`: Backspace (delete previous character)
-  * `Ctrl-Alt-h`: Delete previous word
-  * `Ctrl-j,Ctrl-m,Enter`: Accept entry
-  * `Ctrl-n,Down`: Select next entry
-  * `Ctrl-p,Up`: Select previous entry
+  * `Control-v, Insert`: Paste from clipboard
+  * `Control-Shift-v, Shift-Insert`: Paste primary selection
+  * `Control-u`: Clear the line
+  * `Control-a`: Beginning of line
+  * `Control-e`: End of line
+  * `Control-f, Right`: Forward one character
+  * `Alt-f, Control-Right`: Forward one word
+  * `Control-b, Left`: Back one character
+  * `Alt-b, Control-Left`: Back one word
+  * `Control-d, Delete`: Delete character
+  * `Control-Alt-d`: Delete word
+  * `Control-h, Backspace, Shift-Backspace`: Backspace (delete previous character)
+  * `Control-Alt-h`: Delete previous word
+  * `Control-j,Control-m,Enter`: Accept entry
+  * `Control-n,Down`: Select next entry
+  * `Control-p,Up`: Select previous entry
   * `Page Up`: Go to previous page
   * `Page Down`: Go to next page
-  * `Ctrl-Page Up`: Go to previous column
-  * `Ctrl-Page Down`: Go to next column
-  * `Ctrl-Enter`: Use entered text as a command (in `ssh/run modi`)
+  * `Control-Page Up`: Go to previous column
+  * `Control-Page Down`: Go to next column
+  * `Control-Enter`: Use entered text as a command (in `ssh/run modi`)
   * `Shift-Enter`: Launch the application in a terminal (in run mode)
-  * `Ctrl-Shift-Enter`: As Ctrl-Enter and run the command in terminal (in run mode)
+  * `Control-Shift-Enter`: As Control-Enter and run the command in terminal (in run mode)
   * `Shift-Enter`: Return the selected entry and move to the next item while keeping **rofi** open. (in dmenu)
-  * `Shift-Right`: Switch to the next mode. The list can be customized with the `-switchers` argument.
-  * `Shift-Left`: Switch to the previous mode. The list can be customized with the `-switchers` argument.
-  * `Ctrl-Tab`: Switch to the next mode. The list can be customized with the `-switchers` argument.
-  * `Ctrl-Shift-Tab`: Switch to the previous mode. The list can be customized with the `-switchers` argument.
-  * `Ctrl-space`: Set selected item as input text.
+  * `Shift-Right`: Switch to the next mode. The list can be customized with the `-modi` argument.
+  * `Shift-Left`: Switch to the previous mode. The list can be customized with the `-modi` argument.
+  * `Control-Tab`: Switch to the next mode. The list can be customized with the `-modi` argument.
+  * `Control-Shift-Tab`: Switch to the previous mode. The list can be customized with the `-modi` argument.
+  * `Control-space`: Set selected item as input text.
   * `Shift-Del`: Delete entry from history.
   * `grave`: Toggle case sensitivity.
   * `Alt-grave`: Toggle sorting.
   * `Alt-Shift-S`: Take a screenshot and store it in the Pictures directory.
-  * `Ctrl-l`: File complete for run dialog.
+  * `Control-l`: File complete for run dialog.
 
-To get a full list of key bindings on the command line, see `rofi -h`.
-The options starting with `-kb` are keybindings.
-Key bindings can be modified using the configuration systems.
+This list might not be complete, to get a full list of all key bindings
+supported in your rofi, see `rofi -h`. The options starting with `-kb` are keybindings.
+
+Key bindings can be modified using the configuration systems. Multiple keys can be bound
+to one action by comma separating them. For example `-kb-primary-paste "Conctrol+v,Insert"`
+
 To get a searchable list of key bindings, run `rofi -show keys`.
 
 A key binding starting with `!` will act when all keys have been released.
