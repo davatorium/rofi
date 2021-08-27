@@ -1,4 +1,3 @@
-.nh
 .TH ROFI\-THEME 5 rofi\-theme
 .SH NAME
 .PP
@@ -96,7 +95,7 @@ abbreviation for \fBr\fPofi \fBa\fPdvanced \fBs\fPtyle \fBi\fPnformation.
 .SH Basic Structure
 .PP
 Each element has a section with defined properties. Global properties can be defined in section \fB\fC* { }\fR\&.
-Sub\-\&section names begin with a hash symbol \fB\fC#\fR\&.
+Sub\-section names begin with a hash symbol \fB\fC#\fR\&.
 
 .PP
 It is advised to define the \fIglobal properties section\fP on top of the file to
@@ -453,7 +452,11 @@ The different values are:
 .IP \(bu 2
 \fB\fC{PERCENTAGE}\fR can be between 0\-1.0, or 0%\-100%
 .IP \(bu 2
-\fB\fC{named\-color}\fR is one of the following colors:AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
+
+.PP
+\fB\fC{named\-color}\fR is one of the following colors:
+.PP
+AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
 BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan,
 DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki, DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed,
 DarkSalmon, DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise, DarkViolet, DeepPink, DeepSkyBlue,
@@ -685,7 +688,6 @@ style property.
 
 .PP
 When no unit is specified, pixels are assumed.
-
 .RE
 
 .SH Position
@@ -694,14 +696,22 @@ Indicate a place on the window/monitor.
 
 .RS
 .IP \(bu 2
+
+.PP
 Format: \fB\fC(center|east|north|west|south|north east|north west|south west|south east)\fR
-\fB\fC
+.PP
+.RS
+
+.nf
+
 north west   |    north    |  north east
 \-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
   west   |   center    |  east
 \-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
 south west   |    south    |  south east
-\fR
+
+.fi
+.RE
 
 .RE
 
@@ -873,6 +883,7 @@ The current widgets available in \fBrofi\fP:
 .RS
 .IP \(bu 2
 \fB\fCwindow\fR
+
 .RS
 .IP \(bu 2
 \fB\fCoverlay\fR: the overlay widget.
@@ -880,6 +891,7 @@ The current widgets available in \fBrofi\fP:
 \fB\fCmainbox\fR: The mainbox box.
 .IP \(bu 2
 \fB\fCinputbar\fR: The input bar box.
+
 .RS
 .IP \(bu 2
 \fB\fCbox\fR: the horizontal @box packing the widgets
@@ -895,14 +907,15 @@ The current widgets available in \fBrofi\fP:
 \fB\fCnum\-filtered\-rows\fR: Shows the total number of rows after filtering.
 
 .RE
-
 .IP \(bu 2
 \fB\fClistview\fR: The listview.
+
 .RS
 .IP \(bu 2
 \fB\fCscrollbar\fR: the listview scrollbar
 .IP \(bu 2
 \fB\fCelement\fR: a box in the listview holding the entries
+
 .RS
 .IP \(bu 2
 \fB\fCelement\-icon\fR: the widget in the listview's entry showing the (optional) icon
@@ -913,28 +926,25 @@ The current widgets available in \fBrofi\fP:
 
 .RE
 
-
 .RE
-
 .IP \(bu 2
 \fB\fCmode\-switcher\fR: the main horizontal @box packing the buttons.
+
 .RS
 .IP \(bu 2
 \fB\fCbutton\fR: the buttons @textbox for each mode
 
 .RE
-
 .IP \(bu 2
 \fB\fCmessage\fR: The container holding the textbox.
+
 .RS
 .IP \(bu 2
 \fB\fCtextbox\fR: the message textbox
 
 .RE
 
-
 .RE
-
 
 .RE
 
@@ -1043,9 +1053,13 @@ Type of mouse cursor that is set when the mouse pointer is hovered over the widg
 .SS window:
 .RS
 .IP \(bu 2
+
+.PP
 \fBfont\fP:            string
 The font used in the window
 .IP \(bu 2
+
+.PP
 \fBtransparency\fP:    string
 Indicating if transparency should be used and what type:
 \fBreal\fP \- True transparency. Only works with a compositor.
@@ -1053,20 +1067,32 @@ Indicating if transparency should be used and what type:
 \fBscreenshot\fP \- Take a screenshot of the screen and use that.
 \fBPath\fP to png file \- Use an image.
 .IP \(bu 2
+
+.PP
 \fBlocation\fP:       position
 The place of the anchor on the monitor
 .IP \(bu 2
+
+.PP
 \fBanchor\fP:         anchor
 The anchor position on the window
 .IP \(bu 2
+
+.PP
 \fBfullscreen\fP:     boolean
 Window is fullscreen.
 .IP \(bu 2
+
+.PP
 \fBwidth\fP:          distance
 The width of the window
 .IP \(bu 2
+
+.PP
 \fBx\-offset\fP:  distance
 .IP \(bu 2
+
+.PP
 \fBy\-offset\fP:  distance
 The offset of the window to the anchor point, allowing you to push the window left/right/up/down
 

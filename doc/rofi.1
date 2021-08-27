@@ -1,4 +1,3 @@
-.nh
 .TH ROFI 1 rofi
 .SH NAME
 .PP
@@ -47,7 +46,7 @@ The website for \fB\fCdmenu\fR can be found here
 
 .PP
 \fBrofi\fP does not aim to be 100% compatible with \fB\fCdmenu\fR\&. There are simply too many flavors of \fB\fCdmenu\fR\&.
-The idea is that the basic usage command\-\&line flags are obeyed, theme\-\&related flags are not.
+The idea is that the basic usage command\-line flags are obeyed, theme\-related flags are not.
 Besides, \fBrofi\fP offers some extended features (like multi\-select, highlighting, message bar, extra key bindings).
 
 .SS Display Error message
@@ -181,7 +180,11 @@ Specify the number of threads \fBrofi\fP should use:
 .IP \(bu 2
 1: Disable threading
 .IP \(bu 2
-2..n: Specify the maximum number of threads to use in the thread pool.Default:  Autodetect
+
+.PP
+2..n: Specify the maximum number of threads to use in the thread pool.
+.PP
+Default:  Autodetect
 
 .RE
 
@@ -461,7 +464,11 @@ The different fields are:
 .IP \(bu 2
 \fBcomment\fP: the application comment
 .IP \(bu 2
-\fBall\fP: all the aboveDefault: \fIname,generic,exec,categories,keywords\fP
+
+.PP
+\fBall\fP: all the above
+.PP
+Default: \fIname,generic,exec,categories,keywords\fP
 
 .RE
 
@@ -534,7 +541,11 @@ The different fields are:
 .IP \(bu 2
 \fBdesktop\fP: window's current desktop
 .IP \(bu 2
-\fBall\fP: all the aboveDefault: \fIall\fP
+
+.PP
+\fBall\fP: all the above
+.PP
+Default: \fIall\fP
 
 .RE
 
@@ -667,7 +678,11 @@ behavior.)
 .IP \(bu 2
 \fB\-4\fP: the monitor with the focused window.
 .IP \(bu 2
-\fB\-5\fP: the monitor that shows the mouse pointer.Default: \fI\-5\fP
+
+.PP
+\fB\-5\fP: the monitor that shows the mouse pointer.
+.PP
+Default: \fI\-5\fP
 
 .RE
 
@@ -1165,7 +1180,7 @@ Set ellipsize mode to start. So, the end of the string is visible.
 
 .PP
 Pops up a message dialog (used internally for showing errors) with \fImessage\fP\&.
-Message can be multi\-\&line.
+Message can be multi\-line.
 
 .SS File browser settings
 .PP
@@ -1294,63 +1309,63 @@ Please see \fBrofi\-theme(5)\fP manpage for more information on theming.
 
 .RS
 .IP \(bu 2
-\fB\fCCtrl\-v, Insert\fR: Paste from clipboard
+\fB\fCControl\-v, Insert\fR: Paste from clipboard
 .IP \(bu 2
-\fB\fCCtrl\-Shift\-v, Shift\-Insert\fR: Paste primary selection
+\fB\fCControl\-Shift\-v, Shift\-Insert\fR: Paste primary selection
 .IP \(bu 2
-\fB\fCCtrl\-u\fR: Clear the line
+\fB\fCControl\-u\fR: Clear the line
 .IP \(bu 2
-\fB\fCCtrl\-a\fR: Beginning of line
+\fB\fCControl\-a\fR: Beginning of line
 .IP \(bu 2
-\fB\fCCtrl\-e\fR: End of line
+\fB\fCControl\-e\fR: End of line
 .IP \(bu 2
-\fB\fCCtrl\-f, Right\fR: Forward one character
+\fB\fCControl\-f, Right\fR: Forward one character
 .IP \(bu 2
-\fB\fCAlt\-f, Ctrl\-Right\fR: Forward one word
+\fB\fCAlt\-f, Control\-Right\fR: Forward one word
 .IP \(bu 2
-\fB\fCCtrl\-b, Left\fR: Back one character
+\fB\fCControl\-b, Left\fR: Back one character
 .IP \(bu 2
-\fB\fCAlt\-b, Ctrl\-Left\fR: Back one word
+\fB\fCAlt\-b, Control\-Left\fR: Back one word
 .IP \(bu 2
-\fB\fCCtrl\-d, Delete\fR: Delete character
+\fB\fCControl\-d, Delete\fR: Delete character
 .IP \(bu 2
-\fB\fCCtrl\-Alt\-d\fR: Delete word
+\fB\fCControl\-Alt\-d\fR: Delete word
 .IP \(bu 2
-\fB\fCCtrl\-h, Backspace, Shift\-Backspace\fR: Backspace (delete previous character)
+\fB\fCControl\-h, Backspace, Shift\-Backspace\fR: Backspace (delete previous character)
 .IP \(bu 2
-\fB\fCCtrl\-Alt\-h\fR: Delete previous word
+\fB\fCControl\-Alt\-h\fR: Delete previous word
 .IP \(bu 2
-\fB\fCCtrl\-j,Ctrl\-m,Enter\fR: Accept entry
+\fB\fCControl\-j,Control\-m,Enter\fR: Accept entry
 .IP \(bu 2
-\fB\fCCtrl\-n,Down\fR: Select next entry
+\fB\fCControl\-n,Down\fR: Select next entry
 .IP \(bu 2
-\fB\fCCtrl\-p,Up\fR: Select previous entry
+\fB\fCControl\-p,Up\fR: Select previous entry
 .IP \(bu 2
 \fB\fCPage Up\fR: Go to previous page
 .IP \(bu 2
 \fB\fCPage Down\fR: Go to next page
 .IP \(bu 2
-\fB\fCCtrl\-Page Up\fR: Go to previous column
+\fB\fCControl\-Page Up\fR: Go to previous column
 .IP \(bu 2
-\fB\fCCtrl\-Page Down\fR: Go to next column
+\fB\fCControl\-Page Down\fR: Go to next column
 .IP \(bu 2
-\fB\fCCtrl\-Enter\fR: Use entered text as a command (in \fB\fCssh/run modi\fR)
+\fB\fCControl\-Enter\fR: Use entered text as a command (in \fB\fCssh/run modi\fR)
 .IP \(bu 2
 \fB\fCShift\-Enter\fR: Launch the application in a terminal (in run mode)
 .IP \(bu 2
-\fB\fCCtrl\-Shift\-Enter\fR: As Ctrl\-Enter and run the command in terminal (in run mode)
+\fB\fCControl\-Shift\-Enter\fR: As Control\-Enter and run the command in terminal (in run mode)
 .IP \(bu 2
 \fB\fCShift\-Enter\fR: Return the selected entry and move to the next item while keeping \fBrofi\fP open. (in dmenu)
 .IP \(bu 2
-\fB\fCShift\-Right\fR: Switch to the next mode. The list can be customized with the \fB\fC\-switchers\fR argument.
+\fB\fCShift\-Right\fR: Switch to the next mode. The list can be customized with the \fB\fC\-modi\fR argument.
 .IP \(bu 2
-\fB\fCShift\-Left\fR: Switch to the previous mode. The list can be customized with the \fB\fC\-switchers\fR argument.
+\fB\fCShift\-Left\fR: Switch to the previous mode. The list can be customized with the \fB\fC\-modi\fR argument.
 .IP \(bu 2
-\fB\fCCtrl\-Tab\fR: Switch to the next mode. The list can be customized with the \fB\fC\-switchers\fR argument.
+\fB\fCControl\-Tab\fR: Switch to the next mode. The list can be customized with the \fB\fC\-modi\fR argument.
 .IP \(bu 2
-\fB\fCCtrl\-Shift\-Tab\fR: Switch to the previous mode. The list can be customized with the \fB\fC\-switchers\fR argument.
+\fB\fCControl\-Shift\-Tab\fR: Switch to the previous mode. The list can be customized with the \fB\fC\-modi\fR argument.
 .IP \(bu 2
-\fB\fCCtrl\-space\fR: Set selected item as input text.
+\fB\fCControl\-space\fR: Set selected item as input text.
 .IP \(bu 2
 \fB\fCShift\-Del\fR: Delete entry from history.
 .IP \(bu 2
@@ -1360,14 +1375,19 @@ Please see \fBrofi\-theme(5)\fP manpage for more information on theming.
 .IP \(bu 2
 \fB\fCAlt\-Shift\-S\fR: Take a screenshot and store it in the Pictures directory.
 .IP \(bu 2
-\fB\fCCtrl\-l\fR: File complete for run dialog.
+\fB\fCControl\-l\fR: File complete for run dialog.
 
 .RE
 
 .PP
-To get a full list of key bindings on the command line, see \fB\fCrofi \-h\fR\&.
-The options starting with \fB\fC\-kb\fR are keybindings.
-Key bindings can be modified using the configuration systems.
+This list might not be complete, to get a full list of all key bindings
+supported in your rofi, see \fB\fCrofi \-h\fR\&. The options starting with \fB\fC\-kb\fR are keybindings.
+
+.PP
+Key bindings can be modified using the configuration systems. Multiple keys can be bound
+to one action by comma separating them. For example \fB\fC\-kb\-primary\-paste "Conctrol+v,Insert"\fR
+
+.PP
 To get a searchable list of key bindings, run \fB\fCrofi \-show keys\fR\&.
 
 .PP
@@ -1739,21 +1759,21 @@ first.
 .SH AUTHOR
 .RS
 .IP \(bu 2
-Qball Cow qball@blame.services
-\[la]mailto:qball@blame.services\[ra]
+Qball Cow 
+\[la]qball@blame.services\[ra]
 .IP \(bu 2
-Rasmus Steinke rasi@xssn.at
-\[la]mailto:rasi@xssn.at\[ra]
+Rasmus Steinke 
+\[la]rasi@xssn.at\[ra]
 .IP \(bu 2
-Quentin Glidic sardemff7+rofi@sardemff7.net
-\[la]mailto:sardemff7+rofi@sardemff7.net\[ra]
+Quentin Glidic 
+\[la]sardemff7+rofi@sardemff7.net\[ra]
 
 .RE
 
 .PP
 Original code based on work by: Sean Pringle
-\[la]https://github.com/seanpringle/simpleswitcher\[ra] sean.pringle@gmail.com
-\[la]mailto:sean.pringle@gmail.com\[ra]
+\[la]https://github.com/seanpringle/simpleswitcher\[ra] 
+\[la]sean.pringle@gmail.com\[ra]
 
 .PP
 For a full list of authors, check the \fB\fCAUTHORS\fR file.
