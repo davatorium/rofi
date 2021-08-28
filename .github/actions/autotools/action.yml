@@ -23,11 +23,6 @@ runs:
     - id: test
       run: cd builddir && make distcheck
       shell: bash
-      with:
-        name: tarballs
-        path: |
-          *.tar.gz
-          *.tar.xz
     - id: doxy
       run: cd builddir && make doxy 2>&1 > doxygen.log
       shell: bash
@@ -35,3 +30,8 @@ runs:
       uses: ./.github/actions/doxycheck
       with:
         logfile: builddir/doxygen.log
+    - step: upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: tarballs
+        path: *.tar.[gx]z
