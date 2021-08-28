@@ -34,4 +34,6 @@ runs:
       uses: actions/upload-artifact@v2
       with:
         name: tarballs
-        path: *.tar.[gx]z
+        path: |
+          builddir/*.tar.gz
+          builddir/*.tar.xz
