@@ -30,3 +30,10 @@ runs:
       uses: ./.github/actions/doxycheck
       with:
         logfile: builddir/doxygen.log
+    - id: upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: tarballs
+        path: |
+          builddir/*.tar.gz
+          builddir/*.tar.xz
