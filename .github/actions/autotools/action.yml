@@ -30,7 +30,7 @@ runs:
       uses: ./.github/actions/doxycheck
       with:
         logfile: builddir/doxygen.log
-    - step: upload
+    - id: upload
       uses: actions/upload-artifact@v2
       with:
         name: tarballs
