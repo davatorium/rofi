@@ -83,7 +83,7 @@ element  selected {
   background-color: lightgreen/20%;
 }
 
-element-text {
+element-text, element-icon {
   font:             inherit; 
   horizontal-align: 0.5;
 }
