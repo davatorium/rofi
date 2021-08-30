@@ -33,7 +33,7 @@ runs:
     - id: meson-dist-check
       shell: bash
       run: |
-        tar xf rofi-*.tar.gz
+        tar xf builddir/rofi-*.tar.gz
         cd rofi-*/
         meson setup . build
         ninja -c build
