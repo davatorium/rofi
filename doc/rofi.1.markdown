@@ -345,7 +345,7 @@ Default: *0*
 
 `-fixed-num-lines`
 
-Keep a fixed number of visible lines (See the `-lines` option.)
+Keep a fixed number of visible lines. 
 
 `-sidebar-mode`
 
@@ -353,7 +353,7 @@ Open in sidebar-mode. In this mode, a list of all enabled modes is shown at the 
 (See `-modi` option)
 To show sidebar, use:
 
-    rofi -show run -sidebar-mode -lines 0
+    rofi -show run -sidebar-mode 
 
 `-hover-select`
 
@@ -591,7 +591,7 @@ Default: *dmenu*
 
 Maximum number of lines the menu may show before scrolling.
 
-    rofi -lines 25
+    rofi -dmenu -l 25
 
 Default: *15*
 

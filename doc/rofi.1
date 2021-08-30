@@ -602,7 +602,7 @@ Default: \fI0\fP
 \fB\fC\-fixed\-num\-lines\fR
 
 .PP
-Keep a fixed number of visible lines (See the \fB\fC\-lines\fR option.)
+Keep a fixed number of visible lines.
 
 .PP
 \fB\fC\-sidebar\-mode\fR
@@ -616,7 +616,7 @@ To show sidebar, use:
 .RS
 
 .nf
-rofi \-show run \-sidebar\-mode \-lines 0
+rofi \-show run \-sidebar\-mode 
 
 .fi
 .RE
@@ -1006,7 +1006,7 @@ Maximum number of lines the menu may show before scrolling.
 .RS
 
 .nf
-rofi \-lines 25
+rofi \-dmenu \-l 25
 
 .fi
 .RE

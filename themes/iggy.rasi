@@ -120,11 +120,12 @@ button {
     border-color: lightgreen;
     border-radius:    10px 10px 0 0;
     background-image: linear-gradient(to bottom, darkgreen/50%, black/70%);
+    horizontal-align: 0.5;
 }
 button selected.normal {
     text-color: white;
     margin: 0px;
-padding: 0px;
+    padding: 0px;
 
     border:       5px 5px 0px ;
     border-color: lightgreen;
