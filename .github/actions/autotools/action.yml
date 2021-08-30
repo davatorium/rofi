@@ -39,8 +39,8 @@ runs:
         tar xf builddir/rofi-*.tar.gz
         cd rofi-*/
         meson setup . build
-        ninja -c build
-        ninja -c build test
+        ninja -C build
+        ninja -C build test
     - id: upload
       uses: actions/upload-artifact@v2
       with:
