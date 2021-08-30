@@ -9,6 +9,9 @@ inputs:
 runs:
   using: composite
   steps:
+    - id: pip
+      run: pip install meson ninja
+      shell: bash
     - id: setup
       run: |
         autoreconf --install
