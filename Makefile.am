@@ -630,8 +630,26 @@ coverage-clean:
 
 EXTRA_DIST += \
 	doc/meson.build \
+	subprojects/libgwater/mpd/meson.build \
+	subprojects/libgwater/nl/meson.build \
+	subprojects/libgwater/wayland/meson.build \
+	subprojects/libgwater/xcb/meson.build \
+	subprojects/libgwater/alsa-mixer/meson.build \
+	subprojects/libgwater/wayland-server/meson.build \
+	subprojects/libgwater/meson.build \
+	subprojects/libgwater/win/meson.build \
 	subprojects/libnkutils/meson.build \
 	subprojects/libnkutils/meson_options.txt \
-	subprojects/libgwater/xcb/meson.build \
+	subprojects/libgwater/wayland/libgwater-wayland.h \
+	subprojects/libgwater/wayland/libgwater-wayland.c \
+	subprojects/libgwater/wayland-server/libgwater-wayland-server.c \
+	subprojects/libgwater/wayland-server/libgwater-wayland-server.h \
+	subprojects/libgwater/mpd/libgwater-mpd.h \
+	subprojects/libgwater/mpd/libgwater-mpd.c \
+	subprojects/libgwater/nl/libgwater-nl.h \
+	subprojects/libgwater/nl/libgwater-nl.c \
+	subprojects/libgwater/alsa-mixer/libgwater-alsa-mixer.h \
+	subprojects/libgwater/alsa-mixer/libgwater-alsa-mixer.c \
+	doc/meson_build_manpages.sh \
 	meson_options.txt \
 	meson.build
