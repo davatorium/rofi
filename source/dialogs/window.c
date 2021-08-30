@@ -883,7 +883,7 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
   ModeModePrivateData *rmpd = mode_get_private_data(sw);
   client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
   if (c == NULL) {
-    return get_entry ? g_strdup("Window has fanished") : NULL;
+    return get_entry ? g_strdup("Window has vanished") : NULL;
   }
   if (c->demands) {
     *state |= URGENT;
