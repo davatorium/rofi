@@ -36,3 +36,8 @@ element {
 element selected {
     background-color: SteelBlue;
 }
+
+element-text, element-icon {
+  background-color: inherit;
+  text-color: inherit;
+}
