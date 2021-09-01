@@ -750,23 +750,6 @@ static ModeMode window_mode_result(Mode *sw, int mretv,
         &(xcb->ewmh), xcb->screen_nbr, rmpd->ids->array[selected_line],
         XCB_CURRENT_TIME, XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER);
     xcb_flush(xcb->connection);
-    ThemeWidget *wid = rofi_config_find_widget(sw->name, NULL, TRUE);
-    Property *p =
-        rofi_theme_find_property(wid, P_BOOLEAN, "close-on-delete", TRUE);
-    if (p && p->type == P_BOOLEAN && p->value.b == FALSE) {
-      // Force a reload.
-      client_free(rmpd->ids->data[selected_line]);
-      g_free(rmpd->ids->data[selected_line]);
-      memmove(&(rmpd->ids->array[selected_line]),
-              &(rmpd->ids->array[selected_line + 1]),
-              rmpd->ids->len - selected_line);
-      memmove(&(rmpd->ids->data[selected_line]),
-              &(rmpd->ids->data[selected_line + 1]),
-              rmpd->ids->len - selected_line);
-      rmpd->ids->len--;
-
-      retv = RELOAD_DIALOG;
-    }
   } else if ((mretv & MENU_CUSTOM_INPUT) && *input != NULL &&
              *input[0] != '\0') {
     GError *error = NULL;
