@@ -1410,6 +1410,13 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     if (rc == 1) {
       // Entry changed.
       state->refilter = TRUE;
+
+      ThemeWidget *wid = rofi_config_find_widget("inputchange", NULL, TRUE);
+      /** Load user entires */
+      Property *p = rofi_theme_find_property(wid, P_BOOLEAN, "movetop", FALSE);
+      if (p && p->type == P_BOOLEAN && p->value.b) {
+        listview_set_selected(state->list_view, 0);
+      }
     } else if (rc == 2) {
       // Movement.
     }
@@ -1499,6 +1506,12 @@ gboolean rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
 void rofi_view_handle_text(RofiViewState *state, char *text) {
   if (textbox_append_text(state->text, text, strlen(text))) {
     state->refilter = TRUE;
+    ThemeWidget *wid = rofi_config_find_widget("inputchange", NULL, TRUE);
+    /** Load user entires */
+    Property *p = rofi_theme_find_property(wid, P_BOOLEAN, "movetop", FALSE);
+    if (p && p->type == P_BOOLEAN && p->value.b) {
+      listview_set_selected(state->list_view, 0);
+    }
   }
 }
 
