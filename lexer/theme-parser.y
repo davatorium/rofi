@@ -265,6 +265,10 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_MEDIA_MAX                      "Max"
 %token T_MEDIA_SEP                      "-"
 
+
+%token T_VAR_START                      "var" 
+%token T_ENV_START                      "env" 
+
 %type <theme>          t_entry_list
 %type <theme>          t_entry_list_included
 %type <list>           t_entry_name_path
@@ -481,17 +485,25 @@ t_property
     $$ = $3;
     $$->name = $1;
    }
-|   t_property_name T_PSEP T_PARENT_LEFT T_ELEMENT T_PARENT_RIGHT T_PCLOSE{
+|   t_property_name T_PSEP T_VAR_START T_PARENT_LEFT T_ELEMENT T_PARENT_RIGHT T_PCLOSE{
         $$ = rofi_theme_property_create ( P_LINK );
         $$->name = $1;
-        $$->value.link.name = $4;
+        $$->value.link.name = $5;
     }
-|   t_property_name T_PSEP T_PARENT_LEFT T_ELEMENT T_COMMA t_property_element T_PARENT_RIGHT T_PCLOSE{
+|   t_property_name T_PSEP T_VAR_START T_PARENT_LEFT T_ELEMENT T_COMMA t_property_element T_PARENT_RIGHT T_PCLOSE{
         $$ = rofi_theme_property_create ( P_LINK );
         $$->name = $1;
-        $$->value.link.name = $4;
-        $$->value.link.def_value = $6;
+        $$->value.link.name = $5;
+        $$->value.link.def_value = $7;
     }
+| t_property_name T_PSEP T_ENV_START T_PARENT_LEFT T_COMMA t_property_element T_PARENT_RIGHT T_PCLOSE {
+  $$ = $6;
+  $$->name = $1;
+}
+| t_property_name T_PSEP T_ENV_START T_PARENT_LEFT t_property_element T_COMMA t_property_element T_PARENT_RIGHT T_PCLOSE {
+  $$ = $5;
+  $$->name = $1;
+}
 
 t_property_element
 :   T_INHERIT {

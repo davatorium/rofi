@@ -470,6 +470,23 @@ window {
 }
 ```
 
+* Format: `var(PROPERTY NAME, DEFAULT)`
+
+A reference can point to another reference. Currently, the maximum number of redirects is 20.
+A property always refers to another property. It cannot be used for a subpart of the property.
+
+Example:
+
+```css
+window {
+    width: var( width, 30%);
+}
+```
+
+If the property `width` is set globally (`*{}`) that value is used, if the property
+`width` is not set, the default value is used.
+
+
 ## Orientation
 
  * Format: `(horizontal|vertical)`
@@ -501,6 +518,20 @@ The environment variable should be an alphanumeric string without white-space.
     background-color: ${BG};
 }
 ```
+
+* Format: `env(ENVIRONMENT, default)`
+
+This will parse the environment variable as the property value. (that then can be any of the above types).
+The environment variable should be an alphanumeric string without white-space.
+If the environment value is not found, the default value is used.
+
+```css
+window {
+    width: env(WIDTH, 40%);
+}
+```
+
+If environment WIDTH is set, then that value is parsed, otherwise the default value (`40%`).
 
 ## Inherit
 
