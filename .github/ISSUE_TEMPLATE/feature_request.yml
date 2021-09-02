@@ -1,0 +1,62 @@
+name: Feature Request
+description: It'd be cool if rofi did/had/would...
+labels: Feature Request
+title: "[REQUEST] "
+body:
+
+  - type: markdown
+    attributes:
+      value: |
+        First read the [guidelines](https://github.com/DaveDavenport/rofi/blob/next/.github/CONTRIBUTING.md)! This is not optional for any report/question. People must be able to understand the full context of the report when reading it, at any time.
+
+        If you feel like you “just have a simple question”, please consider you’re wrong and still fill the full report. Any report missing these informations will be labeled as “Incomplete Report - Please follow the guidelines” and may not be answered in a timely fashion.
+
+        If you are unsure, please use the [discussion](https://github.com/davatorium/rofi/discussions) forum first. It is easy to upgrade a question to an issue in github.
+
+        **Please do not submit reports related to wayland, see [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more information.**
+
+        **Requesting a feature is no guarantee it will be added.**
+
+  - type: checkboxes
+    id: before-feature-request
+    attributes:
+      label: Before opening a feature request
+      options:
+        - label: I checked the *next* branch to see if the feature has already been implemented
+          required: true
+        - label: I searched existing reports to see if it is already requested.
+          required: true
+  - type: textarea
+    attributes:
+      label: "What is the user problem or growth opportunity you want to see solved?"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "How do you know that this problem exists today? Why is this important?"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Who will benefit from it?"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Rofi version (rofi -v)"
+      placeholder: "Version: 1.6.0"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Configuration"
+      description: "Please use https://gist.github.com and include output of `rofi -dump-config` and `rofi -dump-theme`."
+      placeholder: "Gist URL"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Additional information"
+    validations:
+      required: false
+
