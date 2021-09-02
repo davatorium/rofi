@@ -31,7 +31,7 @@
 G_BEGIN_DECLS
 
 /** ABI version to check if loaded plugin is compatible. */
-#define ABI_VERSION 0x00000006
+#define ABI_VERSION 6u
 
 /**
  * @param data Pointer to #Mode object.

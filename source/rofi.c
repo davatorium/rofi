@@ -448,7 +448,7 @@ static void help_print_no_arguments(void) {
 /**
  * Cleanup globally allocated memory.
  */
-static void cleanup() {
+static void cleanup(void) {
   for (unsigned int i = 0; i < num_modi; i++) {
     mode_destroy(modi[i]);
   }
@@ -669,7 +669,7 @@ static gboolean main_loop_signal_handler_int(G_GNUC_UNUSED gpointer data) {
   g_main_loop_quit(main_loop);
   return G_SOURCE_CONTINUE;
 }
-static void show_error_dialog() {
+static void show_error_dialog(void) {
   GString *emesg =
       g_string_new("The following errors were detected when starting rofi:\n");
   GList *iter = g_list_first(list_of_error_msgs);
@@ -681,7 +681,7 @@ static void show_error_dialog() {
     index++;
   }
   if (g_list_length(iter) > 1) {
-    g_string_append_printf(emesg, "\nThere are <b>%d</b> more errors.",
+    g_string_append_printf(emesg, "\nThere are <b>%u</b> more errors.",
                            g_list_length(iter) - 1);
   }
   rofi_view_error_dialog(emesg->str, ERROR_MSG_MARKUP);
@@ -801,7 +801,7 @@ int main(int argc, char *argv[]) {
   {
     const char *ro_pid = g_getenv("ROFI_OUTSIDE");
     if (ro_pid != NULL) {
-      int ro_pidi = g_ascii_strtoll(ro_pid, NULL, 0);
+      pid_t ro_pidi = (pid_t)g_ascii_strtoll(ro_pid, NULL, 0);
       if (kill(ro_pidi, 0) == 0) {
         printf("Do not launch rofi from inside rofi.\r\n");
         return EXIT_FAILURE;
@@ -892,7 +892,7 @@ int main(int argc, char *argv[]) {
 
   TICK_N("Setup mainloop");
 
-  bindings = nk_bindings_new(0);
+  bindings = nk_bindings_new(0lu);
   TICK_N("NK Bindings");
 
   if (!display_setup(main_loop, bindings)) {
@@ -1025,7 +1025,7 @@ int main(int argc, char *argv[]) {
 
   unsigned int interval = 1;
   if (find_arg_uint("-record-screenshots", &interval)) {
-    g_timeout_add(1000 / (double)interval, record, NULL);
+    g_timeout_add((guint)(1000 / (double)interval), record, NULL);
   }
   if (find_arg("-benchmark-ui") >= 0) {
     config.benchmark_ui = TRUE;
