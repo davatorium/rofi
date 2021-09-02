@@ -455,9 +455,9 @@ static gboolean rofi_view_reload_idle(G_GNUC_UNUSED gpointer data) {
   CacheState.idle_timeout = 0;
   return G_SOURCE_REMOVE;
 }
-static gboolean rofi_view_user_timeout(G_GNUC_UNUSED gpointer data) {
-  CacheState.user_timeout = 0;
-  ThemeWidget *wid = rofi_config_find_widget("timeout", NULL, TRUE);
+
+static void rofi_view_take_action(const char *name) {
+  ThemeWidget *wid = rofi_config_find_widget(name, NULL, TRUE);
   if (wid) {
     /** Check string property */
     Property *p = rofi_theme_find_property(wid, P_STRING, "action", TRUE);
@@ -471,6 +471,10 @@ static gboolean rofi_view_user_timeout(G_GNUC_UNUSED gpointer data) {
       }
     }
   }
+}
+static gboolean rofi_view_user_timeout(G_GNUC_UNUSED gpointer data) {
+  CacheState.user_timeout = 0;
+  rofi_view_take_action("timeout");
   return G_SOURCE_REMOVE;
 }
 
@@ -1229,6 +1233,12 @@ void rofi_view_finalize(RofiViewState *state) {
   }
 }
 
+/**
+ * This function should be called when the input of the entry is changed.
+ * TODO: Evaluate if this needs to be a 'signal' on textbox?
+ */
+static void rofi_view_input_changed() { rofi_view_take_action("inputchange"); }
+
 static void rofi_view_trigger_global_action(KeyBindingAction action) {
   RofiViewState *state = rofi_view_get_active();
   switch (action) {
@@ -1410,6 +1420,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     if (rc == 1) {
       // Entry changed.
       state->refilter = TRUE;
+      rofi_view_input_changed();
     } else if (rc == 2) {
       // Movement.
     }
@@ -1499,6 +1510,7 @@ gboolean rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
 void rofi_view_handle_text(RofiViewState *state, char *text) {
   if (textbox_append_text(state->text, text, strlen(text))) {
     state->refilter = TRUE;
+    rofi_view_input_changed();
   }
 }
 

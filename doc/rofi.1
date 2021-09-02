@@ -1393,6 +1393,46 @@ To get a searchable list of key bindings, run \fB\fCrofi \-show keys\fR\&.
 .PP
 A key binding starting with \fB\fC!\fR will act when all keys have been released.
 
+.PP
+You can bind certain events to key\-actions:
+
+.SS Timeout
+.PP
+You can configure an action to be taken when rofi has not been interacted
+with for a certain amount of seconds. You can specify a keybinding to trigger
+after X seconds.
+
+.PP
+.RS
+
+.nf
+configuration {
+  timeout {
+      delay:  15;
+      action: "kb\-cancel";
+  }
+}
+
+.fi
+.RE
+
+.SS Input change
+.PP
+When the input of the textbox changes:
+
+.PP
+.RS
+
+.nf
+configuration {
+  inputchange {
+      action: "kb\-row\-first";
+  }
+}
+
+.fi
+.RE
+
 .SH Available Modi
 .SS window
 .PP

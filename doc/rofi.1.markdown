@@ -838,6 +838,36 @@ To get a searchable list of key bindings, run `rofi -show keys`.
 
 A key binding starting with `!` will act when all keys have been released.
 
+You can bind certain events to key-actions:
+
+### Timeout
+
+You can configure an action to be taken when rofi has not been interacted
+with for a certain amount of seconds. You can specify a keybinding to trigger
+after X seconds.
+
+```css
+configuration {
+  timeout {
+      delay:  15;
+      action: "kb-cancel";
+  }
+}
+```
+
+### Input change
+
+When the input of the textbox changes:
+
+```css
+configuration {
+  inputchange {
+      action: "kb-row-first";
+  }
+}
+```
+
+
 ## Available Modi
 
 ### window
