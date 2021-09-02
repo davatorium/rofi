@@ -63,6 +63,9 @@
 #include "xcb.h"
 #include <libsn/sn.h>
 
+#include "dialogs/window.h"
+#include "mode.h"
+
 #include <rofi.h>
 
 /** Minimal randr preferred for running rofi (1.5) (Major version number) */
@@ -1087,6 +1090,8 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     xcb_window_t win = ((xcb_destroy_notify_event_t *)event)->window;
     if (win != rofi_view_get_window()) {
       window_client_handle_signal(win, FALSE);
+    } else {
+      g_main_loop_quit(xcb->main_loop);
     }
     break;
   }

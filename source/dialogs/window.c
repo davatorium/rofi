@@ -382,7 +382,9 @@ static client *window_client(WindowModePrivateData *pd, xcb_window_t win) {
   return c;
 }
 
-void window_client_handle_signal(xcb_window_t win, gboolean create) {
+guint window_reload_timeout = 0;
+static gboolean window_client_reload(G_GNUC_UNUSED void *data) {
+  window_reload_timeout = 0;
   if (window_mode.private_data) {
     window_mode._destroy(&window_mode);
     window_mode._init(&window_mode);
@@ -394,6 +396,15 @@ void window_client_handle_signal(xcb_window_t win, gboolean create) {
   if (window_mode.private_data || window_mode_cd.private_data) {
     rofi_view_reload();
   }
+  return G_SOURCE_REMOVE;
+}
+void window_client_handle_signal(xcb_window_t win, gboolean create) {
+  //  g_idle_add_full(G_PRIORITY_HIGH_IDLE, window_client_reload, NULL, NULL);
+  if (window_reload_timeout > 0) {
+    g_source_remove(window_reload_timeout);
+    window_reload_timeout = 0;
+  }
+  window_reload_timeout = g_timeout_add(100, window_client_reload, NULL);
 }
 static int window_match(const Mode *sw, rofi_int_matcher **tokens,
                         unsigned int index) {
@@ -1011,7 +1022,7 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
   WindowModePrivateData *rmpd = mode_get_private_data(sw);
   client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
   if (c == NULL) {
-    return;
+    return NULL;
   }
   if (config.window_thumbnail && c->thumbnail_checked == FALSE) {
     c->icon = x11_helper_get_screenshot_surface_window(c->window, size);
