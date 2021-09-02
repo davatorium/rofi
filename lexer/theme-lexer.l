@@ -273,6 +273,7 @@ LIST_OPEN        \[
 LIST_CLOSE       \]
 
 VAR_START  "var"
+ENV_START  "env"
 
 CPP_COMMENT  "//"
 C_COMMENT_OPEN "/*"
@@ -290,6 +291,7 @@ CONFIGURATION (?i:configuration)
 %x PROPERTIES
 %x PROPERTIES_ENV
 %x PROPERTIES_VAR
+%x PROPERTIES_ENV_VAR
 %x PROPERTIES_VAR_DEFAULT
 %x PROPERTIES_LIST
 %x NAMESTR
@@ -491,7 +493,7 @@ if ( queue == NULL ) {
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST,PROPERTIES_VAR,MEDIA_CONTENT>{WHITESPACE}+	; // ignore all whitespace
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST,PROPERTIES_ENV_VAR,PROPERTIES_VAR,MEDIA_CONTENT>{WHITESPACE}+	; // ignore all whitespace
 
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
@@ -550,6 +552,26 @@ if ( queue == NULL ) {
         g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES_ENV);
     }
 }
+<PROPERTIES_ENV_VAR>{WORD} {
+    const char *val = g_getenv(yytext);
+    if ( val ) {
+        ParseObject *top = g_queue_peek_head ( file_queue );
+        top->location = *yylloc;
+        ParseObject *po = g_malloc0(sizeof(ParseObject));
+        po->type = PT_ENV;
+        po->input_str = val;
+        po->str_len = strlen(val);
+        current = po;
+        g_queue_push_head ( file_queue, po );
+
+        yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
+        yylloc->first_line = yylloc->last_line = 1;
+        yylloc->first_column = yylloc->last_column = 1;
+        yylloc->filename = current->filename;
+        g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES_ENV);
+    }
+}
+
 
  /**
   * Color parsing. It is easier to do this at lexer level.
@@ -610,17 +632,26 @@ if ( queue == NULL ) {
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{HSL}              { return T_COL_HSL;        }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{HWB}              { return T_COL_HWB;        }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CMYK}             { return T_COL_CMYK;       }
- /* Fluff */
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{VAR_START}{S_T_PARENT_LEFT}        {
-    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
-    BEGIN(PROPERTIES_VAR);
+
+<PROPERTIES_ENV_VAR,PROPERTIES_VAR>{S_T_PARENT_LEFT} {
     return T_PARENT_LEFT;
 }
-<PROPERTIES_VAR>{S_T_PARENT_RIGHT} {
+ /* Fluff */
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{VAR_START} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(PROPERTIES_VAR);
+    return T_VAR_START;
+}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ENV_START} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(PROPERTIES_ENV_VAR);
+    return T_ENV_START;
+}
+<PROPERTIES_VAR,PROPERTIES_ENV_VAR>{S_T_PARENT_RIGHT} {
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
     return T_PARENT_RIGHT;
 }
-<PROPERTIES_VAR>{COMMA} {
+<PROPERTIES_VAR,PROPERTIES_ENV_VAR>{COMMA} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(PROPERTIES_VAR_DEFAULT);
     return T_COMMA;
@@ -794,7 +825,7 @@ if ( queue == NULL ) {
     return T_ELEMENT;
 }
 
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>. {
+<PROPERTIES_ENV_VAR,PROPERTIES_VAR,PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>. {
     yytext[yyleng-1] = '\0';
     return T_ERROR_PROPERTY;
 }

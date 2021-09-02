@@ -134,7 +134,7 @@ flex = generator(find_program('flex'),
 )
 bison = generator(find_program('bison'),
     output: [ '@BASENAME@.c', '@BASENAME@.h' ],
-    arguments: [ '-d', '@INPUT@', '--defines=@OUTPUT1@', '--output=@OUTPUT0@' ]
+    arguments: [ '--verbose', '-d', '@INPUT@', '--defines=@OUTPUT1@', '--output=@OUTPUT0@' ]
 )
 
 rofi_sources = files(
