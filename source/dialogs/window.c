@@ -147,7 +147,7 @@ typedef struct {
   unsigned int title_len;
   unsigned int role_len;
   GRegex *window_regex;
-} ModeModePrivateData;
+} WindowModePrivateData;
 
 winlist *cache_client = NULL;
 
@@ -236,6 +236,9 @@ static void winlist_free(winlist *l) {
  * @returns -1 if failed, index is successful.
  */
 static int winlist_find(winlist *l, xcb_window_t w) {
+  if (l == NULL) {
+    return -1;
+  }
   // iterate backwards. Theory is: windows most often accessed will be
   // nearer the end. Testing with kcachegrind seems to support this...
   int i;
@@ -305,7 +308,7 @@ static int client_has_window_type(client *c, xcb_atom_t type) {
   return 0;
 }
 
-static client *window_client(ModeModePrivateData *pd, xcb_window_t win) {
+static client *window_client(WindowModePrivateData *pd, xcb_window_t win) {
   if (win == XCB_WINDOW_NONE) {
     return NULL;
   }
@@ -378,9 +381,24 @@ static client *window_client(ModeModePrivateData *pd, xcb_window_t win) {
   g_free(attr);
   return c;
 }
+
+void window_client_handle_signal(xcb_window_t win, gboolean create) {
+  if (window_mode.private_data) {
+    window_mode._destroy(&window_mode);
+    window_mode._init(&window_mode);
+  }
+  if (window_mode_cd.private_data) {
+    window_mode._destroy(&window_mode_cd);
+    window_mode._init(&window_mode_cd);
+  }
+  if (window_mode.private_data || window_mode_cd.private_data) {
+    rofi_view_reload();
+  }
+}
 static int window_match(const Mode *sw, rofi_int_matcher **tokens,
                         unsigned int index) {
-  ModeModePrivateData *rmpd = (ModeModePrivateData *)mode_get_private_data(sw);
+  WindowModePrivateData *rmpd =
+      (WindowModePrivateData *)mode_get_private_data(sw);
   int match = 1;
   const winlist *ids = (winlist *)rmpd->ids;
   // Want to pull directly out of cache, X calls are not thread safe.
@@ -466,8 +484,8 @@ static void window_mode_parse_fields() {
 }
 
 static unsigned int window_mode_get_num_entries(const Mode *sw) {
-  const ModeModePrivateData *pd =
-      (const ModeModePrivateData *)mode_get_private_data(sw);
+  const WindowModePrivateData *pd =
+      (const WindowModePrivateData *)mode_get_private_data(sw);
 
   return pd->ids ? pd->ids->len : 0;
 }
@@ -492,7 +510,8 @@ static const char *_window_name_list_entry(const char *str, uint32_t length,
   return &str[offset];
 }
 static void _window_mode_load_data(Mode *sw, unsigned int cd) {
-  ModeModePrivateData *pd = (ModeModePrivateData *)mode_get_private_data(sw);
+  WindowModePrivateData *pd =
+      (WindowModePrivateData *)mode_get_private_data(sw);
   // find window list
   xcb_window_t curr_win_id;
   int found = 0;
@@ -640,7 +659,7 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
 }
 static int window_mode_init(Mode *sw) {
   if (mode_get_private_data(sw) == NULL) {
-    ModeModePrivateData *pd = g_malloc0(sizeof(*pd));
+    WindowModePrivateData *pd = g_malloc0(sizeof(*pd));
     pd->window_regex = g_regex_new("{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL);
     mode_set_private_data(sw, (void *)pd);
     _window_mode_load_data(sw, FALSE);
@@ -652,7 +671,7 @@ static int window_mode_init(Mode *sw) {
 }
 static int window_mode_init_cd(Mode *sw) {
   if (mode_get_private_data(sw) == NULL) {
-    ModeModePrivateData *pd = g_malloc0(sizeof(*pd));
+    WindowModePrivateData *pd = g_malloc0(sizeof(*pd));
     pd->window_regex = g_regex_new("{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL);
     mode_set_private_data(sw, (void *)pd);
     _window_mode_load_data(sw, TRUE);
@@ -696,7 +715,8 @@ static inline int act_on_window(xcb_window_t window) {
 static ModeMode window_mode_result(Mode *sw, int mretv,
                                    G_GNUC_UNUSED char **input,
                                    unsigned int selected_line) {
-  ModeModePrivateData *rmpd = (ModeModePrivateData *)mode_get_private_data(sw);
+  WindowModePrivateData *rmpd =
+      (WindowModePrivateData *)mode_get_private_data(sw);
   ModeMode retv = MODE_EXIT;
   if ((mretv & (MENU_OK))) {
     if (mretv & MENU_CUSTOM_ACTION) {
@@ -750,6 +770,13 @@ static ModeMode window_mode_result(Mode *sw, int mretv,
         &(xcb->ewmh), xcb->screen_nbr, rmpd->ids->array[selected_line],
         XCB_CURRENT_TIME, XCB_EWMH_CLIENT_SOURCE_TYPE_OTHER);
     xcb_flush(xcb->connection);
+    ThemeWidget *wid = rofi_config_find_widget(sw->name, NULL, TRUE);
+    Property *p =
+        rofi_theme_find_property(wid, P_BOOLEAN, "close-on-delete", TRUE);
+    if (p && p->type == P_BOOLEAN && p->value.b == FALSE) {
+
+      return RELOAD_DIALOG;
+    }
   } else if ((mretv & MENU_CUSTOM_INPUT) && *input != NULL &&
              *input[0] != '\0') {
     GError *error = NULL;
@@ -776,7 +803,8 @@ static ModeMode window_mode_result(Mode *sw, int mretv,
 }
 
 static void window_mode_destroy(Mode *sw) {
-  ModeModePrivateData *rmpd = (ModeModePrivateData *)mode_get_private_data(sw);
+  WindowModePrivateData *rmpd =
+      (WindowModePrivateData *)mode_get_private_data(sw);
   if (rmpd != NULL) {
     winlist_free(rmpd->ids);
     x11_cache_free();
@@ -787,7 +815,7 @@ static void window_mode_destroy(Mode *sw) {
   }
 }
 struct arg {
-  const ModeModePrivateData *pd;
+  const WindowModePrivateData *pd;
   client *c;
 };
 
@@ -852,7 +880,7 @@ static gboolean helper_eval_cb(const GMatchInfo *info, GString *str,
   }
   return FALSE;
 }
-static char *_generate_display_string(const ModeModePrivateData *pd,
+static char *_generate_display_string(const WindowModePrivateData *pd,
                                       client *c) {
   struct arg d = {pd, c};
   char *res = g_regex_replace_eval(pd->window_regex, config.window_format, -1,
@@ -863,7 +891,7 @@ static char *_generate_display_string(const ModeModePrivateData *pd,
 static char *_get_display_value(const Mode *sw, unsigned int selected_line,
                                 int *state, G_GNUC_UNUSED GList **list,
                                 int get_entry) {
-  ModeModePrivateData *rmpd = mode_get_private_data(sw);
+  WindowModePrivateData *rmpd = mode_get_private_data(sw);
   client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
   if (c == NULL) {
     return get_entry ? g_strdup("Window has vanished") : NULL;
@@ -980,8 +1008,11 @@ static cairo_surface_t *get_net_wm_icon(xcb_window_t xid,
 }
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
                                   int size) {
-  ModeModePrivateData *rmpd = mode_get_private_data(sw);
+  WindowModePrivateData *rmpd = mode_get_private_data(sw);
   client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
+  if (c == NULL) {
+    return;
+  }
   if (config.window_thumbnail && c->thumbnail_checked == FALSE) {
     c->icon = x11_helper_get_screenshot_surface_window(c->window, size);
     c->thumbnail_checked = TRUE;

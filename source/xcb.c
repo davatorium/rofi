@@ -1083,6 +1083,20 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     }
     break;
   }
+  case XCB_DESTROY_NOTIFY: {
+    xcb_window_t win = ((xcb_destroy_notify_event_t *)event)->window;
+    if (win != rofi_view_get_window()) {
+      window_client_handle_signal(win, FALSE);
+    }
+    break;
+  }
+  case XCB_CREATE_NOTIFY: {
+    xcb_window_t win = ((xcb_create_notify_event_t *)event)->window;
+    if (win != rofi_view_get_window()) {
+      window_client_handle_signal(win, TRUE);
+    }
+    break;
+  }
   case XCB_EXPOSE:
     rofi_view_frame_callback();
     break;
@@ -1483,6 +1497,11 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
     g_warning("Connection has error");
     return FALSE;
   }
+
+  uint32_t val[] = {XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY};
+
+  xcb_change_window_attributes(xcb->connection, xcb_stuff_get_root_window(),
+                               XCB_CW_EVENT_MASK, val);
 
   // startup not.
   xcb->sndisplay =
