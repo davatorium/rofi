@@ -763,6 +763,34 @@ window {
 .fi
 .RE
 
+.RS
+.IP \(bu 2
+Format: \fB\fCvar(PROPERTY NAME, DEFAULT)\fR
+
+.RE
+
+.PP
+A reference can point to another reference. Currently, the maximum number of redirects is 20.
+A property always refers to another property. It cannot be used for a subpart of the property.
+
+.PP
+Example:
+
+.PP
+.RS
+
+.nf
+window {
+    width: var( width, 30%);
+}
+
+.fi
+.RE
+
+.PP
+If the property \fB\fCwidth\fR is set globally (\fB\fC*{}\fR) that value is used, if the property
+\fB\fCwidth\fR is not set, the default value is used.
+
 .SH Orientation
 .RS
 .IP \(bu 2
@@ -815,6 +843,31 @@ The environment variable should be an alphanumeric string without white\-space.
 
 .fi
 .RE
+
+.RS
+.IP \(bu 2
+Format: \fB\fCenv(ENVIRONMENT, default)\fR
+
+.RE
+
+.PP
+This will parse the environment variable as the property value. (that then can be any of the above types).
+The environment variable should be an alphanumeric string without white\-space.
+If the environment value is not found, the default value is used.
+
+.PP
+.RS
+
+.nf
+window {
+    width: env(WIDTH, 40%);
+}
+
+.fi
+.RE
+
+.PP
+If environment WIDTH is set, then that value is parsed, otherwise the default value (\fB\fC40%\fR).
 
 .SH Inherit
 .RS
