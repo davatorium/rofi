@@ -651,7 +651,7 @@ static gboolean listview_element_motion_notify(widget *wid,
   unsigned int i;
   for (i = 0; i < max && WIDGET(lv->boxes[i].box) != wid; i++) {
   }
-  if (i < max && i != listview_get_selected(lv)) {
+  if (i < max && (lv->last_offset + i) != listview_get_selected(lv)) {
     listview_set_selected(lv, lv->last_offset + i);
   }
   return TRUE;
