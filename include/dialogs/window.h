@@ -40,6 +40,8 @@
 
 extern Mode window_mode;
 extern Mode window_mode_cd;
+
+void window_client_handle_signal(xcb_window_t win, gboolean create);
 #endif // WINDOW_MODE
 /** @}*/
 #endif // ROFI_DIALOG_WINDOW_H
