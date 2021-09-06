@@ -52,7 +52,8 @@ struct _icon {
   cairo_surface_t *icon;
 };
 
-static int icon_get_desired_height(widget *widget) {
+static int icon_get_desired_height(widget *widget,
+                                   G_GNUC_UNUSED const int width) {
   icon *b = (icon *)widget;
   int height = b->size;
   if (b->squared == FALSE) {
@@ -67,7 +68,8 @@ static int icon_get_desired_height(widget *widget) {
   height += widget_padding_get_padding_height(widget);
   return height;
 }
-static int icon_get_desired_width(widget *widget) {
+static int icon_get_desired_width(widget *widget,
+                                  G_GNUC_UNUSED const int height) {
   icon *b = (icon *)widget;
   int width = b->size;
   if (b->squared == FALSE) {

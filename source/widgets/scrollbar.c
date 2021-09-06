@@ -40,7 +40,8 @@
 static void scrollbar_draw(widget *, cairo_t *);
 static void scrollbar_free(widget *);
 
-static int scrollbar_get_desired_height(widget *wid) {
+static int scrollbar_get_desired_height(widget *wid,
+                                        G_GNUC_UNUSED const int width) {
   // Want height we are.
   return wid->h;
 }

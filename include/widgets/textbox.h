@@ -319,7 +319,7 @@ const char *textbox_get_visible_text(const textbox *tb);
  *
  * @returns the desired width of the textbox.
  */
-int textbox_get_desired_width(widget *wid);
+int textbox_get_desired_width(widget *wid, const int height);
 
 /**
  * @param tb  Handle to the textbox
