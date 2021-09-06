@@ -633,27 +633,31 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
                 g_free(output);
               } else {
                 winclient->wmdesktopstr = g_strdup("Invalid name");
-                pd->wmdn_len = MAX(pd->wmdn_len,
-                                   g_utf8_strlen(winclient->wmdesktopstr, -1));
+                winclient->wmdesktopstr_len =
+                    g_utf8_strlen(winclient->wmdesktopstr, -1);
+                pd->wmdn_len = MAX(pd->wmdn_len, winclient->wmdesktopstr_len);
               }
             } else {
               winclient->wmdesktopstr = g_markup_escape_text(
                   _window_name_list_entry(names.strings, names.strings_len,
                                           winclient->wmdesktop),
                   -1);
-              pd->wmdn_len =
-                  MAX(pd->wmdn_len, g_utf8_strlen(winclient->wmdesktopstr, -1));
+              winclient->wmdesktopstr_len =
+                  g_utf8_strlen(winclient->wmdesktopstr, -1);
+              pd->wmdn_len = MAX(pd->wmdn_len, winclient->wmdesktopstr_len);
             }
           } else {
             winclient->wmdesktopstr =
                 g_strdup_printf("%u", (uint32_t)winclient->wmdesktop);
-            pd->wmdn_len =
-                MAX(pd->wmdn_len, g_utf8_strlen(winclient->wmdesktopstr, -1));
+            winclient->wmdesktopstr_len =
+                g_utf8_strlen(winclient->wmdesktopstr, -1);
+            pd->wmdn_len = MAX(pd->wmdn_len, winclient->wmdesktopstr_len);
           }
         } else {
           winclient->wmdesktopstr = g_strdup("");
-          pd->wmdn_len =
-              MAX(pd->wmdn_len, g_utf8_strlen(winclient->wmdesktopstr, -1));
+          winclient->wmdesktopstr_len =
+              g_utf8_strlen(winclient->wmdesktopstr, -1);
+          pd->wmdn_len = MAX(pd->wmdn_len, winclient->wmdesktopstr_len);
         }
         if (cd && winclient->wmdesktop != current_desktop) {
           continue;
