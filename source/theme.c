@@ -186,6 +186,9 @@ void rofi_theme_property_free(Property *p) {
   g_free(p->name);
   if (p->type == P_STRING) {
     g_free(p->value.s);
+  } else if (p->type == P_LIST) {
+    g_list_free_full(p->value.list, g_free);
+    p->value.list = 0;
   } else if (p->type == P_LINK) {
     g_free(p->value.link.name);
     if (p->value.link.def_value) {
@@ -1346,22 +1349,6 @@ char *rofi_theme_parse_prepare_file(const char *file, const char *parent_file) {
   return filename;
 }
 
-static void rofi_theme_parse_merge_widgets_no_media(ThemeWidget *parent,
-                                                    ThemeWidget *child) {
-  g_assert(parent != NULL);
-  g_assert(child != NULL);
-
-  if (parent == rofi_theme && g_strcmp0(child->name, "*") == 0) {
-    rofi_theme_widget_add_properties(rofi_theme, child->properties);
-    return;
-  }
-
-  ThemeWidget *w = rofi_theme_find_or_create_name(parent, child->name);
-  rofi_theme_widget_add_properties(w, child->properties);
-  for (unsigned int i = 0; i < child->num_widgets; i++) {
-    rofi_theme_parse_merge_widgets_no_media(w, child->widgets[i]);
-  }
-}
 void rofi_theme_parse_merge_widgets(ThemeWidget *parent, ThemeWidget *child) {
   g_assert(parent != NULL);
   g_assert(child != NULL);
