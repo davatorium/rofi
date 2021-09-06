@@ -1667,7 +1667,7 @@ static int rofi_view_calculate_height(RofiViewState *state) {
   }
   // Autosize based on widgets.
   widget *main_window = WIDGET(state->main_window);
-  return widget_get_desired_height(main_window, main_window->w);
+  return widget_get_desired_height(main_window, state->width);
 }
 
 static WidgetTriggerActionResult textbox_button_trigger_action(
@@ -1994,8 +1994,6 @@ RofiViewState *rofi_view_create(Mode *sw, const char *input,
   state->distance = (int *)g_malloc0_n(state->num_lines, sizeof(int));
 
   rofi_view_calculate_window_width(state);
-  // Need to resize otherwise calculated desired height is wrong.
-  widget_resize(WIDGET(state->main_window), state->width, 100);
   // Only needed when window is fixed size.
   if ((CacheState.flags & MENU_NORMAL_WINDOW) == MENU_NORMAL_WINDOW) {
     listview_set_fixed_num_lines(state->list_view);
@@ -2048,11 +2046,7 @@ int rofi_view_error_dialog(const char *msg, int markup) {
     listview_set_fixed_num_lines(state->list_view);
   }
   rofi_view_calculate_window_width(state);
-  // Need to resize otherwise calculated desired height is wrong.
-  // widget_resize(WIDGET(state->main_window), state->width, 100);
-  // resize window vertically to suit
-  state->height =
-      widget_get_desired_height(WIDGET(state->main_window), state->width);
+  state->height = rofi_view_calculate_height(state);
 
   // Calculate window position.
   rofi_view_calculate_window_position(state);
