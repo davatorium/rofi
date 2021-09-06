@@ -1259,6 +1259,7 @@ static void drun_mode_destroy(Mode *sw) {
     g_free(rmpd->old_completer_input);
     g_free(rmpd->old_input);
     mode_destroy(rmpd->completer);
+    g_free(rmpd->completer);
 
     g_strfreev(rmpd->current_desktop_list);
     g_strfreev(rmpd->show_categories);

@@ -726,6 +726,7 @@ if ( queue == NULL ) {
         if ( po->type == PT_STRING_ALLOC ) {
           g_free( po->malloc_str);
         }
+        g_free ( po->filename );
         g_free ( po );
     }
     po = g_queue_peek_head ( file_queue );
@@ -874,6 +875,7 @@ gboolean rofi_theme_parse_file ( const char *file )
             if ( po->type == PT_STRING_ALLOC ) {
                 g_free( po->malloc_str);
             }
+            g_free ( po->filename );
             g_free ( po );
         }
     }
@@ -910,6 +912,7 @@ gboolean rofi_theme_parse_string ( const char *string )
             if ( po->type == PT_STRING_ALLOC ) {
               g_free( po->malloc_str);
             }
+            g_free ( po->filename );
             g_free ( po );
         }
     }

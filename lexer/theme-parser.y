@@ -322,6 +322,7 @@ t_main
         ThemeWidget *d = $2->widgets[i];
         rofi_theme_parse_merge_widgets(rofi_theme, d);
     }
+    rofi_theme_free ( $2 );
 }
 ;
 
@@ -392,6 +393,7 @@ t_entry_list:
         ThemeWidget *d = $9->widgets[i];
         rofi_theme_parse_merge_widgets(widget, d);
     }
+    g_free ( $4 );
     g_free ( name );
 }
 | t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
@@ -405,6 +407,7 @@ t_entry_list:
         ThemeWidget *d = $9->widgets[i];
         rofi_theme_parse_merge_widgets(widget, d);
     }
+    g_free ( $4 );
     g_free ( name );
 }
 | t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
@@ -418,6 +421,7 @@ t_entry_list:
         ThemeWidget *d = $10->widgets[i];
         rofi_theme_parse_merge_widgets(widget, d);
     }
+    g_free ( $4 );
     g_free ( name );
 }
 ;

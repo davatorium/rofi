@@ -401,6 +401,7 @@ static void run_mode_destroy(Mode *sw) {
     g_free(rmpd->old_input);
     g_free(rmpd->old_completer_input);
     mode_destroy(rmpd->completer);
+    g_free(rmpd->completer);
     g_free(rmpd);
     sw->private_data = NULL;
   }

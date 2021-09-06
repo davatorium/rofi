@@ -300,6 +300,7 @@ static void get_file_browser(Mode *sw) {
     }
     closedir(dir);
   }
+  g_free(cdir);
   g_qsort_with_data(pd->array, pd->array_length, sizeof(FBFile), compare, NULL);
 }
 
