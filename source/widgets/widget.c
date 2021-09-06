@@ -646,23 +646,23 @@ int widget_padding_get_padding_width(const widget *wid) {
   return width;
 }
 
-int widget_get_desired_height(widget *wid, const int width) {
+int widget_get_desired_height(widget *wid) {
   if (wid == NULL) {
     return 0;
   }
   if (wid->get_desired_height == NULL) {
     return wid->h;
   }
-  return wid->get_desired_height(wid, width);
+  return wid->get_desired_height(wid);
 }
-int widget_get_desired_width(widget *wid, const int height) {
+int widget_get_desired_width(widget *wid) {
   if (wid == NULL) {
     return 0;
   }
   if (wid->get_desired_width == NULL) {
     return wid->w;
   }
-  return wid->get_desired_width(wid, height);
+  return wid->get_desired_width(wid);
 }
 
 int widget_get_absolute_xpos(widget *wid) {

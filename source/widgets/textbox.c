@@ -76,24 +76,16 @@ static void textbox_resize(widget *wid, short w, short h) {
   textbox *tb = (textbox *)wid;
   textbox_moveresize(tb, tb->widget.x, tb->widget.y, w, h);
 }
-static int textbox_get_desired_height(widget *wid, const int width) {
+static int textbox_get_desired_height(widget *wid) {
   textbox *tb = (textbox *)wid;
-  unsigned int offset = ((tb->flags & TB_INDICATOR) ? DOT_OFFSET : 0);
   if ((tb->flags & TB_AUTOHEIGHT) == 0) {
     return tb->widget.h;
   }
   if (tb->changed) {
     __textbox_update_pango_text(tb);
   }
-  int old_width = pango_layout_get_width(tb->layout);
-  pango_layout_set_width(
-      tb->layout,
-      PANGO_SCALE *
-          (width - widget_padding_get_padding_width(WIDGET(tb)) - offset));
-
   int height =
       textbox_get_estimated_height(tb, pango_layout_get_line_count(tb->layout));
-  pango_layout_set_width(tb->layout, old_width);
   return height;
 }
 
@@ -907,7 +899,7 @@ int textbox_get_estimated_height(const textbox *tb, int eh) {
   int height = tb->tbfc->height;
   return (eh * height) + widget_padding_get_padding_height(WIDGET(tb));
 }
-int textbox_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {
+int textbox_get_desired_width(widget *wid) {
   if (wid == NULL) {
     return 0;
   }

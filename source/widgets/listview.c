@@ -206,7 +206,7 @@ static void listview_create_row(listview *lv, _listview_row *row) {
   g_list_free_full(list, g_free);
 }
 
-static int listview_get_desired_height(widget *wid, const int width);
+static int listview_get_desired_height(widget *wid);
 
 static void listview_free(widget *wid) {
   listview *lv = (listview *)wid;
@@ -319,8 +319,7 @@ static void barview_draw(widget *wid, cairo_t *draw) {
       if (lv->barview.direction == LEFT_TO_RIGHT) {
         for (unsigned int i = 0; i < max && width > 0; i++) {
           update_element(lv, i, i + offset, TRUE);
-          int twidth = widget_get_desired_width(WIDGET(lv->boxes[i].box),
-                                                lv->element_height);
+          int twidth = widget_get_desired_width(WIDGET(lv->boxes[i].box));
           if (twidth >= width) {
             if (!first) {
               break;
@@ -340,8 +339,7 @@ static void barview_draw(widget *wid, cairo_t *draw) {
         for (unsigned int i = 0;
              i < lv->cur_elements && width > 0 && i <= offset; i++) {
           update_element(lv, i, offset - i, TRUE);
-          int twidth = widget_get_desired_width(WIDGET(lv->boxes[i].box),
-                                                lv->element_height);
+          int twidth = widget_get_desired_width(WIDGET(lv->boxes[i].box));
           if (twidth >= width) {
             if (!first) {
               break;
@@ -689,8 +687,7 @@ listview *listview_create(widget *parent, const char *name,
     };
     textbox_text(row.textbox, buff);
   }
-  // Make textbox very wide.
-  lv->element_height = widget_get_desired_height(WIDGET(row.box), 100000);
+  lv->element_height = widget_get_desired_height(WIDGET(row.box));
   widget_free(WIDGET(row.box));
 
   lv->callback = cb;
@@ -880,8 +877,7 @@ void listview_nav_page_next(listview *lv) {
   }
 }
 
-static int listview_get_desired_height(widget *wid,
-                                       G_GNUC_UNUSED const int width) {
+static int listview_get_desired_height(widget *wid) {
   listview *lv = (listview *)wid;
   if (lv == NULL || lv->widget.enabled == FALSE) {
     return 0;

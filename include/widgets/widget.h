@@ -318,23 +318,21 @@ gboolean widget_motion_notify(widget *wid, gint x, gint y);
 
 /**
  * @param wid The widget handle
- * @param width The Widget width to get height for
  *
  * Get the desired height of this widget recursively.
  *
  * @returns the desired height of the widget in pixels.
  */
-int widget_get_desired_height(widget *wid, const int width);
+int widget_get_desired_height(widget *wid);
 
 /**
  * @param wid The widget handle
- * @param height The Widget height to get height for
  *
  * Get the desired width of this widget recursively.
  *
  * @returns the desired width of the widget in pixels.
  */
-int widget_get_desired_width(widget *wid, const int height);
+int widget_get_desired_width(widget *wid);
 /**
  * @param wid The widget handle
  *

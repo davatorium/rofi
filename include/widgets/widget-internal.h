@@ -80,8 +80,8 @@ struct _widget {
   /** Handle mouse motion, used for dragging */
   gboolean (*motion_notify)(struct _widget *, gint x, gint y);
 
-  int (*get_desired_height)(struct _widget *, const int width);
-  int (*get_desired_width)(struct _widget *, const int height);
+  int (*get_desired_height)(struct _widget *);
+  int (*get_desired_width)(struct _widget *);
 
   void (*set_state)(struct _widget *, const char *);
 

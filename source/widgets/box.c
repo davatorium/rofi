@@ -49,7 +49,7 @@ struct _box {
 
 static void box_update(widget *wid);
 
-static int box_get_desired_width(widget *wid, const int height) {
+static int box_get_desired_width(widget *wid) {
   box *b = (box *)wid;
   int spacing = distance_get_pixel(b->spacing, b->type);
   int width = 0;
@@ -71,10 +71,10 @@ static int box_get_desired_width(widget *wid, const int height) {
       }
       active_widgets++;
       if (child->expand == TRUE) {
-        width += widget_get_desired_width(child, height);
+        width += widget_get_desired_width(child);
         continue;
       }
-      width += widget_get_desired_width(child, height);
+      width += widget_get_desired_width(child);
     }
     if (active_widgets > 0) {
       width += (active_widgets - 1) * spacing;
@@ -86,13 +86,13 @@ static int box_get_desired_width(widget *wid, const int height) {
       if (!child->enabled) {
         continue;
       }
-      width = MAX(widget_get_desired_width(child, height), width);
+      width = MAX(widget_get_desired_width(child), width);
     }
   }
   width += widget_padding_get_padding_width(wid);
   return width;
 }
-static int box_get_desired_height(widget *wid, const int width) {
+static int box_get_desired_height(widget *wid) {
   box *b = (box *)wid;
   int spacing = distance_get_pixel(b->spacing, b->type);
   int height = 0;
@@ -105,7 +105,7 @@ static int box_get_desired_height(widget *wid, const int width) {
         continue;
       }
       active_widgets++;
-      height += widget_get_desired_height(child, width);
+      height += widget_get_desired_height(child);
     }
     if (active_widgets > 0) {
       height += (active_widgets - 1) * spacing;
@@ -117,7 +117,7 @@ static int box_get_desired_height(widget *wid, const int width) {
       if (!child->enabled) {
         continue;
       }
-      height = MAX(widget_get_desired_height(child, width), height);
+      height = MAX(widget_get_desired_height(child), height);
     }
   }
   height += widget_padding_get_padding_height(wid);
@@ -134,8 +134,7 @@ static void vert_calculate_size(box *b) {
        iter = g_list_next(iter)) {
     widget *child = (widget *)iter->data;
     if (child->enabled && child->expand == FALSE) {
-      widget_resize(child, rem_width,
-                    widget_get_desired_height(child, rem_width));
+      widget_resize(child, rem_width, widget_get_desired_height(child));
     }
   }
   b->max_size = 0;
@@ -202,7 +201,7 @@ static void hori_calculate_size(box *b) {
     widget *child = (widget *)iter->data;
     if (child->enabled && child->expand == FALSE) {
       widget_resize(child,
-                    widget_get_desired_width(child, rem_height), // child->w,
+                    widget_get_desired_width(child), // child->w,
                     rem_height);
     }
   }

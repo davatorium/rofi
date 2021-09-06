@@ -41,11 +41,11 @@ struct _container {
 
 static void container_update(widget *wid);
 
-static int container_get_desired_height(widget *widget, const int width) {
+static int container_get_desired_height(widget *widget) {
   container *b = (container *)widget;
   int height = 0;
   if (b->child) {
-    height += widget_get_desired_height(b->child, width);
+    height += widget_get_desired_height(b->child);
   }
   height += widget_padding_get_padding_height(widget);
   return height;
