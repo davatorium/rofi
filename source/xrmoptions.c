@@ -553,7 +553,8 @@ void config_parse_cmd_options(void) {
             g_string_append(str, " } ");
           }
           if (rofi_theme_parse_string(str->str) == 1) {
-            printf("failed\n");
+            /** Failed to parse, try again as string. */
+            rofi_clear_error_messages();
           }
         }
         g_string_free(str, TRUE);
