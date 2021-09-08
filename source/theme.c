@@ -186,6 +186,9 @@ void rofi_theme_property_free(Property *p) {
   g_free(p->name);
   if (p->type == P_STRING) {
     g_free(p->value.s);
+  } else if (p->type == P_LIST) {
+    g_list_free_full(p->value.list, g_free);
+    p->value.list = 0;
   } else if (p->type == P_LINK) {
     g_free(p->value.link.name);
     if (p->value.link.def_value) {
@@ -1346,22 +1349,6 @@ char *rofi_theme_parse_prepare_file(const char *file, const char *parent_file) {
   return filename;
 }
 
-static void rofi_theme_parse_merge_widgets_no_media(ThemeWidget *parent,
-                                                    ThemeWidget *child) {
-  g_assert(parent != NULL);
-  g_assert(child != NULL);
-
-  if (parent == rofi_theme && g_strcmp0(child->name, "*") == 0) {
-    rofi_theme_widget_add_properties(parent, child->properties);
-    return;
-  }
-
-  ThemeWidget *w = rofi_theme_find_or_create_name(parent, child->name);
-  rofi_theme_widget_add_properties(w, child->properties);
-  for (unsigned int i = 0; i < child->num_widgets; i++) {
-    rofi_theme_parse_merge_widgets_no_media(w, child->widgets[i]);
-  }
-}
 void rofi_theme_parse_merge_widgets(ThemeWidget *parent, ThemeWidget *child) {
   g_assert(parent != NULL);
   g_assert(child != NULL);
@@ -1387,17 +1374,22 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
   if (rwidget == NULL) {
     return;
   }
-  for (unsigned int i = 0; i < rwidget->num_widgets; i++) {
+  unsigned int i = 0;
+  //  for (unsigned int i = 0; i < rwidget->num_widgets; i++) {
+  while (i < rwidget->num_widgets) {
     ThemeWidget *widget = rwidget->widgets[i];
-    rofi_theme_parse_process_conditionals_int(mon, widget);
     if (widget->media != NULL) {
+      rwidget->num_widgets--;
+      for (unsigned x = i; x < rwidget->num_widgets; x++) {
+        rwidget->widgets[x] = rwidget->widgets[x + 1];
+      }
+      rwidget->widgets[rwidget->num_widgets] = NULL;
       switch (widget->media->type) {
       case THEME_MEDIA_TYPE_MIN_WIDTH: {
         int w = widget->media->value;
         if (mon.w >= w) {
           for (unsigned int x = 0; x < widget->num_widgets; x++) {
-            rofi_theme_parse_merge_widgets_no_media(rofi_theme,
-                                                    widget->widgets[x]);
+            rofi_theme_parse_merge_widgets(rwidget, widget->widgets[x]);
           }
         }
         break;
@@ -1406,8 +1398,7 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         int w = widget->media->value;
         if (mon.w < w) {
           for (unsigned int x = 0; x < widget->num_widgets; x++) {
-            rofi_theme_parse_merge_widgets_no_media(rofi_theme,
-                                                    widget->widgets[x]);
+            rofi_theme_parse_merge_widgets(rwidget, widget->widgets[x]);
           }
         }
         break;
@@ -1416,9 +1407,9 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         int h = widget->media->value;
         if (mon.h >= h) {
           for (unsigned int x = 0; x < widget->num_widgets; x++) {
-            rofi_theme_parse_merge_widgets_no_media(rofi_theme,
-                                                    widget->widgets[x]);
+            rofi_theme_parse_merge_widgets(rwidget, widget->widgets[x]);
           }
+        } else {
         }
         break;
       }
@@ -1426,8 +1417,7 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         int h = widget->media->value;
         if (mon.h < h) {
           for (unsigned int x = 0; x < widget->num_widgets; x++) {
-            rofi_theme_parse_merge_widgets_no_media(rofi_theme,
-                                                    widget->widgets[x]);
+            rofi_theme_parse_merge_widgets(rwidget, widget->widgets[x]);
           }
         }
         break;
@@ -1435,8 +1425,7 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
       case THEME_MEDIA_TYPE_MON_ID: {
         if (mon.monitor_id == widget->media->value) {
           for (unsigned int x = 0; x < widget->num_widgets; x++) {
-            rofi_theme_parse_merge_widgets_no_media(rofi_theme,
-                                                    widget->widgets[x]);
+            rofi_theme_parse_merge_widgets(rwidget, widget->widgets[x]);
           }
         }
         break;
@@ -1445,8 +1434,7 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         double r = widget->media->value;
         if ((mon.w / (double)mon.h) >= r) {
           for (unsigned int x = 0; x < widget->num_widgets; x++) {
-            rofi_theme_parse_merge_widgets_no_media(rofi_theme,
-                                                    widget->widgets[x]);
+            rofi_theme_parse_merge_widgets(rwidget, widget->widgets[x]);
           }
         }
         break;
@@ -1455,8 +1443,7 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         double r = widget->media->value;
         if ((mon.w / (double)mon.h) < r) {
           for (unsigned int x = 0; x < widget->num_widgets; x++) {
-            rofi_theme_parse_merge_widgets_no_media(rofi_theme,
-                                                    widget->widgets[x]);
+            rofi_theme_parse_merge_widgets(rwidget, widget->widgets[x]);
           }
         }
         break;
@@ -1465,6 +1452,11 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         break;
       }
       }
+      rofi_theme_free(widget);
+      // endif
+    } else {
+      rofi_theme_parse_process_conditionals_int(mon, widget);
+      i++;
     }
   }
 }
