@@ -1379,8 +1379,11 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
   while (i < rwidget->num_widgets) {
     ThemeWidget *widget = rwidget->widgets[i];
     if (widget->media != NULL) {
-      rwidget->widgets[i] = rwidget->widgets[rwidget->num_widgets - 1];
       rwidget->num_widgets--;
+      for (unsigned x = i; x < rwidget->num_widgets; x++) {
+        rwidget->widgets[x] = rwidget->widgets[x + 1];
+      }
+      rwidget->widgets[rwidget->num_widgets] = NULL;
       switch (widget->media->type) {
       case THEME_MEDIA_TYPE_MIN_WIDTH: {
         int w = widget->media->value;

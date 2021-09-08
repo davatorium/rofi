@@ -1009,6 +1009,12 @@ int main(int argc, char *argv[]) {
     cleanup();
     return EXIT_SUCCESS;
   }
+  if (find_arg("-dump-processed-theme") >= 0) {
+    rofi_theme_parse_process_conditionals();
+    rofi_theme_print(rofi_theme);
+    cleanup();
+    return EXIT_SUCCESS;
+  }
   if (find_arg("-dump-config") >= 0) {
     config_parse_dump_config_rasi_format(stdout, FALSE);
     cleanup();

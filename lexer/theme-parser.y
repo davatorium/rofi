@@ -376,7 +376,8 @@ t_entry_list:
     g_list_free ( $3 );
 }
 | t_entry_list T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
-    rofi_theme_widget_add_properties ( $1, $4);
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, "*" );
+    rofi_theme_widget_add_properties (widget, $4);
     if ( $4 ) {
         g_hash_table_destroy ( $4 );
     }
