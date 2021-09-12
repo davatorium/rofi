@@ -4,6 +4,30 @@
 
 **rofi-theme** - Rofi theme format files
 
+## DEFAULT THEME LOADING
+
+By default, rofi loads the default theme. This theme is **always** loaded.
+In the default (always loaded) configuration it does:
+
+```css
+@theme "default"
+```
+
+To unload the default theme, and load another theme, add `@theme` to your
+`config.rasi` file.
+
+If you have a theme loaded by `@theme` or use the default theme, you can tweak
+it by adding overriding elements at the end of your `config.rasi` file.
+
+For the difference between `@import` and `@theme` see the `Multiple file
+handling` section in this manpage.
+
+To see the default theme, run the following command:
+
+```bash
+rofi -no-config -dump-theme
+```
+
 ## DESCRIPTION
 
 The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed. From a very
