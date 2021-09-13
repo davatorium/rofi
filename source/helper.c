@@ -183,7 +183,8 @@ static char *utf8_helper_simplify_string(const char *s) {
       0,
   };
   // Compose the string in maximally composed form.
-  char *str = g_malloc0((g_utf8_strlen(s, 0) * 6 + 2));
+  ssize_t str_size = (g_utf8_strlen(s, -1) * 6 + 2 + 1) * sizeof(char);
+  char *str = g_malloc0(str_size);
   char *striter = str;
   for (const char *iter = s; iter && *iter; iter = g_utf8_next_char(iter)) {
     gunichar uc = g_utf8_get_char(iter);
