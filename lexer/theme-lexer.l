@@ -86,7 +86,6 @@ typedef struct _ParseObject {
 } ParseObject;
 
 
-GList  *prev_imported_files = NULL;
 GQueue *file_queue = NULL;
 GQueue *queue = NULL;
 

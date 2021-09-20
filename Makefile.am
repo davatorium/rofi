@@ -348,6 +348,7 @@ helper_pidfile_SOURCES=\
 					   include/mode-private.h\
 					   source/helper.c\
 					   source/theme.c\
+						 source/css-colors.c\
 					   source/rofi-types.c\
 					   include/rofi-types.h\
 					   include/helper.h\
@@ -468,6 +469,7 @@ helper_test_SOURCES=\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
 	source/theme.c\
+	source/css-colors.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	test/helper-test.c
@@ -505,6 +507,7 @@ helper_expand_SOURCES=\
 	include/mode-private.h\
 	source/helper.c\
 	source/theme.c\
+	source/css-colors.c\
 	include/helper.h\
 	include/helper-theme.h\
 	include/xrmoptions.h\
@@ -527,6 +530,7 @@ helper_config_cmdline_parser_SOURCES=\
 	include/mode-private.h\
 	source/helper.c\
 	source/theme.c\
+	source/css-colors.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	include/helper.h\
@@ -544,7 +548,8 @@ mode_test_SOURCES=\
 				  source/dialogs/help-keys.c\
 				  source/helper.c\
 				  source/theme.c\
-				  source/mode.c\
+					source/css-colors.c\
+					source/mode.c\
 				  source/rofi-types.c\
 				  include/rofi-types.h\
 				  source/xrmoptions.c\
@@ -560,6 +565,7 @@ helper_tokenize_SOURCES=\
 					   include/mode-private.h\
 					   source/helper.c\
 					   source/theme.c\
+						 source/css-colors.c\
 					   source/rofi-types.c\
 					   include/rofi-types.h\
 					   include/helper.h\

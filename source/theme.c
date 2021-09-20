@@ -293,6 +293,27 @@ static void rofi_theme_print_distance_unit(RofiDistanceUnit *unit) {
   }
 }
 
+static void rofi_theme_print_color(ThemeColor color) {
+  uint8_t r, g, b;
+  g = 255 * color.green;
+  r = 255 * color.red;
+  b = 255 * color.blue;
+  if (color.alpha < 0.00001) {
+    printf("transparent");
+    return;
+  }
+  for (uint32_t x = 0; x < num_CSSColors; x++) {
+    if (CSSColors[x].r == r && CSSColors[x].g == g && CSSColors[x].b == b) {
+      printf("%s", CSSColors[x].name);
+      if (color.alpha < 1) {
+        printf("/%.0f%%", color.alpha * 100.0);
+      }
+      return;
+    }
+  }
+  printf("rgba ( %.0f, %.0f, %.0f, %.0f %% )", (color.red * 255.0),
+         (color.green * 255.0), (color.blue * 255.0), (color.alpha * 100.0));
+}
 static void rofi_theme_print_distance(RofiDistance d) {
   if (d.base.modtype == ROFI_DISTANCE_MODIFIER_GROUP) {
     fputs("calc( ", stdout);
@@ -345,11 +366,7 @@ static void int_rofi_theme_print_property(Property *p) {
       printf("italic ");
     }
     if (p->value.highlight.style & ROFI_HL_COLOR) {
-      printf("rgba ( %.0f, %.0f, %.0f, %.0f %% )",
-             (p->value.highlight.color.red * 255.0),
-             (p->value.highlight.color.green * 255.0),
-             (p->value.highlight.color.blue * 255.0),
-             (p->value.highlight.color.alpha * 100.0));
+      rofi_theme_print_color(p->value.highlight.color);
     }
     break;
   case P_POSITION: {
@@ -401,9 +418,7 @@ static void int_rofi_theme_print_property(Property *p) {
     printf("%s", p->value.b ? "true" : "false");
     break;
   case P_COLOR:
-    printf("rgba ( %.0f, %.0f, %.0f, %.0f %% )", (p->value.color.red * 255.0),
-           (p->value.color.green * 255.0), (p->value.color.blue * 255.0),
-           (p->value.color.alpha * 100.0));
+    rofi_theme_print_color(p->value.color);
     break;
   case P_IMAGE: {
     if (p->value.image.type == ROFI_IMAGE_URL) {
@@ -415,9 +430,7 @@ static void int_rofi_theme_print_property(Property *p) {
       for (GList *l = g_list_first(p->value.image.colors); l != NULL;
            l = g_list_next(l)) {
         ThemeColor *color = (ThemeColor *)l->data;
-        printf("rgba ( %.0f, %.0f, %.0f, %.0f %% )", (color->red * 255.0),
-               (color->green * 255.0), (color->blue * 255.0),
-               (color->alpha * 100.0));
+        rofi_theme_print_color(*color);
         index++;
         if (index < length) {
           printf(", ");
