@@ -644,6 +644,22 @@ static gboolean __config_parser_set_property(XrmOption *option,
 }
 
 gboolean config_parse_set_property(const Property *p, char **error) {
+  if (g_ascii_strcasecmp(p->name, "theme") == 0) {
+    if (p->type == P_STRING) {
+      *error = g_strdup_printf("The option:\n<b>\nconfiguration\n{\n\ttheme: "
+                               "\"%s\";\n}</b>\nis deprecated. Please replace "
+                               "with: <b>@theme \"%s\"</b> "
+                               "after the configuration block.",
+                               p->value.s, p->value.s);
+    } else {
+      *error = g_strdup_printf("The option:\n<b>\nconfiguration\n{\n\ttheme: "
+                               "\"%s\";\n}</b>\nis deprecated. Please replace "
+                               "with: <b>@theme \"%s\"</b> "
+                               "after the configuration block.",
+                               "myTheme", "myTheme");
+    }
+    return TRUE;
+  }
   for (unsigned int i = 0; i < sizeof(xrmOptions) / sizeof(XrmOption); ++i) {
     XrmOption *op = &(xrmOptions[i]);
     if (g_strcmp0(op->name, p->name) == 0) {

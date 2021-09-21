@@ -35,6 +35,7 @@
 #include "theme.h"
 #include "xrmoptions.h"
 #include "css-colors.h"
+#include "rofi.h"
 
 typedef struct YYLTYPE {
   int first_line;
@@ -447,6 +448,9 @@ t_config_property
         yyerror ( &(@$), @$.filename, error );
 #else
         g_warning("%s:%d:%d: %s\n", @$.filename, @$.first_line, @$.first_column, error);
+        GString *str = g_string_new("");
+        g_string_append_printf(str,"%s:%d:%d: %s\n", @$.filename, @$.first_line, @$.first_column, error);
+        rofi_add_error_message(str);
 #endif
         g_free(error);
     }
