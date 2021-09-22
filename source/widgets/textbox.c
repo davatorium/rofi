@@ -323,14 +323,18 @@ void textbox_text(textbox *tb, const char *text) {
   g_free(tb->text);
   const gchar *last_pointer = NULL;
 
-  if (g_utf8_validate(text, -1, &last_pointer)) {
-    tb->text = g_strdup(text);
+  if (text == NULL) {
+    tb->text = g_strdup("Invalid string.");
   } else {
-    if (last_pointer != NULL) {
-      // Copy string up to invalid character.
-      tb->text = g_strndup(text, (last_pointer - text));
+    if (g_utf8_validate(text, -1, &last_pointer)) {
+      tb->text = g_strdup(text);
     } else {
-      tb->text = g_strdup("Invalid UTF-8 string.");
+      if (last_pointer != NULL) {
+        // Copy string up to invalid character.
+        tb->text = g_strndup(text, (last_pointer - text));
+      } else {
+        tb->text = g_strdup("Invalid UTF-8 string.");
+      }
     }
   }
   __textbox_update_pango_text(tb);

@@ -32,6 +32,7 @@
 #include <unistd.h>
 
 #include <dirent.h>
+#include <glib/gstdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -172,7 +173,7 @@ static gint compare(gconstpointer a, gconstpointer b, gpointer data) {
   return comparator(a, b, data);
 }
 
-static time_t get_time(const struct stat *statbuf) {
+static time_t get_time(const GStatBuf *statbuf) {
   switch (file_browser_config.sorting_time) {
   case FB_MTIME:
     return statbuf->st_mtim.tv_sec;
@@ -186,17 +187,22 @@ static time_t get_time(const struct stat *statbuf) {
 }
 
 static void set_time(FBFile *file) {
-  gchar *path = g_filename_from_utf8(file->path, -1, NULL, NULL, NULL);
+  // GError *error = NULL;
+  //  gchar *path = g_filename_from_utf8(file->path, -1, NULL, NULL, &error);
+  //  if (error) {
+  //    g_warning("Failed to convert filename: %s: %s", file->path,
+  //    error->message); g_error_free(error); return;
+  //  }
 
-  struct stat statbuf;
+  GStatBuf statbuf;
 
-  if (stat(path, &statbuf) == 0) {
+  if (g_lstat(file->path, &statbuf) == 0) {
     file->time = get_time(&statbuf);
   } else {
-    g_warning("Failed to stat file: %s, %s", path, strerror(errno));
+    g_warning("Failed to stat file: %s, %s", file->path, strerror(errno));
   }
 
-  g_free(path);
+  //  g_free(path);
 }
 
 static void get_file_browser(Mode *sw) {
@@ -243,6 +249,10 @@ static void get_file_browser(Mode *sw) {
         // Rofi expects utf-8, so lets convert the filename.
         pd->array[pd->array_length].name =
             g_filename_to_utf8(rd->d_name, -1, NULL, NULL, NULL);
+        if (pd->array[pd->array_length].name == NULL) {
+          pd->array[pd->array_length].name =
+              g_strdup("Invalid UTF-8 filename.");
+        }
         pd->array[pd->array_length].path =
             g_build_filename(cdir, rd->d_name, NULL);
         pd->array[pd->array_length].type =
@@ -262,6 +272,10 @@ static void get_file_browser(Mode *sw) {
         // Rofi expects utf-8, so lets convert the filename.
         pd->array[pd->array_length].name =
             g_filename_to_utf8(rd->d_name, -1, NULL, NULL, NULL);
+        if (pd->array[pd->array_length].name == NULL) {
+          pd->array[pd->array_length].name =
+              g_strdup("Invalid UTF-8 filename.");
+        }
         pd->array[pd->array_length].path =
             g_build_filename(cdir, rd->d_name, NULL);
         pd->array[pd->array_length].icon_fetch_uid = 0;
@@ -273,11 +287,13 @@ static void get_file_browser(Mode *sw) {
           // mark it as file.
           // TODO have a 'broken link' mode?
           // Convert full path to right encoding.
-          char *file = g_filename_from_utf8(pd->array[pd->array_length].path,
-                                            -1, NULL, NULL, NULL);
-          if (file) {
-            struct stat statbuf;
-            if (stat(file, &statbuf) == 0) {
+          // DD: Path should be in file encoding, not utf-8
+          //          char *file =
+          //          g_filename_from_utf8(pd->array[pd->array_length].path,
+          //                                            -1, NULL, NULL, NULL);
+          if (pd->array[pd->array_length].path) {
+            GStatBuf statbuf;
+            if (g_stat(pd->array[pd->array_length].path, &statbuf) == 0) {
               if (S_ISDIR(statbuf.st_mode)) {
                 pd->array[pd->array_length].type = DIRECTORY;
               } else if (S_ISREG(statbuf.st_mode)) {
@@ -288,10 +304,11 @@ static void get_file_browser(Mode *sw) {
                 pd->array[pd->array_length].time = get_time(&statbuf);
               }
             } else {
-              g_warning("Failed to stat file: %s, %s", file, strerror(errno));
+              g_warning("Failed to stat file: %s, %s",
+                        pd->array[pd->array_length].path, strerror(errno));
             }
 
-            g_free(file);
+            //            g_free(file);
           }
         }
         pd->array_length++;
@@ -435,12 +452,12 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
         get_file_browser(sw);
         return RESET_DIALOG;
       } else if (pd->array[selected_line].type == RFILE) {
-        char *d = g_filename_from_utf8(pd->array[selected_line].path, -1, NULL,
-                                       NULL, NULL);
-        char *d_esc = g_shell_quote(d);
+        //        char *d = g_filename_from_utf8(pd->array[selected_line].path,
+        //        -1, NULL,
+        //                                       NULL, NULL);
+        char *d_esc = g_shell_quote(pd->array[selected_line].path);
         char *cmd = g_strdup_printf("xdg-open %s", d_esc);
         g_free(d_esc);
-        g_free(d);
         char *cdir = g_file_get_path(pd->current_dir);
         helper_execute_command(cdir, cmd, FALSE, NULL);
         g_free(cdir);
