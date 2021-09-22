@@ -248,11 +248,7 @@ static void get_file_browser(Mode *sw) {
             g_realloc(pd->array, (pd->array_length + 1) * sizeof(FBFile));
         // Rofi expects utf-8, so lets convert the filename.
         pd->array[pd->array_length].name =
-            g_filename_to_utf8(rd->d_name, -1, NULL, NULL, NULL);
-        if (pd->array[pd->array_length].name == NULL) {
-          pd->array[pd->array_length].name =
-              g_strdup("Invalid UTF-8 filename.");
-        }
+            rofi_force_utf8(rd->d_name, strlen(rd->d_name));
         pd->array[pd->array_length].path =
             g_build_filename(cdir, rd->d_name, NULL);
         pd->array[pd->array_length].type =
@@ -271,11 +267,7 @@ static void get_file_browser(Mode *sw) {
             g_realloc(pd->array, (pd->array_length + 1) * sizeof(FBFile));
         // Rofi expects utf-8, so lets convert the filename.
         pd->array[pd->array_length].name =
-            g_filename_to_utf8(rd->d_name, -1, NULL, NULL, NULL);
-        if (pd->array[pd->array_length].name == NULL) {
-          pd->array[pd->array_length].name =
-              g_strdup("Invalid UTF-8 filename.");
-        }
+            rofi_force_utf8(rd->d_name, strlen(rd->d_name));
         pd->array[pd->array_length].path =
             g_build_filename(cdir, rd->d_name, NULL);
         pd->array[pd->array_length].icon_fetch_uid = 0;
