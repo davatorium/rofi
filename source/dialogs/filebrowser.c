@@ -250,8 +250,7 @@ static void get_file_browser(Mode *sw) {
         pd->array[pd->array_length].name =
             g_filename_to_utf8(rd->d_name, -1, NULL, NULL, NULL);
         if (pd->array[pd->array_length].name == NULL) {
-          pd->array[pd->array_length].name =
-              g_strdup("Invalid UTF-8 filename.");
+          pd->array[pd->array_length].name = rofi_force_utf8(rd->d_name, -1);
         }
         pd->array[pd->array_length].path =
             g_build_filename(cdir, rd->d_name, NULL);
@@ -273,8 +272,7 @@ static void get_file_browser(Mode *sw) {
         pd->array[pd->array_length].name =
             g_filename_to_utf8(rd->d_name, -1, NULL, NULL, NULL);
         if (pd->array[pd->array_length].name == NULL) {
-          pd->array[pd->array_length].name =
-              g_strdup("Invalid UTF-8 filename.");
+          pd->array[pd->array_length].name = rofi_force_utf8(rd->d_name, -1);
         }
         pd->array[pd->array_length].path =
             g_build_filename(cdir, rd->d_name, NULL);
