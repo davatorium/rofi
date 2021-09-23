@@ -121,6 +121,7 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
   pd->cmd_list[pd->cmd_list_length].icon_name = NULL;
   pd->cmd_list[pd->cmd_list_length].meta = NULL;
   pd->cmd_list[pd->cmd_list_length].info = NULL;
+  pd->cmd_list[pd->cmd_list_length].nonselectable = FALSE;
   char *end = data;
   while (end < data + len && *end != '\0') {
     end++;
