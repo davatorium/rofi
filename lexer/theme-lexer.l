@@ -176,6 +176,7 @@ UANYNP   {ASCNP}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
+WORD_ENV   [[:alnum:]_-]+
 MEDIA_NAME [[:alpha:]-]+
 COLOR_NAME [[:alpha:]]+
 STRING     \"{UANYN}*\"
@@ -194,7 +195,7 @@ INHERIT    (inherit)
 
 ASTERIX    \*
 
-ENV        $\{[[:alnum:]]*\}
+ENV        $\{[[:alpha:]_][[:alnum:]_]*\}
 
 MODIFIER_ADD      \+
 MODIFIER_SUBTRACT -
@@ -551,7 +552,7 @@ if ( queue == NULL ) {
         g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES_ENV);
     }
 }
-<PROPERTIES_ENV_VAR>{WORD} {
+<PROPERTIES_ENV_VAR>{WORD_ENV} {
     const char *val = g_getenv(yytext);
     if ( val ) {
         ParseObject *top = g_queue_peek_head ( file_queue );
