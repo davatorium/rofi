@@ -176,7 +176,7 @@ UANYNP   {ASCNP}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
-WORD_ENV   [[:alnum:]_-]+
+WORD_ENV   [[:alpha:]_][[:alnum:]_]*
 MEDIA_NAME [[:alpha:]-]+
 COLOR_NAME [[:alpha:]]+
 STRING     \"{UANYN}*\"
