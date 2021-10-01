@@ -201,7 +201,7 @@ converted to the new (internal) config system.
 This option allows you to set a fallback icon from applications.
 ```css
 configuration {
-  application_fallback_icon: "my-icon";
+  application-fallback-icon: "my-icon";
 }
 ```
 
