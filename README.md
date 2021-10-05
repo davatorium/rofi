@@ -164,7 +164,7 @@ Please see the [themes](https://github.com/davatorium/rofi/wiki/themes) section 
 
 # Wiki 
 
-| ❗ The Wiki is **Community maintained**   |
+| ❗ **The Wiki is Community maintained and are not thoroughly tested**   |
 | --- |
 
 [Go to wiki](https://github.com/davatorium/rofi/wiki) .
