@@ -9,7 +9,7 @@
 <h1 align="center">
   Rofi
 </h1>
-<p align="center">A window switcher, Application launcher and dmenu replacement.</p>
+<p align="center"><i>A window switcher, Application launcher and dmenu replacement</i>.</p>
 
 <img src="https://raw.githubusercontent.com/Alex0Blackwell/dotfiles/master/.images/rofi.gif" height=400 width=1200>
 
