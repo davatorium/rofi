@@ -1,10 +1,11 @@
-
-[![Issues](https://img.shields.io/github/issues/davatorium/rofi.svg)](https://github.com/davatorium/rofi/issues)
-[![Forks](https://img.shields.io/github/forks/davatorium/rofi.svg)](https://github.com/davatorium/rofi/network)
-[![Stars](https://img.shields.io/github/stars/davatorium/rofi.svg)](https://github.com/davatorium/rofi/stargazers)
-[![Downloads](https://img.shields.io/github/downloads/davatorium/rofi/total.svg)](https://github.com/davatorium/rofi/releases)
-[![Forum](https://img.shields.io/badge/forum-online-green.svg)](https://github.com/davatorium/rofi/discussions)
-[![Packages](https://repology.org/badge/tiny-repos/rofi.svg)](https://repology.org/metapackage/rofi/versions)
+<p align="center">
+<a href="https://github.com/davatorium/rofi/issues"><img src="https://img.shields.io/github/issues/davatorium/rofi.svg"></a>
+<a href="https://img.shields.io/github/forks/davatorium/rofi.svg"><img src="https://img.shields.io/github/forks/davatorium/rofi.svg"></a>
+<a href="https://github.com/davatorium/rofi/stargazers"><img src="https://img.shields.io/github/stars/davatorium/rofi.svg"></a>
+<a href="https://github.com/davatorium/rofi/releases"><img src="https://img.shields.io/github/downloads/davatorium/rofi/total.svg"></a>
+<a href="https://github.com/davatorium/rofi/discussions"><img src="https://img.shields.io/badge/forum-online-green.svg"></a>
+<a href="https://repology.org/metapackage/rofi/versions"><img src="https://repology.org/badge/tiny-repos/rofi.svg"></a>
+</p>
 
 <h1 align="center">
   Rofi
