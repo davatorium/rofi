@@ -645,7 +645,7 @@ Select first line that matches the given string
 `-mesg` *string*
 
 Add a message line below the filter entry box. Supports Pango markup.
-For more information on supported markup, see [here](https://developer.gnome.org/pygtk/stable/pango-markup-language.html)
+For more information on supported markup, see [here](https://docs.gtk.org/Pango/pango_markup.html)
 
 `-dump`
 
