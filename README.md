@@ -172,15 +172,15 @@ Please see the [themes](https://github.com/davatorium/rofi/wiki/themes) section 
 
 #### Contents
 
-* [User scripts](User-scripts)
-* [dmenu Specs](dmenu_specs)
-* [mode Specs](mode-Specs)
-* [F.A.Q.](Frequently-Asked-Questions).
-* [Script mode](rfc-script-mode)
-* [Debugging](Debugging-Rofi)
-* [Creating an issue](../blob/master/.github/CONTRIBUTING.md)
+* [User scripts](https://github.com/davatorium/rofi/wiki/User-scripts)
+* [dmenu Specs](https://github.com/davatorium/rofi/wiki/dmenu_specs)
+* [mode Specs](https://github.com/davatorium/rofi/wiki/mode-Specs)
+* [F.A.Q.](https://github.com/davatorium/rofi/wiki/Frequently-Asked-Questions).
+* [Script mode](https://github.com/davatorium/rofi/wiki/rfc-script-mode)
+* [Debugging](https://github.com/davatorium/rofi/wiki/Debugging-Rofi)
+* [Creating an issue](https://github.com/davatorium/rofi/blob/master/.github/CONTRIBUTING.md)
 * [FORUM](https://reddit.com/r/qtools/)
-* [Creating a Pull request](Creating-a-pull-request)
+* [Creating a Pull request](https://github.com/davatorium/rofi/wiki/Creating-a-pull-request)
 
 # Discussion places:
 
