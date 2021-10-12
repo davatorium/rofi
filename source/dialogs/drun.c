@@ -1123,8 +1123,7 @@ static int drun_mode_init(Mode *sw) {
   drun_mode_parse_display_format();
   get_apps(pd);
 
-  pd->completer = create_new_file_browser();
-  mode_init(pd->completer);
+  pd->completer = NULL;
   return TRUE;
 }
 static void drun_entry_clear(DRunModeEntry *e) {
@@ -1236,6 +1235,8 @@ static ModeMode drun_mode_result(Mode *sw, int mretv, char **input,
             g_free(*input);
           *input = g_strdup(rmpd->old_completer_input);
 
+          rmpd->completer = create_new_file_browser();
+          mode_init(rmpd->completer);
           rmpd->file_complete = TRUE;
         }
         g_regex_unref(regex);
@@ -1258,8 +1259,10 @@ static void drun_mode_destroy(Mode *sw) {
 
     g_free(rmpd->old_completer_input);
     g_free(rmpd->old_input);
-    mode_destroy(rmpd->completer);
-    g_free(rmpd->completer);
+    if (rmpd->completer != NULL) {
+      mode_destroy(rmpd->completer);
+      g_free(rmpd->completer);
+    }
 
     g_strfreev(rmpd->current_desktop_list);
     g_strfreev(rmpd->show_categories);
