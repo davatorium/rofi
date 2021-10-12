@@ -1071,15 +1071,15 @@ This property sets the distance between the packed widgets (both horizontally an
 More dynamic spacing can be achieved by adding dummy widgets, for example to make one widget centered:
 
 ```
-|--------------------------------------------|
-|  |-----------|  |--------|  |-----------|  |
-|  | dummy     |  | child  |  | dummy     |  |
-|  | expand: y |  |        |  | expand: y |  |
-|  |           |  |        |  |           |  |
-|  |           |  |        |  |           |  |
-|  |           |  |        |  |           |  |
-|  |-----------|  |--------|  |-----------|  |
-|--------------------------------------------|
+|----------------------------------------------------|
+|  |---------------|  |--------|  |---------------|  |
+|  | dummy         |  | child  |  | dummy         |  |
+|  | expand: true; |  |        |  | expand: true; |  |
+|  |               |  |        |  |               |  |
+|  |               |  |        |  |               |  |
+|  |               |  |        |  |               |  |
+|  |---------------|  |--------|  |---------------|  |
+|----------------------------------------------------|
 ```
 
 If both dummy widgets are set to expand, `child` will be centered. Depending on the `expand` flag of child the
