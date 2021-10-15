@@ -545,7 +545,9 @@ static void dmenu_print_results(DmenuModePrivateData *pd, const char *input) {
     if (pd->selected_line != UINT32_MAX) {
       cmd = cmd_list[pd->selected_line].entry;
     }
-    rofi_output_formatted_line(pd->format, cmd, pd->selected_line, input);
+    if ( cmd ) {
+      rofi_output_formatted_line(pd->format, cmd, pd->selected_line, input);
+    }
   }
 }
 
