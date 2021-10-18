@@ -382,8 +382,7 @@ static int run_mode_init(Mode *sw) {
     RunModePrivateData *pd = g_malloc0(sizeof(*pd));
     sw->private_data = (void *)pd;
     pd->cmd_list = get_apps(&(pd->cmd_list_length));
-    pd->completer = create_new_file_browser();
-    mode_init(pd->completer);
+    pd->completer = NULL;
   }
 
   return TRUE;
@@ -400,8 +399,10 @@ static void run_mode_destroy(Mode *sw) {
     g_free(rmpd->cmd_list);
     g_free(rmpd->old_input);
     g_free(rmpd->old_completer_input);
-    mode_destroy(rmpd->completer);
-    g_free(rmpd->completer);
+    if (rmpd->completer != NULL) {
+      mode_destroy(rmpd->completer);
+      g_free(rmpd->completer);
+    }
     g_free(rmpd);
     sw->private_data = NULL;
   }
@@ -485,6 +486,8 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
         g_free(*input);
       *input = g_strdup(rmpd->old_completer_input);
 
+      rmpd->completer = create_new_file_browser();
+      mode_init(rmpd->completer);
       rmpd->file_complete = TRUE;
     }
   }

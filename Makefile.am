@@ -186,23 +186,6 @@ EXTRA_DIST += \
 	doc/rofi-sensible-terminal.1.markdown \
 	doc/rofi.1.markdown
 
-##
-# Readme.md
-##
-markdown_SC_FILES=\
-	README.md
-
-# want the html to show up in release.
-md_verbose = $(md_verbose_@AM_V@)
-md_verbose_ = $(md_verbose_@AM_DEFAULT_V@)
-md_verbose_0 = @echo "  MD" $@;
-
-markdown_FILES=\
-	README.html
-
-README.html: README.md
-	$(md_verbose) markdown $< > $@
-
 ###
 # Themes
 ###
@@ -245,7 +228,6 @@ theme_DATA=\
 ##
 EXTRA_DIST+=\
 	$(markdown_FILES)\
-	$(markdown_SC_FILES)\
 	Examples/i3_switch_workspaces.sh\
 	Examples/i3_empty_workspace.sh\
 	Examples/test_script_mode.sh\

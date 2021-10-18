@@ -672,21 +672,23 @@ gboolean config_parse_set_property(const Property *p, char **error) {
       return __config_parser_set_property(op, p, error);
     }
   }
-  *error = g_strdup_printf("Option: %s is not found.", p->name);
+  //*error = g_strdup_printf("Option: %s is not found.", p->name);
+  g_warning("Option: %s is not found.", p->name);
+
 
   for (GList *iter = g_list_first(extra_parsed_options); iter != NULL;
        iter = g_list_next(iter)) {
     if (g_strcmp0(((Property *)(iter->data))->name, p->name) == 0) {
       rofi_theme_property_free((Property *)(iter->data));
       iter->data = (void *)rofi_theme_property_copy(p);
-      return TRUE;
+      return FALSE;
     }
   }
   g_debug("Adding option: %s to backup list.", p->name);
   extra_parsed_options =
       g_list_append(extra_parsed_options, rofi_theme_property_copy(p));
 
-  return TRUE;
+  return FALSE;
 }
 
 void config_xresource_free(void) {

@@ -92,6 +92,7 @@ typedef struct {
   GFile *current_dir;
   FBFile *array;
   unsigned int array_length;
+  unsigned int array_length_real;
 } FileBrowserModePrivateData;
 
 /**
@@ -119,6 +120,7 @@ static void free_list(FileBrowserModePrivateData *pd) {
   g_free(pd->array);
   pd->array = NULL;
   pd->array_length = 0;
+  pd->array_length_real = 0;
 }
 #include <dirent.h>
 #include <sys/types.h>
@@ -205,6 +207,14 @@ static void set_time(FBFile *file) {
   //  g_free(path);
 }
 
+inline static void fb_resize_array(FileBrowserModePrivateData *pd) {
+  if ((pd->array_length + 1) > pd->array_length_real) {
+    pd->array_length_real += 256;
+    pd->array =
+        g_realloc(pd->array, (pd->array_length_real + 1) * sizeof(FBFile));
+  }
+}
+
 static void get_file_browser(Mode *sw) {
   FileBrowserModePrivateData *pd =
       (FileBrowserModePrivateData *)mode_get_private_data(sw);
@@ -218,8 +228,7 @@ static void get_file_browser(Mode *sw) {
     struct dirent *rd = NULL;
     while ((rd = readdir(dir)) != NULL) {
       if (g_strcmp0(rd->d_name, "..") == 0) {
-        pd->array =
-            g_realloc(pd->array, (pd->array_length + 1) * sizeof(FBFile));
+        fb_resize_array(pd);
         // Rofi expects utf-8, so lets convert the filename.
         pd->array[pd->array_length].name = g_strdup("..");
         pd->array[pd->array_length].path = NULL;
@@ -244,8 +253,7 @@ static void get_file_browser(Mode *sw) {
         break;
       case DT_REG:
       case DT_DIR:
-        pd->array =
-            g_realloc(pd->array, (pd->array_length + 1) * sizeof(FBFile));
+        fb_resize_array(pd);
         // Rofi expects utf-8, so lets convert the filename.
         pd->array[pd->array_length].name =
             g_filename_to_utf8(rd->d_name, -1, NULL, NULL, NULL);
@@ -266,8 +274,7 @@ static void get_file_browser(Mode *sw) {
         pd->array_length++;
         break;
       case DT_LNK:
-        pd->array =
-            g_realloc(pd->array, (pd->array_length + 1) * sizeof(FBFile));
+        fb_resize_array(pd);
         // Rofi expects utf-8, so lets convert the filename.
         pd->array[pd->array_length].name =
             g_filename_to_utf8(rd->d_name, -1, NULL, NULL, NULL);
