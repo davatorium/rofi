@@ -170,8 +170,16 @@ void rofi_view_restart(RofiViewState *state);
  *
  * @returns TRUE if action was handled.
  */
-gboolean rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
-                                  guint action);
+gboolean rofi_view_check_action(RofiViewState *state, BindingsScope scope,
+                                guint action);
+
+/**
+ * @param state The handle to the view
+ * @param scope The scope of the action
+ * @param action The action
+ */
+void rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
+                              guint action);
 
 /**
  * @param state The handle to the view

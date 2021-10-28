@@ -548,6 +548,21 @@ widget *widget_find_mouse_target(widget *wid, WidgetType type, gint x, gint y) {
   return NULL;
 }
 
+WidgetTriggerActionResult widget_check_action(widget *wid, guint action,
+                                                gint x, gint y) {
+  if (wid == NULL) {
+    return FALSE;
+  }
+  if (wid->trigger_action == NULL) {
+    return FALSE;
+  }
+  /*
+   * TODO: We should probably add a check_action callback to the widgets
+   * to do extra checks
+   */
+  return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
+}
+
 WidgetTriggerActionResult widget_trigger_action(widget *wid, guint action,
                                                 gint x, gint y) {
   if (wid == NULL) {
