@@ -40,12 +40,12 @@ Rofi is not:
 
 - [Features](#features)
 - [Modi](#modi)
-- [Manpages]($manpage)
+- [Manpages](#manpage)
 - [Installation](#installation)
 - [Quickstart](#quickstart) 
    - [Usage](#usage)
    - [Configuration](#configuration)
-   - [Themes]($themes)
+   - [Themes](#themes)
 - [Screenshots](#screenshots)
 - [Wiki](#wiki)
 - [Discussion places](#discussion-places)
@@ -174,6 +174,7 @@ Please see the [themes](https://github.com/davatorium/rofi/wiki/themes) section 
 #### Contents
 
 * [User scripts](https://github.com/davatorium/rofi/wiki/User-scripts)
+* [Examples](https://github.com/davatorium/rofi/wiki#examples)
 * [dmenu Specs](https://github.com/davatorium/rofi/wiki/dmenu_specs)
 * [mode Specs](https://github.com/davatorium/rofi/wiki/mode-Specs)
 * [F.A.Q.](https://github.com/davatorium/rofi/wiki/Frequently-Asked-Questions).
