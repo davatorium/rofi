@@ -67,6 +67,11 @@ static void combi_mode_parse_switchers(Mode *sw) {
   // Split token on ','. This modifies switcher_str.
   for (char *token = strtok_r(switcher_str, sep, &savept); token != NULL;
        token = strtok_r(NULL, sep, &savept)) {
+    /* Check against recursion. */
+    if ( g_strcmp0(token, sw->name) == 0 ){
+      g_warning("You cannot add '%s' to the list of combined modi.", sw->name);
+      continue;
+    }
     // Resize and add entry.
     pd->switchers = (CombiMode *)g_realloc(
         pd->switchers, sizeof(CombiMode) * (pd->num_switchers + 1));

@@ -28,6 +28,7 @@
 /** The log domain of this dialog. */
 #define G_LOG_DOMAIN "Dialogs.Script"
 
+#include "config.h"
 #include "dialogs/script.h"
 #include "helper.h"
 #include "rofi.h"

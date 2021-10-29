@@ -1470,12 +1470,10 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
   }
 }
 
-gboolean rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
-                                  guint action) {
-  rofi_view_set_user_timeout(NULL);
+gboolean rofi_view_check_action(RofiViewState *state, BindingsScope scope,
+                                guint action) {
   switch (scope) {
   case SCOPE_GLOBAL:
-    rofi_view_trigger_global_action(action);
     return TRUE;
   case SCOPE_MOUSE_LISTVIEW:
   case SCOPE_MOUSE_LISTVIEW_ELEMENT:
@@ -1489,15 +1487,11 @@ gboolean rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
       return FALSE;
     }
     widget_xy_to_relative(target, &x, &y);
-    switch (widget_trigger_action(target, action, x, y)) {
+    switch (widget_check_action(target, action, x, y)) {
     case WIDGET_TRIGGER_ACTION_RESULT_IGNORED:
       return FALSE;
     case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END:
-      target = NULL;
-    /* FALLTHRU */
     case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN:
-      state->mouse.motion_target = target;
-    /* FALLTHRU */
     case WIDGET_TRIGGER_ACTION_RESULT_HANDLED:
       return TRUE;
     }
@@ -1505,6 +1499,42 @@ gboolean rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
   }
   }
   return FALSE;
+}
+
+void rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
+                              guint action) {
+  rofi_view_set_user_timeout(NULL);
+  switch (scope) {
+  case SCOPE_GLOBAL:
+    rofi_view_trigger_global_action(action);
+    return;
+  case SCOPE_MOUSE_LISTVIEW:
+  case SCOPE_MOUSE_LISTVIEW_ELEMENT:
+  case SCOPE_MOUSE_EDITBOX:
+  case SCOPE_MOUSE_SCROLLBAR:
+  case SCOPE_MOUSE_MODE_SWITCHER: {
+    gint x = state->mouse.x, y = state->mouse.y;
+    widget *target = widget_find_mouse_target(WIDGET(state->main_window),
+                                              (WidgetType)scope, x, y);
+    if (target == NULL) {
+      return;
+    }
+    widget_xy_to_relative(target, &x, &y);
+    switch (widget_trigger_action(target, action, x, y)) {
+    case WIDGET_TRIGGER_ACTION_RESULT_IGNORED:
+      return;
+    case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END:
+      target = NULL;
+    /* FALLTHRU */
+    case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN:
+      state->mouse.motion_target = target;
+    /* FALLTHRU */
+    case WIDGET_TRIGGER_ACTION_RESULT_HANDLED:
+      return;
+    }
+    break;
+  }
+  }
 }
 
 void rofi_view_handle_text(RofiViewState *state, char *text) {

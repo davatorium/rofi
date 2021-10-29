@@ -97,9 +97,12 @@ RofiViewState * rofi_view_get_active ( void )
 {
     return NULL;
 }
-gboolean rofi_view_trigger_action ( G_GNUC_UNUSED RofiViewState *state, G_GNUC_UNUSED BindingsScope scope, G_GNUC_UNUSED guint action )
+gboolean rofi_view_check_action ( G_GNUC_UNUSED RofiViewState *state, G_GNUC_UNUSED BindingsScope scope, G_GNUC_UNUSED guint action )
 {
     return FALSE;
+}
+void rofi_view_trigger_action ( G_GNUC_UNUSED RofiViewState *state, G_GNUC_UNUSED BindingsScope scope, G_GNUC_UNUSED guint action )
+{
 }
 
 void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *context, G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup, G_GNUC_UNUSED gpointer *user_data )

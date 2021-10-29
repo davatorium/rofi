@@ -290,6 +290,20 @@ widget *widget_find_mouse_target(widget *wid, WidgetType type, gint x, gint y);
  * Trigger an action on widget.
  * param x and param y are relative to param wid .
  *
+ * @returns Whether the action would be handled or not
+ */
+WidgetTriggerActionResult widget_check_action(widget *wid, guint action,
+                                              gint x, gint y);
+
+/**
+ * @param wid The widget handle
+ * @param action The action to trigger
+ * @param x A pointer to the x coordinate of the click
+ * @param y A pointer to the y coordinate of the click
+ *
+ * Trigger an action on widget.
+ * param x and param y are relative to param wid .
+ *
  * @returns Whether the action was handled or not
  */
 WidgetTriggerActionResult widget_trigger_action(widget *wid, guint action,
