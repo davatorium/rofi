@@ -12,7 +12,8 @@
 </h1>
 <p align="center"><i>A window switcher, Application launcher and dmenu replacement</i>.</p>
 
-<img src="https://raw.githubusercontent.com/Alex0Blackwell/dotfiles/master/.images/rofi.gif" height=400 width=1200>
+https://user-images.githubusercontent.com/84911063/139428874-fe182dd6-82c6-49b8-8da1-920ddda3d1ed.mp4
+
 
 **Rofi** started as a clone of simpleswitcher, written by [Sean Pringle](http://github.com/seanpringle/simpleswitcher) - a
 popup window switcher roughly based on [superswitcher](http://code.google.com/p/superswitcher/).
