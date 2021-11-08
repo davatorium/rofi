@@ -1237,8 +1237,21 @@ rofi_theme_get_highlight_inside(Property *p, widget *widget,
                                                th);
       }
       return th;
+    } else if (p->type == P_COLOR) {
+      th.style = ROFI_HL_NONE | ROFI_HL_COLOR;
+      th.color = p->value.color;
+      return th;
     }
+
     return p->value.highlight;
+  } else {
+    ThemeWidget *wid =
+        rofi_theme_find_widget(widget->name, widget->state, FALSE);
+    Property *p = rofi_theme_find_property(wid, P_COLOR, property, FALSE);
+    if (p != NULL) {
+      return rofi_theme_get_highlight_inside(p, widget, property, th);
+    }
+    return th;
   }
   g_debug("Theme entry: #%s %s property %s unset.", widget->name,
           widget->state ? widget->state : "", property);
@@ -1249,6 +1262,9 @@ RofiHighlightColorStyle rofi_theme_get_highlight(widget *widget,
                                                  RofiHighlightColorStyle th) {
   ThemeWidget *wid = rofi_theme_find_widget(widget->name, widget->state, FALSE);
   Property *p = rofi_theme_find_property(wid, P_HIGHLIGHT, property, FALSE);
+  if (p == NULL) {
+    p = rofi_theme_find_property(wid, P_COLOR, property, FALSE);
+  }
   return rofi_theme_get_highlight_inside(p, widget, property, th);
 }
 static int get_pixels(RofiDistanceUnit *unit, RofiOrientation ori) {
