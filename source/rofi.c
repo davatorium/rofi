@@ -390,7 +390,7 @@ static void help_print_disabled_mode(const char *mode) {
             color_red, mode, color_reset);
     fprintf(stderr,
             "Please consider adding %s%s%s to the list of enabled modi: "
-            "%smodi: %s%s%s,%s%s.\n",
+            "%smodi: [%s%s%s,%s]%s.\n",
             color_red, mode, color_reset, color_green, config.modi, color_reset,
             color_red, mode, color_reset);
   }
