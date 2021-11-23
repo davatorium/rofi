@@ -158,34 +158,46 @@ Please see the [configuration guide](https://github.com/davatorium/rofi/blob/nex
 
 Please see the [themes](https://github.com/davatorium/rofi/wiki/themes) section from the [wiki](https://github.com/davatorium/rofi/wiki) for brief reference. More detailed options are provided in the [themes manpages](https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown).
 
+The latest bundled themes can be found [here](https://github.com/davatorium/rofi/tree/next/themes).
+
 # Screenshots
 
+Rezlooks:
+
 ![screenshot](https://raw.githubusercontent.com/davatorium/rofi/next/releasenotes/1.6.0/icons.png)
+
+Arthur:
+
 ![screenshot2](https://raw.githubusercontent.com/davatorium/rofi/next/releasenotes/1.6.0/icons2.png)
+
+Default theme:
+
 ![default](https://raw.githubusercontent.com/davatorium/rofi/next/releasenotes/1.4.0/rofi-no-fzf.png)
 
 # Wiki 
 
-| ❗ **The Wiki is Community maintained and are not thoroughly tested**   |
+| ❗ **The Wiki is currently unmaintained and might contain outdated data ** |
 | --- |
 
 [Go to wiki](https://github.com/davatorium/rofi/wiki) .
 
 #### Contents
 
+* [Debugging](https://github.com/davatorium/rofi/wiki/Debugging-Rofi)
 * [User scripts](https://github.com/davatorium/rofi/wiki/User-scripts)
 * [Examples](https://github.com/davatorium/rofi/wiki#examples)
 * [dmenu Specs](https://github.com/davatorium/rofi/wiki/dmenu_specs)
 * [mode Specs](https://github.com/davatorium/rofi/wiki/mode-Specs)
 * [F.A.Q.](https://github.com/davatorium/rofi/wiki/Frequently-Asked-Questions).
 * [Script mode](https://github.com/davatorium/rofi/wiki/rfc-script-mode)
-* [Debugging](https://github.com/davatorium/rofi/wiki/Debugging-Rofi)
 * [Creating an issue](https://github.com/davatorium/rofi/blob/master/.github/CONTRIBUTING.md)
-* [FORUM](https://reddit.com/r/qtools/)
 * [Creating a Pull request](https://github.com/davatorium/rofi/wiki/Creating-a-pull-request)
 
 # Discussion places:
 
-  * [Reddit](https://reddit.com/r/qtools/)
+The [GitHub Discussions](https://github.com/davatorium/rofi/discussions) is the preferred location
+for discussions.
+
   * [GitHub Discussions](https://github.com/davatorium/rofi/discussions)
   * IRC (#rofi on irc.libera.chat)
+  * [Reddit](https://reddit.com/r/qtools/)
