@@ -1,4 +1,4 @@
-# 1.7.1:  
+# 1.7.1: Turtley amazing!
 
 This release focusses on fixing bugs found in 1.7.0. The most important ones
 are fixing sizing bug, fix nested media statements and broken close-on-delete.
