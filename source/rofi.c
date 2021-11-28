@@ -954,7 +954,11 @@ int main(int argc, char *argv[]) {
     TICK_N("Parsed theme");
   }
   // Parse command line for settings, independent of other -no-config.
-  config_parse_cmd_options();
+  if (list_of_error_msgs == NULL) {
+    // Only call this when there are no errors.
+    // This might clear existing errors.
+    config_parse_cmd_options();
+  }
   TICK_N("Load cmd config ");
 
   parse_keys_abe(bindings);

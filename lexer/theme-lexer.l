@@ -808,7 +808,6 @@ if ( queue == NULL ) {
 }
 <INITIAL>. {
     yytext[yyleng-1] = '\0';
-    fprintf(stderr,"initial found: |%s|\n", yytext);
     return T_ERROR;
 }
 <SECTION>. {
