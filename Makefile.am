@@ -184,7 +184,8 @@ EXTRA_DIST += \
 	doc/rofi-script.5.markdown \
 	doc/rofi-theme-selector.1.markdown \
 	doc/rofi-sensible-terminal.1.markdown \
-	doc/rofi.1.markdown
+	doc/rofi.1.markdown\
+	README.md
 
 ###
 # Themes
