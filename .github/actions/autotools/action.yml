@@ -21,7 +21,7 @@ runs:
 
         mkdir builddir && cd builddir
 
-        ../configure CC=${{ inputs.cc }} --${{ input.windowmode }}-windowmode
+        ../configure CC=${{ inputs.cc }} --${{ inputs.windowmode }}-windowmode
       shell: bash
     - id: build
       run: cd builddir && make
