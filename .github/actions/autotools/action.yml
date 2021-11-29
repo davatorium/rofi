@@ -5,6 +5,9 @@ inputs:
   cc:
     description: Compiler to use
     required: true
+  windowmode:
+    description: Enable window mode
+    required: true
 
 runs:
   using: composite
@@ -18,7 +21,7 @@ runs:
 
         mkdir builddir && cd builddir
 
-        ../configure CC=${{ inputs.cc }}
+        ../configure CC=${{ inputs.cc }} --${{ input.windowmode }}-windowmode
       shell: bash
     - id: build
       run: cd builddir && make

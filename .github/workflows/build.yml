@@ -45,6 +45,18 @@ jobs:
       - uses: ./.github/actions/autotools
         with:
           cc: gcc
+          windowmode: enable
+  build-autotools-gcc-no-window:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/autotools
+        with:
+          cc: gcc
+          windowmode: disable
   build-autotools-clang:
     runs-on: ubuntu-latest
     steps:
@@ -55,3 +67,4 @@ jobs:
       - uses: ./.github/actions/autotools
         with:
           cc: clang
+          windowmode: enable
