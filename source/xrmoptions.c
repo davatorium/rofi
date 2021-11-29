@@ -46,18 +46,15 @@
 ThemeWidget *rofi_configuration = NULL;
 
 /** Different sources of configuration. */
-const char *const ConfigSourceStr[] = {
-    "Default",
-    "File",
-    "Rasi File",
-    "Commandline",
-};
+const char *const ConfigSourceStr[] = {"Default", "File", "Rasi File",
+                                       "Commandline", "Don't Display"};
 /** Enumerator of different sources of configuration. */
 enum ConfigSource {
   CONFIG_DEFAULT = 0,
   CONFIG_FILE = 1,
   CONFIG_FILE_THEME = 2,
-  CONFIG_CMDLINE = 3
+  CONFIG_CMDLINE = 3,
+  CONFIG_NO_DISPLAY = 4
 };
 
 typedef struct {
@@ -346,7 +343,7 @@ static XrmOption xrmOptions[] = {
      {.str = &config.theme},
      NULL,
      "New style theme file",
-     CONFIG_DEFAULT},
+     CONFIG_DEFAULT | CONFIG_NO_DISPLAY},
     {xrm_Number,
      "max-history-size",
      {.num = &config.max_history_size},
@@ -466,12 +463,12 @@ static void config_parse_cmd_option(XrmOption *option) {
   switch (option->type) {
   case xrm_Number:
     if (find_arg_uint(key, option->value.num) == TRUE) {
-      option->source = CONFIG_CMDLINE;
+      option->source = (option->source & ~3) | CONFIG_CMDLINE;
     }
     break;
   case xrm_SNumber:
     if (find_arg_int(key, option->value.snum) == TRUE) {
-      option->source = CONFIG_CMDLINE;
+      option->source = (option->source & ~3) | CONFIG_CMDLINE;
     }
     break;
   case xrm_String:
@@ -480,25 +477,25 @@ static void config_parse_cmd_option(XrmOption *option) {
         g_free(option->mem);
         option->mem = NULL;
       }
-      option->source = CONFIG_CMDLINE;
+      option->source = (option->source & ~3) | CONFIG_CMDLINE;
     }
     break;
   case xrm_Boolean:
     if (find_arg(key) >= 0) {
       *(option->value.num) = TRUE;
-      option->source = CONFIG_CMDLINE;
+      option->source = (option->source & ~3) | CONFIG_CMDLINE;
     } else {
       g_free(key);
       key = g_strdup_printf("-no-%s", option->name);
       if (find_arg(key) >= 0) {
         *(option->value.num) = FALSE;
-        option->source = CONFIG_CMDLINE;
+        option->source = (option->source & ~3) | CONFIG_CMDLINE;
       }
     }
     break;
   case xrm_Char:
     if (find_arg_char(key, option->value.charc) == TRUE) {
-      option->source = CONFIG_CMDLINE;
+      option->source = (option->source & ~3) | CONFIG_CMDLINE;
     }
     break;
   default:
@@ -597,7 +594,7 @@ static gboolean __config_parser_set_property(XrmOption *option,
 
     // Memory
     (option)->mem = *(option->value.str);
-    option->source = CONFIG_FILE_THEME;
+    option->source = (option->source & ~3) | CONFIG_FILE_THEME;
   } else if (option->type == xrm_Number) {
     if (p->type != P_INTEGER) {
       *error =
@@ -606,7 +603,7 @@ static gboolean __config_parser_set_property(XrmOption *option,
       return TRUE;
     }
     *(option->value.snum) = p->value.i;
-    option->source = CONFIG_FILE_THEME;
+    option->source = (option->source & ~3) | CONFIG_FILE_THEME;
   } else if (option->type == xrm_SNumber) {
     if (p->type != P_INTEGER) {
       *error =
@@ -615,7 +612,7 @@ static gboolean __config_parser_set_property(XrmOption *option,
       return TRUE;
     }
     *(option->value.num) = (unsigned int)(p->value.i);
-    option->source = CONFIG_FILE_THEME;
+    option->source = (option->source & ~3) | CONFIG_FILE_THEME;
   } else if (option->type == xrm_Boolean) {
     if (p->type != P_BOOLEAN) {
       *error =
@@ -624,7 +621,7 @@ static gboolean __config_parser_set_property(XrmOption *option,
       return TRUE;
     }
     *(option->value.num) = (p->value.b);
-    option->source = CONFIG_FILE_THEME;
+    option->source = (option->source & ~3) | CONFIG_FILE_THEME;
   } else if (option->type == xrm_Char) {
     if (p->type != P_CHAR) {
       *error = g_strdup_printf(
@@ -633,7 +630,7 @@ static gboolean __config_parser_set_property(XrmOption *option,
       return TRUE;
     }
     *(option->value.charc) = (p->value.c);
-    option->source = CONFIG_FILE_THEME;
+    option->source = (option->source & ~3) | CONFIG_FILE_THEME;
   } else {
     // TODO add type
     *error = g_strdup_printf("Option: %s is not of a supported type: %s.",
@@ -675,7 +672,6 @@ gboolean config_parse_set_property(const Property *p, char **error) {
   //*error = g_strdup_printf("Option: %s is not found.", p->name);
   g_warning("Option: %s is not found.", p->name);
 
-
   for (GList *iter = g_list_first(extra_parsed_options); iter != NULL;
        iter = g_list_next(iter)) {
     if (g_strcmp0(((Property *)(iter->data))->name, p->name) == 0) {
@@ -713,7 +709,7 @@ void config_xresource_free(void) {
 }
 
 static void config_parse_dump_config_option(FILE *out, XrmOption *option) {
-  if (option->type == xrm_Char || option->source == CONFIG_DEFAULT) {
+  if (option->type == xrm_Char || (option->source & 3) == CONFIG_DEFAULT) {
     fprintf(out, "/*");
   }
   fprintf(out, "\t%s: ", option->name);
@@ -747,7 +743,7 @@ static void config_parse_dump_config_option(FILE *out, XrmOption *option) {
   }
 
   fprintf(out, ";");
-  if (option->type == xrm_Char || option->source == CONFIG_DEFAULT) {
+  if (option->type == xrm_Char || (option->source & 3) == CONFIG_DEFAULT) {
     fprintf(out, "*/");
   }
   fprintf(out, "\n");
@@ -764,12 +760,19 @@ void config_parse_dump_config_rasi_format(FILE *out, gboolean changes) {
         continue;
       }
     }
-    if (!changes || xrmOptions[i].source != CONFIG_DEFAULT) {
+    if ((xrmOptions[i].source & CONFIG_NO_DISPLAY) == CONFIG_NO_DISPLAY) {
+      continue;
+    }
+    if (!changes || (xrmOptions[i].source & 3) != CONFIG_DEFAULT) {
       config_parse_dump_config_option(out, &(xrmOptions[i]));
     }
   }
   for (unsigned int i = 0; i < num_extra_options; i++) {
-    if (!changes || extra_options[i].source != CONFIG_DEFAULT) {
+    if ((extra_options[i].source & CONFIG_NO_DISPLAY) == CONFIG_NO_DISPLAY) {
+      continue;
+    }
+    if (!changes || (extra_options[i].source & 3) != CONFIG_DEFAULT) {
+
       config_parse_dump_config_option(out, &(extra_options[i]));
     }
   }
@@ -780,6 +783,10 @@ void config_parse_dump_config_rasi_format(FILE *out, gboolean changes) {
   }
 
   fprintf(out, "}\n");
+
+  if (config.theme != NULL) {
+    fprintf(out, "@theme \"%s\"\r\n", config.theme);
+  }
 }
 
 static void print_option_string(XrmOption *xo, int is_term) {
@@ -790,12 +797,12 @@ static void print_option_string(XrmOption *xo, int is_term) {
     printf("\t" color_italic "%s" color_reset,
            (*(xo->value.str) == NULL) ? "(unset)" : (*(xo->value.str)));
     printf(" " color_green "(%s)" color_reset "\n",
-           ConfigSourceStr[xo->source]);
+           ConfigSourceStr[xo->source & 3]);
   } else {
     printf("\t-%s [string]%-*c%s\n", xo->name, 30 - l, ' ', xo->comment);
     printf("\t\t%s",
            (*(xo->value.str) == NULL) ? "(unset)" : (*(xo->value.str)));
-    printf(" (%s)\n", ConfigSourceStr[xo->source]);
+    printf(" (%s)\n", ConfigSourceStr[xo->source & 3]);
   }
 }
 static void print_option_number(XrmOption *xo, int is_term) {
@@ -805,11 +812,11 @@ static void print_option_number(XrmOption *xo, int is_term) {
            30 - l, ' ', xo->comment);
     printf("\t" color_italic "%u" color_reset, *(xo->value.num));
     printf(" " color_green "(%s)" color_reset "\n",
-           ConfigSourceStr[xo->source]);
+           ConfigSourceStr[xo->source & 3]);
   } else {
     printf("\t-%s [number]%-*c%s\n", xo->name, 30 - l, ' ', xo->comment);
     printf("\t\t%u", *(xo->value.num));
-    printf(" (%s)\n", ConfigSourceStr[xo->source]);
+    printf(" (%s)\n", ConfigSourceStr[xo->source & 3]);
   }
 }
 static void print_option_snumber(XrmOption *xo, int is_term) {
@@ -819,11 +826,11 @@ static void print_option_snumber(XrmOption *xo, int is_term) {
            30 - l, ' ', xo->comment);
     printf("\t" color_italic "%d" color_reset, *(xo->value.snum));
     printf(" " color_green "(%s)" color_reset "\n",
-           ConfigSourceStr[xo->source]);
+           ConfigSourceStr[xo->source & 3]);
   } else {
     printf("\t-%s [number]%-*c%s\n", xo->name, 30 - l, ' ', xo->comment);
     printf("\t\t%d", *(xo->value.snum));
-    printf(" (%s)\n", ConfigSourceStr[xo->source]);
+    printf(" (%s)\n", ConfigSourceStr[xo->source & 3]);
   }
 }
 static void print_option_char(XrmOption *xo, int is_term) {
@@ -833,11 +840,11 @@ static void print_option_char(XrmOption *xo, int is_term) {
            30 - l, ' ', xo->comment);
     printf("\t" color_italic "%c" color_reset, *(xo->value.charc));
     printf(" " color_green "(%s)" color_reset "\n",
-           ConfigSourceStr[xo->source]);
+           ConfigSourceStr[xo->source & 3]);
   } else {
     printf("\t-%s [character]%-*c%s\n", xo->name, 30 - l, ' ', xo->comment);
     printf("\t\t%c", *(xo->value.charc));
-    printf(" (%s)\n", ConfigSourceStr[xo->source]);
+    printf(" (%s)\n", ConfigSourceStr[xo->source & 3]);
   }
 }
 static void print_option_boolean(XrmOption *xo, int is_term) {
@@ -848,15 +855,18 @@ static void print_option_boolean(XrmOption *xo, int is_term) {
     printf("\t" color_italic "%s" color_reset,
            (*(xo->value.snum)) ? "True" : "False");
     printf(" " color_green "(%s)" color_reset "\n",
-           ConfigSourceStr[xo->source]);
+           ConfigSourceStr[xo->source & 3]);
   } else {
     printf("\t-[no-]%s %-*c%s\n", xo->name, 33 - l, ' ', xo->comment);
     printf("\t\t%s", (*(xo->value.snum)) ? "True" : "False");
-    printf(" (%s)\n", ConfigSourceStr[xo->source]);
+    printf(" (%s)\n", ConfigSourceStr[xo->source & 3]);
   }
 }
 
 static void print_option(XrmOption *xo, int is_term) {
+  if ((xo->source & CONFIG_NO_DISPLAY) == CONFIG_NO_DISPLAY) {
+    return;
+  }
   switch (xo->type) {
   case xrm_String:
     print_option_string(xo, is_term);

@@ -1,3 +1,7 @@
+v1.7.2:
+   - Fix building without window mode enabled.
+   - Do not print out the 'theme' field in confgiration on dump.
+
 v1.7.1: Turtley amazing!
    - [Theme] Fix highlight with only theme.
    - Updated documentation and landing page (Thanks to RaZ0rr-Two)
