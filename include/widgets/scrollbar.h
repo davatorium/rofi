@@ -27,6 +27,7 @@
 
 #ifndef ROFI_SCROLLBAR_H
 #define ROFI_SCROLLBAR_H
+#include "widgets/container.h"
 #include "widgets/widget-internal.h"
 #include "widgets/widget.h"
 #include <cairo.h>
@@ -42,6 +43,7 @@
  */
 typedef struct _scrollbar {
   widget widget;
+  container *handle;
   unsigned int length;
   unsigned int pos;
   unsigned int pos_length;

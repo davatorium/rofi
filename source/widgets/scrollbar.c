@@ -103,6 +103,7 @@ static gboolean scrollbar_motion_notify(widget *wid, G_GNUC_UNUSED gint x,
 scrollbar *scrollbar_create(widget *parent, const char *name) {
   scrollbar *sb = g_malloc0(sizeof(scrollbar));
   widget_init(WIDGET(sb), parent, WIDGET_TYPE_SCROLLBAR, name);
+
   sb->widget.x = 0;
   sb->widget.y = 0;
   sb->width = rofi_theme_get_distance(WIDGET(sb), "handle-width",
@@ -121,11 +122,13 @@ scrollbar *scrollbar_create(widget *parent, const char *name) {
   sb->pos = 0;
   sb->pos_length = 4;
 
+  sb->handle = container_create(WIDGET(sb), "scrollbar-handle");
   return sb;
 }
 
 static void scrollbar_free(widget *wid) {
   scrollbar *sb = (scrollbar *)wid;
+  widget_free(WIDGET(sb->handle));
   g_free(sb);
 }
 
@@ -171,12 +174,14 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
   // Set max pos.
   y = MIN(y, wh - handle);
   // Never go out of bar.
-  height = MAX(2, height);
+  height = MAX(3, height);
   // Cap length;
   rofi_theme_get_color(WIDGET(sb), "handle-color", draw);
+  WIDGET(sb->handle)->x = widget_padding_get_left(wid);
+  WIDGET(sb->handle)->y = widget_padding_get_top(wid) + y;
+  WIDGET(sb->handle)->h = height;
+  WIDGET(sb->handle)->w = widget_padding_get_remaining_width(wid);
+  widget_draw(WIDGET(sb->handle), draw);
 
-  cairo_rectangle(draw, widget_padding_get_left(wid),
-                  widget_padding_get_top(wid) + y,
-                  widget_padding_get_remaining_width(wid), height);
   cairo_fill(draw);
 }
