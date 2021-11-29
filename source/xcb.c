@@ -1089,7 +1089,9 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   case XCB_DESTROY_NOTIFY: {
     xcb_window_t win = ((xcb_destroy_notify_event_t *)event)->window;
     if (win != rofi_view_get_window()) {
+#ifdef WINDOW_MODE
       window_client_handle_signal(win, FALSE);
+#endif
     } else {
       g_main_loop_quit(xcb->main_loop);
     }
@@ -1098,7 +1100,9 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   case XCB_CREATE_NOTIFY: {
     xcb_window_t win = ((xcb_create_notify_event_t *)event)->window;
     if (win != rofi_view_get_window()) {
+#ifdef WINDOW_MODE
       window_client_handle_signal(win, TRUE);
+#endif
     }
     break;
   }
