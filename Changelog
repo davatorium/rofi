@@ -2,6 +2,7 @@ v1.7.2:
    - [Build] Fix building without window mode enabled.
    - [Config] Do not print out the 'theme' field in configuration on dump.
    - [CI] test window mode less build.
+   - Allow configuration block in theme again.
 
 v1.7.1: Turtley amazing!
    - [Theme] Fix highlight with only theme.

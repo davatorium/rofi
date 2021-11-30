@@ -313,30 +313,20 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
  * First have the configuration blocks, then the theme.
  */
 t_main
-: t_configuration_list t_entry_list_included {
+: t_entry_list_included {
     // Dummy at this point.
     if ( rofi_theme == NULL ) {
       rofi_theme_reset();
     }
 
-    rofi_theme_widget_add_properties ( rofi_theme, $2->properties );
-    for ( unsigned int i = 0; i < $2->num_widgets; i++ ) {
-        ThemeWidget *d = $2->widgets[i];
+    rofi_theme_widget_add_properties ( rofi_theme, $1->properties );
+    for ( unsigned int i = 0; i < $1->num_widgets; i++ ) {
+        ThemeWidget *d = $1->widgets[i];
         rofi_theme_parse_merge_widgets(rofi_theme, d);
     }
-    rofi_theme_free ( $2 );
+    rofi_theme_free ( $1 );
 }
 ;
-
-t_configuration_list:
- %empty {
-    if ( rofi_configuration == NULL ) {
-      rofi_configuration       = g_slice_new0 ( ThemeWidget );
-      rofi_configuration->name = g_strdup ( "Root" );
-    }
-}
-| t_configuration_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {};
-
 
 /**
  * Small dummy object to make the prefix optional.
@@ -359,8 +349,15 @@ t_entry_list {
 
 
 t_entry_list:
-  %empty {
+t_entry_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
+  $$ = $1;
+}
+|%empty {
     $$ = g_slice_new0 ( ThemeWidget );
+    if ( rofi_configuration == NULL ) {
+      rofi_configuration       = g_slice_new0 ( ThemeWidget );
+      rofi_configuration->name = g_strdup ( "Root" );
+    }
   }
 |  t_entry_list t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
 {
