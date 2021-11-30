@@ -1,4 +1,4 @@
-v1.7.2:
+v1.7.2: Shellebrations!
    - [Build] Fix building without window mode enabled.
    - [Config] Do not print out the 'theme' field in configuration on dump.
    - [CI] test window mode less build.
