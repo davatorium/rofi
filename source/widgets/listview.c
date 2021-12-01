@@ -946,12 +946,6 @@ void listview_set_num_lines(listview *lv, unsigned int num_lines) {
   }
 }
 
-unsigned int listview_get_num_lines(listview *lv) {
-  if (lv) {
-    return lv->menu_lines;
-  }
-  return 0;
-}
 void listview_set_max_lines(listview *lv, unsigned int max_lines) {
   if (lv) {
     lv->max_displayed_lines = max_lines;

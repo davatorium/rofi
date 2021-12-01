@@ -404,11 +404,6 @@ Property *rofi_theme_find_property(ThemeWidget *widget, PropertyType type,
  */
 GList *rofi_theme_get_list(const widget *widget, const char *property,
                            const char *defaults);
-/**
- * Checks if a theme is set, or is empty.
- * @returns TRUE when empty.
- */
-gboolean rofi_theme_is_empty(void);
 
 /**
  * Reset the current theme.

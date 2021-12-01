@@ -867,16 +867,14 @@ gboolean rofi_theme_parse_file ( const char *file )
     yyin = NULL;
 
     while ( (po = g_queue_pop_head ( file_queue ) )) {
-        if ( po ) {
-            if ( po->type == PT_FILE ) {
-                fclose ( po->filein );
-            }
-            if ( po->type == PT_STRING_ALLOC ) {
-                g_free( po->malloc_str);
-            }
-            g_free ( po->filename );
-            g_free ( po );
-        }
+      if ( po->type == PT_FILE ) {
+        fclose ( po->filein );
+      }
+      if ( po->type == PT_STRING_ALLOC ) {
+        g_free( po->malloc_str);
+      }
+      g_free ( po->filename );
+      g_free ( po );
     }
     // Free up.
     g_queue_free ( file_queue );
@@ -904,16 +902,14 @@ gboolean rofi_theme_parse_string ( const char *string )
     yylex_destroy ();
 
     while ( (po = g_queue_pop_head ( file_queue ) )) {
-        if ( po ) {
-            if ( po->type == PT_FILE ) {
-                fclose ( po->filein );
-            }
-            if ( po->type == PT_STRING_ALLOC ) {
-              g_free( po->malloc_str);
-            }
-            g_free ( po->filename );
-            g_free ( po );
-        }
+      if ( po->type == PT_FILE ) {
+        fclose ( po->filein );
+      }
+      if ( po->type == PT_STRING_ALLOC ) {
+        g_free( po->malloc_str);
+      }
+      g_free ( po->filename );
+      g_free ( po );
     }
     // Free up.
     g_queue_free ( file_queue );

@@ -140,14 +140,6 @@ void widget_move(widget *widget, short x, short y);
 
 /**
  * @param widget Handle to widget
- *
- * Get the type of the widget.
- * @returns The type of the widget.
- */
-WidgetType widget_type(widget *widget);
-
-/**
- * @param widget Handle to widget
  * @param type The widget type.
  *
  * Set the widget type.
@@ -292,8 +284,8 @@ widget *widget_find_mouse_target(widget *wid, WidgetType type, gint x, gint y);
  *
  * @returns Whether the action would be handled or not
  */
-WidgetTriggerActionResult widget_check_action(widget *wid, guint action,
-                                              gint x, gint y);
+WidgetTriggerActionResult widget_check_action(widget *wid, guint action, gint x,
+                                              gint y);
 
 /**
  * @param wid The widget handle

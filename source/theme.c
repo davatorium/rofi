@@ -1247,9 +1247,9 @@ rofi_theme_get_highlight_inside(Property *p, widget *widget,
   } else {
     ThemeWidget *wid =
         rofi_theme_find_widget(widget->name, widget->state, FALSE);
-    Property *p = rofi_theme_find_property(wid, P_COLOR, property, FALSE);
-    if (p != NULL) {
-      return rofi_theme_get_highlight_inside(p, widget, property, th);
+    Property *p2 = rofi_theme_find_property(wid, P_COLOR, property, FALSE);
+    if (p2 != NULL) {
+      return rofi_theme_get_highlight_inside(p2, widget, property, th);
     }
     return th;
   }
@@ -1348,16 +1348,6 @@ void distance_get_linestyle(RofiDistance d, cairo_t *draw) {
   } else {
     cairo_set_dash(draw, NULL, 0, 0.0);
   }
-}
-
-gboolean rofi_theme_is_empty(void) {
-  if (rofi_theme == NULL) {
-    return TRUE;
-  }
-  if (rofi_theme->properties == NULL && rofi_theme->num_widgets == 0) {
-    return TRUE;
-  }
-  return FALSE;
 }
 
 char *rofi_theme_parse_prepare_file(const char *file, const char *parent_file) {

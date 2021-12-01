@@ -128,13 +128,6 @@ void widget_set_type(widget *widget, WidgetType type) {
   widget->type = type;
 }
 
-WidgetType widget_type(widget *widget) {
-  if (widget == NULL) {
-    return WIDGET_TYPE_UNKNOWN;
-  }
-  return widget->type;
-}
-
 gboolean widget_enabled(widget *widget) {
   if (widget == NULL) {
     return FALSE;
@@ -548,8 +541,8 @@ widget *widget_find_mouse_target(widget *wid, WidgetType type, gint x, gint y) {
   return NULL;
 }
 
-WidgetTriggerActionResult widget_check_action(widget *wid, guint action,
-                                                gint x, gint y) {
+WidgetTriggerActionResult widget_check_action(widget *wid, guint action, gint x,
+                                              gint y) {
   if (wid == NULL) {
     return FALSE;
   }

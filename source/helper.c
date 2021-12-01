@@ -785,15 +785,6 @@ char *rofi_latin_to_utf8_strdup(const char *input, gssize length) {
                                  NULL, &slength, NULL);
 }
 
-gchar *rofi_escape_markup(gchar *text) {
-  if (text == NULL) {
-    return NULL;
-  }
-  gchar *ret = g_markup_escape_text(text, -1);
-  g_free(text);
-  return ret;
-}
-
 char *rofi_force_utf8(const gchar *data, ssize_t length) {
   if (data == NULL) {
     return NULL;

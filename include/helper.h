@@ -229,15 +229,6 @@ char *rofi_force_utf8(const gchar *data, ssize_t length);
 char *rofi_latin_to_utf8_strdup(const char *input, gssize length);
 
 /**
- * @param text the string to escape
- *
- * Escape XML markup from the string. text is freed.
- *
- * @return the escaped string
- */
-gchar *rofi_escape_markup(gchar *text);
-
-/**
  * @param pattern   The user input to match against.
  * @param plen      Pattern length.
  * @param str       The input to match against pattern.
