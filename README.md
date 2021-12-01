@@ -156,7 +156,8 @@ Please see the [configuration guide](https://github.com/davatorium/rofi/blob/nex
 
 ## Themes
 
-Please see the [themes](https://github.com/davatorium/rofi/wiki/themes) section from the [wiki](https://github.com/davatorium/rofi/wiki) for brief reference. More detailed options are provided in the [themes manpages](https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown).
+Please see the [themes manpages](https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown) for a detailed description.
+
 
 The latest bundled themes can be found [here](https://github.com/davatorium/rofi/tree/next/themes).
 
