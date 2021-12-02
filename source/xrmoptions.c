@@ -539,6 +539,9 @@ void config_parse_cmd_options(void) {
   extern char **stored_argv;
   for (int in = 1; in < (stored_argc - 1); in++) {
     if (stored_argv[in][0] == '-') {
+      if (stored_argv[in + 1][0] == '-') {
+        continue;
+      }
       /** TODO: This is a hack, and should be fixed in a nicer way. */
       char **tokens = g_strsplit(stored_argv[in], "-", 3);
       int count = 1;
