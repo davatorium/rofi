@@ -504,6 +504,25 @@ static void config_parse_cmd_option(XrmOption *option) {
   g_free(key);
 }
 
+static gboolean config_parser_form_rasi_format(GString *str, char **tokens,
+                                               int count, char *argv,
+                                               gboolean string) {
+  for (int j = 0; j < (count - 1); j++) {
+    g_string_append_printf(str, "%s { ", tokens[j]);
+  }
+  if (string) {
+    char *esc = g_strescape(argv, NULL);
+    g_string_append_printf(str, "%s: \"%s\";", tokens[count - 1], esc);
+    g_free(esc);
+  } else {
+    g_string_append_printf(str, "%s: %s;", tokens[count - 1], argv);
+  }
+  for (int j = 0; j < (count - 1); j++) {
+    g_string_append(str, " } ");
+  }
+  return TRUE;
+}
+
 void config_parse_cmd_options(void) {
   for (unsigned int i = 0; i < sizeof(xrmOptions) / sizeof(XrmOption); ++i) {
     XrmOption *op = &(xrmOptions[i]);
@@ -526,35 +545,51 @@ void config_parse_cmd_options(void) {
       for (int j = 1; tokens && tokens[j]; j++) {
         count++;
       }
-      if (count > 2 && g_strcmp0(tokens[1], "no") != 0) {
-        GString *str = g_string_new("configuration { ");
-        for (int j = 1; j < (count - 1); j++) {
-          g_string_append_printf(str, "%s { ", tokens[j]);
-        }
-        g_string_append_printf(str, "%s: %s;", tokens[count - 1],
-                               stored_argv[in + 1]);
-        for (int j = 0; j < (count - 1); j++) {
-          g_string_append(str, " } ");
-        }
-        if (rofi_theme_parse_string(str->str) == 1) {
-          /** Failed to parse, try again as string. */
-          rofi_clear_error_messages();
-          g_string_assign(str, "configuration { ");
-          for (int j = 1; j < (count - 1); j++) {
-            g_string_append_printf(str, "%s { ", tokens[j]);
+      if (count > 2) {
+        if (g_strcmp0(tokens[1], "theme") == 0) {
+          g_strfreev(tokens);
+          tokens = g_strsplit(stored_argv[in], "-", 0);
+          count = g_strv_length(tokens);
+          if (count > 3) {
+            GString *str = g_string_new("");
+            config_parser_form_rasi_format(str, &(tokens[2]), count - 2,
+                                           stored_argv[in + 1], FALSE);
+            g_debug("theme: \"%s\"\n", str->str);
+            if (rofi_theme_parse_string(str->str) == 1) {
+              /** Failed to parse, try again as string. */
+              rofi_clear_error_messages();
+              g_string_assign(str, "");
+              config_parser_form_rasi_format(str, &(tokens[2]), count - 2,
+                                             stored_argv[in + 1], TRUE);
+              g_debug("theme: \"%s\"\n", str->str);
+              if (rofi_theme_parse_string(str->str) == 1) {
+                /** Failed to parse, try again as string. */
+                rofi_clear_error_messages();
+              }
+            }
+            g_string_free(str, TRUE);
           }
-          char *esc = g_strescape(stored_argv[in + 1], NULL);
-          g_string_append_printf(str, "%s: \"%s\";", tokens[count - 1], esc);
-          g_free(esc);
-          for (int j = 0; j < (count - 1); j++) {
-            g_string_append(str, " } ");
-          }
+        } else if (g_strcmp0(tokens[1], "no") != 0) {
+          GString *str = g_string_new("configuration { ");
+          config_parser_form_rasi_format(str, &(tokens[1]), count - 1,
+                                         stored_argv[in + 1], FALSE);
+          g_string_append(str, "}");
+          g_debug("str: \"%s\"\n", str->str);
           if (rofi_theme_parse_string(str->str) == 1) {
             /** Failed to parse, try again as string. */
             rofi_clear_error_messages();
+            g_string_assign(str, "configuration { ");
+            config_parser_form_rasi_format(str, &(tokens[1]), count - 1,
+                                           stored_argv[in + 1], TRUE);
+            g_string_append(str, "}");
+            g_debug("str: \"%s\"\n", str->str);
+            if (rofi_theme_parse_string(str->str) == 1) {
+              /** Failed to parse, try again as string. */
+              rofi_clear_error_messages();
+            }
           }
+          g_string_free(str, TRUE);
         }
-        g_string_free(str, TRUE);
         in++;
       }
       g_strfreev(tokens);
