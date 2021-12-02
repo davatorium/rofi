@@ -560,15 +560,9 @@ void config_parse_cmd_options(void) {
             g_debug("theme: \"%s\"\n", str->str);
             if (rofi_theme_parse_string(str->str) == 1) {
               /** Failed to parse, try again as string. */
-              rofi_clear_error_messages();
-              g_string_assign(str, "");
-              config_parser_form_rasi_format(str, &(tokens[2]), count - 2,
-                                             stored_argv[in + 1], TRUE);
-              g_debug("theme: \"%s\"\n", str->str);
-              if (rofi_theme_parse_string(str->str) == 1) {
-                /** Failed to parse, try again as string. */
-                rofi_clear_error_messages();
-              }
+              g_strfreev(tokens);
+              g_string_free(str, TRUE);
+              return;
             }
             g_string_free(str, TRUE);
           }
