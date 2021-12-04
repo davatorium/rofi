@@ -549,15 +549,14 @@ void config_parse_cmd_options(void) {
         count++;
       }
       if (count > 2) {
-        if (g_strcmp0(tokens[1], "theme") == 0) {
+        if (g_str_has_prefix(tokens[1], "theme")) {
           g_strfreev(tokens);
-          tokens = g_strsplit(stored_argv[in], "-", 0);
+          tokens = g_strsplit(stored_argv[in], "#", 0);
           count = g_strv_length(tokens);
-          if (count > 3) {
+          if (count > 2) {
             GString *str = g_string_new("");
-            config_parser_form_rasi_format(str, &(tokens[2]), count - 2,
+            config_parser_form_rasi_format(str, &(tokens[1]), count - 1,
                                            stored_argv[in + 1], FALSE);
-            g_debug("theme: \"%s\"\n", str->str);
             if (rofi_theme_parse_string(str->str) == 1) {
               /** Failed to parse, try again as string. */
               g_strfreev(tokens);
