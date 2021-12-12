@@ -454,4 +454,17 @@ RofiDistance rofi_theme_property_copy_distance(RofiDistance const distance);
  */
 int rofi_theme_rasi_validate(const char *filename);
 
+/**
+ *
+ * Free memory.
+ */
+void rofi_theme_free_parsed_files(void);
+
+/**
+ * @param is_term Indicate if printed to terminal.
+ *
+ * Print the list of parsed config files.
+ */
+void rofi_theme_print_parsed_files(int is_term);
+
 #endif

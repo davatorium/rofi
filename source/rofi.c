@@ -269,7 +269,7 @@ static void print_list_of_modi(int is_term) {
         break;
       }
     }
-    printf("        * %s%s%s%s\n", active ? "+" : "",
+    printf("        • %s%s%s%s\n", active ? "+" : "",
            is_term ? (active ? color_green : color_red) : "",
            available_modi[i]->name, is_term ? color_reset : "");
   }
@@ -328,31 +328,31 @@ static void help(G_GNUC_UNUSED int argc, char **argv) {
   printf("\n");
   printf("Compile time options:\n");
 #ifdef WINDOW_MODE
-  printf("\t* window  %senabled%s\n", is_term ? color_green : "",
+  printf("\t• window  %senabled%s\n", is_term ? color_green : "",
          is_term ? color_reset : "");
 #else
-  printf("\t* window  %sdisabled%s\n", is_term ? color_red : "",
+  printf("\t• window  %sdisabled%s\n", is_term ? color_red : "",
          is_term ? color_reset : "");
 #endif
 #ifdef ENABLE_DRUN
-  printf("\t* drun    %senabled%s\n", is_term ? color_green : "",
+  printf("\t• drun    %senabled%s\n", is_term ? color_green : "",
          is_term ? color_reset : "");
 #else
-  printf("\t* drun    %sdisabled%s\n", is_term ? color_red : "",
+  printf("\t• drun    %sdisabled%s\n", is_term ? color_red : "",
          is_term ? color_reset : "");
 #endif
 #ifdef ENABLE_GCOV
-  printf("\t* gcov    %senabled%s\n", is_term ? color_green : "",
+  printf("\t• gcov    %senabled%s\n", is_term ? color_green : "",
          is_term ? color_reset : "");
 #else
-  printf("\t* gcov    %sdisabled%s\n", is_term ? color_red : "",
+  printf("\t• gcov    %sdisabled%s\n", is_term ? color_red : "",
          is_term ? color_reset : "");
 #endif
 #ifdef ENABLE_ASAN
-  printf("\t* asan    %senabled%s\n", is_term ? color_green : "",
+  printf("\t• asan    %senabled%s\n", is_term ? color_green : "",
          is_term ? color_reset : "");
 #else
-  printf("\t* asan    %sdisabled%s\n", is_term ? color_red : "",
+  printf("\t• asan    %sdisabled%s\n", is_term ? color_red : "",
          is_term ? color_reset : "");
 #endif
   printf("\n");
@@ -380,6 +380,7 @@ static void help(G_GNUC_UNUSED int argc, char **argv) {
     printf("      Configuration file: %sDisabled%s\n",
            is_term ? color_bold : "", is_term ? color_reset : "");
   }
+  rofi_theme_print_parsed_files(is_term);
 }
 
 static void help_print_disabled_mode(const char *mode) {
@@ -478,6 +479,7 @@ static void cleanup(void) {
   rofi_collect_modi_destroy();
   rofi_icon_fetcher_destroy();
 
+  rofi_theme_free_parsed_files();
   if (rofi_configuration) {
     rofi_theme_free(rofi_configuration);
     rofi_configuration = NULL;

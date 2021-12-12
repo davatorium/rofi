@@ -46,6 +46,25 @@
 #include "widgets/textbox.h"
 #include <gio/gio.h>
 
+GList *parsed_config_files = NULL;
+
+void rofi_theme_free_parsed_files(void) {
+  g_list_free_full(parsed_config_files, g_free);
+  parsed_config_files = NULL;
+}
+
+void rofi_theme_print_parsed_files(gboolean is_term) {
+  printf("\nParsed files:\n");
+  for (GList *iter = g_list_first(parsed_config_files); iter != NULL;
+       iter = g_list_next(iter)) {
+    printf("\t\u2022 %s%s%s\n",
+      is_term ? color_bold : "", (const char *)(iter->data),
+      is_term ? color_reset : "");
+
+  }
+  printf("\n");
+}
+
 void yyerror(YYLTYPE *yylloc, const char *, const char *);
 static gboolean distance_compare(RofiDistance d, RofiDistance e) {
   // TODO UPDATE
@@ -1361,7 +1380,7 @@ char *rofi_theme_parse_prepare_file(const char *file, const char *parent_file) {
     g_free(basedir);
   }
   GFile *gf = g_file_new_for_path(filename);
-  g_free(filename);
+  parsed_config_files = g_list_append(parsed_config_files, filename);
   filename = g_file_get_path(gf);
   g_object_unref(gf);
 
