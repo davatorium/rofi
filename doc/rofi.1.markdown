@@ -21,8 +21,9 @@ filter, tokenized search and more.
 **rofi**'s main functionality is to assist in your workflow, allowing you to quickly switch
 between windows, start applications or log into a remote machine via `ssh`.
 There are different *modi* for different types of actions.
-
-**rofi** can also function as (drop-in) replacement for **dmenu(1)**.
+**rofi** is a standalone application and should not be integrated into scripts.
+For integration into scripts it has a special mode that functions as a
+(drop-in) replacement for **dmenu(1)**. See emulating dmenu below.
 
 ### Running rofi
 
