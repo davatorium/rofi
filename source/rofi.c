@@ -963,8 +963,6 @@ int main(int argc, char *argv[]) {
   }
   TICK_N("Load cmd config ");
 
-  parse_keys_abe(bindings);
-
   // Get the path to the cache dir.
   cache_dir = g_get_user_cache_dir();
 
@@ -1010,6 +1008,7 @@ int main(int argc, char *argv[]) {
     g_free(theme_str);
   }
 
+  parse_keys_abe(bindings);
   if (find_arg("-dump-theme") >= 0) {
     rofi_theme_print(rofi_theme);
     cleanup();
