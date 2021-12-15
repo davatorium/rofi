@@ -37,7 +37,7 @@ element,element-text,element-icon, button {
 
 inputbar {
   margin: 0px 0px 0.5em 0em;
-  spacing: 0.2em;
+  spacing: 0.4em;
   children: [ button-iggy1, entry,overlay,case-indicator, button-iggy2];
 }
 
@@ -45,6 +45,7 @@ button-iggy1, button-iggy2 {
   expand: false;
   content: "🐢";
   action: "kb-primary-paste";
+  horizontal-align: 0.5;
 }
 button-iggy2 {
   action: "kb-screenshot";
@@ -97,9 +98,11 @@ wrapper-mode-switcher {
 }
 icon-ms-ic1 {
     filename: "go-previous";
+    action: "kb-mode-previous";
 }
 icon-ms-ic2 {
     filename: "go-next";
+    action: "kb-mode-next";
 }
 icon-ms-ic1,icon-ms-ic2 {
     size: 16;
@@ -133,3 +136,7 @@ button selected.normal {
     background-image: linear-gradient(to bottom, darkgreen, black/70%);
 }
 
+entry {
+    placeholder: "Iggy";
+    placeholder-color: darkgrey/30%;
+  }
