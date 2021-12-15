@@ -177,6 +177,7 @@ dist_man1_MANS=\
 
 dist_man5_MANS=\
 	doc/rofi-theme.5\
+	doc/rofi-keys.5\
 	doc/rofi-script.5
 
 EXTRA_DIST += \
@@ -249,6 +250,7 @@ update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/d
 	go-md2man -in $(top_srcdir)/doc/rofi.1.markdown -out $(top_srcdir)/doc/rofi.1
 	go-md2man -in $(top_srcdir)/doc/rofi-theme-selector.1.markdown -out $(top_srcdir)/doc/rofi-theme-selector.1
 	go-md2man -in $(top_srcdir)/doc/rofi-theme.5.markdown -out $(top_srcdir)/doc/rofi-theme.5
+	go-md2man -in $(top_srcdir)/doc/rofi-keys.5.markdown -out $(top_srcdir)/doc/rofi-keys.5
 	go-md2man -in $(top_srcdir)/doc/rofi-script.5.markdown -out $(top_srcdir)/doc/rofi-script.5
 	go-md2man -in $(top_srcdir)/doc/rofi-sensible-terminal.1.markdown -out $(top_srcdir)/doc/rofi-sensible-terminal.1
 

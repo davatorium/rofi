@@ -868,6 +868,7 @@ configuration {
 }
 ```
 
+For a full list of bindings, see the **rofi-keys(5)** manpage.
 
 ## Available Modi
 
@@ -1104,7 +1105,7 @@ first.
 
 ## SEE ALSO
 
-**rofi-sensible-terminal(1)**, **dmenu(1)**, **rofi-theme(5)**, **rofi-script(5)**, **rofi-theme-selector(1)**
+**rofi-sensible-terminal(1)**, **dmenu(1)**, **rofi-theme(5)**, **rofi-script(5)**, **rofi-keys(5)**,**rofi-theme-selector(1)**
 
 ## AUTHOR
 
