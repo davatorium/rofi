@@ -5,6 +5,7 @@ if gomd2man.found()
             'rofi.1.markdown',
             'rofi-theme-selector.1.markdown',
             'rofi-theme.5.markdown',
+            'rofi-dmenu.5.markdown',
             'rofi-keys.5.markdown',
             'rofi-script.5.markdown',
             'rofi-sensible-terminal.1.markdown'

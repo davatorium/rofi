@@ -36,11 +36,7 @@ To show the `run` dialog:
 
 **rofi** can emulate **dmenu(1)** (a dynamic menu for X11) when launched with the `-dmenu` flag.
 
-The website for `dmenu` can be found [here](http://tools.suckless.org/dmenu/).
-
-**rofi** does not aim to be 100% compatible with `dmenu`. There are simply too many flavors of `dmenu`.
-The idea is that the basic usage command-line flags are obeyed, theme-related flags are not.
-Besides, **rofi** offers some extended features (like multi-select, highlighting, message bar, extra key bindings).
+For more information see **rofi-dmenu(5)**.
 
 ### Display Error message
 
@@ -572,132 +568,6 @@ There are 2 sorting methods:
 
 Maximum number of entries to store in history. Defaults to 25. (WARNING: can cause slowdowns when set too high)
 
-### Dmenu specific
-
-`-sep` *separator*
-
-Separator for `dmenu`. Example: To show a list of 'a' to 'e' with '|' as a separator:
-
-    echo "a|b|c|d|e" | rofi -sep '|' -dmenu
-
-`-p` *prompt*
-
-Specify the prompt to show in `dmenu` mode. For example, select 'monkey', a,b,c,d, or e.
-
-    echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey"
-
-Default: *dmenu*
-
-`-l` *number of lines to show*
-
-Maximum number of lines the menu may show before scrolling.
-
-    rofi -dmenu -l 25
-
-Default: *15*
-
-`-i`
-
-Makes `dmenu` searches case-insensitive
-
-`-a` *X*
-
-Active row, mark *X* as active. Where *X* is a comma-separated list of python(1)-style indices and ranges, e.g.  indices start at 0, -1 refers to the last row with -2 preceding it, ranges are left-open and right-close, and so on. You can specify:
-
-  * A single row: '5'
-  * A range of (last 3) rows: '-3:'
-  * 4 rows starting from row 7: '7:11' (or in legacy notation: '7-10')
-  * A set of rows: '2,0,-9'
-  * Or any combination: '5,-3:,7:11,2,0,-9'
-
-`-u` *X*
-
-Urgent row, mark *X* as urgent. See `-a` option for details.
-
-`-only-match`
-
-Only return a selected item, do not allow custom entry.
-This mode always returns an entry. It will not return if no matching entry is
-selected.
-
-`-no-custom`
-
-Only return a selected item, do not allow custom entry.
-This mode returns directly when no entries given.
-
-`-format` *format*
-
-Allows the output of dmenu to be customized (N is the total number of input entries):
-
-  * 's' selected string
-  * 'i' index (0 - (N-1))
-  * 'd' index (1 - N)
-  * 'q' quote string
-  * 'p' Selected string stripped from Pango markup (Needs to be a valid string)
-  * 'f' filter string (user input)
-  * 'F' quoted filter string (user input)
-
-Default: 's'
-
-`-select` *string*
-
-Select first line that matches the given string
-
-`-mesg` *string*
-
-Add a message line below the filter entry box. Supports Pango markup.
-For more information on supported markup, see [here](https://docs.gtk.org/Pango/pango_markup.html)
-
-`-dump`
-
-Dump the filtered list to stdout and quit.
-This can be used to get the list as **rofi** would filter it.
-Use together with `-filter` command.
-
-`-input` *file*
-
-Reads from *file* instead of stdin.
-
-`-password`
-
-Hide the input text. This should not be considered secure!
-
-`-markup-rows`
-
-Tell **rofi** that DMenu input is Pango markup encoded, and should be rendered.
-See [here](https://developer.gnome.org/pygtk/stable/pango-markup-language.html) for details about Pango markup.
-
-
-`-multi-select`
-
-Allow multiple lines to be selected. Adds a small selection indicator to the left of each entry.
-
-`-sync`
-
-Force **rofi** mode to first read all data from stdin before showing the selection window. This is original dmenu behavior.
-
-Note: the default asynchronous mode will also be automatically disabled if used with conflicting options,
-such as `-dump`, `-only-match` or `-auto-select`.
-
-`-async-pre-read` *number*
-
-Reads the first *number* entries blocking, then switches to async mode.
-This makes it feel more 'snappy'.
-
-*default*: 25
-
-`-window-title` *title*
-
-Set name used for the window title. Will be shown as Rofi - *title*
-
-`-w` *windowid*
-
-Position **rofi** over the window with the given X11 window ID.
-
-`-keep-right`
-
-Set ellipsize mode to start. So, the end of the string is visible.
-
 
 ### Message dialog
 
@@ -779,12 +649,6 @@ To launch commands (for example, when using the ssh launcher), the user can ente
   * `{cmd}`: the command to execute
   * `{window}`: the window ID of the selected window (in `window-command`)
 
-## DMENU REPLACEMENT
-
-If `argv[0]` (calling command) is dmenu, **rofi** will start in dmenu mode.
-This way, it can be used as a drop-in replacement for dmenu. Just copy or symlink **rofi** to dmenu in `$PATH`.
-
-    ln -s /usr/bin/rofi /usr/bin/dmenu
 
 ## THEMING
 
