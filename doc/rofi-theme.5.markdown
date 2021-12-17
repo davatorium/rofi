@@ -1108,6 +1108,12 @@ To test minor changes, part of the theme can be passed on the command line, for 
 rofi -theme-str 'window { fullscreen:true;}' -show run
 ```
 
+Another syntax to modify theme properties is:
+
+```bash
+rofi -theme+window+fullscreen true -show run
+```
+
 To print the current theme, run:
 
 ```
