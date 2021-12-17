@@ -862,7 +862,9 @@ static int monitor_active_from_id_focused(int mon_id, workarea *mon) {
       }
       g_debug("mon pos: %d %d %d-%d", mon->x, mon->y, mon->w, mon->h);
     } else if (mon_id == -4) {
+      g_debug("Find monitor at location: %d %d", t->dst_x, t->dst_y);
       monitor_dimensions(t->dst_x, t->dst_y, mon);
+      g_debug("Monitor found pos: %d %d %d-%d", mon->x, mon->y, mon->w, mon->h);
       retv = TRUE;
     }
     free(t);
