@@ -784,6 +784,7 @@ static int pointer_get(xcb_window_t root, int *x, int *y) {
 
   return FALSE;
 }
+
 static int monitor_active_from_winid(xcb_drawable_t id, workarea *mon) {
   xcb_window_t root = xcb->screen->root;
   xcb_get_geometry_cookie_t c = xcb_get_geometry(xcb->connection, id);
@@ -939,11 +940,24 @@ static int monitor_active_from_id(int mon_id, workarea *mon) {
 
 // determine which monitor holds the active window, or failing that the mouse
 // pointer
+
+gboolean mon_set = FALSE;
+workarea mon_cache = {
+    0,
+};
 int monitor_active(workarea *mon) {
+  if (mon_set) {
+    if (mon) {
+      *mon = mon_cache;
+      return TRUE;
+    }
+  }
   if (config.monitor != NULL) {
     for (workarea *iter = xcb->monitors; iter; iter = iter->next) {
       if (g_strcmp0(config.monitor, iter->name) == 0) {
         *mon = *iter;
+        mon_cache = *mon;
+        mon_set = TRUE;
         return TRUE;
       }
     }
@@ -953,6 +967,8 @@ int monitor_active(workarea *mon) {
     for (workarea *iter = xcb->monitors; iter; iter = iter->next) {
       if (iter->primary) {
         *mon = *iter;
+        mon_cache = *mon;
+        mon_set = TRUE;
         return TRUE;
       }
     }
@@ -962,6 +978,8 @@ int monitor_active(workarea *mon) {
     xcb_drawable_t win = g_ascii_strtoll(config.monitor + 4, &end, 0);
     if (end != config.monitor) {
       if (monitor_active_from_winid(win, mon)) {
+        mon_cache = *mon;
+        mon_set = TRUE;
         return TRUE;
       }
     }
@@ -973,16 +991,23 @@ int monitor_active(workarea *mon) {
     if (end != config.monitor) {
       if (mon_id >= 0) {
         if (monitor_get_dimension(mon_id, mon)) {
+          mon_cache = *mon;
+          mon_set = TRUE;
           return TRUE;
         }
         g_warning("Failed to find selected monitor.");
       } else {
-        return monitor_active_from_id(mon_id, mon);
+        int val = monitor_active_from_id(mon_id, mon);
+        mon_cache = *mon;
+        mon_set = TRUE;
+        return val;
       }
     }
   }
   // Fallback.
   monitor_dimensions(0, 0, mon);
+  mon_cache = *mon;
+  mon_set = TRUE;
   return FALSE;
 }
 
