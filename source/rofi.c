@@ -1047,8 +1047,12 @@ int main(int argc, char *argv[]) {
   rofi_icon_fetcher_init();
   TICK_N("Icon fetcher initialize");
 
+  gboolean kill_running = FALSE;
+  if (find_arg("-replace") >= 0) {
+    kill_running = TRUE;
+  }
   // Create pid file
-  int pfd = create_pid_file(pidfile);
+  int pfd = create_pid_file(pidfile, kill_running);
   TICK_N("Pid file created");
   if (pfd < 0) {
     cleanup();

@@ -617,6 +617,10 @@ Command to open a Desktop Entry that is a Link.
 
 Make **rofi** create a pid file and check this on startup. The pid file prevents multiple **rofi** instances from running simultaneously. This is useful when running **rofi** from a key-binding daemon.
 
+`-replace`
+
+If rofi is already running, based on pid file, try to kill that instance.
+
 `-display-{mode}` *string*
 
 Set the name to use for mode. This is used as prompt and in combi-browser.

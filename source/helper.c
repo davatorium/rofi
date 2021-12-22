@@ -536,7 +536,7 @@ int execute_generator(const char *cmd) {
   return fd;
 }
 
-int create_pid_file(const char *pidfile) {
+int create_pid_file(const char *pidfile, gboolean kill_running) {
   if (pidfile == NULL) {
     return -1;
   }
@@ -559,6 +559,26 @@ int create_pid_file(const char *pidfile) {
   if (retv != 0) {
     g_warning("Failed to set lock on pidfile: Rofi already running?");
     g_warning("Got error: %d %s", retv, g_strerror(errno));
+    if (kill_running) {
+      char buffer[64] = {
+          0,
+      };
+      ssize_t l = read(fd, &buffer, 64);
+      if (l > 1) {
+        pid_t pid = g_ascii_strtoll(buffer, NULL, 0);
+        kill(pid, SIGTERM);
+        while (1) {
+          retv = flock(fd, LOCK_EX | LOCK_NB);
+          if (retv == 0) {
+            break;
+          }
+          g_usleep(100);
+        }
+      }
+      remove_pid_file(fd);
+      return create_pid_file(pidfile, FALSE);
+    }
+
     remove_pid_file(fd);
     return -1;
   }
@@ -1263,10 +1283,10 @@ char *helper_string_replace_if_exists(char *string, ...) {
  * @param h      Hash table with set of {key}, value that will be replaced,
  * terminated by  a NULL
  *
- * Items {key} are replaced by the value if '{key}' is passed as key/value pair,
- * otherwise removed from string. If the {key} is in between []  all the text
- * between [] are removed if {key} is not found. Otherwise key is replaced and [
- * & ] removed.
+ * Items {key} are replaced by the value if '{key}' is passed as key/value
+ * pair, otherwise removed from string. If the {key} is in between []  all the
+ * text between [] are removed if {key} is not found. Otherwise key is
+ * replaced and [ & ] removed.
  *
  * This allows for optional replacement, f.e.   '{ssh-client} [-t  {title}] -e
  * "{cmd}"' the '-t {title}' is only there if {title} is set.

@@ -701,7 +701,7 @@ gboolean config_parse_set_property(const Property *p, char **error) {
     }
   }
   //*error = g_strdup_printf("Option: %s is not found.", p->name);
-  g_warning("Option: %s is not found.", p->name);
+  g_debug("Option: %s is not found.", p->name);
 
   for (GList *iter = g_list_first(extra_parsed_options); iter != NULL;
        iter = g_list_next(iter)) {
