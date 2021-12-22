@@ -28,8 +28,8 @@
 /** The log domain of this dialog. */
 #define G_LOG_DOMAIN "Dialogs.Script"
 
-#include "config.h"
 #include "dialogs/script.h"
+#include "config.h"
 #include "helper.h"
 #include "rofi.h"
 #include <assert.h>
@@ -420,7 +420,7 @@ script_get_icon(const Mode *sw, unsigned int selected_line, int height) {
 }
 
 #include "mode-private.h"
-Mode *script_switcher_parse_setup(const char *str) {
+Mode *script_mode_parse_setup(const char *str) {
   Mode *sw = g_malloc0(sizeof(*sw));
   char *endp = NULL;
   char *parse = g_strdup(str);
@@ -458,6 +458,6 @@ Mode *script_switcher_parse_setup(const char *str) {
   return NULL;
 }
 
-gboolean script_switcher_is_valid(const char *token) {
+gboolean script_mode_is_valid(const char *token) {
   return strchr(token, ':') != NULL;
 }

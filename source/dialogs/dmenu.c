@@ -545,7 +545,7 @@ static void dmenu_print_results(DmenuModePrivateData *pd, const char *input) {
     if (pd->selected_line != UINT32_MAX) {
       cmd = cmd_list[pd->selected_line].entry;
     }
-    if ( cmd ) {
+    if (cmd) {
       rofi_output_formatted_line(pd->format, cmd, pd->selected_line, input);
     }
   }
@@ -676,7 +676,7 @@ static void dmenu_finalize(RofiViewState *state) {
   }
 }
 
-int dmenu_switcher_dialog(void) {
+int dmenu_mode_dialog(void) {
   mode_init(&dmenu_mode);
   MenuFlags menu_flags = MENU_NORMAL;
   DmenuModePrivateData *pd = (DmenuModePrivateData *)dmenu_mode.private_data;

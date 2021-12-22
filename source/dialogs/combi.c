@@ -68,7 +68,7 @@ static void combi_mode_parse_switchers(Mode *sw) {
   for (char *token = strtok_r(switcher_str, sep, &savept); token != NULL;
        token = strtok_r(NULL, sep, &savept)) {
     /* Check against recursion. */
-    if ( g_strcmp0(token, sw->name) == 0 ){
+    if (g_strcmp0(token, sw->name) == 0) {
       g_warning("You cannot add '%s' to the list of combined modi.", sw->name);
       continue;
     }
@@ -83,7 +83,7 @@ static void combi_mode_parse_switchers(Mode *sw) {
       continue;
     }
     // If not build in, use custom switchers.
-    mode = script_switcher_parse_setup(token);
+    mode = script_mode_parse_setup(token);
     if (mode != NULL) {
       pd->switchers[pd->num_switchers].disable = FALSE;
       pd->switchers[pd->num_switchers++].mode = mode;

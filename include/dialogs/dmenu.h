@@ -40,7 +40,7 @@
  *
  * @returns TRUE if script was successful.
  */
-int dmenu_switcher_dialog(void);
+int dmenu_mode_dialog(void);
 
 /**
  * Print dmenu mode commandline options to stdout, for use in help menu.
