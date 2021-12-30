@@ -648,7 +648,7 @@ Default: *enabled*
 To launch commands (for example, when using the ssh launcher), the user can enter the used command-line. The following keys can be used that will be replaced at runtime:
 
   * `{host}`: the host to connect to
-  * `{terminal}`: the configured terminal (see -terminal-emulator)
+  * `{terminal}`: the configured terminal (see -terminal)
   * `{ssh-client}`: the configured ssh client (see -ssh-client)
   * `{cmd}`: the command to execute
   * `{window}`: the window ID of the selected window (in `window-command`)
