@@ -202,3 +202,8 @@ for discussions.
   * [GitHub Discussions](https://github.com/davatorium/rofi/discussions)
   * IRC (#rofi on irc.libera.chat)
   * [Reddit](https://reddit.com/r/qtools/)
+
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/davatorium/rofi.svg)](https://starchart.cc/davatorium/rofi)
