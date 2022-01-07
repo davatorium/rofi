@@ -1213,6 +1213,7 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
         NK_BINDINGS_KEY_STATE_PRESS);
     if (text != NULL) {
       rofi_view_handle_text(state, text);
+      g_free(text);
     }
     break;
   }
