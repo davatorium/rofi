@@ -880,6 +880,7 @@ static int monitor_active_from_id_focused(int mon_id, workarea *mon) {
 static int monitor_active_from_id(int mon_id, workarea *mon) {
   xcb_window_t root = xcb->screen->root;
   int x, y;
+  g_debug("Monitor id: %d", mon_id);
   // At mouse position.
   if (mon_id == -3) {
     if (pointer_get(root, &x, &y)) {
@@ -891,19 +892,27 @@ static int monitor_active_from_id(int mon_id, workarea *mon) {
   }
   // Focused monitor
   else if (mon_id == -1) {
+    g_debug("rofi on current monitor");
     // Get the current desktop.
     unsigned int current_desktop = 0;
     xcb_get_property_cookie_t gcdc;
     gcdc = xcb_ewmh_get_current_desktop(&xcb->ewmh, xcb->screen_nbr);
     if (xcb_ewmh_get_current_desktop_reply(&xcb->ewmh, gcdc, &current_desktop,
                                            NULL)) {
+      g_debug("Found current desktop: %u", current_desktop);
       xcb_get_property_cookie_t c =
           xcb_ewmh_get_desktop_viewport(&xcb->ewmh, xcb->screen_nbr);
       xcb_ewmh_get_desktop_viewport_reply_t vp;
       if (xcb_ewmh_get_desktop_viewport_reply(&xcb->ewmh, c, &vp, NULL)) {
+        g_debug("Found %d number of desktops", vp.desktop_viewport_len);
         if (current_desktop < vp.desktop_viewport_len) {
+          g_debug("Found viewport for desktop: %d %d",
+                  vp.desktop_viewport[current_desktop].x,
+                  vp.desktop_viewport[current_desktop].y);
           monitor_dimensions(vp.desktop_viewport[current_desktop].x,
                              vp.desktop_viewport[current_desktop].y, mon);
+          g_debug("Found monitor @: %d %d %dx%d", mon->x, mon->y, mon->w,
+                  mon->h);
           xcb_ewmh_get_desktop_viewport_reply_wipe(&vp);
           return TRUE;
         }
@@ -946,6 +955,7 @@ workarea mon_cache = {
     0,
 };
 int monitor_active(workarea *mon) {
+  g_debug("Monitor active");
   if (mon_set) {
     if (mon) {
       *mon = mon_cache;
@@ -953,6 +963,7 @@ int monitor_active(workarea *mon) {
     }
   }
   if (config.monitor != NULL) {
+    g_debug("Monitor lookup  by name : %s", config.monitor);
     for (workarea *iter = xcb->monitors; iter; iter = iter->next) {
       if (g_strcmp0(config.monitor, iter->name) == 0) {
         *mon = *iter;
@@ -962,6 +973,7 @@ int monitor_active(workarea *mon) {
       }
     }
   }
+  g_debug("Monitor lookup  by name failed: %s", config.monitor);
   // Grab primary.
   if (g_strcmp0(config.monitor, "primary") == 0) {
     for (workarea *iter = xcb->monitors; iter; iter = iter->next) {

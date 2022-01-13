@@ -1707,12 +1707,12 @@ static WidgetTriggerActionResult textbox_button_trigger_action(
   switch (action) {
   case MOUSE_CLICK_DOWN: {
     const char *type = rofi_theme_get_string(wid, "action", NULL);
-    if (type ) {
-      if ( state->list_view) {
+    if (type) {
+      if (state->list_view) {
         (state->selected_line) =
-        state->line_map[listview_get_selected(state->list_view)];
+            state->line_map[listview_get_selected(state->list_view)];
       } else {
-          (state->selected_line) = UINT32_MAX;
+        (state->selected_line) = UINT32_MAX;
       }
       guint id = key_binding_get_action_from_name(type);
       if (id != UINT32_MAX) {
