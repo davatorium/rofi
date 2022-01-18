@@ -240,6 +240,9 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 
 %token T_MODIFIER_MAX                   "Max ('max')"
 %token T_MODIFIER_MIN                   "Min ('min')"
+%token T_MODIFIER_ROUND                 "Min ('round')"
+%token T_MODIFIER_FLOOR                 "Min ('floor')"
+%token T_MODIFIER_CEIL                  "Min ('ceil')"
 
 %token T_CALC                           "calc"
 
@@ -800,6 +803,24 @@ t_property_distance_unit_math3
     $$->left    = $1;
     $$->right   = $3;
     $$->modtype = ROFI_DISTANCE_MODIFIER_MAX;
+}
+| t_property_distance_unit_math3 T_MODIFIER_ROUND t_property_distance_unit_math2 {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left    = $1;
+    $$->right   = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_ROUND;
+}
+| t_property_distance_unit_math3 T_MODIFIER_FLOOR t_property_distance_unit_math2 {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left    = $1;
+    $$->right   = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_FLOOR;
+}
+| t_property_distance_unit_math3 T_MODIFIER_CEIL t_property_distance_unit_math2 {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->left    = $1;
+    $$->right   = $3;
+    $$->modtype = ROFI_DISTANCE_MODIFIER_CEIL;
 }
 | t_property_distance_unit_math2  {
     $$ = $1;

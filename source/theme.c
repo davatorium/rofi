@@ -57,10 +57,8 @@ void rofi_theme_print_parsed_files(gboolean is_term) {
   printf("\nParsed files:\n");
   for (GList *iter = g_list_first(parsed_config_files); iter != NULL;
        iter = g_list_next(iter)) {
-    printf("\t\u2022 %s%s%s\n",
-      is_term ? color_bold : "", (const char *)(iter->data),
-      is_term ? color_reset : "");
-
+    printf("\t\u2022 %s%s%s\n", is_term ? color_bold : "",
+           (const char *)(iter->data), is_term ? color_reset : "");
   }
   printf("\n");
 }
@@ -285,6 +283,12 @@ static void rofi_theme_print_distance_unit(RofiDistanceUnit *unit) {
     fputs(" min ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MAX) {
     fputs(" max ", stdout);
+  } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_ROUND) {
+    fputs(" round ", stdout);
+  } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_FLOOR) {
+    fputs(" floor ", stdout);
+  } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_CEIL) {
+    fputs(" ceil ", stdout);
   }
   if (unit->right) {
     rofi_theme_print_distance_unit(unit->right);
@@ -1349,6 +1353,21 @@ static int distance_unit_get_pixel(RofiDistanceUnit *unit,
     int a = distance_unit_get_pixel(unit->left, ori);
     int b = distance_unit_get_pixel(unit->right, ori);
     return MAX(a, b);
+  }
+  case ROFI_DISTANCE_MODIFIER_ROUND: {
+    double a = (double)distance_unit_get_pixel(unit->left, ori);
+    double b = (double)distance_unit_get_pixel(unit->right, ori);
+    return (int)round(a / b) * b;
+  }
+  case ROFI_DISTANCE_MODIFIER_CEIL: {
+    double a = (double)distance_unit_get_pixel(unit->left, ori);
+    double b = (double)distance_unit_get_pixel(unit->right, ori);
+    return (int)ceil(a / b) * b;
+  }
+  case ROFI_DISTANCE_MODIFIER_FLOOR: {
+    double a = (double)distance_unit_get_pixel(unit->left, ori);
+    double b = (double)distance_unit_get_pixel(unit->right, ori);
+    return (int)floor(a / b) * b;
   }
   default:
     break;
