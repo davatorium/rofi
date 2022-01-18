@@ -1357,17 +1357,17 @@ static int distance_unit_get_pixel(RofiDistanceUnit *unit,
   case ROFI_DISTANCE_MODIFIER_ROUND: {
     double a = (double)distance_unit_get_pixel(unit->left, ori);
     double b = (double)distance_unit_get_pixel(unit->right, ori);
-    return (int)round(a / b) * b;
+    return (int)(round(a / b) * b);
   }
   case ROFI_DISTANCE_MODIFIER_CEIL: {
     double a = (double)distance_unit_get_pixel(unit->left, ori);
     double b = (double)distance_unit_get_pixel(unit->right, ori);
-    return (int)ceil(a / b) * b;
+    return (int)(ceil(a / b) * b);
   }
   case ROFI_DISTANCE_MODIFIER_FLOOR: {
     double a = (double)distance_unit_get_pixel(unit->left, ori);
     double b = (double)distance_unit_get_pixel(unit->right, ori);
-    return (int)floor(a / b) * b;
+    return (int)(floor(a / b) * b);
   }
   default:
     break;
