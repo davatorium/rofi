@@ -409,6 +409,9 @@ It supports the following operations:
 * `%`   : Multiply
 * `min` : Minimum of l or rvalue;
 * `max` : Maximum of l or rvalue;
+* `floor` : Round down lvalue to the next multiple of rvalue 
+* `ceil` : Round up lvalue to the next multiple of rvalue 
+* `round` : Round lvalue to the next multiple of rvalue 
 
 It uses the C precedence ordering.
 
