@@ -35,6 +35,7 @@
 #include <stdlib.h>
 
 #include "mode-private.h"
+#include "widgets/textbox.h"
 #include <dialogs/dialogs.h>
 #include <pango/pango.h>
 #include <theme.h>
@@ -225,8 +226,20 @@ static char *combi_mgrv(const Mode *sw, unsigned int selected_line, int *state,
                                                 selected_line - pd->starts[i],
                                                 state, attr_list, TRUE);
       const char *dname = mode_get_display_name(pd->switchers[i].mode);
+
       if (!config.combi_hide_mode_prefix) {
-        retv = g_strdup_printf("%s %s", dname, str);
+        if (!(*state & MARKUP)) {
+          char *tmp = str;
+          str = g_markup_escape_text(tmp, -1);
+          g_free(tmp);
+          *state |= MARKUP;
+        }
+
+        retv = helper_string_replace_if_exists(
+            config.combi_display_format,
+            "{mode}", dname,
+            "{text}", str,
+            NULL);
         g_free(str);
 
         if (attr_list != NULL) {
