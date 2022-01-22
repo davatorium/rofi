@@ -1332,6 +1332,21 @@ The indicator shows:
 .fi
 .RE
 
+.SS Why do I see different icons for run,drun and window mode
+.PP
+Each of these modes uses different methods of resolving the icon:
+
+.RS
+.IP \(bu 2
+Window: It first uses the icon that the application exposes via the X11
+Server, if none is set it does a lookup of the window Class name in the icon theme.
+.IP \(bu 2
+drun: It uses the icon set in the desktop file.
+.IP \(bu 2
+run: It does a lookup using the executable name.
+
+.RE
+
 .SH EXAMPLES
 .PP
 Some basic usage examples of \fBrofi\fP:

@@ -844,6 +844,15 @@ The indicator shows:
     `+` Case insensitive and Sorting enabled
     `±` Sorting and Case sensitivity enabled"
 
+### Why do I see different icons for run,drun and window mode
+
+Each of these modes uses different methods of resolving the icon:
+
+* Window: It first uses the icon that the application exposes via the X11
+  Server, if none is set it does a lookup of the window Class name in the icon theme.
+* drun: It uses the icon set in the desktop file.
+* run: It does a lookup using the executable name.
+
 ## EXAMPLES
 
 Some basic usage examples of **rofi**:
