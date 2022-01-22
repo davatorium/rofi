@@ -544,6 +544,20 @@ To get one merge view, of `window`,`run`, and `ssh`:
 **NOTE**: The i3 window manager dislikes commas in the command when specifying an exec command.
 For that case, `#` can be used as a separator.
 
+`-combi-display-format`
+
+The format string for entries in the `combi` dialog:
+
+* **mode**: the mode display name
+* **text**: the entry text
+
+Pango markup can be used to formatting the output.
+
+    Default: {mode} {text}
+
+Note: This setting is ignored if `combi-hide-mode-prefix` is eanbled.
+
+
 ### History and Sorting
 
 `-disable-history`
