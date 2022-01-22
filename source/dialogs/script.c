@@ -202,20 +202,22 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
             actual_size += 256;
             retv = g_realloc(retv, (actual_size) * sizeof(DmenuScriptEntry));
           }
-          size_t buf_length = strlen(buffer) + 1;
-          retv[(*length)].entry = g_memdup(buffer, buf_length);
-          retv[(*length)].icon_name = NULL;
-          retv[(*length)].meta = NULL;
-          retv[(*length)].info = NULL;
-          retv[(*length)].icon_fetch_uid = 0;
-          retv[(*length)].nonselectable = FALSE;
-          if (buf_length > 0 && (read_length > (ssize_t)buf_length)) {
-            dmenuscript_parse_entry_extras(sw, &(retv[(*length)]),
-                                           buffer + buf_length,
-                                           read_length - buf_length);
+          if (retv) {
+            size_t buf_length = strlen(buffer) + 1;
+            retv[(*length)].entry = g_memdup(buffer, buf_length);
+            retv[(*length)].icon_name = NULL;
+            retv[(*length)].meta = NULL;
+            retv[(*length)].info = NULL;
+            retv[(*length)].icon_fetch_uid = 0;
+            retv[(*length)].nonselectable = FALSE;
+            if (buf_length > 0 && (read_length > (ssize_t)buf_length)) {
+              dmenuscript_parse_entry_extras(sw, &(retv[(*length)]),
+                                             buffer + buf_length,
+                                             read_length - buf_length);
+            }
+            retv[(*length) + 1].entry = NULL;
+            (*length)++;
           }
-          retv[(*length) + 1].entry = NULL;
-          (*length)++;
         }
       }
       if (buffer) {
