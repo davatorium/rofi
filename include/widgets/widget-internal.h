@@ -30,14 +30,25 @@
 
 #include "theme.h"
 
-/** Default padding. */
-#define WIDGET_DEFAULT_PADDING 0
-/** macro for initializing the padding struction. */
+/** Macro for initializing the RofiDistance struct. */
+#define WIDGET_DISTANCE_INIT                                                   \
+  (RofiDistance){                                                              \
+    .base = {                                                                  \
+      .distance = 0,                                                           \
+      .type = ROFI_PU_PX,                                                      \
+      .modtype = ROFI_DISTANCE_MODIFIER_NONE,                                  \
+      .left = NULL,                                                            \
+      .right = NULL,                                                           \
+    },                                                                         \
+    .style = ROFI_HL_SOLID,                                                    \
+  }
+/* Macro for initializing the RofiPadding struct. */
 #define WIDGET_PADDING_INIT                                                    \
-  {                                                                            \
-    {WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL,    \
-     NULL},                                                                    \
-        ROFI_HL_SOLID                                                          \
+  (RofiPadding){                                                               \
+    .top = WIDGET_DISTANCE_INIT,                                               \
+    .right = WIDGET_DISTANCE_INIT,                                             \
+    .bottom = WIDGET_DISTANCE_INIT,                                            \
+    .left = WIDGET_DISTANCE_INIT,                                              \
   }
 
 /**
