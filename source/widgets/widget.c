@@ -31,16 +31,6 @@
 #include <glib.h>
 #include <math.h>
 
-/** Default padding. */
-#define WIDGET_DEFAULT_PADDING 0
-/** macro for initializing the padding struction. */
-#define WIDGET_PADDING_INIT                                                    \
-  {                                                                            \
-    {WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL,    \
-     NULL},                                                                    \
-        ROFI_HL_SOLID                                                          \
-  }
-
 void widget_init(widget *wid, widget *parent, WidgetType type,
                  const char *name) {
   wid->type = type;
