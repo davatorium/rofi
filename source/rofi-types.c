@@ -3,7 +3,7 @@
 /**
  * Name of the property type
  */
-const char * const PropertyTypeName[P_NUM_TYPES] = {
+const char *const PropertyTypeName[P_NUM_TYPES] = {
     /** Integer */
     "Integer",
     /** Double */
@@ -28,6 +28,8 @@ const char * const PropertyTypeName[P_NUM_TYPES] = {
     "Highlight",
     /** List */
     "List",
+    /** Set */
+    "Set",
     /** Orientation */
     "Orientation",
     /** Cursor */
