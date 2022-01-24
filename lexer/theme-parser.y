@@ -234,8 +234,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_LIST_OPEN                      "List open ('[')"
 %token T_LIST_CLOSE                     "List close (']')"
 
-%token T_SET_OPEN                      "Set open ('{')"
-%token T_SET_CLOSE                     "Set close ('}')"
+%token T_ARRAY_OPEN                      "Set open ('{')"
+%token T_ARRAY_CLOSE                     "Set close ('}')"
 
 %token T_MODIFIER_ADD                   "Add ('+')"
 %token T_MODIFIER_SUBTRACT              "Subtract ('-')"
@@ -585,8 +585,8 @@ t_property_element
         $$ = rofi_theme_property_create ( P_LIST );
         $$->value.list = $2;
 }
-| T_SET_OPEN t_property_element_set_optional T_SET_CLOSE {
-        $$ = rofi_theme_property_create ( P_SET );
+| T_ARRAY_OPEN t_property_element_set_optional T_ARRAY_CLOSE {
+        $$ = rofi_theme_property_create ( P_ARRAY );
         $$->value.list = $2;
 }
 | t_property_orientation {

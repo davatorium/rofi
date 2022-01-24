@@ -137,7 +137,7 @@ Property *rofi_theme_property_copy(const Property *p) {
     retv->value.list =
         g_list_copy_deep(p->value.list, rofi_g_list_strdup, NULL);
     break;
-  case P_SET:
+  case P_ARRAY:
     retv->value.list = g_list_copy_deep(
         p->value.list, (GCopyFunc)rofi_theme_property_copy, NULL);
     break;
@@ -210,7 +210,7 @@ void rofi_theme_property_free(Property *p) {
   } else if (p->type == P_LIST) {
     g_list_free_full(p->value.list, g_free);
     p->value.list = 0;
-  } else if (p->type == P_SET) {
+  } else if (p->type == P_ARRAY) {
     g_list_free_full(p->value.list, (GDestroyNotify)rofi_theme_property_free);
     p->value.list = 0;
   } else if (p->type == P_LINK) {
@@ -375,7 +375,7 @@ static void int_rofi_theme_print_property(Property *p) {
     }
     printf(" ]");
     break;
-  case P_SET:
+  case P_ARRAY:
     printf("{ ");
     for (GList *iter = p->value.list; iter != NULL; iter = g_list_next(iter)) {
       int_rofi_theme_print_property((Property *)iter->data);
@@ -1262,28 +1262,30 @@ GList *rofi_theme_get_list(const widget *widget, const char *property,
   return rofi_theme_get_list_inside(p, widget, property, defaults);
 }
 
-static GList *rofi_theme_get_set_inside(Property *p, const widget *widget,
-                                        const char *property,
-                                        PropertyType child_type) {
+static GList *rofi_theme_get_array_inside(Property *p, const widget *widget,
+                                          const char *property,
+                                          PropertyType child_type) {
   if (p) {
     if (p->type == P_INHERIT) {
       if (widget->parent) {
         ThemeWidget *parent =
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
-        Property *pv = rofi_theme_find_property(parent, P_SET, property, FALSE);
-        return rofi_theme_get_set_inside(pv, widget->parent, property,
-                                         child_type);
+        Property *pv =
+            rofi_theme_find_property(parent, P_ARRAY, property, FALSE);
+        return rofi_theme_get_array_inside(pv, widget->parent, property,
+                                           child_type);
       }
-    } else if (p->type == P_SET) {
+    } else if (p->type == P_ARRAY) {
       return p->value.list;
     }
   }
   return NULL;
 }
-GList *rofi_theme_get_set_distance(const widget *widget, const char *property) {
+GList *rofi_theme_get_array_distance(const widget *widget,
+                                     const char *property) {
   ThemeWidget *wid2 = rofi_theme_find_widget(widget->name, widget->state, TRUE);
-  Property *p = rofi_theme_find_property(wid2, P_SET, property, TRUE);
-  GList *list = rofi_theme_get_set_inside(p, widget, property, P_PADDING);
+  Property *p = rofi_theme_find_property(wid2, P_ARRAY, property, TRUE);
+  GList *list = rofi_theme_get_array_inside(p, widget, property, P_PADDING);
   GList *retv = NULL;
   for (GList *iter = g_list_first(list); iter != NULL;
        iter = g_list_next(iter)) {

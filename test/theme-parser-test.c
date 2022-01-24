@@ -1294,7 +1294,7 @@ START_TEST(test_properties_types_names) {
   ck_assert_str_eq(PropertyTypeName[P_POSITION], "Position");
   ck_assert_str_eq(PropertyTypeName[P_HIGHLIGHT], "Highlight");
   ck_assert_str_eq(PropertyTypeName[P_LIST], "List");
-  ck_assert_str_eq(PropertyTypeName[P_SET], "Set");
+  ck_assert_str_eq(PropertyTypeName[P_ARRAY], "Array");
   ck_assert_str_eq(PropertyTypeName[P_ORIENTATION], "Orientation");
 }
 END_TEST
