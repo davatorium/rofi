@@ -164,23 +164,26 @@ static void textbox_initialize_font(textbox *tb) {
 }
 
 static void textbox_tab_stops(textbox *tb) {
-  RofiPadding def = WIDGET_PADDING_INIT;
-  RofiPadding pad = rofi_theme_get_padding(WIDGET(tb), "tab-stops", def);
+  GList *dists = rofi_theme_get_array_distance(WIDGET(tb), "tab-stops");
 
-  if (&pad != &def) {
-    PangoTabArray *tabs = pango_tab_array_new(4, TRUE);
-    RofiDistance distances[] = {pad.top, pad.right, pad.bottom, pad.left};
+  if (dists != NULL) {
+    PangoTabArray *tabs = pango_tab_array_new(g_list_length(dists), TRUE);
 
-    for (int i = 0, ppx = 0; i < 4; i++) {
-      int px = distance_get_pixel(distances[i], ROFI_ORIENTATION_HORIZONTAL);
+    int i = 0, ppx = 0;
+    for (const GList *iter = g_list_first(dists); iter != NULL; iter = g_list_next(iter), i++) {
+      const RofiDistance *dist = iter->data;
+
+      int px = distance_get_pixel(*dist, ROFI_ORIENTATION_HORIZONTAL);
       if (px <= ppx) {
-        break;
+        continue;
       }
       pango_tab_array_set_tab(tabs, i, PANGO_TAB_LEFT, px);
       ppx = px;
     }
     pango_layout_set_tabs(tb->layout, tabs);
+
     pango_tab_array_free(tabs);
+    g_list_free_full(dists, g_free);
   }
 }
 

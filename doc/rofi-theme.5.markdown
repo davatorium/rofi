@@ -452,21 +452,6 @@ style property.
 > When no unit is specified, pixels are assumed.
 
 
-## Tab Stops
-
-* Format: `{Integer}`
-* Format: `{Distance}`
-* Format: `{Distance} {Distance}`
-* Format: `{Distance} {Distance} {Distance}`
-* Format: `{Distance} {Distance} {Distance} {Distance}`
-
-You can specify location of up to four tab stops by their distance from the beginning of the line.
-Each distance must be greater than the previous one.
-The text appears to the right of the tab stop position (other alignments are not supported yet).
-
-If no unit is specified, pixels are assumed.
-
-
 ## Position
 
 Indicate a place on the window/monitor.
@@ -784,7 +769,10 @@ The following properties are currently supported:
 * **placeholder-color**: Color of the placeholder text.
 * **blink**:             Enable/Disable blinking on an input textbox (Boolean).
 * **markup**:            Force markup on, beware that only valid pango markup strings are shown.
-* **tab-stops**:         Set the tab stops.
+* **tab-stops**:         array of distances
+    Set the location of tab stops by their distance from the beginning of the line.
+    Each distance should be greater than the previous one.
+    The text appears to the right of the tab stop position (other alignments are not supported yet).
 
 ### listview:
 * **columns**:         integer
