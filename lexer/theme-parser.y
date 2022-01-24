@@ -586,7 +586,6 @@ t_property_element
         $$->value.list = $2;
 }
 | T_SET_OPEN t_property_element_set_optional T_SET_CLOSE {
-printf("set create\n");
         $$ = rofi_theme_property_create ( P_SET );
         $$->value.list = $2;
 }
