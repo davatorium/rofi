@@ -137,6 +137,10 @@ Property *rofi_theme_property_copy(const Property *p) {
     retv->value.list =
         g_list_copy_deep(p->value.list, rofi_g_list_strdup, NULL);
     break;
+  case P_SET:
+    retv->value.list = g_list_copy_deep(
+        p->value.list, (GCopyFunc)rofi_theme_property_copy, NULL);
+    break;
   case P_LINK:
     retv->value.link.name = g_strdup(p->value.link.name);
     retv->value.link.ref = NULL;
@@ -205,6 +209,9 @@ void rofi_theme_property_free(Property *p) {
     g_free(p->value.s);
   } else if (p->type == P_LIST) {
     g_list_free_full(p->value.list, g_free);
+    p->value.list = 0;
+  } else if (p->type == P_SET) {
+    g_list_free_full(p->value.list, (GDestroyNotify)rofi_theme_property_free);
     p->value.list = 0;
   } else if (p->type == P_LINK) {
     g_free(p->value.link.name);
@@ -367,6 +374,16 @@ static void int_rofi_theme_print_property(Property *p) {
       }
     }
     printf(" ]");
+    break;
+  case P_SET:
+    printf("{ ");
+    for (GList *iter = p->value.list; iter != NULL; iter = g_list_next(iter)) {
+      int_rofi_theme_print_property((Property *)iter->data);
+      if (iter->next != NULL) {
+        printf(",");
+      }
+    }
+    printf(" }");
     break;
   case P_ORIENTATION:
     printf("%s", (p->value.i == ROFI_ORIENTATION_HORIZONTAL) ? "horizontal"
@@ -1243,6 +1260,51 @@ GList *rofi_theme_get_list(const widget *widget, const char *property,
   ThemeWidget *wid2 = rofi_theme_find_widget(widget->name, widget->state, TRUE);
   Property *p = rofi_theme_find_property(wid2, P_LIST, property, TRUE);
   return rofi_theme_get_list_inside(p, widget, property, defaults);
+}
+
+static GList *rofi_theme_get_set_inside(Property *p, const widget *widget,
+                                        const char *property,
+                                        PropertyType child_type) {
+  if (p) {
+    if (p->type == P_INHERIT) {
+      if (widget->parent) {
+        ThemeWidget *parent =
+            rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
+        Property *pv = rofi_theme_find_property(parent, P_SET, property, FALSE);
+        return rofi_theme_get_set_inside(pv, widget->parent, property,
+                                         child_type);
+      }
+    } else if (p->type == P_SET) {
+      return p->value.list;
+    }
+  }
+  return NULL;
+}
+GList *rofi_theme_get_set_distance(const widget *widget, const char *property) {
+  ThemeWidget *wid2 = rofi_theme_find_widget(widget->name, widget->state, TRUE);
+  Property *p = rofi_theme_find_property(wid2, P_SET, property, TRUE);
+  GList *list = rofi_theme_get_set_inside(p, widget, property, P_PADDING);
+  GList *retv = NULL;
+  for (GList *iter = g_list_first(list); iter != NULL;
+       iter = g_list_next(iter)) {
+    Property *prop = (Property *)(iter->data);
+    if (prop->type == P_PADDING) {
+      RofiDistance *p = g_new0(RofiDistance, 1);
+      *p = prop->value.padding.left;
+      retv = g_list_append(retv, p);
+    } else if (prop->type == P_INTEGER) {
+      RofiDistance *p = g_new0(RofiDistance, 1);
+      RofiDistance d =
+          (RofiDistance){.base = {prop->value.i, ROFI_PU_PX,
+                                  ROFI_DISTANCE_MODIFIER_NONE, NULL, NULL},
+                         .style = ROFI_HL_SOLID};
+      *p = d;
+      retv = g_list_append(retv, p);
+    } else {
+      g_warning("Invalid type detected in list.");
+    }
+  }
+  return retv;
 }
 
 static RofiHighlightColorStyle

@@ -234,6 +234,9 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_LIST_OPEN                      "List open ('[')"
 %token T_LIST_CLOSE                     "List close (']')"
 
+%token T_SET_OPEN                      "Set open ('{')"
+%token T_SET_CLOSE                     "Set close ('}')"
+
 %token T_MODIFIER_ADD                   "Add ('+')"
 %token T_MODIFIER_SUBTRACT              "Subtract ('-')"
 %token T_MODIFIER_MULTIPLY              "Multiply ('*')"
@@ -305,6 +308,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %type <ival>           t_property_line_style
 %type <list>           t_property_element_list
 %type <list>           t_property_element_list_optional
+%type <list>           t_property_element_set
+%type <list>           t_property_element_set_optional
 %type <ival>           t_property_orientation
 %type <ival>           t_property_cursor
 %type <ival>           t_name_prefix_optional
@@ -580,6 +585,11 @@ t_property_element
         $$ = rofi_theme_property_create ( P_LIST );
         $$->value.list = $2;
 }
+| T_SET_OPEN t_property_element_set_optional T_SET_CLOSE {
+printf("set create\n");
+        $$ = rofi_theme_property_create ( P_SET );
+        $$->value.list = $2;
+}
 | t_property_orientation {
         $$ = rofi_theme_property_create ( P_ORIENTATION );
         $$->value.i = $1;
@@ -654,6 +664,18 @@ t_property_element_list_optional
 t_property_element_list
 : T_ELEMENT { $$ = g_list_append ( NULL, $1); }
 | t_property_element_list T_COMMA T_ELEMENT {
+    $$ = g_list_append ( $1, $3 );
+}
+;
+/** List of elements */
+t_property_element_set_optional
+: %empty { $$ = NULL; }
+| t_property_element_set { $$ = $1; }
+;
+
+t_property_element_set
+: t_property_element { $$ = g_list_append ( NULL, $1); }
+| t_property_element_set T_COMMA t_property_element {
     $$ = g_list_append ( $1, $3 );
 }
 ;

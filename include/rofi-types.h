@@ -32,6 +32,8 @@ typedef enum {
   P_HIGHLIGHT,
   /** List */
   P_LIST,
+  /** Set */
+  P_SET,
   /** Orientation */
   P_ORIENTATION,
   /** Cursor */

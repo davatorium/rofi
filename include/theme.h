@@ -467,4 +467,9 @@ void rofi_theme_free_parsed_files(void);
  */
 void rofi_theme_print_parsed_files(int is_term);
 
+/**
+ * Returns a list of allocated RofiDistance objects that should be
+ * freed.
+ */
+GList *rofi_theme_get_set_distance(const widget *widget, const char *property);
 #endif
