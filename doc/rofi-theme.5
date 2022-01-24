@@ -319,6 +319,8 @@ a cursor
 .IP \(bu 2
 a list of keywords
 .IP \(bu 2
+an array of values
+.IP \(bu 2
 an environment variable
 .IP \(bu 2
 Inherit
@@ -866,6 +868,16 @@ Format: \fB\fC[ keyword, keyword ]\fR
 A list starts with a '[' and ends with a ']'. The entries in the list are comma\-separated.
 The \fB\fCkeyword\fR in the list refers to an widget name.
 
+.SH List of values
+.RS
+.IP \(bu 2
+Format: \fB\fC[ value, value, ... ]\fR
+
+.RE
+
+.PP
+An list starts with a '[' and ends with a ']'. The entries in the list are comma\-separated.
+
 .SH Environment variable
 .RS
 .IP \(bu 2
@@ -1251,6 +1263,11 @@ This option is only available on the \fB\fCelement\-text\fR widget.
 \fBblink\fP:             Enable/Disable blinking on an input textbox (Boolean).
 .IP \(bu 2
 \fBmarkup\fP:            Force markup on, beware that only valid pango markup strings are shown.
+.IP \(bu 2
+\fBtab\-stops\fP:         array of distances
+Set the location of tab stops by their distance from the beginning of the line.
+Each distance should be greater than the previous one.
+The text appears to the right of the tab stop position (other alignments are not supported yet).
 
 .RE
 

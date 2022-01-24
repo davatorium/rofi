@@ -28,8 +28,6 @@ const char *const PropertyTypeName[P_NUM_TYPES] = {
     "Highlight",
     /** List */
     "List",
-    /** Array */
-    "Array",
     /** Orientation */
     "Orientation",
     /** Cursor */

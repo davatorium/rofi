@@ -231,11 +231,9 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_OPTIONAL_COMMA                 "Optional comma separator (',')"
 %token T_FORWARD_SLASH                  "forward slash ('/')"
 %token T_PERCENT                        "Percent sign ('%')"
+
 %token T_LIST_OPEN                      "List open ('[')"
 %token T_LIST_CLOSE                     "List close (']')"
-
-%token T_ARRAY_OPEN                      "Set open ('{')"
-%token T_ARRAY_CLOSE                     "Set close ('}')"
 
 %token T_MODIFIER_ADD                   "Add ('+')"
 %token T_MODIFIER_SUBTRACT              "Subtract ('-')"
@@ -306,8 +304,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %type <ival>           t_property_highlight_styles
 %type <ival>           t_property_highlight_style
 %type <ival>           t_property_line_style
-%type <list>           t_property_element_list
-%type <list>           t_property_element_list_optional
 %type <list>           t_property_element_set
 %type <list>           t_property_element_set_optional
 %type <ival>           t_property_orientation
@@ -581,12 +577,8 @@ t_property_element
         $$ = rofi_theme_property_create ( P_COLOR );
         $$->value.color = $1;
 }
-| T_LIST_OPEN t_property_element_list_optional T_LIST_CLOSE {
+| T_LIST_OPEN t_property_element_set_optional T_LIST_CLOSE {
         $$ = rofi_theme_property_create ( P_LIST );
-        $$->value.list = $2;
-}
-| T_ARRAY_OPEN t_property_element_set_optional T_ARRAY_CLOSE {
-        $$ = rofi_theme_property_create ( P_ARRAY );
         $$->value.list = $2;
 }
 | t_property_orientation {
@@ -655,18 +647,6 @@ t_color_list
 
 
 /** List of elements */
-t_property_element_list_optional
-: %empty { $$ = NULL; }
-| t_property_element_list { $$ = $1; }
-;
-
-t_property_element_list
-: T_ELEMENT { $$ = g_list_append ( NULL, $1); }
-| t_property_element_list T_COMMA T_ELEMENT {
-    $$ = g_list_append ( $1, $3 );
-}
-;
-/** List of elements */
 t_property_element_set_optional
 : %empty { $$ = NULL; }
 | t_property_element_set { $$ = $1; }
@@ -674,6 +654,16 @@ t_property_element_set_optional
 
 t_property_element_set
 : t_property_element { $$ = g_list_append ( NULL, $1); }
+| T_ELEMENT {
+  Property *p = rofi_theme_property_create ( P_STRING );
+  p->value.s = $1;
+  $$ = g_list_append ( NULL, p);
+}
+| t_property_element_set T_COMMA T_ELEMENT {
+  Property *p = rofi_theme_property_create ( P_STRING );
+  p->value.s = $3;
+  $$ = g_list_append ( $1, p);
+}
 | t_property_element_set T_COMMA t_property_element {
     $$ = g_list_append ( $1, $3 );
 }

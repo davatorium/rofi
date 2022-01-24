@@ -612,10 +612,11 @@ static gboolean __config_parser_set_property(XrmOption *option,
     if (p->type == P_LIST) {
       for (GList *iter = p->value.list; iter != NULL;
            iter = g_list_next(iter)) {
+        Property *p = (Property *)iter->data;
         if (value == NULL) {
-          value = g_strdup((char *)(iter->data));
+          value = g_strdup((char *)(p->value.s));
         } else {
-          char *nv = g_strjoin(",", value, (char *)(iter->data), NULL);
+          char *nv = g_strjoin(",", value, (char *)(p->value.s), NULL);
           g_free(value);
           value = nv;
         }

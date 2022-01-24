@@ -1147,34 +1147,6 @@ START_TEST(test_properties_cursor_case) {
                    ROFI_CURSOR_TEXT);
 }
 END_TEST
-START_TEST(test_properties_list) {
-  widget wid;
-  wid.name = "blaat";
-  wid.state = NULL;
-  rofi_theme_parse_string(
-      "#blaat { liste: [];  list1: [ one ]; list2: [ one, two ];}");
-  GList *list = rofi_theme_get_list(&wid, "liste", NULL);
-  ck_assert_ptr_null(list);
-  list = rofi_theme_get_list(&wid, "list1", NULL);
-  ck_assert_ptr_nonnull(list);
-  ck_assert_str_eq((char *)list->data, "one");
-  g_list_free_full(list, (GDestroyNotify)g_free);
-  list = rofi_theme_get_list(&wid, "list2", NULL);
-  ck_assert_ptr_nonnull(list);
-  ck_assert_int_eq(g_list_length(list), 2);
-  ck_assert_str_eq((char *)list->data, "one");
-  ck_assert_str_eq((char *)list->next->data, "two");
-  g_list_free_full(list, (GDestroyNotify)g_free);
-
-  list = rofi_theme_get_list(&wid, "blaat", "aap,noot,mies");
-  ck_assert_ptr_nonnull(list);
-  ck_assert_int_eq(g_list_length(list), 3);
-  ck_assert_str_eq((char *)list->data, "aap");
-  ck_assert_str_eq((char *)list->next->data, "noot");
-  ck_assert_str_eq((char *)list->next->next->data, "mies");
-  g_list_free_full(list, (GDestroyNotify)g_free);
-}
-END_TEST
 
 START_TEST(test_configuration) {
   rofi_theme_parse_string("configuration { font: \"blaat€\"; yoffset: 4; }");
@@ -1262,13 +1234,13 @@ START_TEST(test_prepare_array) {
   widget wid;
   wid.name = "element-text";
   wid.state = "normal.normal";
-  rofi_theme_parse_string("element-text  { tabs: { 10, 20px, 30px, 40px };}");
+  rofi_theme_parse_string("element-text  { tabs: [ 10, 20px, 30px, 40px ];}");
   ck_assert_ptr_nonnull(rofi_theme);
   // ck_assert_ptr_null ( rofi_theme->widgets );
   ck_assert_ptr_null(rofi_theme->properties);
   ck_assert_ptr_null(rofi_theme->parent);
   ck_assert_str_eq(rofi_theme->name, "Root");
-  GList *l = rofi_theme_get_array_distance(&wid, "tabs");
+  GList *l = rofi_theme_get_list_distance(&wid, "tabs");
 
   ck_assert_int_eq(g_list_length(l), 4);
 
@@ -1318,7 +1290,6 @@ START_TEST(test_properties_types_names) {
   ck_assert_str_eq(PropertyTypeName[P_POSITION], "Position");
   ck_assert_str_eq(PropertyTypeName[P_HIGHLIGHT], "Highlight");
   ck_assert_str_eq(PropertyTypeName[P_LIST], "List");
-  ck_assert_str_eq(PropertyTypeName[P_ARRAY], "Array");
   ck_assert_str_eq(PropertyTypeName[P_ORIENTATION], "Orientation");
 }
 END_TEST
@@ -1454,13 +1425,6 @@ static Suite *theme_parser_suite(void) {
     tcase_add_test(tc_prop_cursor, test_properties_cursor);
     tcase_add_test(tc_prop_cursor, test_properties_cursor_case);
     suite_add_tcase(s, tc_prop_cursor);
-  }
-  {
-    TCase *tc_prop_list = tcase_create("Propertieslist");
-    tcase_add_checked_fixture(tc_prop_list, theme_parser_setup,
-                              theme_parser_teardown);
-    tcase_add_test(tc_prop_list, test_properties_list);
-    suite_add_tcase(s, tc_prop_list);
   }
   {
     TCase *tc_prop_configuration = tcase_create("Configuration");

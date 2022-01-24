@@ -535,12 +535,11 @@ Specify the type of mouse cursor that is set when the mouse pointer is over the 
 A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 The `keyword` in the list refers to an widget name.
 
-## Array of values
+## List of values
 
-* Format: `{ value, value, ... }`
+* Format: `[ value, value, ... ]`
 
-An array starts with a '{' and ends with a '}'. The entries in the array are comma-separated.
-Currently, only the integer and distance types are supported as array values.
+An list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 
 ## Environment variable
 
