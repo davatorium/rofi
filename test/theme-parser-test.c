@@ -1258,6 +1258,30 @@ START_TEST(test_import_error) {
   error = 0;
 }
 END_TEST
+START_TEST(test_prepare_array) {
+  widget wid;
+  wid.name = "element-text";
+  wid.state = NULL;
+  rofi_theme_parse_string("element-text  { tabs: { 10, 20px, 30px, 40px };}");
+  ck_assert_ptr_nonnull(rofi_theme);
+  // ck_assert_ptr_null ( rofi_theme->widgets );
+  ck_assert_ptr_null(rofi_theme->properties);
+  ck_assert_ptr_null(rofi_theme->parent);
+  ck_assert_str_eq(rofi_theme->name, "Root");
+  GList *l = rofi_theme_get_array_distance(&wid, "tabs");
+
+  ck_assert_int_eq(g_list_length(l), 4);
+
+  int i = 10;
+  for (GList *iter = g_list_first(l); iter != NULL; iter = g_list_next(iter)) {
+    RofiDistance *d = (RofiDistance *)iter->data;
+    ck_assert_int_eq(d->base.distance, i);
+    i += 10;
+  }
+
+  g_list_free_full(l, g_free);
+}
+END_TEST
 
 START_TEST(test_prepare_path) {
   char *current_dir = g_get_current_dir();
@@ -1465,6 +1489,11 @@ static Suite *theme_parser_suite(void) {
     TCase *tc_prepare_path = tcase_create("prepare_path");
     tcase_add_test(tc_prepare_path, test_prepare_path);
     suite_add_tcase(s, tc_prepare_path);
+  }
+  {
+    TCase *tc_prepare_array = tcase_create("array");
+    tcase_add_test(tc_prepare_array, test_prepare_array);
+    suite_add_tcase(s, tc_prepare_array);
   }
   return s;
 }
