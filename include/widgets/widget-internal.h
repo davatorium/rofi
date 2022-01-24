@@ -29,6 +29,28 @@
 #define WIDGET_INTERNAL_H
 
 #include "theme.h"
+
+/** Macro for initializing the RofiDistance struct. */
+#define WIDGET_DISTANCE_INIT                                                   \
+  (RofiDistance){                                                              \
+    .base = {                                                                  \
+      .distance = 0,                                                           \
+      .type = ROFI_PU_PX,                                                      \
+      .modtype = ROFI_DISTANCE_MODIFIER_NONE,                                  \
+      .left = NULL,                                                            \
+      .right = NULL,                                                           \
+    },                                                                         \
+    .style = ROFI_HL_SOLID,                                                    \
+  }
+/* Macro for initializing the RofiPadding struct. */
+#define WIDGET_PADDING_INIT                                                    \
+  (RofiPadding){                                                               \
+    .top = WIDGET_DISTANCE_INIT,                                               \
+    .right = WIDGET_DISTANCE_INIT,                                             \
+    .bottom = WIDGET_DISTANCE_INIT,                                            \
+    .left = WIDGET_DISTANCE_INIT,                                              \
+  }
+
 /**
  * Data structure holding the internal state of the Widget
  */

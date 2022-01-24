@@ -216,6 +216,7 @@ The current theme format supports different types:
  * an orientation
  * a cursor
  * a list of keywords
+ * an array of values
  * an environment variable
  * Inherit
 
@@ -450,6 +451,7 @@ style property.
 
 > When no unit is specified, pixels are assumed.
 
+
 ## Position
 
 Indicate a place on the window/monitor.
@@ -532,6 +534,13 @@ Specify the type of mouse cursor that is set when the mouse pointer is over the 
 
 A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 The `keyword` in the list refers to an widget name.
+
+## Array of values
+
+* Format: `{ value, value, ... }`
+
+An array starts with a '{' and ends with a '}'. The entries in the array are comma-separated.
+Currently, only the integer and distance types are supported as array values.
 
 ## Environment variable
 
@@ -760,6 +769,10 @@ The following properties are currently supported:
 * **placeholder-color**: Color of the placeholder text.
 * **blink**:             Enable/Disable blinking on an input textbox (Boolean).
 * **markup**:            Force markup on, beware that only valid pango markup strings are shown.
+* **tab-stops**:         array of distances
+    Set the location of tab stops by their distance from the beginning of the line.
+    Each distance should be greater than the previous one.
+    The text appears to the right of the tab stop position (other alignments are not supported yet).
 
 ### listview:
 * **columns**:         integer

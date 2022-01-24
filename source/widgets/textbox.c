@@ -163,6 +163,30 @@ static void textbox_initialize_font(textbox *tb) {
   }
 }
 
+static void textbox_tab_stops(textbox *tb) {
+  GList *dists = rofi_theme_get_array_distance(WIDGET(tb), "tab-stops");
+
+  if (dists != NULL) {
+    PangoTabArray *tabs = pango_tab_array_new(g_list_length(dists), TRUE);
+
+    int i = 0, ppx = 0;
+    for (const GList *iter = g_list_first(dists); iter != NULL; iter = g_list_next(iter), i++) {
+      const RofiDistance *dist = iter->data;
+
+      int px = distance_get_pixel(*dist, ROFI_ORIENTATION_HORIZONTAL);
+      if (px <= ppx) {
+        continue;
+      }
+      pango_tab_array_set_tab(tabs, i, PANGO_TAB_LEFT, px);
+      ppx = px;
+    }
+    pango_layout_set_tabs(tb->layout, tabs);
+
+    pango_tab_array_free(tabs);
+    g_list_free_full(dists, g_free);
+  }
+}
+
 textbox *textbox_create(widget *parent, WidgetType type, const char *name,
                         TextboxFlags flags, TextBoxFontType tbft,
                         const char *text, double xalign, double yalign) {
@@ -186,6 +210,7 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
   textbox_font(tb, tbft);
 
   textbox_initialize_font(tb);
+  textbox_tab_stops(tb);
 
   if ((tb->flags & TB_WRAP) == TB_WRAP) {
     pango_layout_set_wrap(tb->layout, PANGO_WRAP_WORD_CHAR);

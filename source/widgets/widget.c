@@ -31,30 +31,15 @@
 #include <glib.h>
 #include <math.h>
 
-/** Default padding. */
-#define WIDGET_DEFAULT_PADDING 0
-/** macro for initializing the padding struction. */
-#define WIDGET_PADDING_INIT                                                    \
-  {                                                                            \
-    {WIDGET_DEFAULT_PADDING, ROFI_PU_PX, ROFI_DISTANCE_MODIFIER_NONE, NULL,    \
-     NULL},                                                                    \
-        ROFI_HL_SOLID                                                          \
-  }
-
 void widget_init(widget *wid, widget *parent, WidgetType type,
                  const char *name) {
   wid->type = type;
   wid->parent = parent;
   wid->name = g_strdup(name);
-  wid->def_padding = (RofiPadding){WIDGET_PADDING_INIT, WIDGET_PADDING_INIT,
-                                   WIDGET_PADDING_INIT, WIDGET_PADDING_INIT};
-  wid->def_border = (RofiPadding){WIDGET_PADDING_INIT, WIDGET_PADDING_INIT,
-                                  WIDGET_PADDING_INIT, WIDGET_PADDING_INIT};
-  wid->def_border_radius =
-      (RofiPadding){WIDGET_PADDING_INIT, WIDGET_PADDING_INIT,
-                    WIDGET_PADDING_INIT, WIDGET_PADDING_INIT};
-  wid->def_margin = (RofiPadding){WIDGET_PADDING_INIT, WIDGET_PADDING_INIT,
-                                  WIDGET_PADDING_INIT, WIDGET_PADDING_INIT};
+  wid->def_padding = WIDGET_PADDING_INIT;
+  wid->def_border = WIDGET_PADDING_INIT;
+  wid->def_border_radius = WIDGET_PADDING_INIT;
+  wid->def_margin = WIDGET_PADDING_INIT;
 
   wid->padding = rofi_theme_get_padding(wid, "padding", wid->def_padding);
   wid->border = rofi_theme_get_padding(wid, "border", wid->def_border);
