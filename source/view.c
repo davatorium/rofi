@@ -2026,7 +2026,6 @@ RofiViewState *rofi_view_create(Mode *sw, const char *input,
   if (list == NULL) {
     rofi_view_add_widget(state, WIDGET(state->main_window), "mainbox");
   } else {
-    // rofi_theme_get_list(WIDGET(state->main_window), "children", "mainbox");
     for (const GList *iter = list; iter != NULL; iter = g_list_next(iter)) {
       rofi_view_add_widget(state, WIDGET(state->main_window),
                            (const char *)iter->data);

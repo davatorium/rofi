@@ -70,11 +70,6 @@ static gboolean distance_compare(RofiDistance d, RofiDistance e) {
          d.style == e.style;
 }
 
-static gpointer rofi_g_list_strdup(gconstpointer data,
-                                   G_GNUC_UNUSED gpointer user_data) {
-  return g_strdup(data);
-}
-
 ThemeWidget *rofi_theme_find_or_create_name(ThemeWidget *base,
                                             const char *name) {
   for (unsigned int i = 0; i < base->num_widgets; i++) {
