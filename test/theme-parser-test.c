@@ -1147,7 +1147,28 @@ START_TEST(test_properties_cursor_case) {
                    ROFI_CURSOR_TEXT);
 }
 END_TEST
+START_TEST(test_properties_list) {
+  widget wid;
+  wid.name = "blaat";
+  wid.state = NULL;
+  rofi_theme_parse_string(
+      "#blaat { liste: [];  list1: [ one ]; list2: [ one, two ];}");
+  GList *list = rofi_theme_get_list_strings(&wid, "liste");
+  ck_assert_ptr_null(list);
+  list = rofi_theme_get_list_strings(&wid, "list1");
+  ck_assert_ptr_nonnull(list);
+  ck_assert_str_eq((char *)list->data, "one");
+  g_list_free_full(list, (GDestroyNotify)g_free);
 
+  list = rofi_theme_get_list_strings(&wid, "list2");
+  ck_assert_ptr_nonnull(list);
+  ck_assert_int_eq(g_list_length(list), 2);
+  list = g_list_first(list);
+  ck_assert_str_eq((char *)list->data, "one");
+  ck_assert_str_eq((char *)list->next->data, "two");
+  g_list_free_full(list, (GDestroyNotify)g_free);
+}
+END_TEST
 START_TEST(test_configuration) {
   rofi_theme_parse_string("configuration { font: \"blaat€\"; yoffset: 4; }");
   ck_assert_int_eq(g_utf8_collate(config.menu_font, "blaat€"), 0);
@@ -1432,6 +1453,13 @@ static Suite *theme_parser_suite(void) {
                               theme_parser_teardown);
     tcase_add_test(tc_prop_configuration, test_configuration);
     suite_add_tcase(s, tc_prop_configuration);
+  }
+  {
+    TCase *tc_prop_list = tcase_create("Propertieslist");
+    tcase_add_checked_fixture(tc_prop_list, theme_parser_setup,
+                              theme_parser_teardown);
+    tcase_add_test(tc_prop_list, test_properties_list);
+    suite_add_tcase(s, tc_prop_list);
   }
   {
     TCase *tc_prop_parse_file = tcase_create("ParseFile");

@@ -273,8 +273,8 @@ CALC    (?i:calc)
 COMMA            ,
 FORWARD_SLASH    \/
 
-LIST_OPEN        [\[]
-LIST_CLOSE       [\]]
+LIST_OPEN        \[
+LIST_CLOSE       \]
 
 VAR_START  "var"
 ENV_START  "env"
