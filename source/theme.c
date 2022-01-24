@@ -1283,8 +1283,9 @@ static GList *rofi_theme_get_array_inside(Property *p, const widget *widget,
 }
 GList *rofi_theme_get_array_distance(const widget *widget,
                                      const char *property) {
-  ThemeWidget *wid2 = rofi_theme_find_widget(widget->name, widget->state, TRUE);
-  Property *p = rofi_theme_find_property(wid2, P_ARRAY, property, TRUE);
+  ThemeWidget *wid2 =
+      rofi_theme_find_widget(widget->name, widget->state, FALSE);
+  Property *p = rofi_theme_find_property(wid2, P_ARRAY, property, FALSE);
   GList *list = rofi_theme_get_array_inside(p, widget, property, P_PADDING);
   GList *retv = NULL;
   for (GList *iter = g_list_first(list); iter != NULL;

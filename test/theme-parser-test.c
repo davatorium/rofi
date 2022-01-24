@@ -1261,7 +1261,7 @@ END_TEST
 START_TEST(test_prepare_array) {
   widget wid;
   wid.name = "element-text";
-  wid.state = NULL;
+  wid.state = "normal.normal";
   rofi_theme_parse_string("element-text  { tabs: { 10, 20px, 30px, 40px };}");
   ck_assert_ptr_nonnull(rofi_theme);
   // ck_assert_ptr_null ( rofi_theme->widgets );
