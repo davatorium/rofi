@@ -920,6 +920,35 @@ rofi \-show combi \-combi\-modi "window,run,ssh" \-modi combi
 \fBNOTE\fP: The i3 window manager dislikes commas in the command when specifying an exec command.
 For that case, \fB\fC#\fR can be used as a separator.
 
+.PP
+\fB\fC\-combi\-display\-format\fR
+
+.PP
+The format string for entries in the \fB\fCcombi\fR dialog:
+
+.RS
+.IP \(bu 2
+\fBmode\fP: the mode display name
+.IP \(bu 2
+\fBtext\fP: the entry text
+
+.RE
+
+.PP
+Pango markup can be used to formatting the output.
+
+.PP
+.RS
+
+.nf
+Default: {mode} {text}
+
+.fi
+.RE
+
+.PP
+Note: This setting is ignored if \fB\fCcombi\-hide\-mode\-prefix\fR is eanbled.
+
 .SS History and Sorting
 .PP
 \fB\fC\-disable\-history\fR

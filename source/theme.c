@@ -70,11 +70,6 @@ static gboolean distance_compare(RofiDistance d, RofiDistance e) {
          d.style == e.style;
 }
 
-static gpointer rofi_g_list_strdup(gconstpointer data,
-                                   G_GNUC_UNUSED gpointer user_data) {
-  return g_strdup(data);
-}
-
 ThemeWidget *rofi_theme_find_or_create_name(ThemeWidget *base,
                                             const char *name) {
   for (unsigned int i = 0; i < base->num_widgets; i++) {
@@ -134,10 +129,6 @@ Property *rofi_theme_property_copy(const Property *p) {
     retv->value.s = g_strdup(p->value.s);
     break;
   case P_LIST:
-    retv->value.list =
-        g_list_copy_deep(p->value.list, rofi_g_list_strdup, NULL);
-    break;
-  case P_ARRAY:
     retv->value.list = g_list_copy_deep(
         p->value.list, (GCopyFunc)rofi_theme_property_copy, NULL);
     break;
@@ -208,9 +199,6 @@ void rofi_theme_property_free(Property *p) {
   if (p->type == P_STRING) {
     g_free(p->value.s);
   } else if (p->type == P_LIST) {
-    g_list_free_full(p->value.list, g_free);
-    p->value.list = 0;
-  } else if (p->type == P_ARRAY) {
     g_list_free_full(p->value.list, (GDestroyNotify)rofi_theme_property_free);
     p->value.list = 0;
   } else if (p->type == P_LINK) {
@@ -368,22 +356,12 @@ static void int_rofi_theme_print_property(Property *p) {
   case P_LIST:
     printf("[ ");
     for (GList *iter = p->value.list; iter != NULL; iter = g_list_next(iter)) {
-      printf("%s", (char *)(iter->data));
-      if (iter->next != NULL) {
-        printf(",");
-      }
-    }
-    printf(" ]");
-    break;
-  case P_ARRAY:
-    printf("{ ");
-    for (GList *iter = p->value.list; iter != NULL; iter = g_list_next(iter)) {
       int_rofi_theme_print_property((Property *)iter->data);
       if (iter->next != NULL) {
         printf(",");
       }
     }
-    printf(" }");
+    printf(" ]");
     break;
   case P_ORIENTATION:
     printf("%s", (p->value.i == ROFI_ORIENTATION_HORIZONTAL) ? "horizontal"
@@ -1229,7 +1207,7 @@ RofiPadding rofi_theme_get_padding(const widget *widget, const char *property,
 
 static GList *rofi_theme_get_list_inside(Property *p, const widget *widget,
                                          const char *property,
-                                         const char *defaults) {
+                                         PropertyType child_type) {
   if (p) {
     if (p->type == P_INHERIT) {
       if (widget->parent) {
@@ -1238,55 +1216,20 @@ static GList *rofi_theme_get_list_inside(Property *p, const widget *widget,
         Property *pv =
             rofi_theme_find_property(parent, P_LIST, property, FALSE);
         return rofi_theme_get_list_inside(pv, widget->parent, property,
-                                          defaults);
+                                          child_type);
       }
     } else if (p->type == P_LIST) {
-      return g_list_copy_deep(p->value.list, rofi_g_list_strdup, NULL);
-    }
-  }
-  char **r = defaults ? g_strsplit(defaults, ",", 0) : NULL;
-  if (r) {
-    GList *l = NULL;
-    for (int i = 0; r[i] != NULL; i++) {
-      l = g_list_append(l, r[i]);
-    }
-    g_free(r);
-    return l;
-  }
-  return NULL;
-}
-GList *rofi_theme_get_list(const widget *widget, const char *property,
-                           const char *defaults) {
-  ThemeWidget *wid2 = rofi_theme_find_widget(widget->name, widget->state, TRUE);
-  Property *p = rofi_theme_find_property(wid2, P_LIST, property, TRUE);
-  return rofi_theme_get_list_inside(p, widget, property, defaults);
-}
-
-static GList *rofi_theme_get_array_inside(Property *p, const widget *widget,
-                                          const char *property,
-                                          PropertyType child_type) {
-  if (p) {
-    if (p->type == P_INHERIT) {
-      if (widget->parent) {
-        ThemeWidget *parent =
-            rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
-        Property *pv =
-            rofi_theme_find_property(parent, P_ARRAY, property, FALSE);
-        return rofi_theme_get_array_inside(pv, widget->parent, property,
-                                           child_type);
-      }
-    } else if (p->type == P_ARRAY) {
       return p->value.list;
     }
   }
   return NULL;
 }
-GList *rofi_theme_get_array_distance(const widget *widget,
-                                     const char *property) {
+GList *rofi_theme_get_list_distance(const widget *widget,
+                                    const char *property) {
   ThemeWidget *wid2 =
       rofi_theme_find_widget(widget->name, widget->state, FALSE);
-  Property *p = rofi_theme_find_property(wid2, P_ARRAY, property, FALSE);
-  GList *list = rofi_theme_get_array_inside(p, widget, property, P_PADDING);
+  Property *p = rofi_theme_find_property(wid2, P_LIST, property, FALSE);
+  GList *list = rofi_theme_get_list_inside(p, widget, property, P_PADDING);
   GList *retv = NULL;
   for (GList *iter = g_list_first(list); iter != NULL;
        iter = g_list_next(iter)) {
@@ -1303,6 +1246,23 @@ GList *rofi_theme_get_array_distance(const widget *widget,
                          .style = ROFI_HL_SOLID};
       *p = d;
       retv = g_list_append(retv, p);
+    } else {
+      g_warning("Invalid type detected in list.");
+    }
+  }
+  return retv;
+}
+GList *rofi_theme_get_list_strings(const widget *widget, const char *property) {
+  ThemeWidget *wid2 =
+      rofi_theme_find_widget(widget->name, widget->state, FALSE);
+  Property *p = rofi_theme_find_property(wid2, P_LIST, property, FALSE);
+  GList *list = rofi_theme_get_list_inside(p, widget, property, P_STRING);
+  GList *retv = NULL;
+  for (GList *iter = g_list_first(list); iter != NULL;
+       iter = g_list_next(iter)) {
+    Property *prop = (Property *)(iter->data);
+    if (prop->type == P_STRING) {
+      retv = g_list_append(retv, g_strdup(prop->value.s));
     } else {
       g_warning("Invalid type detected in list.");
     }

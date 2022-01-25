@@ -164,13 +164,14 @@ static void textbox_initialize_font(textbox *tb) {
 }
 
 static void textbox_tab_stops(textbox *tb) {
-  GList *dists = rofi_theme_get_array_distance(WIDGET(tb), "tab-stops");
+  GList *dists = rofi_theme_get_list_distance(WIDGET(tb), "tab-stops");
 
   if (dists != NULL) {
     PangoTabArray *tabs = pango_tab_array_new(g_list_length(dists), TRUE);
 
     int i = 0, ppx = 0;
-    for (const GList *iter = g_list_first(dists); iter != NULL; iter = g_list_next(iter), i++) {
+    for (const GList *iter = g_list_first(dists); iter != NULL;
+         iter = g_list_next(iter), i++) {
       const RofiDistance *dist = iter->data;
 
       int px = distance_get_pixel(*dist, ROFI_ORIENTATION_HORIZONTAL);

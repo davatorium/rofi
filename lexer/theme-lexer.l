@@ -161,7 +161,7 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
 
 ASC     [\x00-\x7f]
 ASCN    [\x00-\t\v-\x7f]
-ASCNP    [\x00-\t\v-\x21\x23-\x7f]
+ASCNP   [\x00-\t\v-\x21\x23-\x7f]
 U       [\x80-\xbf]
 U2      [\xc2-\xdf]
 U3      [\xe0-\xef]
@@ -176,6 +176,7 @@ UANYNP   {ASCNP}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
+WORD_ELEMENT [[:alpha:]][[:alnum:]-]*
 WORD_ENV   [[:alpha:]_][[:alnum:]_]*
 MEDIA_NAME [[:alpha:]-]+
 COLOR_NAME [[:alpha:]]+
@@ -275,9 +276,6 @@ FORWARD_SLASH    \/
 LIST_OPEN        \[
 LIST_CLOSE       \]
 
-ARRAY_OPEN        \{
-ARRAY_CLOSE       \}
-
 VAR_START  "var"
 ENV_START  "env"
 
@@ -299,7 +297,6 @@ CONFIGURATION (?i:configuration)
 %x PROPERTIES_VAR
 %x PROPERTIES_ENV_VAR
 %x PROPERTIES_VAR_DEFAULT
-%x PROPERTIES_LIST
 %x PROPERTIES_ARRAY
 %x NAMESTR
 %x SECTION
@@ -496,18 +493,19 @@ if ( queue == NULL ) {
  /* Alias color to text-color */
 <SECTION>"color"            { yylval->sval = g_strdup("text-color"); return T_PROP_NAME;}
 <SECTION>{WORD}   { yylval->sval = g_strdup(yytext); return T_PROP_NAME;}
-<NAMESTR>{WORD}         { yylval->sval = g_strdup(yytext); return T_NAME_ELEMENT;}
+<NAMESTR>{WORD_ELEMENT}         { yylval->sval = g_strdup(yytext); return T_NAME_ELEMENT;}
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST,PROPERTIES_ARRAY,PROPERTIES_ENV_VAR,PROPERTIES_VAR,MEDIA_CONTENT>{WHITESPACE}+	; // ignore all whitespace
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_ARRAY,PROPERTIES_ENV_VAR,PROPERTIES_VAR,MEDIA_CONTENT>{WHITESPACE}+	; // ignore all whitespace
 
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
-<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}              { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}                                             { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
+<PROPERTIES_ARRAY>{STRING_LIST}                                                                        { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CHAR}                { yytext[yyleng-1] = '\0'; yylval->cval = g_strcompress(&yytext[1])[0]; return T_CHAR;}
 
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>@{WORD}               {
@@ -674,24 +672,15 @@ if ( queue == NULL ) {
 }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{S_T_PARENT_LEFT}  { return T_PARENT_LEFT;    }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{S_T_PARENT_RIGHT} { return T_PARENT_RIGHT;   }
-<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>{COMMA}            { return T_COMMA;          }
+<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{COMMA}            { return T_COMMA;          }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{LIST_OPEN}        {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
-    BEGIN(PROPERTIES_LIST);
+    BEGIN(PROPERTIES_ARRAY);
     return T_LIST_OPEN;
 }
-<PROPERTIES_LIST>{LIST_CLOSE}       {
+<PROPERTIES_ARRAY>{LIST_CLOSE}       {
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
     return T_LIST_CLOSE;
-}
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{ARRAY_OPEN}        {
-    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
-    BEGIN(PROPERTIES_ARRAY);
-    return T_ARRAY_OPEN;
-}
-<PROPERTIES_ARRAY>{ARRAY_CLOSE}       {
-    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
-    return T_ARRAY_CLOSE;
 }
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{FORWARD_SLASH}    { return T_FORWARD_SLASH;  }
  /* Position */
@@ -819,7 +808,7 @@ if ( queue == NULL ) {
   * If we just encounter a word, we assume it is a Widget name.
   * This makes include,theme, configuration a reserved keyword.
   */
-<INITIAL>{WORD} {
+<INITIAL>{WORD_ELEMENT} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(NAMESTR);
     yylval->sval = g_strdup(yytext);
@@ -834,17 +823,12 @@ if ( queue == NULL ) {
     fprintf(stderr,"section found: |%s|\n", yytext);
     return T_ERROR_SECTION;
 }
-<PROPERTIES_LIST,PROPERTIES_VAR>{WORD} {
+<PROPERTIES_ARRAY,PROPERTIES_VAR>{WORD_ELEMENT} {
     yylval->sval = g_strdup(yytext);
     return T_ELEMENT;
 }
-<PROPERTIES_LIST>{STRING_LIST} {
-    yytext[yyleng-1] = '\0';
-    yylval->sval = g_strdup(yytext+1);
-    return T_ELEMENT;
-}
 
-<PROPERTIES_ENV_VAR,PROPERTIES_VAR,PROPERTIES_ARRAY,PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_LIST>. {
+<PROPERTIES_ENV_VAR,PROPERTIES_VAR,PROPERTIES_ARRAY,PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>. {
     yytext[yyleng-1] = '\0';
     return T_ERROR_PROPERTY;
 }
