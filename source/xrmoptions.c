@@ -555,7 +555,7 @@ void config_parse_cmd_options(void) {
       for (int j = 1; tokens && tokens[j]; j++) {
         count++;
       }
-      if (count == 2) {
+      if (count >= 2) {
         if (g_str_has_prefix(tokens[1], "theme")) {
           g_strfreev(tokens);
           tokens = g_strsplit(stored_argv[in], "+", 0);
