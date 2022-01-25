@@ -354,7 +354,8 @@ static XrmOption xrmOptions[] = {
      "combi-hide-mode-prefix",
      {.snum = &config.combi_hide_mode_prefix},
      NULL,
-     "Hide the prefix mode prefix on the combi view.",
+     "Hide the prefix mode prefix on the combi view.**deprecated** use "
+     "combi-display-format",
      CONFIG_DEFAULT},
     {xrm_String,
      "combi-display-format",
