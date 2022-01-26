@@ -1,4 +1,4 @@
-# 1.7.4: Leatherbacks 
+# 1.7.3: Leatherbacks
 
 A small intermediate release with a few fixes, mostly in documentation and two great additions by Jakub Jiruta:
 
@@ -7,7 +7,7 @@ A small intermediate release with a few fixes, mostly in documentation and two g
 
 # Changelog
 
-v1.7.4:
+v1.7.3:
    - [Help] Print out the parsed config/theme files in -help output.
    - [Keybindings] Fix keybindings being modified by -theme-str
    - [Doc] Add rofi-dmenu manpage.
