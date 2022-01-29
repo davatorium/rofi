@@ -1,4 +1,4 @@
-# 1.7.3: Leatherbacks
+# 1.7.3:
 
 A small intermediate release with a few fixes, mostly in documentation and two great additions by Jakub Jiruta:
 
