@@ -1,4 +1,4 @@
-# 1.7.3:
+# 1.7.3: Sturtled!
 
 A small intermediate release with a few fixes, mostly in documentation and two great additions by Jakub Jiruta:
 
