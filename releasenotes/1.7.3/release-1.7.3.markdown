@@ -30,6 +30,6 @@ Special thanks goes to:
 * Iggy
 * Quentin Glidic
 * Danny Colin
-* Jakub Jiruta
+* Jakub Jirutka
 
 Apologies if I mistyped or missed anybody.
