@@ -715,6 +715,7 @@ static void rofi_theme_resolve_link_property(Property *p, int depth) {
       return;
     }
   }
+  g_warning("Failed to resolve variable '%s'", name);
   // No found and we have default value.
   if (p->value.link.def_value) {
     p->value.link.ref = p->value.link.def_value;
