@@ -239,21 +239,23 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
   for (; splitted && splitted[ns]; ns++) {
     ;
   }
+  GString *str_retv = g_string_new("");
   for (uint32_t i = 0; pd->columns && pd->columns[i]; i++) {
     unsigned int index =
         (unsigned int)g_ascii_strtoull(pd->columns[i], NULL, 10);
-    if (index < ns && index > 0) {
-      if (retv == NULL) {
-        retv = g_strdup(splitted[index - 1]);
+    if (index <= ns && index > 0) {
+      if (index == 1) {
+        g_string_append(str_retv, splitted[index - 1]);
       } else {
-        gchar *t = g_strjoin("\t", retv, splitted[index - 1], NULL);
-        g_free(retv);
-        retv = t;
+        g_string_append_c(str_retv, '\t');
+        g_string_append(str_retv, splitted[index - 1]);
       }
     }
   }
   g_strfreev(splitted);
-  return retv ? retv : g_strdup("");
+  retv = str_retv->str;
+  g_string_free(str_retv, FALSE);
+  return retv;
 }
 
 static inline unsigned int get_index(unsigned int length, int index) {
@@ -818,4 +820,8 @@ void print_dmenu_options(void) {
   print_help_msg("-w", "windowid", "Position over window with X11 windowid.",
                  NULL, is_term);
   print_help_msg("-keep-right", "", "Set ellipsize to end.", NULL, is_term);
+  print_help_msg("--display-columns", "", "Only show the selected columns",
+                 NULL, is_term);
+  print_help_msg("--display-column-separator", "\t",
+                 "Separator to use to split columns (regex)", NULL, is_term);
 }
