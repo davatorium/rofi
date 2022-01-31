@@ -715,7 +715,6 @@ static void rofi_theme_resolve_link_property(Property *p, int depth) {
       return;
     }
   }
-  g_warning("Failed to resolve variable '%s'", name);
   // No found and we have default value.
   if (p->value.link.def_value) {
     p->value.link.ref = p->value.link.def_value;
@@ -1543,6 +1542,56 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
     }
   }
 }
+
+static char *rofi_theme_widget_get_name(ThemeWidget *wid) {
+  GString *str = g_string_new(wid->name);
+  for (ThemeWidget *i = wid->parent; i->parent != NULL; i = i->parent) {
+    g_string_prepend_c(str, ' ');
+    g_string_prepend(str, i->name);
+  }
+  char *retv = str->str;
+  g_string_free(str, FALSE);
+  return retv;
+}
+
+static void rofi_theme_parse_process_links_int(ThemeWidget *wid) {
+  if (wid == NULL) {
+    return;
+  }
+
+  for (unsigned int i = 0; i < wid->num_widgets; i++) {
+    ThemeWidget *widget = wid->widgets[i];
+    rofi_theme_parse_process_links_int(widget);
+    if (widget->properties == NULL) {
+      continue;
+    }
+    GHashTableIter iter;
+    gpointer key, value;
+    g_hash_table_iter_init(&iter, widget->properties);
+    while (g_hash_table_iter_next(&iter, &key, &value)) {
+      Property *pv = (Property *)value;
+      if (pv->type == P_LINK) {
+        if (pv->value.link.ref == NULL) {
+          rofi_theme_resolve_link_property(pv, 0);
+          if (pv->value.link.ref == pv) {
+            char *n = rofi_theme_widget_get_name(widget);
+            GString *str = g_string_new(NULL);
+            g_string_printf(str, "Failed to resolve: `%s { %s: var(%s);}`", n,
+                            pv->name, pv->value.link.name);
+
+            rofi_add_error_message(str);
+            g_free(n);
+          }
+        }
+      }
+    }
+  }
+}
+
+void rofi_theme_parse_process_links(void) {
+  rofi_theme_parse_process_links_int(rofi_theme);
+}
+
 void rofi_theme_parse_process_conditionals(void) {
   workarea mon;
   monitor_active(&mon);

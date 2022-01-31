@@ -413,6 +413,11 @@ char *rofi_theme_parse_prepare_file(const char *file, const char *parent_file);
 void rofi_theme_parse_process_conditionals(void);
 
 /**
+ * Process links.
+ */
+void rofi_theme_parse_process_links(void);
+
+/**
  * @param parent target theme tree
  * @param child source theme three
  *

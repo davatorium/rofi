@@ -1069,6 +1069,7 @@ int main(int argc, char *argv[]) {
   TICK_N("Setup late Display");
 
   rofi_theme_parse_process_conditionals();
+  rofi_theme_parse_process_links();
   TICK_N("Theme setup");
 
   // Setup signal handling sources.
@@ -1091,6 +1092,7 @@ int main(int argc, char *argv[]) {
 extern GList *list_of_error_msgs;
 int rofi_theme_rasi_validate(const char *filename) {
   rofi_theme_parse_file(filename);
+  rofi_theme_parse_process_links();
   if (list_of_error_msgs == NULL) {
     return EXIT_SUCCESS;
   }
@@ -1098,6 +1100,7 @@ int rofi_theme_rasi_validate(const char *filename) {
   for (GList *iter = g_list_first(list_of_error_msgs); iter != NULL;
        iter = g_list_next(iter)) {
     fputs(((GString *)iter->data)->str, stderr);
+    fputs("\n", stderr);
   }
 
   return EXIT_FAILURE;
