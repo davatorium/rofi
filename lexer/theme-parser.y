@@ -659,13 +659,23 @@ t_property_element_list
   p->value.s = $1;
   $$ = g_list_append ( NULL, p);
 }
+| T_CALC {
+  Property *p = rofi_theme_property_create ( P_STRING );
+  p->value.s = g_strdup("calc");
+  $$ = g_list_append ( NULL, p);
+}
+| t_property_element_list T_COMMA t_property_element {
+    $$ = g_list_append ( $1, $3 );
+}
 | t_property_element_list T_COMMA T_ELEMENT {
   Property *p = rofi_theme_property_create ( P_STRING );
   p->value.s = $3;
   $$ = g_list_append ( $1, p);
 }
-| t_property_element_list T_COMMA t_property_element {
-    $$ = g_list_append ( $1, $3 );
+| t_property_element_list T_COMMA T_CALC {
+  Property *p = rofi_theme_property_create ( P_STRING );
+  p->value.s = g_strdup("calc");
+  $$ = g_list_append ( $1, p);
 }
 ;
 
