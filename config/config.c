@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2022 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,41 +26,41 @@
  */
 
 #include "config.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <glib.h>
 #include "rofi-types.h"
 #include "settings.h"
+#include <glib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 Settings config = {
-    /** List of enabled modi. */
-    /** -modi */
+/** List of enabled modi. */
+/** -modi */
 #ifdef WINDOW_MODE
-    .modi                      = "window,run,ssh",
+    .modi = "window,run,ssh",
 #else
-    .modi                      = "run,ssh",
+    .modi = "run,ssh",
 #endif
     /** Font */
-    .menu_font                 = "mono 12",
+    .menu_font = "mono 12",
 
     /** Whether to load and show icons */
-    .show_icons                = FALSE,
+    .show_icons = FALSE,
 
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
-    .ssh_client        = "ssh",
+    .ssh_client = "ssh",
     /** Command when executing ssh. */
-    .ssh_command               = "{terminal} -e {ssh-client} {host} [-p {port}]",
+    .ssh_command = "{terminal} -e {ssh-client} {host} [-p {port}]",
     /** Command when running */
-    .run_command               = "{cmd}",
+    .run_command = "{cmd}",
     /** Command used to list executable commands. empty -> internal */
-    .run_list_command          = "",
+    .run_list_command = "",
     /** Command executed when running application in terminal */
-    .run_shell_command         = "{terminal} -e {cmd}",
+    .run_shell_command = "{terminal} -e {cmd}",
     /** Command executed on accep-entry-custom for window modus */
-    .window_command            = "wmctrl -i -R {window}",
+    .window_command = "wmctrl -i -R {window}",
     /** No default icon theme, we search Adwaita and gnome as fallback */
-    .icon_theme                = NULL,
+    .icon_theme = NULL,
     /**
      * Location of the window.
      * Enumeration indicating location or gravity of window.
@@ -72,85 +72,85 @@ Settings config = {
      * WL_SOUTH_WEST      WL_SOUTH      WL_SOUTH_EAST
      *
      */
-    .location                  = WL_CENTER,
+    .location = WL_CENTER,
     /** Y offset */
-    .y_offset                  = 0,
+    .y_offset = 0,
     /** X offset */
-    .x_offset                  = 0,
+    .x_offset = 0,
     /** Always show config.menu_lines lines, even if less lines are available */
-    .fixed_num_lines           = TRUE,
+    .fixed_num_lines = TRUE,
     /** Do not use history */
-    .disable_history           = FALSE,
+    .disable_history = FALSE,
     /** Programs ignored for history */
-    .ignored_prefixes          = "",
+    .ignored_prefixes = "",
     /** Sort the displayed list */
-    .sort                      = FALSE,
+    .sort = FALSE,
     /** Use levenshtein sorting when matching */
-    .sorting_method            = "normal",
+    .sorting_method = "normal",
     /** Case sensitivity of the search */
-    .case_sensitive            = FALSE,
+    .case_sensitive = FALSE,
     /** Cycle through in the element list */
-    .cycle                     = TRUE,
+    .cycle = TRUE,
     /** Height of an element in #chars */
-    .element_height            = 1,
+    .element_height = 1,
     /** Sidebar mode, show the modi */
-    .sidebar_mode              = FALSE,
+    .sidebar_mode = FALSE,
     /** auto select */
-    .auto_select               = FALSE,
+    .auto_select = FALSE,
     /** Parse /etc/hosts file in ssh view. */
-    .parse_hosts               = FALSE,
+    .parse_hosts = FALSE,
     /** Parse ~/.ssh/known_hosts file in ssh view. */
-    .parse_known_hosts         = TRUE,
+    .parse_known_hosts = TRUE,
     /** Modi to combine into one view. */
-    .combi_modi                = "window,run",
-    .tokenize                  = TRUE,
-    .matching                  = "normal",
-    .matching_method           = MM_NORMAL,
+    .combi_modi = "window,run",
+    .tokenize = TRUE,
+    .matching = "normal",
+    .matching_method = MM_NORMAL,
 
     /** Desktop entries to match in drun */
-    .drun_match_fields         = "name,generic,exec,categories,keywords",
+    .drun_match_fields = "name,generic,exec,categories,keywords",
     /** Only show entries in this category */
-    .drun_categories           = NULL,
+    .drun_categories = NULL,
     /** Desktop entry show actions */
-    .drun_show_actions         = FALSE,
+    .drun_show_actions = FALSE,
     /** Desktop format display */
-    .drun_display_format       = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]",
+    .drun_display_format =
+        "{name} [<span weight='light' size='small'><i>({generic})</i></span>]",
     /** Desktop Link launch command */
-    .drun_url_launcher         = "xdg-open",
+    .drun_url_launcher = "xdg-open",
 
     /** Window fields to match in window mode*/
-    .window_match_fields       = "all",
+    .window_match_fields = "all",
     /** Monitor */
-    .monitor                   = "-5",
+    .monitor = "-5",
     /** Set filter */
-    .filter                    = NULL,
-    .dpi                       = -1,
-    .threads                   = 0,
-    .scroll_method             = 0,
-    .window_format             = "{w}    {c}   {t}",
-    .click_to_exit             = TRUE,
-    .theme                     = NULL,
-    .plugin_path               = PLUGIN_PATH,
-    .max_history_size          = 25,
-    .combi_hide_mode_prefix    = FALSE,
-    .combi_display_format      = "{mode} {text}",
+    .filter = NULL,
+    .dpi = -1,
+    .threads = 0,
+    .scroll_method = 0,
+    .window_format = "{w}    {c}   {t}",
+    .click_to_exit = TRUE,
+    .theme = NULL,
+    .plugin_path = PLUGIN_PATH,
+    .max_history_size = 25,
+    .combi_hide_mode_prefix = FALSE,
+    .combi_display_format = "{mode} {text}",
 
-    .matching_negate_char      = '-',
+    .matching_negate_char = '-',
 
-    .cache_dir                 = NULL,
-    .window_thumbnail          = FALSE,
+    .cache_dir = NULL,
+    .window_thumbnail = FALSE,
 
     /** drun cache */
-    .drun_use_desktop_cache    = FALSE,
+    .drun_use_desktop_cache = FALSE,
     .drun_reload_desktop_cache = FALSE,
 
     /** Benchmarks */
-    .benchmark_ui              = FALSE,
+    .benchmark_ui = FALSE,
 
     /** normalize match */
-    .normalize_match           = FALSE,
+    .normalize_match = FALSE,
     /** steal focus */
-    .steal_focus               = FALSE,
+    .steal_focus = FALSE,
     /** fallback icon */
-    .application_fallback_icon = NULL
-};
+    .application_fallback_icon = NULL};
