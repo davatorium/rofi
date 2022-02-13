@@ -1,3 +1,4 @@
+.nh
 .TH ROFI 1 rofi
 .SH NAME
 .PP
@@ -174,11 +175,7 @@ Specify the number of threads \fBrofi\fP should use:
 .IP \(bu 2
 1: Disable threading
 .IP \(bu 2
-
-.PP
-2..n: Specify the maximum number of threads to use in the thread pool.
-.PP
-Default:  Autodetect
+2..n: Specify the maximum number of threads to use in the thread pool.Default:  Autodetect
 
 .RE
 
@@ -216,6 +213,9 @@ Or get the options from a script:
 
 .fi
 .RE
+
+.PP
+See the \fBrofi\-dmenu(5)\fP manpage for more information.
 
 .PP
 \fB\fC\-show\fR \fImode\fP
@@ -458,11 +458,7 @@ The different fields are:
 .IP \(bu 2
 \fBcomment\fP: the application comment
 .IP \(bu 2
-
-.PP
-\fBall\fP: all the above
-.PP
-Default: \fIname,generic,exec,categories,keywords\fP
+\fBall\fP: all the aboveDefault: \fIname,generic,exec,categories,keywords\fP
 
 .RE
 
@@ -535,11 +531,7 @@ The different fields are:
 .IP \(bu 2
 \fBdesktop\fP: window's current desktop
 .IP \(bu 2
-
-.PP
-\fBall\fP: all the above
-.PP
-Default: \fIall\fP
+\fBall\fP: all the aboveDefault: \fIall\fP
 
 .RE
 
@@ -672,11 +664,7 @@ behavior.)
 .IP \(bu 2
 \fB\-4\fP: the monitor with the focused window.
 .IP \(bu 2
-
-.PP
-\fB\-5\fP: the monitor that shows the mouse pointer.
-.PP
-Default: \fI\-5\fP
+\fB\-5\fP: the monitor that shows the mouse pointer.Default: \fI\-5\fP
 
 .RE
 
@@ -991,7 +979,7 @@ Maximum number of entries to store in history. Defaults to 25. (WARNING: can cau
 
 .PP
 Pops up a message dialog (used internally for showing errors) with \fImessage\fP\&.
-Message can be multi\-line.
+Message can be multi\-\&line.
 
 .SS File browser settings
 .PP
@@ -1108,96 +1096,11 @@ Please see \fBrofi\-theme(5)\fP manpage for more information on theming.
 
 .SH KEY BINDINGS
 .PP
-\fBrofi\fP has the following key bindings:
-
-.RS
-.IP \(bu 2
-\fB\fCControl\-v, Insert\fR: Paste from clipboard
-.IP \(bu 2
-\fB\fCControl\-Shift\-v, Shift\-Insert\fR: Paste primary selection
-.IP \(bu 2
-\fB\fCControl\-u\fR: Clear the line
-.IP \(bu 2
-\fB\fCControl\-a\fR: Beginning of line
-.IP \(bu 2
-\fB\fCControl\-e\fR: End of line
-.IP \(bu 2
-\fB\fCControl\-f, Right\fR: Forward one character
-.IP \(bu 2
-\fB\fCAlt\-f, Control\-Right\fR: Forward one word
-.IP \(bu 2
-\fB\fCControl\-b, Left\fR: Back one character
-.IP \(bu 2
-\fB\fCAlt\-b, Control\-Left\fR: Back one word
-.IP \(bu 2
-\fB\fCControl\-d, Delete\fR: Delete character
-.IP \(bu 2
-\fB\fCControl\-Alt\-d\fR: Delete word
-.IP \(bu 2
-\fB\fCControl\-h, Backspace, Shift\-Backspace\fR: Backspace (delete previous character)
-.IP \(bu 2
-\fB\fCControl\-Alt\-h\fR: Delete previous word
-.IP \(bu 2
-\fB\fCControl\-j,Control\-m,Enter\fR: Accept entry
-.IP \(bu 2
-\fB\fCControl\-n,Down\fR: Select next entry
-.IP \(bu 2
-\fB\fCControl\-p,Up\fR: Select previous entry
-.IP \(bu 2
-\fB\fCPage Up\fR: Go to previous page
-.IP \(bu 2
-\fB\fCPage Down\fR: Go to next page
-.IP \(bu 2
-\fB\fCControl\-Page Up\fR: Go to previous column
-.IP \(bu 2
-\fB\fCControl\-Page Down\fR: Go to next column
-.IP \(bu 2
-\fB\fCControl\-Enter\fR: Use entered text as a command (in \fB\fCssh/run modi\fR)
-.IP \(bu 2
-\fB\fCShift\-Enter\fR: Launch the application in a terminal (in run mode)
-.IP \(bu 2
-\fB\fCControl\-Shift\-Enter\fR: As Control\-Enter and run the command in terminal (in run mode)
-.IP \(bu 2
-\fB\fCShift\-Enter\fR: Return the selected entry and move to the next item while keeping \fBrofi\fP open. (in dmenu)
-.IP \(bu 2
-\fB\fCShift\-Right\fR: Switch to the next mode. The list can be customized with the \fB\fC\-modi\fR argument.
-.IP \(bu 2
-\fB\fCShift\-Left\fR: Switch to the previous mode. The list can be customized with the \fB\fC\-modi\fR argument.
-.IP \(bu 2
-\fB\fCControl\-Tab\fR: Switch to the next mode. The list can be customized with the \fB\fC\-modi\fR argument.
-.IP \(bu 2
-\fB\fCControl\-Shift\-Tab\fR: Switch to the previous mode. The list can be customized with the \fB\fC\-modi\fR argument.
-.IP \(bu 2
-\fB\fCControl\-space\fR: Set selected item as input text.
-.IP \(bu 2
-\fB\fCShift\-Del\fR: Delete entry from history.
-.IP \(bu 2
-\fB\fCgrave\fR: Toggle case sensitivity.
-.IP \(bu 2
-\fB\fCAlt\-grave\fR: Toggle sorting.
-.IP \(bu 2
-\fB\fCAlt\-Shift\-S\fR: Take a screenshot and store it in the Pictures directory.
-.IP \(bu 2
-\fB\fCControl\-l\fR: File complete for run dialog.
-
-.RE
+Please see the \fBrofi\-keys(5)\fP manpage for the keybindings and how to set them up.
 
 .PP
-This list might not be complete, to get a full list of all key bindings
-supported in your rofi, see \fB\fCrofi \-h\fR\&. The options starting with \fB\fC\-kb\fR are keybindings.
-
-.PP
-Key bindings can be modified using the configuration systems. Multiple keys can be bound
-to one action by comma separating them. For example \fB\fC\-kb\-primary\-paste "Conctrol+v,Insert"\fR
-
-.PP
-To get a searchable list of key bindings, run \fB\fCrofi \-show keys\fR\&.
-
-.PP
-A key binding starting with \fB\fC!\fR will act when all keys have been released.
-
-.PP
-You can bind certain events to key\-actions:
+The keybinding can also be used for actions, when the action is executed the
+mentioned keystroke is inserted:
 
 .SS Timeout
 .PP
@@ -1235,9 +1138,6 @@ configuration {
 
 .fi
 .RE
-
-.PP
-For a full list of bindings, see the \fBrofi\-keys(5)\fP manpage.
 
 .SH Available Modi
 .SS window
@@ -1464,18 +1364,6 @@ rofi \-show keys
 .fi
 .RE
 
-.PP
-Use \fB\fCqalc\fR to get a simple calculator in \fBrofi\fP:
-
-.PP
-.RS
-
-.nf
- rofi \-show calc \-modi "calc:qalc +u8 \-nocurrencies"
-
-.fi
-.RE
-
 .SH i3
 .PP
 In i3
@@ -1620,21 +1508,21 @@ first.
 .SH AUTHOR
 .RS
 .IP \(bu 2
-Qball Cow 
-\[la]qball@blame.services\[ra]
+Qball Cow qball@blame.services
+\[la]mailto:qball@blame.services\[ra]
 .IP \(bu 2
-Rasmus Steinke 
-\[la]rasi@xssn.at\[ra]
+Rasmus Steinke rasi@xssn.at
+\[la]mailto:rasi@xssn.at\[ra]
 .IP \(bu 2
-Quentin Glidic 
-\[la]sardemff7+rofi@sardemff7.net\[ra]
+Quentin Glidic sardemff7+rofi@sardemff7.net
+\[la]mailto:sardemff7+rofi@sardemff7.net\[ra]
 
 .RE
 
 .PP
 Original code based on work by: Sean Pringle
-\[la]https://github.com/seanpringle/simpleswitcher\[ra] 
-\[la]sean.pringle@gmail.com\[ra]
+\[la]https://github.com/seanpringle/simpleswitcher\[ra] sean.pringle@gmail.com
+\[la]mailto:sean.pringle@gmail.com\[ra]
 
 .PP
 For a full list of authors, check the \fB\fCAUTHORS\fR file.
