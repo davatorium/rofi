@@ -105,6 +105,8 @@ For more up to date information, please see the manpages. The other sections and
      * [rofi-theme](doc/rofi-theme.5.markdown)
      * [rofi-script](doc/rofi-script.5.markdown)
      * [rofi-theme-selector](doc/rofi-theme-selector.1.markdown)
+     * [rofi-keys](doc/rofi-keys.5.markdown)
+     * [rofi-dmenu](doc/rofi-dmenu.5.markdown)
 
 # Installation
 
