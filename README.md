@@ -121,7 +121,7 @@ install **Rofi**.
 
 #### Running rofi
 
-To launch **rofi** directly in a certain [modi(modes)](#modi), specify a mode with `rofi -show <modi>`.
+To launch **rofi** directly in a certain [modi(mode)](#modi), specify a mode with `rofi -show <modi>`.
 To show the `run` dialog:
 
     rofi -show run
