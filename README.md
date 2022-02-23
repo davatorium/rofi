@@ -121,7 +121,7 @@ install **Rofi**.
 
 #### Running rofi
 
-To launch **rofi** directly in a certain mode, specify a mode with `rofi -show <mode>`.
+To launch **rofi** directly in a certain [modi(modes)](#modi), specify a mode with `rofi -show <modi>`.
 To show the `run` dialog:
 
     rofi -show run
@@ -136,7 +136,9 @@ If no modes are specified, all configured modes will be enabled.
 To only show the `run` and `ssh` launcher:
 
     rofi -modi "run,ssh" -show run
+The list of modes can also be `#` separated. The following is same as the above command:
 
+    rofi -modi "run#ssh" -show run
 
 The modi to combine in combi mode.
 For syntax to `-combi-modi`, see `-modi`.
@@ -152,7 +154,7 @@ mkdir -p ~/.config/rofi
 rofi -dump-config > ~/.config/rofi/config.rasi
 ```
 
-This creates a file called `config.rasi` in the `~/.config/rofi/` folder. You can modify this file to set configuration settings and modify themes. `config.rasi` is the file rofi looks to by default.
+This creates a file called `config.rasi` in the `~/.config/rofi/` folder, which is one of the default config file rofi checks for. You can modify this file to set configuration settings and modify themes.
 
 Please see the [configuration guide](https://github.com/davatorium/rofi/blob/next/CONFIG.md) for a summary of configuration options. More detailed options are provided in the manpages.
 
