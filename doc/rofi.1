@@ -18,7 +18,7 @@ filter, tokenized search and more.
 .PP
 \fBrofi\fP\&'s main functionality is to assist in your workflow, allowing you to quickly switch
 between windows, start applications or log into a remote machine via \fB\fCssh\fR\&.
-There are different \fImodi\fP for different types of actions.
+There are different \fImodes\fP for different types of actions.
 \fBrofi\fP is a standalone application and should not be integrated into scripts.
 For integration into scripts it has a special mode that functions as a
 (drop\-in) replacement for \fBdmenu(1)\fP\&. See emulating dmenu below.
@@ -238,10 +238,10 @@ rofi \-show run
 .RE
 
 .PP
-If \fB\fC\-show\fR is the last option passed to rofi, the first enabled modi is shown.
+If \fB\fC\-show\fR is the last option passed to rofi, the first enabled modes is shown.
 
 .PP
-\fB\fC\-modi\fR \fImode1,mode2\fP
+\fB\fC\-modes\fR \fImode1,mode2\fP
 
 .PP
 Specify an ordered, comma\-separated list of modes to enable.
@@ -253,7 +253,7 @@ To only show the \fB\fCrun\fR and \fB\fCssh\fR launcher:
 .RS
 
 .nf
-rofi \-modi "run,ssh" \-show run
+rofi \-modes "run,ssh" \-show run
 
 .fi
 .RE
@@ -277,7 +277,7 @@ Example: Have a mode called 'Workspaces' using the \fB\fCi3\_switch\_workspaces.
 .RS
 
 .nf
-rofi \-modi "window,run,ssh,Workspaces:i3\_switch\_workspaces.sh" \-show Workspaces
+rofi \-modes "window,run,ssh,Workspaces:i3\_switch\_workspaces.sh" \-show Workspaces
 
 .fi
 .RE
@@ -293,7 +293,7 @@ For that case, \fB\fC#\fR can be used as a separator.
 .RS
 
 .nf
-rofi \-modi "My File Browser:fb.sh" \-show "My File Browser"
+rofi \-modes "My File Browser:fb.sh" \-show "My File Browser"
 
 .fi
 .RE
@@ -595,7 +595,7 @@ Keep a fixed number of visible lines.
 
 .PP
 Open in sidebar\-mode. In this mode, a list of all enabled modes is shown at the bottom.
-(See \fB\fC\-modi\fR option)
+(See \fB\fC\-modes\fR option)
 To show sidebar, use:
 
 .PP
@@ -888,18 +888,18 @@ configuration {
 
 .SS Combi settings
 .PP
-\fB\fC\-combi\-modi\fR \fImode1\fP,\fImode2\fP
+\fB\fC\-combi\-modes\fR \fImode1\fP,\fImode2\fP
 
 .PP
-The modi to combine in combi mode.
-For syntax to \fB\fC\-combi\-modi\fR, see \fB\fC\-modi\fR\&.
+The modes to combine in combi mode.
+For syntax to \fB\fC\-combi\-modes\fR, see \fB\fC\-modes\fR\&.
 To get one merge view, of \fB\fCwindow\fR,\fB\fCrun\fR, and \fB\fCssh\fR:
 
 .PP
 .RS
 
 .nf
-rofi \-show combi \-combi\-modi "window,run,ssh" \-modi combi
+rofi \-show combi \-combi\-modes "window,run,ssh" \-modes combi
 
 .fi
 .RE
@@ -1139,7 +1139,7 @@ configuration {
 .fi
 .RE
 
-.SH Available Modi
+.SH Available Modes
 .SS window
 .PP
 Show a list of all the windows and allow switching between them.
@@ -1220,21 +1220,21 @@ Shows a searchable list of key bindings.
 
 .SS script
 .PP
-Allows custom scripted Modi to be added, see the \fBrofi\-script(5)\fP manpage for more information.
+Allows custom scripted Modes to be added, see the \fBrofi\-script(5)\fP manpage for more information.
 
 .SS combi
 .PP
-Combines multiple modi in one list. Specify which modi are included with the \fB\fC\-combi\-modi\fR option.
+Combines multiple modes in one list. Specify which modes are included with the \fB\fC\-combi\-modes\fR option.
 
 .PP
-When using the combi mode, a \fI!bang\fP can be used to filter the results by modi.
-All modi that match the bang as a prefix are included.
-For example, say you have specified \fB\fC\-combi\-modi run,window,windowcd\fR\&. If your
+When using the combi mode, a \fI!bang\fP can be used to filter the results by modes.
+All modes that match the bang as a prefix are included.
+For example, say you have specified \fB\fC\-combi\-modes run,window,windowcd\fR\&. If your
 query begins with the bang \fB\fC!w\fR, only results from the \fB\fCwindow\fR and \fB\fCwindowcd\fR
-modi are shown, even if the rest of the input text would match results from \fB\fCrun\fR\&.
+modes are shown, even if the rest of the input text would match results from \fB\fCrun\fR\&.
 
 .PP
-If no match, the input is handled by the first combined modi.
+If no match, the input is handled by the first combined modes.
 
 .SH FAQ
 .SS The text in the window switcher is not nicely aligned.
@@ -1287,7 +1287,7 @@ Show the run dialog:
 .RS
 
 .nf
-rofi \-modi run \-show run
+rofi \-modes run \-show run
 
 .fi
 .RE
@@ -1299,7 +1299,7 @@ Show the run dialog, and allow switching to Desktop File run dialog (\fB\fCdrun\
 .RS
 
 .nf
-rofi \-modi run,drun \-show run
+rofi \-modes run,drun \-show run
 
 .fi
 .RE
@@ -1311,7 +1311,7 @@ Combine the run and Desktop File run dialog (\fB\fCdrun\fR):
 .RS
 
 .nf
-rofi \-modi combi \-show combi \-combi\-modi run,drun
+rofi \-modes combi \-show combi \-combi\-modes run,drun
 
 .fi
 .RE
@@ -1323,7 +1323,7 @@ Combine the run and Desktop File run dialog (\fB\fCdrun\fR), and allow switching
 .RS
 
 .nf
-rofi \-modi combi,window \-show combi \-combi\-modi run,drun
+rofi \-modes combi,window \-show combi \-combi\-modes run,drun
 
 .fi
 .RE

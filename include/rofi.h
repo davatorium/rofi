@@ -48,11 +48,11 @@
 extern const char *cache_dir;
 
 /**
- * Get the number of enabled modi.
+ * Get the number of enabled modes.
  *
- * @returns the number of enabled modi.
+ * @returns the number of enabled modes.
  */
-unsigned int rofi_get_num_enabled_modi(void);
+unsigned int rofi_get_num_enabled_modes(void);
 
 /**
  * @param index The mode to return. (should be smaller then
@@ -90,7 +90,7 @@ void rofi_quit_main_loop(void);
  *
  * @return returns Mode * when found, NULL if not.
  */
-Mode *rofi_collect_modi_search(const char *name);
+Mode *rofi_collect_modes_search(const char *name);
 /** Reset terminal */
 #define color_reset "\033[0m"
 /** Set terminal text bold */

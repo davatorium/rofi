@@ -20,7 +20,7 @@ filter, tokenized search and more.
 
 **rofi**'s main functionality is to assist in your workflow, allowing you to quickly switch
 between windows, start applications or log into a remote machine via `ssh`.
-There are different *modi* for different types of actions.
+There are different *modes* for different types of actions.
 **rofi** is a standalone application and should not be integrated into scripts.
 For integration into scripts it has a special mode that functions as a
 (drop-in) replacement for **dmenu(1)**. See emulating dmenu below.
@@ -143,16 +143,16 @@ To show the run-dialog:
 
     rofi -show run
 
-If `-show` is the last option passed to rofi, the first enabled modi is shown.
+If `-show` is the last option passed to rofi, the first enabled modes is shown.
 
-`-modi` *mode1,mode2*
+`-modes` *mode1,mode2*
 
 Specify an ordered, comma-separated list of modes to enable.
 Enabled modes can be changed at runtime. Default key is `Ctrl+Tab`.
 If no modes are specified, all configured modes will be enabled.
 To only show the `run` and `ssh` launcher:
 
-    rofi -modi "run,ssh" -show run
+    rofi -modes "run,ssh" -show run
 
 Custom modes can be added using the internal `script` mode. Each such mode has two parameters:
 
@@ -160,14 +160,14 @@ Custom modes can be added using the internal `script` mode. Each such mode has t
 
 Example: Have a mode called 'Workspaces' using the `i3_switch_workspaces.sh` script:
 
-    rofi -modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
+    rofi -modes "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
 Notes: The i3 window manager dislikes commas in the command when specifying an exec command.
 For that case, `#` can be used as a separator.
 
 **TIP**: The name is allowed to contain spaces:
 
-    rofi -modi "My File Browser:fb.sh" -show "My File Browser"
+    rofi -modes "My File Browser:fb.sh" -show "My File Browser"
 
 `-case-sensitive`
 
@@ -349,7 +349,7 @@ Keep a fixed number of visible lines.
 `-sidebar-mode`
 
 Open in sidebar-mode. In this mode, a list of all enabled modes is shown at the bottom.
-(See `-modi` option)
+(See `-modes` option)
 To show sidebar, use:
 
     rofi -show run -sidebar-mode 
@@ -535,13 +535,13 @@ configuration {
 
 ### Combi settings
 
-`-combi-modi` *mode1*,*mode2*
+`-combi-modes ` *mode1*,*mode2*
 
-The modi to combine in combi mode.
-For syntax to `-combi-modi`, see `-modi`.
+The modes to combine in combi mode.
+For syntax to `-combi-modes`, see `-modes`.
 To get one merge view, of `window`,`run`, and `ssh`:
 
-    rofi -show combi -combi-modi "window,run,ssh" -modi combi
+    rofi -show combi -combi-modes "window,run,ssh" -modes combi
 
 **NOTE**: The i3 window manager dislikes commas in the command when specifying an exec command.
 For that case, `#` can be used as a separator.
@@ -708,7 +708,7 @@ configuration {
 }
 ```
 
-## Available Modi
+## Available Modes
 
 ### window
 
@@ -781,19 +781,19 @@ Shows a searchable list of key bindings.
 
 ### script
 
-Allows custom scripted Modi to be added, see the **rofi-script(5)** manpage for more information.
+Allows custom scripted Modes to be added, see the **rofi-script(5)** manpage for more information.
 
 ### combi
 
-Combines multiple modi in one list. Specify which modi are included with the `-combi-modi` option.
+Combines multiple modes in one list. Specify which modes are included with the `-combi-modes` option.
 
-When using the combi mode, a *!bang* can be used to filter the results by modi.
-All modi that match the bang as a prefix are included.
-For example, say you have specified `-combi-modi run,window,windowcd`. If your
+When using the combi mode, a *!bang* can be used to filter the results by modes.
+All modes that match the bang as a prefix are included.
+For example, say you have specified `-combi-modes run,window,windowcd`. If your
 query begins with the bang `!w`, only results from the `window` and `windowcd`
-modi are shown, even if the rest of the input text would match results from `run`.
+modes are shown, even if the rest of the input text would match results from `run`.
 
-If no match, the input is handled by the first combined modi.
+If no match, the input is handled by the first combined modes.
 
 ## FAQ
 
@@ -829,19 +829,19 @@ Some basic usage examples of **rofi**:
 
 Show the run dialog:
 
-    rofi -modi run -show run
+    rofi -modes run -show run
 
 Show the run dialog, and allow switching to Desktop File run dialog (`drun`):
 
-    rofi -modi run,drun -show run
+    rofi -modes run,drun -show run
 
 Combine the run and Desktop File run dialog (`drun`):
 
-    rofi -modi combi -show combi -combi-modi run,drun
+    rofi -modes combi -show combi -combi-modes run,drun
 
 Combine the run and Desktop File run dialog (`drun`), and allow switching to window switcher:
 
-    rofi -modi combi,window -show combi -combi-modi run,drun
+    rofi -modes combi,window -show combi -combi-modes run,drun
 
 Pop up a text message claiming that this is the end:
 

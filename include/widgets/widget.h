@@ -64,7 +64,7 @@ typedef enum {
   WIDGET_TYPE_EDITBOX = SCOPE_MOUSE_EDITBOX,
   /** The listview scrollbar */
   WIDGET_TYPE_SCROLLBAR = SCOPE_MOUSE_SCROLLBAR,
-  /** A widget allowing user to swithc between modi */
+  /** A widget allowing user to swithc between modes */
   WIDGET_TYPE_MODE_SWITCHER = SCOPE_MOUSE_MODE_SWITCHER,
   /** Text-only textbox */
   WIDGET_TYPE_TEXTBOX_TEXT,

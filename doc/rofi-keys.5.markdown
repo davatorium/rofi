@@ -136,12 +136,12 @@ Accept entry
 **Default**: 	Control+j,Control+m,Return,KP_Enter 
 
 ### **kb-accept-custom**
-Use entered text as command (in ssh/run modi)
+Use entered text as command (in ssh/run modes)
 
 **Default**: 	Control+Return 
 
 ### **kb-accept-custom-alt**
-Use entered text as command (in ssh/run modi)
+Use entered text as command (in ssh/run modes)
 
 **Default**: 	Control+Shift+Return 
 

@@ -402,7 +402,7 @@ static void file_browser_mode_init_current_dir(Mode *sw) {
 
 static int file_browser_mode_init(Mode *sw) {
   /**
-   * Called on startup when enabled (in modi list)
+   * Called on startup when enabled (in modes list)
    */
   if (mode_get_private_data(sw) == NULL) {
     FileBrowserModePrivateData *pd = g_malloc0(sizeof(*pd));

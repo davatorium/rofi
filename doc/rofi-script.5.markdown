@@ -2,7 +2,7 @@
 
 ## NAME
 
-**rofi script mode** - Rofi format for scriptable modi.
+**rofi script mode** - Rofi format for scriptable mode.
 
 
 ## DESCRIPTION
@@ -18,7 +18,7 @@ To specify a script mode, set a mode with the following syntax: "{name}:{executa
 For example:
 
 ```
-rofi -show fb -modi "fb:file_browser.sh"
+rofi -show fb -modes "fb:file_browser.sh"
 ```
 
 The name should be unique.

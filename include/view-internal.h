@@ -95,12 +95,12 @@ struct RofiViewState {
   /** Monitor #workarea the view is displayed on */
   workarea mon;
 
-  /** #box holding the different modi buttons */
+  /** #box holding the different modes buttons */
   box *sidebar_bar;
-  /** number of modi to display */
-  unsigned int num_modi;
-  /** Array of #textbox that act as buttons for switching modi */
-  textbox **modi;
+  /** number of modes to display */
+  unsigned int num_modes;
+  /** Array of #textbox that act as buttons for switching modes */
+  textbox **modes;
 
   /** Total rows. */
   textbox *tb_total_rows;

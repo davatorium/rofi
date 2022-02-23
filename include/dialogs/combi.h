@@ -36,7 +36,7 @@
  * Dialog that can combine multiple #Mode into one view.
  *
  * This mode uses the following options from the #config object:
- *  * #Settings::combi_modi
+ *  * #Settings::combi_modes
  *
  * It creates the following option:
  *  * Settings::display_combi

@@ -85,7 +85,7 @@ const char *cache_dir = NULL;
 /** List of error messages.*/
 GList *list_of_error_msgs = NULL;
 
-static void rofi_collect_modi_destroy(void);
+static void rofi_collectmodes_destroy(void);
 void rofi_add_error_message(GString *str) {
   list_of_error_msgs = g_list_append(list_of_error_msgs, str);
 }
@@ -103,15 +103,15 @@ void rofi_clear_error_messages(void) {
 /** Path to the configuration file */
 G_MODULE_EXPORT char *config_path = NULL;
 /** Path to the configuration file in the new format */
-/** Array holding all activated modi. */
-Mode **modi = NULL;
+/** Array holding all activated modes. */
+Mode **modes = NULL;
 
-/**  List of (possibly uninitialized) modi's */
-Mode **available_modi = NULL;
-/** Length of #num_available_modi */
-unsigned int num_available_modi = 0;
-/** Number of activated modi in #modi array */
-unsigned int num_modi = 0;
+/**  List of (possibly uninitialized) modes */
+Mode **available_modes = NULL;
+/** Length of #num_available_modes */
+unsigned int num_available_modes = 0;
+/** Number of activated modes in #modes array */
+unsigned int num_modes = 0;
 /** Current selected mode */
 unsigned int curr_mode = 0;
 
@@ -130,20 +130,20 @@ void process_result(RofiViewState *state);
 
 void rofi_set_return_code(int code) { return_code = code; }
 
-unsigned int rofi_get_num_enabled_modi(void) { return num_modi; }
+unsigned int rofi_get_num_enabled_modes(void) { return num_modes; }
 
-const Mode *rofi_get_mode(unsigned int index) { return modi[index]; }
+const Mode *rofi_get_mode(unsigned int index) { return modes[index]; }
 
 /**
  * @param name Name of the mode to lookup.
  *
  * Find the index of the mode with name.
  *
- * @returns index of the mode in modi, -1 if not found.
+ * @returns index of the mode in modes, -1 if not found.
  */
 static int mode_lookup(const char *name) {
-  for (unsigned int i = 0; i < num_modi; i++) {
-    if (strcmp(mode_get_name(modi[i]), name) == 0) {
+  for (unsigned int i = 0; i < num_modes; i++) {
+    if (strcmp(mode_get_name(modes[i]), name) == 0) {
       return i;
     }
   }
@@ -167,10 +167,10 @@ static void teardown(int pfd) {
 }
 static void run_mode_index(ModeMode mode) {
   // Otherwise check if requested mode is enabled.
-  for (unsigned int i = 0; i < num_modi; i++) {
-    if (!mode_init(modi[i])) {
+  for (unsigned int i = 0; i < num_modes; i++) {
+    if (!mode_init(modes[i])) {
       GString *str = g_string_new("Failed to initialize the mode: ");
-      g_string_append(str, modi[i]->name);
+      g_string_append(str, modes[i]->name);
       g_string_append(str, "\n");
 
       rofi_view_error_dialog(str->str, ERROR_MSG_MARKUP);
@@ -184,7 +184,7 @@ static void run_mode_index(ModeMode mode) {
   }
   curr_mode = mode;
   RofiViewState *state =
-      rofi_view_create(modi[mode], config.filter, 0, process_result);
+      rofi_view_create(modes[mode], config.filter, 0, process_result);
 
   // User can pre-select a row.
   if (find_arg("-selected-row") >= 0) {
@@ -223,19 +223,19 @@ void process_result(RofiViewState *state) {
     ModeMode mode = curr_mode;
     // Find next enabled
     if (retv == NEXT_DIALOG) {
-      mode = (mode + 1) % num_modi;
+      mode = (mode + 1) % num_modes;
     } else if (retv == PREVIOUS_DIALOG) {
       if (mode == 0) {
-        mode = num_modi - 1;
+        mode = num_modes - 1;
       } else {
-        mode = (mode - 1) % num_modi;
+        mode = (mode - 1) % num_modes;
       }
     } else if (retv == RELOAD_DIALOG) {
       // do nothing.
     } else if (retv == RESET_DIALOG) {
       rofi_view_clear_input(state);
     } else if (retv < MODE_EXIT) {
-      mode = (retv) % num_modi;
+      mode = (retv) % num_modes;
     } else {
       mode = retv;
     }
@@ -243,7 +243,7 @@ void process_result(RofiViewState *state) {
       /**
        * Load in the new mode.
        */
-      rofi_view_switch_mode(state, modi[mode]);
+      rofi_view_switch_mode(state, modes[mode]);
       curr_mode = mode;
       return;
     }
@@ -260,18 +260,18 @@ void process_result(RofiViewState *state) {
 /**
  * Help function.
  */
-static void print_list_of_modi(int is_term) {
-  for (unsigned int i = 0; i < num_available_modi; i++) {
+static void print_list_of_modes(int is_term) {
+  for (unsigned int i = 0; i < num_available_modes; i++) {
     gboolean active = FALSE;
-    for (unsigned int j = 0; j < num_modi; j++) {
-      if (modi[j] == available_modi[i]) {
+    for (unsigned int j = 0; j < num_modes; j++) {
+      if (modes[j] == available_modes[i]) {
         active = TRUE;
         break;
       }
     }
     printf("        • %s%s%s%s\n", active ? "+" : "",
            is_term ? (active ? color_green : color_red) : "",
-           available_modi[i]->name, is_term ? color_reset : "");
+           available_modes[i]->name, is_term ? color_reset : "");
   }
 }
 static void print_main_application_options(int is_term) {
@@ -323,8 +323,8 @@ static void help(G_GNUC_UNUSED int argc, char **argv) {
   printf("\n");
   display_dump_monitor_layout();
   printf("\n");
-  printf("Detected modi:\n");
-  print_list_of_modi(is_term);
+  printf("Detected modes:\n");
+  print_list_of_modes(is_term);
   printf("\n");
   printf("Compile time options:\n");
 #ifdef WINDOW_MODE
@@ -390,26 +390,26 @@ static void help_print_disabled_mode(const char *mode) {
     fprintf(stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
             color_red, mode, color_reset);
     fprintf(stderr,
-            "Please consider adding %s%s%s to the list of enabled modi: "
-            "%smodi: [%s%s%s,%s]%s.\n",
-            color_red, mode, color_reset, color_green, config.modi, color_reset,
-            color_red, mode, color_reset);
+            "Please consider adding %s%s%s to the list of enabled modes: "
+            "%smodes: [%s%s%s,%s]%s.\n",
+            color_red, mode, color_reset, color_green, config.modes,
+            color_reset, color_red, mode, color_reset);
   }
 }
 static void help_print_mode_not_found(const char *mode) {
   GString *str = g_string_new("");
-  g_string_printf(str, "Mode %s is not found.\nThe following modi are known:\n",
-                  mode);
-  for (unsigned int i = 0; i < num_available_modi; i++) {
+  g_string_printf(
+      str, "Mode %s is not found.\nThe following modes are known:\n", mode);
+  for (unsigned int i = 0; i < num_available_modes; i++) {
     gboolean active = FALSE;
-    for (unsigned int j = 0; j < num_modi; j++) {
-      if (modi[j] == available_modi[i]) {
+    for (unsigned int j = 0; j < num_modes; j++) {
+      if (modes[j] == available_modes[i]) {
         active = TRUE;
         break;
       }
     }
     g_string_append_printf(str, "        * %s%s\n", active ? "+" : "",
-                           available_modi[i]->name);
+                           available_modes[i]->name);
   }
   rofi_add_error_message(str);
 }
@@ -421,27 +421,27 @@ static void help_print_no_arguments(void) {
   fprintf(stderr, "    %srofi%s -show %s{mode}%s\n\n",
           is_term ? color_bold : "", is_term ? color_reset : "",
           is_term ? color_green : "", is_term ? color_reset : "");
-  fprintf(stderr, "The following modi are enabled:\n");
-  for (unsigned int j = 0; j < num_modi; j++) {
-    fprintf(stderr, " * %s%s%s\n", is_term ? color_green : "", modi[j]->name,
+  fprintf(stderr, "The following modes are enabled:\n");
+  for (unsigned int j = 0; j < num_modes; j++) {
+    fprintf(stderr, " * %s%s%s\n", is_term ? color_green : "", modes[j]->name,
             is_term ? color_reset : "");
   }
   fprintf(stderr, "\nThe following can be enabled:\n");
-  for (unsigned int i = 0; i < num_available_modi; i++) {
+  for (unsigned int i = 0; i < num_available_modes; i++) {
     gboolean active = FALSE;
-    for (unsigned int j = 0; j < num_modi; j++) {
-      if (modi[j] == available_modi[i]) {
+    for (unsigned int j = 0; j < num_modes; j++) {
+      if (modes[j] == available_modes[i]) {
         active = TRUE;
         break;
       }
     }
     if (!active) {
       fprintf(stderr, " * %s%s%s\n", is_term ? color_red : "",
-              available_modi[i]->name, is_term ? color_reset : "");
+              available_modes[i]->name, is_term ? color_reset : "");
     }
   }
   fprintf(stderr,
-          "\nTo activate a mode, add it to the list of modi in the %smodi%s "
+          "\nTo activate a mode, add it to the list of modes in the %smodes%s "
           "setting.\n",
           is_term ? color_green : "", is_term ? color_reset : "");
 }
@@ -450,8 +450,8 @@ static void help_print_no_arguments(void) {
  * Cleanup globally allocated memory.
  */
 static void cleanup(void) {
-  for (unsigned int i = 0; i < num_modi; i++) {
-    mode_destroy(modi[i]);
+  for (unsigned int i = 0; i < num_modes; i++) {
+    mode_destroy(modes[i]);
   }
   rofi_view_workers_finalize();
   if (main_loop != NULL) {
@@ -465,7 +465,7 @@ static void cleanup(void) {
 
   // Cleaning up memory allocated by the Xresources file.
   config_xresource_free();
-  g_free(modi);
+  g_free(modes);
 
   g_free(config_path);
 
@@ -476,7 +476,7 @@ static void cleanup(void) {
     rofi_theme = NULL;
   }
   TIMINGS_STOP();
-  rofi_collect_modi_destroy();
+  rofi_collectmodes_destroy();
   rofi_icon_fetcher_destroy();
 
   rofi_theme_free_parsed_files();
@@ -487,13 +487,13 @@ static void cleanup(void) {
 }
 
 /**
- * Collected modi
+ * Collected modes
  */
 
-Mode *rofi_collect_modi_search(const char *name) {
-  for (unsigned int i = 0; i < num_available_modi; i++) {
-    if (g_strcmp0(name, available_modi[i]->name) == 0) {
-      return available_modi[i];
+Mode *rofi_collect_modes_search(const char *name) {
+  for (unsigned int i = 0; i < num_available_modes; i++) {
+    if (g_strcmp0(name, available_modes[i]->name) == 0) {
+      return available_modes[i];
     }
   }
   return NULL;
@@ -503,20 +503,20 @@ Mode *rofi_collect_modi_search(const char *name) {
  *
  * @returns TRUE when success.
  */
-static gboolean rofi_collect_modi_add(Mode *mode) {
-  Mode *m = rofi_collect_modi_search(mode->name);
+static gboolean rofi_collectmodes_add(Mode *mode) {
+  Mode *m = rofi_collect_modes_search(mode->name);
   if (m == NULL) {
-    available_modi =
-        g_realloc(available_modi, sizeof(Mode *) * (num_available_modi + 1));
+    available_modes =
+        g_realloc(available_modes, sizeof(Mode *) * (num_available_modes + 1));
     // Set mode.
-    available_modi[num_available_modi] = mode;
-    num_available_modi++;
+    available_modes[num_available_modes] = mode;
+    num_available_modes++;
     return TRUE;
   }
   return FALSE;
 }
 
-static void rofi_collect_modi_dir(const char *base_dir) {
+static void rofi_collectmodes_dir(const char *base_dir) {
   g_debug("Looking into: %s for plugins", base_dir);
   GDir *dir = g_dir_open(base_dir, 0, NULL);
   if (dir) {
@@ -539,7 +539,7 @@ static void rofi_collect_modi_dir(const char *base_dir) {
             g_module_close(mod);
           } else {
             m->module = mod;
-            if (!rofi_collect_modi_add(m)) {
+            if (!rofi_collectmodes_add(m)) {
               g_module_close(mod);
             }
           }
@@ -558,32 +558,32 @@ static void rofi_collect_modi_dir(const char *base_dir) {
 }
 
 /**
- * Find all available modi.
+ * Find all available modes.
  */
-static void rofi_collect_modi(void) {
+static void rofi_collect_modes(void) {
 #ifdef WINDOW_MODE
-  rofi_collect_modi_add(&window_mode);
-  rofi_collect_modi_add(&window_mode_cd);
+  rofi_collectmodes_add(&window_mode);
+  rofi_collectmodes_add(&window_mode_cd);
 #endif
-  rofi_collect_modi_add(&run_mode);
-  rofi_collect_modi_add(&ssh_mode);
+  rofi_collectmodes_add(&run_mode);
+  rofi_collectmodes_add(&ssh_mode);
 #ifdef ENABLE_DRUN
-  rofi_collect_modi_add(&drun_mode);
+  rofi_collectmodes_add(&drun_mode);
 #endif
-  rofi_collect_modi_add(&combi_mode);
-  rofi_collect_modi_add(&help_keys_mode);
-  rofi_collect_modi_add(&file_browser_mode);
+  rofi_collectmodes_add(&combi_mode);
+  rofi_collectmodes_add(&help_keys_mode);
+  rofi_collectmodes_add(&file_browser_mode);
 
   if (find_arg("-no-plugins") < 0) {
     find_arg_str("-plugin-path", &(config.plugin_path));
     g_debug("Parse plugin path: %s", config.plugin_path);
-    rofi_collect_modi_dir(config.plugin_path);
+    rofi_collectmodes_dir(config.plugin_path);
     /* ROFI_PLUGIN_PATH */
     const char *path = g_getenv("ROFI_PLUGIN_PATH");
     if (path != NULL) {
       gchar **paths = g_strsplit(path, ":", -1);
       for (unsigned int i = 0; paths[i]; i++) {
-        rofi_collect_modi_dir(paths[i]);
+        rofi_collectmodes_dir(paths[i]);
       }
       g_strfreev(paths);
     }
@@ -593,61 +593,61 @@ static void rofi_collect_modi(void) {
 /**
  * Setup configuration for config.
  */
-static void rofi_collect_modi_setup(void) {
-  for (unsigned int i = 0; i < num_available_modi; i++) {
-    mode_set_config(available_modi[i]);
+static void rofi_collectmodes_setup(void) {
+  for (unsigned int i = 0; i < num_available_modes; i++) {
+    mode_set_config(available_modes[i]);
   }
 }
-static void rofi_collect_modi_destroy(void) {
-  for (unsigned int i = 0; i < num_available_modi; i++) {
-    if (available_modi[i]->module) {
-      GModule *mod = available_modi[i]->module;
-      available_modi[i] = NULL;
+static void rofi_collectmodes_destroy(void) {
+  for (unsigned int i = 0; i < num_available_modes; i++) {
+    if (available_modes[i]->module) {
+      GModule *mod = available_modes[i]->module;
+      available_modes[i] = NULL;
       g_module_close(mod);
     }
-    if (available_modi[i]) {
-      mode_free(&(available_modi[i]));
+    if (available_modes[i]) {
+      mode_free(&(available_modes[i]));
     }
   }
-  g_free(available_modi);
-  available_modi = NULL;
-  num_available_modi = 0;
+  g_free(available_modes);
+  available_modes = NULL;
+  num_available_modes = 0;
 }
 
 /**
  * Parse the mode string, into internal array of type Mode.
  *
  * String is split on separator ','
- * First the three build-in modi are checked: window, run, ssh
+ * First the three build-in modes are checked: window, run, ssh
  * if that fails, a script-mode is created.
  */
 static int add_mode(const char *token) {
-  unsigned int index = num_modi;
+  unsigned int index = num_modes;
   // Resize and add entry.
-  modi = (Mode **)g_realloc(modi, sizeof(Mode *) * (num_modi + 1));
+  modes = (Mode **)g_realloc(modes, sizeof(Mode *) * (num_modes + 1));
 
-  Mode *mode = rofi_collect_modi_search(token);
+  Mode *mode = rofi_collect_modes_search(token);
   if (mode) {
-    modi[num_modi] = mode;
-    num_modi++;
+    modes[num_modes] = mode;
+    num_modes++;
   } else if (script_mode_is_valid(token)) {
-    // If not build in, use custom modi.
+    // If not build in, use custom mode.
     Mode *sw = script_mode_parse_setup(token);
     if (sw != NULL) {
       // Add to available list, so combi can find it.
-      rofi_collect_modi_add(sw);
+      rofi_collectmodes_add(sw);
       mode_set_config(sw);
-      modi[num_modi] = sw;
-      num_modi++;
+      modes[num_modes] = sw;
+      num_modes++;
     }
   }
-  return (index == num_modi) ? -1 : (int)index;
+  return (index == num_modes) ? -1 : (int)index;
 }
-static gboolean setup_modi(void) {
+static gboolean setup_modes(void) {
   const char *const sep = ",#";
   char *savept = NULL;
   // Make a copy, as strtok will modify it.
-  char *mode_str = g_strdup(config.modi);
+  char *mode_str = g_strdup(config.modes);
   // Split token on ','. This modifies mode_str.
   for (char *token = strtok_r(mode_str, sep, &savept); token != NULL;
        token = strtok_r(NULL, sep, &savept)) {
@@ -750,7 +750,7 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
       show_error_dialog();
       return G_SOURCE_REMOVE;
     }
-  } else if (find_arg("-show") >= 0 && num_modi > 0) {
+  } else if (find_arg("-show") >= 0 && num_modes > 0) {
     run_mode_index(0);
   } else {
     help_print_no_arguments();
@@ -885,10 +885,10 @@ int main(int argc, char *argv[]) {
   }
 
   TICK_N("Setup Locale");
-  rofi_collect_modi();
-  TICK_N("Collect MODI");
-  rofi_collect_modi_setup();
-  TICK_N("Setup MODI");
+  rofi_collect_modes();
+  TICK_N("Collect MODES");
+  rofi_collectmodes_setup();
+  TICK_N("Setup MODES");
 
   main_loop = g_main_loop_new(NULL, FALSE);
 
@@ -978,12 +978,12 @@ int main(int argc, char *argv[]) {
   /** dirty hack for dmenu compatibility */
   char *windowid = NULL;
   if (!dmenu_mode) {
-    // setup_modi
-    if (setup_modi()) {
+    // setup_modes
+    if (setup_modes()) {
       cleanup();
       return EXIT_FAILURE;
     }
-    TICK_N("Setup Modi");
+    TICK_N("Setup Modes");
   } else {
     // Hack for dmenu compatibility.
     if (find_arg_str("-w", &windowid) == TRUE) {

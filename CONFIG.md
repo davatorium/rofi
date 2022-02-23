@@ -48,7 +48,7 @@ If a value is the default value, the entry will be commented.
 For example:
 ```css
 configuration {               
-/*  modi: "window,run,ssh,drun";*/
+/*  modes: "window,run,ssh,drun";*/
 /*  font: "mono 12";*/
 /*  location: 0;*/
 /*  yoffset: 0;*/
@@ -163,12 +163,12 @@ A list starts with a '[' and ends with a ']'. The entries in the list are comma-
 The entry in the list single ASCII words.
 
 ```css
- combi-modi: [window,drun];
+ combi-modes: [window,drun];
 ```
 For older versions you have :
 
 ```css
- combi-modi: "window,drun";
+ combi-modes: "window,drun";
 ```
 
 # Get a list of all possible options

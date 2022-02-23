@@ -33,12 +33,12 @@
 #include <stdlib.h>
 
 Settings config = {
-/** List of enabled modi. */
-/** -modi */
+/** List of enabled modes. */
+/** -modes */
 #ifdef WINDOW_MODE
-    .modi = "window,run,ssh",
+    .modes = "window,run,ssh",
 #else
-    .modi = "run,ssh",
+    .modes = "run,ssh",
 #endif
     /** Font */
     .menu_font = "mono 12",
@@ -93,7 +93,7 @@ Settings config = {
     .cycle = TRUE,
     /** Height of an element in #chars */
     .element_height = 1,
-    /** Sidebar mode, show the modi */
+    /** Sidebar mode, show the modes */
     .sidebar_mode = FALSE,
     /** auto select */
     .auto_select = FALSE,
@@ -101,8 +101,8 @@ Settings config = {
     .parse_hosts = FALSE,
     /** Parse ~/.ssh/known_hosts file in ssh view. */
     .parse_known_hosts = TRUE,
-    /** Modi to combine into one view. */
-    .combi_modi = "window,run",
+    /** Modes to combine into one view. */
+    .combi_modes = "window,run",
     .tokenize = TRUE,
     .matching = "normal",
     .matching_method = MM_NORMAL,

@@ -53,8 +53,8 @@ typedef enum { SORT_NORMAL = 0, SORT_FZF = 1 } SortingMethod;
  * @ingroup CONFIGURATION
  */
 typedef struct {
-  /** List of enabled modi */
-  char *modi;
+  /** List of enabled modes */
+  char *modes;
   /** Font string (pango format) */
   char *menu_font;
 
@@ -116,7 +116,7 @@ typedef struct {
   unsigned int cycle;
   /** Height of an element in number of rows */
   int element_height;
-  /** Sidebar mode, show the modi */
+  /** Sidebar mode, show the modes */
   unsigned int sidebar_mode;
   /** Mouse hover automatically selects */
   gboolean hover_select;
@@ -129,7 +129,7 @@ typedef struct {
   /** Knonw_hosts file parsing */
   unsigned int parse_known_hosts;
   /** Combi Modes */
-  char *combi_modi;
+  char *combi_modes;
   char *matching;
   MatchingMethod matching_method;
   unsigned int tokenize;

@@ -39,7 +39,7 @@ Rofi is not:
 # Table of Contents
 
 - [Features](#features)
-- [Modi](#modi)
+- [Modes](#modes)
 - [Manpages](#manpage)
 - [Installation](#installation)
 - [Quickstart](#quickstart) 
@@ -78,12 +78,12 @@ Its main features are:
 *   Easily extensible using scripts and plugins
 *   Advanced Theming
 
-# Modi
+# Modes
 
-**Rofi** has several built-in modi implementing common use cases and can be extended by scripts (either called from
+**Rofi** has several built-in modes implementing common use cases and can be extended by scripts (either called from
 **Rofi** or calling **Rofi**) or plugins.
 
-Below is a list of the different modi:
+Below is a list of the different modes:
 
 * **run**: launch applications from $PATH, with option to launch in terminal.
 * **drun**: launch applications based on desktop files. It tries to be compliant to the XDG standard.
@@ -92,7 +92,7 @@ Below is a list of the different modi:
 * **file-browser**: A basic file-browser for opening files.
 * **keys**: list internal keybindings.
 * **script**: Write (limited) custom mode using simple scripts.
-* **combi**: Combine multiple modi into one.
+* **combi**: Combine multiple modes into one.
 
 **Rofi** is known to work on Linux and BSD.
 
@@ -135,14 +135,14 @@ Enabled modes can be changed at runtime. Default key is `Ctrl+Tab`.
 If no modes are specified, all configured modes will be enabled.
 To only show the `run` and `ssh` launcher:
 
-    rofi -modi "run,ssh" -show run
+    rofi -modes "run,ssh" -show run
 
 
-The modi to combine in combi mode.
-For syntax to `-combi-modi`, see `-modi`.
+The modes to combine in combi mode.
+For syntax to `-combi-modes `, see `-modes`.
 To get one merge view, of `window`,`run`, and `ssh`:
 
-    rofi -show combi -combi-modi "window,run,ssh" -modi combi
+    rofi -show combi -combi-modes "window,run,ssh" -modes combi
 
 ## Configuration
 

@@ -47,9 +47,9 @@
 Mode *script_mode_parse_setup(const char *str);
 
 /**
- * @param token The modi str to check
+ * @param token The modes str to check
  *
- * Check if token could be a valid script modi.
+ * Check if token could be a valid script modes.
  *
  * @returns true when valid.
  */

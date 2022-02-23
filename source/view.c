@@ -582,8 +582,8 @@ void rofi_view_free(RofiViewState *state) {
   g_free(state->distance);
   // Free the switcher boxes.
   // When state is free'ed we should no longer need these.
-  g_free(state->modi);
-  state->num_modi = 0;
+  g_free(state->modes);
+  state->num_modes = 0;
   g_free(state);
 }
 
@@ -1729,17 +1729,17 @@ static WidgetTriggerActionResult textbox_button_trigger_action(
   }
   return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
 }
-static WidgetTriggerActionResult textbox_sidebar_modi_trigger_action(
+static WidgetTriggerActionResult textbox_sidebar_modes_trigger_action(
     widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x,
     G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data) {
   RofiViewState *state = (RofiViewState *)user_data;
   unsigned int i;
-  for (i = 0; i < state->num_modi; i++) {
-    if (WIDGET(state->modi[i]) == wid) {
+  for (i = 0; i < state->num_modes; i++) {
+    if (WIDGET(state->modes[i]) == wid) {
       break;
     }
   }
-  if (i == state->num_modi) {
+  if (i == state->num_modes) {
     return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
   }
 
@@ -1907,17 +1907,17 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
     state->sidebar_bar =
         box_create(parent_widget, name, ROFI_ORIENTATION_HORIZONTAL);
     box_add((box *)parent_widget, WIDGET(state->sidebar_bar), FALSE);
-    state->num_modi = rofi_get_num_enabled_modi();
-    state->modi = g_malloc0(state->num_modi * sizeof(textbox *));
-    for (unsigned int j = 0; j < state->num_modi; j++) {
+    state->num_modes = rofi_get_num_enabled_modes();
+    state->modes = g_malloc0(state->num_modes * sizeof(textbox *));
+    for (unsigned int j = 0; j < state->num_modes; j++) {
       const Mode *mode = rofi_get_mode(j);
-      state->modi[j] = textbox_create(
+      state->modes[j] = textbox_create(
           WIDGET(state->sidebar_bar), WIDGET_TYPE_MODE_SWITCHER, "button",
           TB_AUTOHEIGHT, (mode == state->sw) ? HIGHLIGHT : NORMAL,
           mode_get_display_name(mode), 0.5, 0.5);
-      box_add(state->sidebar_bar, WIDGET(state->modi[j]), TRUE);
+      box_add(state->sidebar_bar, WIDGET(state->modes[j]), TRUE);
       widget_set_trigger_action_handler(
-          WIDGET(state->modi[j]), textbox_sidebar_modi_trigger_action, state);
+          WIDGET(state->modes[j]), textbox_sidebar_modes_trigger_action, state);
     }
   } else if (g_ascii_strcasecmp(name, "overlay") == 0) {
     state->overlay = textbox_create(
@@ -2241,9 +2241,10 @@ void rofi_view_switch_mode(RofiViewState *state, Mode *mode) {
     rofi_view_set_window_title("rofi");
   }
   if (state->sidebar_bar) {
-    for (unsigned int j = 0; j < state->num_modi; j++) {
+    for (unsigned int j = 0; j < state->num_modes; j++) {
       const Mode *tb_mode = rofi_get_mode(j);
-      textbox_font(state->modi[j], (tb_mode == state->sw) ? HIGHLIGHT : NORMAL);
+      textbox_font(state->modes[j],
+                   (tb_mode == state->sw) ? HIGHLIGHT : NORMAL);
     }
   }
   rofi_view_restart(state);

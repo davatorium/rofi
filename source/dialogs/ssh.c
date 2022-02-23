@@ -31,7 +31,7 @@
  */
 
 /**
- * Log domain for the ssh modi.
+ * Log domain for the ssh mode.
  */
 #define G_LOG_DOMAIN "Dialogs.Ssh"
 
