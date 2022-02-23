@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef ROFI_DIALOG_WINDOW_H
-#define ROFI_DIALOG_WINDOW_H
+#ifndef ROFI_MODE_WINDOW_H
+#define ROFI_MODE_WINDOW_H
 
 #include "mode.h"
 
@@ -44,4 +44,4 @@ extern Mode window_mode_cd;
 void window_client_handle_signal(xcb_window_t win, gboolean create);
 #endif // WINDOW_MODE
 /** @}*/
-#endif // ROFI_DIALOG_WINDOW_H
+#endif // ROFI_MODE_WINDOW_H

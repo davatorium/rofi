@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef ROFI_DIALOG_SCRIPT_H
-#define ROFI_DIALOG_SCRIPT_H
+#ifndef ROFI_MODE_SCRIPT_H
+#define ROFI_MODE_SCRIPT_H
 
 #include "mode.h"
 
@@ -55,4 +55,4 @@ Mode *script_mode_parse_setup(const char *str);
  */
 gboolean script_mode_is_valid(const char *token);
 /**@}*/
-#endif // ROFI_DIALOG_SCRIPT_H
+#endif // ROFI_MODE_SCRIPT_H

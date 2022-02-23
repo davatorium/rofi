@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef ROFI_DIALOG_COMBI_H
-#define ROFI_DIALOG_COMBI_H
+#ifndef ROFI_MODE_COMBI_H
+#define ROFI_MODE_COMBI_H
 #include "mode.h"
 
 /**
@@ -48,4 +48,4 @@
 extern Mode combi_mode;
 
 /**@}*/
-#endif // ROFI_DIALOG_COMBI_H
+#endif // ROFI_MODE_COMBI_H

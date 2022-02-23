@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef ROFI_DIALOG_SSH_H
-#define ROFI_DIALOG_SSH_H
+#ifndef ROFI_MODE_SSH_H
+#define ROFI_MODE_SSH_H
 #include "mode.h"
 /**
  * @defgroup SSHMode SSH
@@ -44,7 +44,7 @@
  * @{
  */
 
-/** #Mode object representing the ssh dialog. */
+/** #Mode object representing the ssh mode. */
 extern Mode ssh_mode;
 /**@}*/
-#endif // ROFI_DIALOG_SSH_H
+#endif // ROFI_MODE_SSH_H

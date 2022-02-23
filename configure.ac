@@ -94,10 +94,10 @@ AS_IF([test "x${enable_asan}" = "xyes" ], [
 
 
 dnl --------------------------------------------------------------------
-dnl DRun dialog
+dnl DRun Mode
 dnl --------------------------------------------------------------------
-AC_ARG_ENABLE([drun], AS_HELP_STRING([--disable-drun],[Disable desktop file run dialog]))
-AS_IF([test "x${enable_drun}" != "xno"], [AC_DEFINE([ENABLE_DRUN], [1], [Enable desktop file run dialog])])
+AC_ARG_ENABLE([drun], AS_HELP_STRING([--disable-drun],[Disable desktop file run mode]))
+AS_IF([test "x${enable_drun}" != "xno"], [AC_DEFINE([ENABLE_DRUN], [1], [Enable desktop file run mode])])
 
 dnl ---------------------------------------------------------------------
 dnl Disable window mode
@@ -176,14 +176,14 @@ AC_OUTPUT
 echo ""
 echo "-------------------------------------"
 if test x$enable_drun != xno; then
-echo "Desktop File drun dialog     Enabled"
+echo "Desktop File drun            Enabled"
 else
-echo "Desktop File drun dialog     Disabled"
+echo "Desktop File drun            Disabled"
 fi
 if test x$enable_windowmode != xno; then
-echo "Window Switcher dialog       Enabled"
+echo "Window switcher mode         Enabled"
 else
-echo "Window Switcher dialog       Disabled"
+echo "Window switcher Mode         Disabled"
 fi
 if test x$enable_asan = xyes; then
 echo "Asan address sanitize        Enabled"

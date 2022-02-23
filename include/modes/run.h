@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef ROFI_DIALOG_RUN_H
-#define ROFI_DIALOG_RUN_H
+#ifndef ROFI_MODE_RUN_H
+#define ROFI_MODE_RUN_H
 
 #include "mode.h"
 
@@ -45,4 +45,4 @@
 extern Mode run_mode;
 
 /**@}*/
-#endif // DIALOG_RUN_H
+#endif // ROFI_MODE_RUN_H

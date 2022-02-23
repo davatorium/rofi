@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef ROFI_DIALOG_HELPKEYS_H
-#define ROFI_DIALOG_HELPKEYS_H
+#ifndef ROFI_MODE_HELPKEYS_H
+#define ROFI_MODE_HELPKEYS_H
 
 #include "mode.h"
 /**
@@ -42,4 +42,4 @@
  */
 extern Mode help_keys_mode;
 /**@}*/
-#endif // ROFI_DIALOG_HELPKEYS_H
+#endif // ROFI_MODE_HELPKEYS_H

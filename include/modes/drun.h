@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef ROFI_DIALOG_DRUN_H
-#define ROFI_DIALOG_DRUN_H
+#ifndef ROFI_MODE_DRUN_H
+#define ROFI_MODE_DRUN_H
 
 #include "mode.h"
 
@@ -40,4 +40,4 @@
 extern Mode drun_mode;
 #endif // ENABLE_DRUN
 /**@}*/
-#endif // ROFI_DIALOG_DRUN_H
+#endif // ROFI_MODE_DRUN_H

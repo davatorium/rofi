@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef ROFI_DIALOG_DMENU_H
-#define ROFI_DIALOG_DMENU_H
+#ifndef ROFI_MODE_DMENU_H
+#define ROFI_MODE_DMENU_H
 
 /**
  * @defgroup DMENU DMenu
@@ -48,4 +48,4 @@ int dmenu_mode_dialog(void);
 void print_dmenu_options(void);
 
 /**@}*/
-#endif // ROFI_DIALOG_DMENU_H
+#endif // ROFI_MODE_DMENU_H

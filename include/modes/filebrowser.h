@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef ROFI_DIALOG_FILE_BROWSER_H
-#define ROFI_DIALOG_FILE_BROWSER_H
+#ifndef ROFI_MODE_FILE_BROWSER_H
+#define ROFI_MODE_FILE_BROWSER_H
 #include "mode.h"
 /**
  * @defgroup FileBrowserMode FileBrowser
@@ -55,4 +55,4 @@ Mode *create_new_file_browser(void);
 ModeMode file_browser_mode_completer(Mode *sw, int mretv, char **input,
                                      unsigned int selected_line, char **path);
 /**@}*/
-#endif // ROFI_DIALOG_FILE_BROWSER_H
+#endif // ROFI_MODE_FILE_BROWSER_H
