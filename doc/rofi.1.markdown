@@ -919,13 +919,13 @@ environment variable. At the time of creation of this page, the following debug 
  * X11Helper: The X11 Helper functions.
  * View: The main window view functions.
  * Widgets.Box: The Box widget.
- * Dialogs.DMenu: The dmenu mode.
- * Dialogs.Run: The run mode.
- * Dialogs.DRun: The desktop file run mode.
- * Dialogs.Window: The window mode.
- * Dialogs.Script: The script mode.
- * Dialogs.Combi: The script mode.
- * Dialogs.Ssh: The ssh mode.
+ * Modes.DMenu: The dmenu mode.
+ * Modes.Run: The run mode.
+ * Modes.DRun: The desktop file run mode.
+ * Modes.Window: The window mode.
+ * Modes.Script: The script mode.
+ * Modes.Combi: The script mode.
+ * Modes.Ssh: The ssh mode.
  * Rofi: The main application.
  * Timings: Get timing output.
  * Theme: Theme engine debug output. (warning lots of output).

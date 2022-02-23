@@ -54,11 +54,11 @@
 #include "settings.h"
 #include "timings.h"
 
-#include "dialogs/dialogs.h"
 #include "display.h"
 #include "helper-theme.h"
 #include "helper.h"
 #include "mode.h"
+#include "modes/modes.h"
 #include "xcb-internal.h"
 #include "xrmoptions.h"
 

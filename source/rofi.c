@@ -59,9 +59,9 @@
 #include "rofi.h"
 #include "settings.h"
 
-#include "dialogs/dialogs.h"
 #include "helper.h"
 #include "mode.h"
+#include "modes/modes.h"
 #include "widgets/textbox.h"
 #include "xrmoptions.h"
 

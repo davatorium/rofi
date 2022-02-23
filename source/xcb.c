@@ -63,7 +63,7 @@
 #include "xcb.h"
 #include <libsn/sn.h>
 
-#include "dialogs/window.h"
+#include "modes/window.h"
 #include "mode.h"
 
 #include <rofi.h>

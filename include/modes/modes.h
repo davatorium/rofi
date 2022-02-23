@@ -25,23 +25,23 @@
  *
  */
 
-#ifndef ROFI_DIALOGS_DIALOGS_H
-#define ROFI_DIALOGS_DIALOGS_H
+#ifndef ROFI_MODES_MODES_H
+#define ROFI_MODES_MODES_H
 
 /**
  * @defgroup MODES Modes
  */
 /**
- * List of available dialogs.
+ * List of available modes.
  */
 
-#include "dialogs/combi.h"
-#include "dialogs/dmenu.h"
-#include "dialogs/drun.h"
-#include "dialogs/filebrowser.h"
-#include "dialogs/help-keys.h"
-#include "dialogs/run.h"
-#include "dialogs/script.h"
-#include "dialogs/ssh.h"
-#include "dialogs/window.h"
-#endif // ROFI_DIALOGS_DIALOGS_H
+#include "modes/combi.h"
+#include "modes/dmenu.h"
+#include "modes/drun.h"
+#include "modes/filebrowser.h"
+#include "modes/help-keys.h"
+#include "modes/run.h"
+#include "modes/script.h"
+#include "modes/ssh.h"
+#include "modes/window.h"
+#endif // ROFI_MODES_MODES_H

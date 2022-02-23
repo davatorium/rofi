@@ -36,7 +36,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "dialogs/filebrowser.h"
+#include "modes/filebrowser.h"
 #include "helper.h"
 #include "history.h"
 #include "mode-private.h"

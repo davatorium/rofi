@@ -26,7 +26,7 @@
  */
 
 /** The log domain of this dialog. */
-#define G_LOG_DOMAIN "Dialogs.Window"
+#define G_LOG_DOMAIN "Modes.Window"
 
 #include <config.h>
 
@@ -49,8 +49,8 @@
 #include "xcb-internal.h"
 #include "xcb.h"
 
-#include "dialogs/window.h"
 #include "helper.h"
+#include "modes/window.h"
 #include "rofi.h"
 #include "settings.h"
 #include "widgets/textbox.h"

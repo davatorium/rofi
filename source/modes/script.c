@@ -26,9 +26,9 @@
  */
 
 /** The log domain of this dialog. */
-#define G_LOG_DOMAIN "Dialogs.Script"
+#define G_LOG_DOMAIN "Modes.Script"
 
-#include "dialogs/script.h"
+#include "modes/script.h"
 #include "helper.h"
 #include "rofi.h"
 #include <assert.h>
@@ -46,7 +46,7 @@
 
 #include "rofi-icon-fetcher.h"
 
-#include "dialogs/dmenuscriptshared.h"
+#include "modes/dmenuscriptshared.h"
 
 typedef struct {
   /** ID of the current script. */

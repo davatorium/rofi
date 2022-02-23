@@ -31,7 +31,7 @@
  */
 
 /** The log domain of this dialog. */
-#define G_LOG_DOMAIN "Dialogs.Run"
+#define G_LOG_DOMAIN "Modes.Run"
 
 #include <config.h>
 #include <stdio.h>
@@ -46,8 +46,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "dialogs/filebrowser.h"
-#include "dialogs/run.h"
+#include "modes/filebrowser.h"
+#include "modes/run.h"
 #include "helper.h"
 #include "history.h"
 #include "rofi.h"

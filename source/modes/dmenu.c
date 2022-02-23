@@ -26,9 +26,9 @@
  */
 
 /** The log domain of this dialog. */
-#define G_LOG_DOMAIN "Dialogs.DMenu"
+#define G_LOG_DOMAIN "Modes.DMenu"
 
-#include "dialogs/dmenu.h"
+#include "modes/dmenu.h"
 #include "helper.h"
 #include "rofi-icon-fetcher.h"
 #include "rofi.h"
@@ -50,7 +50,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "dialogs/dmenuscriptshared.h"
+#include "modes/dmenuscriptshared.h"
 
 static int dmenu_mode_init(Mode *sw);
 static int dmenu_token_match(const Mode *sw, rofi_int_matcher **tokens,

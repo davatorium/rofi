@@ -80,15 +80,15 @@ SOURCES=\
 	source/xrmoptions.c\
 	source/xcb.c\
 	source/css-colors.c\
-	source/dialogs/run.c\
-	source/dialogs/ssh.c\
-	source/dialogs/drun.c\
-	source/dialogs/dmenu.c\
-	source/dialogs/combi.c\
-	source/dialogs/window.c\
-	source/dialogs/script.c\
-	source/dialogs/help-keys.c\
-	source/dialogs/filebrowser.c\
+	source/modes/run.c\
+	source/modes/ssh.c\
+	source/modes/drun.c\
+	source/modes/dmenu.c\
+	source/modes/combi.c\
+	source/modes/window.c\
+	source/modes/script.c\
+	source/modes/help-keys.c\
+	source/modes/filebrowser.c\
 	include/display.h\
 	include/xcb.h\
 	include/xcb-internal.h\
@@ -116,17 +116,17 @@ SOURCES=\
 	include/widgets/listview.h\
 	include/widgets/scrollbar.h\
 	include/xrmoptions.h\
-	include/dialogs/ssh.h\
-	include/dialogs/run.h\
-	include/dialogs/drun.h\
-	include/dialogs/dmenu.h\
-	include/dialogs/combi.h\
-	include/dialogs/script.h\
-	include/dialogs/window.h\
-	include/dialogs/dialogs.h\
-	include/dialogs/help-keys.h\
-	include/dialogs/filebrowser.h\
-	include/dialogs/dmenuscriptshared.h\
+	include/modes/ssh.h\
+	include/modes/run.h\
+	include/modes/drun.h\
+	include/modes/dmenu.h\
+	include/modes/combi.h\
+	include/modes/script.h\
+	include/modes/window.h\
+	include/modes/modes.h\
+	include/modes/help-keys.h\
+	include/modes/filebrowser.h\
+	include/modes/dmenuscriptshared.h\
 	resources/resources.c\
 	resources/resources.h
 
@@ -534,7 +534,7 @@ mode_test_LDADD=$(textbox_test_LDADD) $(check_LIBS)
 mode_test_SOURCES=\
 				  config/config.c\
 				  test/mode-test.c\
-				  source/dialogs/help-keys.c\
+				  source/modes/help-keys.c\
 				  source/helper.c\
 				  source/theme.c\
 					source/css-colors.c\

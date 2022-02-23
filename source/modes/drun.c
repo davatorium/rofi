@@ -26,7 +26,7 @@
  */
 
 /** The log domain of this dialog. */
-#define G_LOG_DOMAIN "Dialogs.DRun"
+#define G_LOG_DOMAIN "Modes.DRun"
 
 #include <config.h>
 #ifdef ENABLE_DRUN
@@ -44,8 +44,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "dialogs/drun.h"
-#include "dialogs/filebrowser.h"
+#include "modes/drun.h"
+#include "modes/filebrowser.h"
 #include "helper.h"
 #include "history.h"
 #include "mode-private.h"

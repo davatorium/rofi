@@ -33,7 +33,7 @@
 /**
  * Log domain for the ssh mode.
  */
-#define G_LOG_DOMAIN "Dialogs.Ssh"
+#define G_LOG_DOMAIN "Modes.Ssh"
 
 #include <config.h>
 #include <glib.h>
@@ -51,7 +51,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "dialogs/ssh.h"
+#include "modes/ssh.h"
 #include "history.h"
 #include "rofi.h"
 #include "settings.h"

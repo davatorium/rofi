@@ -26,7 +26,7 @@
  */
 
 /** The log domain of this dialog. */
-#define G_LOG_DOMAIN "Dialogs.Combi"
+#define G_LOG_DOMAIN "Modes.Combi"
 
 #include "helper.h"
 #include "settings.h"
@@ -36,7 +36,7 @@
 
 #include "mode-private.h"
 #include "widgets/textbox.h"
-#include <dialogs/dialogs.h>
+#include <modes/modes.h>
 #include <pango/pango.h>
 #include <theme.h>
 
