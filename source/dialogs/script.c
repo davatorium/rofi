@@ -29,7 +29,6 @@
 #define G_LOG_DOMAIN "Dialogs.Script"
 
 #include "dialogs/script.h"
-#include "config.h"
 #include "helper.h"
 #include "rofi.h"
 #include <assert.h>
@@ -204,7 +203,11 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
           }
           if (retv) {
             size_t buf_length = strlen(buffer) + 1;
+#if GLIB_CHECK_VERSION(2, 68, 0)
+            retv[(*length)].entry = g_memdup2(buffer, buf_length);
+#else
             retv[(*length)].entry = g_memdup(buffer, buf_length);
+#endif
             retv[(*length)].icon_name = NULL;
             retv[(*length)].meta = NULL;
             retv[(*length)].info = NULL;

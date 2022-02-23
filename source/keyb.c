@@ -26,11 +26,10 @@
  */
 
 #include <glib.h>
-#include "rofi.h"
-#include "config.h"
-#include "nkutils-bindings.h"
-#include "xrmoptions.h"
 #include <string.h>
+#include "nkutils-bindings.h"
+#include "rofi.h"
+#include "xrmoptions.h"
 
 typedef struct {
   guint id;
