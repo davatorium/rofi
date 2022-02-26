@@ -42,7 +42,7 @@ Special thanks goes to:
 
 * Iggy
 * RaZ0rr-Two
-* Quentin Glidic
+* Morgane Glidic
 * Danny Colin
 * Tuure Piitulainen
 

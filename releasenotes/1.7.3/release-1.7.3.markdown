@@ -28,7 +28,7 @@ Big thanks to everybody reporting issues.
 Special thanks goes to:
 
 * Iggy
-* Quentin Glidic
+* Morgane Glidic
 * Danny Colin
 * Jakub Jirutka
 

@@ -377,7 +377,7 @@ rofi -theme-str '@import "mytheme"' -show drun
 
 Big thanks to:
 
-* Quentin Glidic
+* Morgane Glidic
 * a1346054
 * Ian C
 * TonCherAmi
