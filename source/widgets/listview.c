@@ -418,7 +418,6 @@ static void listview_draw(widget *wid, cairo_t *draw) {
     // Set new x/y position.
     unsigned int max = MIN(lv->cur_elements, lv->req_elements - offset);
     if (lv->rchanged) {
-      printf("draw\r\n");
       unsigned int width = lv->widget.w;
       width -= widget_padding_get_padding_width(wid);
       if (widget_enabled(WIDGET(lv->scrollbar))) {
@@ -790,6 +789,13 @@ void listview_nav_up(listview *lv) {
   if (lv == NULL) {
     return;
   }
+  if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
+    if (lv->selected >= lv->cur_columns) {
+      lv->selected -= lv->cur_columns;
+      widget_queue_redraw(WIDGET(lv));
+    }
+    return;
+  }
   if (lv->reverse) {
     listview_nav_down_int(lv);
   } else {
@@ -798,6 +804,13 @@ void listview_nav_up(listview *lv) {
 }
 void listview_nav_down(listview *lv) {
   if (lv == NULL) {
+    return;
+  }
+  if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
+    if ((lv->selected + lv->cur_columns) < lv->req_elements) {
+      lv->selected += lv->cur_columns;
+      widget_queue_redraw(WIDGET(lv));
+    }
     return;
   }
   if (lv->reverse) {
@@ -809,6 +822,13 @@ void listview_nav_down(listview *lv) {
 
 void listview_nav_left(listview *lv) {
   if (lv == NULL) {
+    return;
+  }
+  if (lv->max_rows == 0) {
+    return;
+  }
+  if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
+    listview_nav_up_int(lv);
     return;
   }
   if (lv->type == BARVIEW) {
@@ -825,6 +845,10 @@ void listview_nav_right(listview *lv) {
     return;
   }
   if (lv->max_rows == 0) {
+    return;
+  }
+  if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
+    listview_nav_down_int(lv);
     return;
   }
   if (lv->type == BARVIEW) {
