@@ -55,6 +55,7 @@
  * scrolling.
  */
 typedef enum { LEFT_TO_RIGHT = 0, RIGHT_TO_LEFT = 1 } MoveDirection;
+typedef enum { PD_TOP_TO_BOTTOM = 0, PD_LEFT_TO_RIGHT = 1 } PackDirection;
 
 typedef struct {
   box *box;
@@ -71,6 +72,9 @@ struct _listview {
   // RChanged
   // Text needs to be repainted.
   unsigned int rchanged;
+
+  // The direction we pack the widgets.
+  PackDirection pack_direction;
   // Administration
 
   unsigned int cur_page;
@@ -414,6 +418,7 @@ static void listview_draw(widget *wid, cairo_t *draw) {
     // Set new x/y position.
     unsigned int max = MIN(lv->cur_elements, lv->req_elements - offset);
     if (lv->rchanged) {
+      printf("draw\r\n");
       unsigned int width = lv->widget.w;
       width -= widget_padding_get_padding_width(wid);
       if (widget_enabled(WIDGET(lv->scrollbar))) {
@@ -433,30 +438,45 @@ static void listview_draw(widget *wid, cairo_t *draw) {
         }
       }
       for (unsigned int i = 0; i < max; i++) {
-        unsigned int ex =
-            left_offset + ((i) / lv->max_rows) * (element_width + spacing_hori);
-
-        if ((i) / lv->max_rows == (lv->cur_columns - 1)) {
-          ex += d;
-        }
-        if (lv->reverse) {
-          unsigned int ey =
-              wid->h -
-              (widget_padding_get_bottom(wid) +
-               ((i) % lv->max_rows) * (lv->element_height + spacing_vert)) -
-              lv->element_height;
-          widget_move(WIDGET(lv->boxes[i].box), ex, ey);
-          widget_resize(WIDGET(lv->boxes[i].box), element_width,
-                        lv->element_height);
-        } else {
+        if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
           unsigned int ey =
               top_offset +
-              ((i) % lv->max_rows) * (lv->element_height + spacing_vert);
+              ((i) / lv->cur_columns) * (lv->element_height + spacing_vert);
+          unsigned int ex = left_offset + ((i) % lv->cur_columns) *
+                                              (element_width + spacing_hori);
+
+          if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
+            ex += d;
+          }
           widget_move(WIDGET(lv->boxes[i].box), ex, ey);
           widget_resize(WIDGET(lv->boxes[i].box), element_width,
                         lv->element_height);
-        }
 
+        } else {
+          unsigned int ex = left_offset + ((i) / lv->max_rows) *
+                                              (element_width + spacing_hori);
+
+          if ((i) / lv->max_rows == (lv->cur_columns - 1)) {
+            ex += d;
+          }
+          if (lv->reverse) {
+            unsigned int ey =
+                wid->h -
+                (widget_padding_get_bottom(wid) +
+                 ((i) % lv->max_rows) * (lv->element_height + spacing_vert)) -
+                lv->element_height;
+            widget_move(WIDGET(lv->boxes[i].box), ex, ey);
+            widget_resize(WIDGET(lv->boxes[i].box), element_width,
+                          lv->element_height);
+          } else {
+            unsigned int ey =
+                top_offset +
+                ((i) % lv->max_rows) * (lv->element_height + spacing_vert);
+            widget_move(WIDGET(lv->boxes[i].box), ex, ey);
+            widget_resize(WIDGET(lv->boxes[i].box), element_width,
+                          lv->element_height);
+          }
+        }
         update_element(lv, i, i + offset, TRUE);
         widget_draw(WIDGET(lv->boxes[i].box), draw);
       }
@@ -494,7 +514,14 @@ static void listview_recompute_elements(listview *lv) {
   }
   if (!(lv->fixed_columns) && lv->req_elements < lv->max_elements) {
     newne = lv->req_elements;
-    lv->cur_columns = (lv->req_elements + (lv->max_rows - 1)) / lv->max_rows;
+    if (lv->pack_direction == PD_TOP_TO_BOTTOM) {
+      lv->cur_columns = (lv->req_elements + (lv->max_rows - 1)) / lv->max_rows;
+    } else {
+      lv->cur_columns = lv->menu_columns;
+      if (lv->req_elements < lv->menu_columns) {
+        lv->cur_columns = lv->req_elements;
+      }
+    }
   } else {
     newne = MIN(lv->req_elements, lv->max_elements);
     lv->cur_columns = lv->menu_columns;
@@ -709,6 +736,8 @@ listview *listview_create(widget *parent, const char *name,
                                                config.fixed_num_lines);
   lv->dynamic = rofi_theme_get_boolean(WIDGET(lv), "dynamic", TRUE);
   lv->reverse = rofi_theme_get_boolean(WIDGET(lv), "reverse", reverse);
+  lv->pack_direction = rofi_theme_get_boolean(WIDGET(lv), "pack-left-to-right",
+                                              PD_TOP_TO_BOTTOM);
   lv->cycle = rofi_theme_get_boolean(WIDGET(lv), "cycle", config.cycle);
   lv->fixed_columns =
       rofi_theme_get_boolean(WIDGET(lv), "fixed-columns", FALSE);
