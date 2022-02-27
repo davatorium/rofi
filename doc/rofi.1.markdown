@@ -954,7 +954,7 @@ first.
 
 * Qball Cow <qball@blame.services>
 * Rasmus Steinke <rasi@xssn.at>
-* Quentin Glidic <sardemff7+rofi@sardemff7.net>
+* Morgane Glidic <sardemff7+rofi@sardemff7.net>
 
 Original code based on work by: [Sean Pringle](https://github.com/seanpringle/simpleswitcher) <sean.pringle@gmail.com>
 

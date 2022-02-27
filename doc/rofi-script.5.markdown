@@ -137,7 +137,7 @@ Qball Cow <qball@gmpclient.org>
 
 Rasmus Steinke <rasi@xssn.at>
 
-Quentin Glidic <sardemff7+rofi@sardemff7.net>
+Morgane Glidic <sardemff7+rofi@sardemff7.net>
 
 
 Original code based on work by: Sean Pringle <sean.pringle@gmail.com>
