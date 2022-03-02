@@ -136,6 +136,7 @@ static void parse_header_entry(Mode *sw, char *line, ssize_t length) {
     } else if (strcasecmp(line, "use-hot-keys") == 0) {
       pd->use_hot_keys = (strcasecmp(value, "true") == 0);
     } else if (strcasecmp(line, "data") == 0) {
+      g_free(pd->data);
       pd->data = g_strdup(value);
     }
   }
