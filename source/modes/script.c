@@ -65,6 +65,7 @@ typedef struct {
   /** Configuration settings. */
   char *message;
   char *prompt;
+  char *data;
   gboolean do_markup;
   char delim;
   /** no custom */
@@ -134,6 +135,9 @@ static void parse_header_entry(Mode *sw, char *line, ssize_t length) {
       pd->no_custom = (strcasecmp(value, "true") == 0);
     } else if (strcasecmp(line, "use-hot-keys") == 0) {
       pd->use_hot_keys = (strcasecmp(value, "true") == 0);
+    } else if (strcasecmp(line, "data") == 0) {
+      g_free(pd->data);
+      pd->data = g_strdup(value);
     }
   }
 }
@@ -162,6 +166,9 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
 
   if (entry && entry->info) {
     env = g_environ_setenv(env, "ROFI_INFO", entry->info, TRUE);
+  }
+  if (pd->data) {
+    env = g_environ_setenv(env, "ROFI_DATA", pd->data, TRUE);
   }
 
   if (g_shell_parse_argv(sw->ed, &argc, &argv, &error)) {
@@ -342,6 +349,7 @@ static void script_mode_destroy(Mode *sw) {
     g_free(rmpd->cmd_list);
     g_free(rmpd->message);
     g_free(rmpd->prompt);
+    g_free(rmpd->data);
     g_free(rmpd->urgent_list);
     g_free(rmpd->active_list);
     g_free(rmpd);
