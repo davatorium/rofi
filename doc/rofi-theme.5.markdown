@@ -693,7 +693,7 @@ The following properties are currently supported:
 
 ###  all widgets:
 
-* **enabled**:         enable/disable the widget
+* **enabled**:         enable/disable rendering of the widget
 * **padding**:         padding
   Padding on the inside of the widget
 * **margin**:          padding
