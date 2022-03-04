@@ -98,7 +98,7 @@ Below is a list of the different modes:
 
 # Manpage
 
-For more up to date information, please see the manpages. The other sections and links might have outdated information as they have relatively less maintainance than the manpages. So, if you come across any issues please consult manpages, [discussion](https://github.com/davatorium/rofi/discussions) and [issue traker](https://github.com/davatorium/rofi/issues?q=) before filing new issue.
+For more up to date information, please see the manpages. The other sections and links might have outdated information as they have relatively less maintainance than the manpages. So, if you come across any issues please consult manpages, [discussion](https://github.com/davatorium/rofi/discussions) and [issue tracker](https://github.com/davatorium/rofi/issues?q=) before filing new issue.
 
  * Manpages:
      * [rofi](doc/rofi.1.markdown)
