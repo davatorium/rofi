@@ -437,14 +437,26 @@ static void listview_draw(widget *wid, cairo_t *draw) {
       }
       for (unsigned int i = 0; i < max; i++) {
         if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
-          unsigned int ey =
-              top_offset +
-              ((i) / lv->cur_columns) * (lv->element_height + spacing_vert);
           unsigned int ex = left_offset + ((i) % lv->cur_columns) *
                                               (element_width + spacing_hori);
+          unsigned int ey = 0;
+          if (lv->reverse) {
+            ey = wid->h -
+                 (widget_padding_get_bottom(wid) +
+                  ((i) / lv->cur_columns) *
+                      (lv->element_height + spacing_vert)) -
+                 lv->element_height;
 
-          if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
-            ex += d;
+            if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
+              ex += d;
+            }
+          } else {
+            ey = top_offset +
+                 ((i) / lv->cur_columns) * (lv->element_height + spacing_vert);
+
+            if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
+              ex += d;
+            }
           }
           widget_move(WIDGET(lv->boxes[i].box), ex, ey);
           widget_resize(WIDGET(lv->boxes[i].box), element_width,
@@ -457,23 +469,19 @@ static void listview_draw(widget *wid, cairo_t *draw) {
           if ((i) / lv->max_rows == (lv->cur_columns - 1)) {
             ex += d;
           }
+          unsigned int ey = 0;
           if (lv->reverse) {
-            unsigned int ey =
-                wid->h -
-                (widget_padding_get_bottom(wid) +
-                 ((i) % lv->max_rows) * (lv->element_height + spacing_vert)) -
-                lv->element_height;
-            widget_move(WIDGET(lv->boxes[i].box), ex, ey);
-            widget_resize(WIDGET(lv->boxes[i].box), element_width,
-                          lv->element_height);
+            ey = wid->h -
+                 (widget_padding_get_bottom(wid) +
+                  ((i) % lv->max_rows) * (lv->element_height + spacing_vert)) -
+                 lv->element_height;
           } else {
-            unsigned int ey =
-                top_offset +
-                ((i) % lv->max_rows) * (lv->element_height + spacing_vert);
-            widget_move(WIDGET(lv->boxes[i].box), ex, ey);
-            widget_resize(WIDGET(lv->boxes[i].box), element_width,
-                          lv->element_height);
+            ey = top_offset +
+                 ((i) % lv->max_rows) * (lv->element_height + spacing_vert);
           }
+          widget_move(WIDGET(lv->boxes[i].box), ex, ey);
+          widget_resize(WIDGET(lv->boxes[i].box), element_width,
+                        lv->element_height);
         }
         update_element(lv, i, i + offset, TRUE);
         widget_draw(WIDGET(lv->boxes[i].box), draw);
@@ -796,14 +804,28 @@ void listview_nav_prev(listview *lv) {
   listview_nav_up_int(lv);
 }
 
+static void listview_nav_column_left_int(listview *lv) {
+  if (lv->selected >= lv->cur_columns) {
+    lv->selected -= lv->cur_columns;
+    widget_queue_redraw(WIDGET(lv));
+  }
+}
+static void listview_nav_column_right_int(listview *lv) {
+  if ((lv->selected + lv->cur_columns) < lv->req_elements) {
+    lv->selected += lv->cur_columns;
+    widget_queue_redraw(WIDGET(lv));
+  }
+}
+
 void listview_nav_up(listview *lv) {
   if (lv == NULL) {
     return;
   }
   if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
-    if (lv->selected >= lv->cur_columns) {
-      lv->selected -= lv->cur_columns;
-      widget_queue_redraw(WIDGET(lv));
+    if (lv->reverse) {
+      listview_nav_column_right_int(lv);
+    } else {
+      listview_nav_column_left_int(lv);
     }
     return;
   }
@@ -818,9 +840,10 @@ void listview_nav_down(listview *lv) {
     return;
   }
   if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
-    if ((lv->selected + lv->cur_columns) < lv->req_elements) {
-      lv->selected += lv->cur_columns;
-      widget_queue_redraw(WIDGET(lv));
+    if (lv->reverse) {
+      listview_nav_column_left_int(lv);
+    } else {
+      listview_nav_column_right_int(lv);
     }
     return;
   }
