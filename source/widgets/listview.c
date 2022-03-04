@@ -55,7 +55,6 @@
  * scrolling.
  */
 typedef enum { LEFT_TO_RIGHT = 0, RIGHT_TO_LEFT = 1 } MoveDirection;
-typedef enum { PD_TOP_TO_BOTTOM = 0, PD_LEFT_TO_RIGHT = 1 } PackDirection;
 
 typedef struct {
   box *box;
@@ -74,7 +73,7 @@ struct _listview {
   unsigned int rchanged;
 
   // The direction we pack the widgets.
-  PackDirection pack_direction;
+  RofiOrientation pack_direction;
   // Administration
 
   unsigned int cur_page;
@@ -437,7 +436,7 @@ static void listview_draw(widget *wid, cairo_t *draw) {
         }
       }
       for (unsigned int i = 0; i < max; i++) {
-        if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
+        if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
           unsigned int ey =
               top_offset +
               ((i) / lv->cur_columns) * (lv->element_height + spacing_vert);
@@ -513,7 +512,7 @@ static void listview_recompute_elements(listview *lv) {
   }
   if (!(lv->fixed_columns) && lv->req_elements < lv->max_elements) {
     newne = lv->req_elements;
-    if (lv->pack_direction == PD_TOP_TO_BOTTOM) {
+    if (lv->pack_direction == ROFI_ORIENTATION_VERTICAL) {
       lv->cur_columns = (lv->req_elements + (lv->max_rows - 1)) / lv->max_rows;
     } else {
       lv->cur_columns = lv->menu_columns;
@@ -735,8 +734,8 @@ listview *listview_create(widget *parent, const char *name,
                                                config.fixed_num_lines);
   lv->dynamic = rofi_theme_get_boolean(WIDGET(lv), "dynamic", TRUE);
   lv->reverse = rofi_theme_get_boolean(WIDGET(lv), "reverse", reverse);
-  lv->pack_direction = rofi_theme_get_boolean(WIDGET(lv), "pack-left-to-right",
-                                              PD_TOP_TO_BOTTOM);
+  lv->pack_direction =
+      rofi_theme_get_orientation(WIDGET(lv), "flow", ROFI_ORIENTATION_VERTICAL);
   lv->cycle = rofi_theme_get_boolean(WIDGET(lv), "cycle", config.cycle);
   lv->fixed_columns =
       rofi_theme_get_boolean(WIDGET(lv), "fixed-columns", FALSE);
@@ -801,7 +800,7 @@ void listview_nav_up(listview *lv) {
   if (lv == NULL) {
     return;
   }
-  if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
+  if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
     if (lv->selected >= lv->cur_columns) {
       lv->selected -= lv->cur_columns;
       widget_queue_redraw(WIDGET(lv));
@@ -818,7 +817,7 @@ void listview_nav_down(listview *lv) {
   if (lv == NULL) {
     return;
   }
-  if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
+  if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
     if ((lv->selected + lv->cur_columns) < lv->req_elements) {
       lv->selected += lv->cur_columns;
       widget_queue_redraw(WIDGET(lv));
@@ -839,7 +838,7 @@ void listview_nav_left(listview *lv) {
   if (lv->max_rows == 0) {
     return;
   }
-  if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
+  if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
     listview_nav_up_int(lv);
     return;
   }
@@ -859,7 +858,7 @@ void listview_nav_right(listview *lv) {
   if (lv->max_rows == 0) {
     return;
   }
-  if (lv->pack_direction == PD_LEFT_TO_RIGHT) {
+  if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
     listview_nav_down_int(lv);
     return;
   }
