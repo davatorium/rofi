@@ -183,7 +183,7 @@ Go to the next column
 ### **kb-row-up**
 Select previous entry
 
-**Default**: 	Up,Control+p,ISO_Left_Tab 
+**Default**: 	Up,Control+p 
 
 ### **kb-row-down**
 Select next entry
@@ -193,7 +193,17 @@ Select next entry
 ### **kb-row-tab**
 Go to next row, if one left, accept it, if no left next mode.
 
-**Default**: 	Tab 
+**Default**: 	
+
+### **kb-element-next**
+Go to next row.
+
+**Default**: Tab	
+
+### **kb-element-prev**
+Go to previous row.
+
+**Default**: ISO_Left_Tab
 
 ### **kb-page-prev**
 Go to the previous page

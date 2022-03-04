@@ -784,6 +784,18 @@ static void listview_nav_down_int(listview *lv) {
   lv->barview.direction = LEFT_TO_RIGHT;
   widget_queue_redraw(WIDGET(lv));
 }
+void listview_nav_next(listview *lv) {
+  if (lv == NULL) {
+    return;
+  }
+  listview_nav_down_int(lv);
+}
+void listview_nav_prev(listview *lv) {
+  if (lv == NULL) {
+    return;
+  }
+  listview_nav_up_int(lv);
+}
 
 void listview_nav_up(listview *lv) {
   if (lv == NULL) {

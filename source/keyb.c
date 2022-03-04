@@ -26,10 +26,10 @@
  */
 
 #include <glib.h>
-#include <string.h>
 #include "nkutils-bindings.h"
 #include "rofi.h"
 #include "xrmoptions.h"
+#include <string.h>
 
 typedef struct {
   guint id;
@@ -145,7 +145,7 @@ ActionBindingEntry rofi_bindings[] = {
      .comment = "Go to the next column"},
     {.id = ROW_UP,
      .name = "kb-row-up",
-     .binding = "Up,Control+p,ISO_Left_Tab",
+     .binding = "Up,Control+p",
      .comment = "Select previous entry"},
     {.id = ROW_DOWN,
      .name = "kb-row-down",
@@ -153,9 +153,17 @@ ActionBindingEntry rofi_bindings[] = {
      .comment = "Select next entry"},
     {.id = ROW_TAB,
      .name = "kb-row-tab",
-     .binding = "Tab",
+     .binding = "",
      .comment =
          "Go to next row, if one left, accept it, if no left next mode."},
+    {.id = ELEMENT_NEXT,
+     .name = "kb-element-next",
+     .binding = "Tab",
+     .comment = "Go to next element (in logical order)."},
+    {.id = ELEMENT_PREV,
+     .name = "kb-element-prev",
+     .binding = "ISO_Left_Tab",
+     .comment = "Go to next previous element (in logical order)."},
     {.id = PAGE_PREV,
      .name = "kb-page-prev",
      .binding = "Page_Up",
