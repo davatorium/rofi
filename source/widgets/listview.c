@@ -71,6 +71,9 @@ struct _listview {
   // RChanged
   // Text needs to be repainted.
   unsigned int rchanged;
+
+  // The direction we pack the widgets.
+  RofiOrientation pack_direction;
   // Administration
 
   unsigned int cur_page;
@@ -433,30 +436,53 @@ static void listview_draw(widget *wid, cairo_t *draw) {
         }
       }
       for (unsigned int i = 0; i < max; i++) {
-        unsigned int ex =
-            left_offset + ((i) / lv->max_rows) * (element_width + spacing_hori);
+        if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
+          unsigned int ex = left_offset + ((i) % lv->cur_columns) *
+                                              (element_width + spacing_hori);
+          unsigned int ey = 0;
+          if (lv->reverse) {
+            ey = wid->h -
+                 (widget_padding_get_bottom(wid) +
+                  ((i) / lv->cur_columns) *
+                      (lv->element_height + spacing_vert)) -
+                 lv->element_height;
 
-        if ((i) / lv->max_rows == (lv->cur_columns - 1)) {
-          ex += d;
-        }
-        if (lv->reverse) {
-          unsigned int ey =
-              wid->h -
-              (widget_padding_get_bottom(wid) +
-               ((i) % lv->max_rows) * (lv->element_height + spacing_vert)) -
-              lv->element_height;
+            if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
+              ex += d;
+            }
+          } else {
+            ey = top_offset +
+                 ((i) / lv->cur_columns) * (lv->element_height + spacing_vert);
+
+            if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
+              ex += d;
+            }
+          }
           widget_move(WIDGET(lv->boxes[i].box), ex, ey);
           widget_resize(WIDGET(lv->boxes[i].box), element_width,
                         lv->element_height);
+
         } else {
-          unsigned int ey =
-              top_offset +
-              ((i) % lv->max_rows) * (lv->element_height + spacing_vert);
+          unsigned int ex = left_offset + ((i) / lv->max_rows) *
+                                              (element_width + spacing_hori);
+
+          if ((i) / lv->max_rows == (lv->cur_columns - 1)) {
+            ex += d;
+          }
+          unsigned int ey = 0;
+          if (lv->reverse) {
+            ey = wid->h -
+                 (widget_padding_get_bottom(wid) +
+                  ((i) % lv->max_rows) * (lv->element_height + spacing_vert)) -
+                 lv->element_height;
+          } else {
+            ey = top_offset +
+                 ((i) % lv->max_rows) * (lv->element_height + spacing_vert);
+          }
           widget_move(WIDGET(lv->boxes[i].box), ex, ey);
           widget_resize(WIDGET(lv->boxes[i].box), element_width,
                         lv->element_height);
         }
-
         update_element(lv, i, i + offset, TRUE);
         widget_draw(WIDGET(lv->boxes[i].box), draw);
       }
@@ -494,7 +520,14 @@ static void listview_recompute_elements(listview *lv) {
   }
   if (!(lv->fixed_columns) && lv->req_elements < lv->max_elements) {
     newne = lv->req_elements;
-    lv->cur_columns = (lv->req_elements + (lv->max_rows - 1)) / lv->max_rows;
+    if (lv->pack_direction == ROFI_ORIENTATION_VERTICAL) {
+      lv->cur_columns = (lv->req_elements + (lv->max_rows - 1)) / lv->max_rows;
+    } else {
+      lv->cur_columns = lv->menu_columns;
+      if (lv->req_elements < lv->menu_columns) {
+        lv->cur_columns = lv->req_elements;
+      }
+    }
   } else {
     newne = MIN(lv->req_elements, lv->max_elements);
     lv->cur_columns = lv->menu_columns;
@@ -709,6 +742,8 @@ listview *listview_create(widget *parent, const char *name,
                                                config.fixed_num_lines);
   lv->dynamic = rofi_theme_get_boolean(WIDGET(lv), "dynamic", TRUE);
   lv->reverse = rofi_theme_get_boolean(WIDGET(lv), "reverse", reverse);
+  lv->pack_direction =
+      rofi_theme_get_orientation(WIDGET(lv), "flow", ROFI_ORIENTATION_VERTICAL);
   lv->cycle = rofi_theme_get_boolean(WIDGET(lv), "cycle", config.cycle);
   lv->fixed_columns =
       rofi_theme_get_boolean(WIDGET(lv), "fixed-columns", FALSE);
@@ -756,9 +791,42 @@ static void listview_nav_down_int(listview *lv) {
   lv->barview.direction = LEFT_TO_RIGHT;
   widget_queue_redraw(WIDGET(lv));
 }
+void listview_nav_next(listview *lv) {
+  if (lv == NULL) {
+    return;
+  }
+  listview_nav_down_int(lv);
+}
+void listview_nav_prev(listview *lv) {
+  if (lv == NULL) {
+    return;
+  }
+  listview_nav_up_int(lv);
+}
+
+static void listview_nav_column_left_int(listview *lv) {
+  if (lv->selected >= lv->cur_columns) {
+    lv->selected -= lv->cur_columns;
+    widget_queue_redraw(WIDGET(lv));
+  }
+}
+static void listview_nav_column_right_int(listview *lv) {
+  if ((lv->selected + lv->cur_columns) < lv->req_elements) {
+    lv->selected += lv->cur_columns;
+    widget_queue_redraw(WIDGET(lv));
+  }
+}
 
 void listview_nav_up(listview *lv) {
   if (lv == NULL) {
+    return;
+  }
+  if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
+    if (lv->reverse) {
+      listview_nav_column_right_int(lv);
+    } else {
+      listview_nav_column_left_int(lv);
+    }
     return;
   }
   if (lv->reverse) {
@@ -771,6 +839,14 @@ void listview_nav_down(listview *lv) {
   if (lv == NULL) {
     return;
   }
+  if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
+    if (lv->reverse) {
+      listview_nav_column_left_int(lv);
+    } else {
+      listview_nav_column_right_int(lv);
+    }
+    return;
+  }
   if (lv->reverse) {
     listview_nav_up_int(lv);
   } else {
@@ -780,6 +856,13 @@ void listview_nav_down(listview *lv) {
 
 void listview_nav_left(listview *lv) {
   if (lv == NULL) {
+    return;
+  }
+  if (lv->max_rows == 0) {
+    return;
+  }
+  if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
+    listview_nav_up_int(lv);
     return;
   }
   if (lv->type == BARVIEW) {
@@ -796,6 +879,10 @@ void listview_nav_right(listview *lv) {
     return;
   }
   if (lv->max_rows == 0) {
+    return;
+  }
+  if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
+    listview_nav_down_int(lv);
     return;
   }
   if (lv->type == BARVIEW) {

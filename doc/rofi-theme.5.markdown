@@ -794,6 +794,8 @@ The following properties are currently supported:
     Indicate how elements are stacked. Horizontal implements the dmenu style.
 * **reverse**:         boolean
     Reverse the ordering (top down to bottom up).
+* **flow**:           orientation
+    The order the elements are layed out.  Vertical is the original 'column' view.
 * **fixed-columns**:    boolean
     Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.
 

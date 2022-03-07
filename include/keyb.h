@@ -101,6 +101,8 @@ typedef enum {
   ROW_UP,
   ROW_DOWN,
   ROW_TAB,
+  ELEMENT_NEXT,
+  ELEMENT_PREV,
   PAGE_PREV,
   PAGE_NEXT,
   ROW_FIRST,

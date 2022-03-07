@@ -1362,6 +1362,12 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     state->retv = MENU_CANCEL;
     state->quit = TRUE;
     break;
+  case ELEMENT_NEXT:
+    listview_nav_next(state->list_view);
+    break;
+  case ELEMENT_PREV:
+    listview_nav_prev(state->list_view);
+    break;
   case ROW_UP:
     listview_nav_up(state->list_view);
     break;

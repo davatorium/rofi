@@ -114,6 +114,21 @@ unsigned int listview_get_selected(listview *lv);
 /**
  * @param lv The listview handle
  *
+ * Move the selection next element.
+ * - Wrap around.
+ */
+void listview_nav_next(listview *lv);
+/**
+ * @param lv The listview handle
+ *
+ * Move the selection previous element.
+ * - Wrap around.
+ */
+void listview_nav_prev(listview *lv);
+
+/**
+ * @param lv The listview handle
+ *
  * Move the selection one row up.
  * - Wrap around.
  */
