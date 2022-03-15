@@ -63,8 +63,8 @@
 #include "xcb.h"
 #include <libsn/sn.h>
 
-#include "modes/window.h"
 #include "mode.h"
+#include "modes/window.h"
 
 #include <rofi.h>
 
@@ -977,10 +977,8 @@ int monitor_active(workarea *mon) {
   }
   g_debug("Monitor active");
   if (mon_set) {
-    if (mon) {
-      *mon = mon_cache;
-      return TRUE;
-    }
+    *mon = mon_cache;
+    return TRUE;
   }
   if (config.monitor != NULL) {
     g_debug("Monitor lookup  by name : %s", config.monitor);

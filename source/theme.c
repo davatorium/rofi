@@ -1235,17 +1235,17 @@ GList *rofi_theme_get_list_distance(const widget *widget,
        iter = g_list_next(iter)) {
     Property *prop = (Property *)(iter->data);
     if (prop->type == P_PADDING) {
-      RofiDistance *p = g_new0(RofiDistance, 1);
-      *p = prop->value.padding.left;
-      retv = g_list_append(retv, p);
+      RofiDistance *pnew = g_new0(RofiDistance, 1);
+      *pnew = prop->value.padding.left;
+      retv = g_list_append(retv, pnew);
     } else if (prop->type == P_INTEGER) {
-      RofiDistance *p = g_new0(RofiDistance, 1);
+      RofiDistance *pnew = g_new0(RofiDistance, 1);
       RofiDistance d =
           (RofiDistance){.base = {prop->value.i, ROFI_PU_PX,
                                   ROFI_DISTANCE_MODIFIER_NONE, NULL, NULL},
                          .style = ROFI_HL_SOLID};
-      *p = d;
-      retv = g_list_append(retv, p);
+      *pnew = d;
+      retv = g_list_append(retv, pnew);
     } else {
       g_warning("Invalid type detected in list.");
     }

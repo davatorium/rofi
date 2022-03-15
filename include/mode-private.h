@@ -27,6 +27,7 @@
 
 #ifndef ROFI_MODE_PRIVATE_H
 #define ROFI_MODE_PRIVATE_H
+#include "mode.h"
 #include <gmodule.h>
 G_BEGIN_DECLS
 

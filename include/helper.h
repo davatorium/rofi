@@ -149,11 +149,11 @@ int execute_generator(const char *cmd) __attribute__((nonnull));
 
 /**
  * @param pidfile The pidfile to create.
- * @param kill Try killing running instance.
+ * @param kill_running Try killing running instance.
  *
  * returns file descriptor (or -1 when failed)
  */
-int create_pid_file(const char *pidfile, gboolean kill);
+int create_pid_file(const char *pidfile, gboolean kill_running);
 
 /**
  * Remove pid file

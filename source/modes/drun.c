@@ -44,11 +44,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "modes/drun.h"
-#include "modes/filebrowser.h"
 #include "helper.h"
 #include "history.h"
 #include "mode-private.h"
+#include "modes/drun.h"
+#include "modes/filebrowser.h"
 #include "rofi.h"
 #include "settings.h"
 #include "timings.h"
@@ -1386,7 +1386,7 @@ static int drun_token_match(const Mode *data, rofi_int_matcher **tokens,
   }
   int match = 1;
   if (tokens) {
-    for (int j = 0; match && tokens != NULL && tokens[j] != NULL; j++) {
+    for (int j = 0; match && tokens[j] != NULL; j++) {
       int test = 0;
       rofi_int_matcher *ftokens[2] = {tokens[j], NULL};
       // Match name

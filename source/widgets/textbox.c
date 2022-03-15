@@ -728,9 +728,7 @@ static void textbox_cursor_del_eol(textbox *tb) {
 static void textbox_cursor_del_sol(textbox *tb) {
   if (tb && tb->cursor >= 0) {
     int length = tb->cursor;
-    if (length >= 0) {
-      textbox_delete(tb, 0, length);
-    }
+    textbox_delete(tb, 0, length);
   }
 }
 static void textbox_cursor_del_word(textbox *tb) {

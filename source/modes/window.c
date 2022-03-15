@@ -418,7 +418,7 @@ static int window_match(const Mode *sw, rofi_int_matcher **tokens,
   client *c = cache_client->data[idx];
 
   if (tokens) {
-    for (int j = 0; match && tokens != NULL && tokens[j] != NULL; j++) {
+    for (int j = 0; match && tokens[j] != NULL; j++) {
       int test = 0;
       // Dirty hack. Normally helper_token_match does _all_ the matching,
       // Now we want it to match only one item at the time.

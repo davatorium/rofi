@@ -476,7 +476,7 @@ static int dmenu_token_match(const Mode *sw, rofi_int_matcher **tokens,
     //        int retv = helper_token_match ( tokens, esc );
     int match = 1;
     if (tokens) {
-      for (int j = 0; match && tokens != NULL && tokens[j] != NULL; j++) {
+      for (int j = 0; match && tokens[j] != NULL; j++) {
         rofi_int_matcher *ftokens[2] = {tokens[j], NULL};
         int test = 0;
         test = helper_token_match(ftokens, esc);
