@@ -20,6 +20,9 @@ runs:
     - id: build
       run: ninja -C builddir
       shell: bash
+    - id: dist
+      run: ninja -C builddir dist
+      shell: bash
     - id: test
       run: ninja -C builddir test
       shell: bash

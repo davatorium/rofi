@@ -36,14 +36,14 @@ runs:
       uses: ./.github/actions/doxycheck
       with:
         logfile: builddir/doxygen.log
-    - id: meson-dist-check
+    - id: autoconf-dist-check
       shell: bash
       run: |
         tar xf builddir/rofi-*.tar.gz
         cd rofi-*/
-        meson setup . build
-        ninja -C build
-        ninja -C build test
+        ./configure
+        make 
+        make check
     - id: upload
       uses: actions/upload-artifact@v2
       with:
