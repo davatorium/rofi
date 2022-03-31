@@ -60,6 +60,29 @@ To get a template config file, run: `rofi -dump-config > config.rasi`
 
 This will contain (commented) all current configuration options, modified options are uncommented.
 
+To get a template config file that sets the icon-theme run: `rofi -icon-theme hicolor -dump-config`.
+
+It is **strongly** recommended to use this as a starting point for your configuration.
+
+An empty configuration section in the config file looks like:
+
+```css
+configuration {
+ // set config options here
+}
+```
+
+Most of the configuration options mentioned below (beside options like `-show`,
+`-dump-config` that apply to a single run) can be set here.
+
+For example to set the dpi value to 72:
+
+```css
+configuration {
+	dpi: 72;
+}
+```
+
 The configuration system supports the following types:
 
  * string
