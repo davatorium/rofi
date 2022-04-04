@@ -254,7 +254,7 @@ inline static void printf_double(double d) {
   char buf[G_ASCII_DTOSTR_BUF_SIZE + 1] = {
       0,
   };
-  g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE, d);
+  g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, "%.4f", d);
   fputs(buf, stdout);
 }
 
