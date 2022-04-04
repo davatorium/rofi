@@ -251,8 +251,10 @@ void rofi_theme_free(ThemeWidget *widget) {
  * print
  */
 inline static void printf_double(double d) {
-  char buf[G_ASCII_DTOSTR_BUF_SIZE];
-  g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, "%.4lf", d);
+  char buf[G_ASCII_DTOSTR_BUF_SIZE + 1] = {
+      0,
+  };
+  g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE, d);
   fputs(buf, stdout);
 }
 
