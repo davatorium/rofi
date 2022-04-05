@@ -47,7 +47,7 @@ preferred.
 C and C++ file comments are supported.
 
 * Anything after  `// ` and before a newline is considered a comment.
-* Everything between `/*` and `*/` is a comment.
+* Everything between `/*` and `*/` is a comment, this comment can span multiple lines.
 
 Comments can be nested and the C comments can be inline.
 
@@ -91,7 +91,7 @@ abbreviation for **r**ofi **a**dvanced **s**tyle **i**nformation.
 ## Basic Structure
 
 Each element has a section with defined properties. Global properties can be defined in section `* { }`.
-Sub-section names begin with a hash symbol `#`.
+Sub-section names begin with an optional hash symbol `#`.
 
 It is advised to define the *global properties section* on top of the file to
 make inheritance of properties clearer.
@@ -131,8 +131,8 @@ A theme can have multiple element theme sections.
 
 The element path can consist of multiple names separated by whitespace or dots.
 Each element may contain any number of letters, numbers and `-`'s.
-The first element in the element path should always start with a `#`.
-Multiple elements can be specified by a `,`.
+The first element in the element path can optionally start with a `#` (for
+historic reasons). Multiple elements can be specified by a `,`.
 
 This is a valid element name:
 
@@ -153,8 +153,8 @@ element normal normal, button {
 }
 ```
 
-Each section inherits the global properties. Properties can be explicitly inherited from their parent with the
-`inherit` keyword.
+Each section inherits the global properties. Properties can be explicitly
+inherited from their parent with the `inherit` keyword.
 In the following example:
 
 ```css
@@ -170,7 +170,8 @@ mainbox {
 }
 ```
 
-The element `mainbox` will have the following set of properties (if `mainbox` is a child of `window`):
+The element `mainbox` will have the following set of properties (if `mainbox`
+is a child of `window`):
 
 ```css
 a: 1;
@@ -234,7 +235,15 @@ For example:
 font: "Awasome 12";
 ```
 
-The string must be valid UTF-8.
+The string must be valid UTF-8, special characters can be escaped:
+
+```css
+text {
+    content: "Line one\n\tIndented line two";
+}
+```
+
+The following special characters can be escaped: `\b`, `\f`, `\n`, `\r`, `\t`, `\v`, `\` and `"`.
 
 ## Integer
 
@@ -407,9 +416,9 @@ It supports the following operations:
 * `-`   : Subtract
 * `/`   : Divide
 * `*`   : Multiply
-* `%`   : Multiply
-* `min` : Minimum of l or rvalue;
-* `max` : Maximum of l or rvalue;
+* `%`   : Modulo
+* `min` : Minimum of lvalue or rvalue;
+* `max` : Maximum of lvalue or rvalue;
 * `floor` : Round down lvalue to the next multiple of rvalue 
 * `ceil` : Round up lvalue to the next multiple of rvalue 
 * `round` : Round lvalue to the next multiple of rvalue 
@@ -471,9 +480,12 @@ south west   |    south    |  south east
 
 It is possible to hide widgets:
 
+```css
 inputbar {
     enabled: false;
 }
+```
+
 
 ## Reference
 
@@ -693,22 +705,22 @@ The following properties are currently supported:
 
 ###  all widgets:
 
-* **enabled**:         enable/disable rendering of the widget
-* **padding**:         padding
+* **enabled**:           enable/disable rendering of the widget
+* **padding**:           padding
   Padding on the inside of the widget
-* **margin**:          padding
+* **margin**:            padding
   Margin on the outside of the widget
-* **border**:          border
+* **border**:            border
   Border around the widget (between padding and margin)/
-* **border-radius**:    padding
+* **border-radius**:     padding
   Sets a radius on the corners of the borders.
-* **background-color**:      color
+* **background-color**:  color
   Background color
-* **background-image**:      image
+* **background-image**:  image
   Background image
 * **border-color**:      color
   Color of the border
-* **cursor**:      cursor
+* **cursor**:            cursor
   Type of mouse cursor that is set when the mouse pointer is hovered over the widget.
 
 ### window:
@@ -731,8 +743,8 @@ The following properties are currently supported:
     Window is fullscreen.
 * **width**:          distance
     The width of the window
-* **x-offset**:  distance
-* **y-offset**:  distance
+* **x-offset**:       distance
+* **y-offset**:       distance
     The offset of the window to the anchor point, allowing you to push the window left/right/up/down
 
 
@@ -747,7 +759,7 @@ The following properties are currently supported:
 
 * **orientation**:      orientation
         Set the direction the elements are packed.
-* **spacing**:         distance
+* **spacing**:          distance
         Distance between the packed elements.
 
 ### textbox:
@@ -755,7 +767,7 @@ The following properties are currently supported:
 * **background-color**:  color
 * **border-color**:      the color used for the border around the widget.
 * **font**:              the font used by this textbox (string).
-* **str**:               the string to display by this textbox (string).
+* **str**/**content**:   the string to display by this textbox (string).
 * **vertical-align**:    Vertical alignment of the text. A number between 0 (top) and 1 (bottom).
 * **horizontal-align**:  Horizontal alignment of the text. A number between 0 (left) and 1 (right).
 * **text-color**:        the text color to use.
