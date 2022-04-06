@@ -4,19 +4,136 @@
 
 **rofi-theme** - Rofi theme format files
 
+## GETTING STARTED 
+
+The easiest way to get started theming rofi is by modifying your existing theme.
+Themes can be modified/tweaked by adding theming elements to the end of your
+config file. The default location of this file is `~/.config/rofi/config.ras`,
+if the file does not exists, you can create it.
+
+For example if we want to change the `Type to filter` text in the entry box:
+
+```css
+entry {
+    placeholder: "Type here";
+}
+```
+
+In the above statement, `entry` indicates the widget, `placeholder` is the
+property we want to modify and we set it to the string `"Type here"`.
+To find the commonly available widgets in rofi, see the 'Basic structure' section.
+
+To change the mouse over cursor to a pointer, add:
+
+```css
+entry {
+    placeholder: "Type here";
+    cursor: pointer;
+}
+```
+
+For the next modification, we want to add the icon after each text element and
+increase the size. First we start by modifying the `element` widget:
+
+```css
+
+element {
+  orientation: horizontal;
+  children: [ element-text, element-icon ];
+  spacing: 5px;
+}
+
+```
+
+Resulting in the following packing:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐ 
+│ element                                                             │ 
+│ ┌─────────────────────────────────────────────┐ ┌─────────────────┐ │ 
+│ │element─text                                 │ │ element─icon    │ │ 
+│ └─────────────────────────────────────────────┘ └─────────────────┘ │ 
+└─────────────────────────────────────────────────────────────────────┘ 
+```
+
+The `element` (container) widget hold each entry in the `listview`, we add the two
+pre-defined children in the order we want to show them.
+We also specify the packing direction (`orientation`) and the spacing between the children (`spacing`).
+We specify the space between the two children in absolute pixels (`px`).
+
+To increase the icon-size, we need to modify the `element-icon` widget.
+
+```css
+element-icon {
+    size: 2.5em;
+}
+```
+
+```
+┌─────────────────────────────────────────────────────────────────────┐ 
+│ element                                                             │ 
+│ ┌─────────────────────────────────────────────┐ ┌─────────────────┐ │ 
+│ │element─text                                 │ │    element      │ │ 
+│ │                                             │ │       ─         │ │ 
+│ │                                             │ │     icon        │ │ 
+│ └─────────────────────────────────────────────┘ └─────────────────┘ │ 
+└─────────────────────────────────────────────────────────────────────┘ 
+```
+
+In this example we specify the size in the [em](https://www.w3.org/Style/LieBos3e/em) unit.
+
+Now lets change the text color of both the `entry` and the `element-text` widget to red and background to blue.
+
+```css
+entry, element-text {
+  text-color: red;
+  background-color: rgb(0,0,255);
+}
+```
+
+Here we use two different methods of writing down the color, for `text-color`
+we used a named color, for `background-color` we specify it in `rgb`.
+We also specify the property for multiple widgets by passing a comma separated
+list of widget names.
+
+If you want to center the text relative to the icon, we can set this:
+
+```css
+element-icon {
+    vertical-align: 0.5;
+}
+```
+
+```
+┌─────────────────────────────────────────────────────────────────────┐ 
+│ element                                                             │ 
+│ ┌─────────────────────────────────────────────┐ ┌─────────────────┐ │ 
+│ │                                             │ │    element      │ │ 
+│ │element-text                                 │ │       ─         │ │ 
+│ │                                             │ │     icon        │ │ 
+│ └─────────────────────────────────────────────┘ └─────────────────┘ │ 
+└─────────────────────────────────────────────────────────────────────┘ 
+```
+
+If you want to see the complete theme, including the modification you can run:
+
+```bash
+rofi -dump-theme
+```
+
 ## DEFAULT THEME LOADING
 
 By default, rofi loads the default theme. This theme is **always** loaded.
-In the default (always loaded) configuration it does:
+The default configuration contains:
 
 ```css
 @theme "default"
 ```
 
-To unload the default theme, and load another theme, add `@theme` to your
-`config.rasi` file.
+To unload the default theme, and load another theme, add the `@theme` statement 
+to your `config.rasi` file.
 
-If you have a theme loaded by `@theme` or use the default theme, you can tweak
+If you have a theme loaded via `@theme` or use the default theme, you can tweak
 it by adding overriding elements at the end of your `config.rasi` file.
 
 For the difference between `@import` and `@theme` see the `Multiple file
@@ -39,7 +156,7 @@ user-friendly way. Therefore, a new file format has been created, replacing the 
 
 ## Encoding
 
-The encoding of the file is utf-8. Both unix (`\n`) and windows (`\r\n`) newlines format are supported. But unix is
+The encoding of the file is UTF-8. Both unix (`\n`) and windows (`\r\n`) newlines format are supported. But unix is
 preferred.
 
 ## Comments
@@ -410,17 +527,21 @@ Rofi supports some maths in calculating sizes. For this it uses the CSS syntax:
 width: calc( 100% - 37px );
 ```
 
+```css
+width: calc( 20% min 512 );
+```
+
 It supports the following operations:
 
-* `+`   : Add
-* `-`   : Subtract
-* `/`   : Divide
-* `*`   : Multiply
-* `%`   : Modulo
-* `min` : Minimum of lvalue or rvalue;
-* `max` : Maximum of lvalue or rvalue;
+* `+`     : Add
+* `-`     : Subtract
+* `/`     : Divide
+* `*`     : Multiply
+* `%`     : Modulo
+* `min`   : Minimum of lvalue or rvalue;
+* `max`   : Maximum of lvalue or rvalue;
 * `floor` : Round down lvalue to the next multiple of rvalue 
-* `ceil` : Round up lvalue to the next multiple of rvalue 
+* `ceil`  : Round up lvalue to the next multiple of rvalue 
 * `round` : Round lvalue to the next multiple of rvalue 
 
 It uses the C precedence ordering.

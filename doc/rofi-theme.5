@@ -4,10 +4,190 @@
 .PP
 \fBrofi-theme\fP - Rofi theme format files
 
+.SH GETTING STARTED
+.PP
+The easiest way to get started theming rofi is by modifying your existing theme.
+Themes can be modified/tweaked by adding theming elements to the end of your
+config file. The default location of this file is \fB\fC~/.config/rofi/config.ras\fR,
+if the file does not exists, you can create it.
+
+.PP
+For example if we want to change the \fB\fCType to filter\fR text in the entry box:
+
+.PP
+.RS
+
+.nf
+entry {
+    placeholder: "Type here";
+}
+
+.fi
+.RE
+
+.PP
+In the above statement, \fB\fCentry\fR indicates the widget, \fB\fCplaceholder\fR is the
+property we want to modify and we set it to the string \fB\fC"Type here"\fR\&.
+To find the commonly available widgets in rofi, see the 'Basic structure' section.
+
+.PP
+To change the mouse over cursor to a pointer, add:
+
+.PP
+.RS
+
+.nf
+entry {
+    placeholder: "Type here";
+    cursor: pointer;
+}
+
+.fi
+.RE
+
+.PP
+For the next modification, we want to add the icon after each text element and
+increase the size. First we start by modifying the \fB\fCelement\fR widget:
+
+.PP
+.RS
+
+.nf
+
+element {
+  orientation: horizontal;
+  children: [ element-text, element-icon ];
+  spacing: 5px;
+}
+
+
+.fi
+.RE
+
+.PP
+Resulting in the following packing:
+
+.PP
+.RS
+
+.nf
+┌─────────────────────────────────────────────────────────────────────┐ 
+│ element                                                             │ 
+│ ┌─────────────────────────────────────────────┐ ┌─────────────────┐ │ 
+│ │element─text                                 │ │ element─icon    │ │ 
+│ └─────────────────────────────────────────────┘ └─────────────────┘ │ 
+└─────────────────────────────────────────────────────────────────────┘ 
+
+.fi
+.RE
+
+.PP
+The \fB\fCelement\fR (container) widget hold each entry in the \fB\fClistview\fR, we add the two
+pre-defined children in the order we want to show them.
+We also specify the packing direction (\fB\fCorientation\fR) and the spacing between the children (\fB\fCspacing\fR).
+We specify the space between the two children in absolute pixels (\fB\fCpx\fR).
+
+.PP
+To increase the icon-size, we need to modify the \fB\fCelement-icon\fR widget.
+
+.PP
+.RS
+
+.nf
+element-icon {
+    size: 2.5em;
+}
+
+.fi
+.RE
+
+.PP
+.RS
+
+.nf
+┌─────────────────────────────────────────────────────────────────────┐ 
+│ element                                                             │ 
+│ ┌─────────────────────────────────────────────┐ ┌─────────────────┐ │ 
+│ │element─text                                 │ │    element      │ │ 
+│ │                                             │ │       ─         │ │ 
+│ │                                             │ │     icon        │ │ 
+│ └─────────────────────────────────────────────┘ └─────────────────┘ │ 
+└─────────────────────────────────────────────────────────────────────┘ 
+
+.fi
+.RE
+
+.PP
+In this example we specify the size in the em
+\[la]https://www.w3.org/Style/LieBos3e/em\[ra] unit.
+
+.PP
+Now lets change the text color of both the \fB\fCentry\fR and the \fB\fCelement-text\fR widget to red and background to blue.
+
+.PP
+.RS
+
+.nf
+entry, element-text {
+  text-color: red;
+  background-color: rgb(0,0,255);
+}
+
+.fi
+.RE
+
+.PP
+Here we use two different methods of writing down the color, for \fB\fCtext-color\fR
+we used a named color, for \fB\fCbackground-color\fR we specify it in \fB\fCrgb\fR\&.
+We also specify the property for multiple widgets by passing a comma separated
+list of widget names.
+
+.PP
+If you want to center the text relative to the icon, we can set this:
+
+.PP
+.RS
+
+.nf
+element-icon {
+    vertical-align: 0.5;
+}
+
+.fi
+.RE
+
+.PP
+.RS
+
+.nf
+┌─────────────────────────────────────────────────────────────────────┐ 
+│ element                                                             │ 
+│ ┌─────────────────────────────────────────────┐ ┌─────────────────┐ │ 
+│ │                                             │ │    element      │ │ 
+│ │element-text                                 │ │       ─         │ │ 
+│ │                                             │ │     icon        │ │ 
+│ └─────────────────────────────────────────────┘ └─────────────────┘ │ 
+└─────────────────────────────────────────────────────────────────────┘ 
+
+.fi
+.RE
+
+.PP
+If you want to see the complete theme, including the modification you can run:
+
+.PP
+.RS
+
+.nf
+rofi -dump-theme
+
+.fi
+.RE
+
 .SH DEFAULT THEME LOADING
 .PP
 By default, rofi loads the default theme. This theme is \fBalways\fP loaded.
-In the default (always loaded) configuration it does:
+The default configuration contains:
 
 .PP
 .RS
@@ -19,11 +199,11 @@ In the default (always loaded) configuration it does:
 .RE
 
 .PP
-To unload the default theme, and load another theme, add \fB\fC@theme\fR to your
-\fB\fCconfig.rasi\fR file.
+To unload the default theme, and load another theme, add the \fB\fC@theme\fR statement
+to your \fB\fCconfig.rasi\fR file.
 
 .PP
-If you have a theme loaded by \fB\fC@theme\fR or use the default theme, you can tweak
+If you have a theme loaded via \fB\fC@theme\fR or use the default theme, you can tweak
 it by adding overriding elements at the end of your \fB\fCconfig.rasi\fR file.
 
 .PP
@@ -52,7 +232,7 @@ user-friendly way. Therefore, a new file format has been created, replacing the 
 .SH FORMAT SPECIFICATION
 .SH Encoding
 .PP
-The encoding of the file is utf-8. Both unix (\fB\fC\\n\fR) and windows (\fB\fC\\r\\n\fR) newlines format are supported. But unix is
+The encoding of the file is UTF-8. Both unix (\fB\fC\\n\fR) and windows (\fB\fC\\r\\n\fR) newlines format are supported. But unix is
 preferred.
 
 .SH Comments
@@ -652,27 +832,36 @@ width: calc( 100% - 37px );
 .RE
 
 .PP
+.RS
+
+.nf
+width: calc( 20% min 512 );
+
+.fi
+.RE
+
+.PP
 It supports the following operations:
 
 .RS
 .IP \(bu 2
-\fB\fC+\fR   : Add
+\fB\fC+\fR     : Add
 .IP \(bu 2
-\fB\fC-\fR   : Subtract
+\fB\fC-\fR     : Subtract
 .IP \(bu 2
-\fB\fC/\fR   : Divide
+\fB\fC/\fR     : Divide
 .IP \(bu 2
-\fB\fC*\fR   : Multiply
+\fB\fC*\fR     : Multiply
 .IP \(bu 2
-\fB\fC%\fR   : Modulo
+\fB\fC%\fR     : Modulo
 .IP \(bu 2
-\fB\fCmin\fR : Minimum of lvalue or rvalue;
+\fB\fCmin\fR   : Minimum of lvalue or rvalue;
 .IP \(bu 2
-\fB\fCmax\fR : Maximum of lvalue or rvalue;
+\fB\fCmax\fR   : Maximum of lvalue or rvalue;
 .IP \(bu 2
 \fB\fCfloor\fR : Round down lvalue to the next multiple of rvalue
 .IP \(bu 2
-\fB\fCceil\fR : Round up lvalue to the next multiple of rvalue
+\fB\fCceil\fR  : Round up lvalue to the next multiple of rvalue
 .IP \(bu 2
 \fB\fCround\fR : Round lvalue to the next multiple of rvalue
 
