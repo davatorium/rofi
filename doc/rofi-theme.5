@@ -4,15 +4,38 @@
 .PP
 \fBrofi-theme\fP - Rofi theme format files
 
-.SH GETTING STARTED
+.SH GETTING STARTED WITH THEMING
 .PP
 The easiest way to get started theming rofi is by modifying your existing theme.
-Themes can be modified/tweaked by adding theming elements to the end of your
-config file. The default location of this file is \fB\fC~/.config/rofi/config.ras\fR,
+
+.PP
+Themes can be modified/tweaked by adding theming elements to the end of the
+.br
+config file. The default location of this file is \fB\fC~/.config/rofi/config.rasi\fR,
 if the file does not exists, you can create it.
 
 .PP
-For example if we want to change the \fB\fCType to filter\fR text in the entry box:
+A basic config:
+
+.PP
+.RS
+
+.nf
+configuration {
+  modes: [ combi ];
+  combi-modes: [ window, drun, run ];
+}
+
+@theme "gruvbox-light"
+ 
+/* Insert theme modifications after this */
+
+.fi
+.RE
+
+.PP
+For example if we want to change the \fB\fCType to filter\fR text in the entry box we
+append the following:
 
 .PP
 .RS
@@ -26,7 +49,7 @@ entry {
 .RE
 
 .PP
-In the above statement, \fB\fCentry\fR indicates the widget, \fB\fCplaceholder\fR is the
+In the above section, \fB\fCentry\fR indicates the widget, \fB\fCplaceholder\fR is the
 property we want to modify and we set it to the string \fB\fC"Type here"\fR\&.
 To find the commonly available widgets in rofi, see the 'Basic structure' section.
 
@@ -82,10 +105,11 @@ Resulting in the following packing:
 .RE
 
 .PP
-The \fB\fCelement\fR (container) widget hold each entry in the \fB\fClistview\fR, we add the two
-pre-defined children in the order we want to show them.
-We also specify the packing direction (\fB\fCorientation\fR) and the spacing between the children (\fB\fCspacing\fR).
-We specify the space between the two children in absolute pixels (\fB\fCpx\fR).
+The \fB\fCelement\fR (container) widget hold each entry in the \fB\fClistview\fR, we add the
+two pre-defined children in the order we want to show. We also specify the
+packing direction (\fB\fCorientation\fR) and the spacing between the children
+(\fB\fCspacing\fR). We specify the space between the two children in absolute pixels
+(\fB\fCpx\fR).
 
 .PP
 To increase the icon-size, we need to modify the \fB\fCelement-icon\fR widget.

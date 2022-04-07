@@ -4,14 +4,30 @@
 
 **rofi-theme** - Rofi theme format files
 
-## GETTING STARTED 
+## GETTING STARTED WITH THEMING 
 
 The easiest way to get started theming rofi is by modifying your existing theme.
-Themes can be modified/tweaked by adding theming elements to the end of your
-config file. The default location of this file is `~/.config/rofi/config.ras`,
+
+Themes can be modified/tweaked by adding theming elements to the end of the  
+config file. The default location of this file is `~/.config/rofi/config.rasi`,
 if the file does not exists, you can create it.
 
-For example if we want to change the `Type to filter` text in the entry box:
+A basic config:
+
+```css
+configuration {
+  modes: [ combi ];
+  combi-modes: [ window, drun, run ];
+}
+
+@theme "gruvbox-light"
+ 
+/* Insert theme modifications after this */
+```
+
+
+For example if we want to change the `Type to filter` text in the entry box we
+append the following:
 
 ```css
 entry {
@@ -19,7 +35,7 @@ entry {
 }
 ```
 
-In the above statement, `entry` indicates the widget, `placeholder` is the
+In the above section, `entry` indicates the widget, `placeholder` is the
 property we want to modify and we set it to the string `"Type here"`.
 To find the commonly available widgets in rofi, see the 'Basic structure' section.
 
@@ -56,10 +72,11 @@ Resulting in the following packing:
 └─────────────────────────────────────────────────────────────────────┘ 
 ```
 
-The `element` (container) widget hold each entry in the `listview`, we add the two
-pre-defined children in the order we want to show them.
-We also specify the packing direction (`orientation`) and the spacing between the children (`spacing`).
-We specify the space between the two children in absolute pixels (`px`).
+The `element` (container) widget hold each entry in the `listview`, we add the
+two pre-defined children in the order we want to show. We also specify the
+packing direction (`orientation`) and the spacing between the children
+(`spacing`). We specify the space between the two children in absolute pixels
+(`px`).
 
 To increase the icon-size, we need to modify the `element-icon` widget.
 
