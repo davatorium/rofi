@@ -103,6 +103,7 @@ For more up to date information, please see the manpages. The other sections and
  * Manpages:
      * [rofi](doc/rofi.1.markdown)
      * [rofi-theme](doc/rofi-theme.5.markdown)
+     * [rofi-debugging](doc/rofi-debugging.5.markdown)
      * [rofi-script](doc/rofi-script.5.markdown)
      * [rofi-theme-selector](doc/rofi-theme-selector.1.markdown)
      * [rofi-keys](doc/rofi-keys.5.markdown)
@@ -186,7 +187,6 @@ Default theme:
 
 #### Contents
 
-* [Debugging](https://github.com/davatorium/rofi/wiki/Debugging-Rofi)
 * [User scripts](https://github.com/davatorium/rofi/wiki/User-scripts)
 * [Examples](https://github.com/davatorium/rofi/wiki#examples)
 * [dmenu Specs](https://github.com/davatorium/rofi/wiki/dmenu_specs)
