@@ -923,44 +923,7 @@ been released.
 
 ## DEBUGGING
 
-To debug, it is smart to first try disabling your custom configuration:
-`-no-config`
-
-Disable parsing of configuration. This runs rofi in *stock* mode.
-
-If you run custom C plugins, you can disable them using:
-
-`-no-plugins`
-
-Disables the loading of plugins.
-
-To further debug the plugin, you can get a trace with (lots of) debug information.  This debug output can be enabled for
-multiple parts in rofi using the glib debug framework. Debug domains can be enabled by setting the G\_MESSAGES\_DEBUG
-environment variable. At the time of creation of this page, the following debug domains exist:
-
- * all: Show debug information from all domains.
- * X11Helper: The X11 Helper functions.
- * View: The main window view functions.
- * Widgets.Box: The Box widget.
- * Modes.DMenu: The dmenu mode.
- * Modes.Run: The run mode.
- * Modes.DRun: The desktop file run mode.
- * Modes.Window: The window mode.
- * Modes.Script: The script mode.
- * Modes.Combi: The script mode.
- * Modes.Ssh: The ssh mode.
- * Rofi: The main application.
- * Timings: Get timing output.
- * Theme: Theme engine debug output. (warning lots of output).
- * Widgets.Icon: The Icon widget.
- * Widgets.Box: The box widget.
- * Widgets.Container: The container widget.
- * Widgets.Window: The window widget.
- * Helpers.IconFetcher: Information about icon lookup.
-
-The output of this can provide useful information when writing an issue.
-
-More information (possibly outdated) see [this](https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi) wiki entry.
+For more information see **rofi-debugging(5)** manpage. 
 
 ## ISSUE TRACKER
 
@@ -971,7 +934,7 @@ first.
 
 ## SEE ALSO
 
-**rofi-sensible-terminal(1)**, **dmenu(1)**, **rofi-theme(5)**, **rofi-script(5)**, **rofi-keys(5)**,**rofi-theme-selector(1)**
+**rofi-sensible-terminal(1)**, **dmenu(1)**, **rofi-debugging(5)**, **rofi-theme(5)**, **rofi-script(5)**, **rofi-keys(5)**,**rofi-theme-selector(1)**
 
 ## AUTHOR
 
