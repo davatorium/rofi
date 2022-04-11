@@ -14,6 +14,25 @@ This disables the parsing of the configuration files. This runs rofi in *stock* 
 If you run custom C plugins, you can disable the plugins using: `-no-plugins`
 
 
+## Get the relevant information for an issue
+
+Please pastebin the output of the following commands:
+
+```bash
+rofi -help
+rofi -dump-config
+rofi -dump-theme
+```
+
+`rofi -help`  provides us with the configuration files parsed, the exact version, monitor layout
+and more useful information.
+
+The `rofi -dump-config` and `rofi -dump-theme` output gives us `rofi`
+interpretation of your configuration and theme.
+
+Please check the output for identifiable information and remove this.
+
+
 ## Timing traces
 
 To get a timing trace, enable the **Timings** debug domain.

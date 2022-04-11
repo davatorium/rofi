@@ -11,13 +11,36 @@ to help pin\-point the problem.
 First try disabling your custom configuration: \fB\fC\-no\-config\fR
 
 .PP
-Disable parsing of configuration. This runs rofi in \fIstock\fP mode.
+This disables the parsing of the configuration files. This runs rofi in \fIstock\fP mode.
 
 .PP
-If you run custom C plugins, you can disable them using: \fB\fC\-no\-plugins\fR
+If you run custom C plugins, you can disable the plugins using: \fB\fC\-no\-plugins\fR
+
+.SH Get the relevant information for an issue
+.PP
+Please pastebin the output of the following commands:
 
 .PP
-Disables the loading of plugins.
+.RS
+
+.nf
+rofi \-help
+rofi \-dump\-config
+rofi \-dump\-theme
+
+.fi
+.RE
+
+.PP
+\fB\fCrofi \-help\fR  provides us with the configuration files parsed, the exact version, monitor layout
+and more useful information.
+
+.PP
+The \fB\fCrofi \-dump\-config\fR and \fB\fCrofi \-dump\-theme\fR output gives us \fB\fCrofi\fR
+interpretation of your configuration and theme.
+
+.PP
+Please check the output for identifiable information and remove this.
 
 .SH Timing traces
 .PP
