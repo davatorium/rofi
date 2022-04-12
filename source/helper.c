@@ -1061,7 +1061,7 @@ char *helper_get_theme_path(const char *file, const char *ext) {
   const char *cpath = g_get_user_config_dir();
   if (cpath) {
     char *themep = g_build_filename(cpath, "rofi", "themes", filename, NULL);
-    g_debug("Opening theme, testing: %s\n", themep);
+    g_debug("Opening theme, testing: %s", themep);
     if (themep && g_file_test(themep, G_FILE_TEST_EXISTS)) {
       g_free(filename);
       return themep;
@@ -1071,7 +1071,7 @@ char *helper_get_theme_path(const char *file, const char *ext) {
   // Check config directory.
   if (cpath) {
     char *themep = g_build_filename(cpath, "rofi", filename, NULL);
-    g_debug("Opening theme, testing: %s\n", themep);
+    g_debug("Opening theme, testing: %s", themep);
     if (g_file_test(themep, G_FILE_TEST_EXISTS)) {
       g_free(filename);
       return themep;
@@ -1082,8 +1082,8 @@ char *helper_get_theme_path(const char *file, const char *ext) {
   if (datadir) {
     char *theme_path =
         g_build_filename(datadir, "rofi", "themes", filename, NULL);
-    g_debug("Opening theme, testing: %s\n", theme_path);
     if (theme_path) {
+      g_debug("Opening theme, testing: %s", theme_path);
       if (g_file_test(theme_path, G_FILE_TEST_EXISTS)) {
         g_free(filename);
         return theme_path;
@@ -1092,9 +1092,26 @@ char *helper_get_theme_path(const char *file, const char *ext) {
     }
   }
 
+  const gchar * const * system_data_dirs = g_get_system_data_dirs ();
+  if ( system_data_dirs ) {
+    for ( uint_fast32_t i = 0; system_data_dirs[i] != NULL; i++ ){
+      const char * const datadir = system_data_dirs[i];
+      g_debug("Opening theme directory: %s", datadir );
+      char *theme_path = g_build_filename(datadir, "rofi", "themes", filename, NULL);
+      if (theme_path) {
+        g_debug("Opening theme, testing: %s", theme_path);
+        if (g_file_test(theme_path, G_FILE_TEST_EXISTS)) {
+          g_free(filename);
+          return theme_path;
+        }
+        g_free(theme_path);
+      }
+    }
+  }
+
   char *theme_path = g_build_filename(THEME_DIR, filename, NULL);
   if (theme_path) {
-    g_debug("Opening theme, testing: %s\n", theme_path);
+    g_debug("Opening theme, testing: %s", theme_path);
     if (g_file_test(theme_path, G_FILE_TEST_EXISTS)) {
       g_free(filename);
       return theme_path;
