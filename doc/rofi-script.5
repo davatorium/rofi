@@ -1,7 +1,8 @@
-.TH ROFI\-SCRIPT 5 rofi\-script
+.nh
+.TH ROFI-SCRIPT 5 rofi-script
 .SH NAME
 .PP
-\fBrofi script mode\fP \- Rofi format for scriptable mode.
+\fBrofi script mode\fP - Rofi format for scriptable mode.
 
 .SH DESCRIPTION
 .PP
@@ -19,7 +20,7 @@ For example:
 .RS
 
 .nf
-rofi \-show fb \-modes "fb:file\_browser.sh"
+rofi -show fb -modes "fb:file_browser.sh"
 
 .fi
 .RE
@@ -61,7 +62,7 @@ This shows two entries, reload and quit. When the quit entry is selected, rofi c
 .PP
 Rofi sets the following environment variable when executing the script:
 
-.SS \fB\fCROFI\_RETV\fR
+.SS \fB\fCROFI_RETV\fR
 .PP
 An integer number with the current state:
 
@@ -73,15 +74,15 @@ An integer number with the current state:
 .IP \(bu 2
 \fB2\fP: Selected a custom entry.
 .IP \(bu 2
-\fB10\-28\fP: Custom keybinding 1\-19 ( need to be explicitly enabled by script ).
+\fB10-28\fP: Custom keybinding 1-19 ( need to be explicitly enabled by script ).
 
 .RE
 
-.SS \fB\fCROFI\_INFO\fR
+.SS \fB\fCROFI_INFO\fR
 .PP
 Environment get set when selected entry get set with the property value of the 'info' row option, if set.
 
-.SS \fB\fCROFI\_DATA\fR
+.SS \fB\fCROFI_DATA\fR
 .PP
 Environment get set when script sets \fB\fCdata\fR option in header.
 
@@ -97,7 +98,7 @@ For example to set the prompt:
 .RS
 
 .nf
-    echo \-en "\\0prompt\\x1fChange prompt\\n"
+    echo -en "\\0prompt\\x1fChange prompt\\n"
 
 .fi
 .RE
@@ -111,7 +112,7 @@ The following extra options exists:
 .IP \(bu 2
 \fBmessage\fP:     Update the message text.
 .IP \(bu 2
-\fBmarkup\-rows\fP: If 'true' renders markup in the row.
+\fBmarkup-rows\fP: If 'true' renders markup in the row.
 .IP \(bu 2
 \fBurgent\fP:      Mark rows as urgent. (for syntax see the urgent option in dmenu mode)
 .IP \(bu 2
@@ -119,11 +120,11 @@ The following extra options exists:
 .IP \(bu 2
 \fBdelim\fP:       Set the delimiter for for next rows. Default is '\\n' and this option should finish with this. Only call this on first call of script, it is remembered for consecutive calls.
 .IP \(bu 2
-\fBno\-custom\fP:   If set to 'true'; only accept listed entries, ignore custom input.
+\fBno-custom\fP:   If set to 'true'; only accept listed entries, ignore custom input.
 .IP \(bu 2
-\fBuse\-hot\-keys\fP: If set to true, it enabled the Custom keybindings for script. Warning this breaks the normal rofi flow.
+\fBuse-hot-keys\fP: If set to true, it enabled the Custom keybindings for script. Warning this breaks the normal rofi flow.
 .IP \(bu 2
-\fBdata\fP:         Passed data to the next execution of the script via \fBROFI\_DATA\fP\&.
+\fBdata\fP:         Passed data to the next execution of the script via \fBROFI_DATA\fP\&.
 
 .RE
 
@@ -139,7 +140,7 @@ For example:
 .RS
 
 .nf
-    echo \-en "aap\\0icon\\x1ffolder\\n"
+    echo -en "aap\\0icon\\x1ffolder\\n"
 
 .fi
 .RE
@@ -155,7 +156,7 @@ The following options are supported:
 .IP \(bu 2
 \fBnonselectable\fP: If true the row cannot activated.
 .IP \(bu 2
-\fBinfo\fP: Info that, on selection, gets placed in the \fB\fCROFI\_INFO\fR environment variable. This entry does not get searched.
+\fBinfo\fP: Info that, on selection, gets placed in the \fB\fCROFI_INFO\fR environment variable. This entry does not get searched.
 
 .RE
 
@@ -166,7 +167,7 @@ multiple entries can be passed using the \fB\fC\\x1f\fR separator.
 .RS
 
 .nf
-    echo \-en "aap\\0icon\\x1ffolder\\x1finfo\\x1ftest\\n"
+    echo -en "aap\\0icon\\x1ffolder\\x1finfo\\x1ftest\\n"
 
 .fi
 .RE
@@ -183,7 +184,7 @@ In bash the best way to do this is using \fB\fCcoproc\fR\&.
 .RS
 
 .nf
- coproc ( myApp  > /dev/null  2>\&1 )
+ coproc ( myApp  > /dev/null  2>&1 )
 
 .fi
 .RE
@@ -195,24 +196,24 @@ See issue #1201 on github.
 
 .SH SEE ALSO
 .PP
-rofi(1), rofi\-sensible\-terminal(1), dmenu(1), rofi\-theme(5), rofi\-theme\-selector(1)
+rofi(1), rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-theme-selector(1)
 
 .SH AUTHOR
 .PP
-Qball Cow 
-\[la]qball@gmpclient.org\[ra]
+Qball Cow qball@gmpclient.org
+\[la]mailto:qball@gmpclient.org\[ra]
 
 .PP
-Rasmus Steinke 
-\[la]rasi@xssn.at\[ra]
+Rasmus Steinke rasi@xssn.at
+\[la]mailto:rasi@xssn.at\[ra]
 
 .PP
-Morgane Glidic 
-\[la]sardemff7+rofi@sardemff7.net\[ra]
+Morgane Glidic sardemff7+rofi@sardemff7.net
+\[la]mailto:sardemff7+rofi@sardemff7.net\[ra]
 
 .PP
-Original code based on work by: Sean Pringle 
-\[la]sean.pringle@gmail.com\[ra]
+Original code based on work by: Sean Pringle sean.pringle@gmail.com
+\[la]mailto:sean.pringle@gmail.com\[ra]
 
 .PP
 For a full list of authors, check the AUTHORS file.

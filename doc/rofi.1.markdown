@@ -18,19 +18,33 @@ filter, tokenized search and more.
 
 ## USAGE
 
-**rofi**'s main functionality is to assist in your workflow, allowing you to quickly switch
-between windows, start applications or log into a remote machine via `ssh`.
-There are different *modes* for different types of actions.
-**rofi** is a standalone application and should not be integrated into scripts.
-For integration into scripts it has a special mode that functions as a
-(drop-in) replacement for **dmenu(1)**. See emulating dmenu below.
+**rofi**'s main functionality is to assist in your workflow, allowing you to
+quickly switch between windows, start applications or log into a remote machine
+via `ssh`. There are different *modes* for different types of actions. **rofi**
+is a standalone application and should not be integrated into scripts. For
+integration into scripts it has a special mode that functions as a (drop-in)
+replacement for **dmenu(1)**. See emulating dmenu below.
 
 ### Running rofi
 
 To launch **rofi** directly in a certain mode, specify a mode with `rofi -show <mode>`.
-To show the `run` dialog:
+To show the `drun` dialog:
 
-    rofi -show run
+```bash
+    rofi -show drun
+```
+
+A very useful setup in minimalistic window managers is to combine `drun`, `run`
+with `window` mode:
+
+```bash
+  rofi -show combi -modes combi -combi-modes "window,drun,run"
+```
+
+In this setup it first list all open applications, then all installed
+applications. So if you type firefox and hit return, it will switch to the
+running firefox, or launch it when it is not running.
+
 
 ### Emulating dmenu
 

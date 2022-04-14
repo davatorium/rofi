@@ -36,9 +36,9 @@ Settings config = {
 /** List of enabled modes. */
 /** -modes */
 #ifdef WINDOW_MODE
-    .modes = "window,run,ssh",
+    .modes = "window,drun,run,ssh",
 #else
-    .modes = "run,ssh",
+    .modes = "drun,run,ssh",
 #endif
     /** Font */
     .menu_font = "mono 12",
