@@ -1246,7 +1246,8 @@ static void rofi_view_refilter(RofiViewState *state) {
     g_source_remove(CacheState.refilter_timeout);
     CacheState.refilter_timeout = 0;
   }
-  if (CacheState.refilter_timeout_count < 25 && state->text &&
+  if (state->num_lines > config.refilter_timeout_limit &&
+      CacheState.refilter_timeout_count < 25 && state->text &&
       strlen(state->text->text) > 0) {
     CacheState.refilter_timeout =
         g_timeout_add(200, (GSourceFunc)rofi_view_refilter_real, state);

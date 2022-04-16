@@ -177,6 +177,10 @@ typedef struct {
   gboolean steal_focus;
   /** fallback icon */
   char *application_fallback_icon;
+
+  /** refilter timeout limit, when more then these entries,go into timeout mode.
+   */
+  unsigned int refilter_timeout_limit;
 } Settings;
 
 /** Default number of lines in the list view */
