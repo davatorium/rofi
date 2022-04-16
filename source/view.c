@@ -112,7 +112,8 @@ struct {
   /** timeout for reloading */
   guint idle_timeout;
   /** timeout for reloading */
-  guint update_timeout;
+  guint refilter_timeout;
+  guint refilter_timeout_count;
   /** timeout handling */
   guint user_timeout;
   /** debug counter for redraws */
@@ -132,7 +133,8 @@ struct {
     .flags = MENU_NORMAL,
     .views = G_QUEUE_INIT,
     .idle_timeout = 0,
-    .update_timeout = 0,
+    .refilter_timeout = 0,
+    .refilter_timeout_count = 0,
     .user_timeout = 0,
     .count = 0L,
     .repaint_source = 0,
@@ -272,6 +274,7 @@ static gboolean rofi_view_repaint(G_GNUC_UNUSED void *data) {
     // Repaint the view (if needed).
     // After a resize the edit_pixmap surface might not contain anything
     // anymore. If we already re-painted, this does nothing.
+
     rofi_view_update(current_active_menu, FALSE);
     g_debug("expose event");
     TICK_N("Expose");
@@ -451,6 +454,13 @@ static void rofi_view_reload_message_bar(RofiViewState *state) {
 
 static gboolean rofi_view_reload_idle(G_GNUC_UNUSED gpointer data) {
   if (current_active_menu) {
+    // For UI update on this.
+    if (current_active_menu->tb_total_rows) {
+      char *r =
+          g_strdup_printf("%u", mode_get_num_entries(current_active_menu->sw));
+      textbox_text(current_active_menu->tb_total_rows, r);
+      g_free(r);
+    }
     current_active_menu->reload = TRUE;
     current_active_menu->refilter = TRUE;
     rofi_view_queue_redraw();
@@ -1107,7 +1117,8 @@ static void _rofi_view_reload_row(RofiViewState *state) {
 }
 
 static gboolean rofi_view_refilter_real(RofiViewState *state) {
-  CacheState.update_timeout = 0;
+  CacheState.refilter_timeout = 0;
+  CacheState.refilter_timeout_count = 0;
   if (state->sw == NULL) {
     return G_SOURCE_REMOVE;
   }
@@ -1228,15 +1239,16 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
   return G_SOURCE_REMOVE;
 }
 static void rofi_view_refilter(RofiViewState *state) {
-
-  if (CacheState.update_timeout != 0) {
+  CacheState.refilter_timeout_count++;
+  if (CacheState.refilter_timeout != 0) {
     printf("timeout reset\n");
 
-    g_source_remove(CacheState.update_timeout);
-    CacheState.update_timeout = 0;
+    g_source_remove(CacheState.refilter_timeout);
+    CacheState.refilter_timeout = 0;
   }
-  if (state->text && strlen(state->text->text) > 0) {
-    CacheState.update_timeout =
+  if (CacheState.refilter_timeout_count < 25 && state->text &&
+      strlen(state->text->text) > 0) {
+    CacheState.refilter_timeout =
         g_timeout_add(200, (GSourceFunc)rofi_view_refilter_real, state);
   } else {
     rofi_view_refilter_real(state);
@@ -2158,9 +2170,9 @@ void rofi_view_cleanup() {
     g_source_remove(CacheState.idle_timeout);
     CacheState.idle_timeout = 0;
   }
-  if (CacheState.update_timeout > 0) {
-    g_source_remove(CacheState.update_timeout);
-    CacheState.update_timeout = 0;
+  if (CacheState.refilter_timeout > 0) {
+    g_source_remove(CacheState.refilter_timeout);
+    CacheState.refilter_timeout = 0;
   }
   if (CacheState.user_timeout > 0) {
     g_source_remove(CacheState.user_timeout);
