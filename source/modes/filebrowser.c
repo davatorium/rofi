@@ -36,11 +36,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "modes/filebrowser.h"
 #include "helper.h"
 #include "history.h"
 #include "mode-private.h"
 #include "mode.h"
+#include "modes/filebrowser.h"
 #include "rofi.h"
 #include "theme.h"
 
@@ -427,6 +427,9 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
   ModeMode retv = MODE_EXIT;
   FileBrowserModePrivateData *pd =
       (FileBrowserModePrivateData *)mode_get_private_data(sw);
+
+  gboolean special_command =
+      ((mretv & MENU_CUSTOM_ACTION) == MENU_CUSTOM_ACTION);
   if (mretv & MENU_NEXT) {
     retv = NEXT_DIALOG;
   } else if (mretv & MENU_PREVIOUS) {
@@ -446,6 +449,17 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
           get_file_browser(sw);
           return RESET_DIALOG;
         }
+      } else if ((pd->array[selected_line].type == RFILE) ||
+                 (pd->array[selected_line].type == DIRECTORY &&
+                  special_command)) {
+        char *d_esc = g_shell_quote(pd->array[selected_line].path);
+        char *cmd = g_strdup_printf("xdg-open %s", d_esc);
+        g_free(d_esc);
+        char *cdir = g_file_get_path(pd->current_dir);
+        helper_execute_command(cdir, cmd, FALSE, NULL);
+        g_free(cdir);
+        g_free(cmd);
+        return MODE_EXIT;
       } else if (pd->array[selected_line].type == DIRECTORY) {
         char *path = g_build_filename(cache_dir, FILEBROWSER_CACHE_FILE, NULL);
         g_file_set_contents(path, pd->array[selected_line].path, -1, NULL);
@@ -456,18 +470,6 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
         free_list(pd);
         get_file_browser(sw);
         return RESET_DIALOG;
-      } else if (pd->array[selected_line].type == RFILE) {
-        //        char *d = g_filename_from_utf8(pd->array[selected_line].path,
-        //        -1, NULL,
-        //                                       NULL, NULL);
-        char *d_esc = g_shell_quote(pd->array[selected_line].path);
-        char *cmd = g_strdup_printf("xdg-open %s", d_esc);
-        g_free(d_esc);
-        char *cdir = g_file_get_path(pd->current_dir);
-        helper_execute_command(cdir, cmd, FALSE, NULL);
-        g_free(cdir);
-        g_free(cmd);
-        return MODE_EXIT;
       }
     }
     retv = RELOAD_DIALOG;
