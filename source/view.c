@@ -111,6 +111,8 @@ struct {
   workarea mon;
   /** timeout for reloading */
   guint idle_timeout;
+  /** timeout for reloading */
+  guint update_timeout;
   /** timeout handling */
   guint user_timeout;
   /** debug counter for redraws */
@@ -130,6 +132,7 @@ struct {
     .flags = MENU_NORMAL,
     .views = G_QUEUE_INIT,
     .idle_timeout = 0,
+    .update_timeout = 0,
     .user_timeout = 0,
     .count = 0L,
     .repaint_source = 0,
@@ -1103,9 +1106,10 @@ static void _rofi_view_reload_row(RofiViewState *state) {
   rofi_view_reload_message_bar(state);
 }
 
-static void rofi_view_refilter(RofiViewState *state) {
+static gboolean rofi_view_refilter_real(RofiViewState *state) {
+  CacheState.update_timeout = 0;
   if (state->sw == NULL) {
-    return;
+    return G_SOURCE_REMOVE;
   }
   TICK_N("Filter start");
   if (state->reload) {
@@ -1220,6 +1224,23 @@ static void rofi_view_refilter(RofiViewState *state) {
   TICK_N("Filter resize window based on window ");
   state->refilter = FALSE;
   TICK_N("Filter done");
+  rofi_view_update(state, TRUE);
+  return G_SOURCE_REMOVE;
+}
+static void rofi_view_refilter(RofiViewState *state) {
+
+  if (CacheState.update_timeout != 0) {
+    printf("timeout reset\n");
+
+    g_source_remove(CacheState.update_timeout);
+    CacheState.update_timeout = 0;
+  }
+  if (state->text && strlen(state->text->text) > 0) {
+    CacheState.update_timeout =
+        g_timeout_add(200, (GSourceFunc)rofi_view_refilter_real, state);
+  } else {
+    rofi_view_refilter_real(state);
+  }
 }
 /**
  * @param state The Menu Handle
@@ -1633,6 +1654,7 @@ void rofi_view_maybe_update(RofiViewState *state) {
     rofi_view_refilter(state);
   }
   rofi_view_update(state, TRUE);
+  return;
 }
 
 /**
@@ -2135,6 +2157,10 @@ void rofi_view_cleanup() {
   if (CacheState.idle_timeout > 0) {
     g_source_remove(CacheState.idle_timeout);
     CacheState.idle_timeout = 0;
+  }
+  if (CacheState.update_timeout > 0) {
+    g_source_remove(CacheState.update_timeout);
+    CacheState.update_timeout = 0;
   }
   if (CacheState.user_timeout > 0) {
     g_source_remove(CacheState.user_timeout);
