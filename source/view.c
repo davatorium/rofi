@@ -1241,7 +1241,6 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
 static void rofi_view_refilter(RofiViewState *state) {
   CacheState.refilter_timeout_count++;
   if (CacheState.refilter_timeout != 0) {
-    printf("timeout reset\n");
 
     g_source_remove(CacheState.refilter_timeout);
     CacheState.refilter_timeout = 0;
