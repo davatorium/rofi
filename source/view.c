@@ -1254,6 +1254,15 @@ static void rofi_view_refilter(RofiViewState *state) {
     rofi_view_refilter_real(state);
   }
 }
+static void rofi_view_refilter_force(RofiViewState *state) {
+  if (CacheState.refilter_timeout != 0) {
+    g_source_remove(CacheState.refilter_timeout);
+    CacheState.refilter_timeout = 0;
+  }
+  if (state->refilter) {
+    rofi_view_refilter_real(state);
+  }
+}
 /**
  * @param state The Menu Handle
  *
@@ -1466,6 +1475,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ACCEPT_ALT: {
+    rofi_view_refilter_force(state);
     unsigned int selected = listview_get_selected(state->list_view);
     state->selected_line = UINT32_MAX;
     if (selected < state->filtered_lines) {
@@ -1480,18 +1490,21 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ACCEPT_CUSTOM: {
+    rofi_view_refilter_force(state);
     state->selected_line = UINT32_MAX;
     state->retv = MENU_CUSTOM_INPUT;
     state->quit = TRUE;
     break;
   }
   case ACCEPT_CUSTOM_ALT: {
+    rofi_view_refilter_force(state);
     state->selected_line = UINT32_MAX;
     state->retv = MENU_CUSTOM_INPUT | MENU_CUSTOM_ACTION;
     state->quit = TRUE;
     break;
   }
   case ACCEPT_ENTRY: {
+    rofi_view_refilter_force(state);
     // If a valid item is selected, return that..
     unsigned int selected = listview_get_selected(state->list_view);
     state->selected_line = UINT32_MAX;
