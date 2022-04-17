@@ -1146,6 +1146,9 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
      * speedup of the whole function.
      */
     unsigned int nt = MAX(1, state->num_lines / 500);
+    // Limit the number of jobs, it could cause stack overflow if we don´t
+    // limit.
+    nt = MIN(nt, config.threads * 4);
     thread_state_view states[nt];
     GCond cond;
     GMutex mutex;

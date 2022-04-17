@@ -175,12 +175,25 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
   pd->cmd_list_length++;
 }
 
+/**
+ * This method is called from a  GSource that responds to READ available event
+ * on the file descriptor of the IPC pipe with the reading thread.
+ * This method runs in the same thread as the UI and updates the dmenu mode
+ * internal administratinos with new items.
+ *
+ * The data is copied not via the pipe, but via the Async Queue.
+ * A maximal BLOCK_LINES_SIZE items are added with one block.
+ */
 static gboolean dmenu_async_read_proc(gint fd, GIOCondition condition,
                                       gpointer user_data) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)user_data;
   char command;
+  // Read the entry from the pipe that was used to signal this action.
   if (read(fd, &command, 1) == 1) {
     Block *block = NULL;
+    gboolean changed = FALSE;
+    // Empty out the AsyncQueue (that is thread safe) from all blocks pushed
+    // into it.
     while ((block = g_async_queue_try_pop(pd->async_queue)) != NULL) {
 
       if (pd->cmd_list_real_length < (pd->cmd_list_length + block->length)) {
@@ -192,6 +205,9 @@ static gboolean dmenu_async_read_proc(gint fd, GIOCondition condition,
              sizeof(DmenuScriptEntry) * block->length);
       pd->cmd_list_length += block->length;
       g_free(block);
+      changed = TRUE;
+    }
+    if (changed) {
       rofi_view_reload();
     }
   }
@@ -215,30 +231,31 @@ static gpointer read_input_thread(gpointer userdata) {
   ssize_t nread = 0;
   size_t len = 0;
   char *line = NULL;
+  // Create the message passing queue to the UI thread.
   pd->async_queue = g_async_queue_new();
   Block *block = NULL;
 
   int fd = pd->fd;
   while (1) {
+    // Wait for input from the input or from the main thread.
     fd_set rfds;
-    struct timeval tv;
-    int retval;
+    // We wait for 0.25 seconds, before we flush what we have.
+    struct timeval tv = {.tv_sec = 0, .tv_usec = 250000};
 
     FD_ZERO(&rfds);
     FD_SET(fd, &rfds);
     FD_SET(pd->pipefd[0], &rfds);
 
-    tv.tv_sec = 0;
-    tv.tv_usec = 250000;
-
-    retval = select(MAX(fd, pd->pipefd[0]) + 1, &rfds, NULL, NULL, &tv);
+    int retval = select(MAX(fd, pd->pipefd[0]) + 1, &rfds, NULL, NULL, &tv);
     if (retval == -1) {
       g_warning("select failed, giving up.");
       break;
     } else if (retval) {
+      // We get input from the UI thread, this is always an abort.
       if (FD_ISSET(pd->pipefd[0], &rfds)) {
         break;
       }
+      //  Input data is available.
       if (FD_ISSET(fd, &rfds)) {
         ssize_t readbytes = 0;
         if ((nread + 1024) > len) {
@@ -253,12 +270,10 @@ static gpointer read_input_thread(gpointer userdata) {
           while (i < nread) {
             if (line[i] == pd->separator) {
               line[i] = '\0';
-              /* FD_ISSET(0, &rfds) will be true. */
               read_add_block(pd, &block, line, i);
               memmove(&line[0], &line[i + 1], nread - (i + 1));
               nread -= (i + 1);
               i = 0;
-
               if (block && block->length == BLOCK_LINES_SIZE) {
                 g_async_queue_push(pd->async_queue, block);
                 block = NULL;
