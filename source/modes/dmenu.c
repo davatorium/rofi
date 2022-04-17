@@ -41,6 +41,7 @@
 #include <fcntl.h>
 #include <gio/gio.h>
 #include <gio/gunixinputstream.h>
+#include <glib-unix.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -97,43 +98,51 @@ typedef struct {
   gchar *column_separator;
   gboolean multi_select;
 
-  GMutex reading_mutex;
   GThread *reading_thread;
-  gboolean reading_cancel;
-  guint thread_idle_source;
   GAsyncQueue *async_queue;
   gboolean async;
   FILE *fd_file;
+  int pipefd[2];
+  int pipefd2[2];
+  guint wake_source;
 } DmenuModePrivateData;
 
+#define BLOCK_LINES_SIZE 2048
 typedef struct {
   unsigned int length;
-  DmenuScriptEntry values[2048];
+  DmenuScriptEntry values[BLOCK_LINES_SIZE];
   DmenuModePrivateData *pd;
 } Block;
 
-static void read_add_block(Block *block, char *data, gsize len) {
+static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
+                           gsize len) {
+
+  if ((*block) == NULL) {
+    (*block) = g_malloc0(sizeof(Block));
+    (*block)->pd = pd;
+    (*block)->length = 0;
+  }
   gsize data_len = len;
   // Init.
-  block->values[block->length].icon_fetch_uid = 0;
-  block->values[block->length].icon_name = NULL;
-  block->values[block->length].meta = NULL;
-  block->values[block->length].info = NULL;
-  block->values[block->length].nonselectable = FALSE;
+  (*block)->values[(*block)->length].icon_fetch_uid = 0;
+  (*block)->values[(*block)->length].icon_name = NULL;
+  (*block)->values[(*block)->length].meta = NULL;
+  (*block)->values[(*block)->length].info = NULL;
+  (*block)->values[(*block)->length].nonselectable = FALSE;
   char *end = data;
   while (end < data + len && *end != '\0') {
     end++;
   }
   if (end != data + len) {
     data_len = end - data;
-    dmenuscript_parse_entry_extras(NULL, &(block->values[block->length]),
+    dmenuscript_parse_entry_extras(NULL, &((*block)->values[(*block)->length]),
                                    end + 1, len - data_len);
   }
   char *utfstr = rofi_force_utf8(data, data_len);
-  block->values[block->length].entry = utfstr;
-  block->values[block->length + 1].entry = NULL;
+  (*block)->values[(*block)->length].entry = utfstr;
+  (*block)->values[(*block)->length + 1].entry = NULL;
 
-  block->length++;
+  (*block)->length++;
 }
 
 static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
@@ -165,31 +174,31 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
   pd->cmd_list_length++;
 }
 
-static gboolean dmenu_idle_read(gpointer mydata) {
-  DmenuModePrivateData *pd = (DmenuModePrivateData *)mydata;
+static gboolean dmenu_async_read_proc(gint fd, GIOCondition condition,
+                                      gpointer user_data) {
+  DmenuModePrivateData *pd = (DmenuModePrivateData *)user_data;
+  char command;
+  if (read(fd, &command, 1) == 1) {
+    Block *block = NULL;
+    while ((block = g_async_queue_try_pop(pd->async_queue)) != NULL) {
 
-  Block *block = NULL;
-  g_mutex_lock(&pd->reading_mutex);
-  pd->thread_idle_source = 0;
-  g_mutex_unlock(&pd->reading_mutex);
-  while ((block = g_async_queue_try_pop(pd->async_queue)) != NULL) {
-
-    if (pd->cmd_list_real_length < (pd->cmd_list_length + block->length)) {
-      pd->cmd_list_real_length = MAX(pd->cmd_list_real_length * 2, 4096);
-      pd->cmd_list = g_realloc(pd->cmd_list, sizeof(DmenuScriptEntry) *
-                                                 pd->cmd_list_real_length);
+      if (pd->cmd_list_real_length < (pd->cmd_list_length + block->length)) {
+        pd->cmd_list_real_length = MAX(pd->cmd_list_real_length * 2, 4096);
+        pd->cmd_list = g_realloc(pd->cmd_list, sizeof(DmenuScriptEntry) *
+                                                   pd->cmd_list_real_length);
+      }
+      memcpy(&(pd->cmd_list[pd->cmd_list_length]), &(block->values[0]),
+             sizeof(DmenuScriptEntry) * block->length);
+      pd->cmd_list_length += block->length;
+      g_free(block);
+      rofi_view_reload();
     }
-    memcpy(&(pd->cmd_list[pd->cmd_list_length]), &(block->values[0]),
-           sizeof(DmenuScriptEntry) * block->length);
-    pd->cmd_list_length += block->length;
-    g_free(block);
-    rofi_view_reload();
   }
-  return G_SOURCE_REMOVE;
+  return G_SOURCE_CONTINUE;
 }
 
 static void read_input_sync(DmenuModePrivateData *pd, unsigned int pre_read) {
-  ssize_t nread;
+  size_t nread = 0;
   size_t len = 0;
   char *line = NULL;
   while (pre_read > 0 &&
@@ -202,41 +211,92 @@ static void read_input_sync(DmenuModePrivateData *pd, unsigned int pre_read) {
 }
 static gpointer read_input_thread(gpointer userdata) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)userdata;
-  ssize_t nread;
+  ssize_t nread = 0;
   size_t len = 0;
   char *line = NULL;
   pd->async_queue = g_async_queue_new();
   FILE *file = pd->fd_file;
   Block *block = NULL;
-  while ((nread = getdelim(&line, &len, pd->separator, file)) != -1) {
-    if (block == NULL) {
-      block = g_malloc0(sizeof(Block));
-      block->pd = pd;
-      block->length = 0;
-    }
-    read_add_block(block, line, len);
-    g_mutex_lock(&pd->reading_mutex);
-    if (pd->reading_cancel) {
-      g_mutex_unlock(&pd->reading_mutex);
+
+  int fd = fileno(file);
+  while (1) {
+    fd_set rfds;
+    struct timeval tv;
+    int retval;
+
+    FD_ZERO(&rfds);
+    FD_SET(fd, &rfds);
+    FD_SET(pd->pipefd[0], &rfds);
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 250000;
+
+    retval = select(MAX(fd, pd->pipefd[0]) + 1, &rfds, NULL, NULL, &tv);
+    /* Don't rely on the value of tv now! */
+    if (retval == -1) {
+      g_warning("select failed, giving up.");
       break;
-    }
-    if (block->length == 2048) {
-      g_async_queue_push(pd->async_queue, block);
-      if (pd->thread_idle_source == 0) {
-        pd->thread_idle_source = g_idle_add(dmenu_idle_read, pd);
+    } else if (retval) {
+      if (FD_ISSET(pd->pipefd[0], &rfds)) {
+        break;
       }
-      block = NULL;
+      if (FD_ISSET(fd, &rfds)) {
+        ssize_t readbytes = 0;
+        if ((nread + 1024) > len) {
+          line = g_realloc(line, (nread + 1024));
+          len = nread + 1024;
+        }
+        readbytes = read(fd, &line[nread], 1023);
+        if (readbytes > 0) {
+          nread += readbytes;
+          line[nread] = '\0';
+          size_t i = 0;
+          while (i < nread) {
+            if (line[i] == pd->separator) {
+              line[i] = '\0';
+              /* FD_ISSET(0, &rfds) will be true. */
+              read_add_block(pd, &block, line, i);
+              memmove(&line[0], &line[i + 1], nread - (i + 1));
+              nread -= (i + 1);
+              i = 0;
+
+              if (block && block->length == BLOCK_LINES_SIZE) {
+                g_async_queue_push(pd->async_queue, block);
+                block = NULL;
+                write(pd->pipefd2[1], "r", 1);
+              }
+            } else {
+              i++;
+            }
+          }
+        } else {
+          // remainder in buffer, then quit.
+          if (nread > 0) {
+            line[nread] = '\0';
+            read_add_block(pd, &block, line, nread);
+          }
+          if (block) {
+            g_async_queue_push(pd->async_queue, block);
+            block = NULL;
+            write(pd->pipefd2[1], "r", 1);
+          }
+          break;
+        }
+      }
+    } else {
+      // Timeout, pushout remainder data.
+      if (nread > 0) {
+        line[nread] = '\0';
+        read_add_block(pd, &block, line, nread);
+        nread = 0;
+      }
+      if (block) {
+        g_async_queue_push(pd->async_queue, block);
+        block = NULL;
+        write(pd->pipefd2[1], "r", 1);
+      }
     }
-    g_mutex_unlock(&pd->reading_mutex);
   }
-  g_mutex_lock(&pd->reading_mutex);
-  if (block) {
-    g_async_queue_push(pd->async_queue, block);
-    if (pd->thread_idle_source == 0) {
-      pd->thread_idle_source = g_idle_add(dmenu_idle_read, pd);
-    }
-  }
-  g_mutex_unlock(&pd->reading_mutex);
   free(line);
   return NULL;
 }
@@ -328,17 +388,6 @@ static void dmenu_mode_free(Mode *sw) {
   }
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
   if (pd != NULL) {
-    if (pd->reading_thread) {
-
-      pd->reading_cancel = TRUE;
-      g_thread_join(pd->reading_thread);
-      pd->reading_thread = NULL;
-    }
-    if (pd->fd_file != NULL) {
-      if (pd->fd_file != stdin) {
-        fclose(pd->fd_file);
-      }
-    }
 
     for (size_t i = 0; i < pd->cmd_list_length; i++) {
       if (pd->cmd_list[i].entry) {
@@ -474,9 +523,14 @@ static int dmenu_mode_init(Mode *sw) {
   }
 
   if (pd->async) {
-    unsigned int pre_read = 25;
-    find_arg_uint("-async-pre-read", &pre_read);
-    read_input_sync(pd, pre_read);
+    if (pipe(pd->pipefd) == -1) {
+      g_error("Failed to create pipe");
+    }
+    if (pipe(pd->pipefd2) == -1) {
+      g_error("Failed to create pipe");
+    }
+    pd->wake_source =
+        g_unix_fd_add(pd->pipefd2[0], G_IO_IN, dmenu_async_read_proc, pd);
     pd->reading_thread =
         g_thread_new("dmenu-read", (GThreadFunc)read_input_thread, pd);
   } else {
@@ -594,10 +648,12 @@ static void dmenu_finalize(RofiViewState *state) {
       (DmenuModePrivateData *)rofi_view_get_mode(state)->private_data;
 
   if (pd->reading_thread) {
-
-    g_mutex_lock(&pd->reading_mutex);
-    pd->reading_cancel = TRUE;
-    g_mutex_unlock(&pd->reading_mutex);
+    // Stop listinig to new messages from reading thread.
+    if (pd->wake_source > 0) {
+      g_source_remove(pd->wake_source);
+    }
+    // signal stop.
+    write(pd->pipefd[1], "q", 1);
     g_thread_join(pd->reading_thread);
     pd->reading_thread = NULL;
     /* empty the queue, remove idle callbacks if still pending. */
@@ -606,13 +662,16 @@ static void dmenu_finalize(RofiViewState *state) {
     while ((block = g_async_queue_try_pop_unlocked(pd->async_queue)) != NULL) {
       g_free(block);
     }
-    if (pd->thread_idle_source > 0) {
-      g_source_remove(pd->thread_idle_source);
-      pd->thread_idle_source = 0;
-    }
     g_async_queue_unlock(pd->async_queue);
     g_async_queue_unref(pd->async_queue);
     pd->async_queue = NULL;
+    close(pd->pipefd[0]);
+    close(pd->pipefd[1]);
+  }
+  if (pd->fd_file != NULL) {
+    if (pd->fd_file != stdin) {
+      fclose(pd->fd_file);
+    }
   }
   unsigned int cmd_list_length = pd->cmd_list_length;
   DmenuScriptEntry *cmd_list = pd->cmd_list;
@@ -848,9 +907,6 @@ void print_dmenu_options(void) {
   print_help_msg("-sync", "",
                  "Force dmenu to first read all input data, then show dialog.",
                  NULL, is_term);
-  print_help_msg("-async-pre-read", "[number]",
-                 "Read several entries blocking before switching to async mode",
-                 "25", is_term);
   print_help_msg("-w", "windowid", "Position over window with X11 windowid.",
                  NULL, is_term);
   print_help_msg("-keep-right", "", "Set ellipsize to end.", NULL, is_term);
