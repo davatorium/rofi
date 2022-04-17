@@ -158,13 +158,6 @@ Force **rofi** mode to first read all data from stdin before showing the selecti
 Note: the default asynchronous mode will also be automatically disabled if used with conflicting options,
 such as `-dump`, `-only-match` or `-auto-select`.
 
-`-async-pre-read` *number*
-
-Reads the first *number* entries blocking, then switches to async mode.
-This makes it feel more 'snappy'.
-
-*default*: 25
-
 `-window-title` *title*
 
 Set name used for the window title. Will be shown as Rofi - *title*

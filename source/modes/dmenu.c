@@ -102,6 +102,7 @@ typedef struct {
   GAsyncQueue *async_queue;
   gboolean async;
   FILE *fd_file;
+  int fd;
   int pipefd[2];
   int pipefd2[2];
   guint wake_source;
@@ -215,10 +216,9 @@ static gpointer read_input_thread(gpointer userdata) {
   size_t len = 0;
   char *line = NULL;
   pd->async_queue = g_async_queue_new();
-  FILE *file = pd->fd_file;
   Block *block = NULL;
 
-  int fd = fileno(file);
+  int fd = pd->fd;
   while (1) {
     fd_set rfds;
     struct timeval tv;
@@ -232,7 +232,6 @@ static gpointer read_input_thread(gpointer userdata) {
     tv.tv_usec = 250000;
 
     retval = select(MAX(fd, pd->pipefd[0]) + 1, &rfds, NULL, NULL, &tv);
-    /* Don't rely on the value of tv now! */
     if (retval == -1) {
       g_warning("select failed, giving up.");
       break;
@@ -505,24 +504,23 @@ static int dmenu_mode_init(Mode *sw) {
   if (find_arg("-i") >= 0) {
     config.case_sensitive = FALSE;
   }
-  pd->fd_file = stdin;
-  str = NULL;
-  if (find_arg_str("-input", &str)) {
-    char *estr = rofi_expand_path(str);
-    pd->fd_file = fopen(str, "r");
-    if (pd->fd_file == NULL) {
-      char *msg = g_markup_printf_escaped(
-          "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr,
-          g_strerror(errno));
-      rofi_view_error_dialog(msg, TRUE);
-      g_free(msg);
-      g_free(estr);
-      return TRUE;
-    }
-    g_free(estr);
-  }
-
   if (pd->async) {
+    pd->fd = STDIN_FILENO;
+    if (find_arg_str("-input", &str)) {
+      char *estr = rofi_expand_path(str);
+      pd->fd = open(str, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+      if (pd->fd == -1) {
+        char *msg = g_markup_printf_escaped(
+            "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr,
+            g_strerror(errno));
+        rofi_view_error_dialog(msg, TRUE);
+        g_free(msg);
+        g_free(estr);
+        return TRUE;
+      }
+      g_free(estr);
+    }
+
     if (pipe(pd->pipefd) == -1) {
       g_error("Failed to create pipe");
     }
@@ -534,6 +532,23 @@ static int dmenu_mode_init(Mode *sw) {
     pd->reading_thread =
         g_thread_new("dmenu-read", (GThreadFunc)read_input_thread, pd);
   } else {
+    pd->fd_file = stdin;
+    str = NULL;
+    if (find_arg_str("-input", &str)) {
+      char *estr = rofi_expand_path(str);
+      pd->fd_file = fopen(str, "r");
+      if (pd->fd_file == NULL) {
+        char *msg = g_markup_printf_escaped(
+            "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr,
+            g_strerror(errno));
+        rofi_view_error_dialog(msg, TRUE);
+        g_free(msg);
+        g_free(estr);
+        return TRUE;
+      }
+      g_free(estr);
+    }
+
     read_input_sync(pd, -1);
   }
   gchar *columns = NULL;
