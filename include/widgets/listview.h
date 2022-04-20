@@ -267,6 +267,13 @@ void listview_toggle_ellipsizing(listview *lv);
  */
 
 void listview_set_ellipsize_start(listview *lv);
+
+/**
+ * @param lv Handler to the listview object.
+ * @param filtered boolean indicating if list is filtered.
+ *
+ */
+void listview_set_filtered ( listview *lv, gboolean filtered );
 /** @} */
 
 #endif // ROFI_LISTVIEW_H

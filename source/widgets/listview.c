@@ -98,6 +98,9 @@ struct _listview {
   unsigned int dynamic;
   unsigned int eh;
   unsigned int reverse;
+  gboolean require_input;
+  gboolean filtered;
+
   gboolean cycle;
   gboolean multi_select;
 
@@ -559,6 +562,9 @@ void listview_set_num_elements(listview *lv, unsigned int rows) {
   }
   TICK_N("listview_set_num_elements");
   lv->req_elements = rows;
+  if ( lv->req_elements && !lv->filtered ) {
+    lv->req_elements = 0;
+  }
   listview_set_selected(lv, lv->selected);
   TICK_N("Set selected");
   listview_recompute_elements(lv);
@@ -748,6 +754,8 @@ listview *listview_create(widget *parent, const char *name,
   lv->fixed_columns =
       rofi_theme_get_boolean(WIDGET(lv), "fixed-columns", FALSE);
 
+  lv->require_input =
+      rofi_theme_get_boolean(WIDGET(lv), "require-input", FALSE);
   lv->type = rofi_theme_get_orientation(WIDGET(lv), "layout",
                                         ROFI_ORIENTATION_VERTICAL);
   if (lv->type == LISTVIEW) {
@@ -1079,5 +1087,12 @@ void listview_toggle_ellipsizing(listview *lv) {
     for (unsigned int i = 0; i < lv->cur_elements; i++) {
       textbox_set_ellipsize(lv->boxes[i].textbox, mode);
     }
+  }
+}
+
+void listview_set_filtered ( listview *lv, gboolean filtered )
+{
+  if ( lv ) {
+    lv->filtered = filtered;
   }
 }
