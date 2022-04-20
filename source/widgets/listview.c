@@ -562,7 +562,7 @@ void listview_set_num_elements(listview *lv, unsigned int rows) {
   }
   TICK_N("listview_set_num_elements");
   lv->req_elements = rows;
-  if ( lv->req_elements && !lv->filtered ) {
+  if ( lv->require_input && !lv->filtered ) {
     lv->req_elements = 0;
   }
   listview_set_selected(lv, lv->selected);
