@@ -274,6 +274,12 @@ Make **rofi** react like a normal application window. Useful for scripts like Cl
 
 Make rofi steal focus on launch and restore close to window that held it when launched.
 
+`-refilter-timeout-limit`
+
+The limit of elements that is used to switch from instant to delayed filter mode.
+
+  Default: 8192
+
 ### Matching
 
 `-matching` *method*
