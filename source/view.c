@@ -111,6 +111,9 @@ struct {
   workarea mon;
   /** timeout for reloading */
   guint idle_timeout;
+  /** timeout for reloading */
+  guint refilter_timeout;
+  guint refilter_timeout_count;
   /** timeout handling */
   guint user_timeout;
   /** debug counter for redraws */
@@ -130,6 +133,8 @@ struct {
     .flags = MENU_NORMAL,
     .views = G_QUEUE_INIT,
     .idle_timeout = 0,
+    .refilter_timeout = 0,
+    .refilter_timeout_count = 0,
     .user_timeout = 0,
     .count = 0L,
     .repaint_source = 0,
@@ -269,6 +274,7 @@ static gboolean rofi_view_repaint(G_GNUC_UNUSED void *data) {
     // Repaint the view (if needed).
     // After a resize the edit_pixmap surface might not contain anything
     // anymore. If we already re-painted, this does nothing.
+
     rofi_view_update(current_active_menu, FALSE);
     g_debug("expose event");
     TICK_N("Expose");
@@ -448,6 +454,13 @@ static void rofi_view_reload_message_bar(RofiViewState *state) {
 
 static gboolean rofi_view_reload_idle(G_GNUC_UNUSED gpointer data) {
   if (current_active_menu) {
+    // For UI update on this.
+    if (current_active_menu->tb_total_rows) {
+      char *r =
+          g_strdup_printf("%u", mode_get_num_entries(current_active_menu->sw));
+      textbox_text(current_active_menu->tb_total_rows, r);
+      g_free(r);
+    }
     current_active_menu->reload = TRUE;
     current_active_menu->refilter = TRUE;
     rofi_view_queue_redraw();
@@ -1103,9 +1116,11 @@ static void _rofi_view_reload_row(RofiViewState *state) {
   rofi_view_reload_message_bar(state);
 }
 
-static void rofi_view_refilter(RofiViewState *state) {
+static gboolean rofi_view_refilter_real(RofiViewState *state) {
+  CacheState.refilter_timeout = 0;
+  CacheState.refilter_timeout_count = 0;
   if (state->sw == NULL) {
-    return;
+    return G_SOURCE_REMOVE;
   }
   TICK_N("Filter start");
   if (state->reload) {
@@ -1131,6 +1146,9 @@ static void rofi_view_refilter(RofiViewState *state) {
      * speedup of the whole function.
      */
     unsigned int nt = MAX(1, state->num_lines / 500);
+    // Limit the number of jobs, it could cause stack overflow if we don´t
+    // limit.
+    nt = MIN(nt, config.threads * 4);
     thread_state_view states[nt];
     GCond cond;
     GMutex mutex;
@@ -1220,6 +1238,33 @@ static void rofi_view_refilter(RofiViewState *state) {
   TICK_N("Filter resize window based on window ");
   state->refilter = FALSE;
   TICK_N("Filter done");
+  rofi_view_update(state, TRUE);
+  return G_SOURCE_REMOVE;
+}
+static void rofi_view_refilter(RofiViewState *state) {
+  CacheState.refilter_timeout_count++;
+  if (CacheState.refilter_timeout != 0) {
+
+    g_source_remove(CacheState.refilter_timeout);
+    CacheState.refilter_timeout = 0;
+  }
+  if (state->num_lines > config.refilter_timeout_limit &&
+      CacheState.refilter_timeout_count < 25 && state->text &&
+      strlen(state->text->text) > 0) {
+    CacheState.refilter_timeout =
+        g_timeout_add(200, (GSourceFunc)rofi_view_refilter_real, state);
+  } else {
+    rofi_view_refilter_real(state);
+  }
+}
+static void rofi_view_refilter_force(RofiViewState *state) {
+  if (CacheState.refilter_timeout != 0) {
+    g_source_remove(CacheState.refilter_timeout);
+    CacheState.refilter_timeout = 0;
+  }
+  if (state->refilter) {
+    rofi_view_refilter_real(state);
+  }
 }
 /**
  * @param state The Menu Handle
@@ -1433,6 +1478,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ACCEPT_ALT: {
+    rofi_view_refilter_force(state);
     unsigned int selected = listview_get_selected(state->list_view);
     state->selected_line = UINT32_MAX;
     if (selected < state->filtered_lines) {
@@ -1447,18 +1493,21 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ACCEPT_CUSTOM: {
+    rofi_view_refilter_force(state);
     state->selected_line = UINT32_MAX;
     state->retv = MENU_CUSTOM_INPUT;
     state->quit = TRUE;
     break;
   }
   case ACCEPT_CUSTOM_ALT: {
+    rofi_view_refilter_force(state);
     state->selected_line = UINT32_MAX;
     state->retv = MENU_CUSTOM_INPUT | MENU_CUSTOM_ACTION;
     state->quit = TRUE;
     break;
   }
   case ACCEPT_ENTRY: {
+    rofi_view_refilter_force(state);
     // If a valid item is selected, return that..
     unsigned int selected = listview_get_selected(state->list_view);
     state->selected_line = UINT32_MAX;
@@ -1633,6 +1682,7 @@ void rofi_view_maybe_update(RofiViewState *state) {
     rofi_view_refilter(state);
   }
   rofi_view_update(state, TRUE);
+  return;
 }
 
 /**
@@ -2135,6 +2185,10 @@ void rofi_view_cleanup() {
   if (CacheState.idle_timeout > 0) {
     g_source_remove(CacheState.idle_timeout);
     CacheState.idle_timeout = 0;
+  }
+  if (CacheState.refilter_timeout > 0) {
+    g_source_remove(CacheState.refilter_timeout);
+    CacheState.refilter_timeout = 0;
   }
   if (CacheState.user_timeout > 0) {
     g_source_remove(CacheState.user_timeout);

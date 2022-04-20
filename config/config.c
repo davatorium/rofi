@@ -153,4 +153,6 @@ Settings config = {
     /** steal focus */
     .steal_focus = FALSE,
     /** fallback icon */
-    .application_fallback_icon = NULL};
+    .application_fallback_icon = NULL,
+    /** refilter limit */
+    .refilter_timeout_limit = 8192};

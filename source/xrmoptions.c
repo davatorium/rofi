@@ -424,6 +424,13 @@ static XrmOption xrmOptions[] = {
      NULL,
      "Fallback icon to use when the application icon is not found in run/drun.",
      CONFIG_DEFAULT},
+    {xrm_Number,
+     "refilter-timeout-limit",
+     {.num = &(config.refilter_timeout_limit)},
+     NULL,
+     "When there are more entries then this limit, only refilter after a "
+     "timeout.",
+     CONFIG_DEFAULT},
 };
 
 /** Dynamic array of extra options */

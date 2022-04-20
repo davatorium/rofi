@@ -41,6 +41,7 @@
 #include <fcntl.h>
 #include <gio/gio.h>
 #include <gio/gunixinputstream.h>
+#include <glib-unix.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -97,16 +98,52 @@ typedef struct {
   gchar *column_separator;
   gboolean multi_select;
 
-  GCancellable *cancel;
-  gulong cancel_source;
-  GInputStream *input_stream;
-  GDataInputStream *data_input_stream;
+  GThread *reading_thread;
+  GAsyncQueue *async_queue;
+  gboolean async;
+  FILE *fd_file;
+  int fd;
+  int pipefd[2];
+  int pipefd2[2];
+  guint wake_source;
 } DmenuModePrivateData;
 
-static void async_close_callback(GObject *source_object, GAsyncResult *res,
-                                 G_GNUC_UNUSED gpointer user_data) {
-  g_input_stream_close_finish(G_INPUT_STREAM(source_object), res, NULL);
-  g_debug("Closing data stream.");
+#define BLOCK_LINES_SIZE 2048
+typedef struct {
+  unsigned int length;
+  DmenuScriptEntry values[BLOCK_LINES_SIZE];
+  DmenuModePrivateData *pd;
+} Block;
+
+static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
+                           gsize len) {
+
+  if ((*block) == NULL) {
+    (*block) = g_malloc0(sizeof(Block));
+    (*block)->pd = pd;
+    (*block)->length = 0;
+  }
+  gsize data_len = len;
+  // Init.
+  (*block)->values[(*block)->length].icon_fetch_uid = 0;
+  (*block)->values[(*block)->length].icon_name = NULL;
+  (*block)->values[(*block)->length].meta = NULL;
+  (*block)->values[(*block)->length].info = NULL;
+  (*block)->values[(*block)->length].nonselectable = FALSE;
+  char *end = data;
+  while (end < data + len && *end != '\0') {
+    end++;
+  }
+  if (end != data + len) {
+    data_len = end - data;
+    dmenuscript_parse_entry_extras(NULL, &((*block)->values[(*block)->length]),
+                                   end + 1, len - data_len);
+  }
+  char *utfstr = rofi_force_utf8(data, data_len);
+  (*block)->values[(*block)->length].entry = utfstr;
+  (*block)->values[(*block)->length + 1].entry = NULL;
+
+  (*block)->length++;
 }
 
 static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
@@ -137,94 +174,152 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
 
   pd->cmd_list_length++;
 }
-static void async_read_callback(GObject *source_object, GAsyncResult *res,
-                                gpointer user_data) {
-  GDataInputStream *stream = (GDataInputStream *)source_object;
+
+/**
+ * This method is called from a  GSource that responds to READ available event
+ * on the file descriptor of the IPC pipe with the reading thread.
+ * This method runs in the same thread as the UI and updates the dmenu mode
+ * internal administratinos with new items.
+ *
+ * The data is copied not via the pipe, but via the Async Queue.
+ * A maximal BLOCK_LINES_SIZE items are added with one block.
+ */
+static gboolean dmenu_async_read_proc(gint fd, GIOCondition condition,
+                                      gpointer user_data) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)user_data;
-  gsize len;
-  char *data = g_data_input_stream_read_upto_finish(stream, res, &len, NULL);
-  if (data != NULL) {
-    // Absorb separator, already in buffer so should not block.
-    g_data_input_stream_read_byte(stream, NULL, NULL);
-    read_add(pd, data, len);
-    g_free(data);
-    rofi_view_reload();
+  char command;
+  // Read the entry from the pipe that was used to signal this action.
+  if (read(fd, &command, 1) == 1) {
+    Block *block = NULL;
+    gboolean changed = FALSE;
+    // Empty out the AsyncQueue (that is thread safe) from all blocks pushed
+    // into it.
+    while ((block = g_async_queue_try_pop(pd->async_queue)) != NULL) {
 
-    g_data_input_stream_read_upto_async(pd->data_input_stream, &(pd->separator),
-                                        1, G_PRIORITY_LOW, pd->cancel,
-                                        async_read_callback, pd);
-    return;
-  } else {
-    GError *error = NULL;
-    // Absorb separator, already in buffer so should not block.
-    // If error == NULL end of stream..
-    g_data_input_stream_read_byte(stream, NULL, &error);
-    if (error == NULL) {
-      // Add empty line.
-      read_add(pd, "", 0);
+      if (pd->cmd_list_real_length < (pd->cmd_list_length + block->length)) {
+        pd->cmd_list_real_length = MAX(pd->cmd_list_real_length * 2, 4096);
+        pd->cmd_list = g_realloc(pd->cmd_list, sizeof(DmenuScriptEntry) *
+                                                   pd->cmd_list_real_length);
+      }
+      memcpy(&(pd->cmd_list[pd->cmd_list_length]), &(block->values[0]),
+             sizeof(DmenuScriptEntry) * block->length);
+      pd->cmd_list_length += block->length;
+      g_free(block);
+      changed = TRUE;
+    }
+    if (changed) {
       rofi_view_reload();
-
-      g_data_input_stream_read_upto_async(pd->data_input_stream,
-                                          &(pd->separator), 1, G_PRIORITY_LOW,
-                                          pd->cancel, async_read_callback, pd);
-      return;
     }
-    g_error_free(error);
   }
-  if (!g_cancellable_is_cancelled(pd->cancel)) {
-    // Hack, don't use get active.
-    g_debug("Clearing overlay");
-    rofi_view_set_overlay(rofi_view_get_active(), NULL);
-    g_input_stream_close_async(G_INPUT_STREAM(stream), G_PRIORITY_LOW,
-                               pd->cancel, async_close_callback, pd);
-  }
+  return G_SOURCE_CONTINUE;
 }
 
-static void async_read_cancel(G_GNUC_UNUSED GCancellable *cancel,
-                              G_GNUC_UNUSED gpointer data) {
-  g_debug("Cancelled the async read.");
-}
-
-static int get_dmenu_async(DmenuModePrivateData *pd, int sync_pre_read) {
-  while (sync_pre_read--) {
-    gsize len = 0;
-    char *data = g_data_input_stream_read_upto(
-        pd->data_input_stream, &(pd->separator), 1, &len, NULL, NULL);
-    if (data == NULL) {
-      g_input_stream_close_async(G_INPUT_STREAM(pd->input_stream),
-                                 G_PRIORITY_LOW, pd->cancel,
-                                 async_close_callback, pd);
-      return FALSE;
-    }
-    g_data_input_stream_read_byte(pd->data_input_stream, NULL, NULL);
-    read_add(pd, data, len);
-    g_free(data);
+static void read_input_sync(DmenuModePrivateData *pd, unsigned int pre_read) {
+  size_t nread = 0;
+  size_t len = 0;
+  char *line = NULL;
+  while (pre_read > 0 &&
+         (nread = getdelim(&line, &len, pd->separator, pd->fd_file)) != -1) {
+    read_add(pd, line, len);
+    pre_read--;
   }
-  g_data_input_stream_read_upto_async(pd->data_input_stream, &(pd->separator),
-                                      1, G_PRIORITY_LOW, pd->cancel,
-                                      async_read_callback, pd);
-  return TRUE;
+  free(line);
+  return;
 }
-static void get_dmenu_sync(DmenuModePrivateData *pd) {
-  while (TRUE) {
-    gsize len = 0;
-    char *data = g_data_input_stream_read_upto(
-        pd->data_input_stream, &(pd->separator), 1, &len, NULL, NULL);
-    if (data == NULL) {
+static gpointer read_input_thread(gpointer userdata) {
+  DmenuModePrivateData *pd = (DmenuModePrivateData *)userdata;
+  ssize_t nread = 0;
+  size_t len = 0;
+  char *line = NULL;
+  // Create the message passing queue to the UI thread.
+  pd->async_queue = g_async_queue_new();
+  Block *block = NULL;
+
+  int fd = pd->fd;
+  while (1) {
+    // Wait for input from the input or from the main thread.
+    fd_set rfds;
+    // We wait for 0.25 seconds, before we flush what we have.
+    struct timeval tv = {.tv_sec = 0, .tv_usec = 250000};
+
+    FD_ZERO(&rfds);
+    FD_SET(fd, &rfds);
+    FD_SET(pd->pipefd[0], &rfds);
+
+    int retval = select(MAX(fd, pd->pipefd[0]) + 1, &rfds, NULL, NULL, &tv);
+    if (retval == -1) {
+      g_warning("select failed, giving up.");
       break;
+    } else if (retval) {
+      // We get input from the UI thread, this is always an abort.
+      if (FD_ISSET(pd->pipefd[0], &rfds)) {
+        break;
+      }
+      //  Input data is available.
+      if (FD_ISSET(fd, &rfds)) {
+        ssize_t readbytes = 0;
+        if ((nread + 1024) > len) {
+          line = g_realloc(line, (nread + 1024));
+          len = nread + 1024;
+        }
+        readbytes = read(fd, &line[nread], 1023);
+        if (readbytes > 0) {
+          nread += readbytes;
+          line[nread] = '\0';
+          size_t i = 0;
+          while (i < nread) {
+            if (line[i] == pd->separator) {
+              line[i] = '\0';
+              read_add_block(pd, &block, line, i);
+              memmove(&line[0], &line[i + 1], nread - (i + 1));
+              nread -= (i + 1);
+              i = 0;
+              if (block && block->length == BLOCK_LINES_SIZE) {
+                g_async_queue_push(pd->async_queue, block);
+                block = NULL;
+                write(pd->pipefd2[1], "r", 1);
+              }
+            } else {
+              i++;
+            }
+          }
+        } else {
+          // remainder in buffer, then quit.
+          if (nread > 0) {
+            line[nread] = '\0';
+            read_add_block(pd, &block, line, nread);
+          }
+          if (block) {
+            g_async_queue_push(pd->async_queue, block);
+            block = NULL;
+            write(pd->pipefd2[1], "r", 1);
+          }
+          break;
+        }
+      }
+    } else {
+      // Timeout, pushout remainder data.
+      if (nread > 0) {
+        line[nread] = '\0';
+        read_add_block(pd, &block, line, nread);
+        nread = 0;
+      }
+      if (block) {
+        g_async_queue_push(pd->async_queue, block);
+        block = NULL;
+        write(pd->pipefd2[1], "r", 1);
+      }
     }
-    g_data_input_stream_read_byte(pd->data_input_stream, NULL, NULL);
-    read_add(pd, data, len);
-    g_free(data);
   }
-  g_input_stream_close_async(G_INPUT_STREAM(pd->input_stream), G_PRIORITY_LOW,
-                             pd->cancel, async_close_callback, pd);
+  free(line);
+  return NULL;
 }
 
 static unsigned int dmenu_mode_get_num_entries(const Mode *sw) {
   const DmenuModePrivateData *rmpd =
       (const DmenuModePrivateData *)mode_get_private_data(sw);
-  return rmpd->cmd_list_length;
+  unsigned int retv = rmpd->cmd_list_length;
+  return retv;
 }
 
 static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
@@ -296,7 +391,9 @@ static char *get_display_data(const Mode *data, unsigned int index, int *state,
   if (pd->do_markup) {
     *state |= MARKUP;
   }
-  return get_entry ? dmenu_format_output_string(pd, retv[index].entry) : NULL;
+  char *my_retv =
+      (get_entry ? dmenu_format_output_string(pd, retv[index].entry) : NULL);
+  return my_retv;
 }
 
 static void dmenu_mode_free(Mode *sw) {
@@ -305,20 +402,6 @@ static void dmenu_mode_free(Mode *sw) {
   }
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
   if (pd != NULL) {
-    if (pd->cancel) {
-      // If open, cancel reads.
-      if (pd->input_stream && !g_input_stream_is_closed(pd->input_stream)) {
-        g_cancellable_cancel(pd->cancel);
-      }
-      // This blocks until cancel is done.
-      g_cancellable_disconnect(pd->cancel, pd->cancel_source);
-      if (pd->input_stream) {
-        // Should close the stream if not yet done.
-        g_object_unref(pd->data_input_stream);
-        g_object_unref(pd->input_stream);
-      }
-      g_object_unref(pd->cancel);
-    }
 
     for (size_t i = 0; i < pd->cmd_list_length; i++) {
       if (pd->cmd_list[i].entry) {
@@ -362,6 +445,16 @@ static int dmenu_mode_init(Mode *sw) {
   }
   mode_set_private_data(sw, g_malloc0(sizeof(DmenuModePrivateData)));
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
+
+  pd->async = TRUE;
+
+  // For now these only work in sync mode.
+  if (find_arg("-sync") >= 0 || find_arg("-dump") >= 0 ||
+      find_arg("-select") >= 0 || find_arg("-no-custom") >= 0 ||
+      find_arg("-only-match") >= 0 || config.auto_select ||
+      find_arg("-selected-row") >= 0) {
+    pd->async = FALSE;
+  }
 
   pd->separator = '\n';
   pd->selected_line = UINT32_MAX;
@@ -426,30 +519,52 @@ static int dmenu_mode_init(Mode *sw) {
   if (find_arg("-i") >= 0) {
     config.case_sensitive = FALSE;
   }
-  int fd = STDIN_FILENO;
-  str = NULL;
-  if (find_arg_str("-input", &str)) {
-    char *estr = rofi_expand_path(str);
-    fd = open(str, O_RDONLY);
-    if (fd < 0) {
-      char *msg = g_markup_printf_escaped(
-          "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr,
-          g_strerror(errno));
-      rofi_view_error_dialog(msg, TRUE);
-      g_free(msg);
+  if (pd->async) {
+    pd->fd = STDIN_FILENO;
+    if (find_arg_str("-input", &str)) {
+      char *estr = rofi_expand_path(str);
+      pd->fd = open(str, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+      if (pd->fd == -1) {
+        char *msg = g_markup_printf_escaped(
+            "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr,
+            g_strerror(errno));
+        rofi_view_error_dialog(msg, TRUE);
+        g_free(msg);
+        g_free(estr);
+        return TRUE;
+      }
       g_free(estr);
-      return TRUE;
     }
-    g_free(estr);
-  }
-  // If input is stdin, and a tty, do not read as rofi grabs input and therefore
-  // blocks.
-  if (!(fd == STDIN_FILENO && isatty(fd) == 1)) {
-    pd->cancel = g_cancellable_new();
-    pd->cancel_source = g_cancellable_connect(
-        pd->cancel, G_CALLBACK(async_read_cancel), pd, NULL);
-    pd->input_stream = g_unix_input_stream_new(fd, fd != STDIN_FILENO);
-    pd->data_input_stream = g_data_input_stream_new(pd->input_stream);
+
+    if (pipe(pd->pipefd) == -1) {
+      g_error("Failed to create pipe");
+    }
+    if (pipe(pd->pipefd2) == -1) {
+      g_error("Failed to create pipe");
+    }
+    pd->wake_source =
+        g_unix_fd_add(pd->pipefd2[0], G_IO_IN, dmenu_async_read_proc, pd);
+    pd->reading_thread =
+        g_thread_new("dmenu-read", (GThreadFunc)read_input_thread, pd);
+  } else {
+    pd->fd_file = stdin;
+    str = NULL;
+    if (find_arg_str("-input", &str)) {
+      char *estr = rofi_expand_path(str);
+      pd->fd_file = fopen(str, "r");
+      if (pd->fd_file == NULL) {
+        char *msg = g_markup_printf_escaped(
+            "Failed to open file: <b>%s</b>:\n\t<i>%s</i>", estr,
+            g_strerror(errno));
+        rofi_view_error_dialog(msg, TRUE);
+        g_free(msg);
+        g_free(estr);
+        return TRUE;
+      }
+      g_free(estr);
+    }
+
+    read_input_sync(pd, -1);
   }
   gchar *columns = NULL;
   if (find_arg_str("-display-columns", &columns)) {
@@ -464,6 +579,7 @@ static int dmenu_token_match(const Mode *sw, rofi_int_matcher **tokens,
                              unsigned int index) {
   DmenuModePrivateData *rmpd =
       (DmenuModePrivateData *)mode_get_private_data(sw);
+
   /** Strip out the markup when matching. */
   char *esc = NULL;
   if (rmpd->do_markup) {
@@ -506,6 +622,7 @@ static char *dmenu_get_message(const Mode *sw) {
 static cairo_surface_t *dmenu_get_icon(const Mode *sw,
                                        unsigned int selected_line, int height) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
+
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
   DmenuScriptEntry *dr = &(pd->cmd_list[selected_line]);
   if (dr->icon_name == NULL) {
@@ -514,8 +631,10 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
   if (dr->icon_fetch_uid > 0) {
     return rofi_icon_fetcher_get(dr->icon_fetch_uid);
   }
-  dr->icon_fetch_uid = rofi_icon_fetcher_query(dr->icon_name, height);
-  return rofi_icon_fetcher_get(dr->icon_fetch_uid);
+  uint32_t uid = dr->icon_fetch_uid =
+      rofi_icon_fetcher_query(dr->icon_name, height);
+
+  return rofi_icon_fetcher_get(uid);
 }
 
 static void dmenu_finish(RofiViewState *state, int retv) {
@@ -557,6 +676,33 @@ static void dmenu_finalize(RofiViewState *state) {
   int retv = FALSE;
   DmenuModePrivateData *pd =
       (DmenuModePrivateData *)rofi_view_get_mode(state)->private_data;
+
+  if (pd->reading_thread) {
+    // Stop listinig to new messages from reading thread.
+    if (pd->wake_source > 0) {
+      g_source_remove(pd->wake_source);
+    }
+    // signal stop.
+    write(pd->pipefd[1], "q", 1);
+    g_thread_join(pd->reading_thread);
+    pd->reading_thread = NULL;
+    /* empty the queue, remove idle callbacks if still pending. */
+    g_async_queue_lock(pd->async_queue);
+    Block *block = NULL;
+    while ((block = g_async_queue_try_pop_unlocked(pd->async_queue)) != NULL) {
+      g_free(block);
+    }
+    g_async_queue_unlock(pd->async_queue);
+    g_async_queue_unref(pd->async_queue);
+    pd->async_queue = NULL;
+    close(pd->pipefd[0]);
+    close(pd->pipefd[1]);
+  }
+  if (pd->fd_file != NULL) {
+    if (pd->fd_file != stdin) {
+      fclose(pd->fd_file);
+    }
+  }
   unsigned int cmd_list_length = pd->cmd_list_length;
   DmenuScriptEntry *cmd_list = pd->cmd_list;
 
@@ -682,26 +828,7 @@ int dmenu_mode_dialog(void) {
   mode_init(&dmenu_mode);
   MenuFlags menu_flags = MENU_NORMAL;
   DmenuModePrivateData *pd = (DmenuModePrivateData *)dmenu_mode.private_data;
-  int async = TRUE;
 
-  // For now these only work in sync mode.
-  if (find_arg("-sync") >= 0 || find_arg("-dump") >= 0 ||
-      find_arg("-select") >= 0 || find_arg("-no-custom") >= 0 ||
-      find_arg("-only-match") >= 0 || config.auto_select ||
-      find_arg("-selected-row") >= 0) {
-    async = FALSE;
-  }
-
-  // Check if the subsystem is setup for reading, otherwise do not read.
-  if (pd->cancel != NULL) {
-    if (async) {
-      unsigned int pre_read = 25;
-      find_arg_uint("-async-pre-read", &pre_read);
-      async = get_dmenu_async(pd, pre_read);
-    } else {
-      get_dmenu_sync(pd);
-    }
-  }
   char *input = NULL;
   unsigned int cmd_list_length = pd->cmd_list_length;
   DmenuScriptEntry *cmd_list = pd->cmd_list;
@@ -766,10 +893,6 @@ int dmenu_mode_dialog(void) {
   if (find_arg("-keep-right") >= 0) {
     rofi_view_ellipsize_start(state);
   }
-  // @TODO we should do this better.
-  if (async && (pd->cancel != NULL)) {
-    rofi_view_set_overlay(state, "Loading.. ");
-  }
   rofi_view_set_selected_line(state, pd->selected_line);
   rofi_view_set_active(state);
 
@@ -814,9 +937,6 @@ void print_dmenu_options(void) {
   print_help_msg("-sync", "",
                  "Force dmenu to first read all input data, then show dialog.",
                  NULL, is_term);
-  print_help_msg("-async-pre-read", "[number]",
-                 "Read several entries blocking before switching to async mode",
-                 "25", is_term);
   print_help_msg("-w", "windowid", "Position over window with X11 windowid.",
                  NULL, is_term);
   print_help_msg("-keep-right", "", "Set ellipsize to end.", NULL, is_term);
