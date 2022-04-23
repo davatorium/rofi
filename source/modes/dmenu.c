@@ -220,7 +220,7 @@ static void read_input_sync(DmenuModePrivateData *pd, unsigned int pre_read) {
   char *line = NULL;
   while (pre_read > 0 &&
          (nread = getdelim(&line, &len, pd->separator, pd->fd_file)) != -1) {
-    read_add(pd, line, len);
+    read_add(pd, line, nread);
     pre_read--;
   }
   free(line);
