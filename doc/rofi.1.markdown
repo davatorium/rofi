@@ -600,7 +600,7 @@ Pango markup can be used to formatting the output.
 
     Default: {mode} {text}
 
-Note: This setting is ignored if `combi-hide-mode-prefix` is eanbled.
+Note: This setting is ignored if `combi-hide-mode-prefix` is enabled.
 
 
 ### History and Sorting
