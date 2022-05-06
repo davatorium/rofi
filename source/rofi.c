@@ -414,19 +414,17 @@ static void help_print_mode_not_found(const char *mode) {
   rofi_add_error_message(str);
 }
 static void help_print_no_arguments(void) {
-  int is_term = isatty(fileno(stdout));
-  // Daemon mode
-  fprintf(stderr, "Rofi is unsure what to show.\n");
-  fprintf(stderr, "Please specify the mode you want to show.\n\n");
-  fprintf(stderr, "    %srofi%s -show %s{mode}%s\n\n",
-          is_term ? color_bold : "", is_term ? color_reset : "",
-          is_term ? color_green : "", is_term ? color_reset : "");
-  fprintf(stderr, "The following modes are enabled:\n");
+
+  GString *emesg = g_string_new("<span size=\"x-large\">Rofi is unsure what to show.</span>\n\n");
+  g_string_append(emesg, "Please specify the mode you want to show.\n\n");
+  g_string_append(
+      emesg, "    <b>rofi</b> -show <span color=\"green\">{mode}</span>\n\n");
+  g_string_append(emesg, "The following modes are enabled:\n");
   for (unsigned int j = 0; j < num_modes; j++) {
-    fprintf(stderr, " * %s%s%s\n", is_term ? color_green : "", modes[j]->name,
-            is_term ? color_reset : "");
+    g_string_append_printf(emesg, "    • <span color=\"green\">%s</span>\n",
+                           modes[j]->name);
   }
-  fprintf(stderr, "\nThe following can be enabled:\n");
+  g_string_append(emesg, "\nThe following modes can be enabled:\n");
   for (unsigned int i = 0; i < num_available_modes; i++) {
     gboolean active = FALSE;
     for (unsigned int j = 0; j < num_modes; j++) {
@@ -436,14 +434,15 @@ static void help_print_no_arguments(void) {
       }
     }
     if (!active) {
-      fprintf(stderr, " * %s%s%s\n", is_term ? color_red : "",
-              available_modes[i]->name, is_term ? color_reset : "");
+      g_string_append_printf(emesg, "    • <span color=\"red\">%s</span>\n",
+                             available_modes[i]->name);
     }
   }
-  fprintf(stderr,
-          "\nTo activate a mode, add it to the list of modes in the %smodes%s "
-          "setting.\n",
-          is_term ? color_green : "", is_term ? color_reset : "");
+  g_string_append(emesg, "\nTo activate a mode, add it to the list in "
+                         "the <span color=\"green\">modes</span> "
+                         "setting.\n");
+  rofi_view_error_dialog(emesg->str, ERROR_MSG_MARKUP);
+  rofi_set_return_code(EXIT_SUCCESS);
 }
 
 /**
@@ -755,7 +754,7 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
   } else {
     help_print_no_arguments();
 
-    g_main_loop_quit(main_loop);
+    // g_main_loop_quit(main_loop);
   }
 
   return G_SOURCE_REMOVE;
