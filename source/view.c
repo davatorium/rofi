@@ -314,19 +314,8 @@ static const int loc_transtable[9] = {
 static void rofi_view_calculate_window_position(RofiViewState *state) {
   int location = rofi_theme_get_position(WIDGET(state->main_window), "location",
                                          loc_transtable[config.location]);
-  int anchor = location;
-  if (!listview_get_fixed_num_lines(state->list_view)) {
-    anchor = location;
-    if (location == WL_CENTER) {
-      anchor = WL_NORTH;
-    } else if (location == WL_EAST) {
-      anchor = WL_NORTH_EAST;
-    } else if (location == WL_WEST) {
-      anchor = WL_NORTH_WEST;
-    }
-  }
-  anchor =
-      rofi_theme_get_position(WIDGET(state->main_window), "anchor", anchor);
+  int anchor =
+      rofi_theme_get_position(WIDGET(state->main_window), "anchor", location);
 
   if (CacheState.fullscreen) {
     state->x = CacheState.mon.x;
