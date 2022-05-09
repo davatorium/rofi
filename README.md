@@ -42,7 +42,7 @@ Rofi is not:
 - [Modes](#modes)
 - [Manpages](#manpage)
 - [Installation](#installation)
-- [Quickstart](#quickstart) 
+- [Quickstart](#quickstart)
    - [Usage](#usage)
    - [Configuration](#configuration)
    - [Themes](#themes)
@@ -136,7 +136,7 @@ Enabled modes can be changed at runtime. Default key is `Ctrl+Tab`.
 If no modes are specified, all configured modes will be enabled.
 To only show the `run` and `ssh` launcher:
 
-    rofi -modes "run,ssh" -show run
+    rofi -modi "run,ssh" -show run
 
 
 The modes to combine in combi mode.
@@ -178,7 +178,7 @@ Default theme:
 
 ![default](https://raw.githubusercontent.com/davatorium/rofi/next/releasenotes/1.4.0/rofi-no-fzf.png)
 
-# Wiki 
+# Wiki
 
 | ❗ **The Wiki is currently unmaintained and might contain outdated data ** |
 | --- |
