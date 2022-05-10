@@ -7,6 +7,18 @@
 <a href="https://repology.org/metapackage/rofi/versions"><img src="https://repology.org/badge/tiny-repos/rofi.svg"></a>
 </p>
 
+
+# Please match the documentation and example scripts to the version of rofi used:
+
+* [next version](https://github.com/davatorium/rofi)
+* [1.7.3](https://github.com/davatorium/rofi/tree/1.7.3)
+* [1.7.2](https://github.com/davatorium/rofi/tree/1.7.2)
+* [1.7.1](https://github.com/davatorium/rofi/tree/1.7.1)
+* [1.7.0](https://github.com/davatorium/rofi/tree/1.7.0)
+
+Also see the locally installed documentation (manpages).
+
+
 <h1 align="center">
   Rofi
 </h1>
