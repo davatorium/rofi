@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "rofi-icon-fetcher.h"
 // This one should only be in mode implementations.
 #include "mode-private.h"
 /**
@@ -42,6 +43,9 @@
 int mode_init(Mode *mode) {
   g_return_val_if_fail(mode != NULL, FALSE);
   g_return_val_if_fail(mode->_init != NULL, FALSE);
+  // to make sure this is initialized correctly.
+  mode->fallback_icon_fetch_uid = 0;
+  mode->fallback_icon_not_found = FALSE;
   return mode->_init(mode);
 }
 
@@ -68,13 +72,36 @@ char *mode_get_display_value(const Mode *mode, unsigned int selected_line,
                                   get_entry);
 }
 
-cairo_surface_t *mode_get_icon(const Mode *mode, unsigned int selected_line,
+cairo_surface_t *mode_get_icon(Mode *mode, unsigned int selected_line,
                                int height) {
   g_assert(mode != NULL);
 
   if (mode->_get_icon != NULL) {
-    return mode->_get_icon(mode, selected_line, height);
+    cairo_surface_t *icon = mode->_get_icon(mode, selected_line, height);
+    if ( icon ) {
+      return icon;
+    }
   }
+
+
+  if ( mode->fallback_icon_not_found == TRUE) {
+    return NULL;
+  }
+  if (mode->fallback_icon_fetch_uid > 0) {
+    cairo_surface_t *icon = rofi_icon_fetcher_get(mode->fallback_icon_fetch_uid);
+    return icon;
+  }
+  ThemeWidget *wid = rofi_config_find_widget(mode->name, NULL, TRUE);
+  if ( wid ) {
+	  /** Load user entires */
+	  Property *p = rofi_theme_find_property(wid, P_STRING, "fallback-icon", TRUE);
+	  if (p != NULL && (p->type == P_STRING && p->value.s)) {
+		  mode->fallback_icon_fetch_uid =
+			  rofi_icon_fetcher_query(p->value.s, height);
+      return NULL;
+	  }
+  }
+  mode->fallback_icon_not_found = TRUE;
   return NULL;
 }
 
