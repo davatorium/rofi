@@ -432,12 +432,6 @@ If not specified default theme from DE is used, \fIAdwaita\fP and \fIgnome\fP th
 fallback themes.
 
 .PP
-\fB\fC-application-fallback-icon\fR
-
-.PP
-Specify an icon to be used when the application icon in run/drun are not yet loaded or is not available.
-
-.PP
 \fB\fC-markup\fR
 
 .PP
@@ -463,6 +457,38 @@ The limit of elements that is used to switch from instant to delayed filter mode
 
 .PP
 Default: 8192
+
+.PP
+A fallback icon can be specified for each mode:
+
+.PP
+.RS
+
+.nf
+configuration {
+    <mode>{
+      fallback-icon: "<icon name>";
+    }
+}
+
+.fi
+.RE
+
+.PP
+Example
+
+.PP
+.RS
+
+.nf
+configuration {
+    run,drun {
+      fallback-icon: "application-x-addon";
+    }
+}
+
+.fi
+.RE
 
 .SS Matching
 .PP
@@ -1000,7 +1026,7 @@ Default: {mode} {text}
 .RE
 
 .PP
-Note: This setting is ignored if \fB\fCcombi-hide-mode-prefix\fR is eanbled.
+Note: This setting is ignored if \fB\fCcombi-hide-mode-prefix\fR is enabled.
 
 .SS History and Sorting
 .PP

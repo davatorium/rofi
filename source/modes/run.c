@@ -46,10 +46,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "modes/filebrowser.h"
-#include "modes/run.h"
 #include "helper.h"
 #include "history.h"
+#include "modes/filebrowser.h"
+#include "modes/run.h"
 #include "rofi.h"
 #include "settings.h"
 
@@ -85,9 +85,6 @@ typedef struct {
 
   Mode *completer;
   char *old_completer_input;
-  /** fallback icon */
-  uint32_t fallback_icon_fetch_uid;
-  cairo_surface_t *fallback_icon;
 } RunModePrivateData;
 
 /**
@@ -531,17 +528,6 @@ static char *run_get_message(const Mode *sw) {
   }
   return NULL;
 }
-static cairo_surface_t *fallback_icon(RunModePrivateData *pd, int height) {
-  if (config.application_fallback_icon) {
-    // FALLBACK
-    if (pd->fallback_icon_fetch_uid > 0) {
-      return rofi_icon_fetcher_get(pd->fallback_icon_fetch_uid);
-    }
-    pd->fallback_icon_fetch_uid =
-        rofi_icon_fetcher_query(config.application_fallback_icon, height);
-  }
-  return NULL;
-}
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
                                   int height) {
   RunModePrivateData *pd = (RunModePrivateData *)mode_get_private_data(sw);
@@ -553,10 +539,7 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
 
   if (dr->icon_fetch_uid > 0) {
     cairo_surface_t *icon = rofi_icon_fetcher_get(dr->icon_fetch_uid);
-    if (icon) {
-      return icon;
-    }
-    return fallback_icon(pd, height);
+    return icon;
   }
   /** lookup icon */
   char **str = g_strsplit(dr->entry, " ", 2);
@@ -564,11 +547,9 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
     dr->icon_fetch_uid = rofi_icon_fetcher_query(str[0], height);
     g_strfreev(str);
     cairo_surface_t *icon = rofi_icon_fetcher_get(dr->icon_fetch_uid);
-    if (icon) {
-      return icon;
-    }
+    return icon;
   }
-  return fallback_icon(pd, height);
+  return NULL;
 }
 
 #include "mode-private.h"

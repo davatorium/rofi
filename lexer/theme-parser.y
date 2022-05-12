@@ -278,6 +278,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %type <theme>          t_entry_list
 %type <theme>          t_entry_list_included
 %type <list>           t_entry_name_path
+%type <list>           t_property_name_list
 %type <list>           t_entry_name_path_selectors
 %type <list>           t_color_list
 %type <property>       t_property
@@ -459,16 +460,19 @@ t_config_property
     // We don't keep any reference to this after this point, so the property can be free'ed.
     rofi_theme_property_free ( $1 );
 }
-|  t_property_name T_BOPEN t_property_list_optional T_BCLOSE
+|  t_property_name_list T_BOPEN t_property_list_optional T_BCLOSE
 {
-  ThemeWidget *widget = rofi_configuration;
-  widget = rofi_theme_find_or_create_name ( widget, $1 );
-  widget->set = TRUE;
-  rofi_theme_widget_add_properties ( widget, $3);
+  
+  for ( GList *iter = g_list_first( $1) ; iter; iter = g_list_next(iter)){
+    ThemeWidget *widget = rofi_configuration;
+    widget = rofi_theme_find_or_create_name ( widget, iter->data );
+    widget->set = TRUE;
+    rofi_theme_widget_add_properties ( widget, $3);
+  }
   if ( $3 ) {
     g_hash_table_destroy ( $3 );
   }
-  g_free ( $1 );
+  g_list_free_full ( $1, g_free );
 }
 ;
 
@@ -1048,6 +1052,12 @@ T_NAME_ELEMENT { $$ = g_list_append ( NULL, $1 );}
 | t_entry_name_path T_NSEP T_NAME_ELEMENT { $$ = g_list_append ( $1, $3);}
 | t_entry_name_path T_NSEP  { $$ = $1; }
 ;
+
+t_property_name_list:
+t_property_name { $$ = g_list_append ( NULL, $1 );}
+| t_property_name_list T_SSEP t_property_name { $$ = g_list_append ( $1, $3);}
+;
+
 
 %%
 

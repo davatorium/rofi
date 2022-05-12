@@ -489,7 +489,7 @@ if ( queue == NULL ) {
 }
 
 <NAMESTR>\.|{WHITESPACE}    { return T_NSEP; }
-<NAMESTR>,{WHITESPACE}*      { return T_SSEP; }
+<NAMESTR,SECTION>,{WHITESPACE}*      { return T_SSEP; }
  /* Alias color to text-color */
 <SECTION>"color"            { yylval->sval = g_strdup("text-color"); return T_PROP_NAME;}
 <SECTION>{WORD}   { yylval->sval = g_strdup(yytext); return T_PROP_NAME;}
@@ -820,7 +820,6 @@ if ( queue == NULL ) {
 }
 <SECTION>. {
     yytext[yyleng-1] = '\0';
-    fprintf(stderr,"section found: |%s|\n", yytext);
     return T_ERROR_SECTION;
 }
 <PROPERTIES_ARRAY,PROPERTIES_VAR>{WORD_ELEMENT} {

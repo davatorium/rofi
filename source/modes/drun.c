@@ -213,10 +213,6 @@ struct _DRunModePrivateData {
   char *old_completer_input;
   uint32_t selected_line;
   char *old_input;
-
-  /** fallback icon */
-  uint32_t fallback_icon_fetch_uid;
-  cairo_surface_t *fallback_icon;
 };
 
 struct RegexEvalArg {
@@ -1331,17 +1327,6 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
   return retv;
 }
 
-static cairo_surface_t *fallback_icon(DRunModePrivateData *pd, int height) {
-  if (config.application_fallback_icon) {
-    // FALLBACK
-    if (pd->fallback_icon_fetch_uid > 0) {
-      return rofi_icon_fetcher_get(pd->fallback_icon_fetch_uid);
-    }
-    pd->fallback_icon_fetch_uid =
-        rofi_icon_fetcher_query(config.application_fallback_icon, height);
-  }
-  return NULL;
-}
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
                                   int height) {
   DRunModePrivateData *pd = (DRunModePrivateData *)mode_get_private_data(sw);
@@ -1353,18 +1338,13 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
   if (dr->icon_name != NULL) {
     if (dr->icon_fetch_uid > 0) {
       cairo_surface_t *icon = rofi_icon_fetcher_get(dr->icon_fetch_uid);
-      if (icon) {
-        return icon;
-      }
-      return fallback_icon(pd, height);
+      return icon;
     }
     dr->icon_fetch_uid = rofi_icon_fetcher_query(dr->icon_name, height);
     cairo_surface_t *icon = rofi_icon_fetcher_get(dr->icon_fetch_uid);
-    if (icon) {
-      return icon;
-    }
+    return icon;
   }
-  return fallback_icon(pd, height);
+  return NULL;
 }
 
 static char *drun_get_completion(const Mode *sw, unsigned int index) {

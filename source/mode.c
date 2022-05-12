@@ -78,28 +78,29 @@ cairo_surface_t *mode_get_icon(Mode *mode, unsigned int selected_line,
 
   if (mode->_get_icon != NULL) {
     cairo_surface_t *icon = mode->_get_icon(mode, selected_line, height);
-    if ( icon ) {
+    if (icon) {
       return icon;
     }
   }
 
-
-  if ( mode->fallback_icon_not_found == TRUE) {
+  if (mode->fallback_icon_not_found == TRUE) {
     return NULL;
   }
   if (mode->fallback_icon_fetch_uid > 0) {
-    cairo_surface_t *icon = rofi_icon_fetcher_get(mode->fallback_icon_fetch_uid);
+    cairo_surface_t *icon =
+        rofi_icon_fetcher_get(mode->fallback_icon_fetch_uid);
     return icon;
   }
   ThemeWidget *wid = rofi_config_find_widget(mode->name, NULL, TRUE);
-  if ( wid ) {
-	  /** Load user entires */
-	  Property *p = rofi_theme_find_property(wid, P_STRING, "fallback-icon", TRUE);
-	  if (p != NULL && (p->type == P_STRING && p->value.s)) {
-		  mode->fallback_icon_fetch_uid =
-			  rofi_icon_fetcher_query(p->value.s, height);
+  if (wid) {
+    /** Load user entires */
+    Property *p =
+        rofi_theme_find_property(wid, P_STRING, "fallback-icon", TRUE);
+    if (p != NULL && (p->type == P_STRING && p->value.s)) {
+      mode->fallback_icon_fetch_uid =
+          rofi_icon_fetcher_query(p->value.s, height);
       return NULL;
-	  }
+    }
   }
   mode->fallback_icon_not_found = TRUE;
   return NULL;

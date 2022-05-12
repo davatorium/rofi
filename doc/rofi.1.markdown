@@ -258,10 +258,6 @@ Specify icon theme to be used.
 If not specified default theme from DE is used, *Adwaita* and *gnome* themes act as
 fallback themes.
 
-`-application-fallback-icon`
-
-Specify an icon to be used when the application icon in run/drun are not yet loaded or is not available.
-
 `-markup`
 
 Use Pango markup to format output wherever possible.
@@ -279,6 +275,27 @@ Make rofi steal focus on launch and restore close to window that held it when la
 The limit of elements that is used to switch from instant to delayed filter mode.
 
   Default: 8192
+
+A fallback icon can be specified for each mode:
+
+```css
+configuration {
+    <mode>{
+      fallback-icon: "<icon name>";
+    }
+}
+```
+Example
+
+```css
+configuration {
+    run,drun {
+      fallback-icon: "application-x-addon";
+    }
+}
+```
+
+
 
 ### Matching
 
