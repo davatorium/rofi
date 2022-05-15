@@ -181,6 +181,8 @@ typedef struct {
   /** refilter timeout limit, when more then these entries,go into timeout mode.
    */
   unsigned int refilter_timeout_limit;
+
+  double scale;
 } Settings;
 
 /** Default number of lines in the list view */

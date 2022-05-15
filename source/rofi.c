@@ -415,7 +415,8 @@ static void help_print_mode_not_found(const char *mode) {
 }
 static void help_print_no_arguments(void) {
 
-  GString *emesg = g_string_new("<span size=\"x-large\">Rofi is unsure what to show.</span>\n\n");
+  GString *emesg = g_string_new(
+      "<span size=\"x-large\">Rofi is unsure what to show.</span>\n\n");
   g_string_append(emesg, "Please specify the mode you want to show.\n\n");
   g_string_append(
       emesg, "    <b>rofi</b> -show <span color=\"green\">{mode}</span>\n\n");
@@ -785,6 +786,14 @@ int main(int argc, char *argv[]) {
     g_print("Version: " VERSION "\n");
 #endif
     return EXIT_SUCCESS;
+  }
+  if (g_getenv("GDK_SCALE") != NULL) {
+    const char *scale = g_getenv("GDK_SCALE");
+    errno = 0;
+    double scaled = g_ascii_strtod(scale, NULL);
+    if (scaled > 0 && errno == 0) {
+      config.scale = scaled;
+    }
   }
 
   if (find_arg("-rasi-validate") >= 0) {

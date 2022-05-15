@@ -812,10 +812,10 @@ void __create_window(MenuFlags menu_flags) {
   if (config.dpi > 1) {
     PangoFontMap *font_map = pango_cairo_font_map_get_default();
     pango_cairo_font_map_set_resolution((PangoCairoFontMap *)font_map,
-                                        (double)config.dpi);
+                                        (double)config.dpi * config.scale);
   } else if (config.dpi == 0 || config.dpi == 1) {
     // Auto-detect mode.
-    double dpi = 96;
+    double dpi = 96 * config.scale;
     if (CacheState.mon.mh > 0 && config.dpi == 1) {
       dpi = (CacheState.mon.h * 25.4) / (double)(CacheState.mon.mh);
     } else {
@@ -832,6 +832,9 @@ void __create_window(MenuFlags menu_flags) {
     PangoFontMap *font_map = pango_cairo_font_map_get_default();
     config.dpi =
         pango_cairo_font_map_get_resolution((PangoCairoFontMap *)font_map);
+    config.dpi *= config.scale;
+    pango_cairo_font_map_set_resolution((PangoCairoFontMap *)font_map,
+                                        (double)config.dpi * config.scale);
   }
   // Setup font.
   // Dummy widget.

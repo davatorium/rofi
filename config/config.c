@@ -155,4 +155,5 @@ Settings config = {
     /** fallback icon */
     .application_fallback_icon = NULL,
     /** refilter limit */
-    .refilter_timeout_limit = 8192};
+    .refilter_timeout_limit = 8192,
+    .scale = 1.0};
