@@ -34,7 +34,7 @@ message {
     border: 2px;
     padding: 1em;
     background-color: @white;
-    text-color: @back;
+    text-color: @black;
 }
 textbox normal {
     text-color: #002B36FF;
@@ -126,11 +126,11 @@ textbox-prompt-colon {
     expand:     false;
     str:        ":";
     margin:     0px 0.3em 0em 0em ;
-    text-color: @normal-foreground;
+    text-color: var(black);
 }
 error-message {
     border: 2px;
     padding: 1em;
     background-color: #FF8888;
-    text-color: @back;
+    text-color: @black;
 }

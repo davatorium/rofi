@@ -244,7 +244,6 @@ install_data(
     'themes/Arc.rasi',
     'themes/Arc-Dark.rasi',
     'themes/DarkBlue.rasi',
-    'themes/Pop-Dark.rasi',
     'themes/Indego.rasi',
     'themes/Monokai.rasi',
     'themes/Paper.rasi',
