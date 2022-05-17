@@ -60,13 +60,14 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
                                        unsigned int selected_line, int height);
 static char *dmenu_get_message(const Mode *sw);
 
-static inline unsigned int bitget(uint32_t *array, unsigned int index) {
+static inline unsigned int bitget(uint32_t const *const array,
+                                  unsigned int index) {
   uint32_t bit = index % 32;
   uint32_t val = array[index / 32];
   return (val >> bit) & 1;
 }
 
-static inline void bittoggle(uint32_t *array, unsigned int index) {
+static inline void bittoggle(uint32_t *const array, unsigned int index) {
   uint32_t bit = index % 32;
   uint32_t *v = &array[index / 32];
   *v ^= 1 << bit;
@@ -215,7 +216,7 @@ static gboolean dmenu_async_read_proc(gint fd, GIOCondition condition,
 }
 
 static void read_input_sync(DmenuModePrivateData *pd, unsigned int pre_read) {
-  size_t nread = 0;
+  ssize_t nread = 0;
   size_t len = 0;
   char *line = NULL;
   while (pre_read > 0 &&

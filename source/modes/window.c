@@ -932,7 +932,7 @@ static cairo_user_data_key_t data_key;
  * \param data The image's data in ARGB format, will be copied by this function.
  */
 static cairo_surface_t *draw_surface_from_data(int width, int height,
-                                               uint32_t *data) {
+                                               uint32_t const *const data) {
   unsigned long int len = width * height;
   unsigned long int i;
   uint32_t *buffer = g_new0(uint32_t, len);
