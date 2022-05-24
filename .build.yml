@@ -1,0 +1,34 @@
+image: ubuntu/lts
+packages:
+  - meson
+  - ninja-build
+  - build-essential
+  - libpango1.0-dev
+  - libstartup-notification0-dev
+  - libxcb-ewmh-dev
+  - libxcb-icccm4-dev
+  - libxcb-randr0-dev
+  - libxcb-util0-dev
+  - libxcb-xinerama0-dev
+  - libxcb-xkb-dev
+  - libxcb-xrm-dev
+  - libxcb-cursor-dev
+  - libxkbcommon-dev
+  - libxkbcommon-dev
+  - libxkbcommon-x11-dev
+  - libgdk-pixbuf2.0-dev
+  - flex
+  - bison
+  - libglib2.0-dev-bin
+sources:
+  - https://sr.ht/~qball/rofi/
+tasks:
+  - setup: |
+     cd rofi
+     meson setup builddir .
+  - build: |
+     ninja -C rofi/builddir
+  - test: |
+     ninja -C rofi/builddir test
+  - dist: |
+     ninja -C rofi/builddir dist
