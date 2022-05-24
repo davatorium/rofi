@@ -17,6 +17,7 @@ packages:
   - libxkbcommon-dev
   - libxkbcommon-x11-dev
   - libgdk-pixbuf2.0-dev
+  - check
   - flex
   - bison
   - libglib2.0-dev-bin
