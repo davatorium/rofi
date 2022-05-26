@@ -1514,6 +1514,13 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     state->quit = TRUE;
     break;
   }
+  case PARENT_DIRECTORY: {
+    rofi_view_refilter_force(state);
+    state->selected_line = 1;
+    state->retv = MENU_OK;
+    state->quit = TRUE;
+    break;
+  }
   }
 }
 
