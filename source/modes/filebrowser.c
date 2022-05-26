@@ -423,7 +423,7 @@ static unsigned int file_browser_mode_get_num_entries(const Mode *sw) {
 }
 
 static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
-                                         unsigned int selected_line, gboolean parent_bind) {
+                                         unsigned int selected_line) {
   ModeMode retv = MODE_EXIT;
   FileBrowserModePrivateData *pd =
       (FileBrowserModePrivateData *)mode_get_private_data(sw);
