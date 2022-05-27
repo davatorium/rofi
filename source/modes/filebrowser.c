@@ -473,22 +473,34 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
       }
     }
     retv = RELOAD_DIALOG;
-  } else if ((mretv & MENU_CUSTOM_INPUT) && *input) {
-    char *p = rofi_expand_path(*input);
-    char *dir = g_filename_from_utf8(p, -1, NULL, NULL, NULL);
-    g_free(p);
-    if (g_file_test(dir, G_FILE_TEST_EXISTS)) {
-      if (g_file_test(dir, G_FILE_TEST_IS_DIR)) {
+  } else if ((mretv & MENU_CUSTOM_INPUT)) {
+    if (special_command) {
+      GFile *new = g_file_get_parent(pd->current_dir);
+      if (new) {
         g_object_unref(pd->current_dir);
-        pd->current_dir = g_file_new_for_path(dir);
-        g_free(dir);
+        pd->current_dir = new;
         free_list(pd);
         get_file_browser(sw);
-        return RESET_DIALOG;
       }
+      return RESET_DIALOG;
     }
-    g_free(dir);
-    retv = RELOAD_DIALOG;
+    if (*input) {
+      char *p = rofi_expand_path(*input);
+      char *dir = g_filename_from_utf8(p, -1, NULL, NULL, NULL);
+      g_free(p);
+      if (g_file_test(dir, G_FILE_TEST_EXISTS)) {
+        if (g_file_test(dir, G_FILE_TEST_IS_DIR)) {
+          g_object_unref(pd->current_dir);
+          pd->current_dir = g_file_new_for_path(dir);
+          g_free(dir);
+          free_list(pd);
+          get_file_browser(sw);
+          return RESET_DIALOG;
+        }
+      }
+      g_free(dir);
+      retv = RELOAD_DIALOG;
+    }
   } else if ((mretv & MENU_ENTRY_DELETE) == MENU_ENTRY_DELETE) {
     retv = RELOAD_DIALOG;
   }
