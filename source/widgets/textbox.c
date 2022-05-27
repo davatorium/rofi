@@ -255,6 +255,14 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
   tb->xalign = rofi_theme_get_double(WIDGET(tb), "horizontal-align", xalign);
   tb->xalign = MAX(0, MIN(1.0, tb->xalign));
 
+  if (tb->xalign < 0.2) {
+    pango_layout_set_alignment(tb->layout, PANGO_ALIGN_LEFT);
+  } else if (tb->xalign < 0.8) {
+    pango_layout_set_alignment(tb->layout, PANGO_ALIGN_CENTER);
+  } else {
+    pango_layout_set_alignment(tb->layout, PANGO_ALIGN_RIGHT);
+  }
+
   return tb;
 }
 
