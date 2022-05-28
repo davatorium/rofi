@@ -428,6 +428,12 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
   FileBrowserModePrivateData *pd =
       (FileBrowserModePrivateData *)mode_get_private_data(sw);
 
+  /* bitwise-and allows for multiple MENU_ values to be stored in one
+  value, and then decoded out into seperate values within the relevant
+  mode file
+  e.g. mretv == MENU_CUSTOM_INPUT means selecting a directory,
+  mretv == MENU_CUSTOM_INPUT | MENU_CUSTOM_ACTION results in
+  going up to parent directory thanks to special_command bool */
   gboolean special_command =
       ((mretv & MENU_CUSTOM_ACTION) == MENU_CUSTOM_ACTION);
   if (mretv & MENU_NEXT) {
@@ -474,6 +480,7 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
     }
     retv = RELOAD_DIALOG;
   } else if (mretv & MENU_CUSTOM_INPUT) {
+    // go up to parent directory
     if (special_command) {
       GFile *new = g_file_get_parent(pd->current_dir);
       if (new) {
@@ -484,6 +491,7 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
       }
       return RESET_DIALOG;
     }
+    // else, if text field has valid pathname, select it
     if (*input) {
       char *p = rofi_expand_path(*input);
       char *dir = g_filename_from_utf8(p, -1, NULL, NULL, NULL);
