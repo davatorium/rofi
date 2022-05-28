@@ -479,7 +479,7 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
       }
     }
     retv = RELOAD_DIALOG;
-  } else if (mretv & MENU_CUSTOM_INPUT) {
+  } else if ((mretv & MENU_CUSTOM_INPUT)) {
     // go up to parent directory
     if (special_command) {
       GFile *new = g_file_get_parent(pd->current_dir);
