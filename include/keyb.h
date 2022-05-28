@@ -109,7 +109,6 @@ typedef enum {
   ROW_LAST,
   ROW_SELECT,
   CANCEL,
-  PARENT_DIRECTORY,
   CUSTOM_1,
   CUSTOM_2,
   CUSTOM_3,
