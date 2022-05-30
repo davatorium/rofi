@@ -478,10 +478,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   x += dot_offset;
 
   if (tb->xalign > 0.001) {
-    int rem =
-        MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
-                   line_width);
-    x = tb->xalign * rem + widget_padding_get_left(WIDGET(tb));
   }
   // TODO check if this is still needed after flatning.
   cairo_set_operator(draw, CAIRO_OPERATOR_OVER);
@@ -493,7 +489,32 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   }
   // Set ARGB
   // We need to set over, otherwise subpixel hinting wont work.
-  cairo_move_to(draw, x, top);
+  switch (pango_layout_get_alignment(tb->layout)) {
+  case PANGO_ALIGN_CENTER: {
+    int rem =
+        MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
+                   line_width);
+    x = (tb->xalign - 0.5) * rem + widget_padding_get_left(WIDGET(tb));
+    cairo_move_to(draw, x, top);
+    break;
+  }
+  case PANGO_ALIGN_RIGHT: {
+    int rem =
+        MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
+                   line_width);
+    x = -(1.0 - tb->xalign) * rem + widget_padding_get_left(WIDGET(tb));
+    cairo_move_to(draw, x, top);
+    break;
+  }
+  default: {
+    int rem =
+        MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
+                   line_width);
+    x = tb->xalign * rem + widget_padding_get_left(WIDGET(tb));
+    cairo_move_to(draw, x, top);
+    break;
+  }
+  }
   cairo_save(draw);
   cairo_reset_clip(draw);
   pango_cairo_show_layout(draw, tb->layout);
