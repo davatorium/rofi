@@ -1578,9 +1578,11 @@ static void rofi_theme_parse_process_links_int(ThemeWidget *wid) {
           if (pv->value.link.ref == pv) {
             char *n = rofi_theme_widget_get_name(widget);
             GString *str = g_string_new(NULL);
-            g_string_printf(
-                str, "Failed to resolve variable '%s' in: `%s { %s: var(%s);}`",
-                pv->value.link.name, n, pv->name, pv->value.link.name);
+            g_string_printf(str,
+                            "Validating the theme failed: the variable '%s' in "
+                            "`%s { %s: var(%s);}` failed to resolve.",
+                            pv->value.link.name, n, pv->name,
+                            pv->value.link.name);
 
             rofi_add_error_message(str);
             g_free(n);
