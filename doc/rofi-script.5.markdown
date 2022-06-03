@@ -89,6 +89,7 @@ The following extra options exists:
  * **no-custom**:   If set to 'true'; only accept listed entries, ignore custom input.
  * **use-hot-keys**: If set to true, it enabled the Custom keybindings for script. Warning this breaks the normal rofi flow.
  * **data**:         Passed data to the next execution of the script via **ROFI_DATA**.
+ * **theme**:       Small theme snippet to f.e. change the background color of a widget.
 
 ## Parsing row options
 
