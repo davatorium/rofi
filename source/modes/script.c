@@ -138,6 +138,11 @@ static void parse_header_entry(Mode *sw, char *line, ssize_t length) {
     } else if (strcasecmp(line, "data") == 0) {
       g_free(pd->data);
       pd->data = g_strdup(value);
+    } else if (strcasecmp(line, "theme") == 0) {
+      if (rofi_theme_parse_string((const char *)value)) {
+        g_warning("Failed to parse: '%s'", value);
+        rofi_clear_error_messages();
+      }
     }
   }
 }
