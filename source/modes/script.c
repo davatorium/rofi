@@ -438,7 +438,77 @@ script_get_icon(const Mode *sw, unsigned int selected_line, int height) {
 }
 
 #include "mode-private.h"
+
+typedef struct ScriptUser {
+  char *name;
+  char *path;
+} ScriptUser;
+
+ScriptUser *user_scripts = NULL;
+int num_scripts = 0;
+
+void script_mode_cleanup(void) {
+  for (size_t i = 0; i < num_scripts; i++) {
+    g_free(user_scripts[i].name);
+    g_free(user_scripts[i].path);
+  }
+  g_free(user_scripts);
+}
+void script_mode_gather_user_scripts(void) {
+  const char *cpath = g_get_user_config_dir();
+  char *script_dir = g_build_filename(cpath, "rofi", "scripts", NULL);
+  if (g_file_test(script_dir, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR) ==
+      FALSE) {
+    g_free(script_dir);
+    return;
+  }
+  GDir *sd = g_dir_open(script_dir, 0, NULL);
+  if (sd) {
+    const char *file = NULL;
+    while ((file = g_dir_read_name(sd)) != NULL) {
+      char *sp = g_build_filename(cpath, "rofi", "scripts", file, NULL);
+      user_scripts = g_realloc(user_scripts, num_scripts + 1);
+      user_scripts[num_scripts].path = sp;
+      user_scripts[num_scripts].name = g_strdup(file);
+      char *dot = strrchr(user_scripts[num_scripts].name, '.');
+      if (dot) {
+        *dot = '\0';
+      }
+      num_scripts++;
+    }
+  }
+
+  g_free(script_dir);
+}
+
+static int script_mode_has_user_script(char const *const user) {
+
+  for (int i = 0; i < num_scripts; i++) {
+    if (g_strcmp0(user_scripts[i].name, user) == 0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 Mode *script_mode_parse_setup(const char *str) {
+  int ui = 0;
+  if ((ui = script_mode_has_user_script(str)) >= 0) {
+    Mode *sw = g_malloc0(sizeof(*sw));
+    sw->name = g_strdup(user_scripts[ui].name);
+    sw->ed = g_strdup(user_scripts[ui].path);
+    sw->free = script_switcher_free;
+    sw->_init = script_mode_init;
+    sw->_get_num_entries = script_mode_get_num_entries;
+    sw->_result = script_mode_result;
+    sw->_destroy = script_mode_destroy;
+    sw->_token_match = script_token_match;
+    sw->_get_message = script_get_message;
+    sw->_get_icon = script_get_icon;
+    sw->_get_completion = NULL, sw->_preprocess_input = NULL,
+    sw->_get_display_value = _get_display_value;
+    return sw;
+  }
   Mode *sw = g_malloc0(sizeof(*sw));
   char *endp = NULL;
   char *parse = g_strdup(str);
@@ -477,5 +547,8 @@ Mode *script_mode_parse_setup(const char *str) {
 }
 
 gboolean script_mode_is_valid(const char *token) {
+  if (script_mode_has_user_script(token) >= 0) {
+    return TRUE;
+  }
   return strchr(token, ':') != NULL;
 }

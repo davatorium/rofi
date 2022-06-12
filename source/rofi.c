@@ -162,6 +162,7 @@ static void teardown(int pfd) {
 
   // Cleanup view
   rofi_view_cleanup();
+
   // Cleanup pid file.
   remove_pid_file(pfd);
 }
@@ -415,7 +416,8 @@ static void help_print_mode_not_found(const char *mode) {
 }
 static void help_print_no_arguments(void) {
 
-  GString *emesg = g_string_new("<span size=\"x-large\">Rofi is unsure what to show.</span>\n\n");
+  GString *emesg = g_string_new(
+      "<span size=\"x-large\">Rofi is unsure what to show.</span>\n\n");
   g_string_append(emesg, "Please specify the mode you want to show.\n\n");
   g_string_append(
       emesg, "    <b>rofi</b> -show <span color=\"green\">{mode}</span>\n\n");
@@ -475,6 +477,7 @@ static void cleanup(void) {
     rofi_theme = NULL;
   }
   TIMINGS_STOP();
+  script_mode_cleanup();
   rofi_collectmodes_destroy();
   rofi_icon_fetcher_destroy();
 
@@ -587,6 +590,7 @@ static void rofi_collect_modes(void) {
       g_strfreev(paths);
     }
   }
+  script_mode_gather_user_scripts();
 }
 
 /**
