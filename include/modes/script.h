@@ -64,5 +64,11 @@ void script_mode_gather_user_scripts(void);
  * Cleanup memory allocated by `script_mode_gather_user_scripts`
  */
 void script_mode_cleanup(void);
+/**
+ * @param is_term if printed to terminal
+ *
+ * List the user scripts found.
+ */
+void script_user_list(gboolean is_term);
 /**@}*/
 #endif // ROFI_MODE_SCRIPT_H

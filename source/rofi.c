@@ -327,6 +327,9 @@ static void help(G_GNUC_UNUSED int argc, char **argv) {
   printf("Detected modes:\n");
   print_list_of_modes(is_term);
   printf("\n");
+  printf("Detected user scripts:\n");
+  script_user_list(is_term);
+  printf("\n");
   printf("Compile time options:\n");
 #ifdef WINDOW_MODE
   printf("\t• window  %senabled%s\n", is_term ? color_green : "",

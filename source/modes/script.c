@@ -552,3 +552,12 @@ gboolean script_mode_is_valid(const char *token) {
   }
   return strchr(token, ':') != NULL;
 }
+
+void script_user_list(gboolean is_term) {
+
+  for (unsigned int i = 0; i < num_scripts; i++) {
+    printf("        • %s%s%s (%s)\n", is_term ? (color_bold) : "",
+           user_scripts[i].name, is_term ? color_reset : "",
+           user_scripts[i].path);
+  }
+}
