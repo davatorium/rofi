@@ -199,7 +199,7 @@ void rofi_capture_screenshot(void) {
   if (outp == NULL) {
     int index = 0;
     fpath = g_build_filename(xdg_pict_dir, filename, NULL);
-    while (g_file_test(fpath, G_FILE_TEST_EXISTS) && index < 99) {
+    while (g_file_test(fpath, G_FILE_TEST_EXISTS) && index < 99999) {
       g_free(fpath);
       g_free(filename);
       // Try the next index.

@@ -467,7 +467,7 @@ void script_mode_gather_user_scripts(void) {
     const char *file = NULL;
     while ((file = g_dir_read_name(sd)) != NULL) {
       char *sp = g_build_filename(cpath, "rofi", "scripts", file, NULL);
-      user_scripts = g_realloc(user_scripts, num_scripts + 1);
+      user_scripts = g_realloc(user_scripts, sizeof(ScriptUser)*(num_scripts + 1));
       user_scripts[num_scripts].path = sp;
       user_scripts[num_scripts].name = g_strdup(file);
       char *dot = strrchr(user_scripts[num_scripts].name, '.');
