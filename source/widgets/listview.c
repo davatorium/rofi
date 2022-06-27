@@ -112,6 +112,9 @@ struct _listview {
   listview_update_callback callback;
   void *udata;
 
+  listview_selection_changed_callback sc_callback;
+  void *sc_udata;
+
   gboolean scrollbar_scroll;
 
   xcb_timestamp_t last_click;
@@ -562,7 +565,7 @@ void listview_set_num_elements(listview *lv, unsigned int rows) {
   }
   TICK_N("listview_set_num_elements");
   lv->req_elements = rows;
-  if ( lv->require_input && !lv->filtered ) {
+  if (lv->require_input && !lv->filtered) {
     lv->req_elements = 0;
   }
   listview_set_selected(lv, lv->selected);
@@ -585,6 +588,9 @@ void listview_set_selected(listview *lv, unsigned int selected) {
     lv->selected = MIN(selected, lv->req_elements - 1);
     lv->barview.direction = LEFT_TO_RIGHT;
     widget_queue_redraw(WIDGET(lv));
+    lv->sc_callback(lv, lv->selected, lv->sc_udata);
+  } else if (lv->req_elements == 0) {
+    lv->sc_callback(lv, UINT32_MAX, lv->sc_udata);
   }
 }
 
@@ -783,6 +789,8 @@ static void listview_nav_up_int(listview *lv) {
   }
   lv->selected--;
   lv->barview.direction = RIGHT_TO_LEFT;
+
+  lv->sc_callback(lv, lv->selected, lv->sc_udata);
   widget_queue_redraw(WIDGET(lv));
 }
 static void listview_nav_down_int(listview *lv) {
@@ -797,6 +805,7 @@ static void listview_nav_down_int(listview *lv) {
                      ? MIN(lv->req_elements - 1, lv->selected + 1)
                      : 0;
   lv->barview.direction = LEFT_TO_RIGHT;
+  lv->sc_callback(lv, lv->selected, lv->sc_udata);
   widget_queue_redraw(WIDGET(lv));
 }
 void listview_nav_next(listview *lv) {
@@ -815,12 +824,14 @@ void listview_nav_prev(listview *lv) {
 static void listview_nav_column_left_int(listview *lv) {
   if (lv->selected >= lv->cur_columns) {
     lv->selected -= lv->cur_columns;
+    lv->sc_callback(lv, lv->selected, lv->sc_udata);
     widget_queue_redraw(WIDGET(lv));
   }
 }
 static void listview_nav_column_right_int(listview *lv) {
   if ((lv->selected + lv->cur_columns) < lv->req_elements) {
     lv->selected += lv->cur_columns;
+    lv->sc_callback(lv, lv->selected, lv->sc_udata);
     widget_queue_redraw(WIDGET(lv));
   }
 }
@@ -879,6 +890,7 @@ void listview_nav_left(listview *lv) {
   }
   if (lv->selected >= lv->max_rows) {
     lv->selected -= lv->max_rows;
+    lv->sc_callback(lv, lv->selected, lv->sc_udata);
     widget_queue_redraw(WIDGET(lv));
   }
 }
@@ -899,6 +911,7 @@ void listview_nav_right(listview *lv) {
   }
   if ((lv->selected + lv->max_rows) < lv->req_elements) {
     lv->selected += lv->max_rows;
+    lv->sc_callback(lv, lv->selected, lv->sc_udata);
     widget_queue_redraw(WIDGET(lv));
   } else if (lv->selected < (lv->req_elements - 1)) {
     // We do not want to move to last item, UNLESS the last column is only
@@ -910,6 +923,7 @@ void listview_nav_right(listview *lv) {
     // If there is an extra column, move.
     if (col != ncol) {
       lv->selected = lv->req_elements - 1;
+      lv->sc_callback(lv, lv->selected, lv->sc_udata);
       widget_queue_redraw(WIDGET(lv));
     }
   }
@@ -935,6 +949,7 @@ static void listview_nav_page_prev_int(listview *lv) {
   } else {
     lv->selected -= (lv->max_elements);
   }
+  lv->sc_callback(lv, lv->selected, lv->sc_udata);
   widget_queue_redraw(WIDGET(lv));
 }
 static void listview_nav_page_next_int(listview *lv) {
@@ -949,6 +964,7 @@ static void listview_nav_page_next_int(listview *lv) {
     lv->selected = MIN(new, lv->req_elements - 1);
     lv->barview.direction = LEFT_TO_RIGHT;
 
+    lv->sc_callback(lv, lv->selected, lv->sc_udata);
     widget_queue_redraw(WIDGET(lv));
     return;
   }
@@ -956,6 +972,7 @@ static void listview_nav_page_next_int(listview *lv) {
   if (lv->selected >= lv->req_elements) {
     lv->selected = lv->req_elements - 1;
   }
+  lv->sc_callback(lv, lv->selected, lv->sc_udata);
   widget_queue_redraw(WIDGET(lv));
 }
 
@@ -1090,9 +1107,14 @@ void listview_toggle_ellipsizing(listview *lv) {
   }
 }
 
-void listview_set_filtered ( listview *lv, gboolean filtered )
-{
-  if ( lv ) {
+void listview_set_filtered(listview *lv, gboolean filtered) {
+  if (lv) {
     lv->filtered = filtered;
   }
+}
+
+void listview_set_selection_changed_callback(
+    listview *lv, listview_selection_changed_callback cb, void *udata) {
+  lv->sc_callback = cb;
+  lv->sc_udata = udata;
 }

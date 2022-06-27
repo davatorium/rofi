@@ -107,6 +107,8 @@ struct RofiViewState {
   /** filtered rows */
   textbox *tb_filtered_rows;
 
+  textbox *tb_current_entry;
+
   /** Settings of the menu */
   MenuFlags menu_flags;
   /** If mouse was within view previously */

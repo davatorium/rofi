@@ -277,6 +277,7 @@ install_data(
     'themes/paper-float.rasi',
     'themes/purple.rasi',
     'themes/sidebar.rasi',
+    'themes/sidebar-v2.rasi',
     'themes/solarized.rasi',
     'themes/solarized_alternate.rasi',
     'themes/fancy.rasi',

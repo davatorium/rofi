@@ -1007,7 +1007,23 @@ inline static void rofi_view_nav_last(RofiViewState *state) {
   // state->selected = state->filtered_lines - 1;
   listview_set_selected(state->list_view, -1);
 }
+static void selection_changed_callback(listview *lv, unsigned int index,
+                                       void *udata) {
+  RofiViewState *state = (RofiViewState *)udata;
+  if (state->tb_current_entry == NULL) {
+    return;
+  }
+  if (index < state->filtered_lines) {
+    int fstate = 0;
+    char *text = mode_get_display_value(state->sw, state->line_map[index],
+                                        &fstate, NULL, TRUE);
+    textbox_text(state->tb_current_entry, text);
+    g_free(text);
 
+  } else {
+    textbox_text(state->tb_current_entry, "");
+  }
+}
 static void update_callback(textbox *t, icon *ico, unsigned int index,
                             void *udata, TextBoxFontType *type, gboolean full) {
   RofiViewState *state = (RofiViewState *)udata;
@@ -1876,6 +1892,12 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
                        TB_AUTOWIDTH | TB_AUTOHEIGHT, NORMAL, "", 0, 0);
     box_add((box *)parent_widget, WIDGET(state->tb_filtered_rows), FALSE);
     defaults = NULL;
+  } else if (strcmp(name, "textbox-current-entry") == 0) {
+    state->tb_current_entry =
+        textbox_create(parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name,
+                       TB_MARKUP | TB_AUTOHEIGHT, NORMAL, "", 0, 0);
+    box_add((box *)parent_widget, WIDGET(state->tb_current_entry), FALSE);
+    defaults = NULL;
   }
   /**
    * CASE INDICATOR
@@ -1934,6 +1956,8 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
     }
     state->list_view = listview_create(parent_widget, name, update_callback,
                                        state, config.element_height, 0);
+    listview_set_selection_changed_callback(
+        state->list_view, selection_changed_callback, (void *)state);
     box_add((box *)parent_widget, WIDGET(state->list_view), TRUE);
     // Set configuration
     listview_set_multi_select(state->list_view,

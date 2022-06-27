@@ -68,6 +68,16 @@ typedef void (*listview_update_callback)(textbox *tb, icon *ico,
                                          TextBoxFontType *type, gboolean full);
 
 /**
+ * @param lv The listview
+ * @param index the selected row
+ * @param udata user data
+ *
+ * Selection changed callback.
+ */
+typedef void (*listview_selection_changed_callback)(listview *lv,
+                                                    unsigned int index,
+                                                    void *udata);
+/**
  * Callback when a element is activated.
  */
 typedef void (*listview_mouse_activated_cb)(listview *, gboolean, void *);
@@ -85,6 +95,12 @@ typedef void (*listview_mouse_activated_cb)(listview *, gboolean, void *);
 listview *listview_create(widget *parent, const char *name,
                           listview_update_callback cb, void *udata,
                           unsigned int eh, gboolean reverse);
+
+/**
+ * Set the selection changed callback.
+ */
+void listview_set_selection_changed_callback(
+    listview *lv, listview_selection_changed_callback cb, void *udata);
 
 /**
  * @param lv The listview handle
@@ -273,7 +289,7 @@ void listview_set_ellipsize_start(listview *lv);
  * @param filtered boolean indicating if list is filtered.
  *
  */
-void listview_set_filtered ( listview *lv, gboolean filtered );
+void listview_set_filtered(listview *lv, gboolean filtered);
 /** @} */
 
 #endif // ROFI_LISTVIEW_H

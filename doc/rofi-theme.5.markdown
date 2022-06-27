@@ -773,6 +773,7 @@ The current widgets available in **rofi**:
       * `entry`: the main entry @textbox
       * `num-rows`: Shows the total number of rows.
       * `num-filtered-rows`: Shows the total number of rows after filtering.
+      * `textbox-current-entry`: Shows the text of the currently selected entry.
     * `listview`: The listview.
        * `scrollbar`: the listview scrollbar
        * `element`: a box in the listview holding the entries

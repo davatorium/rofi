@@ -1,0 +1,117 @@
+/**
+ * ROFI Color theme
+ * User: Qball
+ * Copyright: Dave Davenport
+ */
+
+* {
+    background-color:  transparent; 
+    // Bold, Italic, Underline
+    highlight:     bold #ffffff;
+}
+window {
+    background-color: black / 80%;
+    border-color:     white;
+    border-radius:    0 15mm 15mm 0;
+
+    padding: 10mm;
+
+    height:   100%;
+    width:    150mm;
+    border:  1mm 1mm 1mm 0px;
+    text-color: white;
+
+
+    location: west;
+    anchor:   west;
+}
+inputbar {
+    background-color: transparent;
+    text-color:       black;
+    children: [prompt, entry, textbox-end];
+    spacing: 1mm;
+}
+prompt {
+  border-radius: 5mm 0mm 0mm 5mm;
+  width: 15mm;
+}
+textbox-end {
+  border-radius: 0mm 5mm 5mm 0mm;
+  width: 15mm;
+  expand: false;
+}
+entry {
+  background-color: grey;
+}
+prompt, entry, textbox-end, num-filtered-rows {
+  background-color: white;
+  text-color: inherit;
+  padding: 2mm;
+  vertical-align: 0.5;
+}
+element {
+    border-radius: 5mm;
+    children: [element-icon];
+}
+textbox-current-entry {
+    border-radius: 5mm;
+    background-color: lightgreen;
+    text-color: black;
+    placeholder: "n/a";
+    padding: 2mm;
+    horizontal-align: 0.5;
+  }
+element-icon {
+  expand: true;
+  size: 20mm;
+  vertial-align: 0.5;
+  horizontal-align: 0.5;
+  padding: 2mm;
+}
+
+
+mainbox {
+    expand: true;
+    background-color: transparent;
+    spacing:  5mm;
+    children: [ inputbar,textbox-current-entry, listview ];
+}
+listview {
+    padding: 0em;
+    dynamic: false;
+    lines: 0;
+    columns: 5;
+    flow: horizontal;
+}
+element selected  normal {
+    background-color: MediumSlateBlue;
+}
+element normal active {
+    text-color: MediumTurquoise;
+}
+element normal urgent {
+    text-color: red;
+}
+element alternate normal {
+}
+element alternate active {
+    text-color: MediumTurquoise;
+}
+element alternate urgent {
+    text-color: MediumVioletRed;
+}
+element selected active {
+    background-color: MediumTurquoise;
+    text-color: black;
+}
+element selected urgent {
+    background-color: MediumVioletRed;
+    text-color: black;
+}
+error-message {
+    expand: true;
+    background-color: red;
+    border-color: darkred;
+    border: 2px;
+    padding: 1em;
+}
