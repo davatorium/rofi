@@ -127,6 +127,7 @@ static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
   gsize data_len = len;
   // Init.
   (*block)->values[(*block)->length].icon_fetch_uid = 0;
+  (*block)->values[(*block)->length].icon_fetch_size = 0;
   (*block)->values[(*block)->length].icon_name = NULL;
   (*block)->values[(*block)->length].meta = NULL;
   (*block)->values[(*block)->length].info = NULL;
@@ -156,6 +157,7 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
   }
   // Init.
   pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
+  pd->cmd_list[pd->cmd_list_length].icon_fetch_size = 0;
   pd->cmd_list[pd->cmd_list_length].icon_name = NULL;
   pd->cmd_list[pd->cmd_list_length].meta = NULL;
   pd->cmd_list[pd->cmd_list_length].info = NULL;
@@ -629,11 +631,12 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
   if (dr->icon_name == NULL) {
     return NULL;
   }
-  if (dr->icon_fetch_uid > 0) {
+  if (dr->icon_fetch_uid > 0 && dr->icon_fetch_size == height) {
     return rofi_icon_fetcher_get(dr->icon_fetch_uid);
   }
   uint32_t uid = dr->icon_fetch_uid =
       rofi_icon_fetcher_query(dr->icon_name, height);
+  dr->icon_fetch_size = height;
 
   return rofi_icon_fetcher_get(uid);
 }

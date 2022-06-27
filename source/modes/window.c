@@ -125,6 +125,7 @@ typedef struct {
   cairo_surface_t *icon;
   gboolean icon_checked;
   uint32_t icon_fetch_uid;
+  uint32_t icon_fetch_size;
   gboolean thumbnail_checked;
 } client;
 
@@ -1028,6 +1029,14 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
   if (c == NULL) {
     return NULL;
   }
+  if (c->icon_fetch_size != size) {
+    if (c->icon) {
+      cairo_surface_destroy(c->icon);
+      c->icon = NULL;
+      c->thumbnail_checked = FALSE;
+      c->icon_checked = FALSE;
+    }
+  }
   if (config.window_thumbnail && c->thumbnail_checked == FALSE) {
     c->icon = x11_helper_get_screenshot_surface_window(c->window, size);
     c->thumbnail_checked = TRUE;
@@ -1045,6 +1054,7 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
     g_free(class_lower);
     return rofi_icon_fetcher_get(c->icon_fetch_uid);
   }
+  c->icon_fetch_size = size;
   return c->icon;
 }
 

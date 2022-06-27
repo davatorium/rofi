@@ -224,6 +224,7 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
             retv[(*length)].meta = NULL;
             retv[(*length)].info = NULL;
             retv[(*length)].icon_fetch_uid = 0;
+            retv[(*length)].icon_fetch_size = 0;
             retv[(*length)].nonselectable = FALSE;
             if (buf_length > 0 && (read_length > (ssize_t)buf_length)) {
               dmenuscript_parse_entry_extras(sw, &(retv[(*length)]),
@@ -430,10 +431,11 @@ script_get_icon(const Mode *sw, unsigned int selected_line, int height) {
   if (dr->icon_name == NULL) {
     return NULL;
   }
-  if (dr->icon_fetch_uid > 0) {
+  if (dr->icon_fetch_uid > 0 && dr->icon_fetch_size == height) {
     return rofi_icon_fetcher_get(dr->icon_fetch_uid);
   }
   dr->icon_fetch_uid = rofi_icon_fetcher_query(dr->icon_name, height);
+  dr->icon_fetch_size = height;
   return rofi_icon_fetcher_get(dr->icon_fetch_uid);
 }
 
@@ -467,7 +469,8 @@ void script_mode_gather_user_scripts(void) {
     const char *file = NULL;
     while ((file = g_dir_read_name(sd)) != NULL) {
       char *sp = g_build_filename(cpath, "rofi", "scripts", file, NULL);
-      user_scripts = g_realloc(user_scripts, sizeof(ScriptUser)*(num_scripts + 1));
+      user_scripts =
+          g_realloc(user_scripts, sizeof(ScriptUser) * (num_scripts + 1));
       user_scripts[num_scripts].path = sp;
       user_scripts[num_scripts].name = g_strdup(file);
       char *dot = strrchr(user_scripts[num_scripts].name, '.');
