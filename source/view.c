@@ -1017,39 +1017,43 @@ static void update_callback(textbox *t, icon *ico, unsigned int index,
     char *text = mode_get_display_value(state->sw, state->line_map[index],
                                         &fstate, &add_list, TRUE);
     (*type) |= fstate;
-    // TODO needed for markup.
-    textbox_font(t, *type);
-    // Move into list view.
-    textbox_text(t, text);
-    PangoAttrList *list = textbox_get_pango_attributes(t);
-    if (list != NULL) {
-      pango_attr_list_ref(list);
-    } else {
-      list = pango_attr_list_new();
-    }
+
     if (ico) {
       int icon_height = widget_get_desired_height(WIDGET(ico), WIDGET(ico)->w);
       cairo_surface_t *icon =
           mode_get_icon(state->sw, state->line_map[index], icon_height);
       icon_set_surface(ico, icon);
     }
+    if (t) {
+      // TODO needed for markup.
+      textbox_font(t, *type);
+      // Move into list view.
+      textbox_text(t, text);
+      PangoAttrList *list = textbox_get_pango_attributes(t);
+      if (list != NULL) {
+        pango_attr_list_ref(list);
+      } else {
+        list = pango_attr_list_new();
+      }
 
-    if (state->tokens) {
-      RofiHighlightColorStyle th = {ROFI_HL_BOLD | ROFI_HL_UNDERLINE,
-                                    {0.0, 0.0, 0.0, 0.0}};
-      th = rofi_theme_get_highlight(WIDGET(t), "highlight", th);
-      helper_token_match_get_pango_attr(th, state->tokens,
-                                        textbox_get_visible_text(t), list);
+      if (state->tokens) {
+        RofiHighlightColorStyle th = {ROFI_HL_BOLD | ROFI_HL_UNDERLINE,
+                                      {0.0, 0.0, 0.0, 0.0}};
+        th = rofi_theme_get_highlight(WIDGET(t), "highlight", th);
+        helper_token_match_get_pango_attr(th, state->tokens,
+                                          textbox_get_visible_text(t), list);
+      }
+      for (GList *iter = g_list_first(add_list); iter != NULL;
+           iter = g_list_next(iter)) {
+        pango_attr_list_insert(list, (PangoAttribute *)(iter->data));
+      }
+      textbox_set_pango_attributes(t, list);
+      pango_attr_list_unref(list);
     }
-    for (GList *iter = g_list_first(add_list); iter != NULL;
-         iter = g_list_next(iter)) {
-      pango_attr_list_insert(list, (PangoAttribute *)(iter->data));
-    }
-    textbox_set_pango_attributes(t, list);
-    pango_attr_list_unref(list);
     g_list_free(add_list);
     g_free(text);
   } else {
+    // Never called.
     int fstate = 0;
     mode_get_display_value(state->sw, state->line_map[index], &fstate, NULL,
                            FALSE);
