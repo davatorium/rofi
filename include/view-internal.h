@@ -108,6 +108,7 @@ struct RofiViewState {
   textbox *tb_filtered_rows;
 
   textbox *tb_current_entry;
+  icon *icon_current_entry;
 
   /** Settings of the menu */
   MenuFlags menu_flags;

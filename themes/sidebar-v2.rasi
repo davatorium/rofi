@@ -63,7 +63,7 @@ textbox-current-entry {
   }
 element-icon {
   expand: true;
-  size: 20mm;
+  size: 10mm;
   vertial-align: 0.5;
   horizontal-align: 0.5;
   padding: 2mm;
@@ -74,13 +74,21 @@ mainbox {
     expand: true;
     background-color: transparent;
     spacing:  5mm;
-    children: [ inputbar,textbox-current-entry, listview ];
+    children: [
+                inputbar,
+                listview,
+                icon-current-entry,
+                textbox-current-entry
+    ];
 }
+icon-current-entry {
+    size: 100mm;
+  }
 listview {
     padding: 0em;
     dynamic: false;
     lines: 0;
-    columns: 5;
+    columns: 8;
     flow: horizontal;
 }
 element selected  normal {

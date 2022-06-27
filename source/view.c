@@ -1010,18 +1010,29 @@ inline static void rofi_view_nav_last(RofiViewState *state) {
 static void selection_changed_callback(listview *lv, unsigned int index,
                                        void *udata) {
   RofiViewState *state = (RofiViewState *)udata;
-  if (state->tb_current_entry == NULL) {
-    return;
-  }
-  if (index < state->filtered_lines) {
-    int fstate = 0;
-    char *text = mode_get_display_value(state->sw, state->line_map[index],
-                                        &fstate, NULL, TRUE);
-    textbox_text(state->tb_current_entry, text);
-    g_free(text);
+  if (state->tb_current_entry) {
+    if (index < state->filtered_lines) {
+      int fstate = 0;
+      char *text = mode_get_display_value(state->sw, state->line_map[index],
+                                          &fstate, NULL, TRUE);
+      textbox_text(state->tb_current_entry, text);
+      g_free(text);
 
-  } else {
-    textbox_text(state->tb_current_entry, "");
+    } else {
+      textbox_text(state->tb_current_entry, "");
+    }
+  }
+  if (state->icon_current_entry) {
+    if (index < state->filtered_lines) {
+      int icon_height =
+          widget_get_desired_height(WIDGET(state->icon_current_entry),
+                                    WIDGET(state->icon_current_entry)->w);
+      cairo_surface_t *icon =
+          mode_get_icon(state->sw, state->line_map[index], icon_height);
+      icon_set_surface(state->icon_current_entry, icon);
+    } else {
+      icon_set_surface(state->icon_current_entry, NULL);
+    }
   }
 }
 static void update_callback(textbox *t, icon *ico, unsigned int index,
@@ -1897,6 +1908,10 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
         textbox_create(parent_widget, WIDGET_TYPE_TEXTBOX_TEXT, name,
                        TB_MARKUP | TB_AUTOHEIGHT, NORMAL, "", 0, 0);
     box_add((box *)parent_widget, WIDGET(state->tb_current_entry), FALSE);
+    defaults = NULL;
+  } else if (strcmp(name, "icon-current-entry") == 0) {
+    state->icon_current_entry = icon_create(parent_widget, name);
+    box_add((box *)parent_widget, WIDGET(state->icon_current_entry), FALSE);
     defaults = NULL;
   }
   /**
