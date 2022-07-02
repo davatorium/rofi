@@ -105,13 +105,15 @@ static XrmOption xrmOptions[] = {
      "yoffset",
      {.snum = &config.y_offset},
      NULL,
-     "Y-offset relative to location",
+     "Y-offset relative to location. *DEPRECATED* see rofi-theme manpage for "
+     "new option",
      CONFIG_DEFAULT},
     {xrm_SNumber,
      "xoffset",
      {.snum = &config.x_offset},
      NULL,
-     "X-offset relative to location",
+     "X-offset relative to location. *DEPRECATED* see rofi-theme manpage for "
+     "new option",
      CONFIG_DEFAULT},
     {xrm_Boolean,
      "fixed-num-lines",
