@@ -427,6 +427,23 @@ static void x11_monitors_free(void) {
 }
 
 /**
+ * Quick function that tries to fix the size (for dpi calculation)
+ * when monitor is rotate. This assumes the density is kinda equal in both X/Y
+ * direction.
+ */
+static void x11_workarea_fix_rotation(workarea *w) {
+  double ratio_res = w->w / (double)w->h;
+  double ratio_size = w->mw / (double)w->mh;
+
+  if ((ratio_res < 1.0 && ratio_size > 1.0) ||
+      (ratio_res > 1.0 && ratio_size < 1.0)) {
+    // Oposite ratios, swap them.
+    int nh = w->mw;
+    w->mw = w->mh;
+    w->mh = nh;
+  }
+}
+/**
  * Create monitor based on output id
  */
 static workarea *x11_get_monitor_from_output(xcb_randr_output_t out) {
@@ -454,6 +471,7 @@ static workarea *x11_get_monitor_from_output(xcb_randr_output_t out) {
 
   retv->mw = op_reply->mm_width;
   retv->mh = op_reply->mm_height;
+  x11_workarea_fix_rotation(retv);
 
   char *tname = (char *)xcb_randr_get_output_info_name(op_reply);
   int tname_len = xcb_randr_get_output_info_name_length(op_reply);
@@ -504,6 +522,7 @@ x11_get_monitor_from_randr_monitor(xcb_randr_monitor_info_t *mon) {
   // Physical
   retv->mw = mon->width_in_millimeters;
   retv->mh = mon->height_in_millimeters;
+  x11_workarea_fix_rotation(retv);
 
   // Name
   retv->name =
