@@ -175,6 +175,22 @@ For full list see \fB\fCman rofi\fR\&.
 .PP
 Example: \fB\fCG_MESSAGES_DEBUG=Dialogs.DRun rofi -show drun\fR To get specific output from the Desktop file run dialog.
 
+.PP
+To redirect the debug output to a file (\fB\fC~/rofi.log\fR) add:
+
+.PP
+.RS
+
+.nf
+rofi -show drun -log ~/rofi.log
+
+.fi
+.RE
+
+.PP
+Specifying the logfile automatically enabled all log domains.
+This can be useful when rofi is launched from a window manager.
+
 .SH Creating a backtrace.
 .PP
 First make sure you compile \fBrofi\fP with debug symbols:

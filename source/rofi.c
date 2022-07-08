@@ -771,6 +771,13 @@ static gboolean record(G_GNUC_UNUSED void *data) {
   rofi_capture_screenshot();
   return G_SOURCE_CONTINUE;
 }
+static void rofi_custom_log_function(const char *log_domain,
+                                     GLogLevelFlags log_level,
+                                     const gchar *message, gpointer user_data) {
+  int fp = GPOINTER_TO_INT(user_data);
+  dprintf(fp, "[%s]: %s\n", log_domain == NULL ? "default" : log_domain,
+          message);
+}
 /**
  * @param argc number of input arguments.
  * @param argv array of the input arguments.
@@ -780,9 +787,26 @@ static gboolean record(G_GNUC_UNUSED void *data) {
  * @returns return code of rofi.
  */
 int main(int argc, char *argv[]) {
-  TIMINGS_START();
-
   cmd_set_arguments(argc, argv);
+  if (find_arg("-log") >= 0) {
+    char *logfile = NULL;
+    find_arg_str("-log", &logfile);
+    if (logfile != NULL) {
+      int fp = open(logfile, O_CLOEXEC | O_APPEND | O_CREAT | O_WRONLY,
+                    S_IRUSR | S_IWUSR);
+      if (fp != -1) {
+        g_log_set_default_handler(rofi_custom_log_function,
+                                  GINT_TO_POINTER(fp));
+
+      } else {
+        g_error("Failed to open logfile '%s': %s.", logfile, strerror(errno));
+      }
+
+    } else {
+      g_warning("Option '-log' should pass in a filename.");
+    }
+  }
+  TIMINGS_START();
 
   // Version
   if (find_arg("-v") >= 0 || find_arg("-version") >= 0) {

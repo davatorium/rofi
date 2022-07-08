@@ -28,7 +28,7 @@ You can also use [Meson](https://mesonbuild.com/) as an alternative.
 *   libpangocairo
 *   libcairo
 *   libcairo-xcb
-*   libglib2.0 >= 2.40
+*   libglib2.0 >= 2.68
     *   gmodule-2.0
     *   gio-unix-2.0
 *   libgdk-pixbuf-2.0

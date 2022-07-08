@@ -128,7 +128,16 @@ environment variable. At the time of creation of this page, the following debug 
 
 For full list see `man rofi`.
 
-Example: ```G_MESSAGES_DEBUG=Dialogs.DRun rofi -show drun``` To get specific output from the Desktop file run dialog.
+Example: `G_MESSAGES_DEBUG=Dialogs.DRun rofi -show drun` To get specific output from the Desktop file run dialog.
+
+To redirect the debug output to a file (`~/rofi.log`) add:
+
+```
+rofi -show drun -log ~/rofi.log
+```
+
+Specifying the logfile automatically enabled all log domains.
+This can be useful when rofi is launched from a window manager.
 
 
 ## Creating a backtrace.
