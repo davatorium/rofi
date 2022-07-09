@@ -67,6 +67,7 @@ typedef struct {
   char *prompt;
   char *data;
   gboolean do_markup;
+  gboolean keep_selection;
   char delim;
   /** no custom */
   gboolean no_custom;
@@ -135,6 +136,8 @@ static void parse_header_entry(Mode *sw, char *line, ssize_t length) {
       pd->no_custom = (strcasecmp(value, "true") == 0);
     } else if (strcasecmp(line, "use-hot-keys") == 0) {
       pd->use_hot_keys = (strcasecmp(value, "true") == 0);
+    } else if (strcasecmp(line, "keep-selection") == 0) {
+      pd->keep_selection = (strcasecmp(value, "true") == 0);
     } else if (strcasecmp(line, "data") == 0) {
       g_free(pd->data);
       pd->data = g_strdup(value);
@@ -339,7 +342,11 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
 
     rmpd->cmd_list = new_list;
     rmpd->cmd_list_length = new_length;
-    retv = RESET_DIALOG;
+    if (rmpd->keep_selection) {
+      retv = RELOAD_DIALOG;
+    } else {
+      retv = RESET_DIALOG;
+    }
   }
   return retv;
 }
