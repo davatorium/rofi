@@ -1,5 +1,38 @@
-# 1.7.4:  
+# 1.7.4:
 
+Another maintenance and small features expansion release. A lot of small
+annoyances have been fixed and ignored errors are now more visually flagged to
+the user. In the past typos in the theme could result into broken themes
+without any warning to the user, if an unknown link is found it will now throw
+an error. Also to help the user, manpages are further split up into sub-pages
+and are expanded
+
+A massif speedup has been implemented in the async input reading of dmenu.
+It turned out glib's GInputStream async functions where very slow, so a custom
+implementation has been made. Background loading is now close to the same speed
+as loading at start before displaying. A million item list is now near instant.
+On very large lists, the instant filtering automatically changes to be
+postponed until the user stops typing. This severely reduces system load.
+
+On the new feature front, you can now change the flow in the listview from
+vertical first to horizontal first. Making it mimic tables.
+
+{screenshot  vertical }  { screenshot horizontal }
+
+You can now set a fallback icon individual for each mode.
+
+You can now add a separate icon or textbox widget to the UI that displays the
+current selected item.
+
+In dmenu mode (and script) you can now make (some) changes to the theme, for
+example modifying the background color of the entry box.
+
+You can now put users scripts (for script mode) into
+`$XDG_CONFIG_HOME/rofi/scripts` directory and those are automatically available
+in rofi.
+
+
+Below is a more complete list of changes:
 
 # Changelog
 
