@@ -162,7 +162,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token <ival>     T_ERROR_ARGB_SPEC  7  "invalid argb color. Requires 8 (not 7) elements: argb:AARRGGBB."
 %token <ival>     T_INT                 "Integer number"
 %token <fval>     T_DOUBLE              "Floating-point number"
-%token <sval>     T_STRING              "UTF-8 encoded string"
+%token <sval>     T_STRING              "UTF-8 encode string"
+%token <sval>     T_MEDIA_TYPE          "Media type"
 %token <cval>     T_CHAR                "Character"
 %token <sval>     T_PROP_NAME           "property name"
 %token <colorval> T_COLOR_NAME          "Color value by name"
@@ -387,7 +388,7 @@ t_entry_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
         g_hash_table_destroy ( $4 );
     }
 }
-| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_INT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %d )",$4, $6);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
     widget->set = TRUE;
@@ -401,7 +402,7 @@ t_entry_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
     g_free ( $4 );
     g_free ( name );
 }
-| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %f )",$4, $6);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
     widget->set = TRUE;
@@ -415,7 +416,7 @@ t_entry_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
     g_free ( $4 );
     g_free ( name );
 }
-| t_entry_list T_MEDIA T_PARENT_LEFT T_STRING T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %d px )",$4, $6);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
     widget->set = TRUE;
@@ -424,6 +425,48 @@ t_entry_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
     widget->media->value = (double)$6;
     for ( unsigned int i = 0; i < $10->num_widgets; i++ ) {
         ThemeWidget *d = $10->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+    g_free ( $4 );
+    g_free ( name );
+}
+| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_BOOLEAN T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+    gchar *name = g_strdup_printf("@media ( %s: %s )",$4, $6?"true":"false");
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
+    widget->set = TRUE;
+    widget->media = g_slice_new0(ThemeMedia);
+    widget->media->type = rofi_theme_parse_media_type ( $4 );
+    widget->media->boolv = $6;
+    for ( unsigned int i = 0; i < $9->num_widgets; i++ ) {
+        ThemeWidget *d = $9->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+    g_free ( $4 );
+    g_free ( name );
+}
+| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_ENV_START T_PARENT_LEFT T_BOOLEAN T_COMMA T_BOOLEAN T_PARENT_RIGHT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+    gchar *name = g_strdup_printf("@media ( %s: %s )",$4, $8?"true":"false");
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
+    widget->set = TRUE;
+    widget->media = g_slice_new0(ThemeMedia);
+    widget->media->type = rofi_theme_parse_media_type ( $4 );
+    widget->media->boolv = $8;
+    for ( unsigned int i = 0; i < $14->num_widgets; i++ ) {
+        ThemeWidget *d = $14->widgets[i];
+        rofi_theme_parse_merge_widgets(widget, d);
+    }
+    g_free ( $4 );
+    g_free ( name );
+}
+| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_ENV_START T_PARENT_LEFT T_COMMA T_BOOLEAN T_PARENT_RIGHT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+    gchar *name = g_strdup_printf("@media ( %s: %s )",$4, $9?"true":"false");
+    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
+    widget->set = TRUE;
+    widget->media = g_slice_new0(ThemeMedia);
+    widget->media->type = rofi_theme_parse_media_type ( $4 );
+    widget->media->boolv = $9;
+    for ( unsigned int i = 0; i < $13->num_widgets; i++ ) {
+        ThemeWidget *d = $13->widgets[i];
         rofi_theme_parse_merge_widgets(widget, d);
     }
     g_free ( $4 );

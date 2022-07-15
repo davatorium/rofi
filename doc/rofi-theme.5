@@ -2041,6 +2041,8 @@ It supports the following keys as constraint:
 \fB\fCmax-aspect-ratio\fR:  load when aspect ratio is under value.
 .IP \(bu 2
 \fB\fCmonitor-id\fR:        The monitor id, see rofi -help for id's.
+.IP \(bu 2
+\fB\fCenabled\fR:           Boolean option to enable. Supports environment variable.
 
 .RE
 
@@ -2052,6 +2054,17 @@ It supports the following keys as constraint:
 
 .nf
 @media ( min-width: 120 px ) {
+
+}
+
+.fi
+.RE
+
+.PP
+.RS
+
+.nf
+@media ( enabled: env(DO_LIGHT, false ) {
 
 }
 

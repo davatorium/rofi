@@ -1532,6 +1532,15 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         }
         break;
       }
+      case THEME_MEDIA_TYPE_BOOLEAN: {
+        if (widget->media->boolv) {
+          for (unsigned int x = 0; x < widget->num_widgets; x++) {
+            rofi_theme_parse_merge_widgets(rwidget, widget->widgets[x]);
+          }
+        }
+        break;
+      }
+
       default: {
         break;
       }
@@ -1624,6 +1633,9 @@ ThemeMediaType rofi_theme_parse_media_type(const char *type) {
   }
   if (g_strcmp0(type, "max-aspect-ratio") == 0) {
     return THEME_MEDIA_TYPE_MAX_ASPECT_RATIO;
+  }
+  if (g_strcmp0(type, "enabled") == 0) {
+    return THEME_MEDIA_TYPE_BOOLEAN;
   }
   return THEME_MEDIA_TYPE_INVALID;
 }

@@ -50,6 +50,8 @@ typedef enum {
   THEME_MEDIA_TYPE_MIN_ASPECT_RATIO,
   /** Maximum aspect ratio constraint. */
   THEME_MEDIA_TYPE_MAX_ASPECT_RATIO,
+  /** Boolean option for use with env. */
+  THEME_MEDIA_TYPE_BOOLEAN,
   /** Invalid entry. */
   THEME_MEDIA_TYPE_INVALID,
 } ThemeMediaType;
@@ -60,6 +62,7 @@ typedef enum {
 typedef struct ThemeMedia {
   ThemeMediaType type;
   double value;
+  gboolean boolv;
 } ThemeMedia;
 
 /**

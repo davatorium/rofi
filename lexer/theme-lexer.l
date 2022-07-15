@@ -178,7 +178,6 @@ WSO        [[:blank:]]*
 WORD       [[:alnum:]-]+
 WORD_ELEMENT [[:alpha:]][[:alnum:]-]*
 WORD_ENV   [[:alpha:]_][[:alnum:]_]*
-MEDIA_NAME [[:alpha:]-]+
 COLOR_NAME [[:alpha:]]+
 STRING     \"{UANYN}*\"
 STRING_LIST \"{UANYNP}*\"
@@ -291,6 +290,8 @@ MEDIA "@media"
 
 CONFIGURATION (?i:configuration)
 
+MEDIA_TYPES (monitor-id|(min|max)-(width|height|aspect-ratio)|enabled)
+
 %x INCLUDE
 %x PROPERTIES
 %x PROPERTIES_ENV
@@ -301,8 +302,12 @@ CONFIGURATION (?i:configuration)
 %x NAMESTR
 %x SECTION
 %x DEFAULTS
+/* Media section.*/
 %x MEDIA
 %x MEDIA_CONTENT
+%x MEDIA_ENV_VAR
+%x MEDIA_ENV_VAR_CONTENT
+%x MEDIA_ENV_VAR_DEFAULT
 %%
 
 %{
@@ -497,11 +502,11 @@ if ( queue == NULL ) {
 
   /* After Namestr/Classstr we want to go to state str, then to  { */
 <INITIAL,SECTION>{WHITESPACE}+	; // ignore all whitespace
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_ARRAY,PROPERTIES_ENV_VAR,PROPERTIES_VAR,MEDIA_CONTENT>{WHITESPACE}+	; // ignore all whitespace
+<PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,PROPERTIES_ARRAY,PROPERTIES_ENV_VAR,PROPERTIES_VAR>{WHITESPACE}+	; // ignore all whitespace
 
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
-<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
+<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_ENV_VAR_CONTENT,MEDIA_ENV_VAR_DEFAULT>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}                                             { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
@@ -579,6 +584,25 @@ if ( queue == NULL ) {
         g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES_ENV);
     }
 }
+<MEDIA_ENV_VAR>{WORD_ENV} {
+    const char *val = g_getenv(yytext);
+    if ( val ) {
+        ParseObject *top = g_queue_peek_head ( file_queue );
+        top->location = *yylloc;
+        ParseObject *po = g_malloc0(sizeof(ParseObject));
+        po->type = PT_ENV;
+        po->input_str = val;
+        po->str_len = strlen(val);
+        current = po;
+        g_queue_push_head ( file_queue, po );
+
+        yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
+        yylloc->first_line = yylloc->last_line = 1;
+        yylloc->first_column = yylloc->last_column = 1;
+        yylloc->filename = current->filename;
+        g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(MEDIA_ENV_VAR_CONTENT);
+    }
+}
 
 
  /**
@@ -641,7 +665,7 @@ if ( queue == NULL ) {
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{HWB}              { return T_COL_HWB;        }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CMYK}             { return T_COL_CMYK;       }
 
-<PROPERTIES_ENV_VAR,PROPERTIES_VAR>{S_T_PARENT_LEFT} {
+<PROPERTIES_ENV_VAR,MEDIA_ENV_VAR,PROPERTIES_VAR>{S_T_PARENT_LEFT} {
     return T_PARENT_LEFT;
 }
  /* Fluff */
@@ -655,7 +679,12 @@ if ( queue == NULL ) {
     BEGIN(PROPERTIES_ENV_VAR);
     return T_ENV_START;
 }
-<PROPERTIES_VAR,PROPERTIES_ENV_VAR>{S_T_PARENT_RIGHT} {
+<MEDIA_CONTENT>{ENV_START} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(MEDIA_ENV_VAR);
+    return T_ENV_START;
+}
+<PROPERTIES_VAR,MEDIA_ENV_VAR,PROPERTIES_ENV_VAR>{S_T_PARENT_RIGHT} {
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
     return T_PARENT_RIGHT;
 }
@@ -664,7 +693,12 @@ if ( queue == NULL ) {
     BEGIN(PROPERTIES_VAR_DEFAULT);
     return T_COMMA;
 }
-<PROPERTIES_VAR_DEFAULT>{S_T_PARENT_RIGHT} {
+<MEDIA_ENV_VAR>{COMMA} {
+    g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
+    BEGIN(MEDIA_ENV_VAR_DEFAULT);
+    return T_COMMA;
+}
+<MEDIA_ENV_VAR_DEFAULT,PROPERTIES_VAR_DEFAULT>{S_T_PARENT_RIGHT} {
     // Pop 2.
     g_queue_pop_head ( queue );
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
@@ -725,7 +759,7 @@ if ( queue == NULL ) {
     REJECT;
 }
 
-<INITIAL,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT><<EOF>>  {
+<INITIAL,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_ENV_VAR_CONTENT><<EOF>>  {
     ParseObject *po = g_queue_pop_head ( file_queue );
     if ( po ) {
         if ( po->type == PT_FILE ) {
@@ -766,15 +800,20 @@ if ( queue == NULL ) {
     BEGIN(MEDIA);
     return T_MEDIA;
 }
+<INITIAL>"\}" {
+    g_queue_pop_head ( queue );
+    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
+    return T_BCLOSE;
+}
 
 <MEDIA>{S_T_PARENT_LEFT} {
     g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) );
     BEGIN(MEDIA_CONTENT);
     return T_PARENT_LEFT;
 }
-<MEDIA_CONTENT>{MEDIA_NAME} {
+<MEDIA_CONTENT>{MEDIA_TYPES} {
     yylval->sval = g_strdup(yytext);
-    return T_STRING;
+    return T_MEDIA_TYPE;
 }
 <MEDIA_CONTENT>":" {
     return T_PSEP;
@@ -790,17 +829,14 @@ if ( queue == NULL ) {
     return T_BOPEN;
 }
 
-<INITIAL>"\}" {
-    g_queue_pop_head ( queue );
-    BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
-    return T_BCLOSE;
-}
-<MEDIA>{WHITESPACE}+	; // ignore all whitespace
 
+ /**
+  * Media defaults.
+  */
+<MEDIA,MEDIA_CONTENT,MEDIA_ENV_VAR,MEDIA_ENV_VAR_DEFAULT,MEDIA_ENV_VAR_CONTENT>{WHITESPACE}+	; // ignore all whitespace 
 
-<MEDIA,MEDIA_CONTENT>. {
+<MEDIA,MEDIA_CONTENT,MEDIA_ENV_VAR,MEDIA_ENV_VAR_DEFAULT,MEDIA_ENV_VAR_CONTENT>. {
     yytext[yyleng-1] = '\0';
-    fprintf(stderr,"found: |%s|\n", yytext);
     return T_ERROR;
 }
 
@@ -827,7 +863,7 @@ if ( queue == NULL ) {
     return T_ELEMENT;
 }
 
-<PROPERTIES_ENV_VAR,PROPERTIES_VAR,PROPERTIES_ARRAY,PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>. {
+<MEDIA_ENV_VAR,PROPERTIES_ENV_VAR,PROPERTIES_VAR,PROPERTIES_ARRAY,PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>. {
     yytext[yyleng-1] = '\0';
     return T_ERROR_PROPERTY;
 }
