@@ -294,12 +294,12 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
 
   if (g_path_is_absolute(sentry->entry->name)) {
     icon_path = sentry->entry->name;
-  } else if (g_str_has_prefix(sentry->entry->name, "font:")) {
+  } else if (g_str_has_prefix(sentry->entry->name, "<span")) {
     cairo_surface_t *surface = cairo_image_surface_create(
         CAIRO_FORMAT_ARGB32, sentry->wsize, sentry->hsize);
     cairo_t *cr = cairo_create(surface);
     PangoLayout *layout = pango_cairo_create_layout(cr);
-    pango_layout_set_text(layout, &sentry->entry->name[5], -1);
+    pango_layout_set_markup(layout, sentry->entry->name, -1);
 
     int width, height;
     pango_layout_get_size(layout, &width, &height);
