@@ -1342,6 +1342,34 @@ Or
 FontAwesome 22
 ```
 
+## Icon Handling 
+
+Rofi supports 3 ways of specifying an icon:
+
+* Filename
+* icon-name, this is looked up via the icon-theme.
+* Markup String. It renders a string as an icon.
+
+
+For the first two options, GdkPixbuf is used to open and render the icons.
+This in general gives support for most required image formats.
+For the string option it uses Pango to render the string. The string needs to
+start with a `<span` tag, that allows you to set color and font.
+
+Markup string:
+
+```bash
+echo -en "testing\0icon\x1f<span color='red'>⏻</span>" | ./rofi -dmenu
+```
+
+Getting supported icon formats:
+
+```bash
+G_MESSAGES_DEBUG=Helpers.IconFetcher rofi
+```
+This uses the debug framework and prints out a list of supported image  file
+extensions.
+
 ## Multiple file handling
 
 The rasi file format offers two methods of including other files.

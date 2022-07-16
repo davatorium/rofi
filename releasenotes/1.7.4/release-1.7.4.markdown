@@ -27,9 +27,12 @@ current selected item.
 In dmenu mode (and script) you can now make (some) changes to the theme, for
 example modifying the background color of the entry box.
 
-You can now put users scripts (for script mode) into
-`$XDG_CONFIG_HOME/rofi/scripts` directory and those are automatically available
+User scripts (for script mode) into
+`$XDG_CONFIG_HOME/rofi/scripts` directory are automatically available
 in rofi.
+
+You can now render text as icons, this allows you to use glyphs icon fonts as
+icons.
 
 
 Below is a more complete list of changes:
@@ -67,6 +70,8 @@ Below is a more complete list of changes:
 * Change modi to modes to avoid confusion.
 * [Theme] When links are unresolvable throw an error to the user.
 * [DMenu] Document the `display-columns` and `display-column-separator` option.
+* [Theme] Media now supports `enabled` that supports an environment variable.
+* [IconFetcher] Support rendering fonts as icon.
 
 # Thanks
 
