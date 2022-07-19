@@ -181,6 +181,9 @@ typedef struct {
   /** refilter timeout limit, when more then these entries,go into timeout mode.
    */
   unsigned int refilter_timeout_limit;
+
+  /** workaround for broken xserver (#300 on xserver, #611) */
+  gboolean xserver_i300_workaround;
 } Settings;
 
 /** Default number of lines in the list view */

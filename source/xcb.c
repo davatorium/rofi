@@ -1257,9 +1257,15 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     gchar *text;
 
     xcb->last_timestamp = xkpe->time;
-    text = nk_bindings_seat_handle_key_with_modmask(
-        xcb->bindings_seat, NULL, xkpe->state, xkpe->detail,
-        NK_BINDINGS_KEY_STATE_PRESS);
+    if ( config.xserver_i300_workaround ) {
+      text = nk_bindings_seat_handle_key_with_modmask(
+          xcb->bindings_seat, NULL, xkpe->state, xkpe->detail,
+          NK_BINDINGS_KEY_STATE_PRESS);
+    } else {
+      text = nk_bindings_seat_handle_key(
+          xcb->bindings_seat, NULL, xkpe->detail,
+          NK_BINDINGS_KEY_STATE_PRESS);
+    }
     if (text != NULL) {
       rofi_view_handle_text(state, text);
       g_free(text);
@@ -1288,7 +1294,9 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
       g_main_loop_quit(xcb->main_loop);
       return G_SOURCE_REMOVE;
     }
-    g_warning("main_loop_x11_event_handler: ev == NULL, status == %d", status);
+    // DD: it seems this handler often gets dispatched while the queue in GWater is empty.
+    // resulting in a NULL for ev. This seems not an error.
+    //g_warning("main_loop_x11_event_handler: ev == NULL, status == %d", status);
     return G_SOURCE_CONTINUE;
   }
   uint8_t type = ev->response_type & ~0x80;

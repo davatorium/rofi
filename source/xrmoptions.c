@@ -433,6 +433,12 @@ static XrmOption xrmOptions[] = {
      "When there are more entries then this limit, only refilter after a "
      "timeout.",
      CONFIG_DEFAULT},
+    {xrm_Boolean,
+     "xserver-i300-workaround",
+     {.snum = &(config.xserver_i300_workaround)},
+     NULL,
+     "Workaround for XServer issue #300 (issue #611 for rofi.)",
+     CONFIG_DEFAULT},
 };
 
 /** Dynamic array of extra options */

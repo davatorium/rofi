@@ -719,6 +719,12 @@ Click the mouse outside the **rofi** window to exit.
 
 Default: *enabled*
 
+`-xserver-i300-workaround`
+
+Workaround for bug in Xserver. See issue #611 and #1642 on the rofi issue tracker.
+
+Default: *disabled*
+
 ## PATTERN
 
 To launch commands (for example, when using the ssh launcher), the user can enter the used command-line. The following keys can be used that will be replaced at runtime:

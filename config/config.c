@@ -155,4 +155,7 @@ Settings config = {
     /** fallback icon */
     .application_fallback_icon = NULL,
     /** refilter limit */
-    .refilter_timeout_limit = 8192};
+    .refilter_timeout_limit = 8192,
+    /** workaround for broken xserver (#300 on xserver, #611) */
+    .xserver_i300_workaround = FALSE,
+};
