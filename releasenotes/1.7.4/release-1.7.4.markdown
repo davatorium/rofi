@@ -39,7 +39,7 @@ for i in {1..90}; do echo $i; done | rofi -dmenu -no-config -theme-str 'listview
 ```bash
 for i in {1..90}; do echo $i; done | rofi -dmenu -no-config -theme-str 'listview { columns: 3; flow: horizontal; }'
 ```
-![Horizontal](./vertical.png)
+![Horizontal](./horizontal.png)
 
 * You can set a custom fallback icon for each mode.
 
