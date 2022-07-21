@@ -55,7 +55,7 @@ configuration {
   example modifying the background color of the entry box.
 
 ```bash
-echo -en "\0theme\x1felement-text { background-color: "$@";}\n"
+echo -en "\0theme\x1felement-text { background-color: red;}\n"
 ```
 
 * User scripts (for script mode) into `$XDG_CONFIG_HOME/rofi/scripts` directory
