@@ -951,6 +951,8 @@ The following properties are currently supported:
     The order the elements are layed out.  Vertical is the original 'column' view.
 * **fixed-columns**:    boolean
     Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.
+* **require-input**:    boolean
+    Listview requires user input to show up.
 
 Each element is a `box` called `element`. Each `element` can contain an `element-icon` and `element-text`.
 

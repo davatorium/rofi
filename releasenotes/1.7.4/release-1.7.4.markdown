@@ -31,23 +31,61 @@ A few long standing requests have been fixed:
 * Listview flow. You can now change the flow in the listview from vertical first
   to horizontal first. Making it mimic tables.
 
-{screenshot  vertical }  { screenshot horizontal }
+```bash
+for i in {1..90}; do echo $i; done | rofi -dmenu -no-config -theme-str 'listview { columns: 3; flow: vertical; }'
+```
+![Vertical](./vertical.png)
+
+```bash
+for i in {1..90}; do echo $i; done | rofi -dmenu -no-config -theme-str 'listview { columns: 3; flow: horizontal; }'
+```
+![Horizontal](./vertical.png)
 
 * You can set a custom fallback icon for each mode.
+
+```css
+configuration {
+  run,drun {
+    fallback-icon: "application-x-addon";
+  }
+}
+```
 
 * In dmenu mode (and script) you can now make (some) changes to the theme, for
   example modifying the background color of the entry box.
 
+```bash
+echo -en "\0theme\x1felement-text { background-color: "$@";}\n"
+```
+
 * User scripts (for script mode) into `$XDG_CONFIG_HOME/rofi/scripts` directory
   are automatically available in rofi.
+
+```bash
+rofi -h
+<snip>
+Detected user scripts:
+        • hc (/home/qball/.config/rofi/scripts/hc.sh)
+</snip>
+```
 
 * You can now render text as icons, this allows you to use glyphs icon fonts as
   icons.
 
+```bash
+echo -en "testing\0icon\x1f<span color='green'>Test</span>" | rofi -dmenu
+```
+
 * Hide listview when unfiltered. (#1079) 
 
+```css
+listview {
+    require-input: true;
+}
+```
+
 * You can now add a separate icon or textbox widget to the UI that displays the
-  current selected item.
+  current selected item. As an example see the included `sidebar-v2`.
 
 Below is a more complete list of changes:
 
