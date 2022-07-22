@@ -526,8 +526,10 @@ widget *widget_find_mouse_target(widget *wid, WidgetType type, gint x, gint y) {
   return NULL;
 }
 
-WidgetTriggerActionResult widget_check_action(widget *wid, guint action, gint x,
-                                              gint y) {
+WidgetTriggerActionResult widget_check_action(widget *wid,
+                                              G_GNUC_UNUSED guint action,
+                                              G_GNUC_UNUSED gint x,
+                                              G_GNUC_UNUSED gint y) {
   if (wid == NULL) {
     return FALSE;
   }

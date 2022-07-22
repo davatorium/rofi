@@ -277,7 +277,7 @@ static char *combi_get_completion(const Mode *sw, unsigned int index) {
 }
 
 static cairo_surface_t *combi_get_icon(const Mode *sw, unsigned int index,
-                                       int height) {
+                                       unsigned int height) {
   CombiModePrivateData *pd = mode_get_private_data(sw);
   for (unsigned i = 0; i < pd->num_switchers; i++) {
     if (index >= pd->starts[i] && index < (pd->starts[i] + pd->lengths[i])) {

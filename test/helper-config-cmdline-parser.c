@@ -25,139 +25,124 @@
  *
  */
 
-#include <assert.h>
-#include <locale.h>
-#include <glib.h>
-#include <stdio.h>
-#include <helper.h>
-#include <string.h>
-#include <xcb/xcb_ewmh.h>
 #include "display.h"
-#include "xcb.h"
-#include "xcb-internal.h"
+#include "rofi-icon-fetcher.h"
 #include "rofi.h"
 #include "settings.h"
 #include "widgets/textbox.h"
-#include "rofi-icon-fetcher.h"
+#include "xcb-internal.h"
+#include "xcb.h"
+#include <assert.h>
+#include <glib.h>
+#include <helper.h>
+#include <locale.h>
+#include <stdio.h>
+#include <string.h>
+#include <xcb/xcb_ewmh.h>
 
-static int       test = 0;
+static int test = 0;
 
-#define TASSERT( a )        {                            \
-        assert ( a );                                    \
-        printf ( "Test %i passed (%s)\n", ++test, # a ); \
-}
-#define TASSERTE( a, b )    {                                                            \
-        if ( ( a ) == ( b ) ) {                                                          \
-            printf ( "Test %i passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
-        } else {                                                                         \
-            printf ( "Test %i failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
-            abort ( );                                                                   \
-        }                                                                                \
-}
+#define TASSERT(a)                                                             \
+  {                                                                            \
+    assert(a);                                                                 \
+    printf("Test %i passed (%s)\n", ++test, #a);                               \
+  }
+#define TASSERTE(a, b)                                                         \
+  {                                                                            \
+    if ((a) == (b)) {                                                          \
+      printf("Test %i passed (%s == %s) (%u == %u)\n", ++test, #a, #b, a, b);  \
+    } else {                                                                   \
+      printf("Test %i failed (%s == %s) (%u != %u)\n", ++test, #a, #b, a, b);  \
+      abort();                                                                 \
+    }                                                                          \
+  }
 #include "theme.h"
 ThemeWidget *rofi_theme = NULL;
-uint32_t rofi_icon_fetcher_query ( const char *name, const int size )
-{
+uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
+                                 G_GNUC_UNUSED const int size) {
   return 0;
 }
-uint32_t rofi_icon_fetcher_query_advanced ( const char *name, const int wsize, const int hsize )
-{
+uint32_t rofi_icon_fetcher_query_advanced(G_GNUC_UNUSED const char *name,
+                                          G_GNUC_UNUSED const int wsize,
+                                          G_GNUC_UNUSED const int hsize) {
   return 0;
 }
 
-cairo_surface_t * rofi_icon_fetcher_get ( const uint32_t uid )
-{
+cairo_surface_t *rofi_icon_fetcher_get(G_GNUC_UNUSED const uint32_t uid) {
   return NULL;
 }
-void rofi_clear_error_messages (void )
-{
-}
+void rofi_clear_error_messages(void) {}
 
-gboolean rofi_theme_parse_string ( const char *string )
-{
+gboolean rofi_theme_parse_string(G_GNUC_UNUSED const char *string) {
   return FALSE;
 }
 
-double textbox_get_estimated_char_height ( void )
-{
-  return 12.0;
+double textbox_get_estimated_char_height(void) { return 12.0; }
+void rofi_view_get_current_monitor(int *width, int *height) {
+  *width = 1920;
+  *height = 1080;
 }
-void rofi_view_get_current_monitor ( int *width, int *height )
-{
-*width = 1920;
-*height = 1080;
-}
-double textbox_get_estimated_ch ( void )
-{
-  return 9.0;
-}
-void rofi_add_error_message ( G_GNUC_UNUSED GString *msg )
-{
-}
-int rofi_view_error_dialog ( const char *msg, G_GNUC_UNUSED int markup )
-{
-    fputs ( msg, stderr );
-    return TRUE;
+double textbox_get_estimated_ch(void) { return 9.0; }
+void rofi_add_error_message(G_GNUC_UNUSED GString *msg) {}
+int rofi_view_error_dialog(const char *msg, G_GNUC_UNUSED int markup) {
+  fputs(msg, stderr);
+  return TRUE;
 }
 
-int monitor_active ( G_GNUC_UNUSED workarea *mon )
-{
-    return 0;
-}
+int monitor_active(G_GNUC_UNUSED workarea *mon) { return 0; }
 
-void display_startup_notification ( G_GNUC_UNUSED RofiHelperExecuteContext *context, G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup, G_GNUC_UNUSED gpointer *user_data )
-{
-}
+void display_startup_notification(
+    G_GNUC_UNUSED RofiHelperExecuteContext *context,
+    G_GNUC_UNUSED GSpawnChildSetupFunc *child_setup,
+    G_GNUC_UNUSED gpointer *user_data) {}
 
-int main ( G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv )
-{
+int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
 
-    if ( setlocale ( LC_ALL, "" ) == NULL ) {
-        fprintf ( stderr, "Failed to set locale.\n" );
-        return EXIT_FAILURE;
-    }
-    char **list     = NULL;
-    int  llength    = 0;
-    char * test_str =
-        "{host} {terminal} -e bash -c \"{ssh-client} {host}; echo '{terminal} {host}'\" -i -3 -u 4";
-    helper_parse_setup ( test_str, &list, &llength, "{host}", "chuck",
-                         "{terminal}", "x-terminal-emulator", NULL );
+  if (setlocale(LC_ALL, "") == NULL) {
+    fprintf(stderr, "Failed to set locale.\n");
+    return EXIT_FAILURE;
+  }
+  char **list = NULL;
+  int llength = 0;
+  char *test_str = "{host} {terminal} -e bash -c \"{ssh-client} {host}; echo "
+                   "'{terminal} {host}'\" -i -3 -u 4";
+  helper_parse_setup(test_str, &list, &llength, "{host}", "chuck", "{terminal}",
+                     "x-terminal-emulator", NULL);
 
-    TASSERT ( llength == 10);
-    TASSERT ( strcmp ( list[0], "chuck" ) == 0 );
-    TASSERT ( strcmp ( list[1], "x-terminal-emulator" ) == 0 );
-    TASSERT ( strcmp ( list[2], "-e" ) == 0 );
-    TASSERT ( strcmp ( list[3], "bash" ) == 0 );
-    TASSERT ( strcmp ( list[4], "-c" ) == 0 );
-    TASSERT ( strcmp ( list[5], "ssh chuck; echo 'x-terminal-emulator chuck'" ) == 0 );
-    TASSERT ( strcmp ( list[6], "-i" ) == 0 );
-    TASSERT ( strcmp ( list[7], "-3" ) == 0 );
-    TASSERT ( strcmp ( list[8], "-u" ) == 0 );
-    TASSERT ( strcmp ( list[9], "4" ) == 0 );
+  TASSERT(llength == 10);
+  TASSERT(strcmp(list[0], "chuck") == 0);
+  TASSERT(strcmp(list[1], "x-terminal-emulator") == 0);
+  TASSERT(strcmp(list[2], "-e") == 0);
+  TASSERT(strcmp(list[3], "bash") == 0);
+  TASSERT(strcmp(list[4], "-c") == 0);
+  TASSERT(strcmp(list[5], "ssh chuck; echo 'x-terminal-emulator chuck'") == 0);
+  TASSERT(strcmp(list[6], "-i") == 0);
+  TASSERT(strcmp(list[7], "-3") == 0);
+  TASSERT(strcmp(list[8], "-u") == 0);
+  TASSERT(strcmp(list[9], "4") == 0);
 
-    cmd_set_arguments ( llength, list);
-    TASSERT ( find_arg ( "-e") == 2 );
-    TASSERT ( find_arg ( "-x") == -1 );
-    char *str;
-    TASSERT ( find_arg_str ( "-e", &str) == TRUE );
-    TASSERT ( str == list[3] );
-    TASSERT ( find_arg_str ( "-x", &str) == FALSE );
-    // Should be unmodified.
-    TASSERT ( str == list[3] );
+  cmd_set_arguments(llength, list);
+  TASSERT(find_arg("-e") == 2);
+  TASSERT(find_arg("-x") == -1);
+  char *str;
+  TASSERT(find_arg_str("-e", &str) == TRUE);
+  TASSERT(str == list[3]);
+  TASSERT(find_arg_str("-x", &str) == FALSE);
+  // Should be unmodified.
+  TASSERT(str == list[3]);
 
-    unsigned int u = 1234;
-    int d = -1234;
-    TASSERT ( find_arg_uint ( "-x", &u ) == FALSE );
-    TASSERT ( u == 1234 );
-    TASSERT ( find_arg_int ( "-x", &d ) == FALSE );
-    TASSERT ( d == -1234 );
-    TASSERT ( find_arg_uint ( "-u", &u ) == TRUE );
-    TASSERT ( u == 4 );
-    TASSERT ( find_arg_uint ( "-i", &u ) == TRUE );
-    TASSERT ( u == 4294967293 );
-    TASSERT ( find_arg_int ( "-i", &d ) == TRUE );
-    TASSERT ( d == -3 );
+  unsigned int u = 1234;
+  int d = -1234;
+  TASSERT(find_arg_uint("-x", &u) == FALSE);
+  TASSERT(u == 1234);
+  TASSERT(find_arg_int("-x", &d) == FALSE);
+  TASSERT(d == -1234);
+  TASSERT(find_arg_uint("-u", &u) == TRUE);
+  TASSERT(u == 4);
+  TASSERT(find_arg_uint("-i", &u) == TRUE);
+  TASSERT(u == 4294967293);
+  TASSERT(find_arg_int("-i", &d) == TRUE);
+  TASSERT(d == -3);
 
-    g_strfreev ( list );
-
+  g_strfreev(list);
 }

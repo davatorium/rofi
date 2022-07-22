@@ -744,13 +744,13 @@ gboolean config_parse_set_property(const Property *p, char **error) {
        iter = g_list_next(iter)) {
     if (g_strcmp0(((Property *)(iter->data))->name, p->name) == 0) {
       rofi_theme_property_free((Property *)(iter->data));
-      iter->data = (void *)rofi_theme_property_copy(p);
+      iter->data = (void *)rofi_theme_property_copy(p, NULL);
       return FALSE;
     }
   }
   g_debug("Adding option: %s to backup list.", p->name);
   extra_parsed_options =
-      g_list_append(extra_parsed_options, rofi_theme_property_copy(p));
+      g_list_append(extra_parsed_options, rofi_theme_property_copy(p, NULL));
 
   return FALSE;
 }

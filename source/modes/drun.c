@@ -1330,7 +1330,7 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
 }
 
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  int height) {
+                                  unsigned int height) {
   DRunModePrivateData *pd = (DRunModePrivateData *)mode_get_private_data(sw);
   if (pd->file_complete) {
     return pd->completer->_get_icon(pd->completer, selected_line, height);

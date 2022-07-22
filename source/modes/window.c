@@ -399,7 +399,8 @@ static gboolean window_client_reload(G_GNUC_UNUSED void *data) {
   }
   return G_SOURCE_REMOVE;
 }
-void window_client_handle_signal(xcb_window_t win, gboolean create) {
+void window_client_handle_signal(G_GNUC_UNUSED xcb_window_t win,
+                                 G_GNUC_UNUSED gboolean create) {
   //  g_idle_add_full(G_PRIORITY_HIGH_IDLE, window_client_reload, NULL, NULL);
   if (window_reload_timeout > 0) {
     g_source_remove(window_reload_timeout);
@@ -1023,7 +1024,7 @@ static cairo_surface_t *get_net_wm_icon(xcb_window_t xid,
   return surface;
 }
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  int size) {
+                                  unsigned int size) {
   WindowModePrivateData *rmpd = mode_get_private_data(sw);
   client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
   if (c == NULL) {

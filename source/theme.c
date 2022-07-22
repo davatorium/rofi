@@ -120,7 +120,8 @@ RofiDistance rofi_theme_property_copy_distance(RofiDistance const distance) {
   return retv;
 }
 
-Property *rofi_theme_property_copy(const Property *p) {
+Property *rofi_theme_property_copy(const Property *p,
+                                   G_GNUC_UNUSED void *data) {
   Property *retv = rofi_theme_property_create(p->type);
   retv->name = g_strdup(p->name);
 
@@ -137,7 +138,7 @@ Property *rofi_theme_property_copy(const Property *p) {
     retv->value.link.ref = NULL;
     if (p->value.link.def_value) {
       retv->value.link.def_value =
-          rofi_theme_property_copy(p->value.link.def_value);
+          rofi_theme_property_copy(p->value.link.def_value, NULL);
     }
     break;
   case P_PADDING: {
@@ -635,7 +636,7 @@ void yyerror(YYLTYPE *yylloc, const char *what, const char *s) {
 static void rofi_theme_copy_property_int(G_GNUC_UNUSED gpointer key,
                                          gpointer value, gpointer user_data) {
   GHashTable *table = (GHashTable *)user_data;
-  Property *p = rofi_theme_property_copy((Property *)value);
+  Property *p = rofi_theme_property_copy((Property *)value, NULL);
   g_hash_table_replace(table, p->name, p);
 }
 void rofi_theme_widget_add_properties(ThemeWidget *widget, GHashTable *table) {

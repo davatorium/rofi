@@ -67,7 +67,7 @@ typedef char *(*_mode_get_display_value)(const Mode *sw,
  */
 typedef cairo_surface_t *(*_mode_get_icon)(const Mode *sw,
                                            unsigned int selected_line,
-                                           int height);
+                                           unsigned int height);
 
 /**
  * @param sw The #Mode pointer

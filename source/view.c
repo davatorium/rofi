@@ -1007,8 +1007,8 @@ inline static void rofi_view_nav_last(RofiViewState *state) {
   // state->selected = state->filtered_lines - 1;
   listview_set_selected(state->list_view, -1);
 }
-static void selection_changed_callback(listview *lv, unsigned int index,
-                                       void *udata) {
+static void selection_changed_callback(G_GNUC_UNUSED listview *lv,
+                                       unsigned int index, void *udata) {
   RofiViewState *state = (RofiViewState *)udata;
   if (state->tb_current_entry) {
     if (index < state->filtered_lines) {

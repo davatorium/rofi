@@ -429,8 +429,9 @@ static char *script_get_message(const Mode *sw) {
   ScriptModePrivateData *pd = sw->private_data;
   return g_strdup(pd->message);
 }
-static cairo_surface_t *
-script_get_icon(const Mode *sw, unsigned int selected_line, int height) {
+static cairo_surface_t *script_get_icon(const Mode *sw,
+                                        unsigned int selected_line,
+                                        unsigned int height) {
   ScriptModePrivateData *pd =
       (ScriptModePrivateData *)mode_get_private_data(sw);
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
@@ -454,7 +455,7 @@ typedef struct ScriptUser {
 } ScriptUser;
 
 ScriptUser *user_scripts = NULL;
-int num_scripts = 0;
+size_t num_scripts = 0;
 
 void script_mode_cleanup(void) {
   for (size_t i = 0; i < num_scripts; i++) {
@@ -493,7 +494,7 @@ void script_mode_gather_user_scripts(void) {
 
 static int script_mode_has_user_script(char const *const user) {
 
-  for (int i = 0; i < num_scripts; i++) {
+  for (size_t i = 0; i < num_scripts; i++) {
     if (g_strcmp0(user_scripts[i].name, user) == 0) {
       return i;
     }

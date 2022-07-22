@@ -50,15 +50,23 @@
 
 ThemeWidget *rofi_theme = NULL;
 
-uint32_t rofi_icon_fetcher_query(const char *name, const int size) { return 0; }
-uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
-                                          const int hsize) {
+uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
+                                 G_GNUC_UNUSED const int size) {
+  return 0;
+}
+uint32_t rofi_icon_fetcher_query_advanced(G_GNUC_UNUSED const char *name,
+                                          G_GNUC_UNUSED const int wsize,
+                                          G_GNUC_UNUSED const int hsize) {
   return 0;
 }
 void rofi_clear_error_messages(void) {}
-cairo_surface_t *rofi_icon_fetcher_get(const uint32_t uid) { return NULL; }
+cairo_surface_t *rofi_icon_fetcher_get(G_GNUC_UNUSED const uint32_t uid) {
+  return NULL;
+}
 
-gboolean rofi_theme_parse_string(const char *string) { return FALSE; }
+gboolean rofi_theme_parse_string(G_GNUC_UNUSED const char *string) {
+  return FALSE;
+}
 
 double textbox_get_estimated_char_height(void) { return 16.0; }
 double textbox_get_estimated_ch(void) { return 9.0; }

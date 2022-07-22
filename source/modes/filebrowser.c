@@ -561,7 +561,7 @@ static int file_browser_token_match(const Mode *sw, rofi_int_matcher **tokens,
 }
 
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  int height) {
+                                  unsigned int height) {
   FileBrowserModePrivateData *pd =
       (FileBrowserModePrivateData *)mode_get_private_data(sw);
   g_return_val_if_fail(pd->array != NULL, NULL);

@@ -772,7 +772,7 @@ static gboolean record(G_GNUC_UNUSED void *data) {
   return G_SOURCE_CONTINUE;
 }
 static void rofi_custom_log_function(const char *log_domain,
-                                     GLogLevelFlags log_level,
+                                     G_GNUC_UNUSED GLogLevelFlags log_level,
                                      const gchar *message, gpointer user_data) {
   int fp = GPOINTER_TO_INT(user_data);
   dprintf(fp, "[%s]: %s\n", log_domain == NULL ? "default" : log_domain,

@@ -139,7 +139,7 @@ char *mode_get_display_value(const Mode *mode, unsigned int selected_line,
  * @returns allocated new cairo_surface_t if applicable
  */
 cairo_surface_t *mode_get_icon(Mode *mode, unsigned int selected_line,
-                               int height);
+                               unsigned int height);
 
 /**
  * @param mode The mode to query

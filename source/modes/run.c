@@ -534,7 +534,7 @@ static char *run_get_message(const Mode *sw) {
   return NULL;
 }
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  int height) {
+                                  unsigned int height) {
   RunModePrivateData *pd = (RunModePrivateData *)mode_get_private_data(sw);
   if (pd->file_complete) {
     return pd->completer->_get_icon(pd->completer, selected_line, height);

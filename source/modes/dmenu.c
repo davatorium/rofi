@@ -56,8 +56,8 @@
 static int dmenu_mode_init(Mode *sw);
 static int dmenu_token_match(const Mode *sw, rofi_int_matcher **tokens,
                              unsigned int index);
-static cairo_surface_t *dmenu_get_icon(const Mode *sw,
-                                       unsigned int selected_line, int height);
+static cairo_surface_t *
+dmenu_get_icon(const Mode *sw, unsigned int selected_line, unsigned int height);
 static char *dmenu_get_message(const Mode *sw);
 
 static inline unsigned int bitget(uint32_t const *const array,
@@ -192,9 +192,13 @@ static gboolean dmenu_async_read_proc(gint fd, GIOCondition condition,
                                       gpointer user_data) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)user_data;
   char command;
+  // Only interrested in read events.
+  if ((condition & G_IO_IN) != G_IO_IN) {
+    return G_SOURCE_CONTINUE;
+  }
   // Read the entry from the pipe that was used to signal this action.
   if (read(fd, &command, 1) == 1) {
-    if ( command == 'r' ){
+    if (command == 'r') {
       Block *block = NULL;
       gboolean changed = FALSE;
       // Empty out the AsyncQueue (that is thread safe) from all blocks pushed
@@ -204,10 +208,10 @@ static gboolean dmenu_async_read_proc(gint fd, GIOCondition condition,
         if (pd->cmd_list_real_length < (pd->cmd_list_length + block->length)) {
           pd->cmd_list_real_length = MAX(pd->cmd_list_real_length * 2, 4096);
           pd->cmd_list = g_realloc(pd->cmd_list, sizeof(DmenuScriptEntry) *
-              pd->cmd_list_real_length);
+                                                     pd->cmd_list_real_length);
         }
         memcpy(&(pd->cmd_list[pd->cmd_list_length]), &(block->values[0]),
-            sizeof(DmenuScriptEntry) * block->length);
+               sizeof(DmenuScriptEntry) * block->length);
         pd->cmd_list_length += block->length;
         g_free(block);
         changed = TRUE;
@@ -215,8 +219,8 @@ static gboolean dmenu_async_read_proc(gint fd, GIOCondition condition,
       if (changed) {
         rofi_view_reload();
       }
-    } else if ( command == 'q' ){
-      if ( pd->loading ) {
+    } else if (command == 'q') {
+      if (pd->loading) {
         rofi_view_set_overlay(rofi_view_get_active(), NULL);
       }
     }
@@ -239,7 +243,7 @@ static void read_input_sync(DmenuModePrivateData *pd, unsigned int pre_read) {
 static gpointer read_input_thread(gpointer userdata) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)userdata;
   ssize_t nread = 0;
-  size_t len = 0;
+  ssize_t len = 0;
   char *line = NULL;
   // Create the message passing queue to the UI thread.
   pd->async_queue = g_async_queue_new();
@@ -276,7 +280,7 @@ static gpointer read_input_thread(gpointer userdata) {
         if (readbytes > 0) {
           nread += readbytes;
           line[nread] = '\0';
-          size_t i = 0;
+          ssize_t i = 0;
           while (i < nread) {
             if (line[i] == pd->separator) {
               line[i] = '\0';
@@ -632,7 +636,8 @@ static char *dmenu_get_message(const Mode *sw) {
   return NULL;
 }
 static cairo_surface_t *dmenu_get_icon(const Mode *sw,
-                                       unsigned int selected_line, int height) {
+                                       unsigned int selected_line,
+                                       unsigned int height) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
 
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
@@ -650,7 +655,8 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
   return rofi_icon_fetcher_get(uid);
 }
 
-static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state, int retv) {
+static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state,
+                         int retv) {
 
   if (pd->reading_thread) {
     // Stop listinig to new messages from reading thread.
@@ -779,7 +785,7 @@ static void dmenu_finalize(RofiViewState *state) {
     rofi_view_restart(state);
     rofi_view_set_selected_line(state, pd->selected_line);
     if (!restart) {
-      dmenu_finish(pd,state, retv);
+      dmenu_finish(pd, state, retv);
     }
     return;
   }
@@ -835,7 +841,7 @@ static void dmenu_finalize(RofiViewState *state) {
     rofi_view_restart(state);
     rofi_view_set_selected_line(state, pd->selected_line);
   } else {
-    dmenu_finish(pd,state, retv);
+    dmenu_finish(pd, state, retv);
   }
 }
 

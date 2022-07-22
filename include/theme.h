@@ -144,7 +144,7 @@ void rofi_theme_property_free(Property *p);
  *
  * @returns a copy of p
  */
-Property *rofi_theme_property_copy(const Property *p);
+Property *rofi_theme_property_copy(const Property *p, void *);
 /**
  * @param widget
  *
