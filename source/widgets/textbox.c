@@ -453,14 +453,14 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     return;
   }
   textbox *tb = (textbox *)wid;
-  unsigned int dot_offset = ((tb->flags & TB_INDICATOR) ? DOT_OFFSET : 0);
+  int dot_offset = ((tb->flags & TB_INDICATOR) ? DOT_OFFSET : 0);
 
   if (tb->changed) {
     __textbox_update_pango_text(tb);
   }
 
   // Skip the side MARGIN on the X axis.
-  int x = widget_padding_get_left(WIDGET(tb));
+  int x;
   int top = widget_padding_get_top(WIDGET(tb));
   int y = (pango_font_metrics_get_ascent(tb->tbfc->metrics) -
            pango_layout_get_baseline(tb->layout)) /
@@ -475,10 +475,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   }
   y += top;
 
-  x += dot_offset;
-
-  if (tb->xalign > 0.001) {
-  }
   // TODO check if this is still needed after flatning.
   cairo_set_operator(draw, CAIRO_OPERATOR_OVER);
   cairo_set_source_rgb(draw, 0.0, 0.0, 0.0);
@@ -493,7 +489,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   case PANGO_ALIGN_CENTER: {
     int rem =
         MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
-                   line_width);
+                   line_width - dot_offset);
     x = (tb->xalign - 0.5) * rem + widget_padding_get_left(WIDGET(tb));
     cairo_move_to(draw, x, top);
     break;
@@ -501,7 +497,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   case PANGO_ALIGN_RIGHT: {
     int rem =
         MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
-                   line_width);
+                   line_width - dot_offset);
     x = -(1.0 - tb->xalign) * rem + widget_padding_get_left(WIDGET(tb));
     cairo_move_to(draw, x, top);
     break;
@@ -509,8 +505,9 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   default: {
     int rem =
         MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
-                   line_width);
+                   line_width - dot_offset);
     x = tb->xalign * rem + widget_padding_get_left(WIDGET(tb));
+    x += dot_offset;
     cairo_move_to(draw, x, top);
     break;
   }
