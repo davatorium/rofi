@@ -977,6 +977,25 @@ configuration {
 .fi
 .RE
 
+.PP
+You can hide the currently active window with the 'hide-active-window' setting:
+
+.PP
+.RS
+
+.nf
+configuration {
+  window {
+      hide-active-window: true;
+  }
+}
+
+.fi
+.RE
+
+.PP
+or pass \fB\fC-window-hide-active-window true\fR on command line.
+
 .SS Combi settings
 .PP
 \fB\fC-combi-modes\fR \fImode1\fP,\fImode2\fP

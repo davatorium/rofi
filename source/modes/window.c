@@ -148,6 +148,8 @@ typedef struct {
   unsigned int title_len;
   unsigned int role_len;
   GRegex *window_regex;
+  // Hide current active window
+  gboolean hide_active_window;
 } WindowModePrivateData;
 
 winlist *cache_client = NULL;
@@ -664,7 +666,9 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
         if (cd && winclient->wmdesktop != current_desktop) {
           continue;
         }
-        winlist_append(pd->ids, winclient->window, NULL);
+        if (!pd->hide_active_window || winclient->window != curr_win_id) {
+          winlist_append(pd->ids, winclient->window, NULL);
+        }
       }
     }
 
@@ -676,7 +680,14 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
 }
 static int window_mode_init(Mode *sw) {
   if (mode_get_private_data(sw) == NULL) {
+
     WindowModePrivateData *pd = g_malloc0(sizeof(*pd));
+    ThemeWidget *wid = rofi_config_find_widget(sw->name, NULL, TRUE);
+    Property *p =
+        rofi_theme_find_property(wid, P_BOOLEAN, "hide-active-window", FALSE);
+    if (p && p->type == P_BOOLEAN && p->value.b == TRUE) {
+      pd->hide_active_window = TRUE;
+    }
     pd->window_regex = g_regex_new("{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL);
     mode_set_private_data(sw, (void *)pd);
     _window_mode_load_data(sw, FALSE);
@@ -689,6 +700,13 @@ static int window_mode_init(Mode *sw) {
 static int window_mode_init_cd(Mode *sw) {
   if (mode_get_private_data(sw) == NULL) {
     WindowModePrivateData *pd = g_malloc0(sizeof(*pd));
+
+    ThemeWidget *wid = rofi_config_find_widget(sw->name, NULL, TRUE);
+    Property *p =
+        rofi_theme_find_property(wid, P_BOOLEAN, "hide-active-window", FALSE);
+    if (p && p->type == P_BOOLEAN && p->value.b == TRUE) {
+      pd->hide_active_window = TRUE;
+    }
     pd->window_regex = g_regex_new("{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL);
     mode_set_private_data(sw, (void *)pd);
     _window_mode_load_data(sw, TRUE);
@@ -931,7 +949,8 @@ static cairo_user_data_key_t data_key;
 /** Create a surface object from this image data.
  * \param width The width of the image.
  * \param height The height of the image
- * \param data The image's data in ARGB format, will be copied by this function.
+ * \param data The image's data in ARGB format, will be copied by this
+ * function.
  */
 static cairo_surface_t *draw_surface_from_data(int width, int height,
                                                uint32_t const *const data) {
@@ -985,7 +1004,8 @@ static cairo_surface_t *ewmh_window_icon_from_reply(xcb_get_property_reply_t *r,
       break;
     }
 
-    /* use the greater of the two dimensions to match against the preferred size
+    /* use the greater of the two dimensions to match against the preferred
+     * size
      */
     uint32_t size = MAX(data[0], data[1]);
 

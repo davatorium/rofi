@@ -592,6 +592,18 @@ configuration {
   }
 }
 ```
+You can hide the currently active window with the 'hide-active-window' setting:
+
+```css
+configuration {
+  window {
+      hide-active-window: true;
+  }
+}
+```
+
+or pass `-window-hide-active-window true` on command line.
+
 
 ### Combi settings
 
