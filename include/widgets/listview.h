@@ -231,13 +231,6 @@ void listview_set_mouse_activated_cb(listview *lv,
                                      listview_mouse_activated_cb cb,
                                      void *udata);
 /**
- * @param lv Handler to the listview object
- * @param enable boolean to enable/disable multi-select
- *
- * Enable,disable multi-select.
- */
-void listview_set_multi_select(listview *lv, gboolean enable);
-/**
  * @param lv Handler to the listview object.
  * @param num_lines the maximum number of lines to display.
  *

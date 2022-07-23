@@ -102,7 +102,6 @@ struct _listview {
   gboolean filtered;
 
   gboolean cycle;
-  gboolean multi_select;
 
   ScrollType scroll_type;
 
@@ -168,7 +167,7 @@ static void listview_set_state(_listview_row r, TextBoxFontType tbft) {
 }
 static void listview_add_widget(listview *lv, _listview_row *row, widget *wid,
                                 const char *label) {
-  TextboxFlags flags = (lv->multi_select) ? TB_INDICATOR : 0;
+  TextboxFlags flags = 0;
   if (strcasecmp(label, "element-icon") == 0) {
     row->icon = icon_create(WIDGET(wid), "element-icon");
     box_add((box *)wid, WIDGET(row->icon), FALSE);
@@ -1050,11 +1049,6 @@ void listview_set_mouse_activated_cb(listview *lv,
   if (lv) {
     lv->mouse_activated = cb;
     lv->mouse_activated_data = udata;
-  }
-}
-void listview_set_multi_select(listview *lv, gboolean enable) {
-  if (lv) {
-    lv->multi_select = enable;
   }
 }
 void listview_set_num_lines(listview *lv, unsigned int num_lines) {

@@ -108,6 +108,9 @@ typedef struct {
   int pipefd2[2];
   guint wake_source;
   gboolean loading;
+
+  char *ballot_selected;
+  char *ballot_unselected;
 } DmenuModePrivateData;
 
 #define BLOCK_LINES_SIZE 2048
@@ -338,8 +341,16 @@ static unsigned int dmenu_mode_get_num_entries(const Mode *sw) {
 }
 
 static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
-                                         const char *input) {
+                                         const char *input,
+                                         const unsigned int index) {
   if (pd->columns == NULL) {
+    if (pd->multi_select) {
+      if (pd->selected_list && bitget(pd->selected_list, index) == TRUE) {
+        return g_strdup_printf("%s%s", pd->ballot_selected, input);
+      } else {
+        return g_strdup_printf("%s%s", pd->ballot_unselected, input);
+      }
+    }
     return g_strdup(input);
   }
   char *retv = NULL;
@@ -350,6 +361,12 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
     ;
   }
   GString *str_retv = g_string_new("");
+
+  if (pd->selected_list && bitget(pd->selected_list, index) == TRUE) {
+    g_string_append(str_retv, pd->ballot_selected);
+  } else {
+    g_string_append(str_retv, pd->ballot_unselected);
+  }
   for (uint32_t i = 0; pd->columns && pd->columns[i]; i++) {
     unsigned int index =
         (unsigned int)g_ascii_strtoull(pd->columns[i], NULL, 10);
@@ -407,7 +424,8 @@ static char *get_display_data(const Mode *data, unsigned int index, int *state,
     *state |= MARKUP;
   }
   char *my_retv =
-      (get_entry ? dmenu_format_output_string(pd, retv[index].entry) : NULL);
+      (get_entry ? dmenu_format_output_string(pd, retv[index].entry, index)
+                 : NULL);
   return my_retv;
 }
 
@@ -856,8 +874,11 @@ int dmenu_mode_dialog(void) {
 
   pd->only_selected = FALSE;
   pd->multi_select = FALSE;
+  pd->ballot_selected = "☑ ";
+  pd->ballot_unselected = "☐ ";
+  find_arg_str("ballot-selected-str", &(pd->ballot_selected));
+  find_arg_str("ballot-unselected-str", &(pd->ballot_unselected));
   if (find_arg("-multi-select") >= 0) {
-    menu_flags = MENU_INDICATOR;
     pd->multi_select = TRUE;
   }
   if (find_arg("-markup-rows") >= 0) {
@@ -964,8 +985,16 @@ void print_dmenu_options(void) {
   print_help_msg("-w", "windowid", "Position over window with X11 windowid.",
                  NULL, is_term);
   print_help_msg("-keep-right", "", "Set ellipsize to end.", NULL, is_term);
-  print_help_msg("--display-columns", "", "Only show the selected columns",
-                 NULL, is_term);
-  print_help_msg("--display-column-separator", "\t",
+  print_help_msg("-display-columns", "", "Only show the selected columns", NULL,
+                 is_term);
+  print_help_msg("-display-column-separator", "\t",
                  "Separator to use to split columns (regex)", NULL, is_term);
+  print_help_msg("-ballot-selected-str", "\t",
+                 "When multi-select is enabled prefix this string when element "
+                 "is selected.",
+                 NULL, is_term);
+  print_help_msg("-ballot-unselected-str", "\t",
+                 "When multi-select is enabled prefix this string when element "
+                 "is not selected.",
+                 NULL, is_term);
 }

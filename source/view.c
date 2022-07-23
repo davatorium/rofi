@@ -1974,10 +1974,6 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
     listview_set_selection_changed_callback(
         state->list_view, selection_changed_callback, (void *)state);
     box_add((box *)parent_widget, WIDGET(state->list_view), TRUE);
-    // Set configuration
-    listview_set_multi_select(state->list_view,
-                              (state->menu_flags & MENU_INDICATOR) ==
-                                  MENU_INDICATOR);
     listview_set_scroll_type(state->list_view, config.scroll_method);
     listview_set_mouse_activated_cb(
         state->list_view, rofi_view_listview_mouse_activated_cb, state);

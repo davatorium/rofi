@@ -180,6 +180,17 @@ The column separator. This is a regex.
 
 *default*: '\t'
 
+`-ballot-selected-str` *string*
+
+When multi-select is enabled, prefix this string when element is selected.
+
+*default*: "☑ "
+
+`-ballot-unselected-str` *string*
+
+When multi-select is enabled, prefix this string when element is not selected.
+
+*default*: "☑ "
 
 ## RETURN VALUE
 
