@@ -876,8 +876,8 @@ int dmenu_mode_dialog(void) {
   pd->multi_select = FALSE;
   pd->ballot_selected = "☑ ";
   pd->ballot_unselected = "☐ ";
-  find_arg_str("ballot-selected-str", &(pd->ballot_selected));
-  find_arg_str("ballot-unselected-str", &(pd->ballot_unselected));
+  find_arg_str("-ballot-selected-str", &(pd->ballot_selected));
+  find_arg_str("-ballot-unselected-str", &(pd->ballot_unselected));
   if (find_arg("-multi-select") >= 0) {
     pd->multi_select = TRUE;
   }
