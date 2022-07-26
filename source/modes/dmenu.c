@@ -342,9 +342,10 @@ static unsigned int dmenu_mode_get_num_entries(const Mode *sw) {
 
 static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
                                          const char *input,
-                                         const unsigned int index) {
+                                         const unsigned int index,
+                                         gboolean multi_select) {
   if (pd->columns == NULL) {
-    if (pd->multi_select) {
+    if (multi_select) {
       if (pd->selected_list && bitget(pd->selected_list, index) == TRUE) {
         return g_strdup_printf("%s%s", pd->ballot_selected, input);
       } else {
@@ -362,10 +363,12 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
   }
   GString *str_retv = g_string_new("");
 
-  if (pd->selected_list && bitget(pd->selected_list, index) == TRUE) {
-    g_string_append(str_retv, pd->ballot_selected);
-  } else {
-    g_string_append(str_retv, pd->ballot_unselected);
+  if (multi_select) {
+    if (pd->selected_list && bitget(pd->selected_list, index) == TRUE) {
+      g_string_append(str_retv, pd->ballot_selected);
+    } else {
+      g_string_append(str_retv, pd->ballot_unselected);
+    }
   }
   for (uint32_t i = 0; pd->columns && pd->columns[i]; i++) {
     unsigned int index =
@@ -396,6 +399,13 @@ static inline unsigned int get_index(unsigned int length, int index) {
   return UINT_MAX;
 }
 
+static char *dmenu_get_completion_data(const Mode *data, unsigned int index) {
+  Mode *sw = (Mode *)data;
+  DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
+  DmenuScriptEntry *retv = (DmenuScriptEntry *)pd->cmd_list;
+  return dmenu_format_output_string(pd, retv[index].entry, index, FALSE);
+}
+
 static char *get_display_data(const Mode *data, unsigned int index, int *state,
                               G_GNUC_UNUSED GList **list, int get_entry) {
   Mode *sw = (Mode *)data;
@@ -424,7 +434,8 @@ static char *get_display_data(const Mode *data, unsigned int index, int *state,
     *state |= MARKUP;
   }
   char *my_retv =
-      (get_entry ? dmenu_format_output_string(pd, retv[index].entry, index)
+      (get_entry ? dmenu_format_output_string(pd, retv[index].entry, index,
+                                              pd->multi_select)
                  : NULL);
   return my_retv;
 }
@@ -465,7 +476,7 @@ Mode dmenu_mode = {.name = "dmenu",
                    ._token_match = dmenu_token_match,
                    ._get_display_value = get_display_data,
                    ._get_icon = dmenu_get_icon,
-                   ._get_completion = NULL,
+                   ._get_completion = dmenu_get_completion_data,
                    ._preprocess_input = NULL,
                    ._get_message = dmenu_get_message,
                    .private_data = NULL,
