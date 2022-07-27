@@ -55,6 +55,7 @@ typedef enum {
 
 /**
  * @param tb The textbox to set
+ * @param ico The icon to set
  * @param entry The position of the textbox
  * @param udata User data
  * @param type The textbox font style to apply to this entry (normal, selected,

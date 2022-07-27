@@ -27,7 +27,7 @@ runs:
       run: ninja -C builddir test
       shell: bash
     - id: doxy
-      run: ninja -C builddir doc/html 2>&1 > doxygen.log
+      run: ninja -C builddir doc/html > doxygen.log 2>&1 
       shell: bash
     - id: doxycheck
       uses: ./.github/actions/doxycheck

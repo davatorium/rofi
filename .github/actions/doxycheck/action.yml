@@ -11,7 +11,7 @@ runs:
   steps:
     - id: check
       run: |
-        if [[ "$(grep -c warning ${{ inputs.logfile }})" != 0 ]]; then
+        if [[ "$(grep -c warning: ${{ inputs.logfile }})" != 0 ]]; then
           echo
           echo Doxygen warnings found:
           grep warning ${{ inputs.logfile }}

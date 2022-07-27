@@ -87,8 +87,8 @@ typedef enum {
 /**
  * @param widget The container widget itself
  * @param type The widget type searched for
- * @param x The X coordination of the mouse event relative to @param widget
- * @param y The Y coordination of the mouse event relative to @param widget
+ * @param x The X coordination of the mouse event relative to #widget
+ * @param y The Y coordination of the mouse event relative to #widget
  *
  * This callback must only iterate over the children of a Widget, and return
  * NULL if none of them is relevant.
@@ -101,8 +101,8 @@ typedef widget *(*widget_find_mouse_target_cb)(widget *widget, WidgetType type,
 /**
  * @param widget The target widget
  * @param action The action value (which enum it is depends on the widget type)
- * @param x The X coordination of the mouse event relative to @param widget
- * @param y The Y coordination of the mouse event relative to @param widget
+ * @param x The X coordination of the mouse event relative to #widget
+ * @param y The Y coordination of the mouse event relative to #widget
  * @param user_data The data passed to widget_set_trigger_action_handler()
  *
  * This callback should handle the action if relevant, and returns whether it

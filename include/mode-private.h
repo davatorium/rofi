@@ -60,6 +60,7 @@ typedef char *(*_mode_get_display_value)(const Mode *sw,
 /**
  * @param sw The #Mode pointer
  * @param selected_line The selected line
+ * @param height The height of the icon
  *
  * Obtains the icon if available
  *
@@ -81,11 +82,9 @@ typedef char *(*_mode_get_completion)(const Mode *sw,
                                       unsigned int selected_line);
 
 /**
+ * @param data The #Mode pointer
  * @param tokens  List of (input) tokens to match.
- * @param input   The entry to match against.
- * @param case_sensitive Whether case is significant.
  * @param index   The current selected index.
- * @param data    User data.
  *
  * Function prototype for the matching algorithm.
  *
