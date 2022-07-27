@@ -21,6 +21,7 @@ packages:
   - flex
   - bison
   - libglib2.0-dev-bin
+  - doxygen
 sources:
   - https://sr.ht/~qball/rofi/
 tasks:
@@ -31,6 +32,9 @@ tasks:
      ninja -C rofi/builddir
   - test: |
      ninja -C rofi/builddir test
+  - doxygen: |
+     ninja -C rofi/builddir/ doc/html > doxygen.log 2>&1
+     if [ $(grep -c warnings doxygen.log) -gt 0 ]; then exit 1; fi 
   - dist: |
      ninja -C rofi/builddir dist
 artifacts:
