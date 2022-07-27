@@ -65,6 +65,7 @@ cairo_surface_t *rofi_icon_fetcher_get(G_GNUC_UNUSED const uint32_t uid) {
 }
 
 void rofi_clear_error_messages(void) {}
+void rofi_clear_warning_messages(void) {}
 
 gboolean rofi_theme_parse_string(G_GNUC_UNUSED const char *string) {
   return FALSE;
@@ -76,6 +77,7 @@ void rofi_view_get_current_monitor(int *width, int *height) {
 }
 double textbox_get_estimated_ch(void) { return 9.0; }
 void rofi_add_error_message(G_GNUC_UNUSED GString *msg) {}
+void rofi_add_warning_message(G_GNUC_UNUSED GString *msg) {}
 int rofi_view_error_dialog(const char *msg, G_GNUC_UNUSED int markup) {
   fputs(msg, stderr);
   return TRUE;

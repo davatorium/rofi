@@ -85,6 +85,7 @@ gboolean config_parse_set_property(G_GNUC_UNUSED const Property *p,
   return FALSE;
 }
 void rofi_add_error_message(G_GNUC_UNUSED GString *msg) {}
+void rofi_add_warning_message(G_GNUC_UNUSED GString *msg) {}
 
 char *rofi_expand_path(G_GNUC_UNUSED const char *path) { return NULL; }
 double textbox_get_estimated_char_height(void) { return 16; }

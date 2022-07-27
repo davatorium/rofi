@@ -427,14 +427,38 @@ static void rofi_view_window_update_size(RofiViewState *state) {
   widget_resize(WIDGET(state->main_window), state->width, state->height);
 }
 
+extern GList *list_of_warning_msgs;
 static void rofi_view_reload_message_bar(RofiViewState *state) {
   if (state->mesg_box == NULL) {
     return;
   }
   char *msg = mode_get_message(state->sw);
-  if (msg) {
-    textbox_text(state->mesg_tb, msg);
+  if (msg || list_of_warning_msgs) {
+    /** we want to popin warning here. */
+
+    GString *emesg = g_string_new(msg);
+    if (list_of_warning_msgs) {
+      if (msg) {
+        g_string_append_c(emesg, '\n');
+      }
+      g_string_append(
+          emesg, "The following warnings were detected when starting rofi:\n");
+      GList *iter = g_list_first(list_of_warning_msgs);
+      int index = 0;
+      for (; iter != NULL && index < 2; iter = g_list_next(iter)) {
+        GString *msg = (GString *)(iter->data);
+        g_string_append(emesg, "\n\n");
+        g_string_append(emesg, msg->str);
+        index++;
+      }
+      if (g_list_length(iter) > 1) {
+        g_string_append_printf(emesg, "\nThere are <b>%u</b> more errors.",
+                               g_list_length(iter) - 1);
+      }
+    }
+    textbox_text(state->mesg_tb, emesg->str);
     widget_enable(WIDGET(state->mesg_box));
+    g_string_free(emesg, TRUE);
     g_free(msg);
   } else {
     widget_disable(WIDGET(state->mesg_box));

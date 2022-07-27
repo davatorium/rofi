@@ -1594,7 +1594,7 @@ static void rofi_theme_parse_process_links_int(ThemeWidget *wid) {
                             pv->value.link.name, n, pv->name,
                             pv->value.link.name);
 
-            rofi_add_error_message(str);
+            rofi_add_warning_message(str);
             g_free(n);
           }
         }

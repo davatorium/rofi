@@ -84,6 +84,7 @@ const char *cache_dir = NULL;
 
 /** List of error messages.*/
 GList *list_of_error_msgs = NULL;
+GList *list_of_warning_msgs = NULL;
 
 static void rofi_collectmodes_destroy(void);
 void rofi_add_error_message(GString *str) {
@@ -97,6 +98,19 @@ void rofi_clear_error_messages(void) {
     }
     g_list_free(list_of_error_msgs);
     list_of_error_msgs = NULL;
+  }
+}
+void rofi_add_warning_message(GString *str) {
+  list_of_warning_msgs = g_list_append(list_of_warning_msgs, str);
+}
+void rofi_clear_warning_messages(void) {
+  if (list_of_warning_msgs) {
+    for (GList *iter = g_list_first(list_of_warning_msgs); iter != NULL;
+         iter = g_list_next(iter)) {
+      g_string_free((GString *)iter->data, TRUE);
+    }
+    g_list_free(list_of_warning_msgs);
+    list_of_warning_msgs = NULL;
   }
 }
 
@@ -474,6 +488,7 @@ static void cleanup(void) {
   g_free(config_path);
 
   rofi_clear_error_messages();
+  rofi_clear_warning_messages();
 
   if (rofi_theme) {
     rofi_theme_free(rofi_theme);
@@ -719,6 +734,13 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
   if (list_of_error_msgs != NULL) {
     show_error_dialog();
     return G_SOURCE_REMOVE;
+  }
+  if (list_of_warning_msgs != NULL) {
+    for (GList *iter = g_list_first(list_of_warning_msgs); iter != NULL;
+         iter = g_list_next(iter)) {
+      fputs(((GString *)iter->data)->str, stderr);
+      fputs("\n", stderr);
+    }
   }
   // Dmenu mode.
   if (dmenu_mode == TRUE) {
@@ -1123,11 +1145,16 @@ extern GList *list_of_error_msgs;
 int rofi_theme_rasi_validate(const char *filename) {
   rofi_theme_parse_file(filename);
   rofi_theme_parse_process_links();
-  if (list_of_error_msgs == NULL) {
+  if (list_of_error_msgs == NULL && list_of_warning_msgs == NULL) {
     return EXIT_SUCCESS;
   }
 
   for (GList *iter = g_list_first(list_of_error_msgs); iter != NULL;
+       iter = g_list_next(iter)) {
+    fputs(((GString *)iter->data)->str, stderr);
+    fputs("\n", stderr);
+  }
+  for (GList *iter = g_list_first(list_of_warning_msgs); iter != NULL;
        iter = g_list_next(iter)) {
     fputs(((GString *)iter->data)->str, stderr);
     fputs("\n", stderr);

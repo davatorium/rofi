@@ -67,6 +67,7 @@ gboolean config_parse_set_property(G_GNUC_UNUSED const Property *p,
   return FALSE;
 }
 void rofi_add_error_message(G_GNUC_UNUSED GString *msg) {}
+void rofi_add_warning_message(G_GNUC_UNUSED GString *msg) {}
 void rofi_view_queue_redraw(void) {}
 int monitor_active(G_GNUC_UNUSED workarea *mon) { return 0; }
 void rofi_view_get_current_monitor(G_GNUC_UNUSED int *width,

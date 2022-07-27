@@ -75,6 +75,18 @@ void rofi_add_error_message(GString *str);
  * Clear the list of stored error messages.
  */
 void rofi_clear_error_messages(void);
+
+/**
+ * @param str A GString with an warning message to display.
+ *
+ * Queue an warning.
+ */
+void rofi_add_warning_message(GString *str);
+
+/**
+ * Clear the list of stored warning messages.
+ */
+void rofi_clear_warning_messages(void);
 /**
  * @param code the code to return
  *

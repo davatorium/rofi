@@ -52,6 +52,7 @@ uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
   return 0;
 }
 void rofi_clear_error_messages(void) {}
+void rofi_clear_warning_messages(void) {}
 uint32_t
 rofi_icon_fetcher_query_advanced(G_GNUC_UNUSED const char *name,
                                  G_GNUC_UNUSED G_GNUC_UNUSED const int wsize,
@@ -104,10 +105,17 @@ void display_startup_notification(
 
 gboolean error = FALSE;
 GString *error_msg = NULL;
+gboolean warning = FALSE;
+GString *warning_msg = NULL;
 void rofi_add_error_message(GString *msg) {
   ck_assert_ptr_null(error_msg);
   error_msg = msg;
   error = TRUE;
+}
+void rofi_add_warning_message(GString *msg) {
+  ck_assert_ptr_null(warning_msg);
+  warning_msg = msg;
+  warning = TRUE;
 }
 
 static void theme_parser_setup(void) { error = 0; }

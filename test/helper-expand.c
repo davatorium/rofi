@@ -59,6 +59,7 @@ static int test = 0;
   }
 ThemeWidget *rofi_theme = NULL;
 void rofi_clear_error_messages(void) {}
+void rofi_clear_warning_messages(void) {}
 uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
                                  G_GNUC_UNUSED const int size) {
   return 0;
@@ -82,6 +83,7 @@ double textbox_get_estimated_ch(void) { return 9.0; }
 gboolean rofi_theme_parse_string(G_GNUC_UNUSED const char *string) { return 0; }
 
 void rofi_add_error_message(G_GNUC_UNUSED GString *msg) {}
+void rofi_add_warning_message(G_GNUC_UNUSED GString *msg) {}
 
 int rofi_view_error_dialog(const char *msg, G_GNUC_UNUSED int markup) {
   fputs(msg, stderr);
