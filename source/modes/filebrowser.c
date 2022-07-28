@@ -50,6 +50,12 @@
 
 #define FILEBROWSER_CACHE_FILE "rofi3.filebrowsercache"
 
+#if defined(__APPLE__)
+#define st_atim st_atimespec
+#define st_ctim st_ctimespec
+#define st_mtim st_mtimespec
+#endif
+
 /**
  * The internal data structure holding the private data of the TEST Mode.
  */
