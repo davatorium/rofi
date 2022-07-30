@@ -52,7 +52,7 @@ PangoAttrList *helper_token_match_get_pango_attr(RofiHighlightColorStyle th,
 /**
  * @param th The RofiHighlightColorStyle
  * @param start The start to highlighting.
- * @param stop The stop point for the highlight
+ * @param endp The end point for the highlight
  * @param retv The Attribute list to update with matches
  *
  * Creates a set of pango attributes highlighting the matches found in the input
