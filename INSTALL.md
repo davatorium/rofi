@@ -217,3 +217,9 @@ On both openSUSE Leap and openSUSE Tumbleweed rofi can be installed using:
 ### FreeBSD
 
     sudo pkg install rofi
+
+### macOS
+
+On macOS rofi can be installed via [MacPorts](https://www.macports.org):
+
+    sudo port install rofi
