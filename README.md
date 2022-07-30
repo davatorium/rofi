@@ -3,7 +3,6 @@
 <a href="https://img.shields.io/github/forks/davatorium/rofi.svg"><img src="https://img.shields.io/github/forks/davatorium/rofi.svg"></a>
 <a href="https://github.com/davatorium/rofi/stargazers"><img src="https://img.shields.io/github/stars/davatorium/rofi.svg"></a>
 <a href="https://github.com/davatorium/rofi/releases"><img src="https://img.shields.io/github/downloads/davatorium/rofi/total.svg"></a>
-<a href="https://github.com/davatorium/rofi/discussions"><img src="https://img.shields.io/badge/forum-online-green.svg"></a>
 <a href="https://repology.org/metapackage/rofi/versions"><img src="https://repology.org/badge/tiny-repos/rofi.svg"></a>
 </p>
 
@@ -43,9 +42,11 @@ Rofi is not:
 
 *   A UI toolkit.
 *   A library to be used in other applications.
-*   An application that can support every possible use-case. It tries to be generic enough to be usable by everybody.
+*   An application that can support every possible use-case. It tries to be
+    generic enough to be usable by everybody.
     * Specific functionality can be added using scripts or plugins, many exists.
-*   Just a dmenu replacement. The dmenu functionality is a nice 'extra' to **rofi**, not its main purpose.
+*   Just a dmenu replacement. The dmenu functionality is a nice 'extra' to
+    **rofi**, not its main purpose.
 
 
 # Table of Contents
@@ -70,7 +71,7 @@ Its main features are:
 *   Type to filter
     *   Tokenized: type any word in any order to filter
     *   Case insensitive (togglable)
-    *   Support for fuzzy-, regex-, and glob matching
+    *   Support for fuzzy-, regex-, prefix-, and glob-matching
 *   UTF-8 enabled
     *   UTF-8-aware string collating
     *   International keyboard support (\`e -> è)
@@ -78,10 +79,12 @@ Its main features are:
 *   Cairo drawing and Pango font rendering
 *   Built-in modes:
     *   Window switcher mode
-        *   EWMH compatible WM
+        * EWMH compatible WM
+        * Work arounds for i3,bspwm
     *   Application launcher
     *   Desktop file application launcher
     *   SSH launcher mode
+    *   File browser
     *   Combi mode, allowing several modes to be merged into one list
 *   History-based ordering — last 25 choices are ordered on top based on use (optional)
 *   Levenshtein distance or fzf like sorting of matches (optional)
@@ -110,7 +113,12 @@ Below is a list of the different modes:
 
 # Manpage
 
-For more up to date information, please see the manpages. The other sections and links might have outdated information as they have relatively less maintainance than the manpages. So, if you come across any issues please consult manpages, [discussion](https://github.com/davatorium/rofi/discussions) and [issue tracker](https://github.com/davatorium/rofi/issues?q=) before filing new issue.
+For more up to date information, please see the manpages. The other sections
+and links might have outdated information as they have relatively less
+maintainance than the manpages. So, if you come across any issues please
+consult manpages, [discussion](https://github.com/davatorium/rofi/discussions)
+and [issue tracker](https://github.com/davatorium/rofi/issues?q=) before filing
+new issue.
 
  * Manpages:
      * [rofi](doc/rofi.1.markdown)
@@ -123,14 +131,15 @@ For more up to date information, please see the manpages. The other sections and
 
 # Installation
 
-Please see the [installation guide](https://github.com/davatorium/rofi/blob/next/INSTALL.md) for instructions on how to
-install **Rofi**.
+Please see the [installation
+guide](https://github.com/davatorium/rofi/blob/next/INSTALL.md) for
+instructions on how to install **Rofi**.
 
 # Quickstart
 
 ## Usage
 
-> **This section just gives a brief overview of the various options. To get the full set of options see the _manpages_ section above**
+> **This section just gives a brief overview of the various options. To get the full set of options see the [manpages](#manpage) section above**
 
 #### Running rofi
 
@@ -160,6 +169,7 @@ To get one merge view, of `window`,`run`, and `ssh`:
 ## Configuration
 
 Generate a default configuration file
+
 ```
 mkdir -p ~/.config/rofi
 rofi -dump-config > ~/.config/rofi/config.rasi
@@ -167,14 +177,19 @@ rofi -dump-config > ~/.config/rofi/config.rasi
 
 This creates a file called `config.rasi` in the `~/.config/rofi/` folder. You can modify this file to set configuration settings and modify themes. `config.rasi` is the file rofi looks to by default.
 
-Please see the [configuration guide](https://github.com/davatorium/rofi/blob/next/CONFIG.md) for a summary of configuration options. More detailed options are provided in the manpages.
+Please see the [configuration
+guide](https://github.com/davatorium/rofi/blob/next/CONFIG.md) for a summary of
+configuration options. More detailed options are provided in the manpages.
 
 ## Themes
 
-Please see the [themes manpages](https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown) for a detailed description.
+Please see the [themes
+manpages](https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown)
+for a detailed description.
 
 
-The latest bundled themes can be found [here](https://github.com/davatorium/rofi/tree/next/themes).
+The latest bundled themes can be found
+[here](https://github.com/davatorium/rofi/tree/next/themes).
 
 # Screenshots
 
