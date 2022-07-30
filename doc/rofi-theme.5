@@ -787,9 +787,16 @@ The following options are available on pango 1.50.0 and up:
 \fB\fCuppercase\fR: Uppercase the text.
 .IP \(bu 2
 \fB\fClowercase\fR: Lowercase the text.
+
+.RE
+
+.PP
+The following option is disabled as pango crashes on this if there is eel
+ upsizing or wrapping. This will be re-enabled once fixed:
+
+.RS
 .IP \(bu 2
 \fB\fCcapitalize\fR: Capitalize the text.
-This is currently disabled because of a Pango bug.
 
 .RE
 

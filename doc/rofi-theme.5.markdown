@@ -505,8 +505,11 @@ The following options are available on pango 1.50.0 and up:
 
  * `uppercase`: Uppercase the text.
  * `lowercase`: Lowercase the text.
+
+ The following option is disabled as pango crashes on this if there is eel
+ upsizing or wrapping. This will be re-enabled once fixed:
+
  * `capitalize`: Capitalize the text.
-   This is currently disabled because of a Pango bug.
 
 ## Line style
 
