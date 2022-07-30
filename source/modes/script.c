@@ -352,7 +352,11 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
           rmpd->new_selection < rmpd->cmd_list_length) {
         rofi_view_set_selected_line(rofi_view_get_active(),
                                     rmpd->new_selection);
+      } else {
+        rofi_view_set_selected_line(rofi_view_get_active(), selected_line);
       }
+      g_free(*input);
+      *input = NULL;
       retv = RELOAD_DIALOG;
     } else {
       retv = RESET_DIALOG;
