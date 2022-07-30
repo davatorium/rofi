@@ -424,6 +424,7 @@ void helper_token_match_set_pango_attr_on_style(PangoAttrList *retv, int start,
     pa->end_index = end;
     pango_attr_list_insert(retv, pa);
   }
+#if PANGO_VERSION_CHECK(1, 50, 0)
   if (th.style & ROFI_HL_UPPERCASE) {
     PangoAttribute *pa =
         pango_attr_text_transform_new(PANGO_TEXT_TRANSFORM_UPPERCASE);
@@ -439,12 +440,16 @@ void helper_token_match_set_pango_attr_on_style(PangoAttrList *retv, int start,
     pango_attr_list_insert(retv, pa);
   }
   if (th.style & ROFI_HL_CAPITALIZE) {
+#if 0
     PangoAttribute *pa =
-        pango_attr_text_transform_new(PANGO_TEXT_TRANSFORM_CAPITALIZE);
+          pango_attr_text_transform_new(PANGO_TEXT_TRANSFORM_CAPITALIZE);
     pa->start_index = start;
     pa->end_index = end;
     pango_attr_list_insert(retv, pa);
+#endif
+    // Disabled because of bug in pango
   }
+#endif
   if (th.style & ROFI_HL_UNDERLINE) {
     PangoAttribute *pa = pango_attr_underline_new(PANGO_UNDERLINE_SINGLE);
     pa->start_index = start;

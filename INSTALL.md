@@ -24,7 +24,7 @@ You can also use [Meson](https://mesonbuild.com/) as an alternative.
 
 ### External libraries
 
-*   libpango
+*   libpango >= 1.50
 *   libpangocairo
 *   libcairo
 *   libcairo-xcb

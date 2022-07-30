@@ -500,9 +500,13 @@ should be applied.
  * `italic`: put the highlighted text in script type (slanted).
  * `underline`: put a line under the text.
  * `strikethrough`: put a line through the text.
+
+The following options are available on pango 1.50.0 and up:
+
  * `uppercase`: Uppercase the text.
  * `lowercase`: Lowercase the text.
  * `capitalize`: Capitalize the text.
+   This is currently disabled because of a Pango bug.
 
 ## Line style
 
