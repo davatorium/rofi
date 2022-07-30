@@ -345,6 +345,7 @@ static void help(G_GNUC_UNUSED int argc, char **argv) {
   script_user_list(is_term);
   printf("\n");
   printf("Compile time options:\n");
+  printf("\t• Pango   version %s\n", pango_version_string());
 #ifdef WINDOW_MODE
   printf("\t• window  %senabled%s\n", is_term ? color_green : "",
          is_term ? color_reset : "");
