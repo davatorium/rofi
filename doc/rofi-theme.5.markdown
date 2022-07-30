@@ -498,8 +498,11 @@ should be applied.
 
  * `bold`: make the text thicker then the surrounding text.
  * `italic`: put the highlighted text in script type (slanted).
- * `underline`: put a line under the highlighted text.
- * `strikethrough`: put a line through the highlighted text.
+ * `underline`: put a line under the text.
+ * `strikethrough`: put a line through the text.
+ * `uppercase`: Uppercase the text.
+ * `lowercase`: Lowercase the text.
+ * `capitalize`: Capitalize the text.
 
 ## Line style
 
@@ -912,6 +915,7 @@ The following properties are currently supported:
 * **vertical-align**:    Vertical alignment of the text. A number between 0 (top) and 1 (bottom).
 * **horizontal-align**:  Horizontal alignment of the text. A number between 0 (left) and 1 (right).
 * **text-color**:        the text color to use.
+* **text-transform**:    text style {color} for the whole text.
 * **highlight**:         text style {color}.
     color is optional, multiple highlight styles can be added like: bold underline italic #000000;
     This option is only available on the `element-text` widget.

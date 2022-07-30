@@ -50,6 +50,19 @@ PangoAttrList *helper_token_match_get_pango_attr(RofiHighlightColorStyle th,
                                                  PangoAttrList *retv);
 
 /**
+ * @param th The RofiHighlightColorStyle
+ * @param start The start to highlighting.
+ * @param stop The stop point for the highlight
+ * @param retv The Attribute list to update with matches
+ *
+ * Creates a set of pango attributes highlighting the matches found in the input
+ * style.
+ *
+ */
+void helper_token_match_set_pango_attr_on_style(PangoAttrList *retv, int start,
+                                                int end,
+                                                RofiHighlightColorStyle th);
+/**
  * @param pfd Pango font description to validate.
  * @param font The name of the font to check.
  *

@@ -736,6 +736,7 @@ listview *listview_create(widget *parent, const char *name,
       buff[i * 2] = 'a';
       buff[i * 2 + 1] = '\n';
     };
+    textbox_moveresize(row.textbox, 0, 0, 100000000, -1);
     textbox_text(row.textbox, buff);
   }
   // Make textbox very wide.

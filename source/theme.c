@@ -386,6 +386,15 @@ static void int_rofi_theme_print_property(Property *p) {
     if (p->value.highlight.style & ROFI_HL_ITALIC) {
       printf("italic ");
     }
+    if (p->value.highlight.style & ROFI_HL_UPPERCASE) {
+      printf("uppercase ");
+    }
+    if (p->value.highlight.style & ROFI_HL_LOWERCASE) {
+      printf("lowercase ");
+    }
+    if (p->value.highlight.style & ROFI_HL_CAPITALIZE) {
+      printf("capitalize ");
+    }
     if (p->value.highlight.style & ROFI_HL_COLOR) {
       rofi_theme_print_color(p->value.highlight.color);
     }

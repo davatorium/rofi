@@ -58,12 +58,16 @@ typedef enum {
   ROFI_HL_UNDERLINE = 2,
   /** strikethrough */
   ROFI_HL_STRIKETHROUGH = 16,
-  /** small caps */
-  ROFI_HL_SMALL_CAPS = 32,
   /** italic */
   ROFI_HL_ITALIC = 4,
   /** color */
-  ROFI_HL_COLOR = 8
+  ROFI_HL_COLOR = 8,
+  /** uppercase */
+  ROFI_HL_UPPERCASE = 32,
+  /** lowercase */
+  ROFI_HL_LOWERCASE = 64,
+  /** capitalize */
+  ROFI_HL_CAPITALIZE = 128
 } RofiHighlightStyle;
 
 /** Style of line */

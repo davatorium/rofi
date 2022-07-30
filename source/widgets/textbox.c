@@ -232,10 +232,6 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
   textbox_text(tb, txt ? txt : "");
   textbox_cursor_end(tb);
 
-  // auto height/width modes get handled here
-  textbox_moveresize(tb, tb->widget.x, tb->widget.y, tb->widget.w,
-                     tb->widget.h);
-
   tb->blink_timeout = 0;
   tb->blink = 1;
   if ((tb->flags & TB_EDITABLE) == TB_EDITABLE) {
@@ -257,6 +253,11 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
   } else {
     pango_layout_set_alignment(tb->layout, PANGO_ALIGN_RIGHT);
   }
+  // auto height/width modes get handled here
+  // UPDATE: don't autoheight here, as there is no width set.
+  // so no height can be determined and might result into  crash.
+  // textbox_moveresize(tb, tb->widget.x, tb->widget.y, tb->widget.w,
+  //                   tb->widget.h);
 
   return tb;
 }
@@ -323,6 +324,15 @@ static void __textbox_update_pango_text(textbox *tb) {
     pango_layout_set_markup(tb->layout, tb->text, -1);
   } else {
     pango_layout_set_text(tb->layout, tb->text, -1);
+  }
+  if (tb->text) {
+    RofiHighlightColorStyle th = {0, {0.0, 0.0, 0.0, 0.0}};
+    th = rofi_theme_get_highlight(WIDGET(tb), "text-transform", th);
+    if (th.style != 0) {
+      PangoAttrList *list = pango_attr_list_new();
+      helper_token_match_set_pango_attr_on_style(list, 0, G_MAXUINT, th);
+      pango_layout_set_attributes(tb->layout, list);
+    }
   }
 }
 const char *textbox_get_visible_text(const textbox *tb) {
@@ -398,10 +408,9 @@ void textbox_moveresize(textbox *tb, int x, int y, int w, int h) {
 
   if (tb->flags & TB_AUTOHEIGHT) {
     // Width determines height!
-    int tw = MAX(1, w);
-    pango_layout_set_width(
-        tb->layout,
-        PANGO_SCALE * (tw - widget_padding_get_padding_width(WIDGET(tb))));
+    int padding = widget_padding_get_padding_width(WIDGET(tb));
+    int tw = MAX(1 + padding, w);
+    pango_layout_set_width(tb->layout, PANGO_SCALE * (tw - padding));
     int hd = textbox_get_height(tb);
     h = MAX(hd, h);
   }

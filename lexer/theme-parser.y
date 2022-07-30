@@ -185,9 +185,11 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_ITALIC                         "Italic"
 %token T_UNDERLINE                      "Underline"
 %token T_STRIKETHROUGH                  "Strikethrough"
-%token T_SMALLCAPS                      "Small CAPS"
 %token T_DASH                           "Dash"
 %token T_SOLID                          "Solid"
+%token T_UPPERCASE                      "Uppercase"
+%token T_CAPITALIZE                     "Capitalize"
+%token T_LOWERCASE                      "Lowercase"
 
 %token T_UNIT_PX                        "pixels"
 %token T_UNIT_MM                        "mm"
@@ -762,7 +764,9 @@ t_property_highlight_style
 | T_UNDERLINE     { $$ = ROFI_HL_UNDERLINE; }
 | T_STRIKETHROUGH { $$ = ROFI_HL_STRIKETHROUGH; }
 | T_ITALIC        { $$ = ROFI_HL_ITALIC; }
-| T_SMALLCAPS     { $$ = ROFI_HL_SMALL_CAPS; }
+| T_UPPERCASE     { $$ = ROFI_HL_UPPERCASE; }
+| T_LOWERCASE     { $$ = ROFI_HL_LOWERCASE; }
+| T_CAPITALIZE    { $$ = ROFI_HL_CAPITALIZE; }
 ;
 
 
