@@ -50,10 +50,10 @@ PangoAttrList *helper_token_match_get_pango_attr(RofiHighlightColorStyle th,
                                                  PangoAttrList *retv);
 
 /**
- * @param th The RofiHighlightColorStyle
- * @param start The start to highlighting.
- * @param endp The end point for the highlight
  * @param retv The Attribute list to update with matches
+ * @param start The start to highlighting.
+ * @param end The end point for the highlight
+ * @param th The RofiHighlightColorStyle
  *
  * Creates a set of pango attributes highlighting the matches found in the input
  * style.
