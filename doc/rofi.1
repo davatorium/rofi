@@ -10,9 +10,9 @@
 
 .SH DESCRIPTION
 .PP
-\fBrofi\fP is an X11 pop-up window switcher, run dialog, dmenu replacement, and more. It focuses on
-being fast to use and have minimal distraction. It supports keyboard and mouse navigation, type to
-filter, tokenized search and more.
+\fBrofi\fP is an X11 pop-up window switcher, run dialog, dmenu replacement, and
+more. It focuses on being fast to use and have minimal distraction. It supports
+keyboard and mouse navigation, type to filter, tokenized search and more.
 
 .SH USAGE
 .PP
@@ -57,7 +57,8 @@ running firefox, or launch it when it is not running.
 
 .SS Emulating dmenu
 .PP
-\fBrofi\fP can emulate \fBdmenu(1)\fP (a dynamic menu for X11) when launched with the \fB\fC-dmenu\fR flag.
+\fBrofi\fP can emulate \fBdmenu(1)\fP (a dynamic menu for X11) when launched with
+the \fB\fC-dmenu\fR flag.
 
 .PP
 For more information see \fBrofi-dmenu(5)\fP\&.
@@ -191,8 +192,8 @@ Below is a list of the most important options:
 \fB\fC-help\fR
 
 .PP
-The help option shows the full list of command-line options and the current set values.
-These include dynamic (run-time generated) options.
+The help option shows the full list of command-line options and the current set
+values. These include dynamic (run-time generated) options.
 
 .PP
 \fB\fC-version\fR
@@ -277,9 +278,10 @@ See the \fBrofi-dmenu(5)\fP manpage for more information.
 \fB\fC-show\fR \fImode\fP
 
 .PP
-Open \fBrofi\fP in a certain mode. Available modes are \fB\fCwindow\fR, \fB\fCrun\fR, \fB\fCdrun\fR, \fB\fCssh\fR, \fB\fCcombi\fR\&.
-The special argument \fB\fCkeys\fR can be used to open a searchable list of supported key bindings
-(see \fIKEY BINDINGS\fP)
+Open \fBrofi\fP in a certain mode. Available modes are \fB\fCwindow\fR, \fB\fCrun\fR, \fB\fCdrun\fR,
+\fB\fCssh\fR, \fB\fCcombi\fR\&. The special argument \fB\fCkeys\fR can be used to open a searchable
+list of supported key bindings
+(see the \fBrofi-keys(5)\fP manpage)
 
 .PP
 To show the run-dialog:
@@ -315,7 +317,8 @@ rofi -modes "run,ssh" -show run
 .RE
 
 .PP
-Custom modes can be added using the internal \fB\fCscript\fR mode. Each such mode has two parameters:
+Custom modes can be added using the internal \fB\fCscript\fR mode. Each such mode has
+two parameters:
 
 .PP
 .RS
@@ -339,8 +342,8 @@ rofi -modes "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 .RE
 
 .PP
-Notes: The i3 window manager dislikes commas in the command when specifying an exec command.
-For that case, \fB\fC#\fR can be used as a separator.
+Notes: The i3 window manager dislikes commas in the command when specifying an
+exec command. For that case, \fB\fC#\fR can be used as a separator.
 
 .PP
 \fBTIP\fP: The name is allowed to contain spaces:
@@ -1358,7 +1361,7 @@ If no match, the input is handled by the first combined modes.
 .SH FAQ
 .SS The text in the window switcher is not nicely aligned.
 .PP
-Try using a mono-space font.
+Try using a mono-space font or tabs + the tab-stops setting..
 
 .SS The window is completely black.
 .PP
@@ -1527,7 +1530,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 .SH WEBSITE
 .PP
 \fBrofi\fP website can be found here
-\[la]https://davedavenport.github.io/rofi/\[ra]
+\[la]https://github.com/davatorium/rofi/\[ra]
 
 .SH SUPPORT
 .PP
@@ -1546,11 +1549,11 @@ For more information see \fBrofi-debugging(5)\fP manpage.
 .SH ISSUE TRACKER
 .PP
 The \fBrofi\fP issue tracker can be found here
-\[la]https://github.com/DaveDavenport/rofi/issues\[ra]
-
-.PP
+\[la]https://github.com/davatorium/rofi/issues\[ra]
+Before creating an issue, consider posting a question on the discussion forum
+\[la]https://github.com/davatorium/rofi/discussions\[ra] first.
 When creating an issue, please read this
-\[la]https://github.com/DaveDavenport/rofi/blob/master/.github/CONTRIBUTING.md\[ra]
+\[la]https://github.com/davatorium/rofi/blob/master/.github/CONTRIBUTING.md\[ra]
 first.
 
 .SH SEE ALSO

@@ -11,9 +11,9 @@
 
 ## DESCRIPTION
 
-**rofi** is an X11 pop-up window switcher, run dialog, dmenu replacement, and more. It focuses on
-being fast to use and have minimal distraction. It supports keyboard and mouse navigation, type to
-filter, tokenized search and more.
+**rofi** is an X11 pop-up window switcher, run dialog, dmenu replacement, and
+more. It focuses on being fast to use and have minimal distraction. It supports
+keyboard and mouse navigation, type to filter, tokenized search and more.
 
 
 ## USAGE
@@ -48,7 +48,8 @@ running firefox, or launch it when it is not running.
 
 ### Emulating dmenu
 
-**rofi** can emulate **dmenu(1)** (a dynamic menu for X11) when launched with the `-dmenu` flag.
+**rofi** can emulate **dmenu(1)** (a dynamic menu for X11) when launched with
+the `-dmenu` flag.
 
 For more information see **rofi-dmenu(5)**.
 
@@ -122,8 +123,8 @@ Below is a list of the most important options:
 
 `-help`
 
-The help option shows the full list of command-line options and the current set values.
-These include dynamic (run-time generated) options.
+The help option shows the full list of command-line options and the current set
+values. These include dynamic (run-time generated) options.
 
 `-version`
 
@@ -172,9 +173,10 @@ See the **rofi-dmenu(5)** manpage for more information.
 
 `-show` *mode*
 
-Open **rofi** in a certain mode. Available modes are `window`, `run`, `drun`, `ssh`, `combi`.
-The special argument `keys` can be used to open a searchable list of supported key bindings
-(see *KEY BINDINGS*)
+Open **rofi** in a certain mode. Available modes are `window`, `run`, `drun`,
+`ssh`, `combi`. The special argument `keys` can be used to open a searchable
+list of supported key bindings
+(see the **rofi-keys(5)** manpage)
 
 To show the run-dialog:
 
@@ -191,7 +193,8 @@ To only show the `run` and `ssh` launcher:
 
     rofi -modes "run,ssh" -show run
 
-Custom modes can be added using the internal `script` mode. Each such mode has two parameters:
+Custom modes can be added using the internal `script` mode. Each such mode has
+two parameters:
 
     <name>:<script>
 
@@ -199,8 +202,8 @@ Example: Have a mode called 'Workspaces' using the `i3_switch_workspaces.sh` scr
 
     rofi -modes "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
-Notes: The i3 window manager dislikes commas in the command when specifying an exec command.
-For that case, `#` can be used as a separator.
+Notes: The i3 window manager dislikes commas in the command when specifying an
+exec command. For that case, `#` can be used as a separator.
 
 **TIP**: The name is allowed to contain spaces:
 
@@ -877,7 +880,7 @@ If no match, the input is handled by the first combined modes.
 
 ### The text in the window switcher is not nicely aligned.
 
-Try using a mono-space font.
+Try using a mono-space font or tabs + the tab-stops setting..
 
 ### The window is completely black.
 
@@ -967,7 +970,7 @@ been released.
 
 ## WEBSITE
 
-**rofi** website can be found [here](https://davedavenport.github.io/rofi/)
+**rofi** website can be found [here](https://github.com/davatorium/rofi/)
 
 ## SUPPORT
 
@@ -982,9 +985,9 @@ For more information see **rofi-debugging(5)** manpage.
 
 ## ISSUE TRACKER
 
-The **rofi** issue tracker can be found [here](https://github.com/DaveDavenport/rofi/issues)
-
-When creating an issue, please read [this](https://github.com/DaveDavenport/rofi/blob/master/.github/CONTRIBUTING.md)
+The **rofi** issue tracker can be found [here](https://github.com/davatorium/rofi/issues)
+Before creating an issue, consider posting a question on the [discussion forum](https://github.com/davatorium/rofi/discussions) first.
+When creating an issue, please read [this](https://github.com/davatorium/rofi/blob/master/.github/CONTRIBUTING.md)
 first.
 
 ## SEE ALSO
