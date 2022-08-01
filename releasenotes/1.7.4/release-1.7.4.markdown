@@ -91,6 +91,11 @@ Below is a more complete list of changes:
 
 # Changelog
 
+* [Doc] Add `-config` to `-help` output. (#1665)
+* [Dmenu] Fix multi-select, use text as indicator.
+* [filebrowser] Fix building on Mac. (#1662,#1663)
+* [textbox] Implement text-transform option. (#1010)
+* [script] Add `new-selection` (#1064).
 * [Script] Add keep-selection flag that keeps the current selection. (#1064)
 * [Debug]  Add '-log' flag to redirect debug output to a file.
 * [XCB]    Try to deduce rotated monitors.
