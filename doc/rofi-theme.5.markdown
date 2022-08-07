@@ -116,7 +116,7 @@ list of widget names.
 If you want to center the text relative to the icon, we can set this:
 
 ```css
-element-icon {
+element-text {
     vertical-align: 0.5;
 }
 ```
