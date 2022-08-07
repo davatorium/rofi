@@ -190,7 +190,7 @@ When multi-select is enabled, prefix this string when element is selected.
 
 When multi-select is enabled, prefix this string when element is not selected.
 
-*default*: "☑ "
+*default*: "☐ "
 
 ## RETURN VALUE
 
