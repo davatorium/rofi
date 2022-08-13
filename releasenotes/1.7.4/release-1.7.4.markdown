@@ -1,4 +1,4 @@
-# 1.7.4:
+# 1.7.4: 
 
 Another maintenance and small features expansion release. A lot of small
 annoyances have been fixed and ignored errors are now more visually flagged to
@@ -19,14 +19,16 @@ We now have:
 * rofi-script(5)
 
 Another improvement made that can have huge impact on the user-experience is a
-massif speedup in the async input reading of dmenu. It turned out glib's
-GInputStream async functions where very slow, so a custom implementation has
-been made. Background loading is now close to the same speed as loading at
-start before displaying. A million item list is now near instant. On very large
-lists, the instant filtering automatically changes to be postponed until the
-user stops typing. This severely reduces system load.
+significant speedup in the async input reading of dmenu. It turned out glib's
+GInputStream async methods are very slow. On large input sets where it was
+supposed to improve the user experience, it made it unusable. To resolve this a
+custom implementation has been made. Background loading is now close to the
+same speed as loading at start before displaying. A million item list is now
+near instant. On very large lists, the instant filtering automatically changes
+to be postponed until the user stops typing. This severely reduces system load
+and interface blocking.
 
-A few long standing requests have been fixed:
+A few long standing feature requests and bug reports have been implemented or fixed:
 
 * Listview flow. You can now change the flow in the listview from vertical first
   to horizontal first. Making it mimic tables.
@@ -69,6 +71,8 @@ Detected user scripts:
 </snip>
 ```
 
+This script can now by shows by running `rofi -show hc`.
+
 * You can now render text as icons, this allows you to use glyphs icon fonts as
   icons.
 
@@ -86,6 +90,9 @@ listview {
 
 * You can now add a separate icon or textbox widget to the UI that displays the
   current selected item. As an example see the included `sidebar-v2`.
+
+* A bug was fixed that caused problems with newer xkeyboard-config versions and
+  different keyboard layouts.
 
 Below is a more complete list of changes:
 
