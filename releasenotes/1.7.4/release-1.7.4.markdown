@@ -1,4 +1,4 @@
-# 1.7.4: 
+# 1.7.4: Preshellected Optimizations
 
 Another maintenance and small features expansion release. A lot of small
 annoyances have been fixed and ignored errors are now more visually flagged to
