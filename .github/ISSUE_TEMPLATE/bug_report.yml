@@ -14,6 +14,8 @@ body:
 
         If you are unsure, please use the [discussion](https://github.com/davatorium/rofi/discussions) forum first. It is easy to upgrade a question to an issue in github.
 
+        If you report problems with speed in rofi, please attach a [timing trace](https://github.com/davatorium/rofi/blob/next/doc/rofi-debugging.5.markdown#timing-traces).
+
         **Please do not submit reports related to wayland, see [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more information.**
 
   - type: input
