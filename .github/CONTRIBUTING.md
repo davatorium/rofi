@@ -49,6 +49,10 @@ When adding comments to an issue make sure:
 * It is relevant to the issue.
 * It contributes to solving the issue.
 * Use :+1: :-1: emojis instead of replying 'me too' or 'I also have this.'
+* Do **NOT** ask for an update. Asking does not contribute to solving the issue
+  and just annoys people with a notification. The answer is already available;
+  if there is an update it will be linked/mentioned in the issue, otherwise
+  there is no update.
 
 
 Issue high-jacking, e.g. adding a request/issue to an existing issue, is very
