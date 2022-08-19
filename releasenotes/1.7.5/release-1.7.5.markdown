@@ -3,6 +3,8 @@
 A quick bug-fix release to fix 2 small issues.
 
 * In DMenu sync mode, the separator is left in the string.
+* On special crafted delayed input in dmenu it shows updates to the list very slow.
+  It now forces to push update (if there) every 1/10 of a second.
 * In the view some of the update/redraw policies are fixed to reduced the
   perceived delay.
 
