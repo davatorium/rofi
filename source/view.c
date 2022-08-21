@@ -114,6 +114,9 @@ struct {
   /** timeout for reloading */
   guint refilter_timeout;
   guint refilter_timeout_count;
+
+  double max_refilter_time;
+  gboolean delayed_mode;
   /** timeout handling */
   guint user_timeout;
   /** debug counter for redraws */
@@ -135,6 +138,8 @@ struct {
     .idle_timeout = 0,
     .refilter_timeout = 0,
     .refilter_timeout_count = 0,
+    .max_refilter_time = 0.0,
+    .delayed_mode = FALSE,
     .user_timeout = 0,
     .count = 0L,
     .repaint_source = 0,
@@ -1167,6 +1172,7 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
   if (state->sw == NULL) {
     return G_SOURCE_REMOVE;
   }
+  GTimer *timer = g_timer_new();
   TICK_N("Filter start");
   if (state->reload) {
     _rofi_view_reload_row(state);
@@ -1287,6 +1293,12 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
   state->refilter = FALSE;
   TICK_N("Filter done");
   rofi_view_update(state, TRUE);
+
+  double elapsed = g_timer_elapsed(timer, NULL);
+  if (elapsed > CacheState.max_refilter_time) {
+    CacheState.max_refilter_time = elapsed;
+  }
+  g_timer_destroy(timer);
   return G_SOURCE_REMOVE;
 }
 static void rofi_view_refilter(RofiViewState *state) {
@@ -1296,12 +1308,27 @@ static void rofi_view_refilter(RofiViewState *state) {
     g_source_remove(CacheState.refilter_timeout);
     CacheState.refilter_timeout = 0;
   }
-  if (state->num_lines > config.refilter_timeout_limit &&
-      CacheState.refilter_timeout_count < 25 && state->text &&
-      strlen(state->text->text) > 0) {
+  if (CacheState.max_refilter_time >
+          (config.refilter_timeout_limit / 1000.0f) &&
+      state->text && strlen(state->text->text) > 0 &&
+      CacheState.refilter_timeout_count < 25) {
+    if (CacheState.delayed_mode == FALSE) {
+      g_warning(
+          "Filtering took %f seconds ( 0.3), switching to delayed filter\n",
+          CacheState.max_refilter_time);
+      CacheState.delayed_mode = TRUE;
+    }
     CacheState.refilter_timeout =
         g_timeout_add(200, (GSourceFunc)rofi_view_refilter_real, state);
   } else {
+    if (CacheState.delayed_mode == TRUE && state->text &&
+        strlen(state->text->text) > 0 &&
+        CacheState.refilter_timeout_count < 25) {
+      g_warning(
+          "Filtering took %f seconds , switching back to instant filter\n",
+          CacheState.max_refilter_time);
+      CacheState.delayed_mode = FALSE;
+    }
     rofi_view_refilter_real(state);
   }
 }

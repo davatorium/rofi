@@ -275,9 +275,9 @@ Make rofi steal focus on launch and restore close to window that held it when la
 
 `-refilter-timeout-limit`
 
-The limit of elements that is used to switch from instant to delayed filter mode.
+The time (in ms) boundary filter may take before switch from instant to delayed filter mode.
 
-  Default: 8192
+  Default: 300
 
 A fallback icon can be specified for each mode:
 

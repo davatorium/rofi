@@ -430,8 +430,8 @@ static XrmOption xrmOptions[] = {
      "refilter-timeout-limit",
      {.num = &(config.refilter_timeout_limit)},
      NULL,
-     "When there are more entries then this limit, only refilter after a "
-     "timeout.",
+     "When filtering takes  more then this time (in ms) switch to delayed "
+     "filter.",
      CONFIG_DEFAULT},
     {xrm_Boolean,
      "xserver-i300-workaround",
