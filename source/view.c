@@ -1251,6 +1251,10 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
     // Cleanup + bookkeeping.
     state->filtered_lines = j;
     g_free(pattern);
+
+    double elapsed = g_timer_elapsed(timer, NULL);
+
+    CacheState.max_refilter_time = elapsed;
   } else {
     listview_set_filtered(state->list_view, FALSE);
     for (unsigned int i = 0; i < state->num_lines; i++) {
@@ -1294,10 +1298,6 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
   TICK_N("Filter done");
   rofi_view_update(state, TRUE);
 
-  double elapsed = g_timer_elapsed(timer, NULL);
-  if (elapsed > CacheState.max_refilter_time) {
-    CacheState.max_refilter_time = elapsed;
-  }
   g_timer_destroy(timer);
   return G_SOURCE_REMOVE;
 }
@@ -1308,14 +1308,13 @@ static void rofi_view_refilter(RofiViewState *state) {
     g_source_remove(CacheState.refilter_timeout);
     CacheState.refilter_timeout = 0;
   }
-  if (CacheState.max_refilter_time >
-          (config.refilter_timeout_limit / 1000.0f) &&
+  if (CacheState.max_refilter_time > (config.refilter_timeout_limit / 1000.0) &&
       state->text && strlen(state->text->text) > 0 &&
       CacheState.refilter_timeout_count < 25) {
     if (CacheState.delayed_mode == FALSE) {
       g_warning(
-          "Filtering took %f seconds ( 0.3), switching to delayed filter\n",
-          CacheState.max_refilter_time);
+          "Filtering took %f seconds ( %f ), switching to delayed filter\n",
+          CacheState.max_refilter_time, config.refilter_timeout_limit / 1000.0);
       CacheState.delayed_mode = TRUE;
     }
     CacheState.refilter_timeout =
