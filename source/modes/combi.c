@@ -166,7 +166,8 @@ static ModeMode combi_mode_result(Mode *sw, int mretv, char **input,
       }
     }
     if (switcher >= 0) {
-      if (eob[0] == ' ') {
+      if (eob[0] == ' ' || eob[0] == '\0') {
+        printf("found mode\n");
         char *n = eob + 1;
         return mode_result(pd->switchers[switcher].mode, mretv, &n,
                            selected_line - pd->starts[switcher]);
