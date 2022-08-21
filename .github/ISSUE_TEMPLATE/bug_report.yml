@@ -9,19 +9,29 @@ body:
       value: |
         First read the [guidelines](https://github.com/DaveDavenport/rofi/blob/next/.github/CONTRIBUTING.md)! This is not optional for any report. People must be able to understand the full context of the report when reading it, at any time.
 
-        If you feel like you “it is simple and requires no explanation”, please consider you’re wrong and still fill the full report. Any report missing these informations will be labeled as “Incomplete Report - Please follow the guidelines” and may not be answered in a timely fashion.
-        If you ask a question, enter dummy information in required fields to get passed the checks or in general completely ignore the guidelines, the issue will be closed and locked as spam.
+        If you feel like you “it is simple and requires no explanation”, please
+        consider you’re wrong and still fill the full report. Any report
+        missing required informations will be labeled as “Incomplete Report -
+        Please follow the guidelines” and will be closed. If you ask a
+        question, enter dummy information in required fields to get passed the
+        checks or in general completely ignore the guidelines, the issue will
+        be closed and locked as spam.
 
-        If you are unsure, please use the [discussion](https://github.com/davatorium/rofi/discussions) forum first. It is easy to upgrade a question to an issue in github.
+        If you are unsure, please use the
+        [discussion](https://github.com/davatorium/rofi/discussions) forum
+        first. It is easy to upgrade a question to an issue in github.
 
-        If you report problems with speed in rofi, please attach a [timing trace](https://github.com/davatorium/rofi/blob/next/doc/rofi-debugging.5.markdown#timing-traces).
+        If you report problems with speed in rofi, attach a [timing
+        trace](https://github.com/davatorium/rofi/blob/next/doc/rofi-debugging.5.markdown#timing-traces).
 
-        **Please do not submit reports related to wayland, see [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more information.**
+        **Please do not submit reports related to wayland, see
+        [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more
+        information.**
 
   - type: input
     attributes:
       label: "Rofi version (rofi -v)"
-      placeholder: "Version: 1.6.0"
+      placeholder: "Version: 1.7.5"
     validations:
       required: true
   - type: input
@@ -38,6 +48,13 @@ body:
       placeholder: "Gist URL"
     validations:
       required: true
+  - type: input
+    attributes:
+      label: "Timing report"
+      description: "Please use https://gist.github.com and include output of your command with G_MESSAGES_DEBUG=Timings set."
+      placeholder: "Gist URL"
+    validations:
+      required: false
   - type: input
     attributes:
       label: "Launch command"
