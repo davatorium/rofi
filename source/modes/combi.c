@@ -166,11 +166,18 @@ static ModeMode combi_mode_result(Mode *sw, int mretv, char **input,
       }
     }
     if (switcher >= 0) {
-      if (eob[0] == ' ' || eob[0] == '\0') {
-        printf("found mode\n");
-        char *n = eob + 1;
-        return mode_result(pd->switchers[switcher].mode, mretv, &n,
-                           selected_line - pd->starts[switcher]);
+      if (eob[0] == ' ') {
+        char *n = g_strdup(eob + 1);
+        ModeMode retv = mode_result(pd->switchers[switcher].mode, mretv, &n,
+                                    selected_line - pd->starts[switcher]);
+        g_free(n);
+        return retv;
+      } else if (eob[0] == '\0') {
+        char *str = NULL;
+        ModeMode retv = mode_result(pd->switchers[switcher].mode, mretv, &str,
+                                    selected_line - pd->starts[switcher]);
+        g_free(str);
+        return retv;
       }
       return MODE_EXIT;
     }
