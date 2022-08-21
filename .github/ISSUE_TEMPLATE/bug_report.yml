@@ -27,7 +27,14 @@ body:
   - type: input
     attributes:
       label: "Configuration"
-      description: "Please use https://gist.github.com and include output of `rofi -dump-config` and `rofi -dump-theme`."
+      description: "Please use https://gist.github.com and include output of `rofi -dump-config`."
+      placeholder: "Gist URL"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Theme"
+      description: "Please use https://gist.github.com and include output of `rofi -dump-theme`."
       placeholder: "Gist URL"
     validations:
       required: true
