@@ -41,6 +41,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <xcb/xcb.h>
+#include <sys/stat.h>
 
 #include <glib-unix.h>
 
