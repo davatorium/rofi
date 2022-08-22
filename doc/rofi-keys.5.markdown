@@ -65,6 +65,12 @@ Paste clipboard
 
 **Default**: 	Control+v,Insert 
 
+### **kb-secondary-copy**
+
+Copy current selection to clipboard
+
+**Default**: 	Control+c
+
 ### **kb-clear-line**
 Clear input line
 

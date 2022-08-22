@@ -41,6 +41,8 @@ typedef struct _xcb_stuff xcb_stuff;
  */
 extern xcb_stuff *xcb;
 
+void xcb_stuff_set_clipboard(char *data);
+
 /**
  * Get the root window.
  *
@@ -77,9 +79,9 @@ void window_set_atom_prop(xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms,
 
 /** Atoms we want to pre-load */
 #define EWMH_ATOMS(X)                                                          \
-  X(_NET_WM_WINDOW_OPACITY), X(I3_SOCKET_PATH), X(UTF8_STRING), X(STRING),     \
-      X(CLIPBOARD), X(WM_WINDOW_ROLE), X(_XROOTPMAP_ID), X(_MOTIF_WM_HINTS),   \
-      X(WM_TAKE_FOCUS), X(ESETROOT_PMAP_ID)
+  X(_NET_WM_WINDOW_OPACITY), X(I3_SOCKET_PATH), X(TARGETS), X(UTF8_STRING),    \
+      X(STRING), X(CLIPBOARD), X(WM_WINDOW_ROLE), X(_XROOTPMAP_ID),            \
+      X(_MOTIF_WM_HINTS), X(WM_TAKE_FOCUS), X(ESETROOT_PMAP_ID)
 
 /** enumeration of the atoms. */
 enum { EWMH_ATOMS(ATOM_ENUM), NUM_NETATOMS };

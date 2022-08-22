@@ -24,12 +24,11 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-
 #include <glib.h>
+#include <string.h>
 #include "nkutils-bindings.h"
 #include "rofi.h"
 #include "xrmoptions.h"
-#include <string.h>
 
 typedef struct {
   guint id;
@@ -51,6 +50,10 @@ ActionBindingEntry rofi_bindings[] = {
      .name = "kb-secondary-paste",
      .binding = "Control+v,Insert",
      .comment = "Paste clipboard"},
+    {.id = COPY_SECONDARY,
+     .name = "kb-secondary-copy",
+     .binding = "Control+c",
+     .comment = "Copy to clipboard"},
     {.id = CLEAR_LINE,
      .name = "kb-clear-line",
      .binding = "Control+w",

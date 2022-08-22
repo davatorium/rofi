@@ -87,7 +87,8 @@ struct _xcb_stuff xcb_int = {.connection = NULL,
                              .screen_nbr = -1,
                              .sndisplay = NULL,
                              .sncontext = NULL,
-                             .monitors = NULL};
+                             .monitors = NULL,
+                             .clipboard = NULL};
 xcb_stuff *xcb = &xcb_int;
 
 /**
@@ -1216,6 +1217,52 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     }
     break;
   }
+  case XCB_SELECTION_CLEAR: {
+    g_debug("Selection Clear.");
+    xcb_stuff_set_clipboard(NULL);
+  } break;
+  case XCB_SELECTION_REQUEST: {
+    g_debug("Selection Request.");
+    xcb_selection_request_event_t *req = (xcb_selection_request_event_t *)event;
+    if (req->selection == netatoms[CLIPBOARD]) {
+      xcb_atom_t targets[2];
+      xcb_selection_notify_event_t selection_notify = {
+          .response_type = XCB_SELECTION_NOTIFY,
+          .sequence = 0,
+          .time = req->time,
+          .requestor = req->requestor,
+          .selection = req->selection,
+          .target = req->target,
+          .property = XCB_ATOM_NONE,
+      };
+      // If no clipboard, we return NONE.
+      if (xcb->clipboard) {
+        // Request for UTF-8
+        if (req->target == netatoms[UTF8_STRING]) {
+          g_debug("Selection Request UTF-8.");
+          xcb_change_property(xcb->connection, XCB_PROP_MODE_REPLACE,
+                              req->requestor, req->property,
+                              netatoms[UTF8_STRING], 8,
+                              strlen(xcb->clipboard) + 1, xcb->clipboard);
+          selection_notify.property = req->property;
+        } else if (req->target == netatoms[TARGETS]) {
+          g_debug("Selection Request Targets.");
+          // We currently only support UTF8 from clipboard. So indicate this.
+          targets[0] = netatoms[UTF8_STRING];
+          xcb_change_property(xcb->connection, XCB_PROP_MODE_REPLACE,
+                              req->requestor, req->property, XCB_ATOM_ATOM, 32,
+                              1, targets);
+          selection_notify.property = req->property;
+        }
+      }
+
+      xcb_send_event(xcb->connection,
+                     0, // propagate
+                     req->requestor, XCB_EVENT_MASK_NO_EVENT,
+                     (const char *)&selection_notify);
+      xcb_flush(xcb->connection);
+    }
+  } break;
   case XCB_BUTTON_RELEASE: {
     xcb_button_release_event_t *bre = (xcb_button_release_event_t *)event;
     NkBindingsMouseButton button;
@@ -1257,14 +1304,13 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     gchar *text;
 
     xcb->last_timestamp = xkpe->time;
-    if ( config.xserver_i300_workaround ) {
+    if (config.xserver_i300_workaround) {
       text = nk_bindings_seat_handle_key_with_modmask(
           xcb->bindings_seat, NULL, xkpe->state, xkpe->detail,
           NK_BINDINGS_KEY_STATE_PRESS);
     } else {
-      text = nk_bindings_seat_handle_key(
-          xcb->bindings_seat, NULL, xkpe->detail,
-          NK_BINDINGS_KEY_STATE_PRESS);
+      text = nk_bindings_seat_handle_key(xcb->bindings_seat, NULL, xkpe->detail,
+                                         NK_BINDINGS_KEY_STATE_PRESS);
     }
     if (text != NULL) {
       rofi_view_handle_text(state, text);
@@ -1294,9 +1340,10 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
       g_main_loop_quit(xcb->main_loop);
       return G_SOURCE_REMOVE;
     }
-    // DD: it seems this handler often gets dispatched while the queue in GWater is empty.
-    // resulting in a NULL for ev. This seems not an error.
-    //g_warning("main_loop_x11_event_handler: ev == NULL, status == %d", status);
+    // DD: it seems this handler often gets dispatched while the queue in GWater
+    // is empty. resulting in a NULL for ev. This seems not an error.
+    // g_warning("main_loop_x11_event_handler: ev == NULL, status == %d",
+    // status);
     return G_SOURCE_CONTINUE;
   }
   uint8_t type = ev->response_type & ~0x80;
@@ -1814,4 +1861,8 @@ void x11_set_cursor(xcb_window_t window, X11CursorType type) {
 
   xcb_change_window_attributes(xcb->connection, window, XCB_CW_CURSOR,
                                &(cursors[type]));
+}
+void xcb_stuff_set_clipboard(char *data) {
+  g_free(xcb->clipboard);
+  xcb->clipboard = data;
 }

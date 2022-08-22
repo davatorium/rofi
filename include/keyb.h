@@ -60,6 +60,8 @@ typedef enum {
   PASTE_PRIMARY = 1,
   /** Paste from secondary clipboard */
   PASTE_SECONDARY,
+  /** Copy to secondary clipboard */
+  COPY_SECONDARY,
   /** Clear the entry box. */
   CLEAR_LINE,
   /** Move to front of text */

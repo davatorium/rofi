@@ -1374,6 +1374,21 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
                           xcb->ewmh.UTF8_STRING, XCB_CURRENT_TIME);
     xcb_flush(xcb->connection);
     break;
+  case COPY_SECONDARY: {
+    char *data = NULL;
+    unsigned int selected = listview_get_selected(state->list_view);
+    if (selected < state->filtered_lines) {
+      data = mode_get_completion(state->sw, state->line_map[selected]);
+    } else if (state->text && state->text->text) {
+      data = g_strdup(state->text->text);
+    }
+    if (data) {
+      xcb_stuff_set_clipboard(data);
+      xcb_set_selection_owner(xcb->connection, CacheState.main_window,
+                              netatoms[CLIPBOARD], XCB_CURRENT_TIME);
+      xcb_flush(xcb->connection);
+    }
+  } break;
   case SCREENSHOT:
     rofi_capture_screenshot();
     break;
@@ -2265,6 +2280,8 @@ void rofi_view_hide(void) {
 }
 
 void rofi_view_cleanup() {
+  // Clear clipboard data.
+  xcb_stuff_set_clipboard(NULL);
   g_debug("Cleanup.");
   if (CacheState.idle_timeout > 0) {
     g_source_remove(CacheState.idle_timeout);

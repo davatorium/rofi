@@ -61,6 +61,7 @@ struct _xcb_stuff {
   NkBindingsSeat *bindings_seat;
   gboolean mouse_seen;
   xcb_window_t focus_revert;
+  char *clipboard;
 };
 
 #endif
