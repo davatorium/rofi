@@ -165,7 +165,7 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
   *length = 0;
   // Reset these between runs.
   pd->new_selection = -1;
-  pd->keep_selection = -1;
+  pd->keep_selection = 0;
   // Environment
   char **env = g_get_environ();
 
