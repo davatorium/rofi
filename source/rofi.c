@@ -36,12 +36,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sysexits.h>
 #include <time.h>
 #include <unistd.h>
 #include <xcb/xcb.h>
-#include <sys/stat.h>
 
 #include <glib-unix.h>
 
@@ -1016,6 +1016,11 @@ int main(int argc, char *argv[]) {
     // Only call this when there are no errors.
     // This might clear existing errors.
     config_parse_cmd_options();
+  }
+
+  if (rofi_theme == NULL || rofi_theme->num_widgets == 0) {
+    g_warning("Failed to load theme. Try to load default: ");
+    rofi_theme_parse_string("@theme \"default\"");
   }
   TICK_N("Load cmd config ");
 

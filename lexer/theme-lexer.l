@@ -433,7 +433,7 @@ if ( queue == NULL ) {
     } else {
         char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
                 filename, strerror ( errno ) );
-        rofi_add_error_message ( g_string_new ( str ) );
+        rofi_add_warning_message ( g_string_new ( str ) );
         g_free ( str );
         g_free(filename);
     }
