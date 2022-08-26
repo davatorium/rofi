@@ -1330,11 +1330,11 @@ START_TEST(test_import_error) {
 
   const char *errstr = "Failed to open theme: <i>/non-existing-file.rasi</i>\n"
                        "Error: <b>No such file or directory</b>";
-  ck_assert_int_eq(error, 1);
-  ck_assert_str_eq(error_msg->str, errstr);
-  g_string_free(error_msg, TRUE);
-  error_msg = NULL;
-  error = 0;
+  ck_assert_int_eq(warning, 1);
+  ck_assert_str_eq(warning_msg->str, errstr);
+  g_string_free(warning_msg, TRUE);
+  warning_msg = NULL;
+  warning = 0;
 }
 END_TEST
 START_TEST(test_prepare_array) {
