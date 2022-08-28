@@ -227,7 +227,11 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
   const char *placeholder =
       rofi_theme_get_string(WIDGET(tb), "placeholder", NULL);
   if (placeholder) {
-    tb->placeholder = placeholder;
+    if (rofi_theme_get_boolean(WIDGET(tb), "placeholder-markup", FALSE)) {
+      tb->placeholder = g_strdup(placeholder);
+    } else {
+      tb->placeholder = g_markup_escape_text(placeholder, -1);
+    }
   }
   textbox_text(tb, txt ? txt : "");
   textbox_cursor_end(tb);
@@ -310,7 +314,7 @@ static void __textbox_update_pango_text(textbox *tb) {
   pango_layout_set_attributes(tb->layout, NULL);
   if (tb->placeholder && (tb->text == NULL || tb->text[0] == 0)) {
     tb->show_placeholder = TRUE;
-    pango_layout_set_text(tb->layout, tb->placeholder, -1);
+    pango_layout_set_markup(tb->layout, tb->placeholder, -1);
     return;
   }
   tb->show_placeholder = FALSE;
@@ -442,6 +446,7 @@ static void textbox_free(widget *wid) {
   }
   g_free(tb->text);
 
+  g_free(tb->placeholder);
   if (tb->layout != NULL) {
     g_object_unref(tb->layout);
   }

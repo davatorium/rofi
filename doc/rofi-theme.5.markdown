@@ -929,6 +929,7 @@ The following properties are currently supported:
 * **width**:             override the desired width for the textbox.
 * **content**:           Set the displayed text (String).
 * **placeholder**:       Set the displayed text (String) when nothing is entered.
+* **placeholder-markup**:       If true, placeholder text supports pango markup for stylizing.
 * **placeholder-color**: Color of the placeholder text.
 * **blink**:             Enable/Disable blinking on an input textbox (Boolean).
 * **markup**:            Force markup on, beware that only valid pango markup strings are shown.

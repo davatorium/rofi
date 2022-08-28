@@ -63,7 +63,7 @@ typedef struct {
   unsigned long flags;
   short cursor;
   char *text;
-  const char *placeholder;
+  char *placeholder;
   int show_placeholder;
   PangoLayout *layout;
   int tbft;
