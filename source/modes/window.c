@@ -1070,12 +1070,12 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
       char *class_lower = g_utf8_strdown(c->class, -1);
       c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
       g_free(class_lower);
-      c->icon_fetch_size = size;
       icon = rofi_icon_fetcher_get(c->icon_fetch_uid);
     }
   }
   c->icon_fetch_size = size;
-  if (icon != NULL) {
+
+  if (icon != NULL && config.window_prefer_gtk_icons) {
     return icon;
   } else if (c->icon == NULL && c->icon_checked == FALSE) {
     c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
