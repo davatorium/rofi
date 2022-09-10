@@ -399,7 +399,7 @@ static XrmOption xrmOptions[] = {
      "window-prefer-icon-theme",
      {.snum = &config.window_prefer_icon_theme},
      NULL,
-     "Use icons from the current GTK theme in window mode",
+     "Use icons from the current icon theme in window mode",
      CONFIG_DEFAULT},
     {xrm_Boolean,
      "drun-use-desktop-cache",

@@ -587,7 +587,7 @@ Show window thumbnail (if available) as icon in the window switcher.
 
 `-window-prefer-icon-theme`
 
-Use icons from the current GTK theme in window mode.
+Use icons from the current icon theme in window mode.
 
 You can stop rofi from exiting when closing a window (allowing multiple to be closed in a row).
 
