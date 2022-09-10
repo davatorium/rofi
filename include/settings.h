@@ -164,7 +164,7 @@ typedef struct {
 
   /** Window Thumbnails */
   gboolean window_thumbnail;
-  gboolean window_prefer_gtk_icons;
+  gboolean window_prefer_icon_theme;
 
   /** drun cache */
   gboolean drun_use_desktop_cache;

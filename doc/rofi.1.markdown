@@ -585,7 +585,7 @@ Default: *"wmctrl -i -R {window}"*
 
 Show window thumbnail (if available) as icon in the window switcher.
 
-`-window-prefer-gtk-icons`
+`-window-prefer-icon-theme`
 
 Use icons from the current GTK theme in window mode.
 

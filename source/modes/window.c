@@ -1075,7 +1075,7 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
   }
   c->icon_fetch_size = size;
 
-  if (icon != NULL && config.window_prefer_gtk_icons) {
+  if (icon != NULL && config.window_prefer_icon_theme) {
     return icon;
   } else if (c->icon == NULL && c->icon_checked == FALSE) {
     c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
