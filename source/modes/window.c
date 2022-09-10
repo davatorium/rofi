@@ -1043,9 +1043,23 @@ static cairo_surface_t *get_net_wm_icon(xcb_window_t xid,
   free(r);
   return surface;
 }
+static cairo_surface_t *get_icon_theme_icon(client *c, unsigned int size) {
+  if (c->class) {
+    if (c->icon_fetch_uid > 0) {
+      return rofi_icon_fetcher_get(c->icon_fetch_uid);
+    }
+    char *class_lower = g_utf8_strdown(c->class, -1);
+    c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
+    g_free(class_lower);
+    return rofi_icon_fetcher_get(c->icon_fetch_uid);
+  } else {
+    return NULL;
+  }
+}
+
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
                                   unsigned int size) {
-  cairo_surface_t* icon = NULL;
+  cairo_surface_t* theme_icon = NULL;
   WindowModePrivateData *rmpd = mode_get_private_data(sw);
   client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
   if (c == NULL) {
@@ -1063,25 +1077,30 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
     c->icon = x11_helper_get_screenshot_surface_window(c->window, size);
     c->thumbnail_checked = TRUE;
   }
-  if (c->class) {
-    if (c->icon_fetch_uid > 0) {
-      icon = rofi_icon_fetcher_get(c->icon_fetch_uid);
-    } else {
-      char *class_lower = g_utf8_strdown(c->class, -1);
-      c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
-      g_free(class_lower);
-      icon = rofi_icon_fetcher_get(c->icon_fetch_uid);
-    }
-  }
+
   c->icon_fetch_size = size;
 
-  if (icon != NULL && config.window_prefer_icon_theme) {
-    return icon;
-  } else if (c->icon == NULL && c->icon_checked == FALSE) {
-    c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
-    c->icon_checked = TRUE;
+  if (!config.window_prefer_icon_theme) { // Default behaviour
+
+    if (c->icon == NULL && c->icon_checked == FALSE) {
+      c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
+      c->icon_checked = TRUE;
+    }
+
+    if (c->icon == NULL) {
+      theme_icon = get_icon_theme_icon(c, size);
+    }
+    return c->icon != NULL ? c->icon : theme_icon;
+
+  } else { // Prefer icon from icon theme
+    theme_icon = get_icon_theme_icon(c, size);
+
+    if (theme_icon == NULL && c->icon == NULL && c->icon_checked == FALSE) {
+      c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
+      c->icon_checked = TRUE;
+    }
+    return theme_icon != NULL ? theme_icon : c->icon;
   }
-  return c->icon;
 }
 
 #include "mode-private.h"
