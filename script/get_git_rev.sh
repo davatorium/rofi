@@ -3,12 +3,13 @@
 DIR=$1
 FILE=$2
 GIT=$(which git)
+SED=$(which sed)
 
 if [ -d "${DIR}/.git/" ] && [ -n "${GIT}" ]
 then
     echo -n "#define GIT_VERSION \"" > "${FILE}.tmp"
-    BRTG="$(${GIT} describe --tags --always --all | sed -e 's:heads/::')"
-    REV="$(${GIT} describe --tags --always --dirty| sed -e 's:-g\([a-f0-9]\{7\}\):-git-\1:g')"
+    BRTG="$(${GIT} describe --tags --always --all | ${SED} -e 's:heads/::')"
+    REV="$(${GIT} describe --tags --always --dirty| ${SED} -e 's:-g\([a-f0-9]\{7\}\):-git-\1:g')"
     echo -n "${REV} (${BRTG})" >> "${FILE}.tmp"
     echo "\"" >> "${FILE}.tmp"
 else
