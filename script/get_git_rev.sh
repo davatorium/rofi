@@ -2,8 +2,8 @@
 
 DIR=$1
 FILE=$2
-GIT=$(which git)
-SED=$(which sed)
+GIT=$(command -v git)
+SED=$(command -v sed)
 
 if [ -d "${DIR}/.git/" ] && [ -n "${GIT}" ]
 then
