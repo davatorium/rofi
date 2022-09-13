@@ -103,7 +103,7 @@ create_config_copy()
 {
     ${ROFI} -dump-config > "${TMP_CONFIG_FILE}"
     # remove theme entry.
-    sed -i 's/^\s*theme:\s\+".*"\s*;//g' "${TMP_CONFIG_FILE}"
+    ${SED} -i 's/^\s*theme:\s\+".*"\s*;//g' "${TMP_CONFIG_FILE}"
 }
 
 ###
