@@ -24,11 +24,11 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+#include "rofi.h"
+#include "xrmoptions.h"
 #include <glib.h>
 #include <string.h>
 #include "nkutils-bindings.h"
-#include "rofi.h"
-#include "xrmoptions.h"
 
 typedef struct {
   guint id;
@@ -372,6 +372,24 @@ static const gchar *mouse_default_bindings[] = {
     [MOUSE_DCLICK_UP] = "!MouseDPrimary",
 };
 
+void abe_list_all_bindings(gboolean is_term ) {
+
+  int length = 0;
+  for (gsize i = 0; i < G_N_ELEMENTS(rofi_bindings); ++i) {
+    ActionBindingEntry *b = &rofi_bindings[i];
+    int sl = strlen(b->name);
+    length = MAX(length, sl);
+  }
+  for (gsize i = 0; i < G_N_ELEMENTS(rofi_bindings); ++i) {
+    ActionBindingEntry *b = &rofi_bindings[i];
+    if (is_term) {
+	    printf("%s%*s%s - %s\n", color_bold,length, b->name, color_reset,b->binding);
+    } else {
+	    printf("%*s - %s\n", length, b->name, b->binding);
+    }
+  }
+}
+
 void setup_abe(void) {
   for (gsize i = 0; i < G_N_ELEMENTS(rofi_bindings); ++i) {
     ActionBindingEntry *b = &rofi_bindings[i];
@@ -421,12 +439,22 @@ gboolean parse_keys_abe(NkBindings *bindings) {
       if (!nk_bindings_add_binding(bindings, b->scope, entry,
                                    binding_check_action, binding_trigger_action,
                                    GUINT_TO_POINTER(b->id), NULL, &error)) {
-        char *str = g_markup_printf_escaped(
-            "Failed to set binding <i>%s</i> for: <i>%s (%s)</i>:\n\t<span "
-            "size=\"smaller\" style=\"italic\">%s</span>\n",
-            b->binding, b->comment, b->name, error->message);
-        g_string_append(error_msg, str);
-        g_free(str);
+	if ( error->code == NK_BINDINGS_ERROR_ALREADY_REGISTERED && error->domain == NK_BINDINGS_ERROR){
+		char *str = g_markup_printf_escaped(
+				"Failed to set binding <i>%s</i> for: <i>%s (%s)</i>:\n\t<span "
+				"size=\"smaller\" style=\"italic\">Binding `%s` is already bound.\n"
+				"\tExecute <b>rofi -list-keybindings</b> to get the current list of configured bindings.</span>\n",
+				b->binding, b->comment, b->name, entry);
+		g_string_append(error_msg, str);
+		g_free(str);
+	} else {
+		char *str = g_markup_printf_escaped(
+				"Failed to set binding <i>%s</i> for: <i>%s (%s)</i>:\n\t<span "
+				"size=\"smaller\" style=\"italic\">%s</span>\n",
+				b->binding, b->comment, b->name, error->message);
+		g_string_append(error_msg, str);
+		g_free(str);
+	}
         g_clear_error(&error);
       }
     }

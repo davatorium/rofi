@@ -143,6 +143,11 @@ Dump the current active theme, in rasi format, to stdout and exit.
 
 Try to parse the file and return 0 when successful, non-zero when failed.
 
+`-list-keybindings`
+
+List all known keybindings without trying to parse them. This can be used to
+look for duplicate bindings.
+
 `-threads` *num*
 
 Specify the number of threads **rofi** should use:

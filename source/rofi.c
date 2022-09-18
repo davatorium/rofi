@@ -327,6 +327,9 @@ static void print_main_application_options(int is_term) {
   print_help_msg("-dump-theme", "",
                  "Dump the current theme in rasi format and exit.", NULL,
                  is_term);
+  print_help_msg("-list-keybindings", "",
+                 "Print a list of current keybindings and exit.", NULL,
+                 is_term);
 }
 static void help(G_GNUC_UNUSED int argc, char **argv) {
   int is_term = isatty(fileno(stdout));
@@ -1092,6 +1095,11 @@ int main(int argc, char *argv[]) {
       find_arg("--help") >= 0) {
     help(argc, argv);
     cleanup();
+    return EXIT_SUCCESS;
+  }
+  if (find_arg("-list-keybindings") >= 0) {
+    int is_term = isatty(fileno(stdout));
+    abe_list_all_bindings(is_term);
     return EXIT_SUCCESS;
   }
 

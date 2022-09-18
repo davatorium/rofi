@@ -186,6 +186,7 @@ gboolean parse_keys_abe(NkBindings *bindings);
  */
 void setup_abe(void);
 
+void abe_list_all_bindings(gboolean is_term);
 /**
  * @param name Don't have the name.
  *
