@@ -3,9 +3,9 @@
 # This code is released in public domain by Dave Davenport <qball@gmpclient.org>
 #
 
-ROFI=$(which rofi)
-SED=$(which sed)
-MKTEMP=$(which mktemp)
+ROFI=$(command -v rofi)
+SED=$(command -v sed)
+MKTEMP=$(command -v mktemp)
 
 if [ -z "${SED}" ]
 then
