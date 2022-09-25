@@ -294,7 +294,7 @@ window_get_attributes(xcb_window_t w) {
 // _NET_WM_STATE_*
 static int client_has_state(client *c, xcb_atom_t state) {
   for (int i = 0; i < c->states; i++) {
-    if (c->state[i] == state) {
+    if ((c->state[i] & state) == state) {
       return 1;
     }
   }
