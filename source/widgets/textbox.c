@@ -482,11 +482,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   }
   y += top;
 
-  // TODO check if this is still needed after flatning.
-  cairo_set_operator(draw, CAIRO_OPERATOR_OVER);
-  cairo_set_source_rgb(draw, 0.0, 0.0, 0.0);
-  rofi_theme_get_color(WIDGET(tb), "text-color", draw);
-
   if (tb->show_placeholder) {
     rofi_theme_get_color(WIDGET(tb), "placeholder-color", draw);
   }
@@ -519,13 +514,14 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     break;
   }
   }
-  cairo_save(draw);
-  cairo_reset_clip(draw);
-  pango_cairo_show_layout(draw, tb->layout);
-  cairo_restore(draw);
+
+  // TODO check if this is still needed after flatning.
+  cairo_set_operator(draw, CAIRO_OPERATOR_OVER);
+  cairo_set_source_rgb ( draw, 0.0, 0.0, 0.0 );
+  // use text color as fallback for themes that don't specify the cursor color
+  rofi_theme_get_color(WIDGET(tb), "text-color", draw);
 
   // draw the cursor
-  rofi_theme_get_color(WIDGET(tb), "text-color", draw);
   if (tb->flags & TB_EDITABLE) {
     // We want to place the cursor based on the text shown.
     const char *text = pango_layout_get_text(tb->layout);
@@ -538,16 +534,27 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     int cursor_x = pos.x / PANGO_SCALE;
     int cursor_y = pos.y / PANGO_SCALE;
     int cursor_height = pos.height / PANGO_SCALE;
-    int cursor_width = 2;
+    RofiDistance cursor_width = rofi_theme_get_distance(WIDGET(tb), "cursor-width", 2);
+    int cursor_pixel_width = distance_get_pixel(cursor_width, ROFI_ORIENTATION_HORIZONTAL);
     if ((x + cursor_x) != tb->cursor_x_pos) {
       tb->cursor_x_pos = x + cursor_x;
     }
     if (tb->blink) {
-      cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_width,
+      // save the state so we can restore the text color afterwards
+      cairo_save(draw);
+      rofi_theme_get_color(WIDGET(tb), "cursor-color", draw);
+      cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_pixel_width,
                       cursor_height);
       cairo_fill(draw);
+      cairo_restore(draw);
     }
   }
+
+  // draw the text
+  cairo_save(draw);
+  cairo_reset_clip(draw);
+  pango_cairo_show_layout(draw, tb->layout);
+  cairo_restore(draw);
 }
 
 // cursor handling for edit mode
