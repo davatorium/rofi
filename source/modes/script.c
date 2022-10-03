@@ -535,20 +535,15 @@ Mode *script_mode_parse_setup(const char *str) {
     return sw;
   }
   Mode *sw = g_malloc0(sizeof(*sw));
-  char *endp = NULL;
-  char *parse = g_strdup(str);
   unsigned int index = 0;
   const char *const sep = ":";
-  for (char *token = strtok_r(parse, sep, &endp); token != NULL;
-       token = strtok_r(NULL, sep, &endp)) {
-    if (index == 0) {
-      sw->name = g_strdup(token);
-    } else if (index == 1) {
-      sw->ed = (void *)rofi_expand_path(token);
-    }
-    index++;
+  char **tokens = g_strsplit(str, sep, 2);
+  if ( tokens ){
+    index = g_strv_length(tokens);
+    sw->name = g_strdup(tokens[0]);
+    sw->ed = (void*)rofi_expand_path(tokens[1]);
+    g_strfreev(tokens);
   }
-  g_free(parse);
   if (index == 2) {
     sw->free = script_switcher_free;
     sw->_init = script_mode_init;
