@@ -572,7 +572,7 @@ Format what is being displayed for windows.
  * **r**: role
  * **c**: class
 
-*len*: maximum field length (0 for auto-size). If length and window *width* are negative, field length is *width - len*.  
+*len*: maximum field length (0 for auto-size). If length is negative, the entry will be unchanged.
 If length is positive, the entry will be truncated or padded to fill that length.
 
 

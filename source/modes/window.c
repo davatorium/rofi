@@ -860,10 +860,7 @@ static void helper_eval_add_str(GString *str, const char *input, int l,
   const char *input_nn = input ? input : "";
   // Both l and max_len are in characters, not bytes.
   int spaces = 0;
-  if (l == 0) {
-    spaces = MAX(0, max_len - nc);
-    g_string_append(str, input_nn);
-  } else {
+  if (l > 0) {
     if (nc > l) {
       int bl = g_utf8_offset_to_pointer(input_nn, l) - input_nn;
       char *tmp = g_markup_escape_text(input_nn, bl);
@@ -874,6 +871,11 @@ static void helper_eval_add_str(GString *str, const char *input, int l,
       char *tmp = g_markup_escape_text(input_nn, -1);
       g_string_append(str, tmp);
       g_free(tmp);
+    }
+  } else {
+    g_string_append(str, input_nn);
+    if (l == 0) {
+      spaces = MAX(0, max_len - nc);
     }
   }
   while (spaces--) {
@@ -890,9 +892,6 @@ static gboolean helper_eval_cb(const GMatchInfo *info, GString *str,
     int l = 0;
     if (match[2] == ':') {
       l = (int)g_ascii_strtoll(&match[3], NULL, 10);
-      if (l < 0) {
-        l = 0;
-      }
     }
     if (match[1] == 'w') {
       helper_eval_add_str(str, d->c->wmdesktopstr, l, d->pd->wmdn_len,
