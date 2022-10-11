@@ -52,6 +52,15 @@ configuration {
 }
 ```
 
+## Unsetting a binding
+
+To unset a binding, pass an empty string.
+
+```css
+configuration {
+  kb-clear-line: "";
+}
+```
 
 ## Keyboard Bindings
 
