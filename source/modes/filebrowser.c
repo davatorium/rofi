@@ -112,10 +112,13 @@ struct {
   enum FBSortingTime sorting_time;
   /** If we want to display directories above files. */
   gboolean directories_first;
+  /** If we want to show hidden files. */
+  gboolean show_hidden;
 } file_browser_config = {
     .sorting_method = FB_SORT_NAME,
     .sorting_time = FB_MTIME,
     .directories_first = TRUE,
+    .show_hidden = FALSE,
 };
 
 static void free_list(FileBrowserModePrivateData *pd) {
@@ -247,7 +250,10 @@ static void get_file_browser(Mode *sw) {
         pd->array_length++;
         continue;
       }
-      if (rd->d_name[0] == '.') {
+      if (g_strcmp0(rd->d_name, ".") == 0) {
+        continue;
+      }
+      if (rd->d_name[0] == '.' && file_browser_config.show_hidden == FALSE) {
         continue;
       }
 
@@ -367,7 +373,12 @@ static void file_browser_mode_init_config(Mode *sw) {
   if (p != NULL && p->type == P_BOOLEAN) {
     file_browser_config.directories_first = p->value.b;
   }
-
+  
+  p = rofi_theme_find_property(wid, P_BOOLEAN, "show-hidden", TRUE);
+  if (p != NULL && p->type == P_BOOLEAN) {
+    file_browser_config.show_hidden = p->value.b;
+  }
+  
   if (found_error) {
     rofi_view_error_dialog(msg, FALSE);
 

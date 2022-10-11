@@ -691,6 +691,8 @@ configuration {
       sorting-method: "name";
       /** Group directories before files. */
       directories-first: true;
+      /** Show hidden files. */
+      show-hidden: false;
    }
 }
 ```
