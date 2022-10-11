@@ -106,7 +106,7 @@ Below is a list of the different modes:
 * **drun**: launch applications based on desktop files. It tries to be compliant to the XDG standard.
 * **window**: Switch between windows on an EWMH compatible window manager.
 * **ssh**: Connect to a remote host via ssh.
-* **file-browser**: A basic file-browser for opening files.
+* **filebrowser**: A basic file-browser for opening files.
 * **keys**: list internal keybindings.
 * **script**: Write (limited) custom mode using simple scripts.
 * **combi**: Combine multiple modes into one.
