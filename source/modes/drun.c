@@ -236,7 +236,9 @@ static gboolean drun_helper_eval_cb(const GMatchInfo *info, GString *res,
     case 'F':
     case 'u':
     case 'U':
-      g_string_append(res, e->path);
+      if (e->path) {
+        g_string_append(res, e->path);
+      }
       break;
     // Unsupported
     case 'i':
