@@ -127,6 +127,7 @@ typedef struct {
   uint32_t icon_fetch_uid;
   uint32_t icon_fetch_size;
   gboolean thumbnail_checked;
+  gboolean icon_theme_checked;
 } client;
 
 // window lists
@@ -150,6 +151,7 @@ typedef struct {
   GRegex *window_regex;
   // Hide current active window
   gboolean hide_active_window;
+  gboolean prefer_icon_theme;
 } WindowModePrivateData;
 
 winlist *cache_client = NULL;
@@ -688,6 +690,11 @@ static int window_mode_init(Mode *sw) {
     if (p && p->type == P_BOOLEAN && p->value.b == TRUE) {
       pd->hide_active_window = TRUE;
     }
+    // prefer icon theme selection
+    p = rofi_theme_find_property(wid, P_BOOLEAN, "prefer-icon-theme", FALSE);
+    if (p && p->type == P_BOOLEAN && p->value.b == TRUE) {
+      pd->prefer_icon_theme = TRUE;
+    }
     pd->window_regex = g_regex_new("{[-\\w]+(:-?[0-9]+)?}", 0, 0, NULL);
     mode_set_private_data(sw, (void *)pd);
     _window_mode_load_data(sw, FALSE);
@@ -1056,24 +1063,56 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
     }
     c->thumbnail_checked = FALSE;
     c->icon_checked = FALSE;
+    c->icon_theme_checked = FALSE;
   }
   if (config.window_thumbnail && c->thumbnail_checked == FALSE) {
     c->icon = x11_helper_get_screenshot_surface_window(c->window, size);
     c->thumbnail_checked = TRUE;
   }
-  if (c->icon == NULL && c->icon_checked == FALSE) {
-    c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
-    c->icon_checked = TRUE;
-  }
-  if (c->icon == NULL && c->class) {
-    if (c->icon_fetch_uid > 0) {
-      return rofi_icon_fetcher_get(c->icon_fetch_uid);
+  if (rmpd->prefer_icon_theme == FALSE) {
+    if (c->icon == NULL && c->icon_checked == FALSE) {
+      c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
+      c->icon_checked = TRUE;
     }
-    char *class_lower = g_utf8_strdown(c->class, -1);
-    c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
-    g_free(class_lower);
-    c->icon_fetch_size = size;
-    return rofi_icon_fetcher_get(c->icon_fetch_uid);
+    if (c->icon == NULL && c->class && c->icon_theme_checked == FALSE) {
+      g_warning("icon theme icon: %s %u", c->class, size);
+      if (c->icon_fetch_uid > 0) {
+        c->icon_theme_checked =
+            rofi_icon_fetcher_get_ex(c->icon_fetch_uid, &(c->icon));
+        if (c->icon) {
+          cairo_surface_reference(c->icon);
+        }
+        return c->icon;
+      }
+      char *class_lower = g_utf8_strdown(c->class, -1);
+      c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
+      g_free(class_lower);
+      c->icon_fetch_size = size;
+      c->icon_theme_checked =
+          rofi_icon_fetcher_get_ex(c->icon_fetch_uid, &(c->icon));
+      if (c->icon) {
+        cairo_surface_reference(c->icon);
+      }
+      return c->icon;
+    }
+  } else {
+    if (c->icon == NULL && c->class && c->icon_theme_checked == FALSE) {
+      if (c->icon_fetch_uid == 0) {
+        char *class_lower = g_utf8_strdown(c->class, -1);
+        c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
+        g_free(class_lower);
+        c->icon_fetch_size = size;
+      }
+      c->icon_theme_checked =
+          rofi_icon_fetcher_get_ex(c->icon_fetch_uid, &(c->icon));
+      if (c->icon) {
+        cairo_surface_reference(c->icon);
+      }
+    }
+    if (c->icon == NULL && c->icon_checked == FALSE) {
+      c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
+      c->icon_checked = TRUE;
+    }
   }
   c->icon_fetch_size = size;
   return c->icon;

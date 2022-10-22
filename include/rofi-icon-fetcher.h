@@ -64,6 +64,16 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
 cairo_surface_t *rofi_icon_fetcher_get(const uint32_t uid);
 
 /**
+ * @param uid The unique id representing the matching request.
+ * @param surface [out] The surface found.
+ *
+ * If the surface is used, the user should reference the surface.
+ *
+ * @returns false if a query was done and failed.
+ */
+gboolean rofi_icon_fetcher_get_ex(const uint32_t uid,
+                                  cairo_surface_t **surface);
+/**
  * @param path the image path to check.
  *
  * Checks if a file is a supported image. (by looking at extension).

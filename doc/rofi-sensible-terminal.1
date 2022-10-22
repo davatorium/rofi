@@ -1,17 +1,18 @@
-.TH rofi\-sensible\-terminal 1 rofi\-sensible\-terminal
+.nh
+.TH rofi-sensible-terminal 1 rofi-sensible-terminal
 .SH NAME
 .PP
-\fBrofi\-sensible\-terminal\fP \-  launches $TERMINAL with fallbacks
+\fBrofi-sensible-terminal\fP -  launches $TERMINAL with fallbacks
 
 .SH SYNOPSIS
 .PP
-rofi\-sensible\-terminal [arguments]
+rofi-sensible-terminal [arguments]
 
 .SH DESCRIPTION
 .PP
-rofi\-sensible\-terminal is invoked in the rofi default config to start a terminal. This
-wrapper script is necessary since there is no distribution\-independent terminal launcher
-(but for example Debian has x\-terminal\-emulator). Distribution packagers are responsible for
+rofi-sensible-terminal is invoked in the rofi default config to start a terminal. This
+wrapper script is necessary since there is no distribution-independent terminal launcher
+(but for example Debian has x-terminal-emulator). Distribution packagers are responsible for
 shipping this script in a way which is appropriate for the distribution.
 
 .PP
@@ -19,9 +20,9 @@ It tries to start one of the following (in that order):
 
 .RS
 .IP \(bu 2
-\fB\fC$TERMINAL\fR (this is a non\-standard variable)
+\fB\fC$TERMINAL\fR (this is a non-standard variable)
 .IP \(bu 2
-x\-terminal\-emulator
+x-terminal-emulator
 .IP \(bu 2
 urxvt
 .IP \(bu 2
@@ -43,9 +44,9 @@ xterm
 .IP \(bu 2
 roxterm
 .IP \(bu 2
-xfce4\-terminal.wrapper
+xfce4-terminal.wrapper
 .IP \(bu 2
-mate\-terminal
+mate-terminal
 .IP \(bu 2
 lxterminal
 .IP \(bu 2

@@ -612,6 +612,17 @@ configuration {
 
 or pass `-window-hide-active-window true` on command line.
 
+You can prefer the icon theme above the window set icon with the 'prefer-icon-theme' setting:
+
+```css
+configuration {
+  window {
+      prefer-icon-theme: true;
+  }
+}
+```
+
+or pass `-window-prefer-icon-theme true` on command line.
 
 ### Combi settings
 
