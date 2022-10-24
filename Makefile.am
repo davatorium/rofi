@@ -626,7 +626,7 @@ coverage-clean:
 .PHONY: .FORCE
 .FORCE:
 
-icondir=$(datadir)/icons/hicolor/apps/
+icondir=$(datadir)/icons/hicolor/scalable/apps/
 icon_DATA=\
 	data/rofi.svg
 
