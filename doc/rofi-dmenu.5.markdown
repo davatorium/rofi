@@ -192,6 +192,10 @@ When multi-select is enabled, prefix this string when element is not selected.
 
 *default*: "☐ "
 
+## PARSING ROW OPTIONS
+
+Extra options for individual rows can be also set. See the **rofi-script(5)** manpage for details; the syntax and supported features are identical.
+
 ## RETURN VALUE
 
  * **0**: Row has been selected accepted by user.
