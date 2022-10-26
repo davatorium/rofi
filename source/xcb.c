@@ -84,6 +84,7 @@ WindowManagerQuirk current_window_manager = WM_EWHM;
  */
 struct _xcb_stuff xcb_int = {.connection = NULL,
                              .screen = NULL,
+                             .im = NULL,
                              .screen_nbr = -1,
                              .sndisplay = NULL,
                              .sncontext = NULL,
@@ -1142,6 +1143,35 @@ static gboolean x11_button_to_nk_bindings_scroll(guint32 x11_button,
   return TRUE;
 }
 
+void x11_event_handler_fowarding(xcb_xim_t *im, xcb_xic_t ic,
+                                 xcb_key_press_event_t *event,
+                                 void *user_data) {
+  (void)user_data;
+  (void)ic;
+  (void)im;
+
+  RofiViewState *state = rofi_view_get_active();
+  // fprintf(stderr, "Key %s Keycode %u, State %u\n",
+  //         event->response_type == XCB_KEY_PRESS ? "press" : "release",
+  //         event->detail, event->state);
+  xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
+  gchar *text;
+
+  xcb->last_timestamp = xkpe->time;
+  if (config.xserver_i300_workaround) {
+    text = nk_bindings_seat_handle_key_with_modmask(
+        xcb->bindings_seat, NULL, xkpe->state, xkpe->detail,
+        NK_BINDINGS_KEY_STATE_PRESS);
+  } else {
+    text = nk_bindings_seat_handle_key(xcb->bindings_seat, NULL, xkpe->detail,
+                                       NK_BINDINGS_KEY_STATE_PRESS);
+  }
+  if (text != NULL) {
+    rofi_view_handle_text(state, text);
+    g_free(text);
+  }
+}
+
 /**
  * Process X11 events in the main-loop (gui-thread) of the application.
  */
@@ -1299,32 +1329,6 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     }
     break;
   }
-  case XCB_KEY_PRESS: {
-    xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
-    gchar *text;
-
-    xcb->last_timestamp = xkpe->time;
-    if (config.xserver_i300_workaround) {
-      text = nk_bindings_seat_handle_key_with_modmask(
-          xcb->bindings_seat, NULL, xkpe->state, xkpe->detail,
-          NK_BINDINGS_KEY_STATE_PRESS);
-    } else {
-      text = nk_bindings_seat_handle_key(xcb->bindings_seat, NULL, xkpe->detail,
-                                         NK_BINDINGS_KEY_STATE_PRESS);
-    }
-    if (text != NULL) {
-      rofi_view_handle_text(state, text);
-      g_free(text);
-    }
-    break;
-  }
-  case XCB_KEY_RELEASE: {
-    xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
-    xcb->last_timestamp = xkre->time;
-    nk_bindings_seat_handle_key(xcb->bindings_seat, NULL, xkre->detail,
-                                NK_BINDINGS_KEY_STATE_RELEASE);
-    break;
-  }
   default:
     break;
   }
@@ -1346,7 +1350,14 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
     // status);
     return G_SOURCE_CONTINUE;
   }
+
   uint8_t type = ev->response_type & ~0x80;
+  if (!xcb_xim_filter_event(xcb->im, ev) && xcb->ic &&
+      (type == XCB_KEY_PRESS)) {
+    xcb_xim_forward_event(xcb->im, xcb->ic, (xcb_key_press_event_t *)ev);
+    return G_SOURCE_CONTINUE;
+  }
+
   if (type == xcb->xkb.first_event) {
     switch (ev->pad0) {
     case XCB_XKB_MAP_NOTIFY: {
@@ -1550,6 +1561,7 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
     return FALSE;
   }
   xcb->connection = g_water_xcb_source_get_connection(xcb->source);
+  xcb->im = g_water_xcb_source_get_im(xcb->source);
 
   TICK_N("Open Display");
 

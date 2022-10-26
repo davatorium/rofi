@@ -38,6 +38,8 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <xcb-imdkit/encoding.h>
+#include <xcb-imdkit/imclient.h>
 #include <xcb/xcb_ewmh.h>
 #include <xcb/xcb_icccm.h>
 #include <xcb/xkb.h>
@@ -784,6 +786,55 @@ rofi_view_setup_fake_transparency(widget *win,
     TICK_N("Fake transparency");
   }
 }
+
+static void commit_string(xcb_xim_t *im, xcb_xic_t ic, uint32_t flag, char *str,
+                          uint32_t length, uint32_t *keysym, size_t nKeySym,
+                          void *user_data) {
+  (void)user_data;
+  (void)keysym;
+  (void)nKeySym;
+  (void)ic;
+  (void)flag;
+  if (xcb_xim_get_encoding(im) == XCB_XIM_UTF8_STRING) {
+    fprintf(stderr, "key commit utf8: %.*s\n", length, str);
+  } else if (xcb_xim_get_encoding(im) == XCB_XIM_COMPOUND_TEXT) {
+    size_t newLength = 0;
+    char *utf8 = xcb_compound_text_to_utf8(str, length, &newLength);
+    if (utf8) {
+      int l = newLength;
+      RofiViewState *state = rofi_view_get_active();
+      rofi_view_handle_text(state, utf8);
+      fprintf(stderr, "key commit: %.*s\n", l, utf8);
+    }
+  }
+}
+
+xcb_xim_im_callback xim_callback = {.forward_event = x11_event_handler_fowarding,
+                                    .commit_string = commit_string};
+
+static void create_ic_callback(xcb_xim_t *im, xcb_xic_t new_ic,
+                               void *user_data) {
+  (void)user_data;
+  xcb->ic = new_ic;
+  if (xcb->ic) {
+    fprintf(stderr, "icid:%u\n", xcb->ic);
+    xcb_xim_set_ic_focus(im, xcb->ic);
+  }
+}
+static void open_callback(xcb_xim_t *im, void *user_data) {
+  (void)user_data;
+  uint32_t input_style = XCB_IM_PreeditPosition | XCB_IM_StatusArea;
+  xcb_point_t spot;
+  spot.x = 0;
+  spot.y = 0;
+  xcb_xim_nested_list nested =
+      xcb_xim_create_nested_list(im, XCB_XIM_XNSpotLocation, &spot, NULL);
+  xcb_xim_create_ic(
+      im, create_ic_callback, NULL, XCB_XIM_XNInputStyle, &input_style,
+      XCB_XIM_XNClientWindow, &CacheState.main_window, XCB_XIM_XNFocusWindow,
+      &CacheState.main_window, XCB_XIM_XNPreeditAttributes, &nested, NULL);
+  free(nested.data);
+}
 void __create_window(MenuFlags menu_flags) {
   uint32_t selmask = XCB_CW_BACK_PIXMAP | XCB_CW_BORDER_PIXEL |
                      XCB_CW_BIT_GRAVITY | XCB_CW_BACKING_STORE |
@@ -799,6 +850,11 @@ void __create_window(MenuFlags menu_flags) {
                        XCB_GRAVITY_STATIC,   XCB_BACKING_STORE_NOT_USEFUL,
                        xcb_event_masks,      map};
 
+  xcb_xim_set_im_callback(xcb->im, &xim_callback, NULL);
+
+  // Open connection to XIM server.
+  xcb_xim_open(xcb->im, open_callback, true, NULL);
+
   xcb_window_t box_window = xcb_generate_id(xcb->connection);
   xcb_void_cookie_t cc = xcb_create_window_checked(
       xcb->connection, depth->depth, box_window, xcb_stuff_get_root_window(), 0,
@@ -810,6 +866,7 @@ void __create_window(MenuFlags menu_flags) {
     g_error("xcb_create_window() failed error=0x%x\n", error->error_code);
     exit(EXIT_FAILURE);
   }
+
   TICK_N("xcb create window");
   CacheState.gc = xcb_generate_id(xcb->connection);
   xcb_create_gc(xcb->connection, CacheState.gc, box_window, 0, 0);

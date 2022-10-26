@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <libsn/sn.h>
 
+#include <xcb-imdkit/imclient.h>
 #include <libgwater-xcb.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
@@ -45,6 +46,8 @@ struct _xcb_stuff {
   GMainLoop *main_loop;
   GWaterXcbSource *source;
   xcb_connection_t *connection;
+  xcb_xic_t ic;
+  xcb_xim_t *im;
   xcb_ewmh_connection_t ewmh;
   xcb_screen_t *screen;
   int screen_nbr;
