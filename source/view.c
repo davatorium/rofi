@@ -81,11 +81,24 @@ void rofi_view_update(RofiViewState *state, gboolean qr);
 
 static int rofi_view_calculate_height(RofiViewState *state);
 
+static void xim_commit_string(xcb_xim_t *im, G_GNUC_UNUSED xcb_xic_t ic,
+                              G_GNUC_UNUSED uint32_t flag, char *str,
+                              uint32_t length, G_GNUC_UNUSED uint32_t *keysym,
+                              G_GNUC_UNUSED size_t nKeySym,
+                              G_GNUC_UNUSED void *user_data);
+static void xim_disconnected(G_GNUC_UNUSED xcb_xim_t *im,
+                             G_GNUC_UNUSED void *user_data);
+
 /** Thread pool used for filtering */
 GThreadPool *tpool = NULL;
 
 /** Global pointer to the currently active RofiViewState */
 RofiViewState *current_active_menu = NULL;
+
+xcb_xim_im_callback xim_callback = {.forward_event =
+                                        x11_event_handler_fowarding,
+                                    .commit_string = xim_commit_string,
+                                    .disconnected = xim_disconnected};
 
 /**
  * Structure holding cached state.
@@ -787,42 +800,40 @@ rofi_view_setup_fake_transparency(widget *win,
   }
 }
 
-static void commit_string(xcb_xim_t *im, xcb_xic_t ic, uint32_t flag, char *str,
-                          uint32_t length, uint32_t *keysym, size_t nKeySym,
-                          void *user_data) {
-  (void)user_data;
-  (void)keysym;
-  (void)nKeySym;
-  (void)ic;
-  (void)flag;
+static void xim_commit_string(xcb_xim_t *im, G_GNUC_UNUSED xcb_xic_t ic,
+                              G_GNUC_UNUSED uint32_t flag, char *str,
+                              uint32_t length, G_GNUC_UNUSED uint32_t *keysym,
+                              G_GNUC_UNUSED size_t nKeySym,
+                              G_GNUC_UNUSED void *user_data) {
+  RofiViewState *state = rofi_view_get_active();
+  if (state == NULL) {
+    return;
+  }
+
   if (xcb_xim_get_encoding(im) == XCB_XIM_UTF8_STRING) {
-    fprintf(stderr, "key commit utf8: %.*s\n", length, str);
+    rofi_view_handle_text(state, str);
   } else if (xcb_xim_get_encoding(im) == XCB_XIM_COMPOUND_TEXT) {
     size_t newLength = 0;
     char *utf8 = xcb_compound_text_to_utf8(str, length, &newLength);
     if (utf8) {
-      int l = newLength;
-      RofiViewState *state = rofi_view_get_active();
       rofi_view_handle_text(state, utf8);
-      fprintf(stderr, "key commit: %.*s\n", l, utf8);
     }
   }
 }
 
-xcb_xim_im_callback xim_callback = {.forward_event = x11_event_handler_fowarding,
-                                    .commit_string = commit_string};
+static void xim_disconnected(G_GNUC_UNUSED xcb_xim_t *im,
+                             G_GNUC_UNUSED void *user_data) {
+  xcb->ic = 0;
+}
 
 static void create_ic_callback(xcb_xim_t *im, xcb_xic_t new_ic,
-                               void *user_data) {
-  (void)user_data;
+                               G_GNUC_UNUSED void *user_data) {
   xcb->ic = new_ic;
   if (xcb->ic) {
-    fprintf(stderr, "icid:%u\n", xcb->ic);
     xcb_xim_set_ic_focus(im, xcb->ic);
   }
 }
-static void open_callback(xcb_xim_t *im, void *user_data) {
-  (void)user_data;
+static void open_xim_callback(xcb_xim_t *im, G_GNUC_UNUSED void *user_data) {
   uint32_t input_style = XCB_IM_PreeditPosition | XCB_IM_StatusArea;
   xcb_point_t spot;
   spot.x = 0;
@@ -853,7 +864,7 @@ void __create_window(MenuFlags menu_flags) {
   xcb_xim_set_im_callback(xcb->im, &xim_callback, NULL);
 
   // Open connection to XIM server.
-  xcb_xim_open(xcb->im, open_callback, true, NULL);
+  xcb_xim_open(xcb->im, open_xim_callback, true, NULL);
 
   xcb_window_t box_window = xcb_generate_id(xcb->connection);
   xcb_void_cookie_t cc = xcb_create_window_checked(

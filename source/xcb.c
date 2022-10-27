@@ -1143,18 +1143,8 @@ static gboolean x11_button_to_nk_bindings_scroll(guint32 x11_button,
   return TRUE;
 }
 
-void x11_event_handler_fowarding(xcb_xim_t *im, xcb_xic_t ic,
-                                 xcb_key_press_event_t *event,
-                                 void *user_data) {
-  (void)user_data;
-  (void)ic;
-  (void)im;
-
-  RofiViewState *state = rofi_view_get_active();
-  // fprintf(stderr, "Key %s Keycode %u, State %u\n",
-  //         event->response_type == XCB_KEY_PRESS ? "press" : "release",
-  //         event->detail, event->state);
-  xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
+static void rofi_key_press_event_handler(xcb_key_press_event_t *xkpe,
+                                         RofiViewState *state) {
   gchar *text;
 
   xcb->last_timestamp = xkpe->time;
@@ -1170,6 +1160,13 @@ void x11_event_handler_fowarding(xcb_xim_t *im, xcb_xic_t ic,
     rofi_view_handle_text(state, text);
     g_free(text);
   }
+}
+
+static void rofi_key_release_event_handler(xcb_key_release_event_t *xkre,
+                                           G_GNUC_UNUSED RofiViewState *state) {
+  xcb->last_timestamp = xkre->time;
+  nk_bindings_seat_handle_key(xcb->bindings_seat, NULL, xkre->detail,
+                              NK_BINDINGS_KEY_STATE_RELEASE);
 }
 
 /**
@@ -1329,17 +1326,37 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     }
     break;
   }
+  case XCB_KEY_PRESS: {
+    xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
+    rofi_key_press_event_handler(xkpe, state);
+    break;
+  }
   case XCB_KEY_RELEASE: {
     xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
-    xcb->last_timestamp = xkre->time;
-    nk_bindings_seat_handle_key(xcb->bindings_seat, NULL, xkre->detail,
-                                NK_BINDINGS_KEY_STATE_RELEASE);
+    rofi_key_release_event_handler(xkre, state);
     break;
   }
   default:
     break;
   }
   rofi_view_maybe_update(state);
+}
+
+void x11_event_handler_fowarding(G_GNUC_UNUSED xcb_xim_t *im,
+                                 G_GNUC_UNUSED xcb_xic_t ic,
+                                 xcb_key_press_event_t *event,
+                                 G_GNUC_UNUSED void *user_data) {
+  RofiViewState *state = rofi_view_get_active();
+  if (state == NULL) {
+    return;
+  }
+  uint8_t type = event->response_type & ~0x80;
+  if (type == XCB_KEY_PRESS) {
+    rofi_key_press_event_handler(event, state);
+  } else if (type == XCB_KEY_RELEASE) {
+    xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
+    rofi_key_release_event_handler(xkre, state);
+  }
 }
 
 static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
@@ -1359,12 +1376,6 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
   }
 
   uint8_t type = ev->response_type & ~0x80;
-  if (!xcb_xim_filter_event(xcb->im, ev) && xcb->ic &&
-      (type == XCB_KEY_PRESS)) {
-    xcb_xim_forward_event(xcb->im, xcb->ic, (xcb_key_press_event_t *)ev);
-    return G_SOURCE_CONTINUE;
-  }
-
   if (type == xcb->xkb.first_event) {
     switch (ev->pad0) {
     case XCB_XKB_MAP_NOTIFY: {
@@ -1393,6 +1404,15 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
   if (xcb->sndisplay != NULL) {
     sn_xcb_display_process_event(xcb->sndisplay, ev);
   }
+
+  if (xcb->im && xcb_xim_filter_event(xcb->im, ev) == 0) {
+    if (xcb->ic &&
+        (type == XCB_KEY_PRESS || type == XCB_KEY_RELEASE || type == 31)) {
+      xcb_xim_forward_event(xcb->im, xcb->ic, (xcb_key_press_event_t *)ev);
+      return G_SOURCE_CONTINUE;
+    }
+  }
+
   main_loop_x11_event_handler_view(ev);
   return G_SOURCE_CONTINUE;
 }
