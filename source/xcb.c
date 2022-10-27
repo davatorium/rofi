@@ -1329,6 +1329,13 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     }
     break;
   }
+  case XCB_KEY_RELEASE: {
+    xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
+    xcb->last_timestamp = xkre->time;
+    nk_bindings_seat_handle_key(xcb->bindings_seat, NULL, xkre->detail,
+                                NK_BINDINGS_KEY_STATE_RELEASE);
+    break;
+  }
   default:
     break;
   }
