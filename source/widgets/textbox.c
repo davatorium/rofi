@@ -525,7 +525,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
 
   // draw the cursor
   rofi_theme_get_color(WIDGET(tb), "text-color", draw);
-  if (tb->flags & TB_EDITABLE && tb->blink) {
+  if (tb->flags & TB_EDITABLE) {
     // We want to place the cursor based on the text shown.
     const char *text = pango_layout_get_text(tb->layout);
     // Clamp the position, should not be needed, but we are paranoid.
@@ -538,9 +538,14 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     int cursor_y = pos.y / PANGO_SCALE;
     int cursor_height = pos.height / PANGO_SCALE;
     int cursor_width = 2;
-    cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_width,
-                    cursor_height);
-    cairo_fill(draw);
+    if ((x + cursor_x) != tb->cursor_x_pos) {
+      tb->cursor_x_pos = x + cursor_x;
+    }
+    if (tb->blink) {
+      cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_width,
+                      cursor_height);
+      cairo_fill(draw);
+    }
   }
 }
 
@@ -992,4 +997,10 @@ void textbox_set_ellipsize(textbox *tb, PangoEllipsizeMode mode) {
       widget_queue_redraw(WIDGET(tb));
     }
   }
+}
+int textbox_get_cursor_x_pos(const textbox *tb) {
+  if (tb == NULL) {
+    return 0;
+  }
+  return tb->cursor_x_pos;
 }
