@@ -98,9 +98,9 @@ RofiViewState *current_active_menu = NULL;
 
 /** queued IM pos **/
 static bool is_processing_pos_update;
-static bool pos_update_queued = true;
-static int queued_x = true;
-static int queued_y = true;
+static bool pos_update_queued = false;
+static int queued_x;
+static int queued_y;
 
 xcb_xim_im_callback xim_callback = {.forward_event =
                                         x11_event_handler_fowarding,
