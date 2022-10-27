@@ -76,6 +76,8 @@ typedef struct {
   double yalign;
   double xalign;
 
+  int cursor_x_pos;
+
   TBFontConfig *tbfc;
 
   PangoEllipsizeMode emode;
@@ -335,5 +337,12 @@ void textbox_cursor_end(textbox *tb);
  * Set the ellipsizing mode used on the string.
  */
 void textbox_set_ellipsize(textbox *tb, PangoEllipsizeMode mode);
+
+/**
+ * @param tb Handle to the textbox
+ *
+ * @returns the position of the cursor (0 if no cursor).
+ */
+int textbox_get_cursor_x_pos(const textbox *tb);
 /**@}*/
 #endif // ROFI_TEXTBOX_H
