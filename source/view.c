@@ -98,7 +98,7 @@ RofiViewState *current_active_menu = NULL;
 
 /** queued IM pos **/
 static bool is_processing_pos_update;
-static bool pos_update_queued = false;
+static bool pos_update_queued;
 static int queued_x;
 static int queued_y;
 
