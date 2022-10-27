@@ -45,8 +45,8 @@
 
 #include <glib-unix.h>
 
-#include <xcb-imdkit/imclient.h>
 #include <libgwater-xcb.h>
+#include <xcb-imdkit/imclient.h>
 
 #ifdef USE_NK_GIT_VERSION
 #include "nkutils-git-version.h"

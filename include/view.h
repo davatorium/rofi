@@ -341,5 +341,15 @@ void rofi_view_set_window_title(const char *title);
  * set ellipsize mode to start.
  */
 void rofi_view_ellipsize_start(RofiViewState *state);
+
+/**
+ * @param new_x New XIM window x pos
+ * @param new_y New XIM window y pos
+ *
+ * Updates the XIM window position to new_x and new_y, relative to the
+ * main_window
+ */
+gboolean rofi_set_im_window_pos(int new_x, int new_y);
+
 /** @} */
 #endif

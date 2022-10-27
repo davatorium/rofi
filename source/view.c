@@ -88,19 +88,12 @@ static void xim_commit_string(xcb_xim_t *im, G_GNUC_UNUSED xcb_xic_t ic,
                               G_GNUC_UNUSED void *user_data);
 static void xim_disconnected(G_GNUC_UNUSED xcb_xim_t *im,
                              G_GNUC_UNUSED void *user_data);
-static bool update_im_window_pos(int new_x, int new_y);
 
 /** Thread pool used for filtering */
 GThreadPool *tpool = NULL;
 
 /** Global pointer to the currently active RofiViewState */
 RofiViewState *current_active_menu = NULL;
-
-/** queued IM pos **/
-static bool is_processing_pos_update;
-static bool pos_update_queued;
-static int queued_x;
-static int queued_y;
 
 xcb_xim_im_callback xim_callback = {.forward_event =
                                         x11_event_handler_fowarding,
@@ -841,44 +834,19 @@ static void create_ic_callback(xcb_xim_t *im, xcb_xic_t new_ic,
   }
 }
 
-static void update_im_pos_callback(G_GNUC_UNUSED xcb_xim_t *im,
-                                   G_GNUC_UNUSED xcb_xic_t ic,
-                                   G_GNUC_UNUSED void *user_data) {
-  if (pos_update_queued) {
-    pos_update_queued = false;
-    update_im_window_pos(queued_x, queued_y);
-  } else {
-    is_processing_pos_update = false;
-  }
-}
-
-/**
- * @param new_x New XIM window x pos
- * @param new_y New XIM window y pos
- *
- * Updates the XIM window position to new_x and new_y, relative to the
- * main_window
- */
-static bool update_im_window_pos(int new_x, int new_y) {
+gboolean rofi_set_im_window_pos(int new_x, int new_y) {
   if (!xcb->ic)
     return false;
-
-  if (is_processing_pos_update) {
-    pos_update_queued = true;
-    queued_x = new_x;
-    queued_x = new_y;
-    return false;
-  }
 
   xcb_point_t spot;
   spot.x = new_x;
   spot.y = new_y;
   xcb_xim_nested_list nested =
       xcb_xim_create_nested_list(xcb->im, XCB_XIM_XNSpotLocation, &spot, NULL);
-  xcb_xim_set_ic_values(xcb->im, xcb->ic, update_im_pos_callback, NULL,
-                        XCB_XIM_XNClientWindow, &CacheState.main_window,
-                        XCB_XIM_XNFocusWindow, &CacheState.main_window,
-                        XCB_XIM_XNPreeditAttributes, &nested, NULL);
+  xcb_xim_set_ic_values(xcb->im, xcb->ic, NULL, NULL, XCB_XIM_XNClientWindow,
+                        &CacheState.main_window, XCB_XIM_XNFocusWindow,
+                        &CacheState.main_window, XCB_XIM_XNPreeditAttributes,
+                        &nested, NULL);
   free(nested.data);
   return true;
 }
@@ -886,7 +854,8 @@ static void open_xim_callback(xcb_xim_t *im, G_GNUC_UNUSED void *user_data) {
   RofiViewState *state = rofi_view_get_active();
   uint32_t input_style = XCB_IM_PreeditPosition | XCB_IM_StatusArea;
   xcb_point_t spot;
-  spot.x = 0;
+  spot.x += textbox_get_cursor_x_pos(state->text) +
+            widget_get_x_pos(&state->text->widget);
   spot.y += widget_get_height(&state->text->widget);
   xcb_xim_nested_list nested =
       xcb_xim_create_nested_list(im, XCB_XIM_XNSpotLocation, &spot, NULL);
@@ -1226,6 +1195,7 @@ static void update_callback(textbox *t, icon *ico, unsigned int index,
       textbox_set_pango_attributes(t, list);
       pango_attr_list_unref(list);
     }
+
     g_list_free(add_list);
     g_free(text);
   } else {
@@ -1267,6 +1237,11 @@ void rofi_view_update(RofiViewState *state, gboolean qr) {
   // Always paint as overlay over the background.
   cairo_set_operator(d, CAIRO_OPERATOR_OVER);
   widget_draw(WIDGET(state->main_window), d);
+
+  int x = textbox_get_cursor_x_pos(state->text) +
+          widget_get_x_pos(&state->text->widget);
+  int y = widget_get_height(&state->text->widget);
+  rofi_set_im_window_pos(x, y);
 
   TICK_N("widgets");
   cairo_surface_flush(CacheState.edit_surf);
