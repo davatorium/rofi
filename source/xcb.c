@@ -27,6 +27,7 @@
  */
 
 /** Log domain for this module */
+#include <xcb-imdkit/encoding.h>
 #define G_LOG_DOMAIN "X11Helper"
 
 #include "config.h"
@@ -1328,12 +1329,20 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   }
   case XCB_KEY_PRESS: {
     xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
-    rofi_key_press_event_handler(xkpe, state);
+    if (xcb->ic) {
+      xcb_xim_forward_event(xcb->im, xcb->ic, xkpe);
+    } else {
+      rofi_key_press_event_handler(xkpe, state);
+    }
     break;
   }
   case XCB_KEY_RELEASE: {
     xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
-    rofi_key_release_event_handler(xkre, state);
+    if (xcb->ic) {
+      xcb_xim_forward_event(xcb->im, xcb->ic, xkre);
+    } else {
+      rofi_key_release_event_handler(xkre, state);
+    }
     break;
   }
   default:
@@ -1375,6 +1384,10 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
     return G_SOURCE_CONTINUE;
   }
 
+  if (xcb->im && xcb_xim_filter_event(xcb->im, ev)) {
+    return G_SOURCE_CONTINUE;
+  }
+
   uint8_t type = ev->response_type & ~0x80;
   if (type == xcb->xkb.first_event) {
     switch (ev->pad0) {
@@ -1403,14 +1416,6 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
   }
   if (xcb->sndisplay != NULL) {
     sn_xcb_display_process_event(xcb->sndisplay, ev);
-  }
-
-  if (xcb->im && xcb_xim_filter_event(xcb->im, ev) == 0) {
-    if (xcb->ic &&
-        (type == XCB_KEY_PRESS || type == XCB_KEY_RELEASE || type == 31)) {
-      xcb_xim_forward_event(xcb->im, xcb->ic, (xcb_key_press_event_t *)ev);
-      return G_SOURCE_CONTINUE;
-    }
   }
 
   main_loop_x11_event_handler_view(ev);
@@ -1580,6 +1585,7 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
   find_arg_str("-display", &display_str);
 
   xcb->main_loop = main_loop;
+  xcb_compound_text_init();
   xcb->source = g_water_xcb_source_new(g_main_loop_get_context(xcb->main_loop),
                                        display_str, &xcb->screen_nbr,
                                        main_loop_x11_event_handler, NULL, NULL);
@@ -1588,7 +1594,9 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
     return FALSE;
   }
   xcb->connection = g_water_xcb_source_get_connection(xcb->source);
-  xcb->im = g_water_xcb_source_get_im(xcb->source);
+  xcb->im = xcb_xim_create(xcb->connection, xcb->screen_nbr, NULL);
+  xcb_xim_set_use_compound_text(xcb->im, true);
+  xcb_xim_set_use_utf8_string(xcb->im, true);
 
   TICK_N("Open Display");
 
@@ -1858,7 +1866,10 @@ void display_cleanup(void) {
   xcb_ewmh_connection_wipe(&(xcb->ewmh));
   xcb_flush(xcb->connection);
   xcb_aux_sync(xcb->connection);
+  xcb_xim_close(xcb->im);
+  xcb_xim_destroy(xcb->im);
   g_water_xcb_source_free(xcb->source);
+  xcb->im = NULL;
   xcb->source = NULL;
   xcb->connection = NULL;
   xcb->screen = NULL;
