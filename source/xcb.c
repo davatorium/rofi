@@ -1101,7 +1101,7 @@ static bool get_atom_name(xcb_connection_t *conn, xcb_atom_t atom, char **out) {
 static void rofi_view_paste(RofiViewState *state,
                             xcb_selection_notify_event_t *xse) {
   if (xse->property == XCB_ATOM_NONE) {
-    g_warning("Failed to convert selection");
+    g_debug("Failed to convert selection");
   } else if (xse->property == xcb->ewmh.UTF8_STRING) {
     gchar *text = window_get_text_prop(xse->requestor, xcb->ewmh.UTF8_STRING);
     if (text != NULL && text[0] != '\0') {
