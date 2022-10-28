@@ -810,6 +810,7 @@ static void xim_commit_string(xcb_xim_t *im, G_GNUC_UNUSED xcb_xic_t ic,
     return;
   }
 
+#ifndef XCB_IMDKIT_1_0_3_LOWER
   if (xcb_xim_get_encoding(im) == XCB_XIM_UTF8_STRING) {
     rofi_view_handle_text(state, str);
   } else if (xcb_xim_get_encoding(im) == XCB_XIM_COMPOUND_TEXT) {
@@ -819,6 +820,13 @@ static void xim_commit_string(xcb_xim_t *im, G_GNUC_UNUSED xcb_xic_t ic,
       rofi_view_handle_text(state, utf8);
     }
   }
+#else
+  size_t newLength = 0;
+  char *utf8 = xcb_compound_text_to_utf8(str, length, &newLength);
+  if (utf8) {
+    rofi_view_handle_text(state, utf8);
+  }
+#endif
 }
 
 static void xim_disconnected(G_GNUC_UNUSED xcb_xim_t *im,
