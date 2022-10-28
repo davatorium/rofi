@@ -85,7 +85,7 @@ if imdkit_new.found()
   deps += imdkit_new
   header_conf.set('XCB_IMDKIT_1_0_3_LOWER', false)
 elif imdkit_old.found()
-  depds+= imdkit_old
+  deps+= imdkit_old
   header_conf.set('XCB_IMDKIT_1_0_3_LOWER', true)
 else
   error('Failed to find imdkit')
