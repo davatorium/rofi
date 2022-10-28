@@ -64,7 +64,7 @@ deps += [
     dependency('xcb'),
     dependency('xcb-aux'),
     dependency('xcb-xkb'),
-    dependency('xcb-imdkit'),
+    dependency('xcb-imdkit', version: '>= 1.0.3'),
     dependency('xkbcommon-x11'),
     dependency('xcb-ewmh'),
     dependency('xcb-icccm'),
