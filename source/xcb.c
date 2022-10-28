@@ -1063,6 +1063,35 @@ int monitor_active(workarea *mon) {
   return FALSE;
 }
 
+static bool get_atom_name(xcb_connection_t *conn, xcb_atom_t atom, char **out) {
+  xcb_get_atom_name_cookie_t cookie;
+  xcb_get_atom_name_reply_t *reply;
+  int length;
+  char *name;
+
+  if (atom == 0) {
+    *out = NULL;
+    return true;
+  }
+
+  cookie = xcb_get_atom_name(conn, atom);
+  reply = xcb_get_atom_name_reply(conn, cookie, NULL);
+  if (!reply)
+    return false;
+
+  length = xcb_get_atom_name_name_length(reply);
+  name = xcb_get_atom_name_name(reply);
+
+  (*out) = g_strndup(name, length);
+  if (!(*out)) {
+    free(reply);
+    return false;
+  }
+
+  free(reply);
+  return true;
+}
+
 /**
  * @param state Internal state of the menu.
  * @param xse   X selection event.
@@ -1087,7 +1116,13 @@ static void rofi_view_paste(RofiViewState *state,
     }
     g_free(text);
   } else {
-    g_warning("Failed");
+    char *out = NULL;
+    if (get_atom_name(xcb->connection, xse->property, &out)) {
+      g_debug("rofi_view_paste: Got unknown atom: %s", out);
+      g_free(out);
+    } else {
+      g_debug("rofi_view_paste: Got unknown, unnamed: %s", out);
+    }
   }
 }
 
