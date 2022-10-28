@@ -1630,8 +1630,11 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
   }
   xcb->connection = g_water_xcb_source_get_connection(xcb->source);
   xcb->im = xcb_xim_create(xcb->connection, xcb->screen_nbr, NULL);
+
+#ifndef XCB_IMDKIT_1_0_3_LOWER
   xcb_xim_set_use_compound_text(xcb->im, true);
   xcb_xim_set_use_utf8_string(xcb->im, true);
+#endif
 
   TICK_N("Open Display");
 
