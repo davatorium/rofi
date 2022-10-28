@@ -29,6 +29,7 @@ runs:
           libxcb-xkb-dev \
           libxcb-xrm-dev \
           libxcb-cursor-dev \
+          libxcb-imdkit-dev \
           libxkbcommon-dev \
           libxkbcommon-dev \
           libxkbcommon-x11-dev \
