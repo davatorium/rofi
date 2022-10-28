@@ -145,6 +145,7 @@ rofi_CFLAGS=\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
 	$(gdkpixbuf_CFLAGS)\
+	$(imdclient_CFLAGS)\
 	-DMANPAGE_PATH="\"$(mandir)/\""\
 	-I$(top_srcdir)/include/\
 	-I$(top_builddir)/lexer/\
@@ -165,6 +166,7 @@ rofi_LDADD=\
 	$(pango_LIBS)\
 	$(cairo_LIBS)\
 	$(gdkpixbuf_LIBS)\
+	$(imdclient_LIBS)\
 	$(LIBS)
 
 ##
