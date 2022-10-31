@@ -708,6 +708,8 @@ configuration {
 }
 ```
 
+The `show-hidden` can also be triggered with the `kb-delete-entry` keybinding.
+
 ### Other
 
 `-drun-use-desktop-cache`

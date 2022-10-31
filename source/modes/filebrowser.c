@@ -523,6 +523,9 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
       retv = RELOAD_DIALOG;
     }
   } else if ((mretv & MENU_ENTRY_DELETE) == MENU_ENTRY_DELETE) {
+    file_browser_config.show_hidden = !file_browser_config.show_hidden;
+    free_list(pd);
+    get_file_browser(sw);
     retv = RELOAD_DIALOG;
   }
   return retv;
@@ -678,6 +681,9 @@ ModeMode file_browser_mode_completer(Mode *sw, int mretv, char **input,
     g_free(dir);
     retv = RELOAD_DIALOG;
   } else if ((mretv & MENU_ENTRY_DELETE) == MENU_ENTRY_DELETE) {
+    file_browser_config.show_hidden = !file_browser_config.show_hidden;
+    free_list(pd);
+    get_file_browser(sw);
     retv = RELOAD_DIALOG;
   }
   return retv;
