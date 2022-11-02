@@ -27,10 +27,12 @@
  */
 
 /** Log domain for this module */
-#include <xcb-imdkit/encoding.h>
 #define G_LOG_DOMAIN "X11Helper"
 
 #include "config.h"
+#ifdef XCB_IMDKIT
+#include <xcb-imdkit/encoding.h>
+#endif
 #include <cairo-xcb.h>
 #include <cairo.h>
 #include <glib.h>
@@ -63,6 +65,7 @@
 #include "xcb-internal.h"
 #include "xcb.h"
 #include <libsn/sn.h>
+#include <stdbool.h>
 
 #include "mode.h"
 #include "modes/window.h"
@@ -85,7 +88,9 @@ WindowManagerQuirk current_window_manager = WM_EWHM;
  */
 struct _xcb_stuff xcb_int = {.connection = NULL,
                              .screen = NULL,
+#ifdef XCB_IMDKIT
                              .im = NULL,
+#endif
                              .screen_nbr = -1,
                              .sndisplay = NULL,
                              .sncontext = NULL,
@@ -1364,18 +1369,24 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   }
   case XCB_KEY_PRESS: {
     xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
+#ifdef XCB_IMDKIT
     if (xcb->ic) {
       xcb_xim_forward_event(xcb->im, xcb->ic, xkpe);
-    } else {
+    } else
+#endif
+    {
       rofi_key_press_event_handler(xkpe, state);
     }
     break;
   }
   case XCB_KEY_RELEASE: {
     xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
+#ifdef XCB_IMDKIT
     if (xcb->ic) {
       xcb_xim_forward_event(xcb->im, xcb->ic, xkre);
-    } else {
+    } else
+#endif
+    {
       rofi_key_release_event_handler(xkre, state);
     }
     break;
@@ -1386,6 +1397,7 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   rofi_view_maybe_update(state);
 }
 
+#ifdef XCB_IMDKIT
 void x11_event_handler_fowarding(G_GNUC_UNUSED xcb_xim_t *im,
                                  G_GNUC_UNUSED xcb_xic_t ic,
                                  xcb_key_press_event_t *event,
@@ -1402,6 +1414,7 @@ void x11_event_handler_fowarding(G_GNUC_UNUSED xcb_xim_t *im,
     rofi_key_release_event_handler(xkre, state);
   }
 }
+#endif
 
 static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
                                             G_GNUC_UNUSED gpointer user_data) {
@@ -1419,9 +1432,11 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
     return G_SOURCE_CONTINUE;
   }
 
+#ifdef XCB_IMDKIT
   if (xcb->im && xcb_xim_filter_event(xcb->im, ev)) {
     return G_SOURCE_CONTINUE;
   }
+#endif
 
   uint8_t type = ev->response_type & ~0x80;
   if (type == xcb->xkb.first_event) {
@@ -1620,7 +1635,9 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
   find_arg_str("-display", &display_str);
 
   xcb->main_loop = main_loop;
+#ifdef XCB_IMDKIT
   xcb_compound_text_init();
+#endif
   xcb->source = g_water_xcb_source_new(g_main_loop_get_context(xcb->main_loop),
                                        display_str, &xcb->screen_nbr,
                                        main_loop_x11_event_handler, NULL, NULL);
@@ -1629,11 +1646,15 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
     return FALSE;
   }
   xcb->connection = g_water_xcb_source_get_connection(xcb->source);
+#ifdef XCB_IMDKIT
   xcb->im = xcb_xim_create(xcb->connection, xcb->screen_nbr, NULL);
+#endif
 
+#ifdef XCB_IMDKIT
 #ifndef XCB_IMDKIT_1_0_3_LOWER
   xcb_xim_set_use_compound_text(xcb->im, true);
   xcb_xim_set_use_utf8_string(xcb->im, true);
+#endif
 #endif
 
   TICK_N("Open Display");
@@ -1904,10 +1925,12 @@ void display_cleanup(void) {
   xcb_ewmh_connection_wipe(&(xcb->ewmh));
   xcb_flush(xcb->connection);
   xcb_aux_sync(xcb->connection);
+#ifdef XCB_IMDKIT
   xcb_xim_close(xcb->im);
   xcb_xim_destroy(xcb->im);
-  g_water_xcb_source_free(xcb->source);
   xcb->im = NULL;
+#endif
+  g_water_xcb_source_free(xcb->source);
   xcb->source = NULL;
   xcb->connection = NULL;
   xcb->screen = NULL;

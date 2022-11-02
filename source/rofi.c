@@ -46,7 +46,6 @@
 #include <glib-unix.h>
 
 #include <libgwater-xcb.h>
-#include <xcb-imdkit/imclient.h>
 
 #ifdef USE_NK_GIT_VERSION
 #include "nkutils-git-version.h"
@@ -379,6 +378,13 @@ static void help(G_GNUC_UNUSED int argc, char **argv) {
          is_term ? color_reset : "");
 #else
   printf("\t• asan    %sdisabled%s\n", is_term ? color_red : "",
+         is_term ? color_reset : "");
+#endif
+#ifdef XCB_IMDKIT
+  printf("\t• imdkit  %senabled%s\n", is_term ? color_green : "",
+         is_term ? color_reset : "");
+#else
+  printf("\t• imdkit  %sdisabled%s\n", is_term ? color_red : "",
          is_term ? color_reset : "");
 #endif
   printf("\n");

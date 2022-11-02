@@ -84,11 +84,14 @@ header_conf = configuration_data()
 if imdkit_new.found()
   deps += imdkit_new
   header_conf.set('XCB_IMDKIT_1_0_3_LOWER', false)
+  header_conf.set('XCB_IMDKIT', true)
 elif imdkit_old.found()
   deps+= imdkit_old
   header_conf.set('XCB_IMDKIT_1_0_3_LOWER', true)
+  header_conf.set('XCB_IMDKIT', true)
 else
-  error('Failed to find imdkit')
+  header_conf.set('XCB_IMDKIT_1_0_3_LOWER', false)
+  header_conf.set('XCB_IMDKIT', false)
 endif
 
 

@@ -38,8 +38,9 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#ifdef XCB_IMDKIT
 #include <xcb-imdkit/encoding.h>
-#include <xcb-imdkit/imclient.h>
+#endif
 #include <xcb/xcb_ewmh.h>
 #include <xcb/xcb_icccm.h>
 #include <xcb/xkb.h>
@@ -81,6 +82,7 @@ void rofi_view_update(RofiViewState *state, gboolean qr);
 
 static int rofi_view_calculate_height(RofiViewState *state);
 
+#ifdef XCB_IMDKIT
 static void xim_commit_string(xcb_xim_t *im, G_GNUC_UNUSED xcb_xic_t ic,
                               G_GNUC_UNUSED uint32_t flag, char *str,
                               uint32_t length, G_GNUC_UNUSED uint32_t *keysym,
@@ -88,17 +90,17 @@ static void xim_commit_string(xcb_xim_t *im, G_GNUC_UNUSED xcb_xic_t ic,
                               G_GNUC_UNUSED void *user_data);
 static void xim_disconnected(G_GNUC_UNUSED xcb_xim_t *im,
                              G_GNUC_UNUSED void *user_data);
+xcb_xim_im_callback xim_callback = {.forward_event =
+                                        x11_event_handler_fowarding,
+                                    .commit_string = xim_commit_string,
+                                    .disconnected = xim_disconnected};
+#endif
 
 /** Thread pool used for filtering */
 GThreadPool *tpool = NULL;
 
 /** Global pointer to the currently active RofiViewState */
 RofiViewState *current_active_menu = NULL;
-
-xcb_xim_im_callback xim_callback = {.forward_event =
-                                        x11_event_handler_fowarding,
-                                    .commit_string = xim_commit_string,
-                                    .disconnected = xim_disconnected};
 
 /**
  * Structure holding cached state.
@@ -800,6 +802,7 @@ rofi_view_setup_fake_transparency(widget *win,
   }
 }
 
+#ifdef XCB_IMDKIT
 static void xim_commit_string(xcb_xim_t *im, G_GNUC_UNUSED xcb_xic_t ic,
                               G_GNUC_UNUSED uint32_t flag, char *str,
                               uint32_t length, G_GNUC_UNUSED uint32_t *keysym,
@@ -846,16 +849,18 @@ gboolean rofi_set_im_window_pos(int new_x, int new_y) {
   if (!xcb->ic)
     return false;
 
-  xcb_point_t spot;
-  spot.x = new_x;
-  spot.y = new_y;
-  xcb_xim_nested_list nested =
-      xcb_xim_create_nested_list(xcb->im, XCB_XIM_XNSpotLocation, &spot, NULL);
-  xcb_xim_set_ic_values(xcb->im, xcb->ic, NULL, NULL, XCB_XIM_XNClientWindow,
-                        &CacheState.main_window, XCB_XIM_XNFocusWindow,
-                        &CacheState.main_window, XCB_XIM_XNPreeditAttributes,
-                        &nested, NULL);
-  free(nested.data);
+  static xcb_point_t spot = {.x = 0, .y = 0};
+  if (spot.x != new_x || spot.y != new_y) {
+    spot.x = new_x;
+    spot.y = new_y;
+    xcb_xim_nested_list nested = xcb_xim_create_nested_list(
+        xcb->im, XCB_XIM_XNSpotLocation, &spot, NULL);
+    xcb_xim_set_ic_values(xcb->im, xcb->ic, NULL, NULL, XCB_XIM_XNClientWindow,
+                          &CacheState.main_window, XCB_XIM_XNFocusWindow,
+                          &CacheState.main_window, XCB_XIM_XNPreeditAttributes,
+                          &nested, NULL);
+    free(nested.data);
+  }
   return true;
 }
 static void open_xim_callback(xcb_xim_t *im, G_GNUC_UNUSED void *user_data) {
@@ -874,6 +879,7 @@ static void open_xim_callback(xcb_xim_t *im, G_GNUC_UNUSED void *user_data) {
       &CacheState.main_window, XCB_XIM_XNPreeditAttributes, &nested, NULL);
   free(nested.data);
 }
+#endif
 
 void __create_window(MenuFlags menu_flags) {
   uint32_t selmask = XCB_CW_BACK_PIXMAP | XCB_CW_BORDER_PIXEL |
@@ -890,10 +896,14 @@ void __create_window(MenuFlags menu_flags) {
                        XCB_GRAVITY_STATIC,   XCB_BACKING_STORE_NOT_USEFUL,
                        xcb_event_masks,      map};
 
+#ifdef XCB_IMDKIT
   xcb_xim_set_im_callback(xcb->im, &xim_callback, NULL);
+#endif
 
-  // Open connection to XIM server.
+// Open connection to XIM server.
+#ifdef XCB_IMDKIT
   xcb_xim_open(xcb->im, open_xim_callback, true, NULL);
+#endif
 
   xcb_window_t box_window = xcb_generate_id(xcb->connection);
   xcb_void_cookie_t cc = xcb_create_window_checked(
@@ -1247,11 +1257,13 @@ void rofi_view_update(RofiViewState *state, gboolean qr) {
   cairo_set_operator(d, CAIRO_OPERATOR_OVER);
   widget_draw(WIDGET(state->main_window), d);
 
+#ifdef XCB_IMDKIT
   int x = widget_get_x_pos(&state->text->widget) +
           textbox_get_cursor_x_pos(state->text);
   int y = widget_get_y_pos(&state->text->widget) +
           widget_get_height(&state->text->widget);
   rofi_set_im_window_pos(x, y);
+#endif
 
   TICK_N("widgets");
   cairo_surface_flush(CacheState.edit_surf);
