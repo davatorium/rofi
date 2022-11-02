@@ -574,13 +574,19 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
     // we're working...
     pd->ids = winlist_new();
 
+    int has_names = FALSE;
+    ssize_t ws_names_length = 0;
+    char *ws_names = NULL;
     xcb_get_property_cookie_t prop_cookie =
         xcb_ewmh_get_desktop_names(&xcb->ewmh, xcb->screen_nbr);
     xcb_ewmh_get_utf8_strings_reply_t names;
-    int has_names = FALSE;
     if (xcb_ewmh_get_desktop_names_reply(&xcb->ewmh, prop_cookie, &names,
                                          NULL)) {
+      ws_names_length = names.strings_len;
+      ws_names = g_malloc0_n(names.strings_len + 1, sizeof(char));
+      memcpy(ws_names, names.strings, names.strings_len);
       has_names = TRUE;
+      xcb_ewmh_get_utf8_strings_reply_wipe(&names);
     }
     // calc widths of fields
     for (i = clients.windows_len - 1; i > -1; i--) {
@@ -629,11 +635,11 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
                 WM_PANGO_WORKSPACE_NAMES) {
               char *output = NULL;
               if (pango_parse_markup(
-                      _window_name_list_entry(names.strings, names.strings_len,
+                      _window_name_list_entry(ws_names, ws_names_length,
                                               winclient->wmdesktop),
                       -1, 0, NULL, &output, NULL, NULL)) {
                 winclient->wmdesktopstr = g_strdup(_window_name_list_entry(
-                    names.strings, names.strings_len, winclient->wmdesktop));
+                    ws_names, ws_names_length, winclient->wmdesktop));
                 winclient->wmdesktopstr_len = g_utf8_strlen(output, -1);
                 pd->wmdn_len = MAX(pd->wmdn_len, winclient->wmdesktopstr_len);
                 g_free(output);
@@ -645,7 +651,7 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
               }
             } else {
               winclient->wmdesktopstr = g_markup_escape_text(
-                  _window_name_list_entry(names.strings, names.strings_len,
+                  _window_name_list_entry(ws_names, ws_names_length,
                                           winclient->wmdesktop),
                   -1);
               winclient->wmdesktopstr_len =
@@ -675,7 +681,7 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
     }
 
     if (has_names) {
-      xcb_ewmh_get_utf8_strings_reply_wipe(&names);
+      g_free(ws_names);
     }
   }
   xcb_ewmh_get_windows_reply_wipe(&clients);
