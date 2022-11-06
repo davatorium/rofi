@@ -39,6 +39,7 @@ You can also use [Meson](https://mesonbuild.com/) as an alternative.
 *   xcb-util
 *   xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)
 *   xcb-util-cursor
+*   xcb-imdkit  (optional, 1.0.3 or up preferred)
 
 On debian based systems, the developer packages are in the form of: `<package>-dev` on rpm based
 `<package>-devel`.
