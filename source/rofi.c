@@ -380,6 +380,13 @@ static void help(G_GNUC_UNUSED int argc, char **argv) {
   printf("\t• asan    %sdisabled%s\n", is_term ? color_red : "",
          is_term ? color_reset : "");
 #endif
+#ifdef XCB_IMDKIT
+  printf("\t• imdkit  %senabled%s\n", is_term ? color_green : "",
+         is_term ? color_reset : "");
+#else
+  printf("\t• imdkit  %sdisabled%s\n", is_term ? color_red : "",
+         is_term ? color_reset : "");
+#endif
   printf("\n");
   printf("For more information see: %sman rofi%s\n", is_term ? color_bold : "",
          is_term ? color_reset : "");

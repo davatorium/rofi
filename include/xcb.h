@@ -29,6 +29,10 @@
 #define ROFI_XCB_H
 
 #include <cairo.h>
+#include <config.h>
+#ifdef XCB_IMDKIT
+#include <xcb-imdkit/imclient.h>
+#endif
 #include <xcb/xcb.h>
 
 /**
@@ -220,6 +224,7 @@ extern WindowManagerQuirk current_window_manager;
  * @returns NULL if window was not found, or unmapped, otherwise returns a
  * cairo_surface.
  */
+
 cairo_surface_t *x11_helper_get_screenshot_surface_window(xcb_window_t window,
                                                           int size);
 
@@ -233,4 +238,11 @@ cairo_surface_t *x11_helper_get_screenshot_surface_window(xcb_window_t window,
 void cairo_image_surface_blur(cairo_surface_t *surface, double radius,
                               double deviation);
 
+#ifdef XCB_IMDKIT
+/**
+ * IME Forwarding
+ */
+void x11_event_handler_fowarding(xcb_xim_t *im, xcb_xic_t ic,
+                                 xcb_key_press_event_t *event, void *user_data);
+#endif
 #endif

@@ -74,9 +74,27 @@ deps += [
     dependency('libstartup-notification-1.0'),
 ]
 
-check = dependency('check', version: '>= 0.11.0', required: get_option('check'))
+imdkit_new  = dependency('xcb-imdkit', version: '>= 1.0.3', required: false)
+imdkit_old  = dependency('xcb-imdkit', version: '<= 1.0.2', required: false)
 
+
+check = dependency('check', version: '>= 0.11.0', required: get_option('check'))
 header_conf = configuration_data()
+
+if imdkit_new.found()
+  deps += imdkit_new
+  header_conf.set('XCB_IMDKIT_1_0_3_LOWER', false)
+  header_conf.set('XCB_IMDKIT', true)
+elif imdkit_old.found()
+  deps+= imdkit_old
+  header_conf.set('XCB_IMDKIT_1_0_3_LOWER', true)
+  header_conf.set('XCB_IMDKIT', true)
+else
+  header_conf.set('XCB_IMDKIT_1_0_3_LOWER', false)
+  header_conf.set('XCB_IMDKIT', false)
+endif
+
+
 header_conf.set_quoted('PACKAGE_NAME', meson.project_name())
 header_conf.set_quoted('PACKAGE_VERSION', meson.project_version())
 header_conf.set_quoted('VERSION', meson.project_version())
