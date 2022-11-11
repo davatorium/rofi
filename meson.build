@@ -100,7 +100,7 @@ header_conf.set_quoted('PACKAGE_VERSION', meson.project_version())
 header_conf.set_quoted('VERSION', meson.project_version())
 header_conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 header_conf.set_quoted('PACKAGE_BUGREPORT', 'https://github.com/davatorium/rofi/')
-header_conf.set_quoted('PACKAGE_URL', 'https://reddit.com/r/qtools/')
+header_conf.set_quoted('PACKAGE_URL', 'https://github.com/davatorium/rofi/discussions')
 
 header_conf.set('_GNU_SOURCE', true)
 

@@ -996,7 +996,6 @@ been released.
 
 **rofi** support can be obtained:
  * [GitHub Discussions](https://github.com/davatorium/rofi/discussions)
- * [Forum (Reddit)](https://reddit.com/r/qtools//)
  * [IRC](irc://irc.libera.chat:6697/#rofi) (#rofi on irc.libera.chat),
 
 ## DEBUGGING
