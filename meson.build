@@ -74,25 +74,27 @@ deps += [
     dependency('libstartup-notification-1.0'),
 ]
 
-imdkit_new  = dependency('xcb-imdkit', version: '>= 1.0.3', required: false)
-imdkit_old  = dependency('xcb-imdkit', version: '<= 1.0.2', required: false)
+header_conf = configuration_data()
+if get_option('imdkit')
+  imdkit_new  = dependency('xcb-imdkit', version: '>= 1.0.3', required: false)
+  imdkit_old  = dependency('xcb-imdkit', version: '<= 1.0.2', required: false)
+  if imdkit_new.found()
+    deps += imdkit_new
+    header_conf.set('XCB_IMDKIT_1_0_3_LOWER', false)
+    header_conf.set('XCB_IMDKIT', true)
+  elif imdkit_old.found()
+    deps+= imdkit_old
+    header_conf.set('XCB_IMDKIT_1_0_3_LOWER', true)
+    header_conf.set('XCB_IMDKIT', true)
+  else
+    header_conf.set('XCB_IMDKIT_1_0_3_LOWER', false)
+    header_conf.set('XCB_IMDKIT', false)
+  endif
+endif
 
 
 check = dependency('check', version: '>= 0.11.0', required: get_option('check'))
-header_conf = configuration_data()
 
-if imdkit_new.found()
-  deps += imdkit_new
-  header_conf.set('XCB_IMDKIT_1_0_3_LOWER', false)
-  header_conf.set('XCB_IMDKIT', true)
-elif imdkit_old.found()
-  deps+= imdkit_old
-  header_conf.set('XCB_IMDKIT_1_0_3_LOWER', true)
-  header_conf.set('XCB_IMDKIT', true)
-else
-  header_conf.set('XCB_IMDKIT_1_0_3_LOWER', false)
-  header_conf.set('XCB_IMDKIT', false)
-endif
 
 
 header_conf.set_quoted('PACKAGE_NAME', meson.project_name())

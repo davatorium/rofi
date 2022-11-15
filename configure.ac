@@ -146,10 +146,16 @@ PKG_CHECK_MODULES([glib],     [glib-2.0 >= ${glib_min_version} gio-unix-2.0 gmod
 AC_DEFINE_UNQUOTED([GLIB_VERSION_MIN_REQUIRED], [(G_ENCODE_VERSION(${glib_min_major},${glib_min_minor}))], [The lower GLib version supported])
 AC_DEFINE_UNQUOTED([GLIB_VERSION_MAX_ALLOWED], [(G_ENCODE_VERSION(${glib_min_major},${glib_min_minor}))], [The highest GLib version supported])
 GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-cursor xcb-randr xcb-xinerama ])
+
+
+AC_ARG_ENABLE([imdkit], AS_HELP_STRING([--disable-imdkit], [Build with checks using check library (default: enabled)]))
+
+AS_IF([test "x${enable_imdkit}" != "xno"], [
 PKG_CHECK_MODULES([imdclient], [xcb-imdkit <= 1.0.2 ],
                   [AC_DEFINE([XCB_IMDKIT_1_0_3_LOWER], [1], [Indicate lower version of imdclient])
                   AC_DEFINE([XCB_IMDKIT],[1], [IMD Kit missing])],
                   [PKG_CHECK_MODULES([imdclient], [xcb-imdkit >= 1.0.3],[AC_DEFINE([XCB_IMDKIT],[1], [IMD Kit missing])],[HAVE_IMDKIT=0])])
+])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
 PKG_CHECK_MODULES([cairo],    [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
