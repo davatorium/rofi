@@ -27,7 +27,7 @@ sources:
 tasks:
   - setup: |
      cd rofi
-     meson setup builddir .
+     meson setup builddir . -Db_lto=true
   - build: |
      ninja -C rofi/builddir
   - test: |
