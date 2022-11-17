@@ -29,7 +29,6 @@
 #define ROFI_XCB_H
 
 #include <cairo.h>
-#include <config.h>
 #ifdef XCB_IMDKIT
 #include <xcb-imdkit/imclient.h>
 #endif

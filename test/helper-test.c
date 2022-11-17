@@ -25,6 +25,8 @@
  *
  */
 
+#include <config.h>
+
 #include "display.h"
 #include "rofi-icon-fetcher.h"
 #include "rofi.h"

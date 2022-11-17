@@ -25,6 +25,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+#include <config.h>
 
 #include "widgets/textbox.h"
 #include "helper-theme.h"
