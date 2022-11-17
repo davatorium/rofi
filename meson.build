@@ -30,6 +30,13 @@ foreach f : flags
     endif
 endforeach
 
+if get_option('lto')
+  add_project_arguments('-flto', language: 'c')
+  add_project_arguments('-Werror=odr', language: 'c')
+  add_project_arguments('-Werror=lto-type-mismatch', language: 'c')
+  add_project_arguments('-Werror=strict-aliasing', language: 'c')
+endif
+
 plugindir  = join_paths(get_option('libdir'), meson.project_name())
 themedir   = join_paths(get_option('datadir'), meson.project_name(), 'themes')
 desktop_install_dir = join_paths(get_option('datadir'), 'applications')

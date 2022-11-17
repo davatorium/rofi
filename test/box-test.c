@@ -97,8 +97,8 @@ char *helper_get_theme_path(const char *file, G_GNUC_UNUSED const char *ext) {
 }
 void rofi_add_error_message(G_GNUC_UNUSED GString *msg) {}
 void rofi_add_warning_message(G_GNUC_UNUSED GString *msg) {}
-int textbox_get_estimated_char_height(void);
-int textbox_get_estimated_char_height(void) { return 16; }
+double textbox_get_estimated_char_height(void);
+double textbox_get_estimated_char_height(void) { return 16; }
 double textbox_get_estimated_ch(void);
 double textbox_get_estimated_ch(void) { return 8; }
 void rofi_view_get_current_monitor(G_GNUC_UNUSED int *width,
