@@ -35,7 +35,7 @@
  */
 #define G_LOG_DOMAIN "Modes.Ssh"
 
-#include <config.h>
+#include "config.h"
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>

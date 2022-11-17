@@ -27,7 +27,7 @@
 
 /** The log domain of this widget. */
 #define G_LOG_DOMAIN "Widgets.Icon"
-#include <config.h>
+#include "config.h"
 
 #include "widgets/icon.h"
 #include "theme.h"

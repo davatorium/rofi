@@ -25,7 +25,7 @@
  *
  */
 
-#include <config.h>
+#include "config.h"
 #include <glib.h>
 #include <widgets/box.h>
 #include <widgets/icon.h>

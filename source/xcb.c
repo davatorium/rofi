@@ -1187,6 +1187,7 @@ static gboolean x11_button_to_nk_bindings_scroll(guint32 x11_button,
 static void rofi_key_press_event_handler(xcb_key_press_event_t *xkpe,
                                          RofiViewState *state) {
   gchar *text;
+  g_log("IMDKit", G_LOG_LEVEL_DEBUG, "press handler");
 
   xcb->last_timestamp = xkpe->time;
   if (config.xserver_i300_workaround) {
@@ -1371,6 +1372,7 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
 #ifdef XCB_IMDKIT
     if (xcb->ic) {
+      g_log("IMDKit", G_LOG_LEVEL_DEBUG, "input xim");
       xcb_xim_forward_event(xcb->im, xcb->ic, xkpe);
     } else
 #endif

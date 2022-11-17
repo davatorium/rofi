@@ -28,7 +28,7 @@
 /** The log domain of this dialog. */
 #define G_LOG_DOMAIN "Modes.DRun"
 
-#include <config.h>
+#include "config.h"
 #ifdef ENABLE_DRUN
 #include <limits.h>
 #include <stdio.h>

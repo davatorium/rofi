@@ -27,7 +27,7 @@
 
 /** The log domain of this dialog. */
 #define G_LOG_DOMAIN "Modes.DMenu"
-#include <config.h>
+#include "config.h"
 
 #include "modes/dmenu.h"
 #include "helper.h"
