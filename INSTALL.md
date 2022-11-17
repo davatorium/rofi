@@ -109,9 +109,13 @@ From this point, use the same steps you use for a release.
 ## Options for configure
 
 When you run the configure step there are several options you can configure.
+
 For Autotools, you can see the full list with `./configure --help`.
+
 For Meson, before the initial setup, you can see rofi options in `meson_options.txt` and Meson options with `meson setup --help`.
-After the initial setup, use `meson configure build`.
+Meson's built-in options can be set using regular command line arguments, like so: `meson setup build --option=value`.
+Rofi-specific options can be set using the `-D` argument, like so: `meson setup build -Doption=value`.
+After the build dir is set up by `meson setup build`, the `meson configure build` command can be used to configure options, by the same means.
 
 The most useful one to set the installation prefix:
 
