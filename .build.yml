@@ -38,4 +38,4 @@ tasks:
   - dist: |
      ninja -C rofi/builddir dist
 artifacts:
-  - rofi/builddir/meson-dist/rofi-1.7.3-dev.tar.xz
+  - rofi/builddir/meson-dist/rofi-*-dev.tar.xz
