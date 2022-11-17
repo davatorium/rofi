@@ -30,8 +30,7 @@ foreach f : flags
     endif
 endforeach
 
-if get_option('lto')
-  add_project_arguments('-flto', language: 'c')
+if get_option('b_lto')
   add_project_arguments('-Werror=odr', language: 'c')
   add_project_arguments('-Werror=lto-type-mismatch', language: 'c')
   add_project_arguments('-Werror=strict-aliasing', language: 'c')
