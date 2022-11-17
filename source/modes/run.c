@@ -33,7 +33,7 @@
 /** The log domain of this dialog. */
 #define G_LOG_DOMAIN "Modes.Run"
 
-#include <config.h>
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 

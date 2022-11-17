@@ -28,7 +28,7 @@
 /** The log domain of this dialog. */
 #define G_LOG_DOMAIN "Modes.Window"
 
-#include <config.h>
+#include "config.h"
 
 #ifdef WINDOW_MODE
 

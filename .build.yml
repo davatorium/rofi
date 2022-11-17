@@ -27,7 +27,7 @@ sources:
 tasks:
   - setup: |
      cd rofi
-     meson setup builddir .
+     meson setup builddir . -Db_lto=true
   - build: |
      ninja -C rofi/builddir
   - test: |
@@ -38,4 +38,4 @@ tasks:
   - dist: |
      ninja -C rofi/builddir dist
 artifacts:
-  - rofi/builddir/meson-dist/rofi-1.7.3-dev.tar.xz
+  - rofi/builddir/meson-dist/rofi-1.7.5-dev.tar.xz

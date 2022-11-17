@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-
+#include "config.h"
 #include "display.h"
 #include "rofi-icon-fetcher.h"
 #include "rofi.h"
