@@ -117,7 +117,7 @@ Meson's built-in options can be set using regular command line arguments, like s
 Rofi-specific options can be set using the `-D` argument, like so: `meson setup build -Doption=value`.
 After the build dir is set up by `meson setup build`, the `meson configure build` command can be used to configure options, by the same means.
 
-The most useful one to set the installation prefix:
+The most useful one to set is the installation prefix:
 
     # Autotools
     ../configure --prefix=<installation path>
