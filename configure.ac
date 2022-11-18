@@ -148,9 +148,9 @@ AC_DEFINE_UNQUOTED([GLIB_VERSION_MAX_ALLOWED], [(G_ENCODE_VERSION(${glib_min_maj
 GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-cursor xcb-randr xcb-xinerama ])
 
 
-AC_ARG_ENABLE([imdkit], AS_HELP_STRING([--disable-imdkit], [Build with checks using check library (default: enabled)]))
+AC_ARG_ENABLE([imdkit], AS_HELP_STRING([--enable-imdkit], [Build with checks using check library (default: disabled)]))
 
-AS_IF([test "x${enable_imdkit}" != "xno"], [
+AS_IF([test "x${enable_imdkit}" = "xyes"], [
 PKG_CHECK_MODULES([imdclient], [xcb-imdkit <= 1.0.2 ],
                   [AC_DEFINE([XCB_IMDKIT_1_0_3_LOWER], [1], [Indicate lower version of imdclient])
                   AC_DEFINE([XCB_IMDKIT],[1], [IMD Kit missing])],
