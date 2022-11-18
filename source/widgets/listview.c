@@ -175,6 +175,7 @@ static void listview_add_widget(listview *lv, _listview_row *row, widget *wid,
     row->textbox =
         textbox_create(WIDGET(wid), WIDGET_TYPE_TEXTBOX_TEXT, "element-text",
                        TB_AUTOHEIGHT | flags, NORMAL, "DDD", 0, 0);
+    textbox_set_ellipsize(row->textbox, lv->emode);
     box_add((box *)wid, WIDGET(row->textbox), TRUE);
   } else if (strcasecmp(label, "element-index") == 0) {
     row->index =
