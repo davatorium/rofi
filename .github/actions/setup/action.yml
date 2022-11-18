@@ -45,7 +45,7 @@ runs:
           xutils-dev
       shell: bash
     - id: doxy
-      run: git clone https://github.com/alobbs/doxy-coverage
+      run: git clone https://github.com/davatorium/doxy-coverage
       shell: bash
     - id: check
       run: |

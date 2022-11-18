@@ -20,5 +20,5 @@ runs:
           exit 1
         fi
 
-        python2 ./doxy-coverage/doxy-coverage.py builddir/doc/html/xml/
+        python ./doxy-coverage/doxy-coverage.py builddir/doc/html/xml/
       shell: bash
