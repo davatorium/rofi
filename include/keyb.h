@@ -186,6 +186,9 @@ gboolean parse_keys_abe(NkBindings *bindings);
  */
 void setup_abe(void);
 
+/**
+ * List all available key bindings to the terminal.
+ */
 void abe_list_all_bindings(gboolean is_term);
 /**
  * @param name Don't have the name.

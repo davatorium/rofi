@@ -313,6 +313,7 @@ PangoAttrList *textbox_get_pango_attributes(textbox *tb);
  * @returns the visible text.
  */
 const char *textbox_get_visible_text(const textbox *tb);
+
 /**
  * @param wid The handle to the textbox.
  * @param height The height we want the desired width for
@@ -321,7 +322,7 @@ const char *textbox_get_visible_text(const textbox *tb);
  *
  * @returns the desired width of the textbox.
  */
-int textbox_get_desired_width(widget *wid, const int height);
+int textbox_get_desired_width(widget *wid, G_GNUC_UNUSED const int height);
 
 /**
  * @param tb  Handle to the textbox

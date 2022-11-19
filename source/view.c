@@ -130,9 +130,13 @@ struct {
   guint idle_timeout;
   /** timeout for reloading */
   guint refilter_timeout;
+  /** amount of time refiltering delay got reset */
   guint refilter_timeout_count;
 
+  /** if filtering takes longer then this time,
+   * reduce the amount of refilters. */
   double max_refilter_time;
+  /** enable the reduced refilter mode. */
   gboolean delayed_mode;
   /** timeout handling */
   guint user_timeout;

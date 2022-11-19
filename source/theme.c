@@ -46,13 +46,22 @@
 #include "widgets/textbox.h"
 #include <gio/gio.h>
 
+/**
+ * list of config files we parsed.
+ */
 GList *parsed_config_files = NULL;
 
+/** cleanup (free) the list of parsed config files. */
 void rofi_theme_free_parsed_files(void) {
   g_list_free_full(parsed_config_files, g_free);
   parsed_config_files = NULL;
 }
 
+/**
+ * @param is_term if print to terminal
+ *
+ * print the list of parsed config files.
+ */
 void rofi_theme_print_parsed_files(gboolean is_term) {
   printf("\nParsed files:\n");
   for (GList *iter = g_list_first(parsed_config_files); iter != NULL;

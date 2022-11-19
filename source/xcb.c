@@ -992,8 +992,9 @@ static int monitor_active_from_id(int mon_id, workarea *mon) {
 
 // determine which monitor holds the active window, or failing that the mouse
 // pointer
-
+/** The cached monitor setup (mon_cache) is populated */
 gboolean mon_set = FALSE;
+/** cached monitor cache, to avoid multiple roundtrips to fetch this. */
 workarea mon_cache = {
     0,
 };

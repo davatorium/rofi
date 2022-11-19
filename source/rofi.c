@@ -85,6 +85,7 @@ const char *cache_dir = NULL;
 
 /** List of error messages.*/
 GList *list_of_error_msgs = NULL;
+/** List of warning messages for the user.*/
 GList *list_of_warning_msgs = NULL;
 
 static void rofi_collectmodes_destroy(void);

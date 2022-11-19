@@ -107,7 +107,9 @@ struct RofiViewState {
   /** filtered rows */
   textbox *tb_filtered_rows;
 
+  /** Extra icon widget that shows the current selected entries text. */
   textbox *tb_current_entry;
+  /** Extra icon widget that shows the current selected entries icon. */
   icon *icon_current_entry;
 
   /** Settings of the menu */

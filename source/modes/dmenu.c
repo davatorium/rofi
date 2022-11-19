@@ -114,6 +114,8 @@ typedef struct {
   char *ballot_unselected;
 } DmenuModePrivateData;
 
+/** Maximum number of lines rofi parses async before it pushes it to the main
+ * thread. */
 #define BLOCK_LINES_SIZE 2048
 typedef struct {
   unsigned int length;

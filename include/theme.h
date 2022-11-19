@@ -142,9 +142,11 @@ void rofi_theme_property_free(Property *p);
 /**
  * @param p The property to free.
  *
+ * Make a newly allocted copy of the property.
+ *
  * @returns a copy of p
  */
-Property *rofi_theme_property_copy(const Property *p, void *);
+Property *rofi_theme_property_copy(const Property *p, G_GNUC_UNUSED void *);
 /**
  * @param widget
  *
@@ -463,9 +465,24 @@ void rofi_theme_free_parsed_files(void);
 void rofi_theme_print_parsed_files(int is_term);
 
 /**
+ * @param widget The widget handle.
+ * @param property The property to query.
+ *
  * Returns a list of allocated RofiDistance objects that should be
  * freed.
+ *
+ * @returns a GList of  RofiDistance objects.
  */
 GList *rofi_theme_get_list_distance(const widget *widget, const char *property);
+
+/**
+ * @param widget The widget handle.
+ * @param property The property to query.
+ *
+ * Returns a list of allocated strings othat should be
+ * freed.
+ *
+ * @returns a GList of strings.
+ */
 GList *rofi_theme_get_list_strings(const widget *widget, const char *property);
 #endif

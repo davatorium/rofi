@@ -463,12 +463,19 @@ static cairo_surface_t *script_get_icon(const Mode *sw,
 
 #include "mode-private.h"
 
+/** Structure that holds a user script
+ * found in $config/rofi/scripts/
+ */
 typedef struct ScriptUser {
+  /** name of the script */
   char *name;
+  /** path to the script. */
   char *path;
 } ScriptUser;
 
+/** list of user_scripts. */
 ScriptUser *user_scripts = NULL;
+/** number of user scripts collected */
 size_t num_scripts = 0;
 
 void script_mode_cleanup(void) {
@@ -538,10 +545,10 @@ Mode *script_mode_parse_setup(const char *str) {
   unsigned int index = 0;
   const char *const sep = ":";
   char **tokens = g_strsplit(str, sep, 2);
-  if ( tokens ){
+  if (tokens) {
     index = g_strv_length(tokens);
     sw->name = g_strdup(tokens[0]);
-    sw->ed = (void*)rofi_expand_path(tokens[1]);
+    sw->ed = (void *)rofi_expand_path(tokens[1]);
     g_strfreev(tokens);
   }
   if (index == 2) {

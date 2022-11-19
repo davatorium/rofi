@@ -44,6 +44,11 @@ typedef struct _xcb_stuff xcb_stuff;
  */
 extern xcb_stuff *xcb;
 
+/**
+ * @param data String to copy to clipboard.
+ *
+ * copies string to clipboard.
+ */
 void xcb_stuff_set_clipboard(char *data);
 
 /**
