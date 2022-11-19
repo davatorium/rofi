@@ -280,6 +280,22 @@ void listview_set_ellipsize_start(listview *lv);
 
 /**
  * @param lv Handler to the listview object.
+ *
+ * Set ellipsize mode to middle.
+ */
+
+void listview_set_ellipsize_middle(listview *lv);
+
+/**
+ * @param lv Handler to the listview object.
+ *
+ * Set ellipsize mode to end.
+ */
+
+void listview_set_ellipsize_end(listview *lv);
+
+/**
+ * @param lv Handler to the listview object.
  * @param filtered boolean indicating if list is filtered.
  *
  */

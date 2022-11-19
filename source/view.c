@@ -2500,7 +2500,27 @@ void rofi_view_clear_input(RofiViewState *state) {
 }
 
 void rofi_view_ellipsize_start(RofiViewState *state) {
+  if (state == NULL) {
+    return;
+  }
+
   listview_set_ellipsize_start(state->list_view);
+}
+
+void rofi_view_ellipsize_middle(RofiViewState *state) {
+  if (state == NULL) {
+    return;
+  }
+
+  listview_set_ellipsize_middle(state->list_view);
+}
+
+void rofi_view_ellipsize_end(RofiViewState *state) {
+  if (state == NULL) {
+    return;
+  }
+
+  listview_set_ellipsize_end(state->list_view);
 }
 
 void rofi_view_switch_mode(RofiViewState *state, Mode *mode) {

@@ -338,9 +338,21 @@ void rofi_capture_screenshot(void);
 void rofi_view_set_window_title(const char *title);
 
 /**
- * set ellipsize mode to start.
+ * Set ellipsize mode to start.
  */
 void rofi_view_ellipsize_start(RofiViewState *state);
+
+/**
+ * Set ellipsize mode to middle.
+ */
+void rofi_view_ellipsize_middle(RofiViewState *state);
+/** @} */
+
+/**
+ * Set ellipsize mode to end.
+ */
+void rofi_view_ellipsize_end(RofiViewState *state);
+/** @} */
 
 /**
  * @param new_x New XIM window x pos

@@ -1113,6 +1113,24 @@ void listview_set_ellipsize_start(listview *lv) {
   }
 }
 
+void listview_set_ellipsize_middle(listview *lv) {
+  if (lv) {
+    lv->emode = PANGO_ELLIPSIZE_MIDDLE;
+    for (unsigned int i = 0; i < lv->cur_elements; i++) {
+      textbox_set_ellipsize(lv->boxes[i].textbox, lv->emode);
+    }
+  }
+}
+
+void listview_set_ellipsize_end(listview *lv) {
+  if (lv) {
+    lv->emode = PANGO_ELLIPSIZE_END;
+    for (unsigned int i = 0; i < lv->cur_elements; i++) {
+      textbox_set_ellipsize(lv->boxes[i].textbox, lv->emode);
+    }
+  }
+}
+
 void listview_toggle_ellipsizing(listview *lv) {
   if (lv) {
     PangoEllipsizeMode mode = lv->emode;
