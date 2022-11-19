@@ -273,8 +273,9 @@ void listview_toggle_ellipsizing(listview *lv);
 
 /**
  * @param lv Handler to the listview object.
+ * @param mode The ellipsize mode to set.
  *
- * Set ellipsize mode to start.
+ * Set ellipsize mode on the listview.
  */
 
 void listview_set_ellipsize(listview *lv, PangoEllipsizeMode mode);

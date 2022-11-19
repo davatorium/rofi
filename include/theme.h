@@ -141,6 +141,7 @@ void rofi_theme_property_free(Property *p);
 
 /**
  * @param p The property to free.
+ * @param data User data (unused)
  *
  * Make a newly allocted copy of the property.
  *
