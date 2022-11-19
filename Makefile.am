@@ -287,6 +287,7 @@ history_test_CFLAGS=\
 	$(NKUTILS_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(cairo_CFLAGS)\
+	$(pango_CFLAGS)\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-I$(top_srcdir)/include/\
@@ -295,6 +296,7 @@ history_test_CFLAGS=\
 
 history_test_LDADD=\
 	$(glib_LIBS)\
+	$(pango_LIBS)\
 	$(NKUTILS_LIBS)
 
 history_test_SOURCES=\
@@ -316,6 +318,7 @@ textbox_test_CFLAGS=\
 	$(cairo_CFLAGS)\
 	$(libsn_CFLAGS)\
 	$(gdkpixbuf_CFLAGS)\
+	$(pango_CFLAGS)\
 	-DPLUGIN_PATH=\"${libdir}/rofi\"\
 	-DTHEME_DIR=\"$(themedir)\"\
 	-I$(top_srcdir)/include/\
@@ -331,6 +334,7 @@ textbox_test_LDADD=\
 	$(NKUTILS_LIBS)\
 	$(GW_XCB_LIBS)\
 	$(cairo_LIBS)\
+	$(pango_LIBS)\
 	$(libsn_LIBS)
 
 helper_pidfile_CFLAGS=$(textbox_test_CFLAGS)
