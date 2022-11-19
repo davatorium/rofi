@@ -121,6 +121,12 @@ static XrmOption xrmOptions[] = {
      NULL,
      "Always show number of lines",
      CONFIG_DEFAULT},
+    {xrm_String,
+     "ellipsize-mode",
+     {.str = &config.ellipsize_mode},
+     NULL,
+     "How to ellipsize entries",
+     CONFIG_DEFAULT},
 
     {xrm_Boolean,
      "show-icons",

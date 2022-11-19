@@ -181,6 +181,7 @@ static void teardown(int pfd) {
   // Cleanup pid file.
   remove_pid_file(pfd);
 }
+static void help_print_invalid_ellipsize(const char*);
 static void run_mode_index(ModeMode mode) {
   // Otherwise check if requested mode is enabled.
   for (unsigned int i = 0; i < num_modes; i++) {
@@ -207,6 +208,20 @@ static void run_mode_index(ModeMode mode) {
     unsigned int sr = 0;
     find_arg_uint("-selected-row", &(sr));
     rofi_view_set_selected_line(state, sr);
+  }
+
+  // Ellipsize mode selection
+  char *ellipsize_mode = NULL;
+  if (find_arg_str("-ellipsize-mode", &ellipsize_mode) == TRUE) { // ellipsize key has a value
+    if (strcmp(ellipsize_mode, "start") == 0) { // start ellipsis
+      rofi_view_ellipsize_start(state);
+    } else if (strcmp(ellipsize_mode, "middle") == 0) { // middle ellipsis
+      rofi_view_ellipsize_middle(state);
+    } else if (strcmp(ellipsize_mode, "end") == 0) { // end ellipsis
+      rofi_view_ellipsize_end(state);
+    } else { // invalid mode given, do nothing (use default)
+	  help_print_invalid_ellipsize(ellipsize_mode);
+    }
   }
   if (state) {
     rofi_view_set_active(state);
@@ -476,6 +491,16 @@ static void help_print_no_arguments(void) {
                          "setting.\n");
   rofi_view_error_dialog(emesg->str, ERROR_MSG_MARKUP);
   rofi_set_return_code(EXIT_SUCCESS);
+}
+
+static void help_print_invalid_ellipsize(const char *mode) {
+  int is_term = isatty(fileno(stdout));
+  if (is_term) { // Color output if terminal
+    fprintf(stderr, "Ellipsize mode %s%s%s does not exist.\n",
+            color_red, mode, color_reset);
+  } else { // Otherwise regular output
+    fprintf(stderr, "Ellipsize mode %s does not exist.\n", mode);
+  }
 }
 
 /**

@@ -106,6 +106,7 @@ Settings config = {
     .tokenize = TRUE,
     .matching = "normal",
     .matching_method = MM_NORMAL,
+    .ellipsize_mode = "end",
 
     /** Desktop entries to match in drun */
     .drun_match_fields = "name,generic,exec,categories,keywords",

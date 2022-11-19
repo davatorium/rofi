@@ -98,6 +98,8 @@ typedef struct {
   SortingMethod sorting_method_enum;
   /** Sorting method. */
   char *sorting_method;
+  /** How to ellipsize an entry */
+  char *ellipsize_mode;
 
   /** Desktop entries to match in drun */
   char *drun_match_fields;
