@@ -192,6 +192,12 @@ When multi-select is enabled, prefix this string when element is not selected.
 
 *default*: "☐ "
 
+`-ellipsize-mode` (start|middle|end)
+
+Set ellipsize mode on the listview.
+
+*default* "end"
+
 ## PARSING ROW OPTIONS
 
 Extra options for individual rows can be also set. See the **rofi-script(5)** manpage for details; the syntax and supported features are identical.

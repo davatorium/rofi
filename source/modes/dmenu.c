@@ -29,8 +29,8 @@
 #define G_LOG_DOMAIN "Modes.DMenu"
 #include "config.h"
 
-#include "modes/dmenu.h"
 #include "helper.h"
+#include "modes/dmenu.h"
 #include "rofi-icon-fetcher.h"
 #include "rofi.h"
 #include "settings.h"
@@ -299,7 +299,7 @@ static gpointer read_input_thread(gpointer userdata) {
               i = 0;
               if (block) {
                 double elapsed = g_timer_elapsed(tim, NULL);
-                if ( elapsed >= 0.1 || block->length == BLOCK_LINES_SIZE) {
+                if (elapsed >= 0.1 || block->length == BLOCK_LINES_SIZE) {
                   g_timer_start(tim);
                   g_async_queue_push(pd->async_queue, block);
                   block = NULL;
@@ -957,7 +957,21 @@ int dmenu_mode_dialog(void) {
       rofi_view_create(&dmenu_mode, input, menu_flags, dmenu_finalize);
 
   if (find_arg("-keep-right") >= 0) {
-    rofi_view_ellipsize_start(state);
+    rofi_view_ellipsize_listview(state, PANGO_ELLIPSIZE_START);
+  }
+  char *ellipsize_mode = NULL;
+  if (find_arg_str("-ellipsize-mode", &ellipsize_mode) >= 0) {
+    if (ellipsize_mode) {
+      if (g_ascii_strcasecmp(ellipsize_mode, "start") == 0) {
+        rofi_view_ellipsize_listview(state, PANGO_ELLIPSIZE_START);
+      } else if (g_ascii_strcasecmp(ellipsize_mode, "middle") == 0) {
+        rofi_view_ellipsize_listview(state, PANGO_ELLIPSIZE_MIDDLE);
+      } else if (g_ascii_strcasecmp(ellipsize_mode, "end") == 0) {
+        rofi_view_ellipsize_listview(state, PANGO_ELLIPSIZE_END);
+      } else {
+        g_warning("Unrecognized ellipsize mode: '%s'", ellipsize_mode);
+      }
+    }
   }
   rofi_view_set_selected_line(state, pd->selected_line);
   rofi_view_set_active(state);
@@ -1021,4 +1035,6 @@ void print_dmenu_options(void) {
                  "When multi-select is enabled prefix this string when element "
                  "is not selected.",
                  NULL, is_term);
+  print_help_msg("-ellipsize-mode", "end",
+                 "Set ellipsize mode(start | middle | end).", NULL, is_term);
 }

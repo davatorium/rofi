@@ -1104,9 +1104,9 @@ void listview_set_fixed_num_lines(listview *lv) {
   }
 }
 
-void listview_set_ellipsize_start(listview *lv) {
+void listview_set_ellipsize(listview *lv, PangoEllipsizeMode mode) {
   if (lv) {
-    lv->emode = PANGO_ELLIPSIZE_START;
+    lv->emode = mode;
     for (unsigned int i = 0; i < lv->cur_elements; i++) {
       textbox_set_ellipsize(lv->boxes[i].textbox, lv->emode);
     }

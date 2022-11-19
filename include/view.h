@@ -29,6 +29,7 @@
 #define ROFI_VIEW_H
 
 #include "mode.h"
+#include <pango/pango.h>
 #include <xcb/xcb.h>
 /**
  * @defgroup View View
@@ -338,9 +339,12 @@ void rofi_capture_screenshot(void);
 void rofi_view_set_window_title(const char *title);
 
 /**
+  @param state The window state handle
+  @param mode The pango ellipsize mode to user
  * set ellipsize mode to start.
  */
-void rofi_view_ellipsize_start(RofiViewState *state);
+void rofi_view_ellipsize_listview(RofiViewState *state,
+                                  PangoEllipsizeMode mode);
 
 /**
  * @param new_x New XIM window x pos

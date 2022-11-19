@@ -7,6 +7,6 @@ pluginsdir=@libdir@/rofi/
 
 Name: rofi
 Description: Header files for rofi plugins
-Requires.private: glib-2.0 >= 2.40 gmodule-2.0 cairo
+Requires.private: glib-2.0 >= 2.40 gmodule-2.0 cairo pango
 Version: @VERSION@
 Cflags: -I${includedir}/

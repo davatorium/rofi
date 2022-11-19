@@ -29,6 +29,7 @@
 #define ROFI_LISTVIEW_H
 
 #include "widgets/textbox.h"
+#include <pango/pango.h>
 
 /**
  * @defgroup listview listview
@@ -276,7 +277,7 @@ void listview_toggle_ellipsizing(listview *lv);
  * Set ellipsize mode to start.
  */
 
-void listview_set_ellipsize_start(listview *lv);
+void listview_set_ellipsize(listview *lv, PangoEllipsizeMode mode);
 
 /**
  * @param lv Handler to the listview object.
