@@ -902,6 +902,18 @@ See \fIPATTERN\fP\&.
 Default: \fI{cmd}\fP
 
 .PP
+Example to run applications in a dedicated cgroup with systemd. Requires a shell to escape and interpolate the unit name correctly.
+
+.PP
+.RS
+
+.nf
+"bash -c 'systemd-run --user --unit=app-rofi-\\$(systemd-escape {cmd})-\\$RANDOM {cmd}'"
+
+.fi
+.RE
+
+.PP
 \fB\fC-run-shell-command\fR \fIcmd\fP
 
 .PP
