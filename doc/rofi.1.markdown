@@ -543,6 +543,12 @@ See *PATTERN*.
 
 Default: *{cmd}*
 
+Example to run applications in a dedicated cgroup with systemd. Requires a shell to escape and interpolate the unit name correctly.
+
+```
+"bash -c 'systemd-run --user --unit=app-rofi-\$(systemd-escape {cmd})-\$RANDOM {cmd}'"
+```
+
 `-run-shell-command` *cmd*
 
 Set command to execute when running an application in a shell.
