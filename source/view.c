@@ -871,10 +871,10 @@ static void open_xim_callback(xcb_xim_t *im, G_GNUC_UNUSED void *user_data) {
   RofiViewState *state = rofi_view_get_active();
   uint32_t input_style = XCB_IM_PreeditPosition | XCB_IM_StatusArea;
   xcb_point_t spot;
-  spot.x += widget_get_x_pos(&state->text->widget) +
-            textbox_get_cursor_x_pos(state->text);
-  spot.y += widget_get_y_pos(&state->text->widget) +
-            widget_get_height(&state->text->widget);
+  spot.x = widget_get_x_pos(&state->text->widget) +
+           textbox_get_cursor_x_pos(state->text);
+  spot.y = widget_get_y_pos(&state->text->widget) +
+           widget_get_height(&state->text->widget);
   xcb_xim_nested_list nested =
       xcb_xim_create_nested_list(im, XCB_XIM_XNSpotLocation, &spot, NULL);
   xcb_xim_create_ic(
