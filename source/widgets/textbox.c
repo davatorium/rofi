@@ -482,9 +482,12 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   }
   y += top;
 
-  if (tb->show_placeholder) {
-    rofi_theme_get_color(WIDGET(tb), "placeholder-color", draw);
-  }
+  // TODO check if this is still needed after flatning.
+  cairo_set_operator(draw, CAIRO_OPERATOR_OVER);
+  cairo_set_source_rgb ( draw, 0.0, 0.0, 0.0 );
+  // use text color as fallback for themes that don't specify the cursor color
+  rofi_theme_get_color(WIDGET(tb), "text-color", draw);
+
   // Set ARGB
   // We need to set over, otherwise subpixel hinting wont work.
   switch (pango_layout_get_alignment(tb->layout)) {
@@ -514,12 +517,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     break;
   }
   }
-
-  // TODO check if this is still needed after flatning.
-  cairo_set_operator(draw, CAIRO_OPERATOR_OVER);
-  cairo_set_source_rgb ( draw, 0.0, 0.0, 0.0 );
-  // use text color as fallback for themes that don't specify the cursor color
-  rofi_theme_get_color(WIDGET(tb), "text-color", draw);
 
   // draw the cursor
   if (tb->flags & TB_EDITABLE) {
@@ -553,6 +550,9 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   // draw the text
   cairo_save(draw);
   cairo_reset_clip(draw);
+  if (tb->show_placeholder) {
+    rofi_theme_get_color(WIDGET(tb), "placeholder-color", draw);
+  }
   pango_cairo_show_layout(draw, tb->layout);
   cairo_restore(draw);
 }
