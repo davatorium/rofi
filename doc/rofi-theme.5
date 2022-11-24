@@ -197,6 +197,25 @@ element-text {
 .RE
 
 .PP
+We can also specify the color and width of the cursor. You could, for example,
+create a crimson block cursor like this:
+
+.PP
+.RS
+
+.nf
+entry {
+  cursor-color: rgb(220,20,60);
+  cursor-width: 8px;
+}
+
+.fi
+.RE
+
+.PP
+By default, the \fB\fCcursor-color\fR will be the same as the \fB\fCtext-color\fR\&. The \fB\fCcursor-width\fR will always default to 2 pixels.
+
+.PP
 If you want to see the complete theme, including the modification you can run:
 
 .PP

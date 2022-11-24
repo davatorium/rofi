@@ -132,6 +132,18 @@ element-text {
 └─────────────────────────────────────────────────────────────────────┘ 
 ```
 
+We can also specify the color and width of the cursor. You could, for example,
+create a crimson block cursor like this:
+
+```css
+entry {
+  cursor-color: rgb(220,20,60);
+  cursor-width: 8px;
+}
+```
+
+By default, the `cursor-color` will be the same as the `text-color`. The `cursor-width` will always default to 2 pixels.
+
 If you want to see the complete theme, including the modification you can run:
 
 ```bash
