@@ -949,6 +949,8 @@ The following properties are currently supported:
     Set the location of tab stops by their distance from the beginning of the line.
     Each distance should be greater than the previous one.
     The text appears to the right of the tab stop position (other alignments are not supported yet).
+* **cursor-width**:      The width of the cursor.
+* **cursor-color**:      The color used to draw the cursor.
 
 ### listview:
 * **columns**:         integer
