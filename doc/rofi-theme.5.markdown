@@ -132,6 +132,18 @@ element-text {
 └─────────────────────────────────────────────────────────────────────┘ 
 ```
 
+We can also specify the color and width of the cursor. You could, for example,
+create a crimson block cursor like this:
+
+```css
+entry {
+  cursor-color: rgb(220,20,60);
+  cursor-width: 8px;
+}
+```
+
+By default, the `cursor-color` will be the same as the `text-color`. The `cursor-width` will always default to 2 pixels.
+
 If you want to see the complete theme, including the modification you can run:
 
 ```bash
@@ -937,6 +949,8 @@ The following properties are currently supported:
     Set the location of tab stops by their distance from the beginning of the line.
     Each distance should be greater than the previous one.
     The text appears to the right of the tab stop position (other alignments are not supported yet).
+* **cursor-width**:      The width of the cursor.
+* **cursor-color**:      The color used to draw the cursor.
 
 ### listview:
 * **columns**:         integer
