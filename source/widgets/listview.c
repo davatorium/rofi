@@ -577,6 +577,9 @@ void listview_set_num_elements(listview *lv, unsigned int rows) {
 }
 
 unsigned int listview_get_selected(listview *lv) {
+  if (lv->require_input && !lv->filtered) {
+    return UINT32_MAX;
+  }
   if (lv != NULL) {
     return lv->selected;
   }
