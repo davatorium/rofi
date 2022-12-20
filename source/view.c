@@ -1717,7 +1717,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
   }
   case ACCEPT_ENTRY: {
     rofi_view_refilter_force(state);
-    // If a valid item is selected, return that..
+    // If a valid item is selected, return that.
     unsigned int selected = listview_get_selected(state->list_view);
     state->selected_line = UINT32_MAX;
     if (selected < state->filtered_lines) {
@@ -1728,7 +1728,9 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
       state->retv = MENU_CUSTOM_INPUT;
     }
 
-    state->quit = TRUE;
+    if (selected != UINT32_MAX) {
+      state->quit = TRUE;
+    }
     break;
   }
   }
