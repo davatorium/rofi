@@ -978,7 +978,8 @@ The following properties are currently supported:
 * **fixed-columns**:    boolean
     Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.
 * **require-input**:    boolean
-    Listview requires user input to show up.
+    Listview requires user input to be unhidden. The list will still respond to normal interaction.
+    Hitting accept will still activate the selected entry.
 
 Each element is a `box` called `element`. Each `element` can contain an `element-icon` and `element-text`.
 
