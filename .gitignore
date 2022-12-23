@@ -1,4 +1,6 @@
-/build/
+/build*/
+/.cache/
+/.vscode/
 
 # autotools generated files
 /missing

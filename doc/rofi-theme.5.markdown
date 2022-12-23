@@ -951,6 +951,9 @@ The following properties are currently supported:
     The text appears to the right of the tab stop position (other alignments are not supported yet).
 * **cursor-width**:      The width of the cursor.
 * **cursor-color**:      The color used to draw the cursor.
+* **text-outline**:      Enable a border (outline) around the text. (Boolean)
+* **text-outline-width**: The width of the border around the text.  (Double)
+* **text-outline-color**: The color to use for the text outline.    (Color)
 
 ### listview:
 * **columns**:         integer

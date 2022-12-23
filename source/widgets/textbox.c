@@ -27,12 +27,12 @@
  */
 #include "config.h"
 
-#include "widgets/textbox.h"
 #include "helper-theme.h"
 #include "helper.h"
 #include "keyb.h"
 #include "mode.h"
 #include "view.h"
+#include "widgets/textbox.h"
 #include <ctype.h>
 #include <glib.h>
 #include <math.h>
@@ -484,7 +484,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
 
   // TODO check if this is still needed after flatning.
   cairo_set_operator(draw, CAIRO_OPERATOR_OVER);
-  cairo_set_source_rgb ( draw, 0.0, 0.0, 0.0 );
+  cairo_set_source_rgb(draw, 0.0, 0.0, 0.0);
   // use text color as fallback for themes that don't specify the cursor color
   rofi_theme_get_color(WIDGET(tb), "text-color", draw);
 
@@ -531,8 +531,10 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     int cursor_x = pos.x / PANGO_SCALE;
     int cursor_y = pos.y / PANGO_SCALE;
     int cursor_height = pos.height / PANGO_SCALE;
-    RofiDistance cursor_width = rofi_theme_get_distance(WIDGET(tb), "cursor-width", 2);
-    int cursor_pixel_width = distance_get_pixel(cursor_width, ROFI_ORIENTATION_HORIZONTAL);
+    RofiDistance cursor_width =
+        rofi_theme_get_distance(WIDGET(tb), "cursor-width", 2);
+    int cursor_pixel_width =
+        distance_get_pixel(cursor_width, ROFI_ORIENTATION_HORIZONTAL);
     if ((x + cursor_x) != tb->cursor_x_pos) {
       tb->cursor_x_pos = x + cursor_x;
     }
@@ -554,6 +556,15 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     rofi_theme_get_color(WIDGET(tb), "placeholder-color", draw);
   }
   pango_cairo_show_layout(draw, tb->layout);
+
+  if (rofi_theme_get_boolean(WIDGET(tb), "text-outline", FALSE)) {
+    rofi_theme_get_color(WIDGET(tb), "text-outline-color", draw);
+    double width = rofi_theme_get_double(WIDGET(tb), "text-outline-width", 0.5);
+    pango_cairo_layout_path(draw, tb->layout);
+    cairo_set_line_width(draw, width);
+    cairo_stroke(draw);
+  }
+
   cairo_restore(draw);
 }
 
