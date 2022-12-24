@@ -298,6 +298,57 @@ typedef struct Property {
 } Property;
 
 /**
+ * Describe the media constraint type.
+ */
+typedef enum {
+  /** Minimum width constraint. */
+  THEME_MEDIA_TYPE_MIN_WIDTH,
+  /** Maximum width constraint. */
+  THEME_MEDIA_TYPE_MAX_WIDTH,
+  /** Minimum height constraint. */
+  THEME_MEDIA_TYPE_MIN_HEIGHT,
+  /** Maximum height constraint. */
+  THEME_MEDIA_TYPE_MAX_HEIGHT,
+  /** Monitor id constraint. */
+  THEME_MEDIA_TYPE_MON_ID,
+  /** Minimum aspect ratio constraint. */
+  THEME_MEDIA_TYPE_MIN_ASPECT_RATIO,
+  /** Maximum aspect ratio constraint. */
+  THEME_MEDIA_TYPE_MAX_ASPECT_RATIO,
+  /** Boolean option for use with env. */
+  THEME_MEDIA_TYPE_BOOLEAN,
+  /** Invalid entry. */
+  THEME_MEDIA_TYPE_INVALID,
+} ThemeMediaType;
+
+/**
+ * Theme Media description.
+ */
+typedef struct ThemeMedia {
+  ThemeMediaType type;
+  double value;
+  gboolean boolv;
+} ThemeMedia;
+
+/**
+ * ThemeWidget.
+ */
+typedef struct ThemeWidget {
+  int set;
+  char *name;
+
+  unsigned int num_widgets;
+  struct ThemeWidget **widgets;
+
+  ThemeMedia *media;
+
+  GHashTable *properties;
+
+  struct ThemeWidget *parent;
+} ThemeWidget;
+
+typedef ThemeWidget ConfigEntry;
+/**
  * Structure to hold a range.
  */
 typedef struct rofi_range_pair {

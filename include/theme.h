@@ -33,56 +33,6 @@
 #include <widgets/widget.h>
 
 /**
- * Describe the media constraint type.
- */
-typedef enum {
-  /** Minimum width constraint. */
-  THEME_MEDIA_TYPE_MIN_WIDTH,
-  /** Maximum width constraint. */
-  THEME_MEDIA_TYPE_MAX_WIDTH,
-  /** Minimum height constraint. */
-  THEME_MEDIA_TYPE_MIN_HEIGHT,
-  /** Maximum height constraint. */
-  THEME_MEDIA_TYPE_MAX_HEIGHT,
-  /** Monitor id constraint. */
-  THEME_MEDIA_TYPE_MON_ID,
-  /** Minimum aspect ratio constraint. */
-  THEME_MEDIA_TYPE_MIN_ASPECT_RATIO,
-  /** Maximum aspect ratio constraint. */
-  THEME_MEDIA_TYPE_MAX_ASPECT_RATIO,
-  /** Boolean option for use with env. */
-  THEME_MEDIA_TYPE_BOOLEAN,
-  /** Invalid entry. */
-  THEME_MEDIA_TYPE_INVALID,
-} ThemeMediaType;
-
-/**
- * Theme Media description.
- */
-typedef struct ThemeMedia {
-  ThemeMediaType type;
-  double value;
-  gboolean boolv;
-} ThemeMedia;
-
-/**
- * ThemeWidget.
- */
-typedef struct ThemeWidget {
-  int set;
-  char *name;
-
-  unsigned int num_widgets;
-  struct ThemeWidget **widgets;
-
-  ThemeMedia *media;
-
-  GHashTable *properties;
-
-  struct ThemeWidget *parent;
-} ThemeWidget;
-
-/**
  * Global pointer to the current active theme.
  */
 extern ThemeWidget *rofi_theme;
@@ -369,34 +319,6 @@ void distance_get_linestyle(RofiDistance d, cairo_t *draw);
  */
 ThemeWidget *rofi_theme_find_widget(const char *name, const char *state,
                                     gboolean exact);
-
-/**
- * @param name The name of the element to find.
- * @param state The state of the element.
- * @param exact If the match should be exact, or parent can be included.
- *
- * Find the configuration element. If not exact, the closest specified element
- * is returned.
- *
- * @returns the ThemeWidget if found, otherwise NULL.
- */
-ThemeWidget *rofi_config_find_widget(const char *name, const char *state,
-                                     gboolean exact);
-
-/**
- * @param widget The widget to find the property on.
- * @param type   The %PropertyType to find.
- * @param property The property to find.
- * @param exact  If the property should only be found on this widget, or on
- * parents if not found.
- *
- * Find the property on the widget. If not exact, the parents are searched
- * recursively until match is found.
- *
- * @returns the Property if found, otherwise NULL.
- */
-Property *rofi_theme_find_property(ThemeWidget *widget, PropertyType type,
-                                   const char *property, gboolean exact);
 
 /**
  * Reset the current theme.

@@ -399,6 +399,33 @@ char *helper_string_replace_if_exists(char *string, ...);
  */
 char *helper_get_theme_path(const char *file, const char *ext);
 
+/**
+ * @param name The name of the element to find.
+ * @param state The state of the element.
+ * @param exact If the match should be exact, or parent can be included.
+ *
+ * Find the configuration element. If not exact, the closest specified element
+ * is returned.
+ *
+ * @returns the ThemeWidget if found, otherwise NULL.
+ */
+ConfigEntry *rofi_config_find_widget(const char *name, const char *state,
+                                     gboolean exact);
+
+/**
+ * @param widget The widget to find the property on.
+ * @param type   The %PropertyType to find.
+ * @param property The property to find.
+ * @param exact  If the property should only be found on this widget, or on
+ * parents if not found.
+ *
+ * Find the property on the widget. If not exact, the parents are searched
+ * recursively until match is found.
+ *
+ * @returns the Property if found, otherwise NULL.
+ */
+Property *rofi_theme_find_property(ConfigEntry *widget, PropertyType type,
+                                   const char *property, gboolean exact);
 G_END_DECLS
 
 /**@} */

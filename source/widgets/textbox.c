@@ -561,8 +561,8 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
       tb->cursor_x_pos = x + cursor_x;
     }
     if (tb->blink) {
-      // save the state so we can restore the text color afterwards
-      cairo_save(draw);
+      // use text color as fallback for themes that don't specify the cursor
+      // color
       rofi_theme_get_color(WIDGET(tb), "cursor-color", draw);
       cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_pixel_width,
                       cursor_height);
@@ -576,7 +576,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
       } else {
         cairo_fill(draw);
       }
-      cairo_restore(draw);
     }
   }
 }

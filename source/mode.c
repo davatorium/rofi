@@ -34,6 +34,7 @@
 
 #include "rofi-icon-fetcher.h"
 // This one should only be in mode implementations.
+#include "helper.h"
 #include "mode-private.h"
 /**
  * @ingroup MODE
