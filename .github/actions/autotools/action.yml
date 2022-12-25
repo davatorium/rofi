@@ -45,7 +45,7 @@ runs:
         make 
         make check
     - id: upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: tarballs
         path: |
