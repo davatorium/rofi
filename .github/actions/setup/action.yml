@@ -5,7 +5,7 @@ runs:
   using: composite
   steps:
     - id: python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: '3.x'
     - id: apt
