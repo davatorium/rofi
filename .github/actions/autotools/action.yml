@@ -30,7 +30,7 @@ runs:
       run: cd builddir && make distcheck
       shell: bash
     - id: doxy
-      run: cd builddir && make doxy 2>&1 > doxygen.log
+      run: cd builddir && make doxy > doxygen.log 2>&1
       shell: bash
     - id: doxycheck
       uses: ./.github/actions/doxycheck
@@ -45,7 +45,7 @@ runs:
         make 
         make check
     - id: upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: tarballs
         path: |
