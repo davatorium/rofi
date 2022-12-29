@@ -6,6 +6,7 @@ nav:
   - License: COPYING.md
   - Issue Tracker: https://github.com/davatorium/rofi/issues
   - Discussions Forum: https://github.com/davatorium/rofi/discussions
+  - Installation: INSTALL.md
   - Guides:
     - Transparency: guides/Transparency/theme3-transparency.markdown
     - Positioning: guides/Positioning/theme3-positioning.markdown
