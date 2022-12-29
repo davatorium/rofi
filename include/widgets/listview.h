@@ -232,13 +232,6 @@ void listview_set_scroll_type(listview *lv, ScrollType type);
 void listview_set_mouse_activated_cb(listview *lv,
                                      listview_mouse_activated_cb cb,
                                      void *udata);
-/**
- * @param lv Handler to the listview object.
- * @param num_lines the maximum number of lines to display.
- *
- * Set the maximum number of lines to display.
- */
-void listview_set_num_lines(listview *lv, unsigned int num_lines);
 
 /**
  * @param lv Handler to the listview object.

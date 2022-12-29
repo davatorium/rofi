@@ -2166,9 +2166,6 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
     listview_set_mouse_activated_cb(
         state->list_view, rofi_view_listview_mouse_activated_cb, state);
 
-    int lines = rofi_theme_get_integer(WIDGET(state->list_view), "lines",
-                                       DEFAULT_MENU_LINES);
-    listview_set_num_lines(state->list_view, lines);
     listview_set_max_lines(state->list_view, state->num_lines);
   }
   /**
