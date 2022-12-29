@@ -3,6 +3,8 @@
 This website holds the web-version of the manpages for rofi.
 The manpages are grouped on rofi version.
 
+* [Installation](INSTALL.md)
+
 ## Development version
 
 * [Rofi manpage](current/rofi.1)
