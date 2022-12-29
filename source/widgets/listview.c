@@ -607,7 +607,11 @@ static void listview_resize(widget *wid, short w, short h) {
   lv->widget.h = MAX(0, h);
   int height = lv->widget.h - widget_padding_get_padding_height(WIDGET(lv));
   int spacing_vert = distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
-  lv->max_rows = (spacing_vert + height) / (lv->element_height + spacing_vert);
+  if ( lv->widget.h == 0 ) {
+	  lv->max_rows = lv->menu_lines;
+  } else {
+	  lv->max_rows = (spacing_vert + height) / (lv->element_height + spacing_vert);
+  }
   lv->max_elements = lv->max_rows * lv->menu_columns;
 
   widget_move(WIDGET(lv->scrollbar),
@@ -758,6 +762,8 @@ listview *listview_create(widget *parent, const char *name,
   lv->spacing = rofi_theme_get_distance(WIDGET(lv), "spacing", DEFAULT_SPACING);
   lv->menu_columns =
       rofi_theme_get_integer(WIDGET(lv), "columns", DEFAULT_MENU_COLUMNS);
+  lv->menu_lines =
+      rofi_theme_get_integer(WIDGET(lv), "lines", DEFAULT_MENU_LINES);
   lv->fixed_num_lines = rofi_theme_get_boolean(WIDGET(lv), "fixed-height",
                                                config.fixed_num_lines);
   lv->dynamic = rofi_theme_get_boolean(WIDGET(lv), "dynamic", TRUE);
@@ -1078,11 +1084,6 @@ void listview_set_mouse_activated_cb(listview *lv,
   if (lv) {
     lv->mouse_activated = cb;
     lv->mouse_activated_data = udata;
-  }
-}
-void listview_set_num_lines(listview *lv, unsigned int num_lines) {
-  if (lv) {
-    lv->menu_lines = num_lines;
   }
 }
 
