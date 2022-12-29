@@ -1,27 +1,30 @@
 # Welcome to Rofi Documentation
 
+
 This website holds the web-version of the manpages for rofi.
 The manpages are grouped on rofi version.
+
+![rofi](images/rofi.png)
 
 * [Installation](INSTALL.md)
 
 ## Development version
 
-* [Rofi manpage](current/rofi.1)
-* [Themes](current/rofi-theme.5)
-* [Dmenu](current/rofi-dmenu.5)
-* [Script](current/rofi-script.5)
-* [Debugging](current/rofi-debugging.5)
-* [Keys](current/rofi-keys.5)
+* [Rofi manpage](current/rofi.1.markdown)
+* [Themes](current/rofi-theme.5.markdown)
+* [Dmenu](current/rofi-dmenu.5.markdown)
+* [Script](current/rofi-script.5.markdown)
+* [Debugging](current/rofi-debugging.5.markdown)
+* [Keys](current/rofi-keys.5.markdown)
 
 ## Stable
 
-* [Rofi manpage](1.7.5/rofi.1)
-* [Themes](1.7.5/rofi-theme.5)
-* [Dmenu](1.7.5/rofi-dmenu.5)
-* [Script](1.7.5/rofi-script.5)
-* [Debugging](1.7.5/rofi-debugging.5)
-* [Keys](1.7.5/rofi-keys.5)
+* [Rofi manpage](1.7.5/rofi.1.markdown)
+* [Themes](1.7.5/rofi-theme.5.markdown)
+* [Dmenu](1.7.5/rofi-dmenu.5.markdown)
+* [Script](1.7.5/rofi-script.5.markdown)
+* [Debugging](1.7.5/rofi-debugging.5.markdown)
+* [Keys](1.7.5/rofi-keys.5.markdown)
 
 ## Guides
 
