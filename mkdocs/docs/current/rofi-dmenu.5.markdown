@@ -1,0 +1,1 @@
+../../../doc/rofi-dmenu.5.markdown
