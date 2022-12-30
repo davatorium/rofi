@@ -393,11 +393,11 @@ char *helper_string_replace_if_exists(char *string, ...);
 
 /**
  * @param file File name passed to option.
- * @param ext File extension passed to option.
+ * @param ext NULL terminated array of file extension passed to option.
  *
  * @returns path to theme or copy of filename if not found.
  */
-char *helper_get_theme_path(const char *file, const char *ext);
+char *helper_get_theme_path(const char *file, const char **ext);
 
 /**
  * @param name The name of the element to find.

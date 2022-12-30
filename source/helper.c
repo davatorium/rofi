@@ -1067,7 +1067,7 @@ gboolean helper_execute_command(const char *wd, const char *cmd,
   return helper_execute(wd, args, "", cmd, context);
 }
 
-char *helper_get_theme_path(const char *file, const char *ext) {
+char *helper_get_theme_path(const char *file, const char **ext) {
   char *filename = rofi_expand_path(file);
   g_debug("Opening theme, testing: %s\n", filename);
   if (g_file_test(filename, G_FILE_TEST_EXISTS)) {
@@ -1075,7 +1075,16 @@ char *helper_get_theme_path(const char *file, const char *ext) {
   }
   g_free(filename);
 
-  if (g_str_has_suffix(file, ext)) {
+  gboolean ext_found = FALSE;
+  if (ext) {
+    for (const char **i = ext; *i != NULL; i++) {
+      if (g_str_has_suffix(file, *i)) {
+        ext_found = TRUE;
+        break;
+      }
+    }
+  }
+  if (ext_found) {
     filename = g_strdup(file);
   } else {
     filename = g_strconcat(file, ext, NULL);

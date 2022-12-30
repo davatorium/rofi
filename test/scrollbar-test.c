@@ -77,7 +77,7 @@ cairo_surface_t *rofi_icon_fetcher_get(G_GNUC_UNUSED const uint32_t uid) {
 
 int monitor_active(G_GNUC_UNUSED workarea *mon) { return 0; }
 
-char *helper_get_theme_path(const char *file, G_GNUC_UNUSED const char *ext) {
+char *helper_get_theme_path(const char *file, G_GNUC_UNUSED const char **ext) {
   return g_strdup(file);
 }
 gboolean config_parse_set_property(G_GNUC_UNUSED const Property *p,
