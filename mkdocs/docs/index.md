@@ -1,7 +1,8 @@
 # Welcome to Rofi Documentation
 
 
-This website holds the web-version of the manpages for rofi.
+This website holds the web-version of the manpages for rofi and several guides
+that have been published over the past years.
 The manpages are grouped on rofi version.
 
 ![rofi](images/rofi.png)
@@ -30,3 +31,4 @@ The manpages are grouped on rofi version.
 
 * [Transparency](guides/Transparency/theme3-transparency)
 * [Positioning](guides/Positioning/theme3-positioning)
+* [Plugins](guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins.md)

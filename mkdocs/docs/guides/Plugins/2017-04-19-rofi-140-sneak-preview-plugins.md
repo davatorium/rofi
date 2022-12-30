@@ -146,7 +146,7 @@ If we start changing the template, the name to use will change.
 The first thing todo is personalize the template. Below I have modified it so it
 is called file-browser:
 
-```bash
+```c
 /**
  * rofi-file-browser
  *
