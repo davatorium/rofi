@@ -11,6 +11,7 @@ nav:
   - Guides:
     - Transparency: guides/Transparency/theme3-transparency.markdown
     - Positioning: guides/Positioning/theme3-positioning.markdown
+    - Plugins: guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins.md
   - Current:
     - Rofi: current/rofi.1.markdown 
     - Themes: current/rofi-theme.5.markdown
