@@ -52,7 +52,7 @@
 window {
     location: center;
     anchor:   center;
-    transparency: "screenshot";
+    transparency: "real";
     padding: 10px;
     border:  0px;
     border-radius: 10px;
