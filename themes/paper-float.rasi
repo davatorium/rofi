@@ -18,7 +18,7 @@
     location: center;
 }
 window {
-    transparency: "screenshot";
+    transparency: "real";
     background-color: #00000000;
     border: 0;
     padding: 0% 0% 1em 0%;
