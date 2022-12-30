@@ -50,6 +50,7 @@
 #define LOG_DOMAIN "Parser"
 int last_state = 0;
 
+const char *rasi_theme_file_extensions[] = {".rasi", ".rasinc", NULL};
 /**
  * Type of Object to parse.
  */
@@ -413,7 +414,7 @@ if ( queue == NULL ) {
     yytext[yyleng-1] = '\0';
     ParseObject *top = g_queue_peek_head ( file_queue );
     g_assert ( top != NULL );
-    char *file2 = helper_get_theme_path ( &yytext[1], ".rasi" );
+    char *file2 = helper_get_theme_path ( &yytext[1], rasi_theme_file_extensions );
     char *filename = rofi_theme_parse_prepare_file ( file2, top->filename );
     g_free ( file2 );
     FILE *f = fopen ( filename, "rb" );
@@ -880,7 +881,7 @@ if ( queue == NULL ) {
 
 gboolean rofi_theme_parse_file ( const char *file )
 {
-    char *file2 = helper_get_theme_path ( file, ".rasi" );
+    char *file2 = helper_get_theme_path ( file, rasi_theme_file_extensions );
     char *filename = rofi_theme_parse_prepare_file ( file2, NULL );
     g_free ( file2 );
 

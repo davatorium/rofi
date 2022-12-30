@@ -293,7 +293,7 @@ install_data(
     'themes/dmenu.rasi',
     'themes/docu.rasi',
     'themes/glue_pro_blue.rasi',
-    'themes/gruvbox-common.rasi',
+    'themes/gruvbox-common.rasinc',
     'themes/gruvbox-dark-hard.rasi',
     'themes/gruvbox-dark-soft.rasi',
     'themes/gruvbox-dark.rasi',

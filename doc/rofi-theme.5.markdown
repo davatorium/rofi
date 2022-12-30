@@ -233,6 +233,7 @@ name
 
 The preferred file extension for the new theme format is **rasi**. This is an
 abbreviation for **r**ofi **a**dvanced **s**tyle **i**nformation.
+If a theme file is split over multiple files, include files can have the: **rasinc** extension.
 
 ## Basic Structure
 
