@@ -8,6 +8,7 @@ nav:
   - Discussions Forum: https://github.com/davatorium/rofi/discussions
   - Installation: INSTALL.md
   - Configuration: CONFIG.md
+  - Themes: themes/themes.md
   - Guides:
     - Transparency: guides/Transparency/theme3-transparency.markdown
     - Positioning: guides/Positioning/theme3-positioning.markdown

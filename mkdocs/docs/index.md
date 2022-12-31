@@ -8,6 +8,7 @@ The manpages are grouped on rofi version.
 ![rofi](images/rofi.png)
 
 * [Installation](INSTALL.md)
+* [Themes](themes/themes.md)
 
 ## Development version
 
