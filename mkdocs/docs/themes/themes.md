@@ -45,6 +45,10 @@ Use `rofi-theme-selector` to select and use one of these themes.
 
 ![docu](docu.png)
 
+# fancy2
+
+![fancy2](fancy2.png)
+
 # fancy
 
 ![fancy](fancy.png)

@@ -229,6 +229,7 @@ theme_DATA=\
 		   themes/solarized.rasi\
 		   themes/solarized_alternate.rasi\
 		   themes/fancy.rasi\
+		   themes/fancy2.rasi\
 		   themes/iggy.rasi\
 		   themes/material.rasi\
 		   themes/iggy.jpg

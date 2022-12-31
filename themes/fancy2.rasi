@@ -1,0 +1,166 @@
+/**
+ * Edited by: Dave Davenport
+ * User: Rasi
+ * Copyright: Rasmus Steinke
+ */
+
+/* global settings and color variables */
+* {
+    blue:        #A7c6E2;
+    blue-trans:  #A7c6e2aa;
+    darkblue:    #005F87;
+    green:       #00330088;
+    black:       #000000;
+    grey:        #444444;
+    orange:      #FFD391;
+    dark-orange: #FFA664;
+    light-grey:  #F5F5F5;
+    medium-grey: #D0D0D0;
+    dark-grey:   #002B36;
+    urgent:      #D75F00;
+    active:      #005F87;
+    transparent: #000000aa;
+    spacing: 0em;
+    padding: 0px;
+    background-color: white;
+    line-style: "none";
+}
+
+prompt-box {
+  background-color    : transparent;
+}
+
+prompt {
+  background-color    : transparent;
+  text-color          : white;
+}
+
+window {
+    border            : 2px;
+    border-radius     : 12px;
+    border-color      : black;
+    background-color  : transparent;
+    color             : @grey;
+}
+mainbox {
+    background-color  : @blue-trans;
+    color             : @grey;
+    spacing           : 0%;
+}
+
+listview {
+    // Looks.
+    border-radius     : 10px;
+    border            : 5px;
+    padding           : 20px;
+    margin            : 20px 30px 30px 30px;
+    background-color  : @orange;
+    // Enable scrollbar
+    scrollbar         : false;
+    scrollbar-width   : 5px;
+    fixed-height      : true;
+    reverse           : false;
+    color             : #000000;
+    spacing           : 0.3em;
+}
+scrollbar {
+    color: @black;
+    background-color: @blue;
+    padding: 1px;
+}
+element {
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    spacing: 0.5em;
+    color: @black;
+    background-color: @blue;
+    children: [ element-icon, element-text ];
+}
+
+element normal.normal {
+    color: @black;
+    background-color: @orange;
+}
+element normal.urgent {
+    color: @urgent;
+    background-color: @light-grey;
+}
+element normal.active {
+    color: @active;
+    background-color: @light-grey;
+}
+element selected.normal {
+    border-radius: 0px;
+    color: @black;
+    background-color: @dark-orange;
+}
+element selected.urgent {
+    color: @light-grey;
+    background-color: @urgent;
+}
+element selected.active {
+    color: @light-grey;
+    background-color: @active;
+}
+element alternate.normal {
+    color: @black;
+    background-color: @orange;
+}
+element alternate.urgent {
+    color: @urgent;
+    background-color: @medium-grey;
+}
+element alternate.active {
+    color: @active;
+    background-color: @medium-grey;
+}
+inputbar {
+    spacing           : 0;
+    background-color  : #88003300;
+    border            : 0px 0px 2px 0px;
+    border-radius     : 0px;
+    padding           : 5px 10px 5px 35px;
+    background-color  : #00330088;
+    color             : @black;
+    end               : false;
+}
+
+separator {
+    background-color  : @blue;
+    color             : #00000000;
+}
+prompt normal.normal {
+    background-color  : #00000000;
+    color             : #ffffff;
+    padding           : 0px;
+}
+entry normal.normal {
+    background-color  : #00000000;
+    color             : #ffffff;
+    padding           : 0px;
+}
+case-indicator normal.normal {
+    background-color  : #00000000;
+    color             : #ffffff;
+    padding           : 0px;
+}
+
+message {
+    margin          : 30px;
+    padding         : 20px 30px 20px 20px;
+    padding         : 20px ;
+    border-radius   : 10px;
+    border          : 5px;
+}
+
+prompt-colon {
+    spacing         :    0;
+    enabled         : false;
+}
+
+element-text, element-icon {
+  background-color  : inherit;
+  text-color        : inherit;
+  foreground-color  : inherit;
+}
