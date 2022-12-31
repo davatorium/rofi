@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - sphinx
+      - next
 
 jobs:
   build:
