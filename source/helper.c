@@ -1087,7 +1087,8 @@ char *helper_get_theme_path(const char *file, const char **ext) {
   if (ext_found) {
     filename = g_strdup(file);
   } else {
-    filename = g_strconcat(file, ext, NULL);
+    // TODO: Pick the first extension. needs fixing.
+    filename = g_strconcat(file, ext[0], NULL);
   }
   // Check config's themes directory.
   const char *cpath = g_get_user_config_dir();
