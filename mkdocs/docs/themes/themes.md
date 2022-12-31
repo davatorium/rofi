@@ -89,6 +89,10 @@ Use `rofi-theme-selector` to select and use one of these themes.
 
 ![lb](lb.png)
 
+# material
+
+![material](material.png)
+
 # Monokai
 
 ![Monokai](Monokai.png)

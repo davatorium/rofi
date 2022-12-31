@@ -309,6 +309,7 @@ install_data(
     'themes/solarized_alternate.rasi',
     'themes/fancy.rasi',
     'themes/iggy.rasi',
+    'themes/material.rasi',
     'themes/iggy.jpg',
     install_dir: themedir
 )
