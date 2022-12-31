@@ -4,7 +4,7 @@
 
 **rofi-theme** - Rofi theme format files
 
-## Getting started with theming 
+## GETTING STARTED WITH THEMING 
 
 The easiest way to get started theming rofi is by modifying your existing theme.
 
@@ -150,7 +150,7 @@ If you want to see the complete theme, including the modification you can run:
 rofi -dump-theme
 ```
 
-## Default theme loading
+## DEFAULT THEME LOADING
 
 By default, rofi loads the default theme. This theme is **always** loaded.
 The default configuration contains:
@@ -174,14 +174,14 @@ To see the default theme, run the following command:
 rofi -no-config -dump-theme
 ```
 
-## Description
+## DESCRIPTION
 
 The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed. From a very
 static drawing of lines and text to a nice structured form of packing widgets. This change made it possible to provide a
 more flexible theme framework. The old theme format and config file are not flexible enough to expose these options in a
 user-friendly way. Therefore, a new file format has been created, replacing the old one.
 
-## Format specification
+## FORMAT SPECIFICATION
 
 ## Encoding
 
@@ -233,7 +233,6 @@ name
 
 The preferred file extension for the new theme format is **rasi**. This is an
 abbreviation for **r**ofi **a**dvanced **s**tyle **i**nformation.
-If a theme file is split over multiple files, include files can have the: **rasinc** extension.
 
 ## Basic Structure
 
@@ -370,7 +369,7 @@ The current theme format supports different types:
 
 Some of these types are a combination of other types.
 
-### String
+## String
 
 * Format:  `"[:print:]+"`
 
@@ -392,7 +391,7 @@ text {
 
 The following special characters can be escaped: `\b`, `\f`, `\n`, `\r`, `\t`, `\v`, `\` and `"`.
 
-### Integer
+## Integer
 
 * Format: `[-+]?[:digit:]+`
 
@@ -404,7 +403,7 @@ For examples:
 lines: 12;
 ```
 
-### Real
+## Real
 
 * Format: `[-+]?[:digit:]+(\.[:digit:]+)?`
 
@@ -418,7 +417,7 @@ real: 3.4;
 
 The following is not valid: `.3`, `3.` or scientific notation: `3.4e-3`.
 
-### Boolean
+## Boolean
 
 * Format: `(true|false)`
 
@@ -431,7 +430,7 @@ For example:
 dynamic: false;
 ```
 
-### Image
+## Image
 
 **rofi** support a limited set of background-image formats.
 
@@ -446,7 +445,7 @@ dynamic: false;
 
 Where the `path` is a string, and `stop` color is of type color.
 
-### Color
+## Color
 
 **rofi** supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
 
@@ -502,7 +501,7 @@ background-color: transparent;
 text-color: Black;
 ```
 
-### Text style
+## Text style
 
 * Format: `(bold|italic|underline|strikethrough|none)`
 
@@ -524,7 +523,7 @@ The following options are available on pango 1.50.0 and up:
 
  * `capitalize`: Capitalize the text.
 
-### Line style
+## Line style
 
 * Format: `(dash|solid)`
 
@@ -533,7 +532,7 @@ It currently supports:
  * `dash`:  a dashed line, where the gap is the same width as the dash
  * `solid`: a solid line
 
-### Distance
+## Distance
 
 * Format: `{Integer}px`
 * Format: `{Real}em`
@@ -559,7 +558,7 @@ For example:
 On a full-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left
 and right side and 108 pixels on the top and bottom.
 
-#### Calculating sizes
+### Calculating sizes
 
 Rofi supports some maths in calculating sizes. For this it uses the CSS syntax:
 
@@ -586,7 +585,7 @@ It supports the following operations:
 
 It uses the C precedence ordering.
 
-### Padding
+## Padding
 
 * Format: `{Integer}`
 * Format: `{Distance}`
@@ -604,7 +603,7 @@ The different number of fields in the formats are parsed like:
 * 4 fields: `top`, `right`, `bottom`, `left`
 
 
-### Border
+## Border
 
 * Format: `{Integer}`
 * Format: `{Distance}`
@@ -622,7 +621,7 @@ style property.
 > When no unit is specified, pixels are assumed.
 
 
-### Position
+## Position
 
 Indicate a place on the window/monitor.
 
@@ -638,7 +637,7 @@ Indicate a place on the window/monitor.
 
 * Format: `(center|east|north|west|south|north east|north west|south west|south east)`
 
-### Visibility
+## Visibility
 
 It is possible to hide widgets:
 
@@ -649,7 +648,7 @@ inputbar {
 ```
 
 
-### Reference
+## Reference
 
 * Format: `@{PROPERTY NAME}`
 
@@ -690,32 +689,32 @@ If the property `width` is set globally (`*{}`) that value is used, if the prope
 `width` is not set, the default value is used.
 
 
-### Orientation
+## Orientation
 
  * Format: `(horizontal|vertical)`
 
 Specify the orientation of the widget.
 
-### Cursor
+## Cursor
 
  * Format: `(default|pointer|text)`
 
 Specify the type of mouse cursor that is set when the mouse pointer is over the widget.
 
-### List of keywords
+## List of keywords
 
 * Format: `[ keyword, keyword ]`
 
 A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 The `keyword` in the list refers to an widget name.
 
-### List of values
+## List of values
 
 * Format: `[ value, value, ... ]`
 
 An list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 
-### Environment variable
+## Environment variable
 
 * Format: `${:alnum:}`
 
@@ -742,7 +741,7 @@ window {
 
 If environment WIDTH is set, then that value is parsed, otherwise the default value (`40%`).
 
-### Inherit
+## Inherit
 
  * Format: `inherit`
 
@@ -755,7 +754,7 @@ mainbox {
 ```
 
 
-## Elements paths
+## ELEMENTS PATHS
 
 Element paths exists of two parts, the first part refers to the actual widget by name.
 Some widgets have an extra state.
@@ -780,11 +779,11 @@ element selected {
 }
 ```
 
-### Supported element paths
+## SUPPORTED ELEMENT PATH
 
-### Name
+## Name
 
-The default widgets available in **rofi** and the default hierarchic:
+The current widgets available in **rofi**:
 
 * `window`
   * `overlay`: the overlay widget.
@@ -813,7 +812,7 @@ Note that these path names match the default theme. Themes that provide a custom
 elements, and structure.
 
 
-### State
+## State
 
 State: State of widget
 
@@ -821,7 +820,7 @@ Optional flag(s) indicating state of the widget, used for theming.
 
 These are appended after the name or class of the widget.
 
-#### Example:
+### Example:
 
 `button selected.normal { }`
 
@@ -829,7 +828,7 @@ These are appended after the name or class of the widget.
 
 Currently only the entrybox and scrollbar have states:
 
-#### Entrybox:
+### Entrybox:
 
 `{visible modifier}.{state}`
 
@@ -857,17 +856,17 @@ nametotextbox selected.active {
 Sets all selected textboxes marked active to the given text and background color.
 Note that a state modifies the original element, it therefore contains all the properties of that element.
 
-#### Scrollbar
+### Scrollbar
 
 The scrollbar uses the `handle` state when drawing the small scrollbar handle.
 This allows the colors used for drawing the handle to be set independently.
 
 
-## Widget properties
+## SUPPORTED PROPERTIES
 
 The following properties are currently supported:
 
-###  all widgets
+###  all widgets:
 
 * **enabled**:           enable/disable rendering of the widget
 * **padding**:           padding
@@ -887,7 +886,7 @@ The following properties are currently supported:
 * **cursor**:            cursor
   Type of mouse cursor that is set when the mouse pointer is hovered over the widget.
 
-### window
+### window:
 
 * **font**:            string
   The font used in the window
@@ -912,21 +911,21 @@ The following properties are currently supported:
     The offset of the window to the anchor point, allowing you to push the window left/right/up/down
 
 
-### scrollbar
+### scrollbar:
 
 * **background-color**:    color
 * **handle-width**:        distance
 * **handle-color**:        color
 * **border-color**:        color
 
-### box
+### box:
 
 * **orientation**:      orientation
         Set the direction the elements are packed.
 * **spacing**:          distance
         Distance between the packed elements.
 
-### textbox
+### textbox:
 
 * **background-color**:  color
 * **border-color**:      the color used for the border around the widget.
@@ -959,7 +958,7 @@ The following properties are currently supported:
 * **text-outline-width**: The width of the border around the text.  (Double)
 * **text-outline-color**: The color to use for the text outline.    (Color)
 
-### listview
+### listview:
 * **columns**:         integer
     Number of columns to show (at least 1)
 * **fixed-height**:    boolean
@@ -990,7 +989,7 @@ The following properties are currently supported:
 
 Each element is a `box` called `element`. Each `element` can contain an `element-icon` and `element-text`.
 
-#### listview text highlight
+### listview text highlight:
 
 The `element-text` widget in the `listview` is the one used to show the text.
 On this widget set the `highlight` property (only place this property is used) to change
@@ -1291,7 +1290,7 @@ If both dummy widgets are set to expand, `child` will be centered. Depending on 
 remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets
 (expand disabled).
 
-## Debugging
+## DEBUGGING
 
 To get debug information from the parser, run rofi like:
 
@@ -1434,7 +1433,7 @@ A name is resolved as a filename by appending the `.rasi` extension.
 
 
 
-## Examples
+## EXAMPLES
 
 Several examples are installed together with **rofi**. These can be found in `{datadir}/rofi/themes/`, where
 `{datadir}` is the install path of **rofi** data. When installed using a package manager, this is usually: `/usr/share/`.

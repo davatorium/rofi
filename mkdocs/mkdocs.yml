@@ -1,0 +1,59 @@
+site_name: Rofi Documentation
+repo_url: https://github.com/davatorium/rofi/
+edit_uri: mkdocs/docs/
+theme: readthedocs
+nav:
+  - License: COPYING.md
+  - Issue Tracker: https://github.com/davatorium/rofi/issues
+  - Discussions Forum: https://github.com/davatorium/rofi/discussions
+  - Installation: INSTALL.md
+  - Configuration: CONFIG.md
+  - Themes: themes/themes.md
+  - Guides:
+    - Transparency: guides/Transparency/theme3-transparency.markdown
+    - Positioning: guides/Positioning/theme3-positioning.markdown
+    - Plugins: guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins.md
+  - Current:
+    - Rofi: current/rofi.1.markdown 
+    - Themes: current/rofi-theme.5.markdown
+    - Dmenu: current/rofi-dmenu.5.markdown
+    - Script: current/rofi-script.5.markdown
+    - Debugging: current/rofi-debugging.5.markdown
+    - Keys: current/rofi-keys.5.markdown
+  - 1.7.5:
+    - Rofi: 1.7.5/rofi.1.markdown 
+    - Themes: 1.7.5/rofi-theme.5.markdown
+    - Dmenu: 1.7.5/rofi-dmenu.5.markdown
+    - Script: 1.7.5/rofi-script.5.markdown
+    - Debugging: 1.7.5/rofi-debugging.5.markdown
+    - Keys: 1.7.5/rofi-keys.5.markdown
+  - 1.7.4:
+    - Rofi: 1.7.4/rofi.1.markdown 
+    - Themes: 1.7.4/rofi-theme.5.markdown
+    - Dmenu: 1.7.4/rofi-dmenu.5.markdown
+    - Script: 1.7.4/rofi-script.5.markdown
+    - Debugging: 1.7.4/rofi-debugging.5.markdown
+    - Keys: 1.7.4/rofi-keys.5.markdown
+  - 1.7.3:
+    - Rofi: 1.7.3/rofi.1.markdown 
+    - Themes: 1.7.3/rofi-theme.5.markdown
+    - Dmenu: 1.7.3/rofi-dmenu.5.markdown
+    - Script: 1.7.3/rofi-script.5.markdown
+    - Debugging: 1.7.3/rofi-debugging.5.markdown
+    - Keys: 1.7.3/rofi-keys.5.markdown
+  - 1.7.2:
+    - Rofi: 1.7.2/rofi.1.markdown 
+    - Themes: 1.7.2/rofi-theme.5.markdown
+    - Script: 1.7.2/rofi-script.5.markdown
+  - 1.7.1:
+    - Rofi: 1.7.1/rofi.1.markdown 
+    - Themes: 1.7.1/rofi-theme.5.markdown
+    - Script: 1.7.1/rofi-script.5.markdown
+  - 1.7.0:
+    - Rofi: 1.7.0/rofi.1.markdown 
+    - Themes: 1.7.0/rofi-theme.5.markdown
+    - Script: 1.7.0/rofi-script.5.markdown
+
+plugins:
+  - search:
+      indexing: full

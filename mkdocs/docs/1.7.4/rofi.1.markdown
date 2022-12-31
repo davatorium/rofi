@@ -143,11 +143,6 @@ Dump the current active theme, in rasi format, to stdout and exit.
 
 Try to parse the file and return 0 when successful, non-zero when failed.
 
-`-list-keybindings`
-
-List all known keybindings without trying to parse them. This can be used to
-look for duplicate bindings.
-
 `-threads` *num*
 
 Specify the number of threads **rofi** should use:
@@ -280,9 +275,9 @@ Make rofi steal focus on launch and restore close to window that held it when la
 
 `-refilter-timeout-limit`
 
-The time (in ms) boundary filter may take before switch from instant to delayed filter mode.
+The limit of elements that is used to switch from instant to delayed filter mode.
 
-  Default: 300
+  Default: 8192
 
 A fallback icon can be specified for each mode:
 
@@ -543,12 +538,6 @@ See *PATTERN*.
 
 Default: *{cmd}*
 
-Example to run applications in a dedicated cgroup with systemd. Requires a shell to escape and interpolate the unit name correctly.
-
-```
-"bash -c 'systemd-run --user --unit=app-rofi-\$(systemd-escape {cmd})-\$RANDOM {cmd}'"
-```
-
 `-run-shell-command` *cmd*
 
 Set command to execute when running an application in a shell.
@@ -578,7 +567,7 @@ Format what is being displayed for windows.
  * **r**: role
  * **c**: class
 
-*len*: maximum field length (0 for auto-size). If length is negative, the entry will be unchanged.
+*len*: maximum field length (0 for auto-size). If length and window *width* are negative, field length is *width - len*.  
 If length is positive, the entry will be truncated or padded to fill that length.
 
 
@@ -618,17 +607,6 @@ configuration {
 
 or pass `-window-hide-active-window true` on command line.
 
-You can prefer the icon theme above the window set icon with the 'prefer-icon-theme' setting:
-
-```css
-configuration {
-  window {
-      prefer-icon-theme: true;
-  }
-}
-```
-
-or pass `-window-prefer-icon-theme true` on command line.
 
 ### Combi settings
 
@@ -708,13 +686,9 @@ configuration {
       sorting-method: "name";
       /** Group directories before files. */
       directories-first: true;
-      /** Show hidden files. */
-      show-hidden: false;
    }
 }
 ```
-
-The `show-hidden` can also be triggered with the `kb-delete-entry` keybinding.
 
 ### Other
 
@@ -1001,8 +975,8 @@ been released.
 ## SUPPORT
 
 **rofi** support can be obtained:
-
  * [GitHub Discussions](https://github.com/davatorium/rofi/discussions)
+ * [Forum (Reddit)](https://reddit.com/r/qtools//)
  * [IRC](irc://irc.libera.chat:6697/#rofi) (#rofi on irc.libera.chat),
 
 ## DEBUGGING

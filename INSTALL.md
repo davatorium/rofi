@@ -184,6 +184,8 @@ can then load the core in GDB.
 > Where the core file is located and what its exact name is different on each distributions. Please consult the
 > relevant documentation.
 
+For more information see the rofi-debugging(5) manpage.
+
 ## Install distribution
 
 ### Debian or Ubuntu

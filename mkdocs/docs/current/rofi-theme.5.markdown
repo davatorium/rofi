@@ -1,0 +1,1 @@
+../../../doc/rofi-theme.5.markdown

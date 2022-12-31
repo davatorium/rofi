@@ -1,22 +1,8 @@
->  # :warning: This page does not describe all of **ROFI**'s configuration options, just the most common usecase. For the full configuration options, check the manpages.
+>  This page does not describe all of **ROFI**'s configuration options, just the most common usecase. For the full configuration options, check the manpages.
 
 <br />
 
  
-## :exclamation: Upgrade from old configuration format to new :exclamation:
-
-In release after '2 Jan 2020' you can convert to the new configuration format by using the following command:
-
-```bash 
-rofi -upgrade-config
-```
-
-This will create `~/.config/rofi/config.rasi` (or the default location for your system) with the previously configured options.
-
-From 1.7.0 the old configuration format is no longer supported and the `-upgrade-config` option is no longer available.
-
-<br />
-
 # Where does the configuration live
 
 Rofi's configurations, custom themes live in `${XDG_CONFIG_HOME}/rofi/`, on most systems this is `~/.config/rofi/`.
@@ -60,6 +46,12 @@ configuration {
 /*  me-accept-entry: "MouseDPrimary";*/                                                                                 
 /*  me-accept-custom: "Control+MouseDPrimary";*/ 
 }
+```
+
+To create a copy of the current theme, you can run:
+
+```bash
+rofi -dump-theme > ~/.config/rofi/current.rasi
 ```
 
 # Configuration file format
@@ -195,6 +187,7 @@ configuration {
 
 ```
 
-Rofi will first parse the config block in `~/.config/rofi/config.rasi`, then parse `~/.config/rofi/myConfig.rasi` and then load the theme `myTheme`.\
-More information can be obtained from **Themes** section\
-Imports can be nested.
+Rofi will first parse the config block in `~/.config/rofi/config.rasi`, then
+parse `~/.config/rofi/myConfig.rasi` and then load the theme `myTheme`.  More
+information can be obtained from the **rofi-theme(5)** manpage.  Imports can be
+nested.

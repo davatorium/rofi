@@ -4,7 +4,7 @@
 .PP
 \fBrofi-theme\fP - Rofi theme format files
 
-.SH GETTING STARTED WITH THEMING
+.SH Getting started with theming
 .PP
 The easiest way to get started theming rofi is by modifying your existing theme.
 
@@ -227,7 +227,7 @@ rofi -dump-theme
 .fi
 .RE
 
-.SH DEFAULT THEME LOADING
+.SH Default theme loading
 .PP
 By default, rofi loads the default theme. This theme is \fBalways\fP loaded.
 The default configuration contains:
@@ -265,14 +265,14 @@ rofi -no-config -dump-theme
 .fi
 .RE
 
-.SH DESCRIPTION
+.SH Description
 .PP
 The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed. From a very
 static drawing of lines and text to a nice structured form of packing widgets. This change made it possible to provide a
 more flexible theme framework. The old theme format and config file are not flexible enough to expose these options in a
 user-friendly way. Therefore, a new file format has been created, replacing the old one.
 
-.SH FORMAT SPECIFICATION
+.SH Format specification
 .SH Encoding
 .PP
 The encoding of the file is UTF-8. Both unix (\fB\fC\\n\fR) and windows (\fB\fC\\r\\n\fR) newlines format are supported. But unix is
@@ -556,7 +556,7 @@ Inherit
 .PP
 Some of these types are a combination of other types.
 
-.SH String
+.SS String
 .RS
 .IP \(bu 2
 Format:  \fB\fC"[:print:]+"\fR
@@ -595,7 +595,7 @@ text {
 .PP
 The following special characters can be escaped: \fB\fC\\b\fR, \fB\fC\\f\fR, \fB\fC\\n\fR, \fB\fC\\r\fR, \fB\fC\\t\fR, \fB\fC\\v\fR, \fB\fC\\\fR and \fB\fC"\fR\&.
 
-.SH Integer
+.SS Integer
 .RS
 .IP \(bu 2
 Format: \fB\fC[-+]?[:digit:]+\fR
@@ -617,7 +617,7 @@ lines: 12;
 .fi
 .RE
 
-.SH Real
+.SS Real
 .RS
 .IP \(bu 2
 Format: \fB\fC[-+]?[:digit:]+(\\.[:digit:]+)?\fR
@@ -642,7 +642,7 @@ real: 3.4;
 .PP
 The following is not valid: \fB\fC\&.3\fR, \fB\fC3.\fR or scientific notation: \fB\fC3.4e-3\fR\&.
 
-.SH Boolean
+.SS Boolean
 .RS
 .IP \(bu 2
 Format: \fB\fC(true|false)\fR
@@ -664,7 +664,7 @@ dynamic: false;
 .fi
 .RE
 
-.SH Image
+.SS Image
 .PP
 \fBrofi\fP support a limited set of background-image formats.
 
@@ -688,7 +688,7 @@ Angle in deg,rad,grad (as used in color).
 .PP
 Where the \fB\fCpath\fR is a string, and \fB\fCstop\fR color is of type color.
 
-.SH Color
+.SS Color
 .PP
 \fBrofi\fP supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
 
@@ -776,7 +776,7 @@ text-color: Black;
 .fi
 .RE
 
-.SH Text style
+.SS Text style
 .RS
 .IP \(bu 2
 Format: \fB\fC(bold|italic|underline|strikethrough|none)\fR
@@ -820,7 +820,7 @@ The following option is disabled as pango crashes on this if there is eel
 
 .RE
 
-.SH Line style
+.SS Line style
 .RS
 .IP \(bu 2
 Format: \fB\fC(dash|solid)\fR
@@ -833,7 +833,7 @@ It currently supports:
  * \fB\fCdash\fR:  a dashed line, where the gap is the same width as the dash
  * \fB\fCsolid\fR: a solid line
 
-.SH Distance
+.SS Distance
 .RS
 .IP \(bu 2
 Format: \fB\fC{Integer}px\fR
@@ -935,7 +935,7 @@ It supports the following operations:
 .PP
 It uses the C precedence ordering.
 
-.SH Padding
+.SS Padding
 .RS
 .IP \(bu 2
 Format: \fB\fC{Integer}\fR
@@ -968,7 +968,7 @@ The different number of fields in the formats are parsed like:
 
 .RE
 
-.SH Border
+.SS Border
 .RS
 .IP \(bu 2
 Format: \fB\fC{Integer}\fR
@@ -1003,7 +1003,7 @@ When no unit is specified, pixels are assumed.
 
 .RE
 
-.SH Position
+.SS Position
 .PP
 Indicate a place on the window/monitor.
 
@@ -1028,7 +1028,7 @@ Format: \fB\fC(center|east|north|west|south|north east|north west|south west|sou
 
 .RE
 
-.SH Visibility
+.SS Visibility
 .PP
 It is possible to hide widgets:
 
@@ -1043,7 +1043,7 @@ inputbar {
 .fi
 .RE
 
-.SH Reference
+.SS Reference
 .RS
 .IP \(bu 2
 Format: \fB\fC@{PROPERTY NAME}\fR
@@ -1110,7 +1110,7 @@ window {
 If the property \fB\fCwidth\fR is set globally (\fB\fC*{}\fR) that value is used, if the property
 \fB\fCwidth\fR is not set, the default value is used.
 
-.SH Orientation
+.SS Orientation
 .RS
 .IP \(bu 2
 Format: \fB\fC(horizontal|vertical)\fR
@@ -1120,7 +1120,7 @@ Format: \fB\fC(horizontal|vertical)\fR
 .PP
 Specify the orientation of the widget.
 
-.SH Cursor
+.SS Cursor
 .RS
 .IP \(bu 2
 Format: \fB\fC(default|pointer|text)\fR
@@ -1130,7 +1130,7 @@ Format: \fB\fC(default|pointer|text)\fR
 .PP
 Specify the type of mouse cursor that is set when the mouse pointer is over the widget.
 
-.SH List of keywords
+.SS List of keywords
 .RS
 .IP \(bu 2
 Format: \fB\fC[ keyword, keyword ]\fR
@@ -1141,7 +1141,7 @@ Format: \fB\fC[ keyword, keyword ]\fR
 A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 The \fB\fCkeyword\fR in the list refers to an widget name.
 
-.SH List of values
+.SS List of values
 .RS
 .IP \(bu 2
 Format: \fB\fC[ value, value, ... ]\fR
@@ -1151,7 +1151,7 @@ Format: \fB\fC[ value, value, ... ]\fR
 .PP
 An list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
 
-.SH Environment variable
+.SS Environment variable
 .RS
 .IP \(bu 2
 Format: \fB\fC${:alnum:}\fR
@@ -1198,7 +1198,7 @@ window {
 .PP
 If environment WIDTH is set, then that value is parsed, otherwise the default value (\fB\fC40%\fR).
 
-.SH Inherit
+.SS Inherit
 .RS
 .IP \(bu 2
 Format: \fB\fCinherit\fR
@@ -1219,7 +1219,7 @@ mainbox {
 .fi
 .RE
 
-.SH ELEMENTS PATHS
+.SH Elements paths
 .PP
 Element paths exists of two parts, the first part refers to the actual widget by name.
 Some widgets have an extra state.
@@ -1257,10 +1257,10 @@ element selected {
 .fi
 .RE
 
-.SH SUPPORTED ELEMENT PATH
-.SH Name
+.SS Supported element paths
+.SS Name
 .PP
-The current widgets available in \fBrofi\fP:
+The default widgets available in \fBrofi\fP and the default hierarchic:
 
 .RS
 .IP \(bu 2
@@ -1338,7 +1338,7 @@ The current widgets available in \fBrofi\fP:
 Note that these path names match the default theme. Themes that provide a custom layout will have different
 elements, and structure.
 
-.SH State
+.SS State
 .PP
 State: State of widget
 
@@ -1401,11 +1401,11 @@ Note that a state modifies the original element, it therefore contains all the p
 The scrollbar uses the \fB\fChandle\fR state when drawing the small scrollbar handle.
 This allows the colors used for drawing the handle to be set independently.
 
-.SH SUPPORTED PROPERTIES
+.SH Widget properties
 .PP
 The following properties are currently supported:
 
-.SS all widgets:
+.SS all widgets
 .RS
 .IP \(bu 2
 \fBenabled\fP:           enable/disable rendering of the widget
@@ -1436,7 +1436,7 @@ Type of mouse cursor that is set when the mouse pointer is hovered over the widg
 
 .RE
 
-.SS window:
+.SS window
 .RS
 .IP \(bu 2
 \fBfont\fP:            string
@@ -1468,7 +1468,7 @@ The offset of the window to the anchor point, allowing you to push the window le
 
 .RE
 
-.SS scrollbar:
+.SS scrollbar
 .RS
 .IP \(bu 2
 \fBbackground-color\fP:    color
@@ -1481,7 +1481,7 @@ The offset of the window to the anchor point, allowing you to push the window le
 
 .RE
 
-.SS box:
+.SS box
 .RS
 .IP \(bu 2
 \fBorientation\fP:      orientation
@@ -1492,7 +1492,7 @@ The offset of the window to the anchor point, allowing you to push the window le
 
 .RE
 
-.SS textbox:
+.SS textbox
 .RS
 .IP \(bu 2
 \fBbackground-color\fP:  color
@@ -1552,7 +1552,7 @@ The text appears to the right of the tab stop position (other alignments are not
 
 .RE
 
-.SS listview:
+.SS listview
 .RS
 .IP \(bu 2
 \fBcolumns\fP:         integer
@@ -1600,7 +1600,7 @@ hitting accept will activate the first entry.
 .PP
 Each element is a \fB\fCbox\fR called \fB\fCelement\fR\&. Each \fB\fCelement\fR can contain an \fB\fCelement-icon\fR and \fB\fCelement-text\fR\&.
 
-.SS listview text highlight:
+.SS listview text highlight
 .PP
 The \fB\fCelement-text\fR widget in the \fB\fClistview\fR is the one used to show the text.
 On this widget set the \fB\fChighlight\fR property (only place this property is used) to change
@@ -2009,7 +2009,7 @@ If both dummy widgets are set to expand, \fB\fCchild\fR will be centered. Depend
 remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets
 (expand disabled).
 
-.SH DEBUGGING
+.SH Debugging
 .PP
 To get debug information from the parser, run rofi like:
 
@@ -2259,7 +2259,7 @@ If a filename is provided, it will try to resolve it in the following order:
 .PP
 A name is resolved as a filename by appending the \fB\fC\&.rasi\fR extension.
 
-.SH EXAMPLES
+.SH Examples
 .PP
 Several examples are installed together with \fBrofi\fP\&. These can be found in \fB\fC{datadir}/rofi/themes/\fR, where
 \fB\fC{datadir}\fR is the install path of \fBrofi\fP data. When installed using a package manager, this is usually: \fB\fC/usr/share/\fR\&.

@@ -1,0 +1,1 @@
+../../../doc/rofi-script.5.markdown
