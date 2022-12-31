@@ -23,7 +23,12 @@ function run_theme
   BASE=$(basename ${theme})
   NAME=${BASE%.rasi}
   export ROFI_PNG_OUTPUT="${NAME}.png" 
-  echo "# ${NAME}" >> themes.md
+  if [ ${NAME} = "default" ]
+  then
+	  echo "# Default theme" >> themes.md
+  else
+	  echo "# [${NAME}](https://github.com/davatorium/rofi/blob/next/themes/${BASE})" >> themes.md
+  fi
   echo "" >> themes.md
   generate_options | ${ROFI_BIN} -theme-str "@theme \"${theme}\"" \
     -no-config -dmenu -p "mode" -show-icons \
