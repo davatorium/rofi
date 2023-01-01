@@ -116,7 +116,7 @@ element alternate.active {
     background-color: @medium-grey;
 }
 inputbar {
-    spacing           : 0;
+    spacing           : 5px;
     background-color  : #88003300;
     border            : 0px 0px 2px 0px;
     border-radius     : 0px;
