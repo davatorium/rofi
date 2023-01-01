@@ -88,7 +88,7 @@ body:
       label: "Additional information"
     validations:
       required: false
-  - type: checkbox
+  - type: checkboxes
     id: wayland
     attributes:
       label: Using wayland display server protocol
