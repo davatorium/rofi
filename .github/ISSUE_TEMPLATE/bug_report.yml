@@ -94,7 +94,7 @@ body:
       label: Using wayland display server protocol
       description: I have checked and confirm that I am not using wayland as display server protocol. See [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more        information.
       options:
-        - label: "No"
+        - label: "No, I don't use the wayland display server protocol"
           required: true
       
 
