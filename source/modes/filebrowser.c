@@ -374,12 +374,12 @@ static void file_browser_mode_init_config(Mode *sw) {
   if (p != NULL && p->type == P_BOOLEAN) {
     file_browser_config.directories_first = p->value.b;
   }
-  
+
   p = rofi_theme_find_property(wid, P_BOOLEAN, "show-hidden", TRUE);
   if (p != NULL && p->type == P_BOOLEAN) {
     file_browser_config.show_hidden = p->value.b;
   }
-  
+
   if (found_error) {
     rofi_view_error_dialog(msg, FALSE);
 
@@ -450,6 +450,15 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
   FileBrowserModePrivateData *pd =
       (FileBrowserModePrivateData *)mode_get_private_data(sw);
 
+  if ((mretv & MENU_CANCEL) == MENU_CANCEL) {
+    ThemeWidget *wid = rofi_config_find_widget(sw->name, NULL, TRUE);
+    Property *p =
+        rofi_theme_find_property(wid, P_BOOLEAN, "cancel-returns-1", TRUE);
+    if (p && p->type == P_BOOLEAN && p->value.b == TRUE) {
+      rofi_set_return_code(1);
+    }
+    return MODE_EXIT;
+  }
   gboolean special_command =
       ((mretv & MENU_CUSTOM_ACTION) == MENU_CUSTOM_ACTION);
   if (mretv & MENU_NEXT) {

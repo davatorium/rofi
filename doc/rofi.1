@@ -1155,8 +1155,22 @@ configuration {
       directories-first: true;
       /** Show hidden files. */
       show-hidden: false;
+      /** return 1 on cancel. */
+      cancel-returns-1: true;
    }
 }
+
+.fi
+.RE
+
+.PP
+These options can also be passed on the commandline, for example:
+
+.PP
+.RS
+
+.nf
+rofi -filebrowser-cancel-returns-1 true -show filebrowser
 
 .fi
 .RE

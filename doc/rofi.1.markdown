@@ -710,8 +710,16 @@ configuration {
       directories-first: true;
       /** Show hidden files. */
       show-hidden: false;
+      /** return 1 on cancel. */
+      cancel-returns-1: true;
    }
 }
+```
+
+These options can also be passed on the commandline, for example:
+
+```bash
+rofi -filebrowser-cancel-returns-1 true -show filebrowser
 ```
 
 The `show-hidden` can also be triggered with the `kb-delete-entry` keybinding.
