@@ -3,8 +3,22 @@
 # This code is released in public domain by Dave Davenport <qball@gmpclient.org>
 #
 
+##
+# OS checking code as utilities could be different
+##
+OS="gnu"
+case "$OSTYPE" in
+    *linux*|*hurd*|*msys*|*cygwin*|*sua*|*interix*) OS="gnu";;
+    *bsd*|*darwin*) OS="bsd";;
+    *sunos*|*solaris*|*indiana*|*illumos*|*smartos*) OS="sun";;
+esac
+
 ROFI=$(command -v rofi)
-SED=$(command -v sed)
+if [ $OS = "bsd" ]; then
+    SED=$(command -v gsed)
+else
+    SED=$(command -v sed)
+fi
 MKTEMP=$(command -v mktemp)
 
 if [ -z "${SED}" ]
@@ -174,7 +188,16 @@ set_theme()
     then
         mkdir -p "${CDIR}"
     fi
-    get_link=$(readlink -f "${CDIR}/config.rasi")
+    # on BSD & MacOS readlink acts differently
+    if [ $OS = "bsd" ]; then
+        get_link="$(realpath "${CDIR}")/config.rasi"
+    else
+        get_link=$(readlink -f "${CDIR}/config.rasi")
+    fi
+    if [[ ! -f "${get_link}" ]]
+    then
+       touch "${get_link}"
+    fi
     ${SED} -i 's/^\s*\(@theme\s\+".*"\)/\/\/\1/' "${get_link}"
     echo "@theme \"${1}\"" >> "${get_link}"
 }
