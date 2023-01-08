@@ -356,7 +356,11 @@ static client *window_client(WindowModePrivateData *pd, xcb_window_t win) {
   if (tmp_title == NULL) {
     tmp_title = window_get_text_prop(c->window, XCB_ATOM_WM_NAME);
   }
-  c->title = g_markup_escape_text(tmp_title, -1);
+  if ( tmp_title != NULL ) {
+	  c->title = g_markup_escape_text(tmp_title, -1);
+  } else {
+	  c->title = g_strdup("<i>no title set</i>");
+  }
   pd->title_len =
       MAX(c->title ? g_utf8_strlen(c->title, -1) : 0, pd->title_len);
   g_free(tmp_title);
