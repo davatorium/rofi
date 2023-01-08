@@ -112,6 +112,8 @@ The following options are supported:
  * **meta**: Specify invisible search terms.
  * **nonselectable**: If true the row cannot activated.
  * **info**: Info that, on selection, gets placed in the `ROFI_INFO` environment variable. This entry does not get searched.
+ * **urgent**: Set urgent flag on entry (true/false)
+ * **active**: Set active flag on entry (true/false)
 
 multiple entries can be passed using the `\x1f` separator.
 

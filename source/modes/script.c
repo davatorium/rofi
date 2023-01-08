@@ -94,7 +94,13 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
     } else if (strcasecmp(key, "info") == 0) {
       entry->info = value;
     } else if (strcasecmp(key, "nonselectable") == 0) {
-      entry->nonselectable = strcasecmp(value, "true") == 0;
+      entry->nonselectable = g_ascii_strcasecmp(value, "true") == 0;
+      g_free(value);
+    } else if (strcasecmp(key, "urgent") == 0) {
+      entry->urgent = g_ascii_strcasecmp(value, "true") == 0;
+      g_free(value);
+    } else if (strcasecmp(key, "active") == 0) {
+      entry->active = g_ascii_strcasecmp(value, "true") == 0;
       g_free(value);
     } else {
       g_free(value);
@@ -231,6 +237,8 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
             retv[(*length)].icon_name = NULL;
             retv[(*length)].meta = NULL;
             retv[(*length)].info = NULL;
+            retv[(*length)].active = FALSE;
+            retv[(*length)].urgent = FALSE;
             retv[(*length)].icon_fetch_uid = 0;
             retv[(*length)].icon_fetch_size = 0;
             retv[(*length)].nonselectable = FALSE;
@@ -412,6 +420,12 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
     if (selected_line >= start && selected_line <= stop) {
       *state |= URGENT;
     }
+  }
+  if ( pd->cmd_list[selected_line].urgent ) {
+    *state |= URGENT;
+  }
+  if ( pd->cmd_list[selected_line].active ) {
+    *state |= ACTIVE;
   }
   if (pd->do_markup) {
     *state |= MARKUP;

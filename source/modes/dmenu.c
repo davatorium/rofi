@@ -168,6 +168,8 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
   pd->cmd_list[pd->cmd_list_length].icon_name = NULL;
   pd->cmd_list[pd->cmd_list_length].meta = NULL;
   pd->cmd_list[pd->cmd_list_length].info = NULL;
+  pd->cmd_list[pd->cmd_list_length].active = FALSE;
+  pd->cmd_list[pd->cmd_list_length].urgent = FALSE;
   pd->cmd_list[pd->cmd_list_length].nonselectable = FALSE;
   char *end = data;
   while (end < data + len && *end != '\0') {
@@ -447,6 +449,12 @@ static char *get_display_data(const Mode *data, unsigned int index, int *state,
   }
   if (pd->do_markup) {
     *state |= MARKUP;
+  }
+  if ( pd->cmd_list[index].urgent ) {
+    *state |= URGENT;
+  }
+  if ( pd->cmd_list[index].active ) {
+    *state |= ACTIVE;
   }
   char *my_retv =
       (get_entry ? dmenu_format_output_string(pd, retv[index].entry, index,

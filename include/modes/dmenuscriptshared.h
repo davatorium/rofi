@@ -21,6 +21,11 @@ typedef struct {
 
   /** non-selectable */
   gboolean nonselectable;
+
+  /** urgent */
+  gboolean urgent;
+  /** active */
+  gboolean active;
 } DmenuScriptEntry;
 /**
  * @param sw Unused
