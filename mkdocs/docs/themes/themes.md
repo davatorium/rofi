@@ -53,6 +53,10 @@ Use `rofi-theme-selector` to select and use one of these themes.
 
 ![fancy](fancy.png)
 
+# [fullscreen-preview](https://github.com/davatorium/rofi/blob/next/themes/fullscreen-preview.rasi)
+
+![fullscreen-preview](fullscreen-preview.png)
+
 # [glue_pro_blue](https://github.com/davatorium/rofi/blob/next/themes/glue_pro_blue.rasi)
 
 ![glue_pro_blue](glue_pro_blue.png)

@@ -232,6 +232,7 @@ theme_DATA=\
 		   themes/fancy2.rasi\
 		   themes/iggy.rasi\
 		   themes/material.rasi\
+		   themes/fullscreen-preview.rasi\
 		   themes/iggy.jpg
 
 ##

@@ -48,6 +48,7 @@ echo "Use \`rofi-theme-selector\` to select and use one of these themes." >> the
 Xvfb :1234 -screen 0 1920x1080x24 &
 XEPHYR_PID=$!
 export DISPLAY=:1234
+sleep 0.5;
 run_theme "default"
 for theme in ${THEMES}
 do
