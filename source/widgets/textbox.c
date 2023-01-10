@@ -518,28 +518,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   }
   }
 
-  // draw the text
-  cairo_save(draw);
-  cairo_reset_clip(draw);
-
-  gboolean show_outline =
-      rofi_theme_get_boolean(WIDGET(tb), "text-outline", FALSE);
-  if (tb->show_placeholder) {
-    rofi_theme_get_color(WIDGET(tb), "placeholder-color", draw);
-    show_outline = FALSE;
-  }
-  pango_cairo_show_layout(draw, tb->layout);
-
-  if (show_outline) {
-    rofi_theme_get_color(WIDGET(tb), "text-outline-color", draw);
-    double width = rofi_theme_get_double(WIDGET(tb), "text-outline-width", 0.5);
-    pango_cairo_layout_path(draw, tb->layout);
-    cairo_set_line_width(draw, width);
-    cairo_stroke(draw);
-  }
-
-  cairo_restore(draw);
-
   // draw the cursor
   if (tb->flags & TB_EDITABLE) {
     // We want to place the cursor based on the text shown.
@@ -563,6 +541,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     if (tb->blink) {
       // use text color as fallback for themes that don't specify the cursor
       // color
+      cairo_save(draw);
       rofi_theme_get_color(WIDGET(tb), "cursor-color", draw);
       cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_pixel_width,
                       cursor_height);
@@ -576,8 +555,31 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
       } else {
         cairo_fill(draw);
       }
+      cairo_restore(draw);
     }
   }
+
+  // draw the text
+  cairo_save(draw);
+  cairo_reset_clip(draw);
+
+  gboolean show_outline =
+      rofi_theme_get_boolean(WIDGET(tb), "text-outline", FALSE);
+  if (tb->show_placeholder) {
+    rofi_theme_get_color(WIDGET(tb), "placeholder-color", draw);
+    show_outline = FALSE;
+  }
+  pango_cairo_show_layout(draw, tb->layout);
+
+  if (show_outline) {
+    rofi_theme_get_color(WIDGET(tb), "text-outline-color", draw);
+    double width = rofi_theme_get_double(WIDGET(tb), "text-outline-width", 0.5);
+    pango_cairo_layout_path(draw, tb->layout);
+    cairo_set_line_width(draw, width);
+    cairo_stroke(draw);
+  }
+
+  cairo_restore(draw);
 }
 
 // cursor handling for edit mode
