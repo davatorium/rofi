@@ -712,6 +712,8 @@ configuration {
       show-hidden: false;
       /** return 1 on cancel. */
       cancel-returns-1: true;
+      /** command */
+      command: "xdg-open";
    }
 }
 ```

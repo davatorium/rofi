@@ -38,7 +38,7 @@ To show the \fB\fCdrun\fR dialog:
 .RE
 
 .PP
-A very useful setup in minimalistic window managers is to combine \fB\fCdrun\fR, \fB\fCrun\fR
+A useful setup in minimalistic window managers is to combine \fB\fCdrun\fR, \fB\fCrun\fR
 with \fB\fCwindow\fR mode:
 
 .PP
@@ -1157,6 +1157,8 @@ configuration {
       show-hidden: false;
       /** return 1 on cancel. */
       cancel-returns-1: true;
+      /** command */
+      command: "xdg-open";
    }
 }
 
