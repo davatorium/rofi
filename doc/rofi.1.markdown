@@ -34,7 +34,7 @@ To show the `drun` dialog:
     rofi -show drun
 ```
 
-A very useful setup in minimalistic window managers is to combine `drun`, `run`
+A useful setup in minimalistic window managers is to combine `drun`, `run`
 with `window` mode:
 
 ```bash
