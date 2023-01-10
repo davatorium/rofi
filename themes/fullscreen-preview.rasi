@@ -115,3 +115,16 @@ element selected {
   }
 
 }
+
+@media ( enabled: env(NO_IMAGE, false)) {
+	listview {
+		columns: 1;
+		spacing: 0.4em;
+	}
+	element {
+		children: [ element-text ];
+	}
+	element-text {
+		horizontal-align: 0.0;
+	}
+}
