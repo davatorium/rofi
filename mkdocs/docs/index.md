@@ -33,3 +33,4 @@ The manpages are grouped on rofi version.
 * [Transparency](guides/Transparency/theme3-transparency)
 * [Positioning](guides/Positioning/theme3-positioning)
 * [Plugins](guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins.md)
+* [Dynamic Theme](guides/DynamicThemes/dynamic_themes.md)

@@ -1,12 +1,35 @@
-/**
- * ROFI Color Theme
- *
- * Fullscreen theme with switchable PREVIEW option.
- * 
- * User: Dave Davenport
- * Copyright: Dave Davenport
- */
+# Dynamic Theme
 
+A new addition in rofi 1.7.5 that did not get a lot of attention is support for
+the enabled keyword in the media statement and supporting environment values.
+Or more practical, you can modify your theme based on environment variables.
+
+```css
+
+@media ( enabled: env(DO_X, false)) {
+  listview {
+    orientation: vertical;
+  }
+}
+```
+
+You can now enable this part of the theme by running rofi with `DO_X` set.
+
+```bash
+DO_X=true rofi -show combi
+```
+
+## Image browser example
+
+In the current release, there is a
+[fullscreen_preview](https://github.com/davatorium/rofi/blob/next/themes/fullscreen-preview.rasi)
+as an example.
+
+In this theme we are going to modify the filebrowser view with a preview widget that we can enable.
+
+Lets start with the basic theme.
+
+```css
 * {
 	background-color: transparent;
 	text-color:       white;
@@ -21,7 +44,7 @@ window {
 }
 
 
-/** We add an extra child to this is PREVIEW=true */
+/** We add an extra child to this if PREVIEW=true */
 listview-split {
   orientation: horizontal;
   spacing: 0.4em;
@@ -99,25 +122,65 @@ element selected {
 	border-radius: 0.4em;
 }
 
+```
+
+When running this theme:
+```bash
+rofi -theme fullscreen-preview.rasi -show filebrowser
+```
+
+![Basic Theme](1.png)
+
+We already prepared the place where we are going to add a 2nd widget.
+Now lets, at the end of the theme, add the extra element in a media block.
+
+
+```css
+@media ( enabled: env(PREVIEW, false)) {
+```
+The variable is `PREVIEW`, if it is not set `false` is used.
+Otherwise the content of `PREVIEW` is parsed.
+
+These will be merged into the theme on load:
+
+```css
+
 /**
  * Launching rofi with environment PREVIEW set to true
  * will split the screen and show a preview widget.
  */
 @media ( enabled: env(PREVIEW, false)) {
-  /** preview widget */
+  // preview widget
   icon-current-entry {
     expand:          true;
     size:            80%;
   }
+  // override the children of `listview-split`
   listview-split {
     children: [listview, icon-current-entry];
   }
+  // Reduce to 4 columns
   listview {
-  columns: 4;
+    columns: 4;
   }
 
 }
+```
 
+Now if we run it:
+
+```bash
+REVIEW=true rofi -theme fullscreen-preview.rasi -show filebrowser
+```
+
+
+It looks like this:
+
+![Image preview](2.png)
+
+We can add more sections; for example for text only we hide the images:
+
+```css
 @media ( enabled: env(NO_IMAGE, false)) {
 	listview {
 		columns: 1;
@@ -130,3 +193,12 @@ element selected {
 		horizontal-align: 0.0;
 	}
 }
+```
+
+## Wallpaper picker
+
+If you run latest git version, you can now easily make a wallpaper picker:
+
+```bash
+PREVIEW=true rofi -theme fullscreen-preview.rasi -show filebrowser -filebrowser-command 'feh --bg-scale' -filebrowser-directory ~/Wallpapers/
+```
