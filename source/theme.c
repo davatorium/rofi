@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2022 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2023 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -66,7 +66,7 @@ void rofi_theme_print_parsed_files(gboolean is_term) {
   printf("\nParsed files:\n");
   for (GList *iter = g_list_first(parsed_config_files); iter != NULL;
        iter = g_list_next(iter)) {
-    printf("\t\u2022 %s%s%s\n", is_term ? color_bold : "",
+    printf("\t\u2023 %s%s%s\n", is_term ? color_bold : "",
            (const char *)(iter->data), is_term ? color_reset : "");
   }
   printf("\n");
