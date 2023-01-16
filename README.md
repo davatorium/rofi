@@ -122,14 +122,14 @@ consult manpages, [discussion](https://github.com/davatorium/rofi/discussions)
 and [issue tracker](https://github.com/davatorium/rofi/issues?q=) before filing
 new issue.
 
- * Manpages:
-     * [rofi](doc/rofi.1.markdown)
-     * [rofi-theme](doc/rofi-theme.5.markdown)
-     * [rofi-debugging](doc/rofi-debugging.5.markdown)
-     * [rofi-script](doc/rofi-script.5.markdown)
-     * [rofi-theme-selector](doc/rofi-theme-selector.1.markdown)
-     * [rofi-keys](doc/rofi-keys.5.markdown)
-     * [rofi-dmenu](doc/rofi-dmenu.5.markdown)
+* Manpages:
+  * [rofi](doc/rofi.1.markdown)
+  * [rofi-theme](doc/rofi-theme.5.markdown)
+  * [rofi-debugging](doc/rofi-debugging.5.markdown)
+  * [rofi-script](doc/rofi-script.5.markdown)
+  * [rofi-theme-selector](doc/rofi-theme-selector.1.markdown)
+  * [rofi-keys](doc/rofi-keys.5.markdown)
+  * [rofi-dmenu](doc/rofi-dmenu.5.markdown)
 
 # Installation
 

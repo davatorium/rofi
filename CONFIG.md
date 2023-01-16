@@ -64,8 +64,8 @@ The encoding of the file is utf-8. Both Unix (`\n`) and windows (`\r\n`) newline
 
 C and C++ file comments are supported.
 
-* Anything after  `// ` and before a newline is considered a comment.
-* Everything between `/*` and `*/` is a comment.
+  * Anything after  `// ` and before a newline is considered a comment.
+  * Everything between `/*` and `*/` is a comment.
 
 Comments can be nested and the C comments can be inline.
 

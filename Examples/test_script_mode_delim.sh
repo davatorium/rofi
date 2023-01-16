@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-if [ "$@" = "quit" ]
+if [[ "$@" = "quit" ]]
 then
     exit 0
 fi
 
 # Override the previously set prompt.
 # We only want to do this on first call of script.
-if [ $ROFI_RETV = 0 ]
+if [[ $ROFI_RETV = 0 ]]
 then
     echo -en "\x00delim\x1f\\x1\n"
 fi
