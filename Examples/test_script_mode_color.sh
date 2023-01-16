@@ -8,7 +8,7 @@ fi
 if [ "$@" ]
 then
     # Override the previously set prompt.
-    echo -en "\0theme\x1felement-text { background-color: "$@";}\n"
+    echo -en "\0theme\x1felement-text { background-color: $@;}\n"
     echo -en "\0keep-selection\x1ftrue\n"
 #    echo -en "\0new-selection\x1f2\n"
     echo "red"
