@@ -887,12 +887,21 @@ gboolean textbox_append_text(textbox *tb, const char *pad, const int pad_len) {
   const gchar *w, *n, *e;
   for (w = pad, n = g_utf8_next_char(w), e = w + pad_len; w < e;
        w = n, n = g_utf8_next_char(n)) {
-    if (g_unichar_iscntrl(g_utf8_get_char(w))) {
-      continue;
+    gunichar c = g_utf8_get_char(w);
+    if ( g_unichar_isspace(c)){
+      /** Replace tabs, newlines and others with a normal space. */
+      textbox_insert(tb, tb->cursor, " ", 1);
+      textbox_cursor(tb, tb->cursor + 1);
+      used_something = TRUE;
+    } else if ( g_unichar_iscntrl(c) ){
+      /* skip control characters. */
+      g_info("Got an invalid character: %08X",c);
+    } else  {
+      /** Insert the text */
+      textbox_insert(tb, tb->cursor, w, n - w);
+      textbox_cursor(tb, tb->cursor + 1);
+      used_something = TRUE;
     }
-    textbox_insert(tb, tb->cursor, w, n - w);
-    textbox_cursor(tb, tb->cursor + 1);
-    used_something = TRUE;
   }
   return used_something;
 }
