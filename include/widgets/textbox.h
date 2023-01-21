@@ -345,5 +345,8 @@ void textbox_set_ellipsize(textbox *tb, PangoEllipsizeMode mode);
  * @returns the position of the cursor (0 if no cursor).
  */
 int textbox_get_cursor_x_pos(const textbox *tb);
+
+char *textbox_get_text ( const textbox *tb );
+int textbox_get_cursor ( const textbox *tb );
 /**@}*/
 #endif // ROFI_TEXTBOX_H
