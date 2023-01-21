@@ -898,38 +898,63 @@ static void open_xim_callback(xcb_xim_t *im, G_GNUC_UNUSED void *user_data) {
 }
 #endif
 
-void __create_window(MenuFlags menu_flags) {
+static void input_history_initialize ( void )
+{
   CacheState.entry_history = NULL;
   CacheState.entry_history_index  = 0;
   CacheState.entry_history_length = 0;
 
   gchar *path = g_build_filename(cache_dir, "rofi-entry-history.txt", NULL);
-  FILE *fp = fopen(path, "r");
-  g_free(path);
-  if ( fp ) {
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t nread;
-    while ((nread = getline(&line, &len, fp)) != -1) {
-      CacheState.entry_history = g_realloc(CacheState.entry_history,
-                                           sizeof(EntryHistoryIndex)*(CacheState.entry_history_length+1));
-      if ( line[nread-1] == '\n' ) {
-        line[nread-1] = '\0';
-        nread--;
+  if ( g_file_test(path, G_FILE_TEST_EXISTS ) ) {
+    FILE *fp = fopen(path, "r");
+    if ( fp ) {
+      char *line = NULL;
+      size_t len = 0;
+      ssize_t nread;
+      while ((nread = getline(&line, &len, fp)) != -1) {
+        CacheState.entry_history = g_realloc(CacheState.entry_history,
+                                             sizeof(EntryHistoryIndex)*(CacheState.entry_history_length+1));
+        if ( line[nread-1] == '\n' ) {
+          line[nread-1] = '\0';
+          nread--;
+        }
+        CacheState.entry_history[CacheState.entry_history_length].string = g_strdup(line);
+        CacheState.entry_history[CacheState.entry_history_length].index  = strlen(line);
+        CacheState.entry_history_length++;
+        CacheState.entry_history_index++;
       }
-      CacheState.entry_history[CacheState.entry_history_length].string = g_strdup(line);
-      CacheState.entry_history[CacheState.entry_history_length].index  = strlen(line);
-      CacheState.entry_history_length++;
-      CacheState.entry_history_index++;
+      free(line);
+      fclose(fp);
     }
-    free(line);
-    fclose(fp);
   }
+  g_free(path);
   CacheState.entry_history = g_realloc(CacheState.entry_history,
                                        sizeof(EntryHistoryIndex)*(CacheState.entry_history_length+1));
   CacheState.entry_history[CacheState.entry_history_length].string = g_strdup("");
   CacheState.entry_history[CacheState.entry_history_length].index  = 0;
   CacheState.entry_history_length++;
+
+}
+static void input_history_save ( void )
+{
+  if ( CacheState.entry_history_length > 0  ){
+    gchar *path = g_build_filename(cache_dir, "rofi-entry-history.txt", NULL);
+    FILE *fp = fopen(path, "w");
+    if ( fp ) {
+      gssize start = MAX(0, (CacheState.entry_history_length-20));
+      for ( gssize i = start; i < CacheState.entry_history_length;  i++){
+        if ( strlen(CacheState.entry_history[i].string) > 0 ){
+          fprintf(fp, "%s\n", CacheState.entry_history[i].string);
+        }
+      }
+      fclose(fp);
+    }
+    g_free(path);
+  }
+}
+
+void __create_window(MenuFlags menu_flags) {
+  input_history_initialize();
 
   uint32_t selmask = XCB_CW_BACK_PIXMAP | XCB_CW_BORDER_PIXEL |
                      XCB_CW_BIT_GRAVITY | XCB_CW_BACKING_STORE |
@@ -2538,20 +2563,7 @@ void rofi_view_cleanup() {
   xcb_flush(xcb->connection);
   g_assert(g_queue_is_empty(&(CacheState.views)));
 
-  if ( CacheState.entry_history_length > 0  ){
-    gchar *path = g_build_filename(cache_dir, "rofi-entry-history.txt", NULL);
-    FILE *fp = fopen(path, "w");
-    if ( fp ) {
-      gssize start = MAX(0, (CacheState.entry_history_length-20));
-      for ( gssize i = start; i < CacheState.entry_history_length;  i++){
-        if ( strlen(CacheState.entry_history[i].string) > 0 ){
-          fprintf(fp, "%s\n", CacheState.entry_history[i].string);
-        }
-      }
-      fclose(fp);
-    }
-    g_free(path);
-  }
+  input_history_save();
 }
 void rofi_view_workers_initialize(void) {
   TICK_N("Setup Threadpool, start");

@@ -346,7 +346,18 @@ void textbox_set_ellipsize(textbox *tb, PangoEllipsizeMode mode);
  */
 int textbox_get_cursor_x_pos(const textbox *tb);
 
+/**
+ * @param tb Handle to the textbox
+ *
+ * @returns gets a newly allocated copy of the content of the entrybox.
+ */
 char *textbox_get_text ( const textbox *tb );
+
+/**
+ * @param tb Handle to the textbox
+ *
+ * @returns the position of the cursor. 
+ */
 int textbox_get_cursor ( const textbox *tb );
 /**@}*/
 #endif // ROFI_TEXTBOX_H
