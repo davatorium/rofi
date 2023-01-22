@@ -415,6 +415,16 @@ Select row 10
 
 **Default**: 	Super+0 
 
+### **kb-entry-history-up**
+Go up in the entry history.
+
+**Default**:    Control+Up
+
+### **kb-entry-history-down**
+Go down in the entry history.
+
+**Default**:    Control+Down
+
 ## Mouse Bindings
 
 ### **ml-row-left**

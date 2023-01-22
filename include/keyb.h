@@ -143,6 +143,8 @@ typedef enum {
   SELECT_ELEMENT_8,
   SELECT_ELEMENT_9,
   SELECT_ELEMENT_10,
+  ENTRY_HISTORY_UP,
+  ENTRY_HISTORY_DOWN,
 } KeyBindingAction;
 
 /**

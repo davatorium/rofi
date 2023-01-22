@@ -1361,12 +1361,21 @@ It supports the following keys as constraint:
 }
 ```
 
+## Conflicting constraints
+
+It is possible to define conflicting constraints in the theme. These conflicts
+are not explicitly reported. The most common example is forcing a specific
+window size, for example by enabling full-screen mode, having number of lines
+set in the listview and having the listview expand to available space. There is
+clearly a conflict in these 3 constraints. In this case, listview will not
+limit to the number of lines, but tries to fill the available space. It is up
+to the theme designer to make sure the theme handles this correctly.
 
 ## Font Parsing
 
-Rofi uses [pango](https://pango.gnome.org/) for font rendering. The font should be specified in a format that pango
-understands.
-This normally is the font name followed by the font size. For example:
+Rofi uses [pango](https://pango.gnome.org/) for font rendering. The font should
+be specified in a format that pango understands. This normally is the font name
+followed by the font size. For example:
 
 ```
 mono 18

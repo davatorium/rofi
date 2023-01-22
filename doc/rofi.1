@@ -1180,6 +1180,28 @@ rofi -filebrowser-cancel-returns-1 true -show filebrowser
 .PP
 The \fB\fCshow-hidden\fR can also be triggered with the \fB\fCkb-delete-entry\fR keybinding.
 
+.SS Entry history
+.PP
+The number of previous inputs for the entry box can be modified by setting
+max-history on the entry box.
+
+.PP
+.RS
+
+.nf
+configuration {
+    entry  {
+        max-history: 30;
+    }
+}
+
+.fi
+.RE
+
+.PP
+By default the file is stored in the systems cache directory, in a file called
+\fB\fCrofi-entry-history.txt\fR\&.
+
 .SS Other
 .PP
 \fB\fC-drun-use-desktop-cache\fR

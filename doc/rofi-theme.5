@@ -2136,12 +2136,22 @@ It supports the following keys as constraint:
 .fi
 .RE
 
+.SH Conflicting constraints
+.PP
+It is possible to define conflicting constraints in the theme. These conflicts
+are not explicitly reported. The most common example is forcing a specific
+window size, for example by enabling full-screen mode, having number of lines
+set in the listview and having the listview expand to available space. There is
+clearly a conflict in these 3 constraints. In this case, listview will not
+limit to the number of lines, but tries to fill the available space. It is up
+to the theme designer to make sure the theme handles this correctly.
+
 .SH Font Parsing
 .PP
 Rofi uses pango
-\[la]https://pango.gnome.org/\[ra] for font rendering. The font should be specified in a format that pango
-understands.
-This normally is the font name followed by the font size. For example:
+\[la]https://pango.gnome.org/\[ra] for font rendering. The font should
+be specified in a format that pango understands. This normally is the font name
+followed by the font size. For example:
 
 .PP
 .RS
