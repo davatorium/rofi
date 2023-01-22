@@ -938,10 +938,20 @@ static void input_history_initialize ( void )
 static void input_history_save ( void )
 {
   if ( CacheState.entry_history_length > 0  ){
+    // History max.
+    int max_history = 20;
+    ThemeWidget *wid = rofi_config_find_widget("entry", NULL, TRUE);
+    if ( wid ) {
+      Property *p = rofi_theme_find_property(wid, P_INTEGER, "max-history", TRUE);
+      if ( p != NULL && p->type == P_INTEGER ){
+        max_history = p->value.i;
+      }
+    }
     gchar *path = g_build_filename(cache_dir, "rofi-entry-history.txt", NULL);
+    g_debug("Entry filename output: '%s'", path);
     FILE *fp = fopen(path, "w");
     if ( fp ) {
-      gssize start = MAX(0, (CacheState.entry_history_length-20));
+      gssize start = MAX(0, (CacheState.entry_history_length-max_history));
       for ( gssize i = start; i < CacheState.entry_history_length;  i++){
         if ( strlen(CacheState.entry_history[i].string) > 0 ){
           fprintf(fp, "%s\n", CacheState.entry_history[i].string);
