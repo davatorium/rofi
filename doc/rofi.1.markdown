@@ -726,6 +726,22 @@ rofi -filebrowser-cancel-returns-1 true -show filebrowser
 
 The `show-hidden` can also be triggered with the `kb-delete-entry` keybinding.
 
+### Entry history
+
+The number of previous inputs for the entry box can be modified by setting
+max-history on the entry box.
+
+```css
+configuration {
+    entry  {
+        max-history: 30;
+    }
+}
+```
+
+By default the file is stored in the systems cache directory, in a file called
+`rofi-entry-history.txt`.
+
 ### Other
 
 `-drun-use-desktop-cache`

@@ -359,6 +359,15 @@ void textbox_set_pango_attributes(textbox *tb, PangoAttrList *list) {
   pango_layout_set_attributes(tb->layout, list);
 }
 
+char *textbox_get_text ( const textbox *tb ) {
+  if ( tb->text == NULL ) {
+    return g_strdup("");
+  }
+  return g_strdup( tb->text );
+}
+int textbox_get_cursor ( const textbox *tb ) {
+  return tb->cursor;
+}
 // set the default text to display
 void textbox_text(textbox *tb, const char *text) {
   if (tb == NULL) {

@@ -324,6 +324,14 @@ ActionBindingEntry rofi_bindings[] = {
      .name = "kb-select-10",
      .binding = "Super+0",
      .comment = "Select row 10"},
+    {.id = ENTRY_HISTORY_UP,
+     .name = "kb-entry-history-up",
+     .binding = "Control+Up",
+     .comment = "Go up in the history of the entry box"},
+    {.id = ENTRY_HISTORY_DOWN,
+     .name = "kb-entry-history-down",
+     .binding = "Control+Down",
+     .comment = "Go down in the history of the entry box"},
 
     /* Mouse-aware bindings */
 
