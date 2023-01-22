@@ -1076,17 +1076,16 @@ char *helper_get_theme_path(const char *file, const char **ext) {
   g_free(filename);
 
   gboolean ext_found = FALSE;
-  if (ext) {
-    for (const char **i = ext; *i != NULL; i++) {
-      if (g_str_has_suffix(file, *i)) {
-        ext_found = TRUE;
-        break;
-      }
+  for (const char **i = ext; *i != NULL; i++) {
+    if (g_str_has_suffix(file, *i)) {
+      ext_found = TRUE;
+      break;
     }
   }
   if (ext_found) {
     filename = g_strdup(file);
   } else {
+    g_assert_nonnull(ext[0]);
     // TODO: Pick the first extension. needs fixing.
     filename = g_strconcat(file, ext[0], NULL);
   }

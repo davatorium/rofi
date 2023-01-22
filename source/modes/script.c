@@ -83,10 +83,13 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
                                     DmenuScriptEntry *entry, char *buffer,
                                     G_GNUC_UNUSED size_t length) {
   gchar **extras = g_strsplit(buffer, "\x1f", -1);
-  gchar **extra;
-  for (extra = extras; *extra != NULL && *(extra + 1) != NULL; extra += 2) {
+  gchar **extra = extras;
+  for (; *extra != NULL && *(extra + 1) != NULL; extra += 2) {
     gchar *key = *extra;
     gchar *value = *(extra + 1);
+    // Mark NULL
+    *(extra) = NULL;
+    *(extra+1) = NULL;
     if (strcasecmp(key, "icon") == 0) {
       entry->icon_name = value;
     } else if (strcasecmp(key, "meta") == 0) {
@@ -106,6 +109,10 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
       g_free(value);
     }
     g_free(key);
+  }
+  // Got an extra entry.. lets free it.
+  if ( *extras != NULL ) {
+    g_free(*extras);
   }
   g_free(extras);
 }
@@ -247,7 +254,7 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
                                              buffer + buf_length,
                                              read_length - buf_length);
             }
-            retv[(*length) + 1].entry = NULL;
+            memset(&(retv[(*length)+1]), 0, sizeof(DmenuScriptEntry));
             (*length)++;
           }
         }
@@ -350,6 +357,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
       g_free(rmpd->cmd_list[i].entry);
       g_free(rmpd->cmd_list[i].icon_name);
       g_free(rmpd->cmd_list[i].meta);
+      g_free(rmpd->cmd_list[i].info);
     }
     g_free(rmpd->cmd_list);
 
@@ -522,6 +530,7 @@ void script_mode_gather_user_scripts(void) {
       }
       num_scripts++;
     }
+    g_dir_close(sd);
   }
 
   g_free(script_dir);
