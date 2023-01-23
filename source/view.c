@@ -155,6 +155,7 @@ struct {
   /** Cursor type */
   X11CursorType cursor_type;
   /** Entry box */
+  gboolean entry_history_enable;
   EntryHistoryIndex *entry_history;
   gssize entry_history_length;
   gssize entry_history_index;
@@ -175,6 +176,7 @@ struct {
     .count = 0L,
     .repaint_source = 0,
     .fullscreen = FALSE,
+    .entry_history_enable = TRUE,
     .entry_history = NULL,
     .entry_history_length = 0,
     .entry_history_index  = 0
@@ -900,6 +902,9 @@ static void open_xim_callback(xcb_xim_t *im, G_GNUC_UNUSED void *user_data) {
 
 static void input_history_initialize ( void )
 {
+  if ( CacheState.entry_history_enable == FALSE ) {
+    return;
+  }
   CacheState.entry_history = NULL;
   CacheState.entry_history_index  = 0;
   CacheState.entry_history_length = 0;
@@ -937,6 +942,9 @@ static void input_history_initialize ( void )
 }
 static void input_history_save ( void )
 {
+  if ( CacheState.entry_history_enable == FALSE ) {
+    return;
+  }
   if ( CacheState.entry_history_length > 0  ){
     // History max.
     int max_history = 20;
@@ -961,9 +969,20 @@ static void input_history_save ( void )
     }
     g_free(path);
   }
+  // Cleanups.
+  if ( CacheState.entry_history != NULL ) {
+    g_free(CacheState.entry_history);
+    CacheState.entry_history = NULL;
+    CacheState.entry_history_length = 0;
+    CacheState.entry_history_index  = 0;
+  }
 }
 
 void __create_window(MenuFlags menu_flags) {
+  // In password mode, disable the entry history.
+  if ( (menu_flags|MENU_PASSWORD) == MENU_PASSWORD ) {
+    CacheState.entry_history_enable = FALSE;
+  }
   input_history_initialize();
 
   uint32_t selmask = XCB_CW_BACK_PIXMAP | XCB_CW_BORDER_PIXEL |
@@ -1560,7 +1579,7 @@ static void rofi_view_input_changed() {
   rofi_view_take_action("inputchange");
 
   RofiViewState * state = current_active_menu;
-  if ( state ) {
+  if ( CacheState.entry_history_enable && state ) {
     if ( CacheState.entry_history[CacheState.entry_history_index].string != NULL) {
       g_free(CacheState.entry_history[CacheState.entry_history_index].string);
     }
@@ -1823,7 +1842,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ENTRY_HISTORY_DOWN: {
-      if ( state->text ) {
+      if ( CacheState.entry_history_enable && state->text ) {
         CacheState.entry_history[CacheState.entry_history_index].index = textbox_get_cursor(state->text);
         if ( CacheState.entry_history_index  > 0 ) {
           CacheState.entry_history_index--;
@@ -1837,7 +1856,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ENTRY_HISTORY_UP: {
-      if ( state->text ) {
+      if ( CacheState.entry_history_enable && state->text ) {
         if ( CacheState.entry_history[CacheState.entry_history_index].string != NULL) {
           g_free(CacheState.entry_history[CacheState.entry_history_index].string);
         }
