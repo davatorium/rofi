@@ -200,7 +200,7 @@ set_theme()
     fi
 
     # Comment old base theme, not replace as it may be modified after the line
-    ${SED} -i 's/^\s*\(@theme\s\+".*"\)/\/\/\1/' "${get_link}"
+    ${SED} -i 's,^\s*\(@theme\s\+".*"\),\/\/\1,' "${get_link}"
     echo -e "\n@theme \"${1}\"" >> "${get_link}"
 }
 
