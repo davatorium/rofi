@@ -1003,7 +1003,9 @@ Each entry displayed by listview captured by a `box` called `element`. Each
 * `element-index`: A textbox widget that shows the shortcut keybinding number.
 
 A child added with another name is seen as a `box`, this can be used to tweak
-how an entry looks to expand to available space.
+how an entry looks when it expands to available space. This can be useful if
+there are multiple columns and on filtering the remaining columns should appear 
+ centered with a fixed width.
 
 #### listview text highlight
 
