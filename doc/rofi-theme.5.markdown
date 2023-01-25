@@ -999,7 +999,7 @@ It has the following fixed children widgets:
 
 These cannot be changed using the `children` property.
 
-Each entries displayed by listview are captured by a `box` called `element`.
+Each Entry displayed by listview is captured by a `box` called `element`.
 An `element` widget can contain the following special child widgets:
 
 * `element-icon`: An icon widget showing the icon associated to the entry.
@@ -1007,7 +1007,8 @@ An `element` widget can contain the following special child widgets:
 * `element-index`: A textbox widget that shows the shortcut keybinding number.
 
 By default the `element-icon` and `element-text` child widgets are added to the
-`element`. This can be modified using the `children` property.
+`element`. This can be modified using the `children` property or the
+`[no]-show-icons` option.
 
 A child added with another name is seen as a `box`, this can be used as dynamic
 padding to tweak how an entry looks when it expands to available space.
