@@ -182,6 +182,11 @@ static void listview_add_widget(listview *lv, _listview_row *row, widget *wid,
         textbox_create(WIDGET(wid), WIDGET_TYPE_TEXTBOX_TEXT, "element-index",
                        TB_AUTOHEIGHT, NORMAL, " ", 0, 0);
     box_add((box *)wid, WIDGET(row->index), FALSE);
+  } else if (strncasecmp(label, "textbox", 7) == 0) {
+    textbox *textbox_custom =
+        textbox_create(wid, WIDGET_TYPE_TEXTBOX_TEXT, label,
+                       TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0);
+    box_add((box *)wid, WIDGET(textbox_custom), TRUE);
   } else {
     widget *wid2 = (widget *)box_create(wid, label, ROFI_ORIENTATION_VERTICAL);
     box_add((box *)wid, WIDGET(wid2), TRUE);
