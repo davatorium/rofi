@@ -990,15 +990,17 @@ The following properties are currently supported:
 
 The listview widget is special container widget.
 It has the following children:
- * 0 or more `element` widgets of the type box.
- * An optional `scrollbar` widget. This can be enabled using
-   the scrollbar property.
+
+* 0 or more `element` widgets of the type box.
+* An optional `scrollbar` widget. This can be enabled using the scrollbar
+  property.
 
 Each entry displayed by listview captured by a `box` called `element`. Each
 `element` can contain the following special widgets:
- * `element-icon`: An icon widget showing the icon associated to the entry.
- * `element-text`: A textbox widget showing the text associated to the entry.
- * `element-index`: A textbox widget that shows the shortcut keybinding number.
+
+* `element-icon`: An icon widget showing the icon associated to the entry.
+* `element-text`: A textbox widget showing the text associated to the entry.
+* `element-index`: A textbox widget that shows the shortcut keybinding number.
 
 A child added with another name is seen as a `box`, this can be used to tweak
 how an entry looks to expand to available space.
