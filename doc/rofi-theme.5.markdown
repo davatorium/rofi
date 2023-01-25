@@ -988,24 +988,29 @@ The following properties are currently supported:
     Listview requires user input to be unhidden. The list is still present and
     hitting accept will activate the first entry.
 
+## Listview widget
+
 The listview widget is special container widget.
-It has the following children:
+It has the following fixed children widgets:
 
 * 0 or more `element` widgets of the type box.
 * An optional `scrollbar` widget. This can be enabled using the scrollbar
   property.
 
-Each entry displayed by listview captured by a `box` called `element`. Each
-`element` can contain the following special widgets:
+These cannot be changed using the `children` property.
+
+Each entries displayed by listview are captured by a `box` called `element`.
+An `element` widget can contain the following special child widgets:
 
 * `element-icon`: An icon widget showing the icon associated to the entry.
 * `element-text`: A textbox widget showing the text associated to the entry.
 * `element-index`: A textbox widget that shows the shortcut keybinding number.
 
-A child added with another name is seen as a `box`, this can be used to tweak
-how an entry looks when it expands to available space. This can be useful if
-there are multiple columns and on filtering the remaining columns should appear 
- centered with a fixed width.
+By default the `element-icon` and `element-text` child widgets are added to the
+`element`. This can be modified using the `children` property.
+
+A child added with another name is seen as a `box`, this can be used as dynamic
+padding to tweak how an entry looks when it expands to available space.
 
 #### listview text highlight
 
