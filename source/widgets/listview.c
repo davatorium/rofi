@@ -36,6 +36,7 @@
 
 #include "settings.h"
 #include "theme.h"
+#include "view.h"
 
 #include "timings.h"
 
@@ -187,6 +188,23 @@ static void listview_add_widget(listview *lv, _listview_row *row, widget *wid,
         textbox_create(wid, WIDGET_TYPE_TEXTBOX_TEXT, label,
                        TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0);
     box_add((box *)wid, WIDGET(textbox_custom), TRUE);
+  } else if (strncasecmp(label, "button", 6) == 0) {
+    textbox *button_custom =
+        textbox_create(wid, WIDGET_TYPE_EDITBOX, label,
+                       TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0);
+    box_add((box *)wid, WIDGET(button_custom), TRUE);
+    widget_set_trigger_action_handler(WIDGET(button_custom), textbox_button_trigger_action,
+                                      lv->udata);
+  } else if (strncasecmp(label, "icon", 4) == 0) {
+    icon *icon_custom = icon_create(wid, label);
+    /* small hack to make it clickable */
+    const char *type = rofi_theme_get_string(WIDGET(icon_custom), "action", NULL);
+    if (type) {
+      WIDGET(icon_custom)->type = WIDGET_TYPE_EDITBOX;
+    }
+    box_add((box *)wid, WIDGET(icon_custom), TRUE);
+    widget_set_trigger_action_handler(WIDGET(icon_custom), textbox_button_trigger_action,
+                                      lv->udata);
   } else {
     widget *wid2 = (widget *)box_create(wid, label, ROFI_ORIENTATION_VERTICAL);
     box_add((box *)wid, WIDGET(wid2), TRUE);

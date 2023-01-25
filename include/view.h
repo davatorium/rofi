@@ -29,6 +29,7 @@
 #define ROFI_VIEW_H
 
 #include "mode.h"
+#include "widgets/widget.h"
 #include <pango/pango.h>
 #include <xcb/xcb.h>
 /**
@@ -354,6 +355,11 @@ void rofi_view_ellipsize_listview(RofiViewState *state,
  * main_window
  */
 gboolean rofi_set_im_window_pos(int new_x, int new_y);
+
+
+WidgetTriggerActionResult textbox_button_trigger_action(
+    widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x,
+    G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data);
 
 /** @} */
 #endif
