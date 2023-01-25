@@ -1598,7 +1598,22 @@ hitting accept will activate the first entry.
 .RE
 
 .PP
-Each element is a \fB\fCbox\fR called \fB\fCelement\fR\&. Each \fB\fCelement\fR can contain an \fB\fCelement-icon\fR and \fB\fCelement-text\fR\&.
+The listview widget is special container widget.
+It has the following children:
+ * 0 or more \fB\fCelement\fR widgets of the type box.
+ * An optional \fB\fCscrollbar\fR widget. This can be enabled using
+   the scrollbar property.
+
+.PP
+Each entry displayed by listview captured by a \fB\fCbox\fR called \fB\fCelement\fR\&. Each
+\fB\fCelement\fR can contain the following special widgets:
+ * \fB\fCelement-icon\fR: An icon widget showing the icon associated to the entry.
+ * \fB\fCelement-text\fR: A textbox widget showing the text associated to the entry.
+ * \fB\fCelement-index\fR: A textbox widget that shows the shortcut keybinding number.
+
+.PP
+A child added with another name is seen as a \fB\fCbox\fR, this can be used to tweak
+how an entry looks to expand to available space.
 
 .SS listview text highlight
 .PP
