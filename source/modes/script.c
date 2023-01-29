@@ -444,22 +444,36 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
 static int script_token_match(const Mode *sw, rofi_int_matcher **tokens,
                               unsigned int index) {
   ScriptModePrivateData *rmpd = sw->private_data;
-  int match = 1;
-  if (tokens) {
-    for (int j = 0; match && tokens[j] != NULL; j++) {
-      rofi_int_matcher *ftokens[2] = {tokens[j], NULL};
-      int test = 0;
-      test = helper_token_match(ftokens, rmpd->cmd_list[index].entry);
-      if (test == tokens[j]->invert && rmpd->cmd_list[index].meta) {
-        test = helper_token_match(ftokens, rmpd->cmd_list[index].meta);
-      }
+  /** Strip out the markup when matching. */
+  char *esc = NULL;
+  if (rmpd->do_markup) {
+    pango_parse_markup(rmpd->cmd_list[index].entry, -1, 0, NULL, &esc, NULL,
+                       NULL);
+  } else {
+    esc = rmpd->cmd_list[index].entry;
+  }
+  if (esc) {
+    int match = 1;
+    if (tokens) {
+      for (int j = 0; match && tokens[j] != NULL; j++) {
+        rofi_int_matcher *ftokens[2] = {tokens[j], NULL};
+        int test = 0;
+        test = helper_token_match(ftokens, esc);
+        if (test == tokens[j]->invert && rmpd->cmd_list[index].meta) {
+          test = helper_token_match(ftokens, rmpd->cmd_list[index].meta);
+        }
 
-      if (test == 0) {
-        match = 0;
+        if (test == 0) {
+          match = 0;
+        }
       }
     }
+    if (rmpd->do_markup) {
+      g_free(esc);
+    }
+    return match;
   }
-  return match;
+  return FALSE;
 }
 static char *script_get_message(const Mode *sw) {
   ScriptModePrivateData *pd = sw->private_data;
