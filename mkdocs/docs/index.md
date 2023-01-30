@@ -8,6 +8,7 @@ The manpages are grouped on rofi version.
 ![rofi](images/rofi.png)
 
 
+* [Downloads](downloads.md)
 * [Installation](INSTALL.md)
 * [Themes](themes/themes.md)
 * [User scripts (wiki)](https://github.com/davatorium/rofi/wiki/User-scripts)
