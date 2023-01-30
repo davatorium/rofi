@@ -198,8 +198,10 @@ set_theme()
     then
        touch "${get_link}"
     fi
-    ${SED} -i 's/^\s*\(@theme\s\+".*"\)/\/\/\1/' "${get_link}"
-    echo "@theme \"${1}\"" >> "${get_link}"
+
+    # Comment old base theme, not replace as it may be modified after the line
+    ${SED} -i '/^\s*@theme/ s,^,//,' "${get_link}"
+    echo -e "\n@theme \"${1}\"" >> "${get_link}"
 }
 
 ############################################################################################################
