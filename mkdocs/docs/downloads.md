@@ -2,7 +2,7 @@
 
 ## Development
 
-For development no tarball is released. Please follow the [Installation](Installation) instructions for obtaining and compiling development version.
+For development no tarball is released. Please follow the [Installation](../INSTALL/) instructions for obtaining and compiling development version.
 
 ## [1.7.5](https://github.com/davatorium/rofi/releases/tag/1.7.5)
 
