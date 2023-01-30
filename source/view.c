@@ -980,7 +980,7 @@ static void input_history_save ( void )
 
 void __create_window(MenuFlags menu_flags) {
   // In password mode, disable the entry history.
-  if ( (menu_flags|MENU_PASSWORD) == MENU_PASSWORD ) {
+  if ( (menu_flags&MENU_PASSWORD) == MENU_PASSWORD ) {
     CacheState.entry_history_enable = FALSE;
   }
   input_history_initialize();
