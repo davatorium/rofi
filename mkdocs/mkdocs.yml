@@ -6,6 +6,7 @@ nav:
   - License: COPYING.md
   - Issue Tracker: https://github.com/davatorium/rofi/issues
   - Discussions Forum: https://github.com/davatorium/rofi/discussions
+  - Downloads: downloads.md
   - Installation: INSTALL.md
   - Configuration: CONFIG.md
   - Themes: themes/themes.md
