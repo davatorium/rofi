@@ -184,8 +184,8 @@ STRING     \"{UANYN}*\"
 STRING_LIST \"{UANYNP}*\"
 CHAR       \'({ASCN}|\\\\|\\\'|\\0)\'
 HEX        [[:xdigit:]]
-NUMBER     [[:digit:]]
-PNNUMBER   [-+]?[[:digit:]]+
+NUMBER     [[:digit:]]+
+UNARYMIN   -
 PX         (px)
 MM         (mm)
 EM         (em)
@@ -199,7 +199,6 @@ ASTERIX    \*
 ENV        $\{[[:alpha:]_][[:alnum:]_]*\}
 
 MODIFIER_ADD      \+
-MODIFIER_SUBTRACT -
 MODIFIER_MULTIPLY \*
 MODIFIER_MIN      (min)
 MODIFIER_MAX      (max)
@@ -510,8 +509,9 @@ if ( queue == NULL ) {
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_ENV_VAR_CONTENT,MEDIA_ENV_VAR_DEFAULT>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
-<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}\.{NUMBER}+ { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
-<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{PNNUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{NUMBER}\.{NUMBER} { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
+<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{NUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
+<PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{UNARYMIN}            { return T_MIN; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{STRING}                                             { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
 <PROPERTIES_ARRAY>{STRING_LIST}                                                                        { yytext[yyleng-1] = '\0'; yylval->sval = g_strcompress(&yytext[1]); return T_STRING;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT>{CHAR}                { yytext[yyleng-1] = '\0'; yylval->cval = g_strcompress(&yytext[1])[0]; return T_CHAR;}
@@ -539,7 +539,6 @@ if ( queue == NULL ) {
 
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_ARRAY,PROPERTIES_VAR_DEFAULT>{INHERIT}  { return T_INHERIT; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_ARRAY,PROPERTIES_VAR_DEFAULT>{MODIFIER_ADD}       { return T_MODIFIER_ADD; }
-<PROPERTIES,PROPERTIES_ENV,PROPERTIES_ARRAY,PROPERTIES_VAR_DEFAULT>{MODIFIER_SUBTRACT}  { return T_MODIFIER_SUBTRACT; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_ARRAY,PROPERTIES_VAR_DEFAULT>{MODIFIER_MULTIPLY}  { return T_MODIFIER_MULTIPLY; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_ARRAY,PROPERTIES_VAR_DEFAULT>{MODIFIER_MIN}  { return T_MODIFIER_MIN; }
 <PROPERTIES,PROPERTIES_ENV,PROPERTIES_ARRAY,PROPERTIES_VAR_DEFAULT>{MODIFIER_MAX}  { return T_MODIFIER_MAX; }
