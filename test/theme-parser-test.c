@@ -1498,6 +1498,35 @@ START_TEST(test_prepare_math_max) {
   int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
   ck_assert_int_eq(dist, 256);
 }
+START_TEST(test_prepare_math_failure) {
+  widget wid;
+  wid.name = "window";
+  wid.state = "";
+  rofi_theme_parse_string("window  { width: calc( 1/2 * 500 );}");
+  ck_assert_ptr_nonnull(rofi_theme);
+  // ck_assert_ptr_null ( rofi_theme->widgets );
+  ck_assert_ptr_null(rofi_theme->properties);
+  ck_assert_ptr_null(rofi_theme->parent);
+  ck_assert_str_eq(rofi_theme->name, "Root");
+  RofiDistance l = rofi_theme_get_distance(&wid, "width", 0);
+  int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
+  ck_assert_int_eq(dist, 250);
+}
+
+START_TEST(test_prepare_math_failure2) {
+  widget wid;
+  wid.name = "window";
+  wid.state = "";
+  rofi_theme_parse_string("window  { width: calc( -16/2 * 1.5 );}");
+  ck_assert_ptr_nonnull(rofi_theme);
+  // ck_assert_ptr_null ( rofi_theme->widgets );
+  ck_assert_ptr_null(rofi_theme->properties);
+  ck_assert_ptr_null(rofi_theme->parent);
+  ck_assert_str_eq(rofi_theme->name, "Root");
+  RofiDistance l = rofi_theme_get_distance(&wid, "width", 0);
+  int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
+  ck_assert_int_eq(dist, -12);
+}
 END_TEST
 START_TEST(test_prepare_default) {
   rofi_theme_parse_string("@import \"default\"");
@@ -1739,6 +1768,8 @@ static Suite *theme_parser_suite(void) {
     tcase_add_test(tc_prepare_math, test_prepare_math_round);
     tcase_add_test(tc_prepare_math, test_prepare_math_min);
     tcase_add_test(tc_prepare_math, test_prepare_math_max);
+    tcase_add_test(tc_prepare_math, test_prepare_math_failure);
+    tcase_add_test(tc_prepare_math, test_prepare_math_failure2);
     suite_add_tcase(s, tc_prepare_math);
   }
   return s;
