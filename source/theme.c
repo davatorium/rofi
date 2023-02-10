@@ -1336,8 +1336,8 @@ RofiHighlightColorStyle rofi_theme_get_highlight(widget *widget,
   }
   return rofi_theme_get_highlight_inside(p, widget, property, th);
 }
-static int get_pixels(RofiDistanceUnit *unit, RofiOrientation ori) {
-  int val = unit->distance;
+static double get_pixels(RofiDistanceUnit *unit, RofiOrientation ori) {
+  double val = unit->distance;
 
   if (unit->type == ROFI_PU_EM) {
     val = unit->distance * textbox_get_estimated_char_height();

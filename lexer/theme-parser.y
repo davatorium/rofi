@@ -779,6 +779,14 @@ t_property_distance_zero
     $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
     $$.style         = $2;
 }
+| T_DOUBLE t_property_line_style {
+    $$.base.distance = $1;
+    $$.base.type     = ROFI_PU_PX;
+    $$.base.left     = NULL;
+    $$.base.right    = NULL;
+    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
+    $$.style         = $2;
+}
 | t_property_distance { $$ = $1;}
 ;
 
@@ -793,6 +801,14 @@ t_property_distance_unit
     $$->modtype  = ROFI_DISTANCE_MODIFIER_NONE;
 }
 | T_INT {
+    $$ = g_slice_new0(RofiDistanceUnit);
+    $$->distance = (double)$1;
+    $$->type     = ROFI_PU_PX;
+    $$->left     = NULL;
+    $$->right    = NULL;
+    $$->modtype  = ROFI_DISTANCE_MODIFIER_NONE;
+}
+| T_DOUBLE {
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->distance = (double)$1;
     $$->type     = ROFI_PU_PX;
