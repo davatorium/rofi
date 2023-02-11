@@ -1456,7 +1456,7 @@ START_TEST(test_prepare_math_modulo) {
   widget wid;
   wid.name = "window";
   wid.state = "";
-  rofi_theme_parse_string("window  { width: calc( 255 % 4 % 3 % );}");
+  rofi_theme_parse_string("window  { width: calc( 255 modulo 4 modulo 5 );}");
   ck_assert_ptr_nonnull(rofi_theme);
   // ck_assert_ptr_null ( rofi_theme->widgets );
   ck_assert_ptr_null(rofi_theme->properties);

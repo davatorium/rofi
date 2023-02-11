@@ -573,16 +573,16 @@ width: calc( 20% min 512 );
 
 It supports the following operations:
 
-* `+`     : Add
-* `-`     : Subtract
-* `/`     : Divide
-* `*`     : Multiply
-* `%`     : Modulo
-* `min`   : Minimum of lvalue or rvalue;
-* `max`   : Maximum of lvalue or rvalue;
-* `floor` : Round down lvalue to the next multiple of rvalue 
-* `ceil`  : Round up lvalue to the next multiple of rvalue 
-* `round` : Round lvalue to the next multiple of rvalue 
+* `+`      : Add
+* `-`      : Subtract
+* `/`      : Divide
+* `*`      : Multiply
+* `modulo` : Modulo
+* `min`    : Minimum of lvalue or rvalue;
+* `max`    : Maximum of lvalue or rvalue;
+* `floor`  : Round down lvalue to the next multiple of rvalue 
+* `ceil`   : Round up lvalue to the next multiple of rvalue 
+* `round`  : Round lvalue to the next multiple of rvalue 
 
 It uses the C precedence ordering.
 

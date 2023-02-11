@@ -238,6 +238,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 
 %token T_MODIFIER_ADD                   "Add ('+')"
 %token T_MODIFIER_MULTIPLY              "Multiply ('*')"
+%token T_MODIFIER_MODULO                "Modulo ('modulo')"
 
 %token T_MODIFIER_MAX                   "Max ('max')"
 %token T_MODIFIER_MIN                   "Min ('min')"
@@ -817,7 +818,7 @@ t_property_distance_unit_math
     $$->right   = $3;
     $$->modtype = ROFI_DISTANCE_MODIFIER_DIVIDE;
 }
-| t_property_distance_unit_math T_PERCENT t_property_distance_unit {
+| t_property_distance_unit_math T_MODIFIER_MODULO t_property_distance_unit {
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->left    = $1;
     $$->right   = $3;
@@ -904,8 +905,7 @@ t_property_distance
 t_property_number
 : T_INT { $$ = (double) $1; }
 | T_DOUBLE { $$ = $1; }
-| T_MIN T_INT { $$ = -(double)$2; }
-| T_MIN T_DOUBLE { $$ = -$2; }
+| T_MIN t_property_number { $$ = -(double)$2; }
 
 /** distance unit. px, em, % */
 t_property_unit
