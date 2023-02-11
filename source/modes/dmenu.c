@@ -123,6 +123,66 @@ typedef struct {
   DmenuModePrivateData *pd;
 } Block;
 
+
+static void dmenu_parse_multi_select_range ( DmenuModePrivateData *pd, const char *entries)
+{
+  if ( entries == NULL ) {
+    return;
+  }
+  // Pre-alloc array.
+  if (pd->selected_list == NULL) {
+    pd->selected_list =
+      g_malloc0(sizeof(uint32_t) * (pd->cmd_list_length / 32 + 1));
+  }
+  char *entries_cp = g_strdup ( entries );
+  char *endp;
+  const char *const sep = ",";
+  for (char *token = strtok_r(entries_cp, sep, &endp); token != NULL;
+    token = strtok_r(NULL, sep, &endp)) {
+      const char *sep[] = {"-", ":"};
+      int pythonic = (strchr(token, ':') || token[0] == '-') ? 1 : 0;
+      int index = 0;
+
+      int start = -1;
+      int stop = -1;
+      for (char *inner_token = strsep(&token, sep[pythonic]); inner_token != NULL;
+        inner_token = strsep(&token, sep[pythonic])) {
+          if (index == 0) {
+            start = stop = (int)strtol(inner_token, NULL, 10);
+            index++;
+            continue;
+          }
+
+          if (inner_token[0] == '\0') {
+            stop = -1;
+            continue;
+          }
+
+          stop = (int)strtol(inner_token, NULL, 10);
+          if (pythonic) {
+            --stop;
+          }
+        }
+        // Fix negative numbers.
+        if ( start < 0 ) {
+          start = pd->cmd_list_length + start;
+        }
+        if ( stop < 0 ) {
+          stop = pd->cmd_list_length + stop;
+        }
+        // Fix starting
+        for ( int index = start; index <= stop; index++ ){
+          if ( index < 0 ) {
+            index = pd->cmd_list_length - index;
+          }
+          if ( index < (int)pd->cmd_list_length ) {
+            bittoggle(pd->selected_list, index);
+          }
+        }
+    }
+  g_free ( entries_cp );
+}
+
 static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
                            gsize len) {
 
@@ -514,13 +574,19 @@ static int dmenu_mode_init(Mode *sw) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
 
   pd->async = TRUE;
+  pd->multi_select = FALSE;
 
   // For now these only work in sync mode.
   if (find_arg("-sync") >= 0 || find_arg("-dump") >= 0 ||
       find_arg("-select") >= 0 || find_arg("-no-custom") >= 0 ||
       find_arg("-only-match") >= 0 || config.auto_select ||
-      find_arg("-selected-row") >= 0) {
+      find_arg("-selected-row") >= 0 ) {
     pd->async = FALSE;
+  }
+  // In multi-select mode we should disable async mode.
+  if ( find_arg("-multi-select") >= 0 ) {
+    pd->async = FALSE;
+    pd->multi_select = TRUE;
   }
 
   pd->separator = '\n';
@@ -634,6 +700,14 @@ static int dmenu_mode_init(Mode *sw) {
 
     read_input_sync(pd, -1);
   }
+
+  if ( pd->multi_select ) {
+    char *entries = NULL;
+    if ( find_arg_str ( "-select-rows", &entries ) >= 0 ) {
+      dmenu_parse_multi_select_range(pd, entries);
+    }
+  }
+
   gchar *columns = NULL;
   if (find_arg_str("-display-columns", &columns)) {
     pd->columns = g_strsplit(columns, ",", 0);
@@ -907,14 +981,10 @@ int dmenu_mode_dialog(void) {
   DmenuScriptEntry *cmd_list = pd->cmd_list;
 
   pd->only_selected = FALSE;
-  pd->multi_select = FALSE;
   pd->ballot_selected = "☑ ";
   pd->ballot_unselected = "☐ ";
   find_arg_str("-ballot-selected-str", &(pd->ballot_selected));
   find_arg_str("-ballot-unselected-str", &(pd->ballot_unselected));
-  if (find_arg("-multi-select") >= 0) {
-    pd->multi_select = TRUE;
-  }
   if (find_arg("-markup-rows") >= 0) {
     pd->do_markup = TRUE;
   }
@@ -1005,6 +1075,8 @@ void print_dmenu_options(void) {
   print_help_msg("-u", "[list]", "List of row indexes to mark urgent", NULL,
                  is_term);
   print_help_msg("-a", "[list]", "List of row indexes to mark active", NULL,
+                 is_term);
+  print_help_msg("-select-rows", "[list]", "List of row indexes to select when multi-select is enabled", NULL,
                  is_term);
   print_help_msg("-l", "[integer] ", "Number of rows to display", NULL,
                  is_term);

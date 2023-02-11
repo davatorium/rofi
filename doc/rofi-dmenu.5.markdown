@@ -93,6 +93,11 @@ Active row, mark *X* as active. Where *X* is a comma-separated list of python(1)
 
 Urgent row, mark *X* as urgent. See `-a` option for details.
 
+`-select-rows` *X*
+
+If multi-select is enabled, pre-select rows, See `-a` option for format details.
+If same row is specified multiple times, it state is toggled on subsequential sets.
+
 `-only-match`
 
 Only return a selected item, do not allow custom entry.
