@@ -514,12 +514,17 @@ static int dmenu_mode_init(Mode *sw) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
 
   pd->async = TRUE;
+  pd->multi_select = FALSE;
 
   // For now these only work in sync mode.
   if (find_arg("-sync") >= 0 || find_arg("-dump") >= 0 ||
       find_arg("-select") >= 0 || find_arg("-no-custom") >= 0 ||
       find_arg("-only-match") >= 0 || config.auto_select ||
       find_arg("-selected-row") >= 0) {
+    pd->async = FALSE;
+  }
+  if ( find_arg("-multi-select") >= 0 ) {
+    pd->multi_select = TRUE;
     pd->async = FALSE;
   }
 
@@ -907,14 +912,11 @@ int dmenu_mode_dialog(void) {
   DmenuScriptEntry *cmd_list = pd->cmd_list;
 
   pd->only_selected = FALSE;
-  pd->multi_select = FALSE;
   pd->ballot_selected = "☑ ";
   pd->ballot_unselected = "☐ ";
   find_arg_str("-ballot-selected-str", &(pd->ballot_selected));
   find_arg_str("-ballot-unselected-str", &(pd->ballot_unselected));
-  if (find_arg("-multi-select") >= 0) {
-    pd->multi_select = TRUE;
-  }
+
   if (find_arg("-markup-rows") >= 0) {
     pd->do_markup = TRUE;
   }
