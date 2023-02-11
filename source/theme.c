@@ -285,7 +285,7 @@ static void rofi_theme_print_distance_unit(RofiDistanceUnit *unit) {
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MULTIPLY) {
     fputs(" * ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MODULO) {
-    fputs(" % ", stdout);
+    fputs(" modulo ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MIN) {
     fputs(" min ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MAX) {
