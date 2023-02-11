@@ -74,6 +74,12 @@ static inline void bittoggle(uint32_t *const array, unsigned int index) {
   *v ^= 1 << bit;
 }
 
+static inline void bitenable(uint32_t *const array, unsigned int index) {
+  uint32_t bit = index % 32;
+  uint32_t *v = &array[index / 32];
+  *v |= 1 << bit;
+}
+
 typedef struct {
   /** Settings */
   // Separator.
@@ -176,7 +182,7 @@ static void dmenu_parse_multi_select_range ( DmenuModePrivateData *pd, const cha
             index = pd->cmd_list_length - index;
           }
           if ( index < (int)pd->cmd_list_length ) {
-            bittoggle(pd->selected_list, index);
+            bitenable(pd->selected_list, index);
           }
         }
     }

@@ -7,7 +7,7 @@
 
 ## DESCRIPTION
 
-To integrate **rofi** into scripts as simple selection dialogs, 
+To integrate **rofi** into scripts as simple selection dialogs,
 **rofi** supports emulating **dmenu(1)** (A dynamic menu for X11).
 
 The website for `dmenu` can be found [here](http://tools.suckless.org/dmenu/).
@@ -22,10 +22,10 @@ Besides, **rofi** offers some extended features (like multi-select, highlighting
 In `dmenu` mode, **rofi** reads data from standard in, splits them into separate entries and displays them.
 If the user selects an row, this is printed out to standard out, allow the script to process it further.
 
-By default separation of rows is done on new lines, making it easy to pipe the output a one application into 
+By default separation of rows is done on new lines, making it easy to pipe the output a one application into
 **rofi** and the output of rofi into the next.
 
-## USAGE 
+## USAGE
 
 By launching **rofi** with the `-dmenu` flag it will go into dmenu emulation mode.
 
@@ -96,7 +96,6 @@ Urgent row, mark *X* as urgent. See `-a` option for details.
 `-select-rows` *X*
 
 If multi-select is enabled, pre-select rows, See `-a` option for format details.
-If same row is specified multiple times, it state is toggled on subsequential sets.
 
 `-only-match`
 
@@ -181,7 +180,7 @@ A comma seperated list of columns to show.
 
 `-display-column-separator`
 
-The column separator. This is a regex. 
+The column separator. This is a regex.
 
 *default*: '\t'
 
