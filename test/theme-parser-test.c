@@ -1498,6 +1498,8 @@ START_TEST(test_prepare_math_max) {
   int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
   ck_assert_int_eq(dist, 256);
 }
+END_TEST
+
 START_TEST(test_prepare_math_failure) {
   widget wid;
   wid.name = "window";
@@ -1512,6 +1514,7 @@ START_TEST(test_prepare_math_failure) {
   int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
   ck_assert_int_eq(dist, 250);
 }
+END_TEST
 
 START_TEST(test_prepare_math_failure2) {
   widget wid;
@@ -1527,6 +1530,7 @@ START_TEST(test_prepare_math_failure2) {
   int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
   ck_assert_int_eq(dist, -12);
 }
+END_TEST
 START_TEST(test_prepare_math_failure3) {
   widget wid;
   wid.name = "window";
@@ -1541,6 +1545,7 @@ START_TEST(test_prepare_math_failure3) {
   int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
   ck_assert_int_eq(dist, 13);
 }
+END_TEST
 START_TEST(test_prepare_math_failure4) {
   widget wid;
   wid.name = "window";
@@ -1555,6 +1560,7 @@ START_TEST(test_prepare_math_failure4) {
   int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
   ck_assert_int_eq(dist, 13);
 }
+END_TEST
 START_TEST(test_prepare_math_failure5) {
   widget wid;
   wid.name = "window";
@@ -1569,6 +1575,7 @@ START_TEST(test_prepare_math_failure5) {
   int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
   ck_assert_int_eq(dist, 7);
 }
+END_TEST
 START_TEST(test_prepare_math_failure6) {
   widget wid;
   wid.name = "window";
@@ -1583,6 +1590,7 @@ START_TEST(test_prepare_math_failure6) {
   int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
   ck_assert_int_eq(dist, 6);
 }
+END_TEST
 START_TEST(test_prepare_math_failure7) {
   widget wid;
   wid.name = "window";
@@ -1597,6 +1605,7 @@ START_TEST(test_prepare_math_failure7) {
   int dist = distance_get_pixel(l, ROFI_ORIENTATION_HORIZONTAL);
   ck_assert_int_eq(dist, -7);
 }
+END_TEST
 START_TEST(test_prepare_math_failure8) {
   widget wid;
   wid.name = "window";
