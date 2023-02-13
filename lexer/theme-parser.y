@@ -382,21 +382,7 @@ t_entry_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
         g_hash_table_destroy ( $4 );
     }
 }
-| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_INT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
-    gchar *name = g_strdup_printf("@media ( %s: %d )",$4, $6);
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
-    widget->set = TRUE;
-    widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $4 );
-    widget->media->value = (double)$6;
-    for ( unsigned int i = 0; i < $9->num_widgets; i++ ) {
-        ThemeWidget *d = $9->widgets[i];
-        rofi_theme_parse_merge_widgets(widget, d);
-    }
-    g_free ( $4 );
-    g_free ( name );
-}
-| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP t_property_number T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %f )",$4, $6);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
     widget->set = TRUE;
@@ -568,6 +554,14 @@ t_property_element
 |   T_DOUBLE {
         $$ = rofi_theme_property_create ( P_DOUBLE );
         $$->value.f = $1;
+    }
+|   T_MIN T_INT {
+        $$ = rofi_theme_property_create ( P_INTEGER );
+        $$->value.i = -$2;
+    }
+|   T_MIN T_DOUBLE {
+        $$ = rofi_theme_property_create ( P_DOUBLE );
+        $$->value.f = -$2;
     }
 |   T_STRING {
         $$ = rofi_theme_property_create ( P_STRING );
