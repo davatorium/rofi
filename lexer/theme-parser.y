@@ -195,7 +195,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_UNIT_MM                        "mm"
 %token T_UNIT_EM                        "em"
 %token T_UNIT_CH                        "ch"
-%token T_UNIT_PERCENT                   "%"
 
 %token T_ANGLE_DEG                      "Degrees"
 %token T_ANGLE_GRAD                     "Gradians"
@@ -231,7 +230,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_PARENT_LEFT                    "Parent left ('(')"
 %token T_PARENT_RIGHT                   "Parent right (')')"
 %token T_COMMA                          "comma separator (',')"
-%token T_OPTIONAL_COMMA                 "Optional comma separator (',')"
 %token T_FORWARD_SLASH                  "forward slash ('/')"
 %token T_PERCENT                        "Percent sign ('%')"
 
@@ -239,8 +237,8 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_LIST_CLOSE                     "List close (']')"
 
 %token T_MODIFIER_ADD                   "Add ('+')"
-%token T_MODIFIER_SUBTRACT              "Subtract ('-')"
 %token T_MODIFIER_MULTIPLY              "Multiply ('*')"
+%token T_MODIFIER_MODULO                "Modulo ('modulo')"
 
 %token T_MODIFIER_MAX                   "Max ('max')"
 %token T_MODIFIER_MIN                   "Min ('min')"
@@ -257,7 +255,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token T_NSEP                           "Name separator (' ' or '.')"
 %token T_SSEP                           "Selector separator (',')"
 %token T_NAME_PREFIX                    "Element section ('# {name} { ... }')"
-%token T_WHITESPACE                     "White space"
 %token T_PDEFAULTS                      "Default settings section ( '* { ... }')"
 %token T_CONFIGURATION                  "Configuration block"
 %token T_RESET_THEME                    "Reset Theme"
@@ -266,13 +263,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 
 %token T_INHERIT                        "Inherit"
 
-%token T_MEDIA_WIDTH                    "Width"
-%token T_MEDIA_HEIGHT                   "Height"
-
-%token T_MEDIA_MIN                      "Min"
-%token T_MEDIA_MONITOR_ID               "Monitor-ID"
-%token T_MEDIA_MAX                      "Max"
-%token T_MEDIA_SEP                      "-"
+%token T_MIN				"-"
 
 
 %token T_VAR_START                      "var" 
@@ -313,6 +304,7 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %type <ival>           t_property_orientation
 %type <ival>           t_property_cursor
 %type <ival>           t_name_prefix_optional
+%type  <fval>          t_property_number
 %start t_main
 
 %%
@@ -390,21 +382,7 @@ t_entry_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
         g_hash_table_destroy ( $4 );
     }
 }
-| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_INT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
-    gchar *name = g_strdup_printf("@media ( %s: %d )",$4, $6);
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
-    widget->set = TRUE;
-    widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $4 );
-    widget->media->value = (double)$6;
-    for ( unsigned int i = 0; i < $9->num_widgets; i++ ) {
-        ThemeWidget *d = $9->widgets[i];
-        rofi_theme_parse_merge_widgets(widget, d);
-    }
-    g_free ( $4 );
-    g_free ( name );
-}
-| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_DOUBLE T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
+| t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP t_property_number T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %f )",$4, $6);
     ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
     widget->set = TRUE;
@@ -576,6 +554,14 @@ t_property_element
 |   T_DOUBLE {
         $$ = rofi_theme_property_create ( P_DOUBLE );
         $$->value.f = $1;
+    }
+|   T_MIN T_INT {
+        $$ = rofi_theme_property_create ( P_INTEGER );
+        $$->value.i = -$2;
+    }
+|   T_MIN T_DOUBLE {
+        $$ = rofi_theme_property_create ( P_DOUBLE );
+        $$->value.f = -$2;
     }
 |   T_STRING {
         $$ = rofi_theme_property_create ( P_STRING );
@@ -771,8 +757,8 @@ t_property_highlight_style
 
 
 t_property_distance_zero
-: T_INT t_property_line_style {
-    $$.base.distance = (double) $1;
+: t_property_number t_property_line_style {
+    $$.base.distance = $1;
     $$.base.type     = ROFI_PU_PX;
     $$.base.left     = NULL;
     $$.base.right    = NULL;
@@ -784,7 +770,7 @@ t_property_distance_zero
 
 /** Distance. */
 t_property_distance_unit
-: T_INT t_property_unit {
+: t_property_number t_property_unit {
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->distance = (double)$1;
     $$->type     = $2;
@@ -792,18 +778,10 @@ t_property_distance_unit
     $$->right    = NULL;
     $$->modtype  = ROFI_DISTANCE_MODIFIER_NONE;
 }
-| T_INT {
+| t_property_number {
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->distance = (double)$1;
     $$->type     = ROFI_PU_PX;
-    $$->left     = NULL;
-    $$->right    = NULL;
-    $$->modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-}
-| T_DOUBLE t_property_unit {
-    $$ = g_slice_new0(RofiDistanceUnit);
-    $$->distance = (double)$1;
-    $$->type     = $2;
     $$->left     = NULL;
     $$->right    = NULL;
     $$->modtype  = ROFI_DISTANCE_MODIFIER_NONE;
@@ -834,7 +812,7 @@ t_property_distance_unit_math
     $$->right   = $3;
     $$->modtype = ROFI_DISTANCE_MODIFIER_DIVIDE;
 }
-| t_property_distance_unit_math T_PERCENT t_property_distance_unit {
+| t_property_distance_unit_math T_MODIFIER_MODULO t_property_distance_unit {
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->left    = $1;
     $$->right   = $3;
@@ -853,7 +831,7 @@ t_property_distance_unit_math2
     $$->right   = $3;
     $$->modtype = ROFI_DISTANCE_MODIFIER_ADD;
 }
-| t_property_distance_unit_math2 T_MODIFIER_SUBTRACT t_property_distance_unit_math {
+| t_property_distance_unit_math2 T_MIN t_property_distance_unit_math {
     $$ = g_slice_new0(RofiDistanceUnit);
     $$->left    = $1;
     $$->right   = $3;
@@ -901,21 +879,12 @@ t_property_distance_unit_math3
 
 t_property_distance
 /** Integer unit and line style */
-: T_INT t_property_unit t_property_line_style {
-    $$.base.distance = (double)$1;
+: t_property_number t_property_unit t_property_line_style {
+    $$.base.distance = $1;
     $$.base.type     = $2;
     $$.base.left     = NULL;
     $$.base.right    = NULL;
     $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.style         = $3;
-}
-/** Double unit and line style */
-| T_DOUBLE t_property_unit t_property_line_style {
-    $$.base.distance = (double)$1;
-    $$.base.type     = $2;
-    $$.base.modtype  = ROFI_DISTANCE_MODIFIER_NONE;
-    $$.base.left     = NULL;
-    $$.base.right    = NULL;
     $$.style         = $3;
 }
 | T_CALC T_PARENT_LEFT t_property_distance_unit_math3 T_PARENT_RIGHT t_property_line_style {
@@ -926,6 +895,11 @@ t_property_distance
     $$.base.modtype  = ROFI_DISTANCE_MODIFIER_GROUP;
     $$.style         = $5;
 };
+
+t_property_number
+: T_INT { $$ = (double) $1; }
+| T_DOUBLE { $$ = $1; }
+| T_MIN t_property_number { $$ = -(double)$2; }
 
 /** distance unit. px, em, % */
 t_property_unit

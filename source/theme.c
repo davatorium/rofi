@@ -285,7 +285,7 @@ static void rofi_theme_print_distance_unit(RofiDistanceUnit *unit) {
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MULTIPLY) {
     fputs(" * ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MODULO) {
-    fputs(" % ", stdout);
+    fputs(" modulo ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MIN) {
     fputs(" min ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MAX) {
@@ -1336,8 +1336,8 @@ RofiHighlightColorStyle rofi_theme_get_highlight(widget *widget,
   }
   return rofi_theme_get_highlight_inside(p, widget, property, th);
 }
-static int get_pixels(RofiDistanceUnit *unit, RofiOrientation ori) {
-  int val = unit->distance;
+static double get_pixels(RofiDistanceUnit *unit, RofiOrientation ori) {
+  double val = unit->distance;
 
   if (unit->type == ROFI_PU_EM) {
     val = unit->distance * textbox_get_estimated_char_height();
@@ -1359,7 +1359,7 @@ static int get_pixels(RofiDistanceUnit *unit, RofiOrientation ori) {
   return val;
 }
 
-static int distance_unit_get_pixel(RofiDistanceUnit *unit,
+static double distance_unit_get_pixel(RofiDistanceUnit *unit,
                                    RofiOrientation ori) {
   switch (unit->modtype) {
   case ROFI_DISTANCE_MODIFIER_GROUP:
@@ -1375,45 +1375,45 @@ static int distance_unit_get_pixel(RofiDistanceUnit *unit,
     return distance_unit_get_pixel(unit->left, ori) *
            distance_unit_get_pixel(unit->right, ori);
   case ROFI_DISTANCE_MODIFIER_DIVIDE: {
-    int a = distance_unit_get_pixel(unit->left, ori);
-    int b = distance_unit_get_pixel(unit->right, ori);
+    double a = distance_unit_get_pixel(unit->left, ori);
+    double b = distance_unit_get_pixel(unit->right, ori);
     if (b != 0) {
       return a / b;
     }
     return a;
   }
   case ROFI_DISTANCE_MODIFIER_MODULO: {
-    int a = distance_unit_get_pixel(unit->left, ori);
-    int b = distance_unit_get_pixel(unit->right, ori);
+    double a = distance_unit_get_pixel(unit->left, ori);
+    double b = distance_unit_get_pixel(unit->right, ori);
     if (b != 0) {
-      return a % b;
+      return fmod(a, b);
     }
     return 0;
   }
   case ROFI_DISTANCE_MODIFIER_MIN: {
-    int a = distance_unit_get_pixel(unit->left, ori);
-    int b = distance_unit_get_pixel(unit->right, ori);
+    double a = distance_unit_get_pixel(unit->left, ori);
+    double b = distance_unit_get_pixel(unit->right, ori);
     return MIN(a, b);
   }
   case ROFI_DISTANCE_MODIFIER_MAX: {
-    int a = distance_unit_get_pixel(unit->left, ori);
-    int b = distance_unit_get_pixel(unit->right, ori);
+    double a = distance_unit_get_pixel(unit->left, ori);
+    double b = distance_unit_get_pixel(unit->right, ori);
     return MAX(a, b);
   }
   case ROFI_DISTANCE_MODIFIER_ROUND: {
     double a = (double)distance_unit_get_pixel(unit->left, ori);
     double b = (double)distance_unit_get_pixel(unit->right, ori);
-    return (int)(round(a / b) * b);
+    return (double)(round(a / b) * b);
   }
   case ROFI_DISTANCE_MODIFIER_CEIL: {
     double a = (double)distance_unit_get_pixel(unit->left, ori);
     double b = (double)distance_unit_get_pixel(unit->right, ori);
-    return (int)(ceil(a / b) * b);
+    return (double)(ceil(a / b) * b);
   }
   case ROFI_DISTANCE_MODIFIER_FLOOR: {
     double a = (double)distance_unit_get_pixel(unit->left, ori);
     double b = (double)distance_unit_get_pixel(unit->right, ori);
-    return (int)(floor(a / b) * b);
+    return (double)(floor(a / b) * b);
   }
   default:
     break;
