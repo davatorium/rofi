@@ -175,30 +175,25 @@ static gchar *prefix_regex(const char *input) {
   return retv;
 }
 
-static char *utf8_helper_simplify_string(const char *s) {
-  gunichar buf2[G_UNICHAR_MAX_DECOMPOSITION_LENGTH] = {
-      0,
-  };
+static char *utf8_helper_simplify_string(const char *os) {
   char buf[6] = {
       0,
   };
-  // Compose the string in maximally composed form.
+
+  // Normalize the string to a fully decomposed form, then filter out mark/accent characters.
+  char *s = g_utf8_normalize(os, -1, G_NORMALIZE_ALL);
   ssize_t str_size = (g_utf8_strlen(s, -1) * 6 + 2 + 1) * sizeof(char);
   char *str = g_malloc0(str_size);
   char *striter = str;
   for (const char *iter = s; iter && *iter; iter = g_utf8_next_char(iter)) {
     gunichar uc = g_utf8_get_char(iter);
-    int l = 0;
-    gsize dl = g_unichar_fully_decompose(uc, FALSE, buf2,
-                                         G_UNICHAR_MAX_DECOMPOSITION_LENGTH);
-    if (dl) {
-      l = g_unichar_to_utf8(buf2[0], buf);
-    } else {
-      l = g_unichar_to_utf8(uc, buf);
+    if (!g_unichar_ismark(uc)) {
+      int l = g_unichar_to_utf8(uc, buf);
+      memcpy(striter, buf, l);
+      striter += l;
     }
-    memcpy(striter, buf, l);
-    striter += l;
   }
+  g_free(s);
 
   return str;
 }
