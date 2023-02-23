@@ -505,7 +505,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
         MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
                    line_width - dot_offset);
     x = (tb->xalign - 0.5) * rem + widget_padding_get_left(WIDGET(tb));
-    cairo_move_to(draw, x, top);
     break;
   }
   case PANGO_ALIGN_RIGHT: {
@@ -513,7 +512,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
         MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
                    line_width - dot_offset);
     x = -(1.0 - tb->xalign) * rem + widget_padding_get_left(WIDGET(tb));
-    cairo_move_to(draw, x, top);
     break;
   }
   default: {
@@ -522,7 +520,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
                    line_width - dot_offset);
     x = tb->xalign * rem + widget_padding_get_left(WIDGET(tb));
     x += dot_offset;
-    cairo_move_to(draw, x, top);
     break;
   }
   }
@@ -547,13 +544,12 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     if ((x + cursor_x) != tb->cursor_x_pos) {
       tb->cursor_x_pos = x + cursor_x;
     }
-    if (tb->blink) {
+    if ( tb->blink) {
       // use text color as fallback for themes that don't specify the cursor
       // color
-      cairo_save(draw);
       rofi_theme_get_color(WIDGET(tb), "cursor-color", draw);
       cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_pixel_width,
-                      cursor_height);
+          cursor_height);
       if (rofi_theme_get_boolean(WIDGET(tb), "cursor-outline", FALSE)) {
         cairo_fill_preserve(draw);
         rofi_theme_get_color(WIDGET(tb), "cursor-outline-color", draw);
@@ -564,7 +560,6 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
       } else {
         cairo_fill(draw);
       }
-      cairo_restore(draw);
     }
   }
 
@@ -578,11 +573,13 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     rofi_theme_get_color(WIDGET(tb), "placeholder-color", draw);
     show_outline = FALSE;
   }
+  cairo_move_to(draw, x, top);
   pango_cairo_show_layout(draw, tb->layout);
 
   if (show_outline) {
     rofi_theme_get_color(WIDGET(tb), "text-outline-color", draw);
     double width = rofi_theme_get_double(WIDGET(tb), "text-outline-width", 0.5);
+    cairo_move_to(draw, x, top);
     pango_cairo_layout_path(draw, tb->layout);
     cairo_set_line_width(draw, width);
     cairo_stroke(draw);
