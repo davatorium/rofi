@@ -988,9 +988,6 @@ The following properties are currently supported:
     Listview requires user input to be unhidden. The list is still present and
     hitting accept will activate the first entry.
 
-Each element is a `box` called `element`. Each `element` can contain an `element-icon` and an `element-text`.
-`element`, `element-icon` and `element-text` however, cannot be used outside of the `listview` widget.
-
 ## Listview widget
 
 The listview widget is special container widget.
@@ -1013,8 +1010,8 @@ By default the `element-icon` and `element-text` child widgets are added to the
 `element`. This can be modified using the `children` property or the
 `[no]-show-icons` option.
 
-A child added with another name is seen as a `box`, this can be used as dynamic
-padding to tweak how an entry looks when it expands to available space.
+A child added with another name is treated the same as the special widget described
+in the [advanced layout](https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown#advanced-layout) section.
 
 #### listview text highlight
 
