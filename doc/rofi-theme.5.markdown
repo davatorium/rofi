@@ -1011,7 +1011,7 @@ By default the `element-icon` and `element-text` child widgets are added to the
 `[no]-show-icons` option.
 
 A child added with another name is treated the same as the special widget described
-in the [advanced layout](https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown#advanced-layout) section.
+in the [advanced layout](#advanced-layout) section.
 
 #### listview text highlight
 
