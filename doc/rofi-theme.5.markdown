@@ -988,6 +988,9 @@ The following properties are currently supported:
     Listview requires user input to be unhidden. The list is still present and
     hitting accept will activate the first entry.
 
+Each element is a `box` called `element`. Each `element` can contain an `element-icon` and an `element-text`.
+`element`, `element-icon` and `element-text` however, cannot be used outside of the `listview` widget.
+
 ## Listview widget
 
 The listview widget is special container widget.
