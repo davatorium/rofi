@@ -2115,7 +2115,7 @@ static int rofi_view_calculate_height(RofiViewState *state) {
   return widget_get_desired_height(main_window, state->width);
 }
 
-static WidgetTriggerActionResult textbox_button_trigger_action(
+WidgetTriggerActionResult textbox_button_trigger_action(
     widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x,
     G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data) {
   RofiViewState *state = (RofiViewState *)user_data;
