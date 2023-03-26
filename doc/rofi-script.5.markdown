@@ -138,6 +138,16 @@ In bash the best way to do this is using `coproc`.
 If you use the `dash` shell for your script, take special care with how dash handles escaped values for the separators.
 See issue #1201 on github.
 
+## Script locations
+
+To specify a script there are the following options:
+
+ * Specify an absolute path to the script.
+ * The script is executable and located in your $PATH
+
+Scripts located in the following location are loaded on startup:
+
+ * The script is in `$XDG_CONFIG_PATH/rofi/scripts/`, this is usually `~/.config/rofi/scripts/`.
 
 ## SEE ALSO
 

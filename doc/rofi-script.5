@@ -206,6 +206,27 @@ In bash the best way to do this is using \fB\fCcoproc\fR\&.
 If you use the \fB\fCdash\fR shell for your script, take special care with how dash handles escaped values for the separators.
 See issue #1201 on github.
 
+.SH Script locations
+.PP
+To specify a script there are the following options:
+
+.RS
+.IP \(bu 2
+Specify an absolute path to the script.
+.IP \(bu 2
+The script is executable and located in your $PATH
+
+.RE
+
+.PP
+Scripts located in the following location are loaded on startup:
+
+.RS
+.IP \(bu 2
+The script is in \fB\fC$XDG_CONFIG_PATH/rofi/scripts/\fR, this is usually \fB\fC~/.config/rofi/scripts/\fR\&.
+
+.RE
+
 .SH SEE ALSO
 .PP
 rofi(1), rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-theme-selector(1)
