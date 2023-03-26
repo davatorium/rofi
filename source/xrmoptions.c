@@ -357,7 +357,7 @@ static XrmOption xrmOptions[] = {
      {.str = &config.theme},
      NULL,
      "New style theme file",
-     CONFIG_DEFAULT | CONFIG_NO_DISPLAY},
+     CONFIG_NO_DISPLAY},
     {xrm_Number,
      "max-history-size",
      {.num = &config.max_history_size},
