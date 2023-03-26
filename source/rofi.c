@@ -804,8 +804,7 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
   return G_SOURCE_REMOVE;
 }
 
-static gboolean take_screenshot_quit ( G_GNUC_UNUSED void *data)
-{
+static gboolean take_screenshot_quit(G_GNUC_UNUSED void *data) {
   rofi_capture_screenshot();
   rofi_quit_main_loop();
   return G_SOURCE_REMOVE;
@@ -1121,7 +1120,7 @@ int main(int argc, char *argv[]) {
   if (find_arg_uint("-record-screenshots", &interval)) {
     g_timeout_add((guint)(1000 / (double)interval), record, NULL);
   }
-  if ( find_arg_uint("-take-screenshot-quit", &interval)) {
+  if (find_arg_uint("-take-screenshot-quit", &interval)) {
     g_timeout_add(interval, take_screenshot_quit, NULL);
   }
   if (find_arg("-benchmark-ui") >= 0) {

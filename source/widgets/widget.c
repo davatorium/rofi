@@ -26,9 +26,9 @@
  */
 #include "config.h"
 
-#include "widgets/widget.h"
 #include "theme.h"
 #include "widgets/widget-internal.h"
+#include "widgets/widget.h"
 #include <glib.h>
 #include <math.h>
 

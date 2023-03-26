@@ -397,7 +397,8 @@ char *helper_string_replace_if_exists(char *string, ...);
  *
  * @returns path to theme or copy of filename if not found.
  */
-char *helper_get_theme_path(const char *file, const char **ext) __attribute__((nonnull));
+char *helper_get_theme_path(const char *file, const char **ext)
+    __attribute__((nonnull));
 
 /**
  * @param name The name of the element to find.

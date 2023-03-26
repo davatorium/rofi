@@ -180,7 +180,8 @@ static char *utf8_helper_simplify_string(const char *os) {
       0,
   };
 
-  // Normalize the string to a fully decomposed form, then filter out mark/accent characters.
+  // Normalize the string to a fully decomposed form, then filter out
+  // mark/accent characters.
   char *s = g_utf8_normalize(os, -1, G_NORMALIZE_ALL);
   ssize_t str_size = (g_utf8_strlen(s, -1) * 6 + 2 + 1) * sizeof(char);
   char *str = g_malloc0(str_size);

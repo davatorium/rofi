@@ -359,15 +359,13 @@ void textbox_set_pango_attributes(textbox *tb, PangoAttrList *list) {
   pango_layout_set_attributes(tb->layout, list);
 }
 
-char *textbox_get_text ( const textbox *tb ) {
-  if ( tb->text == NULL ) {
+char *textbox_get_text(const textbox *tb) {
+  if (tb->text == NULL) {
     return g_strdup("");
   }
-  return g_strdup( tb->text );
+  return g_strdup(tb->text);
 }
-int textbox_get_cursor ( const textbox *tb ) {
-  return tb->cursor;
-}
+int textbox_get_cursor(const textbox *tb) { return tb->cursor; }
 // set the default text to display
 void textbox_text(textbox *tb, const char *text) {
   if (tb == NULL) {
@@ -544,12 +542,12 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     if ((x + cursor_x) != tb->cursor_x_pos) {
       tb->cursor_x_pos = x + cursor_x;
     }
-    if ( tb->blink) {
+    if (tb->blink) {
       // use text color as fallback for themes that don't specify the cursor
       // color
       rofi_theme_get_color(WIDGET(tb), "cursor-color", draw);
       cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_pixel_width,
-          cursor_height);
+                      cursor_height);
       if (rofi_theme_get_boolean(WIDGET(tb), "cursor-outline", FALSE)) {
         cairo_fill_preserve(draw);
         rofi_theme_get_color(WIDGET(tb), "cursor-outline-color", draw);
@@ -894,15 +892,15 @@ gboolean textbox_append_text(textbox *tb, const char *pad, const int pad_len) {
   for (w = pad, n = g_utf8_next_char(w), e = w + pad_len; w < e;
        w = n, n = g_utf8_next_char(n)) {
     gunichar c = g_utf8_get_char(w);
-    if ( g_unichar_isspace(c)){
+    if (g_unichar_isspace(c)) {
       /** Replace tabs, newlines and others with a normal space. */
       textbox_insert(tb, tb->cursor, " ", 1);
       textbox_cursor(tb, tb->cursor + 1);
       used_something = TRUE;
-    } else if ( g_unichar_iscntrl(c) ){
+    } else if (g_unichar_iscntrl(c)) {
       /* skip control characters. */
-      g_info("Got an invalid character: %08X",c);
-    } else  {
+      g_info("Got an invalid character: %08X", c);
+    } else {
       /** Insert the text */
       textbox_insert(tb, tb->cursor, w, n - w);
       textbox_cursor(tb, tb->cursor + 1);

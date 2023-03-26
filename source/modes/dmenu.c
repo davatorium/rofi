@@ -450,10 +450,10 @@ static char *get_display_data(const Mode *data, unsigned int index, int *state,
   if (pd->do_markup) {
     *state |= MARKUP;
   }
-  if ( pd->cmd_list[index].urgent ) {
+  if (pd->cmd_list[index].urgent) {
     *state |= URGENT;
   }
-  if ( pd->cmd_list[index].active ) {
+  if (pd->cmd_list[index].active) {
     *state |= ACTIVE;
   }
   char *my_retv =
@@ -523,7 +523,7 @@ static int dmenu_mode_init(Mode *sw) {
       find_arg("-selected-row") >= 0) {
     pd->async = FALSE;
   }
-  if ( find_arg("-multi-select") >= 0 ) {
+  if (find_arg("-multi-select") >= 0) {
     pd->multi_select = TRUE;
     pd->async = FALSE;
   }

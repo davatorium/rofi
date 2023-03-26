@@ -346,7 +346,8 @@ static void get_file_browser(Mode *sw) {
 }
 
 static void file_browser_mode_init_config(Mode *sw) {
-  FileBrowserModePrivateData * pd = (FileBrowserModePrivateData*)mode_get_private_data(sw);
+  FileBrowserModePrivateData *pd =
+      (FileBrowserModePrivateData *)mode_get_private_data(sw);
   char *msg = NULL;
   gboolean found_error = FALSE;
 
@@ -384,12 +385,11 @@ static void file_browser_mode_init_config(Mode *sw) {
   }
 
   p = rofi_theme_find_property(wid, P_STRING, "command", TRUE);
-  if ( p != NULL && p->type == P_STRING ) {
+  if (p != NULL && p->type == P_STRING) {
     pd->command = g_strdup(p->value.s);
   } else {
     pd->command = g_strdup(DEFAULT_OPEN);
   }
-
 
   if (found_error) {
     rofi_view_error_dialog(msg, FALSE);
@@ -495,7 +495,7 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
                  (pd->array[selected_line].type == DIRECTORY &&
                   special_command)) {
         char *d_esc = g_shell_quote(pd->array[selected_line].path);
-        char *cmd = g_strdup_printf("%s %s",pd->command, d_esc);
+        char *cmd = g_strdup_printf("%s %s", pd->command, d_esc);
         g_free(d_esc);
         char *cdir = g_file_get_path(pd->current_dir);
         helper_execute_command(cdir, cmd, FALSE, NULL);

@@ -190,21 +190,22 @@ static void listview_add_widget(listview *lv, _listview_row *row, widget *wid,
     box_add((box *)wid, WIDGET(textbox_custom), TRUE);
   } else if (strncasecmp(label, "button", 6) == 0) {
     textbox *button_custom =
-        textbox_create(wid, WIDGET_TYPE_EDITBOX, label,
-                       TB_AUTOHEIGHT | TB_WRAP, NORMAL, "", 0, 0);
+        textbox_create(wid, WIDGET_TYPE_EDITBOX, label, TB_AUTOHEIGHT | TB_WRAP,
+                       NORMAL, "", 0, 0);
     box_add((box *)wid, WIDGET(button_custom), TRUE);
-    widget_set_trigger_action_handler(WIDGET(button_custom), textbox_button_trigger_action,
-                                      lv->udata);
+    widget_set_trigger_action_handler(WIDGET(button_custom),
+                                      textbox_button_trigger_action, lv->udata);
   } else if (strncasecmp(label, "icon", 4) == 0) {
     icon *icon_custom = icon_create(wid, label);
     /* small hack to make it clickable */
-    const char *type = rofi_theme_get_string(WIDGET(icon_custom), "action", NULL);
+    const char *type =
+        rofi_theme_get_string(WIDGET(icon_custom), "action", NULL);
     if (type) {
       WIDGET(icon_custom)->type = WIDGET_TYPE_EDITBOX;
     }
     box_add((box *)wid, WIDGET(icon_custom), TRUE);
-    widget_set_trigger_action_handler(WIDGET(icon_custom), textbox_button_trigger_action,
-                                      lv->udata);
+    widget_set_trigger_action_handler(WIDGET(icon_custom),
+                                      textbox_button_trigger_action, lv->udata);
   } else {
     widget *wid2 = (widget *)box_create(wid, label, ROFI_ORIENTATION_VERTICAL);
     box_add((box *)wid, WIDGET(wid2), TRUE);
@@ -630,10 +631,11 @@ static void listview_resize(widget *wid, short w, short h) {
   lv->widget.h = MAX(0, h);
   int height = lv->widget.h - widget_padding_get_padding_height(WIDGET(lv));
   int spacing_vert = distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
-  if ( lv->widget.h == 0 ) {
-	  lv->max_rows = lv->menu_lines;
+  if (lv->widget.h == 0) {
+    lv->max_rows = lv->menu_lines;
   } else {
-	  lv->max_rows = (spacing_vert + height) / (lv->element_height + spacing_vert);
+    lv->max_rows =
+        (spacing_vert + height) / (lv->element_height + spacing_vert);
   }
   lv->max_elements = lv->max_rows * lv->menu_columns;
 

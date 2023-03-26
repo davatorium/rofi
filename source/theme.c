@@ -1360,7 +1360,7 @@ static double get_pixels(RofiDistanceUnit *unit, RofiOrientation ori) {
 }
 
 static double distance_unit_get_pixel(RofiDistanceUnit *unit,
-                                   RofiOrientation ori) {
+                                      RofiOrientation ori) {
   switch (unit->modtype) {
   case ROFI_DISTANCE_MODIFIER_GROUP:
     return distance_unit_get_pixel(unit->left, ori);

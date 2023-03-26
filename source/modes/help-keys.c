@@ -38,8 +38,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "modes/help-keys.h"
 #include "helper.h"
+#include "modes/help-keys.h"
 #include "rofi.h"
 #include "settings.h"
 #include "widgets/textbox.h"

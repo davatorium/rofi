@@ -51,8 +51,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "modes/ssh.h"
 #include "history.h"
+#include "modes/ssh.h"
 #include "rofi.h"
 #include "settings.h"
 

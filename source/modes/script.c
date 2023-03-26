@@ -89,7 +89,7 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
     gchar *value = *(extra + 1);
     // Mark NULL
     *(extra) = NULL;
-    *(extra+1) = NULL;
+    *(extra + 1) = NULL;
     if (strcasecmp(key, "icon") == 0) {
       entry->icon_name = value;
     } else if (strcasecmp(key, "meta") == 0) {
@@ -111,7 +111,7 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
     g_free(key);
   }
   // Got an extra entry.. lets free it.
-  if ( *extras != NULL ) {
+  if (*extras != NULL) {
     g_free(*extras);
   }
   g_free(extras);
@@ -254,7 +254,7 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
                                              buffer + buf_length,
                                              read_length - buf_length);
             }
-            memset(&(retv[(*length)+1]), 0, sizeof(DmenuScriptEntry));
+            memset(&(retv[(*length) + 1]), 0, sizeof(DmenuScriptEntry));
             (*length)++;
           }
         }
@@ -429,10 +429,10 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
       *state |= URGENT;
     }
   }
-  if ( pd->cmd_list[selected_line].urgent ) {
+  if (pd->cmd_list[selected_line].urgent) {
     *state |= URGENT;
   }
-  if ( pd->cmd_list[selected_line].active ) {
+  if (pd->cmd_list[selected_line].active) {
     *state |= ACTIVE;
   }
   if (pd->do_markup) {

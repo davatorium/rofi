@@ -103,7 +103,6 @@ GThreadPool *tpool = NULL;
 /** Global pointer to the currently active RofiViewState */
 RofiViewState *current_active_menu = NULL;
 
-
 typedef struct {
   char *string;
   int index;
@@ -159,28 +158,26 @@ struct {
   EntryHistoryIndex *entry_history;
   gssize entry_history_length;
   gssize entry_history_index;
-} CacheState = {
-    .main_window = XCB_WINDOW_NONE,
-    .fake_bg = NULL,
-    .edit_surf = NULL,
-    .edit_draw = NULL,
-    .fake_bgrel = FALSE,
-    .flags = MENU_NORMAL,
-    .views = G_QUEUE_INIT,
-    .idle_timeout = 0,
-    .refilter_timeout = 0,
-    .refilter_timeout_count = 0,
-    .max_refilter_time = 0.0,
-    .delayed_mode = FALSE,
-    .user_timeout = 0,
-    .count = 0L,
-    .repaint_source = 0,
-    .fullscreen = FALSE,
-    .entry_history_enable = TRUE,
-    .entry_history = NULL,
-    .entry_history_length = 0,
-    .entry_history_index  = 0
-};
+} CacheState = {.main_window = XCB_WINDOW_NONE,
+                .fake_bg = NULL,
+                .edit_surf = NULL,
+                .edit_draw = NULL,
+                .fake_bgrel = FALSE,
+                .flags = MENU_NORMAL,
+                .views = G_QUEUE_INIT,
+                .idle_timeout = 0,
+                .refilter_timeout = 0,
+                .refilter_timeout_count = 0,
+                .max_refilter_time = 0.0,
+                .delayed_mode = FALSE,
+                .user_timeout = 0,
+                .count = 0L,
+                .repaint_source = 0,
+                .fullscreen = FALSE,
+                .entry_history_enable = TRUE,
+                .entry_history = NULL,
+                .entry_history_length = 0,
+                .entry_history_index = 0};
 
 void rofi_view_get_current_monitor(int *width, int *height) {
   if (width) {
@@ -900,31 +897,33 @@ static void open_xim_callback(xcb_xim_t *im, G_GNUC_UNUSED void *user_data) {
 }
 #endif
 
-static void input_history_initialize ( void )
-{
-  if ( CacheState.entry_history_enable == FALSE ) {
+static void input_history_initialize(void) {
+  if (CacheState.entry_history_enable == FALSE) {
     return;
   }
   CacheState.entry_history = NULL;
-  CacheState.entry_history_index  = 0;
+  CacheState.entry_history_index = 0;
   CacheState.entry_history_length = 0;
 
   gchar *path = g_build_filename(cache_dir, "rofi-entry-history.txt", NULL);
-  if ( g_file_test(path, G_FILE_TEST_EXISTS ) ) {
+  if (g_file_test(path, G_FILE_TEST_EXISTS)) {
     FILE *fp = fopen(path, "r");
-    if ( fp ) {
+    if (fp) {
       char *line = NULL;
       size_t len = 0;
       ssize_t nread;
       while ((nread = getline(&line, &len, fp)) != -1) {
-        CacheState.entry_history = g_realloc(CacheState.entry_history,
-                                             sizeof(EntryHistoryIndex)*(CacheState.entry_history_length+1));
-        if ( line[nread-1] == '\n' ) {
-          line[nread-1] = '\0';
+        CacheState.entry_history = g_realloc(
+            CacheState.entry_history,
+            sizeof(EntryHistoryIndex) * (CacheState.entry_history_length + 1));
+        if (line[nread - 1] == '\n') {
+          line[nread - 1] = '\0';
           nread--;
         }
-        CacheState.entry_history[CacheState.entry_history_length].string = g_strdup(line);
-        CacheState.entry_history[CacheState.entry_history_length].index  = strlen(line);
+        CacheState.entry_history[CacheState.entry_history_length].string =
+            g_strdup(line);
+        CacheState.entry_history[CacheState.entry_history_length].index =
+            strlen(line);
         CacheState.entry_history_length++;
         CacheState.entry_history_index++;
       }
@@ -933,35 +932,36 @@ static void input_history_initialize ( void )
     }
   }
   g_free(path);
-  CacheState.entry_history = g_realloc(CacheState.entry_history,
-                                       sizeof(EntryHistoryIndex)*(CacheState.entry_history_length+1));
-  CacheState.entry_history[CacheState.entry_history_length].string = g_strdup("");
-  CacheState.entry_history[CacheState.entry_history_length].index  = 0;
+  CacheState.entry_history = g_realloc(
+      CacheState.entry_history,
+      sizeof(EntryHistoryIndex) * (CacheState.entry_history_length + 1));
+  CacheState.entry_history[CacheState.entry_history_length].string =
+      g_strdup("");
+  CacheState.entry_history[CacheState.entry_history_length].index = 0;
   CacheState.entry_history_length++;
-
 }
-static void input_history_save ( void )
-{
-  if ( CacheState.entry_history_enable == FALSE ) {
+static void input_history_save(void) {
+  if (CacheState.entry_history_enable == FALSE) {
     return;
   }
-  if ( CacheState.entry_history_length > 0  ){
+  if (CacheState.entry_history_length > 0) {
     // History max.
     int max_history = 20;
     ThemeWidget *wid = rofi_config_find_widget("entry", NULL, TRUE);
-    if ( wid ) {
-      Property *p = rofi_theme_find_property(wid, P_INTEGER, "max-history", TRUE);
-      if ( p != NULL && p->type == P_INTEGER ){
+    if (wid) {
+      Property *p =
+          rofi_theme_find_property(wid, P_INTEGER, "max-history", TRUE);
+      if (p != NULL && p->type == P_INTEGER) {
         max_history = p->value.i;
       }
     }
     gchar *path = g_build_filename(cache_dir, "rofi-entry-history.txt", NULL);
     g_debug("Entry filename output: '%s'", path);
     FILE *fp = fopen(path, "w");
-    if ( fp ) {
-      gssize start = MAX(0, (CacheState.entry_history_length-max_history));
-      for ( gssize i = start; i < CacheState.entry_history_length;  i++){
-        if ( strlen(CacheState.entry_history[i].string) > 0 ){
+    if (fp) {
+      gssize start = MAX(0, (CacheState.entry_history_length - max_history));
+      for (gssize i = start; i < CacheState.entry_history_length; i++) {
+        if (strlen(CacheState.entry_history[i].string) > 0) {
           fprintf(fp, "%s\n", CacheState.entry_history[i].string);
         }
       }
@@ -970,17 +970,17 @@ static void input_history_save ( void )
     g_free(path);
   }
   // Cleanups.
-  if ( CacheState.entry_history != NULL ) {
+  if (CacheState.entry_history != NULL) {
     g_free(CacheState.entry_history);
     CacheState.entry_history = NULL;
     CacheState.entry_history_length = 0;
-    CacheState.entry_history_index  = 0;
+    CacheState.entry_history_index = 0;
   }
 }
 
 void __create_window(MenuFlags menu_flags) {
   // In password mode, disable the entry history.
-  if ( (menu_flags&MENU_PASSWORD) == MENU_PASSWORD ) {
+  if ((menu_flags & MENU_PASSWORD) == MENU_PASSWORD) {
     CacheState.entry_history_enable = FALSE;
   }
   input_history_initialize();
@@ -1578,13 +1578,16 @@ void rofi_view_finalize(RofiViewState *state) {
 static void rofi_view_input_changed() {
   rofi_view_take_action("inputchange");
 
-  RofiViewState * state = current_active_menu;
-  if ( CacheState.entry_history_enable && state ) {
-    if ( CacheState.entry_history[CacheState.entry_history_index].string != NULL) {
+  RofiViewState *state = current_active_menu;
+  if (CacheState.entry_history_enable && state) {
+    if (CacheState.entry_history[CacheState.entry_history_index].string !=
+        NULL) {
       g_free(CacheState.entry_history[CacheState.entry_history_index].string);
     }
-    CacheState.entry_history[CacheState.entry_history_index].string = textbox_get_text(state->text);
-    CacheState.entry_history[CacheState.entry_history_index].index  = textbox_get_cursor(state->text);
+    CacheState.entry_history[CacheState.entry_history_index].string =
+        textbox_get_text(state->text);
+    CacheState.entry_history[CacheState.entry_history_index].index =
+        textbox_get_cursor(state->text);
   }
 }
 
@@ -1842,41 +1845,58 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ENTRY_HISTORY_DOWN: {
-      if ( CacheState.entry_history_enable && state->text ) {
-        CacheState.entry_history[CacheState.entry_history_index].index = textbox_get_cursor(state->text);
-        if ( CacheState.entry_history_index  > 0 ) {
-          CacheState.entry_history_index--;
-        }
-        if ( state->text ) {
-          textbox_text(state->text, CacheState.entry_history[CacheState.entry_history_index].string);
-          textbox_cursor(state->text,CacheState.entry_history[CacheState.entry_history_index].index );
-          state->refilter = TRUE;
-        }
+    if (CacheState.entry_history_enable && state->text) {
+      CacheState.entry_history[CacheState.entry_history_index].index =
+          textbox_get_cursor(state->text);
+      if (CacheState.entry_history_index > 0) {
+        CacheState.entry_history_index--;
       }
+      if (state->text) {
+        textbox_text(
+            state->text,
+            CacheState.entry_history[CacheState.entry_history_index].string);
+        textbox_cursor(
+            state->text,
+            CacheState.entry_history[CacheState.entry_history_index].index);
+        state->refilter = TRUE;
+      }
+    }
     break;
   }
   case ENTRY_HISTORY_UP: {
-      if ( CacheState.entry_history_enable && state->text ) {
-        if ( CacheState.entry_history[CacheState.entry_history_index].string != NULL) {
-          g_free(CacheState.entry_history[CacheState.entry_history_index].string);
-        }
-        CacheState.entry_history[CacheState.entry_history_index].string = textbox_get_text(state->text);
-        CacheState.entry_history[CacheState.entry_history_index].index = textbox_get_cursor(state->text);
-        // Don't create up if current is empty.
-        if ( strlen(CacheState.entry_history[CacheState.entry_history_index].string) > 0 ) {
-          CacheState.entry_history_index++;
-          if ( CacheState.entry_history_index  >= CacheState.entry_history_length ) {
-            CacheState.entry_history = g_realloc(CacheState.entry_history,
-                                                 sizeof(EntryHistoryIndex)*(CacheState.entry_history_length+1));
-            CacheState.entry_history[CacheState.entry_history_length].string = g_strdup("");
-            CacheState.entry_history[CacheState.entry_history_length].index  = 0;
-            CacheState.entry_history_length++;
-          }
-        }
-        textbox_text(state->text, CacheState.entry_history[CacheState.entry_history_index].string);
-        textbox_cursor(state->text,CacheState.entry_history[CacheState.entry_history_index].index );
-        state->refilter = TRUE;
+    if (CacheState.entry_history_enable && state->text) {
+      if (CacheState.entry_history[CacheState.entry_history_index].string !=
+          NULL) {
+        g_free(CacheState.entry_history[CacheState.entry_history_index].string);
       }
+      CacheState.entry_history[CacheState.entry_history_index].string =
+          textbox_get_text(state->text);
+      CacheState.entry_history[CacheState.entry_history_index].index =
+          textbox_get_cursor(state->text);
+      // Don't create up if current is empty.
+      if (strlen(
+              CacheState.entry_history[CacheState.entry_history_index].string) >
+          0) {
+        CacheState.entry_history_index++;
+        if (CacheState.entry_history_index >= CacheState.entry_history_length) {
+          CacheState.entry_history =
+              g_realloc(CacheState.entry_history,
+                        sizeof(EntryHistoryIndex) *
+                            (CacheState.entry_history_length + 1));
+          CacheState.entry_history[CacheState.entry_history_length].string =
+              g_strdup("");
+          CacheState.entry_history[CacheState.entry_history_length].index = 0;
+          CacheState.entry_history_length++;
+        }
+      }
+      textbox_text(
+          state->text,
+          CacheState.entry_history[CacheState.entry_history_index].string);
+      textbox_cursor(
+          state->text,
+          CacheState.entry_history[CacheState.entry_history_index].index);
+      state->refilter = TRUE;
+    }
     break;
   }
   }

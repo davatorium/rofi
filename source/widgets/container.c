@@ -29,8 +29,8 @@
 #define G_LOG_DOMAIN "Widgets.Container"
 #include "config.h"
 
-#include "widgets/container.h"
 #include "theme.h"
+#include "widgets/container.h"
 #include "widgets/widget-internal.h"
 #include "widgets/widget.h"
 #include <stdio.h>
