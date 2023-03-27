@@ -1,8 +1,7 @@
-> This guide is taken from the 1.4.0 release preview posts. The information might
-> be outdated, but in general should still be correct and a good starting point
-> for writing a plugin. Links have been updated.
-> A recent plugin that can be used as example can be found
-> [here](https://git.sr.ht/~qball/rofi-ntfy).
+> This guide is taken from the 1.4.0 release preview posts. The information
+> might be outdated, but in general should still be correct and a good starting
+> point for writing a plugin. Links have been updated. A recent plugin that can
+> be used as example can be found [here](https://git.sr.ht/~qball/rofi-ntfy).
 
 ## Build system
 
@@ -20,8 +19,9 @@ This includes the 2 files for the build system and the C template.
 
 First we are going to update the `configure.ac` file:
 
-```
-AC_INIT([rofi-plugin-template], [0.0.1], [https://my-neat-plugin.org//],[],[https://support.my-neat-plugin.org/])
+```text
+AC_INIT([rofi-plugin-template], [0.0.1],
+[https://my-neat-plugin.org//],[],[https://support.my-neat-plugin.org/])
 
 AC_CONFIG_HEADER([config.h])
 
@@ -69,7 +69,7 @@ We need to make a similar change in the `Makefile.am` file, this is important so
 each plugin has a unique name. (if they are all called myplugin, it would be
 hard to install more then one plugin.)
 
-```
+```text
 ACLOCAL_AMFLAGS=-I m4
 plugindir=@rofi_PLUGIN_INSTALL_DIR@
 
@@ -85,7 +85,7 @@ myplugin_la_LDFLAGS= -module -avoid-version
 
 So we do a search and replace from `myplugin` to `file_browser`:
 
-```
+```text
 ACLOCAL_AMFLAGS=-I m4
 plugindir=${libdir}/rofi/
 
@@ -106,31 +106,35 @@ needed.
 
 Now that we have this setup, it is easy to build:
 
-* Generate the build system:
+- Generate the build system:
+
 ```bash
 autoreconf -i
 ```
 
-* Create a `build` directory.
+- Create a `build` directory.
+
 ```bash
 mkdir build
 cd build
 ```
 
-* Run `configure` 
+- Run `configure` 
+
 ```bash
 ../configure
 ```
 
-* build
+- build
+
 ```bash
 make
 ```
-* install
+- install
+
 ```bash
 make install
 ```
-
 
 You can now test the plugin by calling:
 
@@ -142,9 +146,8 @@ If we start changing the template, the name to use will change.
 
 ## Edit the C template
 
-
-The first thing todo is personalize the template. Below I have modified it so it
-is called file-browser:
+The first thing todo is personalize the template. Below I have modified it so
+it is called file-browser:
 
 ```c
 /**
@@ -290,9 +293,6 @@ If we now rebuild the plugin, we need to run the following command:
 ```bash
 rofi -show file_browser -modi file_browser
 ```
-
-
-
 ### The mode description 
 
 The mode is defined by the `Mode` structure, every mode in rofi has one of the
@@ -318,11 +318,9 @@ Mode mode =
 };
 ```
 
-The ABI_VERSION is defined in **rofi** header file, so that **rofi** can detect what
-ABI the plugin was compiled against.
-Not every function needs to be implemented, in the plugin we show the minimum
-set.
-
+The ABI_VERSION is defined in **rofi** header file, so that **rofi** can detect
+what ABI the plugin was compiled against. Not every function needs to be
+implemented, in the plugin we show the minimum set.
 
 Lets modify each of the above functions to implement something useful.
 
@@ -334,9 +332,9 @@ view.
 
 We want to differentiate between 3 different rows:
 
-* Go one level up
-* Directory
-* Regular file
+- Go one level up
+- Directory
+- Regular file
 
 So we add an enum:
 
@@ -350,11 +348,13 @@ enum FBFileType {
 
 We need a structure that hold each entry.
 
-* It should have a **name** we are going to show the user. This will hold an
-  `utf-8` string. (rofi will only display utf-8). 
-* It should hold the **path** to the entry. This will be in the file-systems
-  encoding.
-* The type it holds.
+-   It should have a **name** we are going to show the user. This will hold an
+    `utf-8` string. (rofi will only display utf-8). 
+
+-   It should hold the **path** to the entry. This will be in the file-systems
+    encoding.
+
+-   The type it holds.
 
 ```c
 typedef struct {                                                          
@@ -366,9 +366,9 @@ typedef struct {
 
 Then in the *private* data we hold all the relevant information. 
 
-* The current directory to show.
-* Array of all the *FBFile* we want to show.
-* The length of the array.
+- The current directory to show.
+- Array of all the *FBFile* we want to show.
+- The length of the array.
 
 ```c                                                                          
 typedef struct                                                            
@@ -405,7 +405,6 @@ We then create a, zero initialized,  `FileBrowserModePrivateData` structure and
 set this on the mode. Set the current directory to the users home directory and
 call `get_file_browser` that will load in the entries. We will discuss this one
 later.
-
 
 ### Destroying
 
@@ -569,8 +568,8 @@ static unsigned int file_browser_mode_get_num_entries ( const Mode *sw )
 ## Filtering the entries
 
 When filtering we want to filter on the file name, we luckily store this entry
-in `FBFile::name`. 
-To use **rofi**'s matching algorithm we can use the `helper_token_match` function.
+in `FBFile::name`. To use **rofi**'s matching algorithm we can use the
+`helper_token_match` function.
 
 ```c
 static int file_browser_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
@@ -594,7 +593,6 @@ rofi -show file_browser -modi file_browser
 ```
 
 ![rofi file browser](rofi-file-browser.png)
-
 
 ## Handling selected entries 
 
@@ -688,8 +686,5 @@ We do not support `delete`, just reload.
 The `RESET_DIALOG` will clear the input bar and reload the view, `RELOAD_DIALOG`
 will reload the view and re-filter based on the current text. 
 
-> Note: `rofi_expand_path` will expand `~` and `~me/` into it full absolute path.
-
-> Note: `helper_execute_command` will spawn command. 
-
-
+> Note: `rofi_expand_path` will expand `~` and `~me/` into it full absolute
+> path. Note: `helper_execute_command` will spawn command. 

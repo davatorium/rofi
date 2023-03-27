@@ -9,7 +9,8 @@ Remember the general widget structure:
 
 ![structure](structure.svg)
 
-This means if you set every widget to be 30% transparent on a white background: it will look like: 
+This means if you set every widget to be 30% transparent on a white background:
+it will look like: 
 
 ![images](rofi-transp.png)
 
@@ -21,7 +22,6 @@ the end it will be less transparent.
 ```bash
 rofi -theme-str '@theme "/dev/null"  window { background-color: white; }* { padding:5; background-color: rgba(20,20,20,0.5);}' -show run
 ```
-
 
 This can sometimes be difficult when creating themes with a nice transparent
 background.
@@ -46,7 +46,6 @@ window {
 Now if you only set the background on widgets you want differently colored, it
 nicely works out.
 
-
 ## Transparency on the window
 
 This determines how transparency on the window is handled.
@@ -55,9 +54,9 @@ The option takes a string. There are basically 4 options:
 
 ### No transparency or "real"
 
-The background of the window is black and fully transparent, and everything is drawn on top of this.
-This means that if you have a composite manager (ARGB window), you get a fully transparent
-background, otherwise fully black. 
+The background of the window is black and fully transparent, and everything is
+drawn on top of this. This means that if you have a composite manager (ARGB
+window), you get a fully transparent background, otherwise fully black. 
 
 This is the preferred option if you have a composite manager running.
 

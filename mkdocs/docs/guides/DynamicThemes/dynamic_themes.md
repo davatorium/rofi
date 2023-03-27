@@ -25,7 +25,8 @@ In the current release, there is a
 [fullscreen_preview](https://github.com/davatorium/rofi/blob/next/themes/fullscreen-preview.rasi)
 as an example.
 
-In this theme we are going to modify the filebrowser view with a preview widget that we can enable.
+In this theme we are going to modify the filebrowser view with a preview widget
+that we can enable.
 
 Lets start with the basic theme.
 
@@ -134,7 +135,6 @@ rofi -theme fullscreen-preview.rasi -show filebrowser
 We already prepared the place where we are going to add a 2nd widget.
 Now lets, at the end of the theme, add the extra element in a media block.
 
-
 ```css
 @media ( enabled: env(PREVIEW, false)) {
 ```
@@ -172,7 +172,6 @@ Now if we run it:
 ```bash
 REVIEW=true rofi -theme fullscreen-preview.rasi -show filebrowser
 ```
-
 
 It looks like this:
 
