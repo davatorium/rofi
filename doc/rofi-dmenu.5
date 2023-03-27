@@ -14,22 +14,25 @@ The website for \fB\fCdmenu\fR can be found here
 \[la]http://tools.suckless.org/dmenu/\[ra]\&.
 
 .PP
-\fBrofi\fP does not aim to be 100% compatible with \fB\fCdmenu\fR\&. There are simply too many flavors of \fB\fCdmenu\fR\&.
-The idea is that the basic usage command-line flags are obeyed, theme-related flags are not.
-Besides, \fBrofi\fP offers some extended features (like multi-select, highlighting, message bar, extra key bindings).
+\fBrofi\fP does not aim to be 100% compatible with \fB\fCdmenu\fR\&. There are simply too
+many flavors of \fB\fCdmenu\fR\&. The idea is that the basic usage command-line flags
+are obeyed, theme-related flags are not. Besides, \fBrofi\fP offers some extended
+features (like multi-select, highlighting, message bar, extra key bindings).
 
 .SH BASIC CONCEPT
 .PP
-In \fB\fCdmenu\fR mode, \fBrofi\fP reads data from standard in, splits them into separate entries and displays them.
-If the user selects an row, this is printed out to standard out, allow the script to process it further.
+In \fB\fCdmenu\fR mode, \fBrofi\fP reads data from standard in, splits them into
+separate entries and displays them. If the user selects an row, this is printed
+out to standard out, allow the script to process it further.
 
 .PP
-By default separation of rows is done on new lines, making it easy to pipe the output a one application into
-\fBrofi\fP and the output of rofi into the next.
+By default separation of rows is done on new lines, making it easy to pipe the
+output a one application into \fBrofi\fP and the output of rofi into the next.
 
 .SH USAGE
 .PP
-By launching \fBrofi\fP with the \fB\fC-dmenu\fR flag it will go into dmenu emulation mode.
+By launching \fBrofi\fP with the \fB\fC-dmenu\fR flag it will go into dmenu emulation
+mode.
 
 .PP
 .RS
@@ -43,7 +46,8 @@ ls | rofi -dmenu
 .SS DMENU DROP-IN REPLACEMENT
 .PP
 If \fB\fCargv[0]\fR (calling command) is dmenu, \fBrofi\fP will start in dmenu mode.
-This way, it can be used as a drop-in replacement for dmenu. Just copy or symlink \fBrofi\fP to dmenu in \fB\fC$PATH\fR\&.
+This way, it can be used as a drop-in replacement for dmenu. Just copy or
+symlink \fBrofi\fP to dmenu in \fB\fC$PATH\fR\&.
 
 .PP
 .RS
@@ -57,18 +61,20 @@ ln -s /usr/bin/rofi /usr/bin/dmenu
 .SS DMENU VS SCRIPT MODE
 .PP
 Script mode is used to extend \fBrofi\fP, dmenu mode is used to extend a script.
-The two do share much of the same input format. Please see the \fBrofi-script(5)\fP manpage for more information.
+The two do share much of the same input format. Please see the
+\fBrofi-script(5)\fP manpage for more information.
 
 .SS DMENU SPECIFIC COMMANDLINE FLAGS
 .PP
-A lot of these options can also be modified by the script using special input. See the \fBrofi-script(5)\fP manpage
-for more information about this syntax.
+A lot of these options can also be modified by the script using special input.
+See the \fBrofi-script(5)\fP manpage for more information about this syntax.
 
 .PP
 \fB\fC-sep\fR \fIseparator\fP
 
 .PP
-Separator for \fB\fCdmenu\fR\&. Example: To show a list of 'a' to 'e' with '|' as a separator:
+Separator for \fB\fCdmenu\fR\&. Example: To show a list of 'a' to 'e' with '|' as a
+separator:
 
 .PP
 .RS
@@ -83,7 +89,8 @@ echo "a|b|c|d|e" | rofi -sep '|' -dmenu
 \fB\fC-p\fR \fIprompt\fP
 
 .PP
-Specify the prompt to show in \fB\fCdmenu\fR mode. For example, select 'monkey', a,b,c,d, or e.
+Specify the prompt to show in \fB\fCdmenu\fR mode. For example, select 'monkey',
+a,b,c,d, or e.
 
 .PP
 .RS
@@ -125,7 +132,10 @@ Makes \fB\fCdmenu\fR searches case-insensitive
 \fB\fC-a\fR \fIX\fP
 
 .PP
-Active row, mark \fIX\fP as active. Where \fIX\fP is a comma-separated list of python(1)-style indices and ranges, e.g.  indices start at 0, -1 refers to the last row with -2 preceding it, ranges are left-open and right-close, and so on. You can specify:
+Active row, mark \fIX\fP as active. Where \fIX\fP is a comma-separated list of
+python(1)-style indices and ranges, e.g.  indices start at 0, -1 refers to the
+last row with -2 preceding it, ranges are left-open and right-close, and so on.
+You can specify:
 
 .RS
 .IP \(bu 2
@@ -166,7 +176,8 @@ This mode returns directly when no entries given.
 \fB\fC-format\fR \fIformat\fP
 
 .PP
-Allows the output of dmenu to be customized (N is the total number of input entries):
+Allows the output of dmenu to be customized (N is the total number of input
+entries):
 
 .RS
 .IP \(bu 2
@@ -199,8 +210,9 @@ Select first line that matches the given string
 \fB\fC-mesg\fR \fIstring\fP
 
 .PP
-Add a message line below the filter entry box. Supports Pango markup.
-For more information on supported markup, see here
+Add a message line below the filter entry box. Supports Pango markup. For more
+information on supported markup, see
+here
 \[la]https://docs.gtk.org/Pango/pango_markup.html\[ra]
 
 .PP
@@ -229,22 +241,26 @@ Hide the input text. This should not be considered secure!
 .PP
 Tell \fBrofi\fP that DMenu input is Pango markup encoded, and should be rendered.
 See here
-\[la]https://developer.gnome.org/pygtk/stable/pango-markup-language.html\[ra] for details about Pango markup.
+\[la]https://developer.gnome.org/pygtk/stable/pango-markup-language.html\[ra]
+for details about Pango markup.
 
 .PP
 \fB\fC-multi-select\fR
 
 .PP
-Allow multiple lines to be selected. Adds a small selection indicator to the left of each entry.
+Allow multiple lines to be selected. Adds a small selection indicator to the
+left of each entry.
 
 .PP
 \fB\fC-sync\fR
 
 .PP
-Force \fBrofi\fP mode to first read all data from stdin before showing the selection window. This is original dmenu behavior.
+Force \fBrofi\fP mode to first read all data from stdin before showing the
+selection window. This is original dmenu behavior.
 
 .PP
-Note: the default asynchronous mode will also be automatically disabled if used with conflicting options,
+Note: the default asynchronous mode will also be automatically disabled if used
+with conflicting options,
 such as \fB\fC-dump\fR, \fB\fC-only-match\fR or \fB\fC-auto-select\fR\&.
 
 .PP
@@ -309,7 +325,8 @@ Set ellipsize mode on the listview.
 
 .SH PARSING ROW OPTIONS
 .PP
-Extra options for individual rows can be also set. See the \fBrofi-script(5)\fP manpage for details; the syntax and supported features are identical.
+Extra options for individual rows can be also set. See the \fBrofi-script(5)\fP
+manpage for details; the syntax and supported features are identical.
 
 .SH RETURN VALUE
 .RS
@@ -324,7 +341,8 @@ Extra options for individual rows can be also set. See the \fBrofi-script(5)\fP 
 
 .SH SEE ALSO
 .PP
-rofi(1), rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-script(5), rofi-theme-selector(1), ascii(7)
+rofi(1), rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-script(5),
+rofi-theme-selector(1), ascii(7)
 
 .SH AUTHOR
 .PP

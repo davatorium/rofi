@@ -5,14 +5,15 @@
 Debugging rofi.
 
 .PP
-When reporting an issue with rofi crashing, or misbehaving. It helps to do some small test
-to help pin-point the problem.
+When reporting an issue with rofi crashing, or misbehaving. It helps to do some
+small test to help pin-point the problem.
 
 .PP
 First try disabling your custom configuration: \fB\fC-no-config\fR
 
 .PP
-This disables the parsing of the configuration files. This runs rofi in \fIstock\fP mode.
+This disables the parsing of the configuration files. This runs rofi in \fIstock\fP
+mode.
 
 .PP
 If you run custom C plugins, you can disable the plugins using: \fB\fC-no-plugins\fR
@@ -33,8 +34,8 @@ rofi -dump-theme
 .RE
 
 .PP
-\fB\fCrofi -help\fR  provides us with the configuration files parsed, the exact version, monitor layout
-and more useful information.
+\fB\fCrofi -help\fR  provides us with the configuration files parsed, the exact
+version, monitor layout and more useful information.
 
 .PP
 The \fB\fCrofi -dump-config\fR and \fB\fCrofi -dump-theme\fR output gives us \fB\fCrofi\fR
@@ -57,8 +58,8 @@ G_MESSAGES_DEBUG=Timings rofi -show drun
 .RE
 
 .PP
-It will show a trace with (useful) timing information at relevant points during the execution.
-This will help debugging when rofi is slow to start.
+It will show a trace with (useful) timing information at relevant points during
+the execution. This will help debugging when rofi is slow to start.
 
 .PP
 Example trace:
@@ -123,9 +124,11 @@ Example trace:
 
 .SH Debug domains
 .PP
-To further debug the plugin, you can get a trace with (lots of) debug information. This debug output can be enabled for
-multiple parts in rofi using the glib debug framework. Debug domains can be enabled by setting the G_MESSAGES_DEBUG
-environment variable. At the time of creation of this page, the following debug domains exist:
+To further debug the plugin, you can get a trace with (lots of) debug
+information. This debug output can be enabled for multiple parts in rofi using
+the glib debug framework. Debug domains can be enabled by setting the
+G_MESSAGES_DEBUG environment variable. At the time of creation of this page,
+the following debug domains exist:
 
 .RS
 .IP \(bu 2
@@ -173,7 +176,8 @@ Helpers.IconFetcher: Information about icon lookup.
 For full list see \fB\fCman rofi\fR\&.
 
 .PP
-Example: \fB\fCG_MESSAGES_DEBUG=Dialogs.DRun rofi -show drun\fR To get specific output from the Desktop file run dialog.
+Example: \fB\fCG_MESSAGES_DEBUG=Dialogs.DRun rofi -show drun\fR To get specific output
+from the Desktop file run dialog.
 
 .PP
 To redirect the debug output to a file (\fB\fC~/rofi.log\fR) add:
@@ -191,7 +195,7 @@ rofi -show drun -log ~/rofi.log
 Specifying the logfile automatically enabled all log domains.
 This can be useful when rofi is launched from a window manager.
 
-.SH Creating a backtrace.
+.SH Creating a backtrace
 .PP
 First make sure you compile \fBrofi\fP with debug symbols:
 
@@ -205,10 +209,10 @@ make CFLAGS="-O0 -g3" clean rofi
 .RE
 
 .PP
-Getting a backtrace using GDB is not very handy. Because if rofi get stuck, it grabs keyboard and
-mouse. So if it crashes in GDB you are stuck.
-The best way to go is to enable core file. (ulimit -c unlimited in bash) then make rofi crash. You
-can then load the core in GDB.
+Getting a backtrace using GDB is not very handy. Because if rofi get stuck, it
+grabs keyboard and mouse. So if it crashes in GDB you are stuck. The best way
+to go is to enable core file. (ulimit -c unlimited in bash) then make rofi
+crash. You can then load the core in GDB.
 
 .PP
 .RS
@@ -235,11 +239,13 @@ thread apply all bt
 The output trace is useful when reporting crashes.
 
 .PP
-Some distribution have \fB\fCsystemd-coredump\fR, this way you can easily get a backtrace via \fB\fCcoredumpctl\fR\&.
+Some distribution have \fB\fCsystemd-coredump\fR, this way you can easily get a
+backtrace via \fB\fCcoredumpctl\fR\&.
 
 .SH SEE ALSO
 .PP
-\fBrofi-sensible-terminal(1)\fP, \fBdmenu(1)\fP, \fBrofi-debugging(5)\fP, \fBrofi-theme(5)\fP, \fBrofi-script(5)\fP, \fBrofi-keys(5)\fP,\fBrofi-theme-selector(1)\fP
+rofi-sensible-terminal(1), dmenu(1), rofi-debugging(5), rofi-theme(5),
+rofi-script(5), rofi-keys(5),rofi-theme-selector(1)
 
 .SH AUTHOR
 .RS

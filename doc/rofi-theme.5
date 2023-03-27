@@ -9,8 +9,7 @@
 The easiest way to get started theming rofi is by modifying your existing theme.
 
 .PP
-Themes can be modified/tweaked by adding theming elements to the end of the
-.br
+Themes can be modified/tweaked by adding theming elements to the end of the\\
 config file. The default location of this file is \fB\fC~/.config/rofi/config.rasi\fR,
 if the file does not exists, you can create it.
 
@@ -50,8 +49,8 @@ entry {
 
 .PP
 In the above section, \fB\fCentry\fR indicates the widget, \fB\fCplaceholder\fR is the
-property we want to modify and we set it to the string \fB\fC"Type here"\fR\&.
-To find the commonly available widgets in rofi, see the 'Basic structure' section.
+property we want to modify and we set it to the string \fB\fC"Type here"\fR\&. To find
+the commonly available widgets in rofi, see the 'Basic structure' section.
 
 .PP
 To change the mouse over cursor to a pointer, add:
@@ -146,7 +145,8 @@ In this example we specify the size in the em
 \[la]https://www.w3.org/Style/LieBos3e/em\[ra] unit.
 
 .PP
-Now lets change the text color of both the \fB\fCentry\fR and the \fB\fCelement-text\fR widget to red and background to blue.
+Now lets change the text color of both the \fB\fCentry\fR and the \fB\fCelement-text\fR
+widget to red and background to blue.
 
 .PP
 .RS
@@ -213,7 +213,8 @@ entry {
 .RE
 
 .PP
-By default, the \fB\fCcursor-color\fR will be the same as the \fB\fCtext-color\fR\&. The \fB\fCcursor-width\fR will always default to 2 pixels.
+By default, the \fB\fCcursor-color\fR will be the same as the \fB\fCtext-color\fR\&. The
+\fB\fCcursor-width\fR will always default to 2 pixels.
 
 .PP
 If you want to see the complete theme, including the modification you can run:
@@ -267,16 +268,18 @@ rofi -no-config -dump-theme
 
 .SH Description
 .PP
-The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed. From a very
-static drawing of lines and text to a nice structured form of packing widgets. This change made it possible to provide a
-more flexible theme framework. The old theme format and config file are not flexible enough to expose these options in a
-user-friendly way. Therefore, a new file format has been created, replacing the old one.
+The need for a new theme format was motivated by the fact that the way rofi
+handled widgets has changed. From a very static drawing of lines and text to a
+nice structured form of packing widgets. This change made it possible to
+provide a more flexible theme framework. The old theme format and config file
+are not flexible enough to expose these options in a user-friendly way.
+Therefore, a new file format has been created, replacing the old one.
 
 .SH Format specification
 .SH Encoding
 .PP
-The encoding of the file is UTF-8. Both unix (\fB\fC\\n\fR) and windows (\fB\fC\\r\\n\fR) newlines format are supported. But unix is
-preferred.
+The encoding of the file is UTF-8. Both unix (\fB\fC\\n\fR) and windows (\fB\fC\\r\\n\fR)
+newlines format are supported. But unix is preferred.
 
 .SH Comments
 .PP
@@ -286,7 +289,8 @@ C and C++ file comments are supported.
 .IP \(bu 2
 Anything after  \fB\fC//\fR and before a newline is considered a comment.
 .IP \(bu 2
-Everything between \fB\fC/*\fR and \fB\fC*/\fR is a comment, this comment can span multiple lines.
+Everything between \fB\fC/*\fR and \fB\fC*/\fR is a comment, this comment can span
+multiple lines.
 
 .RE
 
@@ -352,13 +356,15 @@ name
 .SH File extension
 .PP
 The preferred file extension for the new theme format is \fBrasi\fP\&. This is an
-abbreviation for \fBr\fPofi \fBa\fPdvanced \fBs\fPtyle \fBi\fPnformation.
-If a theme file is split over multiple files, include files can have the: \fBrasinc\fP extension.
+abbreviation for \fBr\fPofi \fBa\fPdvanced \fBs\fPtyle \fBi\fPnformation. If a theme
+file is split over multiple files, include files can have the: \fBrasinc\fP
+extension.
 
 .SH Basic Structure
 .PP
-Each element has a section with defined properties. Global properties can be defined in section \fB\fC* { }\fR\&.
-Sub-section names begin with an optional hash symbol \fB\fC#\fR\&.
+Each element has a section with defined properties. Global properties can be
+defined in section \fB\fC* { }\fR\&. Sub-section names begin with an optional hash
+symbol \fB\fC#\fR\&.
 
 .PP
 It is advised to define the \fIglobal properties section\fP on top of the file to
@@ -385,13 +391,13 @@ make inheritance of properties clearer.
 .RE
 
 .PP
-If there are multiple sections with the same name, they are merged. Duplicate properties are overwritten and the last
-parsed entry kept.
+If there are multiple sections with the same name, they are merged. Duplicate
+properties are overwritten and the last parsed entry kept.
 
 .SH Global properties section
 .PP
-A theme can have one or more global properties sections. If there is more than one,
-they will be merged.
+A theme can have one or more global properties sections. If there is more than
+one, they will be merged.
 
 .PP
 The global properties section denotes the defaults for each element.
@@ -564,7 +570,8 @@ Format:  \fB\fC"[:print:]+"\fR
 .RE
 
 .PP
-A string is always surrounded by double quotes (\fB\fC"\fR). Between the quotes there can be any printable character.
+A string is always surrounded by double quotes (\fB\fC"\fR). Between the quotes there
+can be any printable character.
 
 .PP
 For example:
@@ -677,8 +684,8 @@ where scale is: none, both, width, height
 .IP \(bu 2
 Format: linear-gradient(stop color,stop1, color, stop2 color, ...);
 .IP \(bu 2
-Format: linear-gradient(to direction, stop color,stop1, color, stop2 color, ...);
-where direction is:   top,left,right,bottom.
+Format: linear-gradient(to direction, stop color,stop1, color, stop2 color,
+...); where direction is:   top,left,right,bottom.
 .IP \(bu 2
 Format: linear-gradient(angle, stop color,stop1, color, stop2 color, ...);
 Angle in deg,rad,grad (as used in color).
@@ -690,7 +697,8 @@ Where the \fB\fCpath\fR is a string, and \fB\fCstop\fR color is of type color.
 
 .SS Color
 .PP
-\fBrofi\fP supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
+\fBrofi\fP supports the color formats as specified in the CSS standard (1,2,3 and
+some of CSS 4)
 
 .RS
 .IP \(bu 2
@@ -710,7 +718,8 @@ Format: \fB\fChsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])\fR
 .IP \(bu 2
 Format: \fB\fChwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])\fR
 .IP \(bu 2
-Format: \fB\fCcmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])\fR
+Format: \fB\fCcmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [,
+{PERCENTAGE} ])\fR
 .IP \(bu 2
 Format: \fB\fC{named-color} [ / {PERCENTAGE} ]\fR
 
@@ -726,26 +735,38 @@ The different values are:
 .IP \(bu 2
 \fB\fC{HEX}\fR is a hexadecimal number ('0-9a-f' case insensitive).
 .IP \(bu 2
-\fB\fC{INTEGER}\fR value can be between 0 and 255 or 0-100 when representing percentage.
+\fB\fC{INTEGER}\fR value can be between 0 and 255 or 0-100 when representing
+percentage.
 .IP \(bu 2
-\fB\fC{ANGLE}\fR is the angle on the color wheel, can be in \fB\fCdeg\fR, \fB\fCrad\fR, \fB\fCgrad\fR or \fB\fCturn\fR\&. When no unit is specified, degrees is assumed.
+\fB\fC{ANGLE}\fR is the angle on the color wheel, can be in \fB\fCdeg\fR, \fB\fCrad\fR, \fB\fCgrad\fR
+or \fB\fCturn\fR\&. When no unit is specified, degrees is assumed.
 .IP \(bu 2
 \fB\fC{PERCENTAGE}\fR can be between 0-1.0, or 0%-100%
 .IP \(bu 2
-\fB\fC{named-color}\fR is one of the following colors:AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
-BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan,
-DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki, DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed,
-DarkSalmon, DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise, DarkViolet, DeepPink, DeepSkyBlue,
-DimGray, DimGrey, DodgerBlue, FireBrick, FloralWhite, ForestGreen, Fuchsia, Gainsboro, GhostWhite, Gold, GoldenRod,
-Gray, Grey, Green, GreenYellow, HoneyDew, HotPink, IndianRed, Indigo, Ivory, Khaki, Lavender, LavenderBlush, LawnGreen,
-LemonChiffon, LightBlue, LightCoral, LightCyan, LightGoldenRodYellow, LightGray, LightGrey, LightGreen, LightPink,
-LightSalmon, LightSeaGreen, LightSkyBlue, LightSlateGray, LightSlateGrey, LightSteelBlue, LightYellow, Lime, LimeGreen,
-Linen, Magenta, Maroon, MediumAquaMarine, MediumBlue, MediumOrchid, MediumPurple, MediumSeaGreen, MediumSlateBlue,
-MediumSpringGreen, MediumTurquoise, MediumVioletRed, MidnightBlue, MintCream, MistyRose, Moccasin, NavajoWhite, Navy,
-OldLace, Olive, OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen, PaleTurquoise, PaleVioletRed,
-PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown,
-Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen,
-SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen,transparent
+\fB\fC{named-color}\fR is one of the following colors:AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black,
+BlanchedAlmond, Blue, BlueViolet, Brown, BurlyWood, CadetBlue, Chartreuse,
+Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue,
+DarkCyan, DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki,
+DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed, DarkSalmon,
+DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise,
+DarkViolet, DeepPink, DeepSkyBlue, DimGray, DimGrey, DodgerBlue, FireBrick,
+FloralWhite, ForestGreen, Fuchsia, Gainsboro, GhostWhite, Gold, GoldenRod,
+Gray, Grey, Green, GreenYellow, HoneyDew, HotPink, IndianRed, Indigo,
+Ivory, Khaki, Lavender, LavenderBlush, LawnGreen, LemonChiffon, LightBlue,
+LightCoral, LightCyan, LightGoldenRodYellow, LightGray, LightGrey,
+LightGreen, LightPink, LightSalmon, LightSeaGreen, LightSkyBlue,
+LightSlateGray, LightSlateGrey, LightSteelBlue, LightYellow, Lime,
+LimeGreen, Linen, Magenta, Maroon, MediumAquaMarine, MediumBlue,
+MediumOrchid, MediumPurple, MediumSeaGreen, MediumSlateBlue,
+MediumSpringGreen, MediumTurquoise, MediumVioletRed, MidnightBlue,
+MintCream, MistyRose, Moccasin, NavajoWhite, Navy, OldLace, Olive,
+OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen,
+PaleTurquoise, PaleVioletRed, PapayaWhip, PeachPuff, Peru, Pink, Plum,
+PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown,
+Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue,
+SlateGray, SlateGrey, Snow, SpringGreen, SteelBlue, Tan, Teal, Thistle,
+Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow,
+YellowGreen,transparent
 
 .RE
 
@@ -784,8 +805,8 @@ Format: \fB\fC(bold|italic|underline|strikethrough|none)\fR
 .RE
 
 .PP
-Text style indicates how the highlighted text is emphasized. \fB\fCNone\fR indicates that no emphasis
-should be applied.
+Text style indicates how the highlighted text is emphasized. \fB\fCNone\fR indicates
+that no emphasis should be applied.
 
 .RS
 .IP \(bu 2
@@ -812,7 +833,7 @@ The following options are available on pango 1.50.0 and up:
 
 .PP
 The following option is disabled as pango crashes on this if there is eel
- upsizing or wrapping. This will be re-enabled once fixed:
+upsizing or wrapping. This will be re-enabled once fixed:
 
 .RS
 .IP \(bu 2
@@ -830,8 +851,8 @@ Format: \fB\fC(dash|solid)\fR
 .PP
 Indicates how a line should be drawn.
 It currently supports:
- * \fB\fCdash\fR:  a dashed line, where the gap is the same width as the dash
- * \fB\fCsolid\fR: a solid line
+- \fB\fCdash\fR:  a dashed line, where the gap is the same width as the dash
+- \fB\fCsolid\fR: a solid line
 
 .SS Distance
 .RS
@@ -916,7 +937,7 @@ It supports the following operations:
 .IP \(bu 2
 \fB\fC/\fR      : Divide
 .IP \(bu 2
-\fB\fC*\fR      : Multiply
+\fB\fC-\fR      : Multiply
 .IP \(bu 2
 \fB\fCmodulo\fR : Modulo
 .IP \(bu 2
@@ -985,9 +1006,11 @@ Format: \fB\fC{Distance} {Line style}\fR
 .IP \(bu 2
 Format: \fB\fC{Distance} {Line style} {Distance} {Line style}\fR
 .IP \(bu 2
-Format: \fB\fC{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}\fR
+Format: \fB\fC{Distance} {Line style} {Distance} {Line style} {Distance} {Line
+style}\fR
 .IP \(bu 2
-Format: \fB\fC{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}\fR
+Format: \fB\fC{Distance} {Line style} {Distance} {Line style} {Distance} {Line
+style} {Distance} {Line style}\fR
 
 .RE
 
@@ -1024,7 +1047,8 @@ Indicate a place on the window/monitor.
 
 .RS
 .IP \(bu 2
-Format: \fB\fC(center|east|north|west|south|north east|north west|south west|south east)\fR
+Format: \fB\fC(center|east|north|west|south|north east|north west|south west|south
+east)\fR
 
 .RE
 
@@ -1051,9 +1075,9 @@ Format: \fB\fC@{PROPERTY NAME}\fR
 .RE
 
 .PP
-A reference can point to another reference. Currently, the maximum number of redirects is 20.
-A property always refers to another property. It cannot be used for a subpart of the property.
-For example, this is not valid:
+A reference can point to another reference. Currently, the maximum number of
+redirects is 20. A property always refers to another property. It cannot be
+used for a subpart of the property. For example, this is not valid:
 
 .PP
 .RS
@@ -1089,8 +1113,9 @@ Format: \fB\fCvar(PROPERTY NAME, DEFAULT)\fR
 .RE
 
 .PP
-A reference can point to another reference. Currently, the maximum number of redirects is 20.
-A property always refers to another property. It cannot be used for a subpart of the property.
+A reference can point to another reference. Currently, the maximum number of
+redirects is 20. A property always refers to another property. It cannot be
+used for a subpart of the property.
 
 .PP
 Example:
@@ -1107,8 +1132,8 @@ window {
 .RE
 
 .PP
-If the property \fB\fCwidth\fR is set globally (\fB\fC*{}\fR) that value is used, if the property
-\fB\fCwidth\fR is not set, the default value is used.
+If the property \fB\fCwidth\fR is set globally (\fB\fC*{}\fR) that value is used, if the
+property \fB\fCwidth\fR is not set, the default value is used.
 
 .SS Orientation
 .RS
@@ -1128,7 +1153,8 @@ Format: \fB\fC(default|pointer|text)\fR
 .RE
 
 .PP
-Specify the type of mouse cursor that is set when the mouse pointer is over the widget.
+Specify the type of mouse cursor that is set when the mouse pointer is over the
+widget.
 
 .SS List of keywords
 .RS
@@ -1138,8 +1164,8 @@ Format: \fB\fC[ keyword, keyword ]\fR
 .RE
 
 .PP
-A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
-The \fB\fCkeyword\fR in the list refers to an widget name.
+A list starts with a '[' and ends with a ']'. The entries in the list are
+comma-separated. The \fB\fCkeyword\fR in the list refers to an widget name.
 
 .SS List of values
 .RS
@@ -1149,7 +1175,8 @@ Format: \fB\fC[ value, value, ... ]\fR
 .RE
 
 .PP
-An list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
+An list starts with a '[' and ends with a ']'. The entries in the list are
+comma-separated.
 
 .SS Environment variable
 .RS
@@ -1159,8 +1186,9 @@ Format: \fB\fC${:alnum:}\fR
 .RE
 
 .PP
-This will parse the environment variable as the property value. (that then can be any of the above types).
-The environment variable should be an alphanumeric string without white-space.
+This will parse the environment variable as the property value. (that then can
+be any of the above types). The environment variable should be an alphanumeric
+string without white-space.
 
 .PP
 .RS
@@ -1180,9 +1208,10 @@ Format: \fB\fCenv(ENVIRONMENT, default)\fR
 .RE
 
 .PP
-This will parse the environment variable as the property value. (that then can be any of the above types).
-The environment variable should be an alphanumeric string without white-space.
-If the environment value is not found, the default value is used.
+This will parse the environment variable as the property value. (that then can
+be any of the above types). The environment variable should be an alphanumeric
+string without white-space. If the environment value is not found, the default
+value is used.
 
 .PP
 .RS
@@ -1196,7 +1225,8 @@ window {
 .RE
 
 .PP
-If environment WIDTH is set, then that value is parsed, otherwise the default value (\fB\fC40%\fR).
+If environment WIDTH is set, then that value is parsed, otherwise the default
+value (\fB\fC40%\fR).
 
 .SS Inherit
 .RS
@@ -1221,8 +1251,8 @@ mainbox {
 
 .SH Elements paths
 .PP
-Element paths exists of two parts, the first part refers to the actual widget by name.
-Some widgets have an extra state.
+Element paths exists of two parts, the first part refers to the actual widget
+by name. Some widgets have an extra state.
 
 .PP
 For example:
@@ -1238,10 +1268,12 @@ element selected {
 .RE
 
 .PP
-Here \fB\fCelement selected\fR is the name of the widget, \fB\fCselected\fR is the state of the widget.
+Here \fB\fCelement selected\fR is the name of the widget, \fB\fCselected\fR is the state of
+the widget.
 
 .PP
-The difference between dots and spaces is purely cosmetic. These are all the same:
+The difference between dots and spaces is purely cosmetic. These are all the
+same:
 
 .PP
 .RS
@@ -1258,7 +1290,7 @@ element selected {
 .RE
 
 .SS Supported element paths
-.SS Name
+.SS Base widgets
 .PP
 The default widgets available in \fBrofi\fP and the default hierarchic:
 
@@ -1275,6 +1307,7 @@ The default widgets available in \fBrofi\fP and the default hierarchic:
 .RS
 .IP \(bu 2
 \fB\fCbox\fR: the horizontal @box packing the widgets
+.RS
 .IP \(bu 2
 \fB\fCcase-indicator\fR: the case/sort indicator @textbox
 .IP \(bu 2
@@ -1284,11 +1317,17 @@ The default widgets available in \fBrofi\fP and the default hierarchic:
 .IP \(bu 2
 \fB\fCnum-rows\fR: Shows the total number of rows.
 .IP \(bu 2
-\fB\fCnum-filtered-rows\fR: Shows the total number of rows after filtering.
+\fB\fCnum-filtered-rows\fR: Shows the total number of rows after
+filtering.
 .IP \(bu 2
-\fB\fCtextbox-current-entry\fR: Shows the text of the currently selected entry.
+\fB\fCtextbox-current-entry\fR: Shows the text of the currently selected
+entry.
 .IP \(bu 2
-\fB\fCicon-current-entry\fR: Shows the icon of the currently selected entry.
+\fB\fCicon-current-entry\fR: Shows the icon of the currently selected
+entry.
+
+.RE
+
 
 .RE
 
@@ -1301,11 +1340,14 @@ The default widgets available in \fBrofi\fP and the default hierarchic:
 \fB\fCelement\fR: a box in the listview holding the entries
 .RS
 .IP \(bu 2
-\fB\fCelement-icon\fR: the widget in the listview's entry showing the (optional) icon
+\fB\fCelement-icon\fR: the widget in the listview's entry showing the
+(optional) icon
 .IP \(bu 2
-\fB\fCelement-index\fR: the widget in the listview's entry keybindable index (1,2,3..0)
+\fB\fCelement-index\fR: the widget in the listview's entry
+keybindable index (1,2,3..0)
 .IP \(bu 2
-\fB\fCelement-text\fR: the widget in the listview's entry showing the text.
+\fB\fCelement-text\fR: the widget in the listview's entry showing the
+text.
 
 .RE
 
@@ -1335,8 +1377,8 @@ The default widgets available in \fBrofi\fP and the default hierarchic:
 .RE
 
 .PP
-Note that these path names match the default theme. Themes that provide a custom layout will have different
-elements, and structure.
+Note that these path names match the default theme. Themes that provide a
+custom layout will have different elements, and structure.
 
 .SS State
 .PP
@@ -1348,7 +1390,7 @@ Optional flag(s) indicating state of the widget, used for theming.
 .PP
 These are appended after the name or class of the widget.
 
-.SS Example:
+.SS Example
 .PP
 \fB\fCbutton selected.normal { }\fR
 
@@ -1358,21 +1400,21 @@ These are appended after the name or class of the widget.
 .PP
 Currently only the entrybox and scrollbar have states:
 
-.SS Entrybox:
+.SS Entrybox
 .PP
 \fB\fC{visible modifier}.{state}\fR
 
 .PP
 Where \fB\fCvisible modifier\fR can be:
- * normal: no modification
- * selected: the entry is selected/highlighted by user
- * alternate: the entry is at an alternating row (uneven row)
+- normal: no modification
+- selected: the entry is selected/highlighted by user
+- alternate: the entry is at an alternating row (uneven row)
 
 .PP
 Where \fB\fCstate\fR is:
- * normal: no modification
- * urgent: this entry is marked urgent
- * active: this entry is marked active
+- normal: no modification
+- urgent: this entry is marked urgent
+- active: this entry is marked active
 
 .PP
 These can be mixed.
@@ -1393,8 +1435,9 @@ nametotextbox selected.active {
 .RE
 
 .PP
-Sets all selected textboxes marked active to the given text and background color.
-Note that a state modifies the original element, it therefore contains all the properties of that element.
+Sets all selected textboxes marked active to the given text and background
+color. Note that a state modifies the original element, it therefore contains
+all the properties of that element.
 
 .SS Scrollbar
 .PP
@@ -1432,7 +1475,8 @@ Background image
 Color of the border
 .IP \(bu 2
 \fBcursor\fP:            cursor
-Type of mouse cursor that is set when the mouse pointer is hovered over the widget.
+Type of mouse cursor that is set when the mouse pointer is hovered over the
+widget.
 
 .RE
 
@@ -1444,31 +1488,37 @@ The font used in the window
 .IP \(bu 2
 \fBtransparency\fP:    string
 Indicating if transparency should be used and what type:
+.RS
+.IP \(bu 2
 \fBreal\fP - True transparency. Only works with a compositor.
+.IP \(bu 2
 \fBbackground\fP - Take a screenshot of the background image and use that.
+.IP \(bu 2
 \fBscreenshot\fP - Take a screenshot of the screen and use that.
+.IP \(bu 2
 \fBPath\fP to png file - Use an image.
-.IP \(bu 2
-\fBlocation\fP:       position
-The place of the anchor on the monitor
-.IP \(bu 2
-\fBanchor\fP:         anchor
-The anchor position on the window
-.IP \(bu 2
-\fBfullscreen\fP:     boolean
-Window is fullscreen.
-.IP \(bu 2
-\fBwidth\fP:          distance
-The width of the window
-.IP \(bu 2
-\fBx-offset\fP:       distance
-.IP \(bu 2
-\fBy-offset\fP:       distance
-The offset of the window to the anchor point, allowing you to push the window left/right/up/down
 
 .RE
 
-.SS scrollbar
+.IP \(bu 2
+\fBlocation\fP:       position
+  The place of the anchor on the monitor
+.IP \(bu 2
+\fBanchor\fP:         anchor
+  The anchor position on the window
+.IP \(bu 2
+\fBfullscreen\fP:     boolean Window is fullscreen.
+.IP \(bu 2
+\fBwidth\fP:          distance The width of the window
+.IP \(bu 2
+\fBx-offset\fP:       distance
+.IP \(bu 2
+\fBy-offset\fP:       distance The offset of the window to the anchor point,
+allowing you to push the window left/right/up/down
+
+.RE
+
+.SS scrollbar Properties
 .RS
 .IP \(bu 2
 \fBbackground-color\fP:    color
@@ -1484,11 +1534,9 @@ The offset of the window to the anchor point, allowing you to push the window le
 .SS box
 .RS
 .IP \(bu 2
-\fBorientation\fP:      orientation
-    Set the direction the elements are packed.
+\fBorientation\fP:      orientation Set the direction the elements are packed.
 .IP \(bu 2
-\fBspacing\fP:          distance
-    Distance between the packed elements.
+\fBspacing\fP:          distance Distance between the packed elements.
 
 .RE
 
@@ -1503,46 +1551,55 @@ The offset of the window to the anchor point, allowing you to push the window le
 .IP \(bu 2
 \fBstr\fP/\fBcontent\fP:   the string to display by this textbox (string).
 .IP \(bu 2
-\fBvertical-align\fP:    Vertical alignment of the text. A number between 0 (top) and 1 (bottom).
+\fBvertical-align\fP:    Vertical alignment of the text. A number between 0
+(top) and 1 (bottom).
 .IP \(bu 2
-\fBhorizontal-align\fP:  Horizontal alignment of the text. A number between 0 (left) and 1 (right).
+\fBhorizontal-align\fP:  Horizontal alignment of the text. A number between 0
+(left) and 1 (right).
 .IP \(bu 2
 \fBtext-color\fP:        the text color to use.
 .IP \(bu 2
 \fBtext-transform\fP:    text style {color} for the whole text.
 .IP \(bu 2
-\fBhighlight\fP:         text style {color}.
-color is optional, multiple highlight styles can be added like: bold underline italic #000000;
-This option is only available on the \fB\fCelement-text\fR widget.
+\fBhighlight\fP:         text style {color}. color is optional, multiple
+highlight styles can be added like: bold underline italic #000000; This
+option is only available on the \fB\fCelement-text\fR widget.
 .IP \(bu 2
 \fBwidth\fP:             override the desired width for the textbox.
 .IP \(bu 2
 \fBcontent\fP:           Set the displayed text (String).
 .IP \(bu 2
-\fBplaceholder\fP:       Set the displayed text (String) when nothing is entered.
+\fBplaceholder\fP:       Set the displayed text (String) when nothing is
+entered.
 .IP \(bu 2
-\fBplaceholder-markup\fP:       If true, placeholder text supports pango markup for stylizing.
+\fBplaceholder-markup\fP:       If true, placeholder text supports pango
+markup for stylizing.
 .IP \(bu 2
 \fBplaceholder-color\fP: Color of the placeholder text.
 .IP \(bu 2
-\fBblink\fP:             Enable/Disable blinking on an input textbox (Boolean).
+\fBblink\fP:             Enable/Disable blinking on an input textbox
+(Boolean).
 .IP \(bu 2
-\fBmarkup\fP:            Force markup on, beware that only valid pango markup strings are shown.
+\fBmarkup\fP:            Force markup on, beware that only valid pango markup
+strings are shown.
 .IP \(bu 2
-\fBtab-stops\fP:         array of distances
-Set the location of tab stops by their distance from the beginning of the line.
-Each distance should be greater than the previous one.
-The text appears to the right of the tab stop position (other alignments are not supported yet).
+\fBtab-stops\fP:         array of distances. Set the location of tab stops by
+their distance from the beginning of the line. Each distance should be
+greater than the previous one. The text appears to the right of the tab
+stop position (other alignments are not supported yet).
 .IP \(bu 2
 \fBcursor-width\fP:      The width of the cursor.
 .IP \(bu 2
 \fBcursor-color\fP:      The color used to draw the cursor.
 .IP \(bu 2
-\fBcursor-outline\fP:      Enable a border (outline) around the cursor. (Boolean)
+\fBcursor-outline\fP:      Enable a border (outline) around the cursor.
+(Boolean)
 .IP \(bu 2
-\fBcursor-outline-width\fP: The width of the border around the cursor.  (Double)
+\fBcursor-outline-width\fP: The width of the border around the cursor.
+(Double)
 .IP \(bu 2
-\fBcursor-outline-color\fP: The color to use for the cursor outline.    (Color)
+\fBcursor-outline-color\fP: The color to use for the cursor outline.
+(Color)
 .IP \(bu 2
 \fBtext-outline\fP:      Enable a border (outline) around the text. (Boolean)
 .IP \(bu 2
@@ -1555,45 +1612,38 @@ The text appears to the right of the tab stop position (other alignments are not
 .SS listview
 .RS
 .IP \(bu 2
-\fBcolumns\fP:         integer
-Number of columns to show (at least 1)
+\fBcolumns\fP:         integer Number of columns to show (at least 1)
 .IP \(bu 2
-\fBfixed-height\fP:    boolean
-Always show \fB\fClines\fR rows, even if fewer elements are available.
+\fBfixed-height\fP:    boolean Always show \fB\fClines\fR rows, even if fewer
+elements are available.
 .IP \(bu 2
-\fBdynamic\fP:         boolean
-\fB\fCTrue\fR if the size should change when filtering the list, \fB\fCFalse\fR if it should keep the original height.
+\fBdynamic\fP:         boolean \fB\fCTrue\fR if the size should change when filtering
+the list, \fB\fCFalse\fR if it should keep the original height.
 .IP \(bu 2
-\fBscrollbar\fP:       boolean
-If the scrollbar should be enabled/disabled.
+\fBscrollbar\fP:       boolean If the scrollbar should be enabled/disabled.
 .IP \(bu 2
-\fBscrollbar-width\fP: distance
-Width of the scrollbar
+\fBscrollbar-width\fP: distance Width of the scrollbar
 .IP \(bu 2
-\fBcycle\fP:           boolean
-When navigating, it should wrap around
+\fBcycle\fP:           boolean When navigating, it should wrap around
 .IP \(bu 2
-\fBspacing\fP:         distance
-Spacing between the elements (both vertical and horizontal)
+\fBspacing\fP:         distance Spacing between the elements (both vertical
+and horizontal)
 .IP \(bu 2
-\fBlines\fP:           integer
-Number of rows to show in the list view.
+\fBlines\fP:           integer Number of rows to show in the list view.
 .IP \(bu 2
-\fBlayout\fP:           orientation
-Indicate how elements are stacked. Horizontal implements the dmenu style.
+\fBlayout\fP:           orientation Indicate how elements are stacked.
+Horizontal implements the dmenu style.
 .IP \(bu 2
-\fBreverse\fP:         boolean
-Reverse the ordering (top down to bottom up).
+\fBreverse\fP:         boolean Reverse the ordering (top down to bottom up).
 .IP \(bu 2
-\fBflow\fP:           orientation
-The order the elements are layed out.  Vertical is the original 'column' view.
+\fBflow\fP:           orientation The order the elements are layed out.
+Vertical is the original 'column' view.
 .IP \(bu 2
-\fBfixed-columns\fP:    boolean
-Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.
+\fBfixed-columns\fP:    boolean Do not reduce the number of columns shown when
+number of visible elements is not enough to fill them all.
 .IP \(bu 2
-\fBrequire-input\fP:    boolean
-Listview requires user input to be unhidden. The list is still present and
-hitting accept will activate the first entry.
+\fBrequire-input\fP:    boolean Listview requires user input to be unhidden.
+The list is still present and hitting accept will activate the first entry.
 
 .RE
 
@@ -1634,16 +1684,16 @@ By default the \fB\fCelement-icon\fR and \fB\fCelement-text\fR child widgets are
 \fB\fC[no]-show-icons\fR option.
 
 .PP
-A child added with another name is treated the same as the special widget described
-in the advanced layout
+A child added with another name is treated the same as the special widget
+described in the advanced layout
 \[la]#advanced-layout\[ra] section.
 
 .SS listview text highlight
 .PP
 The \fB\fCelement-text\fR widget in the \fB\fClistview\fR is the one used to show the text.
-On this widget set the \fB\fChighlight\fR property (only place this property is used) to change
-the style of highlighting.
-The \fB\fChighlight\fR property consist of the \fB\fCtext-style\fR property and a color.
+On this widget set the \fB\fChighlight\fR property (only place this property is used)
+to change the style of highlighting. The \fB\fChighlight\fR property consist of the
+\fB\fCtext-style\fR property and a color.
 
 .PP
 To disable highlighting:
@@ -1675,11 +1725,12 @@ To set to red underlined:
 
 .SH Layout
 .PP
-The new format allows the layout of the \fBrofi\fP window to be tweaked extensively.
-For each widget, the themer can specify padding, margin, border, font, and more.
-It even allows, as an advanced feature, to pack widgets in a custom structure.
+The new format allows the layout of the \fBrofi\fP window to be tweaked
+extensively. For each widget, the themer can specify padding, margin, border,
+font, and more. It even allows, as an advanced feature, to pack widgets in a
+custom structure.
 
-.SS Basic structure
+.SS Basic layout structure
 .PP
 The whole view is made out of boxes that pack other boxes or widgets.
 The box can be vertical or horizontal. This is loosely inspired by GTK
@@ -1770,7 +1821,8 @@ ns is the num-rows
 
 .SS Advanced layout
 .PP
-The layout of \fBrofi\fP can be tweaked by packing the 'fixed' widgets in a custom structure.
+The layout of \fBrofi\fP can be tweaked by packing the 'fixed' widgets in a
+custom structure.
 
 .PP
 The following widgets are fixed, as they provide core \fBrofi\fP functionality:
@@ -1798,26 +1850,27 @@ num-filtered-rows
 .RE
 
 .PP
-The following keywords are defined and can be used to automatically pack a subset of the widgets.
-These are used in the default theme as depicted in the figure above.
+The following keywords are defined and can be used to automatically pack a
+subset of the widgets. These are used in the default theme as depicted in the
+figure above.
 
 .RS
 .IP \(bu 2
-mainbox
-Packs: \fB\fCinputbar, message, listview, mode-switcher\fR
+mainbox Packs: \fB\fCinputbar, message, listview, mode-switcher\fR
 .IP \(bu 2
-inputbar
-Packs: \fB\fCprompt,entry,case-indicator\fR
+inputbar Packs: \fB\fCprompt,entry,case-indicator\fR
 
 .RE
 
 .PP
-Any widget name starting with \fB\fCtextbox\fR is a textbox widget, others are box widgets and can pack other widgets.
+Any widget name starting with \fB\fCtextbox\fR is a textbox widget, others are box
+widgets and can pack other widgets.
 
 .PP
-There are several special widgets that can be used by prefixing the name of the widget:
+There are several special widgets that can be used by prefixing the name of the
+widget:
 
-.SS textbox
+.SS Textbox widget
 .PP
 This is a read-only textbox widget. The displayed string can be set with \fB\fCcontent\fR\&.
 
@@ -1838,12 +1891,14 @@ textbox-custom {
 
 .SS Icon
 .PP
-This is an icon widget. The displayed icon can be set with \fB\fCfilename\fR and size with \fB\fCsize\fR\&.
-If the property \fB\fCaction\fR is set, it acts as a button.
-\fB\fCaction\fR can be set to a keybinding name and completes that action. (see rofi -show keys for a list).
+This is an icon widget. The displayed icon can be set with \fB\fCfilename\fR and size
+with \fB\fCsize\fR\&. If the property \fB\fCaction\fR is set, it acts as a button. \fB\fCaction\fR can
+be set to a keybinding name and completes that action. (see rofi -show keys for
+a list).
 
 .PP
-If the \fB\fCsquared\fR property is set to \fBfalse\fP the widget height and width are not forced to be equal.
+If the \fB\fCsquared\fR property is set to \fBfalse\fP the widget height and width are
+not forced to be equal.
 
 .PP
 Example:
@@ -1865,9 +1920,9 @@ icon-paste {
 
 .SS button
 .PP
-This is a textbox widget that can have a 'clickable' action.
-The \fB\fCaction\fR can be set to:
-\fB\fCkeybinding\fR: accepts a keybinding name and completes that action. (see rofi -show keys for a list).
+This is a textbox widget that can have a 'clickable' action. The \fB\fCaction\fR can
+be set to: \fB\fCkeybinding\fR: accepts a keybinding name and completes that action.
+(see rofi -show keys for a list).
 
 .PP
 .RS
@@ -1981,19 +2036,19 @@ Explanation of the different parts:
 .IP \(bu 2
 Content - The content of the widget.
 .IP \(bu 2
-Padding - Clears an area around the widget.
-The padding shows the background color of the widget.
+Padding - Clears an area around the widget. The padding shows the
+background color of the widget.
 .IP \(bu 2
-Border - A border that goes around the padding and content.
-The border use the border-color of the widget.
+Border - A border that goes around the padding and content. The border use
+the border-color of the widget.
 .IP \(bu 2
-Margin - Clears an area outside the border.
-The margin is transparent.
+Margin - Clears an area outside the border. The margin is transparent.
 
 .RE
 
 .PP
-The box model allows us to add a border around elements, and to define space between elements.
+The box model allows us to add a border around elements, and to define space
+between elements.
 
 .PP
 The size of each margin, border, and padding can be set.
@@ -2001,8 +2056,9 @@ For the border, a linestyle and radius can be set.
 
 .SS Spacing
 .PP
-Widgets that can pack more then one child widget (currently box and listview) have the \fB\fCspacing\fR property.
-This property sets the distance between the packed widgets (both horizontally and vertically).
+Widgets that can pack more then one child widget (currently box and listview)
+have the \fB\fCspacing\fR property. This property sets the distance between the packed
+widgets (both horizontally and vertically).
 
 .PP
 .RS
@@ -2023,7 +2079,8 @@ This property sets the distance between the packed widgets (both horizontally an
 
 .SS Advanced box packing
 .PP
-More dynamic spacing can be achieved by adding dummy widgets, for example to make one widget centered:
+More dynamic spacing can be achieved by adding dummy widgets, for example to
+make one widget centered:
 
 .PP
 .RS
@@ -2043,9 +2100,10 @@ More dynamic spacing can be achieved by adding dummy widgets, for example to mak
 .RE
 
 .PP
-If both dummy widgets are set to expand, \fB\fCchild\fR will be centered. Depending on the \fB\fCexpand\fR flag of child the
-remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets
-(expand disabled).
+If both dummy widgets are set to expand, \fB\fCchild\fR will be centered. Depending on
+the \fB\fCexpand\fR flag of child the remaining space will be equally divided between
+both dummy and child widget (expand enabled), or both dummy widgets (expand
+disabled).
 
 .SH Debugging
 .PP
@@ -2061,7 +2119,8 @@ G_MESSAGES_DEBUG=Parser rofi -show run
 .RE
 
 .PP
-Syntax errors are shown in a popup and printed out to command line with the above command.
+Syntax errors are shown in a popup and printed out to command line with the
+above command.
 
 .PP
 To see the elements queried during running, run:
@@ -2076,7 +2135,8 @@ G_MESSAGES_DEBUG=Theme rofi -show run
 .RE
 
 .PP
-To test minor changes, part of the theme can be passed on the command line, for example to set it to full-screen:
+To test minor changes, part of the theme can be passed on the command line, for
+example to set it to full-screen:
 
 .PP
 .RS
@@ -2150,7 +2210,8 @@ It supports the following keys as constraint:
 .RE
 
 .PP
-@media takes an integer number or a fraction, for integer number \fB\fCpx\fR can be added.
+@media takes an integer number or a fraction, for integer number \fB\fCpx\fR can be
+added.
 
 .PP
 .RS
@@ -2315,8 +2376,8 @@ extensions.
 
 .SH Multiple file handling
 .PP
-The rasi file format offers two methods of including other files.
-This can be used to modify existing themes, or have multiple variations on a theme.
+The rasi file format offers two methods of including other files. This can be
+used to modify existing themes, or have multiple variations on a theme.
 
 .RS
 .IP \(bu 2
@@ -2362,8 +2423,9 @@ A name is resolved as a filename by appending the \fB\fC\&.rasi\fR extension.
 
 .SH Examples
 .PP
-Several examples are installed together with \fBrofi\fP\&. These can be found in \fB\fC{datadir}/rofi/themes/\fR, where
-\fB\fC{datadir}\fR is the install path of \fBrofi\fP data. When installed using a package manager, this is usually: \fB\fC/usr/share/\fR\&.
+Several examples are installed together with \fBrofi\fP\&. These can be found in
+\fB\fC{datadir}/rofi/themes/\fR, where \fB\fC{datadir}\fR is the install path of \fBrofi\fP
+data. When installed using a package manager, this is usually: \fB\fC/usr/share/\fR\&.
 
 .SH SEE ALSO
 .PP

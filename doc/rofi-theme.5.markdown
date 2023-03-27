@@ -4,11 +4,11 @@
 
 **rofi-theme** - Rofi theme format files
 
-## Getting started with theming 
+## Getting started with theming
 
 The easiest way to get started theming rofi is by modifying your existing theme.
 
-Themes can be modified/tweaked by adding theming elements to the end of the  
+Themes can be modified/tweaked by adding theming elements to the end of the\
 config file. The default location of this file is `~/.config/rofi/config.rasi`,
 if the file does not exists, you can create it.
 
@@ -25,7 +25,6 @@ configuration {
 /* Insert theme modifications after this */
 ```
 
-
 For example if we want to change the `Type to filter` text in the entry box we
 append the following:
 
@@ -36,8 +35,8 @@ entry {
 ```
 
 In the above section, `entry` indicates the widget, `placeholder` is the
-property we want to modify and we set it to the string `"Type here"`.
-To find the commonly available widgets in rofi, see the 'Basic structure' section.
+property we want to modify and we set it to the string `"Type here"`. To find
+the commonly available widgets in rofi, see the 'Basic structure' section.
 
 To change the mouse over cursor to a pointer, add:
 
@@ -63,7 +62,7 @@ element {
 
 Resulting in the following packing:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────┐ 
 │ element                                                             │ 
 │ ┌─────────────────────────────────────────────┐ ┌─────────────────┐ │ 
@@ -86,7 +85,7 @@ element-icon {
 }
 ```
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────┐ 
 │ element                                                             │ 
 │ ┌─────────────────────────────────────────────┐ ┌─────────────────┐ │ 
@@ -99,7 +98,8 @@ element-icon {
 
 In this example we specify the size in the [em](https://www.w3.org/Style/LieBos3e/em) unit.
 
-Now lets change the text color of both the `entry` and the `element-text` widget to red and background to blue.
+Now lets change the text color of both the `entry` and the `element-text`
+widget to red and background to blue.
 
 ```css
 entry, element-text {
@@ -121,7 +121,7 @@ element-text {
 }
 ```
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────┐ 
 │ element                                                             │ 
 │ ┌─────────────────────────────────────────────┐ ┌─────────────────┐ │ 
@@ -142,7 +142,8 @@ entry {
 }
 ```
 
-By default, the `cursor-color` will be the same as the `text-color`. The `cursor-width` will always default to 2 pixels.
+By default, the `cursor-color` will be the same as the `text-color`. The
+`cursor-width` will always default to 2 pixels.
 
 If you want to see the complete theme, including the modification you can run:
 
@@ -159,7 +160,7 @@ The default configuration contains:
 @theme "default"
 ```
 
-To unload the default theme, and load another theme, add the `@theme` statement 
+To unload the default theme, and load another theme, add the `@theme` statement
 to your `config.rasi` file.
 
 If you have a theme loaded via `@theme` or use the default theme, you can tweak
@@ -176,24 +177,28 @@ rofi -no-config -dump-theme
 
 ## Description
 
-The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed. From a very
-static drawing of lines and text to a nice structured form of packing widgets. This change made it possible to provide a
-more flexible theme framework. The old theme format and config file are not flexible enough to expose these options in a
-user-friendly way. Therefore, a new file format has been created, replacing the old one.
+The need for a new theme format was motivated by the fact that the way rofi
+handled widgets has changed. From a very static drawing of lines and text to a
+nice structured form of packing widgets. This change made it possible to
+provide a more flexible theme framework. The old theme format and config file
+are not flexible enough to expose these options in a user-friendly way.
+Therefore, a new file format has been created, replacing the old one.
 
 ## Format specification
 
 ## Encoding
 
-The encoding of the file is UTF-8. Both unix (`\n`) and windows (`\r\n`) newlines format are supported. But unix is
-preferred.
+The encoding of the file is UTF-8. Both unix (`\n`) and windows (`\r\n`)
+newlines format are supported. But unix is preferred.
 
 ## Comments
 
 C and C++ file comments are supported.
 
-* Anything after  `// ` and before a newline is considered a comment.
-* Everything between `/*` and `*/` is a comment, this comment can span multiple lines.
+-   Anything after  `// ` and before a newline is considered a comment.
+
+-   Everything between `/*` and `*/` is a comment, this comment can span
+    multiple lines.
 
 Comments can be nested and the C comments can be inline.
 
@@ -232,13 +237,15 @@ name
 ## File extension
 
 The preferred file extension for the new theme format is **rasi**. This is an
-abbreviation for **r**ofi **a**dvanced **s**tyle **i**nformation.
-If a theme file is split over multiple files, include files can have the: **rasinc** extension.
+abbreviation for **r**ofi **a**dvanced **s**tyle **i**nformation. If a theme
+file is split over multiple files, include files can have the: **rasinc**
+extension.
 
 ## Basic Structure
 
-Each element has a section with defined properties. Global properties can be defined in section `* { }`.
-Sub-section names begin with an optional hash symbol `#`.
+Each element has a section with defined properties. Global properties can be
+defined in section `* { }`. Sub-section names begin with an optional hash
+symbol `#`.
 
 It is advised to define the *global properties section* on top of the file to
 make inheritance of properties clearer.
@@ -258,13 +265,13 @@ make inheritance of properties clearer.
 }
 ```
 
-If there are multiple sections with the same name, they are merged. Duplicate properties are overwritten and the last
-parsed entry kept.
+If there are multiple sections with the same name, they are merged. Duplicate
+properties are overwritten and the last parsed entry kept.
 
 ## Global properties section
 
-A theme can have one or more global properties sections. If there is more than one,
-they will be merged.
+A theme can have one or more global properties sections. If there is more than
+one, they will be merged.
 
 The global properties section denotes the defaults for each element.
 Each property of this section can be referenced with `@{identifier}`
@@ -348,33 +355,34 @@ When used, values with the wrong type that cannot be converted are ignored.
 
 The current theme format supports different types:
 
- * a string
- * an integer number
- * a fractional number
- * a boolean value
- * a color
- * image
- * text style
- * line style
- * a distance
- * a padding
- * a border
- * a position
- * a reference
- * an orientation
- * a cursor
- * a list of keywords
- * an array of values
- * an environment variable
- * Inherit
+- a string
+- an integer number
+- a fractional number
+- a boolean value
+- a color
+- image
+- text style
+- line style
+- a distance
+- a padding
+- a border
+- a position
+- a reference
+- an orientation
+- a cursor
+- a list of keywords
+- an array of values
+- an environment variable
+- Inherit
 
 Some of these types are a combination of other types.
 
 ### String
 
-* Format:  `"[:print:]+"`
+- Format:  `"[:print:]+"`
 
-A string is always surrounded by double quotes (`"`). Between the quotes there can be any printable character.
+A string is always surrounded by double quotes (`"`). Between the quotes there
+can be any printable character.
 
 For example:
 
@@ -394,7 +402,7 @@ The following special characters can be escaped: `\b`, `\f`, `\n`, `\r`, `\t`, `
 
 ### Integer
 
-* Format: `[-+]?[:digit:]+`
+- Format: `[-+]?[:digit:]+`
 
 An integer may contain any number.
 
@@ -406,7 +414,7 @@ lines: 12;
 
 ### Real
 
-* Format: `[-+]?[:digit:]+(\.[:digit:]+)?`
+- Format: `[-+]?[:digit:]+(\.[:digit:]+)?`
 
 A real is an integer with an optional fraction.
 
@@ -420,10 +428,9 @@ The following is not valid: `.3`, `3.` or scientific notation: `3.4e-3`.
 
 ### Boolean
 
-* Format: `(true|false)`
+- Format: `(true|false)`
 
 Boolean value is either `true` or `false`. This is case-sensitive.
-
 
 For example:
 
@@ -435,58 +442,87 @@ dynamic: false;
 
 **rofi** support a limited set of background-image formats.
 
-* Format: url("path to image");
-* Format: url("path to image", scale);
-  where scale is: none, both, width, height
-* Format: linear-gradient(stop color,stop1, color, stop2 color, ...);
-* Format: linear-gradient(to direction, stop color,stop1, color, stop2 color, ...);
-  where direction is:   top,left,right,bottom.
-* Format: linear-gradient(angle, stop color,stop1, color, stop2 color, ...);
-  Angle in deg,rad,grad (as used in color).
+-   Format: url("path to image");
+
+-   Format: url("path to image", scale);
+    where scale is: none, both, width, height
+
+-   Format: linear-gradient(stop color,stop1, color, stop2 color, ...);
+
+-   Format: linear-gradient(to direction, stop color,stop1, color, stop2 color,
+    ...); where direction is:   top,left,right,bottom.
+
+-   Format: linear-gradient(angle, stop color,stop1, color, stop2 color, ...);
+    Angle in deg,rad,grad (as used in color).
 
 Where the `path` is a string, and `stop` color is of type color.
 
 ### Color
 
-**rofi** supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)
+**rofi** supports the color formats as specified in the CSS standard (1,2,3 and
+some of CSS 4)
 
-* Format: `#{HEX}{3}` (rgb)
-* Format: `#{HEX}{4}` (rgba)
-* Format: `#{HEX}{6}` (rrggbb)
-* Format: `#{HEX}{8}` (rrggbbaa)
-* Format: `rgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])`
-* Format: `rgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])`
-* Format: `hsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])`
-* Format: `hwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])`
-* Format: `cmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])`
-* Format: `{named-color} [ / {PERCENTAGE} ]`
+-   Format: `#{HEX}{3}` (rgb)
+
+-   Format: `#{HEX}{4}` (rgba)
+
+-   Format: `#{HEX}{6}` (rrggbb)
+
+-   Format: `#{HEX}{8}` (rrggbbaa)
+
+-   Format: `rgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])`
+
+-   Format: `rgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])`
+
+-   Format: `hsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])`
+
+-   Format: `hwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])`
+
+-   Format: `cmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [,
+    {PERCENTAGE} ])`
+
+-   Format: `{named-color} [ / {PERCENTAGE} ]`
 
 The white-space format proposed in CSS4 is also supported.
 
 The different values are:
 
- * `{HEX}` is a hexadecimal number ('0-9a-f' case insensitive).
- * `{INTEGER}` value can be between 0 and 255 or 0-100 when representing percentage.
- * `{ANGLE}` is the angle on the color wheel, can be in `deg`, `rad`, `grad` or `turn`. When no unit is specified, degrees is assumed.
- * `{PERCENTAGE}` can be between 0-1.0, or 0%-100%
- * `{named-color}` is one of the following colors:
+-   `{HEX}` is a hexadecimal number ('0-9a-f' case insensitive).
 
-    AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
-    BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan,
-    DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki, DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed,
-    DarkSalmon, DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise, DarkViolet, DeepPink, DeepSkyBlue,
-    DimGray, DimGrey, DodgerBlue, FireBrick, FloralWhite, ForestGreen, Fuchsia, Gainsboro, GhostWhite, Gold, GoldenRod,
-    Gray, Grey, Green, GreenYellow, HoneyDew, HotPink, IndianRed, Indigo, Ivory, Khaki, Lavender, LavenderBlush, LawnGreen,
-    LemonChiffon, LightBlue, LightCoral, LightCyan, LightGoldenRodYellow, LightGray, LightGrey, LightGreen, LightPink,
-    LightSalmon, LightSeaGreen, LightSkyBlue, LightSlateGray, LightSlateGrey, LightSteelBlue, LightYellow, Lime, LimeGreen,
-    Linen, Magenta, Maroon, MediumAquaMarine, MediumBlue, MediumOrchid, MediumPurple, MediumSeaGreen, MediumSlateBlue,
-    MediumSpringGreen, MediumTurquoise, MediumVioletRed, MidnightBlue, MintCream, MistyRose, Moccasin, NavajoWhite, Navy,
-    OldLace, Olive, OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen, PaleTurquoise, PaleVioletRed,
-    PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown,
-    Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen,
-    SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen,transparent
+-   `{INTEGER}` value can be between 0 and 255 or 0-100 when representing
+    percentage.
 
+-   `{ANGLE}` is the angle on the color wheel, can be in `deg`, `rad`, `grad`
+    or `turn`. When no unit is specified, degrees is assumed.
 
+-   `{PERCENTAGE}` can be between 0-1.0, or 0%-100%
+
+-   `{named-color}` is one of the following colors:
+
+    AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black,
+    BlanchedAlmond, Blue, BlueViolet, Brown, BurlyWood, CadetBlue, Chartreuse,
+    Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue,
+    DarkCyan, DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki,
+    DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed, DarkSalmon,
+    DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise,
+    DarkViolet, DeepPink, DeepSkyBlue, DimGray, DimGrey, DodgerBlue, FireBrick,
+    FloralWhite, ForestGreen, Fuchsia, Gainsboro, GhostWhite, Gold, GoldenRod,
+    Gray, Grey, Green, GreenYellow, HoneyDew, HotPink, IndianRed, Indigo,
+    Ivory, Khaki, Lavender, LavenderBlush, LawnGreen, LemonChiffon, LightBlue,
+    LightCoral, LightCyan, LightGoldenRodYellow, LightGray, LightGrey,
+    LightGreen, LightPink, LightSalmon, LightSeaGreen, LightSkyBlue,
+    LightSlateGray, LightSlateGrey, LightSteelBlue, LightYellow, Lime,
+    LimeGreen, Linen, Magenta, Maroon, MediumAquaMarine, MediumBlue,
+    MediumOrchid, MediumPurple, MediumSeaGreen, MediumSlateBlue,
+    MediumSpringGreen, MediumTurquoise, MediumVioletRed, MidnightBlue,
+    MintCream, MistyRose, Moccasin, NavajoWhite, Navy, OldLace, Olive,
+    OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen,
+    PaleTurquoise, PaleVioletRed, PapayaWhip, PeachPuff, Peru, Pink, Plum,
+    PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown,
+    Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue,
+    SlateGray, SlateGrey, Snow, SpringGreen, SteelBlue, Tan, Teal, Thistle,
+    Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow,
+    YellowGreen,transparent
 
 For example:
 
@@ -504,50 +540,50 @@ text-color: Black;
 
 ### Text style
 
-* Format: `(bold|italic|underline|strikethrough|none)`
+- Format: `(bold|italic|underline|strikethrough|none)`
 
-Text style indicates how the highlighted text is emphasized. `None` indicates that no emphasis
-should be applied.
+Text style indicates how the highlighted text is emphasized. `None` indicates
+that no emphasis should be applied.
 
- * `bold`: make the text thicker then the surrounding text.
- * `italic`: put the highlighted text in script type (slanted).
- * `underline`: put a line under the text.
- * `strikethrough`: put a line through the text.
+- `bold`: make the text thicker then the surrounding text.
+- `italic`: put the highlighted text in script type (slanted).
+- `underline`: put a line under the text.
+- `strikethrough`: put a line through the text.
 
 The following options are available on pango 1.50.0 and up:
 
- * `uppercase`: Uppercase the text.
- * `lowercase`: Lowercase the text.
+- `uppercase`: Uppercase the text.
+- `lowercase`: Lowercase the text.
 
- The following option is disabled as pango crashes on this if there is eel
- upsizing or wrapping. This will be re-enabled once fixed:
+The following option is disabled as pango crashes on this if there is eel
+upsizing or wrapping. This will be re-enabled once fixed:
 
- * `capitalize`: Capitalize the text.
+- `capitalize`: Capitalize the text.
 
 ### Line style
 
-* Format: `(dash|solid)`
+- Format: `(dash|solid)`
 
 Indicates how a line should be drawn.
 It currently supports:
- * `dash`:  a dashed line, where the gap is the same width as the dash
- * `solid`: a solid line
+- `dash`:  a dashed line, where the gap is the same width as the dash
+- `solid`: a solid line
 
 ### Distance
 
-* Format: `{Integer}px`
-* Format: `{Real}em`
-* Format: `{Real}ch`
-* Format: `{Real}%`
-* Format: `{Integer}mm`
+- Format: `{Integer}px`
+- Format: `{Real}em`
+- Format: `{Real}ch`
+- Format: `{Real}%`
+- Format: `{Integer}mm`
 
 A distance can be specified in 3 different units:
 
-* `px`: Screen pixels.
-* `em`: Relative to text height.
-* `ch`: Relative to width of a single number.
-* `mm`: Actual size in millimeters (based on dpi).
-* `%`:  Percentage of the **monitor** size.
+- `px`: Screen pixels.
+- `em`: Relative to text height.
+- `ch`: Relative to width of a single number.
+- `mm`: Actual size in millimeters (based on dpi).
+- `%`:  Percentage of the **monitor** size.
 
 Distances used in the horizontal direction use the monitor width. Distances in
 the vertical direction use the monitor height.
@@ -573,60 +609,68 @@ width: calc( 20% min 512 );
 
 It supports the following operations:
 
-* `+`      : Add
-* `-`      : Subtract
-* `/`      : Divide
-* `*`      : Multiply
-* `modulo` : Modulo
-* `min`    : Minimum of lvalue or rvalue;
-* `max`    : Maximum of lvalue or rvalue;
-* `floor`  : Round down lvalue to the next multiple of rvalue 
-* `ceil`   : Round up lvalue to the next multiple of rvalue 
-* `round`  : Round lvalue to the next multiple of rvalue 
+- `+`      : Add
+- `-`      : Subtract
+- `/`      : Divide
+- `-`      : Multiply
+- `modulo` : Modulo
+- `min`    : Minimum of lvalue or rvalue;
+- `max`    : Maximum of lvalue or rvalue;
+- `floor`  : Round down lvalue to the next multiple of rvalue 
+- `ceil`   : Round up lvalue to the next multiple of rvalue 
+- `round`  : Round lvalue to the next multiple of rvalue 
 
 It uses the C precedence ordering.
 
 ### Padding
 
-* Format: `{Integer}`
-* Format: `{Distance}`
-* Format: `{Distance} {Distance}`
-* Format: `{Distance} {Distance} {Distance}`
-* Format: `{Distance} {Distance} {Distance} {Distance}`
+- Format: `{Integer}`
+- Format: `{Distance}`
+- Format: `{Distance} {Distance}`
+- Format: `{Distance} {Distance} {Distance}`
+- Format: `{Distance} {Distance} {Distance} {Distance}`
 
 If no unit is specified, pixels are assumed.
 
 The different number of fields in the formats are parsed like:
 
-* 1 field: `all`
-* 2 fields: `top&bottom` `left&right`
-* 3 fields: `top`, `left&right`, `bottom`
-* 4 fields: `top`, `right`, `bottom`, `left`
-
+- 1 field: `all`
+- 2 fields: `top&bottom` `left&right`
+- 3 fields: `top`, `left&right`, `bottom`
+- 4 fields: `top`, `right`, `bottom`, `left`
 
 ### Border
 
-* Format: `{Integer}`
-* Format: `{Distance}`
-* Format: `{Distance} {Distance}`
-* Format: `{Distance} {Distance} {Distance}`
-* Format: `{Distance} {Distance} {Distance} {Distance}`
-* Format: `{Distance} {Line style}`
-* Format: `{Distance} {Line style} {Distance} {Line style}`
-* Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}`
-* Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}`
+-   Format: `{Integer}`
+
+-   Format: `{Distance}`
+
+-   Format: `{Distance} {Distance}`
+
+-   Format: `{Distance} {Distance} {Distance}`
+
+-   Format: `{Distance} {Distance} {Distance} {Distance}`
+
+-   Format: `{Distance} {Line style}`
+
+-   Format: `{Distance} {Line style} {Distance} {Line style}`
+
+-   Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line
+    style}`
+
+-   Format: `{Distance} {Line style} {Distance} {Line style} {Distance} {Line
+    style} {Distance} {Line style}`
 
 Borders are identical to padding, except that each distance field has a line
 style property.
 
 > When no unit is specified, pixels are assumed.
 
-
 ### Position
 
 Indicate a place on the window/monitor.
 
-```
+```text
 ┌─────────────┬─────────────┬─────────────┐
 │ north west  │    north    │  north east │
 ├─────────────┼─────────────┼─────────────┤
@@ -636,7 +680,8 @@ Indicate a place on the window/monitor.
 └─────────────┴─────────────┴─────────────┘
 ```
 
-* Format: `(center|east|north|west|south|north east|north west|south west|south east)`
+- Format: `(center|east|north|west|south|north east|north west|south west|south
+  east)`
 
 ### Visibility
 
@@ -648,14 +693,13 @@ inputbar {
 }
 ```
 
-
 ### Reference
 
-* Format: `@{PROPERTY NAME}`
+- Format: `@{PROPERTY NAME}`
 
-A reference can point to another reference. Currently, the maximum number of redirects is 20.
-A property always refers to another property. It cannot be used for a subpart of the property.
-For example, this is not valid:
+A reference can point to another reference. Currently, the maximum number of
+redirects is 20. A property always refers to another property. It cannot be
+used for a subpart of the property. For example, this is not valid:
 
 ```css
 highlight: bold @pink;
@@ -673,10 +717,11 @@ window {
 }
 ```
 
-* Format: `var(PROPERTY NAME, DEFAULT)`
+- Format: `var(PROPERTY NAME, DEFAULT)`
 
-A reference can point to another reference. Currently, the maximum number of redirects is 20.
-A property always refers to another property. It cannot be used for a subpart of the property.
+A reference can point to another reference. Currently, the maximum number of
+redirects is 20. A property always refers to another property. It cannot be
+used for a subpart of the property.
 
 Example:
 
@@ -686,41 +731,43 @@ window {
 }
 ```
 
-If the property `width` is set globally (`*{}`) that value is used, if the property
-`width` is not set, the default value is used.
-
+If the property `width` is set globally (`*{}`) that value is used, if the
+property `width` is not set, the default value is used.
 
 ### Orientation
 
- * Format: `(horizontal|vertical)`
+- Format: `(horizontal|vertical)`
 
 Specify the orientation of the widget.
 
 ### Cursor
 
- * Format: `(default|pointer|text)`
+- Format: `(default|pointer|text)`
 
-Specify the type of mouse cursor that is set when the mouse pointer is over the widget.
+Specify the type of mouse cursor that is set when the mouse pointer is over the
+widget.
 
 ### List of keywords
 
-* Format: `[ keyword, keyword ]`
+- Format: `[ keyword, keyword ]`
 
-A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
-The `keyword` in the list refers to an widget name.
+A list starts with a '[' and ends with a ']'. The entries in the list are
+comma-separated. The `keyword` in the list refers to an widget name.
 
 ### List of values
 
-* Format: `[ value, value, ... ]`
+- Format: `[ value, value, ... ]`
 
-An list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
+An list starts with a '[' and ends with a ']'. The entries in the list are
+comma-separated.
 
 ### Environment variable
 
-* Format: `${:alnum:}`
+- Format: `${:alnum:}`
 
-This will parse the environment variable as the property value. (that then can be any of the above types).
-The environment variable should be an alphanumeric string without white-space.
+This will parse the environment variable as the property value. (that then can
+be any of the above types). The environment variable should be an alphanumeric
+string without white-space.
 
 ```css
 * {
@@ -728,11 +775,12 @@ The environment variable should be an alphanumeric string without white-space.
 }
 ```
 
-* Format: `env(ENVIRONMENT, default)`
+- Format: `env(ENVIRONMENT, default)`
 
-This will parse the environment variable as the property value. (that then can be any of the above types).
-The environment variable should be an alphanumeric string without white-space.
-If the environment value is not found, the default value is used.
+This will parse the environment variable as the property value. (that then can
+be any of the above types). The environment variable should be an alphanumeric
+string without white-space. If the environment value is not found, the default
+value is used.
 
 ```css
 window {
@@ -740,11 +788,12 @@ window {
 }
 ```
 
-If environment WIDTH is set, then that value is parsed, otherwise the default value (`40%`).
+If environment WIDTH is set, then that value is parsed, otherwise the default
+value (`40%`).
 
 ### Inherit
 
- * Format: `inherit`
+- Format: `inherit`
 
 Inherits the property from its parent widget.
 
@@ -754,11 +803,10 @@ mainbox {
 }
 ```
 
-
 ## Elements paths
 
-Element paths exists of two parts, the first part refers to the actual widget by name.
-Some widgets have an extra state.
+Element paths exists of two parts, the first part refers to the actual widget
+by name. Some widgets have an extra state.
 
 For example:
 
@@ -767,9 +815,11 @@ element selected {
 }
 ```
 
-Here `element selected` is the name of the widget, `selected` is the state of the widget.
+Here `element selected` is the name of the widget, `selected` is the state of
+the widget.
 
-The difference between dots and spaces is purely cosmetic. These are all the same:
+The difference between dots and spaces is purely cosmetic. These are all the
+same:
 
 ```css
 element .selected {
@@ -782,36 +832,58 @@ element selected {
 
 ### Supported element paths
 
-### Name
+### Base widgets
 
 The default widgets available in **rofi** and the default hierarchic:
 
-* `window`
-  * `overlay`: the overlay widget.
-  * `mainbox`: The mainbox box.
-    * `inputbar`: The input bar box.
-      * `box`: the horizontal @box packing the widgets
-      * `case-indicator`: the case/sort indicator @textbox
-      * `prompt`: the prompt @textbox
-      * `entry`: the main entry @textbox
-      * `num-rows`: Shows the total number of rows.
-      * `num-filtered-rows`: Shows the total number of rows after filtering.
-      * `textbox-current-entry`: Shows the text of the currently selected entry.
-      * `icon-current-entry`: Shows the icon of the currently selected entry.
-    * `listview`: The listview.
-       * `scrollbar`: the listview scrollbar
-       * `element`: a box in the listview holding the entries
-           * `element-icon`: the widget in the listview's entry showing the (optional) icon
-           * `element-index`: the widget in the listview's entry keybindable index (1,2,3..0)
-           * `element-text`: the widget in the listview's entry showing the text.
-    * `mode-switcher`: the main horizontal @box packing the buttons.
-      * `button`: the buttons @textbox for each mode
-    * `message`: The container holding the textbox.
-      * `textbox`: the message textbox
+- `window`
+  -   `overlay`: the overlay widget.
 
-Note that these path names match the default theme. Themes that provide a custom layout will have different
-elements, and structure.
+  -   `mainbox`: The mainbox box.
 
+   -   `inputbar`: The input bar box.
+       -   `box`: the horizontal @box packing the widgets
+
+          -   `case-indicator`: the case/sort indicator @textbox
+
+          -   `prompt`: the prompt @textbox
+
+          -   `entry`: the main entry @textbox
+
+          -   `num-rows`: Shows the total number of rows.
+
+          -   `num-filtered-rows`: Shows the total number of rows after
+              filtering.
+
+          -   `textbox-current-entry`: Shows the text of the currently selected
+              entry.
+
+          -   `icon-current-entry`: Shows the icon of the currently selected
+              entry.
+
+   -   `listview`: The listview.
+
+       -   `scrollbar`: the listview scrollbar
+
+       -   `element`: a box in the listview holding the entries
+
+	     -   `element-icon`: the widget in the listview's entry showing the
+		 (optional) icon
+
+	     -   `element-index`: the widget in the listview's entry
+		 keybindable index (1,2,3..0)
+
+	     -   `element-text`: the widget in the listview's entry showing the
+		 text.
+
+   -   `mode-switcher`: the main horizontal @box packing the buttons.
+       - `button`: the buttons @textbox for each mode
+
+   -   `message`: The container holding the textbox.
+       - `textbox`: the message textbox
+
+Note that these path names match the default theme. Themes that provide a
+custom layout will have different elements, and structure.
 
 ### State
 
@@ -821,7 +893,7 @@ Optional flag(s) indicating state of the widget, used for theming.
 
 These are appended after the name or class of the widget.
 
-#### Example:
+#### Example
 
 `button selected.normal { }`
 
@@ -829,19 +901,19 @@ These are appended after the name or class of the widget.
 
 Currently only the entrybox and scrollbar have states:
 
-#### Entrybox:
+#### Entrybox
 
 `{visible modifier}.{state}`
 
 Where `visible modifier` can be:
- * normal: no modification
- * selected: the entry is selected/highlighted by user
- * alternate: the entry is at an alternating row (uneven row)
+- normal: no modification
+- selected: the entry is selected/highlighted by user
+- alternate: the entry is at an alternating row (uneven row)
 
 Where `state` is:
- * normal: no modification
- * urgent: this entry is marked urgent
- * active: this entry is marked active
+- normal: no modification
+- urgent: this entry is marked urgent
+- active: this entry is marked active
 
 These can be mixed.
 
@@ -854,14 +926,14 @@ nametotextbox selected.active {
 }
 ```
 
-Sets all selected textboxes marked active to the given text and background color.
-Note that a state modifies the original element, it therefore contains all the properties of that element.
+Sets all selected textboxes marked active to the given text and background
+color. Note that a state modifies the original element, it therefore contains
+all the properties of that element.
 
 #### Scrollbar
 
 The scrollbar uses the `handle` state when drawing the small scrollbar handle.
 This allows the colors used for drawing the handle to be set independently.
-
 
 ## Widget properties
 
@@ -869,156 +941,204 @@ The following properties are currently supported:
 
 ###  all widgets
 
-* **enabled**:           enable/disable rendering of the widget
-* **padding**:           padding
-  Padding on the inside of the widget
-* **margin**:            padding
-  Margin on the outside of the widget
-* **border**:            border
-  Border around the widget (between padding and margin)/
-* **border-radius**:     padding
-  Sets a radius on the corners of the borders.
-* **background-color**:  color
-  Background color
-* **background-image**:  image
-  Background image
-* **border-color**:      color
-  Color of the border
-* **cursor**:            cursor
-  Type of mouse cursor that is set when the mouse pointer is hovered over the widget.
+-   **enabled**:           enable/disable rendering of the widget
+
+-   **padding**:           padding
+    Padding on the inside of the widget
+
+-   **margin**:            padding
+    Margin on the outside of the widget
+
+-   **border**:            border
+    Border around the widget (between padding and margin)/
+
+-   **border-radius**:     padding
+    Sets a radius on the corners of the borders.
+
+-   **background-color**:  color
+    Background color
+
+-   **background-image**:  image
+    Background image
+
+-   **border-color**:      color
+    Color of the border
+
+-   **cursor**:            cursor
+    Type of mouse cursor that is set when the mouse pointer is hovered over the
+    widget.
 
 ### window
 
-* **font**:            string
-  The font used in the window
+-   **font**:            string
+    The font used in the window
 
-* **transparency**:    string
-  Indicating if transparency should be used and what type:
-  **real** - True transparency. Only works with a compositor.
-  **background** - Take a screenshot of the background image and use that.
-  **screenshot** - Take a screenshot of the screen and use that.
-  **Path** to png file - Use an image.
+-   **transparency**:    string
+    Indicating if transparency should be used and what type:
+    - **real** - True transparency. Only works with a compositor.
+    - **background** - Take a screenshot of the background image and use that.
+    - **screenshot** - Take a screenshot of the screen and use that.
+    - **Path** to png file - Use an image.
 
-* **location**:       position
-    The place of the anchor on the monitor
-* **anchor**:         anchor
-    The anchor position on the window
-* **fullscreen**:     boolean
-    Window is fullscreen.
-* **width**:          distance
-    The width of the window
-* **x-offset**:       distance
-* **y-offset**:       distance
-    The offset of the window to the anchor point, allowing you to push the window left/right/up/down
+-   **location**:       position
+      The place of the anchor on the monitor
 
+-   **anchor**:         anchor
+      The anchor position on the window
 
-### scrollbar
+-   **fullscreen**:     boolean Window is fullscreen.
 
-* **background-color**:    color
-* **handle-width**:        distance
-* **handle-color**:        color
-* **border-color**:        color
+-   **width**:          distance The width of the window
+
+-   **x-offset**:       distance
+
+-   **y-offset**:       distance The offset of the window to the anchor point,
+    allowing you to push the window left/right/up/down
+
+### scrollbar Properties
+
+- **background-color**:    color
+- **handle-width**:        distance
+- **handle-color**:        color
+- **border-color**:        color
 
 ### box
 
-* **orientation**:      orientation
-        Set the direction the elements are packed.
-* **spacing**:          distance
-        Distance between the packed elements.
+- **orientation**:      orientation Set the direction the elements are packed.
+- **spacing**:          distance Distance between the packed elements.
 
 ### textbox
 
-* **background-color**:  color
-* **border-color**:      the color used for the border around the widget.
-* **font**:              the font used by this textbox (string).
-* **str**/**content**:   the string to display by this textbox (string).
-* **vertical-align**:    Vertical alignment of the text. A number between 0 (top) and 1 (bottom).
-* **horizontal-align**:  Horizontal alignment of the text. A number between 0 (left) and 1 (right).
-* **text-color**:        the text color to use.
-* **text-transform**:    text style {color} for the whole text.
-* **highlight**:         text style {color}.
-    color is optional, multiple highlight styles can be added like: bold underline italic #000000;
-    This option is only available on the `element-text` widget.
-* **width**:             override the desired width for the textbox.
-* **content**:           Set the displayed text (String).
-* **placeholder**:       Set the displayed text (String) when nothing is entered.
-* **placeholder-markup**:       If true, placeholder text supports pango markup for stylizing.
-* **placeholder-color**: Color of the placeholder text.
-* **blink**:             Enable/Disable blinking on an input textbox (Boolean).
-* **markup**:            Force markup on, beware that only valid pango markup strings are shown.
-* **tab-stops**:         array of distances
-    Set the location of tab stops by their distance from the beginning of the line.
-    Each distance should be greater than the previous one.
-    The text appears to the right of the tab stop position (other alignments are not supported yet).
-* **cursor-width**:      The width of the cursor.
-* **cursor-color**:      The color used to draw the cursor.
-* **cursor-outline**:      Enable a border (outline) around the cursor. (Boolean)
-* **cursor-outline-width**: The width of the border around the cursor.  (Double)
-* **cursor-outline-color**: The color to use for the cursor outline.    (Color)
-* **text-outline**:      Enable a border (outline) around the text. (Boolean)
-* **text-outline-width**: The width of the border around the text.  (Double)
-* **text-outline-color**: The color to use for the text outline.    (Color)
+-   **background-color**:  color
+
+-   **border-color**:      the color used for the border around the widget.
+
+-   **font**:              the font used by this textbox (string).
+
+-   **str**/**content**:   the string to display by this textbox (string).
+
+-   **vertical-align**:    Vertical alignment of the text. A number between 0
+    (top) and 1 (bottom).
+
+-   **horizontal-align**:  Horizontal alignment of the text. A number between 0
+    (left) and 1 (right).
+
+-   **text-color**:        the text color to use.
+
+-   **text-transform**:    text style {color} for the whole text.
+
+-   **highlight**:         text style {color}. color is optional, multiple
+    highlight styles can be added like: bold underline italic #000000; This
+    option is only available on the `element-text` widget.
+
+-   **width**:             override the desired width for the textbox.
+
+-   **content**:           Set the displayed text (String).
+
+-   **placeholder**:       Set the displayed text (String) when nothing is
+    entered.
+
+-   **placeholder-markup**:       If true, placeholder text supports pango
+    markup for stylizing.
+
+-   **placeholder-color**: Color of the placeholder text.
+
+-   **blink**:             Enable/Disable blinking on an input textbox
+    (Boolean).
+
+-   **markup**:            Force markup on, beware that only valid pango markup
+    strings are shown.
+
+-   **tab-stops**:         array of distances. Set the location of tab stops by
+    their distance from the beginning of the line. Each distance should be
+    greater than the previous one. The text appears to the right of the tab
+    stop position (other alignments are not supported yet).
+
+-   **cursor-width**:      The width of the cursor.
+
+-   **cursor-color**:      The color used to draw the cursor.
+
+-   **cursor-outline**:      Enable a border (outline) around the cursor.
+    (Boolean)
+
+-   **cursor-outline-width**: The width of the border around the cursor.
+    (Double)
+
+-   **cursor-outline-color**: The color to use for the cursor outline.
+    (Color)
+
+-   **text-outline**:      Enable a border (outline) around the text. (Boolean)
+
+-   **text-outline-width**: The width of the border around the text.  (Double)
+
+-   **text-outline-color**: The color to use for the text outline.    (Color)
 
 ### listview
-* **columns**:         integer
-    Number of columns to show (at least 1)
-* **fixed-height**:    boolean
-    Always show `lines` rows, even if fewer elements are available.
-* **dynamic**:         boolean
-    `True` if the size should change when filtering the list, `False` if it should keep the original height.
-* **scrollbar**:       boolean
-    If the scrollbar should be enabled/disabled.
-* **scrollbar-width**: distance
-    Width of the scrollbar
-* **cycle**:           boolean
-    When navigating, it should wrap around
-* **spacing**:         distance
-    Spacing between the elements (both vertical and horizontal)
-* **lines**:           integer
-    Number of rows to show in the list view.
-* **layout**:           orientation
-    Indicate how elements are stacked. Horizontal implements the dmenu style.
-* **reverse**:         boolean
-    Reverse the ordering (top down to bottom up).
-* **flow**:           orientation
-    The order the elements are layed out.  Vertical is the original 'column' view.
-* **fixed-columns**:    boolean
-    Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.
-* **require-input**:    boolean
-    Listview requires user input to be unhidden. The list is still present and
-    hitting accept will activate the first entry.
+-   **columns**:         integer Number of columns to show (at least 1)
+
+-   **fixed-height**:    boolean Always show `lines` rows, even if fewer
+    elements are available.
+
+-   **dynamic**:         boolean `True` if the size should change when filtering
+    the list, `False` if it should keep the original height.
+
+-   **scrollbar**:       boolean If the scrollbar should be enabled/disabled.
+
+-   **scrollbar-width**: distance Width of the scrollbar
+
+-   **cycle**:           boolean When navigating, it should wrap around
+
+-   **spacing**:         distance Spacing between the elements (both vertical
+    and horizontal)
+
+-   **lines**:           integer Number of rows to show in the list view.
+
+-   **layout**:           orientation Indicate how elements are stacked.
+    Horizontal implements the dmenu style.
+
+-   **reverse**:         boolean Reverse the ordering (top down to bottom up).
+
+-   **flow**:           orientation The order the elements are layed out.
+    Vertical is the original 'column' view.
+
+-   **fixed-columns**:    boolean Do not reduce the number of columns shown when
+    number of visible elements is not enough to fill them all.
+
+-   **require-input**:    boolean Listview requires user input to be unhidden.
+    The list is still present and hitting accept will activate the first entry.
 
 ## Listview widget
 
 The listview widget is special container widget.
 It has the following fixed children widgets:
 
-* 0 or more `element` widgets of the type box.
-* An optional `scrollbar` widget. This can be enabled using the scrollbar
-  property.
+-   0 or more `element` widgets of the type box.
+
+-   An optional `scrollbar` widget. This can be enabled using the scrollbar
+    property.
 
 These cannot be changed using the `children` property.
 
 Each Entry displayed by listview is captured by a `box` called `element`.
 An `element` widget can contain the following special child widgets:
 
-* `element-icon`: An icon widget showing the icon associated to the entry.
-* `element-text`: A textbox widget showing the text associated to the entry.
-* `element-index`: A textbox widget that shows the shortcut keybinding number.
+- `element-icon`: An icon widget showing the icon associated to the entry.
+- `element-text`: A textbox widget showing the text associated to the entry.
+- `element-index`: A textbox widget that shows the shortcut keybinding number.
 
 By default the `element-icon` and `element-text` child widgets are added to the
 `element`. This can be modified using the `children` property or the
 `[no]-show-icons` option.
 
-A child added with another name is treated the same as the special widget described
-in the [advanced layout](#advanced-layout) section.
+A child added with another name is treated the same as the special widget
+described in the [advanced layout](#advanced-layout) section.
 
-#### listview text highlight
+### listview text highlight
 
 The `element-text` widget in the `listview` is the one used to show the text.
-On this widget set the `highlight` property (only place this property is used) to change
-the style of highlighting.
-The `highlight` property consist of the `text-style` property and a color.
+On this widget set the `highlight` property (only place this property is used)
+to change the style of highlighting. The `highlight` property consist of the
+`text-style` property and a color.
 
 To disable highlighting:
 
@@ -1038,18 +1158,19 @@ To set to red underlined:
 
 ## Layout
 
-The new format allows the layout of the **rofi** window to be tweaked extensively.
-For each widget, the themer can specify padding, margin, border, font, and more.
-It even allows, as an advanced feature, to pack widgets in a custom structure.
+The new format allows the layout of the **rofi** window to be tweaked
+extensively. For each widget, the themer can specify padding, margin, border,
+font, and more. It even allows, as an advanced feature, to pack widgets in a
+custom structure.
 
-### Basic structure
+### Basic layout structure
 
 The whole view is made out of boxes that pack other boxes or widgets.
 The box can be vertical or horizontal. This is loosely inspired by [GTK](http://gtk.org/).
 
 The current layout of **rofi** is structured as follows:
 
-```
+```text
 ┌────────────────────────────────────────────────────────────────────────────────────┐
 │ window {BOX:vertical}                                                              │
 │ ┌───────────────────────────────────────────────────────────────────────────────┐  │
@@ -1089,13 +1210,13 @@ The current layout of **rofi** is structured as follows:
 
 
 ```
-> * ci is the case-indicator
-> * fr is the num-filtered-rows
-> * ns is the num-rows
+> - ci is the case-indicator
+> - fr is the num-filtered-rows
+> - ns is the num-rows
 
 ### Error message structure
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │ window {BOX:vertical}                                                            │
 │ ┌─────────────────────────────────────────────────────────────────────────────┐  │
@@ -1110,36 +1231,37 @@ The current layout of **rofi** is structured as follows:
 
 ### Advanced layout
 
-The layout of **rofi** can be tweaked by packing the 'fixed' widgets in a custom structure.
+The layout of **rofi** can be tweaked by packing the 'fixed' widgets in a
+custom structure.
 
 The following widgets are fixed, as they provide core **rofi** functionality:
 
- * prompt
- * entry
- * overlay
- * case-indicator
- * message
- * listview
- * mode-switcher
- * num-rows
- * num-filtered-rows
+- prompt
+- entry
+- overlay
+- case-indicator
+- message
+- listview
+- mode-switcher
+- num-rows
+- num-filtered-rows
 
-The following keywords are defined and can be used to automatically pack a subset of the widgets.
-These are used in the default theme as depicted in the figure above.
+The following keywords are defined and can be used to automatically pack a
+subset of the widgets. These are used in the default theme as depicted in the
+figure above.
 
- * mainbox
-   Packs: `inputbar, message, listview, mode-switcher`
- * inputbar
-   Packs: `prompt,entry,case-indicator`
+- mainbox Packs: `inputbar, message, listview, mode-switcher`
+- inputbar Packs: `prompt,entry,case-indicator`
 
-Any widget name starting with `textbox` is a textbox widget, others are box widgets and can pack other widgets.
+Any widget name starting with `textbox` is a textbox widget, others are box
+widgets and can pack other widgets.
 
-There are several special widgets that can be used by prefixing the name of the widget:
+There are several special widgets that can be used by prefixing the name of the
+widget:
 
-#### textbox
+#### Textbox widget
 
 This is a read-only textbox widget. The displayed string can be set with `content`.
-
 
 Example:
 
@@ -1152,11 +1274,13 @@ textbox-custom {
 
 #### Icon
 
-This is an icon widget. The displayed icon can be set with `filename` and size with `size`.
-If the property `action` is set, it acts as a button.
-`action` can be set to a keybinding name and completes that action. (see rofi -show keys for a list).
+This is an icon widget. The displayed icon can be set with `filename` and size
+with `size`. If the property `action` is set, it acts as a button. `action` can
+be set to a keybinding name and completes that action. (see rofi -show keys for
+a list).
 
-If the `squared` property is set to **false** the widget height and width are not forced to be equal.
+If the `squared` property is set to **false** the widget height and width are
+not forced to be equal.
 
 Example:
 
@@ -1170,12 +1294,11 @@ icon-paste {
 }
 ```
 
-
 #### button
 
-This is a textbox widget that can have a 'clickable' action.
-The `action` can be set to:
-`keybinding`: accepts a keybinding name and completes that action. (see rofi -show keys for a list).
+This is a textbox widget that can have a 'clickable' action. The `action` can
+be set to: `keybinding`: accepts a keybinding name and completes that action.
+(see rofi -show keys for a list).
 
 ```css
 button-paste {
@@ -1185,7 +1308,6 @@ button-paste {
     action: "kb-primary-paste";
 }
 ```
-
 
 #### Children
 
@@ -1242,12 +1364,11 @@ element selected {
 }
 ```
 
-
 ### Padding and margin
 
 Just like CSS, **rofi** uses the box model for each widget.
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────┐
 │ margin                                                           │
 │  ┌────────────────────────────────────────────────────────────┐  │
@@ -1264,25 +1385,29 @@ Just like CSS, **rofi** uses the box model for each widget.
 
 Explanation of the different parts:
 
- * Content - The content of the widget.
- * Padding - Clears an area around the widget.
-   The padding shows the background color of the widget.
- * Border - A border that goes around the padding and content.
-   The border use the border-color of the widget.
- * Margin - Clears an area outside the border.
-   The margin is transparent.
+-   Content - The content of the widget.
 
-The box model allows us to add a border around elements, and to define space between elements.
+-   Padding - Clears an area around the widget. The padding shows the
+    background color of the widget.
+
+-   Border - A border that goes around the padding and content. The border use
+    the border-color of the widget.
+
+-   Margin - Clears an area outside the border. The margin is transparent.
+
+The box model allows us to add a border around elements, and to define space
+between elements.
 
 The size of each margin, border, and padding can be set.
 For the border, a linestyle and radius can be set.
 
 ### Spacing
 
-Widgets that can pack more then one child widget (currently box and listview) have the `spacing` property.
-This property sets the distance between the packed widgets (both horizontally and vertically).
+Widgets that can pack more then one child widget (currently box and listview)
+have the `spacing` property. This property sets the distance between the packed
+widgets (both horizontally and vertically).
 
-```
+```text
 ┌───────────────────────────────────────┐
 │ ┌────────┐ s ┌────────┐ s ┌────────┐  │
 │ │ child  │ p │ child  │ p │ child  │  │
@@ -1296,9 +1421,10 @@ This property sets the distance between the packed widgets (both horizontally an
 
 ### Advanced box packing
 
-More dynamic spacing can be achieved by adding dummy widgets, for example to make one widget centered:
+More dynamic spacing can be achieved by adding dummy widgets, for example to
+make one widget centered:
 
-```
+```text
 ┌────────────────────────────────────────────────────┐
 │  ┌───────────────┐  ┌────────┐  ┌───────────────┐  │
 │  │ dummy         │  │ child  │  │ dummy         │  │
@@ -1310,29 +1436,32 @@ More dynamic spacing can be achieved by adding dummy widgets, for example to mak
 └────────────────────────────────────────────────────┘
 ```
 
-If both dummy widgets are set to expand, `child` will be centered. Depending on the `expand` flag of child the
-remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets
-(expand disabled).
+If both dummy widgets are set to expand, `child` will be centered. Depending on
+the `expand` flag of child the remaining space will be equally divided between
+both dummy and child widget (expand enabled), or both dummy widgets (expand
+disabled).
 
 ## Debugging
 
 To get debug information from the parser, run rofi like:
 
-```
+```bash
 G_MESSAGES_DEBUG=Parser rofi -show run
 ```
 
-Syntax errors are shown in a popup and printed out to command line with the above command.
+Syntax errors are shown in a popup and printed out to command line with the
+above command.
 
 To see the elements queried during running, run:
 
-```
+```bash
 G_MESSAGES_DEBUG=Theme rofi -show run
 ```
 
-To test minor changes, part of the theme can be passed on the command line, for example to set it to full-screen:
+To test minor changes, part of the theme can be passed on the command line, for
+example to set it to full-screen:
 
-```
+```bash
 rofi -theme-str 'window { fullscreen:true;}' -show run
 ```
 
@@ -1344,7 +1473,7 @@ rofi -theme+window+fullscreen true -show run
 
 To print the current theme, run:
 
-```
+```bash
 rofi -dump-theme
 ```
 
@@ -1352,7 +1481,7 @@ rofi -dump-theme
 
 Parts of the theme can be conditionally loaded, like the CSS `@media` option.
 
-```
+```css
 @media ( min-width: 120 ) {
 
 }
@@ -1360,25 +1489,25 @@ Parts of the theme can be conditionally loaded, like the CSS `@media` option.
 
 It supports the following keys as constraint:
 
- * `min-width`:         load when width is bigger or equal then value.
- * `max-width`:         load when width is smaller then value.
- * `min-height`:        load when height is bigger or equal then value.
- * `max-height`:        load when height is smaller then value.
- * `min-aspect-ratio`   load when aspect ratio is over value.
- * `max-aspect-ratio`:  load when aspect ratio is under value.
- * `monitor-id`:        The monitor id, see rofi -help for id's.
- * `enabled`:           Boolean option to enable. Supports environment variable.
+- `min-width`:         load when width is bigger or equal then value.
+- `max-width`:         load when width is smaller then value.
+- `min-height`:        load when height is bigger or equal then value.
+- `max-height`:        load when height is smaller then value.
+- `min-aspect-ratio`   load when aspect ratio is over value.
+- `max-aspect-ratio`:  load when aspect ratio is under value.
+- `monitor-id`:        The monitor id, see rofi -help for id's.
+- `enabled`:           Boolean option to enable. Supports environment variable.
 
-@media takes an integer number or a fraction, for integer number `px` can be added.
+@media takes an integer number or a fraction, for integer number `px` can be
+added.
 
-
-```
+```css
 @media ( min-width: 120 px ) {
 
 }
 ```
 
-```
+```css
 @media ( enabled: env(DO_LIGHT, false ) {
 
 }
@@ -1400,13 +1529,13 @@ Rofi uses [pango](https://pango.gnome.org/) for font rendering. The font should
 be specified in a format that pango understands. This normally is the font name
 followed by the font size. For example:
 
-```
+```text
 mono 18
 ```
 
 Or
 
-```
+```text
 FontAwesome 22
 ```
 
@@ -1451,15 +1580,13 @@ A typical example:
 
 "Cantarell Italic Light 15 \`wght`=200"
 
-
 ## Icon Handling 
 
 Rofi supports 3 ways of specifying an icon:
 
-* Filename
-* icon-name, this is looked up via the icon-theme.
-* Markup String. It renders a string as an icon.
-
+- Filename
+- icon-name, this is looked up via the icon-theme.
+- Markup String. It renders a string as an icon.
 
 For the first two options, GdkPixbuf is used to open and render the icons.
 This in general gives support for most required image formats.
@@ -1482,15 +1609,15 @@ extensions.
 
 ## Multiple file handling
 
-The rasi file format offers two methods of including other files.
-This can be used to modify existing themes, or have multiple variations on a theme.
+The rasi file format offers two methods of including other files. This can be
+used to modify existing themes, or have multiple variations on a theme.
 
- * import:  Import and parse a second file.
- * theme:   Discard theme, and load file as a fresh theme.
+- import:  Import and parse a second file.
+- theme:   Discard theme, and load file as a fresh theme.
 
 Syntax:
 
-```
+```css
 @import "myfile"
 @theme "mytheme"
 ```
@@ -1499,19 +1626,18 @@ The specified file can either by *name*, *filename*,*full path*.
 
 If a filename is provided, it will try to resolve it in the following order:
 
- * `${XDG_CONFIG_HOME}/rofi/themes/`
- * `${XDG_CONFIG_HOME}/rofi/`
- * `${XDG_DATA_HOME}/rofi/themes/`
- * `${INSTALL PREFIX}/share/rofi/themes/`
+- `${XDG_CONFIG_HOME}/rofi/themes/`
+- `${XDG_CONFIG_HOME}/rofi/`
+- `${XDG_DATA_HOME}/rofi/themes/`
+- `${INSTALL PREFIX}/share/rofi/themes/`
 
 A name is resolved as a filename by appending the `.rasi` extension.
 
-
-
 ## Examples
 
-Several examples are installed together with **rofi**. These can be found in `{datadir}/rofi/themes/`, where
-`{datadir}` is the install path of **rofi** data. When installed using a package manager, this is usually: `/usr/share/`.
+Several examples are installed together with **rofi**. These can be found in
+`{datadir}/rofi/themes/`, where `{datadir}` is the install path of **rofi**
+data. When installed using a package manager, this is usually: `/usr/share/`.
 
 ## SEE ALSO
 

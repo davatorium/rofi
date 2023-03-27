@@ -4,15 +4,15 @@
 
 Debugging rofi.
 
-When reporting an issue with rofi crashing, or misbehaving. It helps to do some small test
-to help pin-point the problem.
+When reporting an issue with rofi crashing, or misbehaving. It helps to do some
+small test to help pin-point the problem.
 
 First try disabling your custom configuration: `-no-config`
 
-This disables the parsing of the configuration files. This runs rofi in *stock* mode.
+This disables the parsing of the configuration files. This runs rofi in *stock*
+mode.
 
 If you run custom C plugins, you can disable the plugins using: `-no-plugins`
-
 
 ## Get the relevant information for an issue
 
@@ -24,14 +24,13 @@ rofi -dump-config
 rofi -dump-theme
 ```
 
-`rofi -help`  provides us with the configuration files parsed, the exact version, monitor layout
-and more useful information.
+`rofi -help`  provides us with the configuration files parsed, the exact
+version, monitor layout and more useful information.
 
 The `rofi -dump-config` and `rofi -dump-theme` output gives us `rofi`
 interpretation of your configuration and theme.
 
 Please check the output for identifiable information and remove this.
-
 
 ## Timing traces
 
@@ -40,13 +39,12 @@ To get a timing trace, enable the **Timings** debug domain.
 ```bash
 G_MESSAGES_DEBUG=Timings rofi -show drun
 ```
-
-It will show a trace with (useful) timing information at relevant points during the execution.
-This will help debugging when rofi is slow to start.
+It will show a trace with (useful) timing information at relevant points during
+the execution. This will help debugging when rofi is slow to start.
 
 Example trace:
 
-```
+```text
 (process:14942): Timings-DEBUG: 13:47:39.335: 0.000000 (0.000000): Started
 (process:14942): Timings-DEBUG: 13:47:39.335: 0.000126 (0.000126): ../source/rofi.c:main:786 
 (process:14942): Timings-DEBUG: 13:47:39.335: 0.000163 (0.000037): ../source/rofi.c:main:819 
@@ -99,48 +97,49 @@ Example trace:
 (process:14942): Timings-DEBUG: 13:47:39.428: 0.092864 (0.006741): ../source/view.c:rofi_view_update:1008 widgets
 ```
 
-
 ## Debug domains
 
-To further debug the plugin, you can get a trace with (lots of) debug information. This debug output can be enabled for
-multiple parts in rofi using the glib debug framework. Debug domains can be enabled by setting the G\_MESSAGES\_DEBUG
-environment variable. At the time of creation of this page, the following debug domains exist:
+To further debug the plugin, you can get a trace with (lots of) debug
+information. This debug output can be enabled for multiple parts in rofi using
+the glib debug framework. Debug domains can be enabled by setting the
+G\_MESSAGES\_DEBUG environment variable. At the time of creation of this page,
+the following debug domains exist:
 
- * all: Show debug information from all domains.
- * X11Helper: The X11 Helper functions.
- * View: The main window view functions.
- * Widgets.Box: The Box widget.
- * Modes.DMenu: The dmenu mode.
- * Modes.Run: The run mode.
- * Modes.DRun: The desktop file run mode.
- * Modes.Window: The window mode.
- * Modes.Script: The script mode.
- * Modes.Combi: The script mode.
- * Modes.Ssh: The ssh mode.
- * Rofi: The main application.
- * Timings: Get timing output.
- * Theme: Theme engine debug output. (warning lots of output).
- * Widgets.Icon: The Icon widget.
- * Widgets.Box: The box widget.
- * Widgets.Container: The container widget.
- * Widgets.Window: The window widget.
- * Helpers.IconFetcher: Information about icon lookup.
+- all: Show debug information from all domains.
+- X11Helper: The X11 Helper functions.
+- View: The main window view functions.
+- Widgets.Box: The Box widget.
+- Modes.DMenu: The dmenu mode.
+- Modes.Run: The run mode.
+- Modes.DRun: The desktop file run mode.
+- Modes.Window: The window mode.
+- Modes.Script: The script mode.
+- Modes.Combi: The script mode.
+- Modes.Ssh: The ssh mode.
+- Rofi: The main application.
+- Timings: Get timing output.
+- Theme: Theme engine debug output. (warning lots of output).
+- Widgets.Icon: The Icon widget.
+- Widgets.Box: The box widget.
+- Widgets.Container: The container widget.
+- Widgets.Window: The window widget.
+- Helpers.IconFetcher: Information about icon lookup.
 
 For full list see `man rofi`.
 
-Example: `G_MESSAGES_DEBUG=Dialogs.DRun rofi -show drun` To get specific output from the Desktop file run dialog.
+Example: `G_MESSAGES_DEBUG=Dialogs.DRun rofi -show drun` To get specific output
+from the Desktop file run dialog.
 
 To redirect the debug output to a file (`~/rofi.log`) add:
 
-```
+```bash
 rofi -show drun -log ~/rofi.log
 ```
 
 Specifying the logfile automatically enabled all log domains.
 This can be useful when rofi is launched from a window manager.
 
-
-## Creating a backtrace.
+## Creating a backtrace
 
 First make sure you compile **rofi** with debug symbols:
 
@@ -148,10 +147,10 @@ First make sure you compile **rofi** with debug symbols:
 make CFLAGS="-O0 -g3" clean rofi
 ```
 
-Getting a backtrace using GDB is not very handy. Because if rofi get stuck, it grabs keyboard and
-mouse. So if it crashes in GDB you are stuck.
-The best way to go is to enable core file. (ulimit -c unlimited in bash) then make rofi crash. You
-can then load the core in GDB.
+Getting a backtrace using GDB is not very handy. Because if rofi get stuck, it
+grabs keyboard and mouse. So if it crashes in GDB you are stuck. The best way
+to go is to enable core file. (ulimit -c unlimited in bash) then make rofi
+crash. You can then load the core in GDB.
 
 ```bash
 gdb rofi core
@@ -159,17 +158,19 @@ gdb rofi core
 
 Then type inside gdb:
 
-```
+```bash
 thread apply all bt
 ```
 
 The output trace is useful when reporting crashes.
 
-Some distribution have `systemd-coredump`, this way you can easily get a backtrace via `coredumpctl`.
+Some distribution have `systemd-coredump`, this way you can easily get a
+backtrace via `coredumpctl`.
 
 ## SEE ALSO
 
-**rofi-sensible-terminal(1)**, **dmenu(1)**, **rofi-debugging(5)**, **rofi-theme(5)**, **rofi-script(5)**, **rofi-keys(5)**,**rofi-theme-selector(1)**
+rofi-sensible-terminal(1), dmenu(1), rofi-debugging(5), rofi-theme(5),
+rofi-script(5), rofi-keys(5),rofi-theme-selector(1)
 
 ## AUTHOR
 
