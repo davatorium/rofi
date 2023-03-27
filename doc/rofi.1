@@ -2,7 +2,8 @@
 .TH ROFI 1 rofi
 .SH NAME
 .PP
-\fBrofi\fP - A window switcher, application launcher, ssh dialog, dmenu replacement and more
+\fBrofi\fP - A window switcher, application launcher, ssh dialog, dmenu
+replacement and more
 
 .SH SYNOPSIS
 .PP
@@ -25,8 +26,8 @@ replacement for \fBdmenu(1)\fP\&. See emulating dmenu below.
 
 .SS Running rofi
 .PP
-To launch \fBrofi\fP directly in a certain mode, specify a mode with \fB\fCrofi -show <mode>\fR\&.
-To show the \fB\fCdrun\fR dialog:
+To launch \fBrofi\fP directly in a certain mode, specify a mode with \fB\fCrofi -show
+<mode>\fR\&. To show the \fB\fCdrun\fR dialog:
 
 .PP
 .RS
@@ -71,7 +72,7 @@ For more information see \fBrofi-dmenu(5)\fP\&.
 .RS
 
 .nf
-rofi -e "my message"
+    rofi -e "my message"
 
 .fi
 .RE
@@ -81,15 +82,18 @@ Markup support can be enabled, see CONFIGURATION options.
 
 .SH CONFIGURATION
 .PP
-There are currently three methods of setting configuration options (evaluated in order below):
+There are currently three methods of setting configuration options (evaluated
+in order below):
 
 .RS
 .IP \(bu 2
-System configuration file  (for example \fB\fC/etc/rofi.rasi\fR).
-It first checks \fB\fCXDG_CONFIG_DIRS\fR, and then \fB\fCSYSCONFDIR\fR (that is passed at compile time).
-It loads the first config file it finds, it does not merge multiple system configuration files.
+System configuration file  (for example \fB\fC/etc/rofi.rasi\fR). It first checks
+\fB\fCXDG_CONFIG_DIRS\fR, and then \fB\fCSYSCONFDIR\fR (that is passed at compile time).
+It loads the first config file it finds, it does not merge multiple system
+configuration files.
 .IP \(bu 2
-Rasi theme file: The new \fItheme\fP format can be used to set configuration values.
+Rasi theme file: The new \fItheme\fP format can be used to set configuration
+values.
 .IP \(bu 2
 Command-line options: Arguments passed to \fBrofi\fP\&.
 
@@ -99,13 +103,16 @@ Command-line options: Arguments passed to \fBrofi\fP\&.
 To get a template config file, run: \fB\fCrofi -dump-config > config.rasi\fR
 
 .PP
-This will contain (commented) all current configuration options, modified options are uncommented.
+This will contain (commented) all current configuration options, modified
+options are uncommented.
 
 .PP
-To get a template config file that sets the icon-theme run: \fB\fCrofi -icon-theme hicolor -dump-config\fR\&.
+To get a template config file that sets the icon-theme run: \fB\fCrofi -icon-theme
+hicolor -dump-config\fR\&.
 
 .PP
-It is \fBstrongly\fP recommended to use this as a starting point for your configuration.
+It is \fBstrongly\fP recommended to use this as a starting point for your
+configuration.
 
 .PP
 An empty configuration section in the config file looks like:
@@ -167,7 +174,7 @@ syntax. Example to enable option X:
 .RS
 
 .nf
--X
+    -X
 
 .fi
 .RE
@@ -179,7 +186,7 @@ To disable option X:
 .RS
 
 .nf
--no-X
+    -no-X
 
 .fi
 .RE
@@ -239,9 +246,12 @@ Specify the number of threads \fBrofi\fP should use:
 .IP \(bu 2
 1: Disable threading
 .IP \(bu 2
-2..n: Specify the maximum number of threads to use in the thread pool.Default:  Autodetect
+2..n: Specify the maximum number of threads to use in the thread pool.
 
 .RE
+
+.PP
+Default:  Autodetect
 
 .PP
 \fB\fC-display\fR \fIdisplay\fP
@@ -261,7 +271,7 @@ A simple example, displaying three pre-defined options:
 .RS
 
 .nf
-echo -e "Option #1\\nOption #2\\nOption #3" | rofi -dmenu
+    echo -e "Option #1\\nOption #2\\nOption #3" | rofi -dmenu
 
 .fi
 .RE
@@ -273,7 +283,7 @@ Or get the options from a script:
 .RS
 
 .nf
-~/my_script.sh | rofi -dmenu
+    ~/my_script.sh | rofi -dmenu
 
 .fi
 .RE
@@ -297,7 +307,7 @@ To show the run-dialog:
 .RS
 
 .nf
-rofi -show run
+    rofi -show run
 
 .fi
 .RE
@@ -318,7 +328,7 @@ To only show the \fB\fCrun\fR and \fB\fCssh\fR launcher:
 .RS
 
 .nf
-rofi -modes "run,ssh" -show run
+    rofi -modes "run,ssh" -show run
 
 .fi
 .RE
@@ -337,13 +347,14 @@ two parameters:
 .RE
 
 .PP
-Example: Have a mode called 'Workspaces' using the \fB\fCi3_switch_workspaces.sh\fR script:
+Example: Have a mode called 'Workspaces' using the \fB\fCi3_switch_workspaces.sh\fR
+script:
 
 .PP
 .RS
 
 .nf
-rofi -modes "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
+    rofi -modes "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
 .fi
 .RE
@@ -359,7 +370,7 @@ exec command. For that case, \fB\fC#\fR can be used as a separator.
 .RS
 
 .nf
-rofi -modes "My File Browser:fb.sh" -show "My File Browser"
+    rofi -modes "My File Browser:fb.sh" -show "My File Browser"
 
 .fi
 .RE
@@ -368,8 +379,8 @@ rofi -modes "My File Browser:fb.sh" -show "My File Browser"
 \fB\fC-case-sensitive\fR
 
 .PP
-Start in case-sensitive mode.
-This option can be changed at run-time using the \fB\fC-kb-toggle-case-sensitivity\fR key binding.
+Start in case-sensitive mode. This option can be changed at run-time using the
+\fB\fC-kb-toggle-case-sensitivity\fR key binding.
 
 .PP
 \fB\fC-cycle\fR
@@ -405,9 +416,9 @@ Select the scrolling method. 0: Per page, 1: continuous.
 \fB\fC-normalize-match\fR
 
 .PP
-Normalize the string before matching, so \fB\fCo\fR will match \fB\fCö\fR, and \fB\fCé\fR matches \fB\fCe\fR\&.
-.br
-This is not a perfect implementation, but works. For now, it disables highlighting of the matched part.
+Normalize the string before matching, so \fB\fCo\fR will match \fB\fCö\fR, and \fB\fCé\fR matches
+\fB\fCe\fR\&.  This is not a perfect implementation, but works. For now, it disables
+highlighting of the matched part.
 
 .PP
 \fB\fC-no-lazy-grab\fR
@@ -437,9 +448,8 @@ Show application icons in \fB\fCdrun\fR and \fB\fCwindow\fR modes.
 \fB\fC-icon-theme\fR
 
 .PP
-Specify icon theme to be used.
-If not specified default theme from DE is used, \fIAdwaita\fP and \fIgnome\fP themes act as
-fallback themes.
+Specify icon theme to be used. If not specified default theme from DE is used,
+\fIAdwaita\fP and \fIgnome\fP themes act as fallback themes.
 
 .PP
 \fB\fC-markup\fR
@@ -451,19 +461,22 @@ Use Pango markup to format output wherever possible.
 \fB\fC-normal-window\fR
 
 .PP
-Make \fBrofi\fP react like a normal application window. Useful for scripts like Clerk that are basically an application.
+Make \fBrofi\fP react like a normal application window. Useful for scripts like
+Clerk that are basically an application.
 
 .PP
 \fB\fC-[no-]steal-focus\fR
 
 .PP
-Make rofi steal focus on launch and restore close to window that held it when launched.
+Make rofi steal focus on launch and restore close to window that held it when
+launched.
 
 .PP
 \fB\fC-refilter-timeout-limit\fR
 
 .PP
-The time (in ms) boundary filter may take before switch from instant to delayed filter mode.
+The time (in ms) boundary filter may take before switch from instant to delayed
+filter mode.
 
 .PP
 Default: 300
@@ -559,9 +572,12 @@ The different fields are:
 .IP \(bu 2
 \fBcomment\fP: the application comment
 .IP \(bu 2
-\fBall\fP: all the aboveDefault: \fIname,generic,exec,categories,keywords\fP
+\fBall\fP: all the above
 
 .RE
+
+.PP
+Default: \fIname,generic,exec,categories,keywords\fP
 
 .PP
 \fB\fC-drun-display-format\fR
@@ -587,16 +603,11 @@ The format string for the \fB\fCdrun\fR dialog:
 Pango markup can be used to formatting the output.
 
 .PP
-.RS
-
-.nf
-Default: {name} [<span weight='light' size='small'><i>({generic})</i></span>]
-
-.fi
-.RE
+Default: {name} [({generic})]
 
 .PP
-Note: Only fields enabled in \fB\fC-drun-match-fields\fR can be used in the format string.
+Note: Only fields enabled in \fB\fC-drun-match-fields\fR can be used in the format
+string.
 
 .PP
 \fB\fC-[no-]drun-show-actions\fR
@@ -605,13 +616,7 @@ Note: Only fields enabled in \fB\fC-drun-match-fields\fR can be used in the form
 Show actions present in the Desktop files.
 
 .PP
-.RS
-
-.nf
 Default: false
-
-.fi
-.RE
 
 .PP
 \fB\fC-window-match-fields\fR \fIfield1\fP,\fIfield2\fP,...
@@ -632,52 +637,52 @@ The different fields are:
 .IP \(bu 2
 \fBdesktop\fP: window's current desktop
 .IP \(bu 2
-\fBall\fP: all the aboveDefault: \fIall\fP
+\fBall\fP: all the above
 
 .RE
+
+.PP
+Default: \fIall\fP
 
 .PP
 \fB\fC-matching-negate-char\fR \fIchar\fP
 
 .PP
-Set the character used to negate the query (i.e. if it does \fBnot\fP match the next keyword).
-Set to '\\x0' to disable.
+Set the character used to negate the query (i.e. if it does \fBnot\fP match the
+next keyword). Set to '\\x0' to disable.
 
 .PP
-.RS
-
-.nf
 Default: '-'
-
-.fi
-.RE
 
 .SS Layout and Theming
 .PP
-\fBIMPORTANT:\fP
-  In newer \fBrofi\fP releases, all the theming options have been moved into the new theme format. They are no longer normal
-  \fBrofi\fP options that can be passed directly on the command line (there are too many).
-  Small snippets can be passed on the command line: \fB\fCrofi -theme-str 'window {width: 50%;}'\fR to override a single
-  setting. They are merged into the current theme.
-  They can also be appended at the end of the \fBrofi\fP config file to override parts of the theme.
+\fBIMPORTANT:\fP In newer \fBrofi\fP releases, all the theming options have been
+moved into the new theme format. They are no longer normal \fBrofi\fP options
+that can be passed directly on the command line (there are too many). Small
+snippets can be passed on the command line: \fB\fCrofi -theme-str 'window {width:
+50%;}'\fR to override a single setting. They are merged into the current theme.
+They can also be appended at the end of the \fBrofi\fP config file to override
+parts of the theme.
 
 .PP
-Most of the following options are \fBdeprecated\fP and should not be used. Please use the new theme format to customize
-\fBrofi\fP\&. More information about the new format can be found in the \fBrofi-theme(5)\fP manpage.
+Most of the following options are \fBdeprecated\fP and should not be used. Please
+use the new theme format to customize \fBrofi\fP\&. More information about the new
+format can be found in the \fBrofi-theme(5)\fP manpage.
 
 .PP
 \fB\fC-location\fR
 
 .PP
-Specify where the window should be located. The numbers map to the following locations on screen:
+Specify where the window should be located. The numbers map to the following
+locations on screen:
 
 .PP
 .RS
 
 .nf
-  1 2 3
-  8 0 4
-  7 6 5
+      1 2 3
+      8 0 4
+      7 6 5
 
 .fi
 .RE
@@ -695,15 +700,14 @@ Keep a fixed number of visible lines.
 \fB\fC-sidebar-mode\fR
 
 .PP
-Open in sidebar-mode. In this mode, a list of all enabled modes is shown at the bottom.
-(See \fB\fC-modes\fR option)
-To show sidebar, use:
+Open in sidebar-mode. In this mode, a list of all enabled modes is shown at the
+bottom (See \fB\fC-modes\fR option). To show sidebar, use:
 
 .PP
 .RS
 
 .nf
-rofi -show run -sidebar-mode 
+    rofi -show run -sidebar-mode 
 
 .fi
 .RE
@@ -712,14 +716,15 @@ rofi -show run -sidebar-mode
 \fB\fC-hover-select\fR
 
 .PP
-Automatically select the entry the mouse is hovering over. This option is best combined with custom mouse bindings.
-To utilize hover-select and accept an entry in a single click, use:
+Automatically select the entry the mouse is hovering over. This option is best
+combined with custom mouse bindings. To utilize hover-select and accept an
+entry in a single click, use:
 
 .PP
 .RS
 
 .nf
-rofi -show run -hover-select -me-select-entry '' -me-accept-entry MousePrimary
+    rofi -show run -hover-select -me-select-entry '' -me-accept-entry MousePrimary
 
 .fi
 .RE
@@ -750,24 +755,28 @@ When one entry is left, automatically select it.
 \fB\fC-monitor\fR \fIname\fP
 
 .PP
-Select monitor to display \fBrofi\fP on.
-It accepts as input: \fIprimary\fP (if primary output is set), the \fIxrandr\fP output name, or integer number (in order of
-detection). Negative numbers are handled differently:
+Select monitor to display \fBrofi\fP on. It accepts as input: \fIprimary\fP (if
+primary output is set), the \fIxrandr\fP output name, or integer number (in order
+of detection). Negative numbers are handled differently:
 
 .RS
 .IP \(bu 2
 \fB-1\fP: the currently focused monitor.
 .IP \(bu 2
-\fB-2\fP: the currently focused window (that is, \fBrofi\fP will be displayed on top of the focused window).
+\fB-2\fP: the currently focused window (that is, \fBrofi\fP will be displayed
+on top of the focused window).
 .IP \(bu 2
-\fB-3\fP: Position of mouse (overrides the location setting to get normal context menu
-behavior.)
+\fB-3\fP: Position of mouse (overrides the location setting to get normal
+context menu behavior.)
 .IP \(bu 2
 \fB-4\fP: the monitor with the focused window.
 .IP \(bu 2
-\fB-5\fP: the monitor that shows the mouse pointer.Default: \fI-5\fP
+\fB-5\fP: the monitor that shows the mouse pointer.
 
 .RE
+
+.PP
+Default: \fI-5\fP
 
 .PP
 See \fB\fCrofi -h\fR output for the detected monitors, their position, and size.
@@ -791,7 +800,7 @@ For example:
 .RS
 
 .nf
-rofi -theme-str '#window { fullscreen: true; }'
+    rofi -theme-str '#window { fullscreen: true; }'
 
 .fi
 .RE
@@ -808,9 +817,11 @@ Override the default DPI setting.
 
 .RS
 .IP \(bu 2
-If set to \fB\fC0\fR, it tries to auto-detect based on X11 screen size (similar to i3 and GTK).
+If set to \fB\fC0\fR, it tries to auto-detect based on X11 screen size (similar to
+i3 and GTK).
 .IP \(bu 2
-If set to \fB\fC1\fR, it tries to auto-detect based on the size of the monitor that \fBrofi\fP is displayed on (similar to latest Qt 5).
+If set to \fB\fC1\fR, it tries to auto-detect based on the size of the monitor
+that \fBrofi\fP is displayed on (similar to latest Qt 5).
 
 .RE
 
@@ -834,7 +845,7 @@ Specify which terminal to start.
 .RS
 
 .nf
-rofi -terminal xterm
+    rofi -terminal xterm
 
 .fi
 .RE
@@ -902,7 +913,8 @@ See \fIPATTERN\fP\&.
 Default: \fI{cmd}\fP
 
 .PP
-Example to run applications in a dedicated cgroup with systemd. Requires a shell to escape and interpolate the unit name correctly.
+Example to run applications in a dedicated cgroup with systemd. Requires a
+shell to escape and interpolate the unit name correctly.
 
 .PP
 .RS
@@ -927,7 +939,8 @@ Default: \fI{terminal} -e {cmd}\fP
 \fB\fC-run-list-command\fR \fIcmd\fP
 
 .PP
-If set, use an external tool to generate a list of executable commands. Uses \fB\fCrun-command\fR\&.
+If set, use an external tool to generate a list of executable commands. Uses
+\fB\fCrun-command\fR\&.
 
 .PP
 Default: \fI{cmd}\fP
@@ -960,8 +973,9 @@ Format what is being displayed for windows.
 .RE
 
 .PP
-\fIlen\fP: maximum field length (0 for auto-size). If length is negative, the entry will be unchanged.
-If length is positive, the entry will be truncated or padded to fill that length.
+\fIlen\fP: maximum field length (0 for auto-size). If length is negative, the entry
+will be unchanged. If length is positive, the entry will be truncated or padded
+to fill that length.
 
 .PP
 default: {w}  {c}   {t}
@@ -983,7 +997,8 @@ Default: \fI"wmctrl -i -R {window}"\fP
 Show window thumbnail (if available) as icon in the window switcher.
 
 .PP
-You can stop rofi from exiting when closing a window (allowing multiple to be closed in a row).
+You can stop rofi from exiting when closing a window (allowing multiple to be
+closed in a row).
 
 .PP
 .RS
@@ -1018,7 +1033,8 @@ configuration {
 or pass \fB\fC-window-hide-active-window true\fR on command line.
 
 .PP
-You can prefer the icon theme above the window set icon with the 'prefer-icon-theme' setting:
+You can prefer the icon theme above the window set icon with the
+'prefer-icon-theme' setting:
 
 .PP
 .RS
@@ -1049,14 +1065,14 @@ To get one merge view, of \fB\fCwindow\fR,\fB\fCrun\fR, and \fB\fCssh\fR:
 .RS
 
 .nf
-rofi -show combi -combi-modes "window,run,ssh" -modes combi
+    rofi -show combi -combi-modes "window,run,ssh" -modes combi
 
 .fi
 .RE
 
 .PP
-\fBNOTE\fP: The i3 window manager dislikes commas in the command when specifying an exec command.
-For that case, \fB\fC#\fR can be used as a separator.
+\fBNOTE\fP: The i3 window manager dislikes commas in the command when specifying
+an exec command. For that case, \fB\fC#\fR can be used as a separator.
 
 .PP
 \fB\fC-combi-display-format\fR
@@ -1076,13 +1092,7 @@ The format string for entries in the \fB\fCcombi\fR dialog:
 Pango markup can be used to formatting the output.
 
 .PP
-.RS
-
-.nf
 Default: {mode} {text}
-
-.fi
-.RE
 
 .PP
 Note: This setting is ignored if \fB\fCcombi-hide-mode-prefix\fR is enabled.
@@ -1121,7 +1131,8 @@ fzf sorting.
 \fB\fC-max-history-size\fR \fInumber\fP
 
 .PP
-Maximum number of entries to store in history. Defaults to 25. (WARNING: can cause slowdowns when set too high)
+Maximum number of entries to store in history. Defaults to 25. (WARNING: can
+cause slowdowns when set too high)
 
 .SS Message dialog
 .PP
@@ -1207,13 +1218,15 @@ By default the file is stored in the systems cache directory, in a file called
 \fB\fC-drun-use-desktop-cache\fR
 
 .PP
-Build and use a cache with the content of desktop files. Usable for systems with slow hard drives.
+Build and use a cache with the content of desktop files. Usable for systems
+with slow hard drives.
 
 .PP
 \fB\fC-drun-reload-desktop-cache\fR
 
 .PP
-If \fB\fCdrun-use-desktop-cache\fR is enabled, rebuild a cache with the content of desktop files.
+If \fB\fCdrun-use-desktop-cache\fR is enabled, rebuild a cache with the content of
+desktop files.
 
 .PP
 \fB\fC-drun-url-launcher\fR \fIcommand\fP
@@ -1225,7 +1238,9 @@ Command to open a Desktop Entry that is a Link.
 \fB\fC-pid\fR \fIpath\fP
 
 .PP
-Make \fBrofi\fP create a pid file and check this on startup. The pid file prevents multiple \fBrofi\fP instances from running simultaneously. This is useful when running \fBrofi\fP from a key-binding daemon.
+Make \fBrofi\fP create a pid file and check this on startup. The pid file
+prevents multiple \fBrofi\fP instances from running simultaneously. This is
+useful when running \fBrofi\fP from a key-binding daemon.
 
 .PP
 \fB\fC-replace\fR
@@ -1269,14 +1284,17 @@ Default: \fIenabled\fP
 \fB\fC-xserver-i300-workaround\fR
 
 .PP
-Workaround for bug in Xserver. See issue #611 and #1642 on the rofi issue tracker.
+Workaround for bug in Xserver. See issue #611 and #1642 on the rofi issue
+tracker.
 
 .PP
 Default: \fIdisabled\fP
 
 .SH PATTERN
 .PP
-To launch commands (for example, when using the ssh launcher), the user can enter the used command-line. The following keys can be used that will be replaced at runtime:
+To launch commands (for example, when using the ssh launcher), the user can
+enter the used command-line. The following keys can be used that will be
+replaced at runtime:
 
 .RS
 .IP \(bu 2
@@ -1298,7 +1316,8 @@ Please see \fBrofi-theme(5)\fP manpage for more information on theming.
 
 .SH KEY BINDINGS
 .PP
-Please see the \fBrofi-keys(5)\fP manpage for the keybindings and how to set them up.
+Please see the \fBrofi-keys(5)\fP manpage for the keybindings and how to set them
+up.
 
 .PP
 The keybinding can also be used for actions, when the action is executed the
@@ -1344,54 +1363,78 @@ configuration {
 .SH Available Modes
 .SS window
 .PP
-Show a list of all the windows and allow switching between them.
-Pressing the \fB\fCdelete-entry\fR binding (\fB\fCshift-delete\fR) will close the window.
-Pressing the \fB\fCaccept-custom\fR binding (\fB\fCcontrol-enter\fR or \fB\fCshift-enter\fR) will run a command on the window.
-(See option \fB\fCwindow-command\fR );
+Show a list of all the windows and allow switching between them. Pressing the
+\fB\fCdelete-entry\fR binding (\fB\fCshift-delete\fR) will close the window. Pressing the
+\fB\fCaccept-custom\fR binding (\fB\fCcontrol-enter\fR or \fB\fCshift-enter\fR) will run a command
+on the window. (See option \fB\fCwindow-command\fR );
 
 .PP
 If there is no match, it will try to launch the input.
 
 .SS windowcd
 .PP
-Shows a list of the windows on the current desktop and allows switching between them.
-Pressing the \fB\fCdelete-entry\fR binding (\fB\fCshift-delete\fR) will kill the window.
-Pressing the \fB\fCaccept-custom\fR binding (\fB\fCcontrol-enter\fR or \fB\fCshift-enter\fR) will run a command on the window.
-(See option \fB\fCwindow-command\fR );
+Shows a list of the windows on the current desktop and allows switching between
+them. Pressing the \fB\fCdelete-entry\fR binding (\fB\fCshift-delete\fR) will kill the
+window. Pressing the \fB\fCaccept-custom\fR binding (\fB\fCcontrol-enter\fR or \fB\fCshift-enter\fR)
+will run a command on the window. (See option \fB\fCwindow-command\fR );
 
 .PP
 If there is no match, it will try to launch the input.
 
 .SS run
 .PP
-Shows a list of executables in \fB\fC$PATH\fR and can launch them (optional in a terminal).
-Pressing the \fB\fCdelete-entry\fR binding (\fB\fCshift-delete\fR) will remove this entry from the run history.
-Pressing the \fB\fCaccept-custom\fR binding (\fB\fCcontrol-enter\fR) will run the command as entered in the entry box.
-Pressing the \fB\fCaccept-alt\fR binding (\fB\fCshift-enter\fR) will run the command in a terminal.
+Shows a list of executables in \fB\fC$PATH\fR and can launch them (optional in a
+terminal).
+
+.RS
+.IP \(bu 2
+Pressing the \fB\fCdelete-entry\fR binding (\fB\fCshift-delete\fR) will remove this entry
+from the run history.
+.IP \(bu 2
+Pressing the \fB\fCaccept-custom\fR binding (\fB\fCcontrol-enter\fR) will run the command
+as entered in the entry box.
+.IP \(bu 2
+Pressing the \fB\fCaccept-alt\fR binding (\fB\fCshift-enter\fR) will run the command in a
+terminal.
+
+.RE
 
 .PP
-When pressing the \fB\fCmode-complete\fR binding (\fB\fCControl-l\fR), you can use the File Browser mode to launch the application
-with a file as the first argument.
+When pressing the \fB\fCmode-complete\fR binding (\fB\fCControl-l\fR), you can use the File
+Browser mode to launch the application with a file as the first argument.
 
 .SS drun
 .PP
-Same as the \fBrun\fP launches, but the list is created from the installed desktop files. It automatically launches them
-in a terminal if specified in the Desktop File.
-Pressing the \fB\fCdelete-entry\fR binding (\fB\fCshift-delete\fR) will remove this entry from the run history.
-Pressing the \fB\fCaccept-custom\fR binding (\fB\fCcontrol-enter\fR) will run the command as entered in the entry box.
-Pressing the \fB\fCaccept-alt\fR binding (\fB\fCshift-enter\fR) will run the command in a terminal.
+Same as the \fBrun\fP launches, but the list is created from the installed
+desktop files. It automatically launches them in a terminal if specified in the
+Desktop File.
+
+.RS
+.IP \(bu 2
+Pressing the \fB\fCdelete-entry\fR binding (\fB\fCshift-delete\fR) will remove this entry
+from the run history.
+.IP \(bu 2
+Pressing the \fB\fCaccept-custom\fR binding (\fB\fCcontrol-enter\fR) will run the command
+as entered in the entry box.
+.IP \(bu 2
+Pressing the \fB\fCaccept-alt\fR binding (\fB\fCshift-enter\fR) will run the command in a
+terminal.
+
+.RE
 
 .PP
-When pressing the \fB\fCmode-complete\fR binding (\fB\fCControl-l\fR), you can use the File Browser mode to launch the application
-passing a file as argument if specified in the desktop file.
+When pressing the \fB\fCmode-complete\fR binding (\fB\fCControl-l\fR), you can use the File
+Browser mode to launch the application passing a file as argument if specified
+in the desktop file.
 
 .PP
 The DRUN mode tries to follow the XDG Desktop Entry
 Specification
-\[la]https://freedesktop.org/wiki/Specifications/desktop-entry-spec/\[ra] and should be compatible with
-applications using this standard.  Some applications create invalid desktop files, \fBrofi\fP will discard these entries.
-See the debugging section for more info on DRUN mode, this will print why desktop files are
-discarded.
+\[la]https://freedesktop.org/wiki/Specifications/desktop-entry-spec/\[ra]
+and should be compatible with applications using this standard.  Some
+applications create invalid desktop files, \fBrofi\fP will discard these entries.
+See the debugging section for more info on DRUN mode, this will print why
+desktop files are discarded.
 
 .PP
 There are two advanced options to tweak the behaviour:
@@ -1414,7 +1457,8 @@ configuration {
 
 .SS ssh
 .PP
-Shows a list of SSH targets based on your \fB\fCssh\fR config file, and allows to quickly \fB\fCssh\fR into them.
+Shows a list of SSH targets based on your \fB\fCssh\fR config file, and allows to
+quickly \fB\fCssh\fR into them.
 
 .SS keys
 .PP
@@ -1422,11 +1466,13 @@ Shows a searchable list of key bindings.
 
 .SS script
 .PP
-Allows custom scripted Modes to be added, see the \fBrofi-script(5)\fP manpage for more information.
+Allows custom scripted Modes to be added, see the \fBrofi-script(5)\fP manpage
+for more information.
 
 .SS combi
 .PP
-Combines multiple modes in one list. Specify which modes are included with the \fB\fC-combi-modes\fR option.
+Combines multiple modes in one list. Specify which modes are included with the
+\fB\fC-combi-modes\fR option.
 
 .PP
 When using the combi mode, a \fI!bang\fP can be used to filter the results by modes.
@@ -1439,28 +1485,29 @@ modes are shown, even if the rest of the input text would match results from \fB
 If no match, the input is handled by the first combined modes.
 
 .SH FAQ
-.SS The text in the window switcher is not nicely aligned.
+.SS The text in the window switcher is not nicely aligned
 .PP
 Try using a mono-space font or tabs + the tab-stops setting..
 
-.SS The window is completely black.
+.SS The window is completely black
 .PP
-Check quotes used on the command-line: you might have used \fB\fC“\fR ("smart quotes") instead of \fB\fC"\fR ("machine quotes").
+Check quotes used on the command-line: you might have used \fB\fC“\fR ("smart quotes")
+instead of \fB\fC"\fR ("machine quotes").
 
 .SS What does the icon in the top right show?
 .PP
 The indicator shows:
 
-.PP
 .RS
+.IP \(bu 2
+ Case insensitive and no sorting.
+.IP \(bu 2
+\fB\fC-\fR Case sensitivity enabled, no sorting.
+.IP \(bu 2
+\fB\fC+\fR Case insensitive and Sorting enabled
+.IP \(bu 2
+\fB\fC±\fR Sorting and Case sensitivity enabled"
 
-.nf
-` ` Case insensitive and no sorting.
-`-` Case sensitivity enabled, no sorting.
-`+` Case insensitive and Sorting enabled
-`±` Sorting and Case sensitivity enabled"
-
-.fi
 .RE
 
 .SS Why do I see different icons for run,drun and window mode
@@ -1470,7 +1517,8 @@ Each of these modes uses different methods of resolving the icon:
 .RS
 .IP \(bu 2
 Window: It first uses the icon that the application exposes via the X11
-Server, if none is set it does a lookup of the window Class name in the icon theme.
+Server, if none is set it does a lookup of the window Class name in the icon
+theme.
 .IP \(bu 2
 drun: It uses the icon set in the desktop file.
 .IP \(bu 2
@@ -1489,7 +1537,7 @@ Show the run dialog:
 .RS
 
 .nf
-rofi -modes run -show run
+    rofi -modes run -show run
 
 .fi
 .RE
@@ -1501,7 +1549,7 @@ Show the run dialog, and allow switching to Desktop File run dialog (\fB\fCdrun\
 .RS
 
 .nf
-rofi -modes run,drun -show run
+    rofi -modes run,drun -show run
 
 .fi
 .RE
@@ -1513,19 +1561,20 @@ Combine the run and Desktop File run dialog (\fB\fCdrun\fR):
 .RS
 
 .nf
-rofi -modes combi -show combi -combi-modes run,drun
+    rofi -modes combi -show combi -combi-modes run,drun
 
 .fi
 .RE
 
 .PP
-Combine the run and Desktop File run dialog (\fB\fCdrun\fR), and allow switching to window switcher:
+Combine the run and Desktop File run dialog (\fB\fCdrun\fR), and allow switching to
+window switcher:
 
 .PP
 .RS
 
 .nf
-rofi -modes combi,window -show combi -combi-modes run,drun
+    rofi -modes combi,window -show combi -combi-modes run,drun
 
 .fi
 .RE
@@ -1537,7 +1586,7 @@ Pop up a text message claiming that this is the end:
 .RS
 
 .nf
-rofi -e "This is the end"
+    rofi -e "This is the end"
 
 .fi
 .RE
@@ -1549,7 +1598,7 @@ Pop up a text message in red, bold font claiming that this is still the end:
 .RS
 
 .nf
-rofi -e "<span color='red'><b>This is still the end</b></span>" -markup
+    rofi -e "<span color='red'><b>This is still the end</b></span>" -markup
 
 .fi
 .RE
@@ -1561,7 +1610,7 @@ Show all key bindings:
 .RS
 
 .nf
-rofi -show keys
+    rofi -show keys
 
 .fi
 .RE
@@ -1569,40 +1618,42 @@ rofi -show keys
 .SH i3
 .PP
 In i3
-\[la]http://i3wm.org/\[ra] you want to bind \fBrofi\fP to be launched on key release. Otherwise, it cannot grab the keyboard.
-See also the i3 manual
+\[la]http://i3wm.org/\[ra] you want to bind \fBrofi\fP to be launched on key
+release. Otherwise, it cannot grab the keyboard. See also the i3
+manual
 \[la]http://i3wm.org/docs/userguide.html\[ra]:
 
 .PP
-Some tools (such as \fB\fCimport\fR or \fB\fCxdotool\fR) might be unable to run upon a KeyPress event, because the keyboard/pointer is
-still grabbed. For these situations, the \fB\fC--release\fR flag can be used, as it will execute the command after the keys have
-been released.
+Some tools (such as \fB\fCimport\fR or \fB\fCxdotool\fR) might be unable to run upon a
+KeyPress event, because the keyboard/pointer is still grabbed. For these
+situations, the \fB\fC--release\fR flag can be used, as it will execute the command
+after the keys have been released.
 
 .SH LICENSE
 .PP
 .RS
 
 .nf
-MIT/X11
+    MIT/X11
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
 
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 .fi
 .RE
@@ -1642,7 +1693,9 @@ first.
 
 .SH SEE ALSO
 .PP
-\fBrofi-sensible-terminal(1)\fP, \fBdmenu(1)\fP, \fBrofi-debugging(5)\fP, \fBrofi-theme(5)\fP, \fBrofi-script(5)\fP, \fBrofi-keys(5)\fP,\fBrofi-theme-selector(1)\fP,\fBrofi-dmenu(5)\fP
+\fBrofi-sensible-terminal(1)\fP, \fBdmenu(1)\fP, \fBrofi-debugging(5)\fP,
+\fBrofi-theme(5)\fP, \fBrofi-script(5)\fP,
+\fBrofi-keys(5)\fP,\fBrofi-theme-selector(1)\fP,\fBrofi-dmenu(5)\fP
 
 .SH AUTHOR
 .RS
