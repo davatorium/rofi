@@ -12,7 +12,8 @@ to make simple extensions to rofi.
 
 .SH USAGE
 .PP
-To specify a script mode, set a mode with the following syntax: "{name}:{executable}"
+To specify a script mode, set a mode with the following syntax:
+"{name}:{executable}"
 
 .PP
 For example:
@@ -58,7 +59,8 @@ echo "quit"
 .RE
 
 .PP
-This shows two entries, reload and quit. When the quit entry is selected, rofi closes.
+This shows two entries, reload and quit. When the quit entry is selected, rofi
+closes.
 
 .SH Environment
 .PP
@@ -82,7 +84,8 @@ An integer number with the current state:
 
 .SS \fB\fCROFI_INFO\fR
 .PP
-Environment get set when selected entry get set with the property value of the 'info' row option, if set.
+Environment get set when selected entry get set with the property value of the
+'info' row option, if set.
 
 .SS \fB\fCROFI_DATA\fR
 .PP
@@ -90,8 +93,9 @@ Environment get set when script sets \fB\fCdata\fR option in header.
 
 .SH Passing mode options
 .PP
-Extra options, like setting the prompt, can be set by the script.
-Extra options are lines that start with a NULL character (\fB\fC\\0\fR) followed by a key, separator (\fB\fC\\x1f\fR) and value.
+Extra options, like setting the prompt, can be set by the script. Extra options
+are lines that start with a NULL character (\fB\fC\\0\fR) followed by a key, separator
+(\fB\fC\\x1f\fR) and value.
 
 .PP
 For example to set the prompt:
@@ -116,30 +120,40 @@ The following extra options exists:
 .IP \(bu 2
 \fBmarkup-rows\fP: If 'true' renders markup in the row.
 .IP \(bu 2
-\fBurgent\fP:      Mark rows as urgent. (for syntax see the urgent option in dmenu mode)
+\fBurgent\fP:      Mark rows as urgent. (for syntax see the urgent option in
+dmenu mode)
 .IP \(bu 2
-\fBactive\fP:      Mark rows as active. (for syntax see the active option in dmenu mode)
+\fBactive\fP:      Mark rows as active. (for syntax see the active option in
+dmenu mode)
 .IP \(bu 2
-\fBdelim\fP:       Set the delimiter for for next rows. Default is '\\n' and this option should finish with this. Only call this on first call of script, it is remembered for consecutive calls.
+\fBdelim\fP:       Set the delimiter for for next rows. Default is '\\n' and
+this option should finish with this. Only call this on first call of script,
+it is remembered for consecutive calls.
 .IP \(bu 2
-\fBno-custom\fP:   If set to 'true'; only accept listed entries, ignore custom input.
+\fBno-custom\fP:   If set to 'true'; only accept listed entries, ignore custom
+input.
 .IP \(bu 2
-\fBuse-hot-keys\fP: If set to true, it enabled the Custom keybindings for script. Warning this breaks the normal rofi flow.
+\fBuse-hot-keys\fP: If set to true, it enabled the Custom keybindings for
+script. Warning this breaks the normal rofi flow.
 .IP \(bu 2
-\fBkeep-selection\fP: If set, the selection is not moved to the first entry, but the current position is maintained. The filter is cleared.
+\fBkeep-selection\fP: If set, the selection is not moved to the first entry,
+but the current position is maintained. The filter is cleared.
 .IP \(bu 2
-\fBnew-selection\fP: If \fB\fCkeep-selection\fR is set, this allows you to override the selected entry (absolute position).
+\fBnew-selection\fP: If \fB\fCkeep-selection\fR is set, this allows you to override
+the selected entry (absolute position).
 .IP \(bu 2
-\fBdata\fP:         Passed data to the next execution of the script via \fBROFI_DATA\fP\&.
+\fBdata\fP:         Passed data to the next execution of the script via
+\fBROFI_DATA\fP\&.
 .IP \(bu 2
-\fBtheme\fP:       Small theme snippet to f.e. change the background color of a widget.
+\fBtheme\fP:       Small theme snippet to f.e. change the background color of
+a widget.
 
 .RE
 
 .SH Parsing row options
 .PP
-Extra options for individual rows can be set.
-The extra option can be specified following the same syntax as mode option, but following the entry.
+Extra options for individual rows can be set. The extra option can be specified
+following the same syntax as mode option, but following the entry.
 
 .PP
 For example:
@@ -164,7 +178,8 @@ The following options are supported:
 .IP \(bu 2
 \fBnonselectable\fP: If true the row cannot activated.
 .IP \(bu 2
-\fBinfo\fP: Info that, on selection, gets placed in the \fB\fCROFI_INFO\fR environment variable. This entry does not get searched.
+\fBinfo\fP: Info that, on selection, gets placed in the \fB\fCROFI_INFO\fR
+environment variable. This entry does not get searched.
 .IP \(bu 2
 \fBurgent\fP: Set urgent flag on entry (true/false)
 .IP \(bu 2
@@ -186,8 +201,9 @@ multiple entries can be passed using the \fB\fC\\x1f\fR separator.
 
 .SH Executing external program
 .PP
-If you want to launch an external program from the script, you need to make sure it is launched in the background.
-If not rofi will wait for its output (to display).
+If you want to launch an external program from the script, you need to make
+sure it is launched in the background. If not rofi will wait for its output (to
+display).
 
 .PP
 In bash the best way to do this is using \fB\fCcoproc\fR\&.
@@ -203,8 +219,8 @@ In bash the best way to do this is using \fB\fCcoproc\fR\&.
 
 .SH DASH shell
 .PP
-If you use the \fB\fCdash\fR shell for your script, take special care with how dash handles escaped values for the separators.
-See issue #1201 on github.
+If you use the \fB\fCdash\fR shell for your script, take special care with how dash
+handles escaped values for the separators. See issue #1201 on github.
 
 .SH Script locations
 .PP
@@ -223,13 +239,15 @@ Scripts located in the following location are loaded on startup:
 
 .RS
 .IP \(bu 2
-The script is in \fB\fC$XDG_CONFIG_PATH/rofi/scripts/\fR, this is usually \fB\fC~/.config/rofi/scripts/\fR\&.
+The script is in \fB\fC$XDG_CONFIG_PATH/rofi/scripts/\fR, this is usually
+\fB\fC~/.config/rofi/scripts/\fR\&.
 
 .RE
 
 .SH SEE ALSO
 .PP
-rofi(1), rofi-sensible-terminal(1), dmenu(1), rofi-theme(5), rofi-theme-selector(1)
+rofi(1), rofi-sensible-terminal(1), dmenu(1), rofi-theme(5),
+rofi-theme-selector(1)
 
 .SH AUTHOR
 .PP
