@@ -1074,7 +1074,7 @@ int main(int argc, char *argv[]) {
    */
   const char **theme_str = find_arg_strv("-theme-str");
   if (theme_str) {
-    for (int index = 0; theme_str && theme_str[index]; index++) {
+    for (int index = 0; theme_str[index]; index++) {
       if (rofi_theme_parse_string(theme_str[index])) {
         g_warning("Failed to parse -theme-str option: \"%s\"",
                   theme_str[index]);

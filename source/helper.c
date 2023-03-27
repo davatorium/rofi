@@ -582,8 +582,9 @@ int create_pid_file(const char *pidfile, gboolean kill_running) {
       char buffer[64] = {
           0,
       };
-      ssize_t l = read(fd, &buffer, 64);
+      ssize_t l = read(fd, &buffer, 63);
       if (l > 1) {
+        buffer[l] = 0;
         pid_t pid = g_ascii_strtoll(buffer, NULL, 0);
         kill(pid, SIGTERM);
         while (1) {

@@ -8,5 +8,5 @@ pushd "${MESON_BUILD_ROOT}"
 
 for a in $@
 do
-  go-md2man -in $a -out ${a%.markdown}
+  go-md2man -in "$a" -out ${a%.markdown}
 done
