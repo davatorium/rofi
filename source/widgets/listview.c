@@ -693,10 +693,10 @@ listview_trigger_action(widget *wid, MouseBindingListviewAction action,
     listview_nav_right(lv);
     break;
   case SCROLL_DOWN:
-    listview_nav_down(lv);
+    listview_scroll_next(lv);
     break;
   case SCROLL_UP:
-    listview_nav_up(lv);
+    listview_scroll_prev(lv);
     break;
   }
   return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
@@ -819,6 +819,55 @@ static void listview_nav_up_int(listview *lv) {
   if (lv == NULL) {
     return;
   }
+  if (lv->req_elements == 0 || (lv->selected == 0 && !lv->cycle)) {
+    return;
+  }
+  if (lv->selected == 0) {
+    lv->selected = lv->req_elements;
+  }
+  lv->selected--;
+  lv->barview.direction = RIGHT_TO_LEFT;
+
+  if (lv->sc_callback) {
+    lv->sc_callback(lv, lv->selected, lv->sc_udata);
+  }
+  widget_queue_redraw(WIDGET(lv));
+}
+static void listview_nav_down_int(listview *lv) {
+  if (lv == NULL) {
+    return;
+  }
+  if (lv->req_elements == 0 ||
+      (lv->selected == (lv->req_elements - 1) && !lv->cycle)) {
+    return;
+  }
+  lv->selected = lv->selected < lv->req_elements - 1
+                     ? MIN(lv->req_elements - 1, lv->selected + 1)
+                     : 0;
+  lv->barview.direction = LEFT_TO_RIGHT;
+  if (lv->sc_callback) {
+    lv->sc_callback(lv, lv->selected, lv->sc_udata);
+  }
+  widget_queue_redraw(WIDGET(lv));
+}
+void listview_nav_next(listview *lv) {
+  if (lv == NULL) {
+    return;
+  }
+  listview_nav_down_int(lv);
+}
+void listview_nav_prev(listview *lv) {
+  if (lv == NULL) {
+    return;
+  }
+  listview_nav_up_int(lv);
+}
+
+
+static void listview_scroll_up_int(listview *lv) {
+  if (lv == NULL) {
+    return;
+  }
   unsigned int mult = 1;
   if (config.scroll_multiplier){
     mult = config.scroll_multiplier;
@@ -839,7 +888,7 @@ static void listview_nav_up_int(listview *lv) {
   }
   widget_queue_redraw(WIDGET(lv));
 }
-static void listview_nav_down_int(listview *lv) {
+static void listview_scroll_down_int(listview *lv) {
   if (lv == NULL) {
     return;
   }
@@ -862,17 +911,17 @@ static void listview_nav_down_int(listview *lv) {
   }
   widget_queue_redraw(WIDGET(lv));
 }
-void listview_nav_next(listview *lv) {
+void listview_scroll_next(listview *lv) {
   if (lv == NULL) {
     return;
   }
-  listview_nav_down_int(lv);
+  listview_scroll_down_int(lv);
 }
-void listview_nav_prev(listview *lv) {
+void listview_scroll_prev(listview *lv) {
   if (lv == NULL) {
     return;
   }
-  listview_nav_up_int(lv);
+  listview_scroll_up_int(lv);
 }
 
 static void listview_nav_column_left_int(listview *lv) {
