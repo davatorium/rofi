@@ -961,11 +961,13 @@ applications create invalid desktop files, **rofi** will discard these entries.
 See the debugging section for more info on DRUN mode, this will print why
 desktop files are discarded.
 
-There are two advanced options to tweak the behaviour:
+There are a few advanced options to tweak the behaviour:
 
 ```css
 configuration {
    drun {
+      /** Scan the current users desktop for desktop files. */
+      scan-desktop: true;
       /** Parse user desktop files. */
       parse-user:   true;
       /** Parse system desktop files. */
