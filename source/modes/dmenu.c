@@ -391,7 +391,7 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
     unsigned int index =
         (unsigned int)g_ascii_strtoull(pd->columns[i], NULL, 10);
     if (index <= ns && index > 0) {
-      if (index == 1) {
+      if (i == 0) {
         g_string_append(str_retv, splitted[index - 1]);
       } else {
         g_string_append_c(str_retv, '\t');
