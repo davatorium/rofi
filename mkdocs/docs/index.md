@@ -1,18 +1,16 @@
+![rofi](images/rofi-logo-full.png)
+
 # Welcome to Rofi Documentation
 
 This website holds the web-version of the manpages for rofi and several guides
 that have been published over the past years.
 The manpages are grouped on rofi version.
 
-![rofi](images/rofi-logo-full.png)
-
 - [Downloads](downloads.md)
 - [Installation](INSTALL.md)
 - [Themes](themes/themes.md)
 - [User scripts (wiki)](https://github.com/davatorium/rofi/wiki/User-scripts)
 
-
-![rofi](images/rofi.png)
 
 ## Development version
 
