@@ -350,6 +350,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   const char *suf = strrchr(icon_path, '.');
   if (suf == NULL) {
     sentry->query_done = TRUE;
+    g_free(icon_path_);
     rofi_view_reload();
     return;
   }

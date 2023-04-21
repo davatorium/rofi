@@ -388,14 +388,14 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
     }
   }
   for (uint32_t i = 0; pd->columns && pd->columns[i]; i++) {
-    unsigned int index =
+    unsigned int col_index =
         (unsigned int)g_ascii_strtoull(pd->columns[i], NULL, 10);
-    if (index <= ns && index > 0) {
+    if (col_index <= ns && col_index > 0) {
       if (i == 0) {
-        g_string_append(str_retv, splitted[index - 1]);
+        g_string_append(str_retv, splitted[col_index - 1]);
       } else {
         g_string_append_c(str_retv, '\t');
-        g_string_append(str_retv, splitted[index - 1]);
+        g_string_append(str_retv, splitted[col_index - 1]);
       }
     }
   }

@@ -868,7 +868,7 @@ static void window_mode_destroy(Mode *sw) {
 }
 struct arg {
   const WindowModePrivateData *pd;
-  client *c;
+  const client *c;
 };
 
 static void helper_eval_add_str(GString *str, const char *input, int l,
@@ -932,7 +932,7 @@ static gboolean helper_eval_cb(const GMatchInfo *info, GString *str,
   return FALSE;
 }
 static char *_generate_display_string(const WindowModePrivateData *pd,
-                                      client *c) {
+                                      const client *c) {
   struct arg d = {pd, c};
   char *res = g_regex_replace_eval(pd->window_regex, config.window_format, -1,
                                    0, 0, helper_eval_cb, &d, NULL);
@@ -943,7 +943,7 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
                                 int *state, G_GNUC_UNUSED GList **list,
                                 int get_entry) {
   WindowModePrivateData *rmpd = mode_get_private_data(sw);
-  client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
+  const client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
   if (c == NULL) {
     return get_entry ? g_strdup("Window has vanished") : NULL;
   }

@@ -1323,11 +1323,12 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
   char *retv = helper_string_replace_if_exists(
       config.drun_display_format, "{generic}", egn, "{name}", en, "{comment}",
       ec, "{exec}", dr->exec, "{categories}", cats, "{keywords}", keywords,
-      NULL);
+      (char *)0);
   g_free(egn);
   g_free(en);
   g_free(ec);
   g_free(cats);
+  g_free(keywords);
   return retv;
 }
 

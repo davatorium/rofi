@@ -174,7 +174,7 @@ static void listview_add_widget(listview *lv, _listview_row *row, widget *wid,
   } else if (strcasecmp(label, "element-text") == 0) {
     row->textbox =
         textbox_create(WIDGET(wid), WIDGET_TYPE_TEXTBOX_TEXT, "element-text",
-                       TB_AUTOHEIGHT , NORMAL, "DDD", 0, 0);
+                       TB_AUTOHEIGHT, NORMAL, "DDD", 0, 0);
     textbox_set_ellipsize(row->textbox, lv->emode);
     box_add((box *)wid, WIDGET(row->textbox), TRUE);
   } else if (strcasecmp(label, "element-index") == 0) {
@@ -617,7 +617,7 @@ void listview_set_selected(listview *lv, unsigned int selected) {
     if (lv->sc_callback) {
       lv->sc_callback(lv, lv->selected, lv->sc_udata);
     }
-  } else if (lv->req_elements == 0) {
+  } else {
     if (lv->sc_callback) {
       lv->sc_callback(lv, UINT32_MAX, lv->sc_udata);
     }

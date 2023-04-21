@@ -243,8 +243,9 @@ static char *combi_mgrv(const Mode *sw, unsigned int selected_line, int *state,
           *state |= MARKUP;
         }
 
-        retv = helper_string_replace_if_exists(
-            config.combi_display_format, "{mode}", dname, "{text}", str, NULL);
+        retv = helper_string_replace_if_exists(config.combi_display_format,
+                                               "{mode}", dname, "{text}", str,
+                                               (char *)0);
         g_free(str);
 
         if (attr_list != NULL) {

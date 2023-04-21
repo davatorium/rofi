@@ -485,9 +485,9 @@ static void rofi_view_reload_message_bar(RofiViewState *state) {
       GList *iter = g_list_first(list_of_warning_msgs);
       int index = 0;
       for (; iter != NULL && index < 2; iter = g_list_next(iter)) {
-        GString *msg = (GString *)(iter->data);
+        GString *in_msg = (GString *)(iter->data);
         g_string_append(emesg, "\n\n");
-        g_string_append(emesg, msg->str);
+        g_string_append(emesg, in_msg->str);
         index++;
       }
       if (g_list_length(iter) > 1) {
@@ -971,6 +971,9 @@ static void input_history_save(void) {
   }
   // Cleanups.
   if (CacheState.entry_history != NULL) {
+    for (ssize_t i = 0; i < CacheState.entry_history_length; i++) {
+      g_free(CacheState.entry_history[i].string);
+    }
     g_free(CacheState.entry_history);
     CacheState.entry_history = NULL;
     CacheState.entry_history_length = 0;

@@ -365,7 +365,12 @@ char *textbox_get_text(const textbox *tb) {
   }
   return g_strdup(tb->text);
 }
-int textbox_get_cursor(const textbox *tb) { return tb->cursor; }
+int textbox_get_cursor(const textbox *tb) {
+  if (tb) {
+    return tb->cursor;
+  }
+  return 0;
+}
 // set the default text to display
 void textbox_text(textbox *tb, const char *text) {
   if (tb == NULL) {
