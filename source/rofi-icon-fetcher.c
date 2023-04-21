@@ -333,9 +333,10 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
       const char *ext = g_strrstr(sentry->entry->name, ".");
       if (ext) {
         const char *exts2[2] = {ext, NULL};
-        icon_path = helper_get_theme_path(sentry->entry->name, exts2);
+        icon_path = icon_path_ =
+            helper_get_theme_path(sentry->entry->name, exts2);
       }
-      if (icon_path == NULL) {
+      if (icon_path_ == NULL) {
         sentry->query_done = TRUE;
         rofi_view_reload();
         return;
