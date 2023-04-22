@@ -712,7 +712,7 @@ static void read_desktop_file(DRunModePrivateData *pd, const char *root,
  * Internal spider used to get list of executables.
  */
 static void walk_dir(DRunModePrivateData *pd, const char *root,
-                     const char *dirname) {
+                     const char *dirname, const gboolean recursive) {
   DIR *dir;
 
   g_debug("Checking directory %s for desktop files.", dirname);
@@ -760,7 +760,9 @@ static void walk_dir(DRunModePrivateData *pd, const char *root,
       }
       break;
     case DT_DIR:
-      walk_dir(pd, root, filename);
+      if (recursive) {
+        walk_dir(pd, root, filename, recursive);
+      }
       break;
     default:
       break;
@@ -1007,13 +1009,23 @@ static void get_apps(DRunModePrivateData *pd) {
   if (drun_read_cache(pd, cache_file)) {
     ThemeWidget *wid = rofi_config_find_widget(drun_mode.name, NULL, TRUE);
 
+    /** Load desktop entries */
+    Property *p =
+        rofi_theme_find_property(wid, P_BOOLEAN, "scan-desktop", FALSE);
+    if (p != NULL && (p->type == P_BOOLEAN && p->value.b)) {
+      const gchar *dir;
+      // First read the user directory.
+      dir = g_get_user_special_dir(G_USER_DIRECTORY_DESKTOP);
+      walk_dir(pd, dir, dir, FALSE);
+      TICK_N("Get Desktop dir apps");
+    }
     /** Load user entires */
-    Property *p = rofi_theme_find_property(wid, P_BOOLEAN, "parse-user", TRUE);
+    p = rofi_theme_find_property(wid, P_BOOLEAN, "parse-user", TRUE);
     if (p == NULL || (p->type == P_BOOLEAN && p->value.b)) {
       gchar *dir;
       // First read the user directory.
       dir = g_build_filename(g_get_user_data_dir(), "applications", NULL);
-      walk_dir(pd, dir, dir);
+      walk_dir(pd, dir, dir, TRUE);
       g_free(dir);
       TICK_N("Get Desktop apps (user dir)");
     }
@@ -1034,7 +1046,7 @@ static void get_apps(DRunModePrivateData *pd) {
         // Check, we seem to be getting empty string...
         if (unique && (**iter) != '\0') {
           char *dir = g_build_filename(*iter, "applications", NULL);
-          walk_dir(pd, dir, dir);
+          walk_dir(pd, dir, dir, TRUE);
           g_free(dir);
         }
       }
