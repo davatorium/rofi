@@ -608,6 +608,7 @@ static void rofi_collect_modes(void) {
   rofi_collectmodes_add(&combi_mode);
   rofi_collectmodes_add(&help_keys_mode);
   rofi_collectmodes_add(&file_browser_mode);
+  rofi_collectmodes_add(&recursive_browser_mode);
 
   if (find_arg("-no-plugins") < 0) {
     find_arg_str("-plugin-path", &(config.plugin_path));
