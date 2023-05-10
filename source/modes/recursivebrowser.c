@@ -23,6 +23,8 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#define G_LOG_DOMAIN "Modes.RecursiveBrowser"
+
 #include "config.h"
 #include <errno.h>
 #include <gio/gio.h>
@@ -33,6 +35,7 @@
 #include <unistd.h>
 
 #include <dirent.h>
+#include <glib-unix.h>
 #include <glib/gstdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -49,14 +52,7 @@
 
 #include "rofi-icon-fetcher.h"
 
-#define FILEBROWSER_CACHE_FILE "rofi3.recursivebrowsercache"
 #define DEFAULT_OPEN "xdg-open"
-
-#if defined(__APPLE__)
-#define st_atim st_atimespec
-#define st_ctim st_ctimespec
-#define st_mtim st_mtimespec
-#endif
 
 /**
  * The internal data structure holding the private data of the TEST Mode.
@@ -66,23 +62,6 @@ enum FBFileType {
   DIRECTORY,
   RFILE,
   NUM_FILE_TYPES,
-};
-
-/**
- * Possible sorting methods
- */
-enum FBSortingMethod {
-  FB_SORT_NAME,
-  FB_SORT_TIME,
-};
-
-/**
- * Type of time to sort by
- */
-enum FBSortingTime {
-  FB_MTIME,
-  FB_ATIME,
-  FB_CTIME,
 };
 
 /** Icons to use for the file type */
@@ -113,25 +92,6 @@ typedef struct {
   GRegex *filter_regex;
 } FileBrowserModePrivateData;
 
-/**
- * The sorting settings used in file-browser.
- */
-struct {
-  /** Field to sort on. */
-  enum FBSortingMethod sorting_method;
-  /** If sorting on time, what time entry. */
-  enum FBSortingTime sorting_time;
-  /** If we want to display directories above files. */
-  gboolean directories_first;
-  /** If we want to show hidden files. */
-  gboolean show_hidden;
-} recursive_browser_config = {
-    .sorting_method = FB_SORT_NAME,
-    .sorting_time = FB_MTIME,
-    .directories_first = TRUE,
-    .show_hidden = FALSE,
-};
-
 static void free_list(FileBrowserModePrivateData *pd) {
   for (unsigned int i = 0; i < pd->array_length; i++) {
     FBFile *fb = &(pd->array[i]);
@@ -161,38 +121,28 @@ static void recursive_browser_mode_init_config(Mode *sw) {
   gboolean found_error = FALSE;
 
   ThemeWidget *wid = rofi_config_find_widget(sw->name, NULL, TRUE);
+  Property *p =
+      rofi_theme_find_property(wid, P_BOOLEAN, "cancel-returns-1", TRUE);
+  if (p && p->type == P_BOOLEAN && p->value.b == TRUE) {
+    rofi_set_return_code(1);
+  }
 
-  Property *p = rofi_theme_find_property(wid, P_STRING, "sorting-method", TRUE);
+  p = rofi_theme_find_property(wid, P_STRING, "filter-regex", TRUE);
   if (p != NULL && p->type == P_STRING) {
-    if (g_strcmp0(p->value.s, "name") == 0) {
-      recursive_browser_config.sorting_method = FB_SORT_NAME;
-    } else if (g_strcmp0(p->value.s, "mtime") == 0) {
-      recursive_browser_config.sorting_method = FB_SORT_TIME;
-      recursive_browser_config.sorting_time = FB_MTIME;
-    } else if (g_strcmp0(p->value.s, "atime") == 0) {
-      recursive_browser_config.sorting_method = FB_SORT_TIME;
-      recursive_browser_config.sorting_time = FB_ATIME;
-    } else if (g_strcmp0(p->value.s, "ctime") == 0) {
-      recursive_browser_config.sorting_method = FB_SORT_TIME;
-      recursive_browser_config.sorting_time = FB_CTIME;
-    } else {
+    GError *error = NULL;
+    g_debug("compile regex: %s\n", p->value.s);
+    pd->filter_regex = g_regex_new(p->value.s, G_REGEX_OPTIMIZE, 0, &error);
+    if (error) {
+      msg = g_strdup_printf("\"%s\" is not a valid regex for filtering: %s",
+                            p->value.s, error->message);
       found_error = TRUE;
-
-      msg = g_strdup_printf(
-          "\"%s\" is not a valid recursivebrowser sorting method", p->value.s);
+      g_error_free(error);
     }
   }
-
-  p = rofi_theme_find_property(wid, P_BOOLEAN, "directories-first", TRUE);
-  if (p != NULL && p->type == P_BOOLEAN) {
-    recursive_browser_config.directories_first = p->value.b;
+  if (pd->filter_regex == NULL) {
+    g_debug("compile default regex\n");
+    pd->filter_regex = g_regex_new("^(\\..*)", G_REGEX_OPTIMIZE, 0, NULL);
   }
-
-  p = rofi_theme_find_property(wid, P_BOOLEAN, "show-hidden", TRUE);
-  if (p != NULL && p->type == P_BOOLEAN) {
-    recursive_browser_config.show_hidden = p->value.b;
-  }
-
   p = rofi_theme_find_property(wid, P_STRING, "command", TRUE);
   if (p != NULL && p->type == P_STRING) {
     pd->command = g_strdup(p->value.s);
@@ -220,23 +170,7 @@ static void recursive_browser_mode_init_current_dir(Mode *sw) {
 
   if (config_has_valid_dir) {
     pd->current_dir = g_file_new_for_path(p->value.s);
-  } else {
-    char *current_dir = NULL;
-    char *cache_file =
-        g_build_filename(cache_dir, FILEBROWSER_CACHE_FILE, NULL);
-
-    if (g_file_get_contents(cache_file, &current_dir, NULL, NULL)) {
-      if (g_file_test(current_dir, G_FILE_TEST_IS_DIR)) {
-        pd->current_dir = g_file_new_for_path(current_dir);
-      }
-
-      g_free(current_dir);
-    }
-
-    // Store it based on the unique identifiers (desktop_id).
-    g_free(cache_file);
   }
-
   if (pd->current_dir == NULL) {
     pd->current_dir = g_file_new_for_path(g_get_home_dir());
   }
@@ -256,7 +190,6 @@ static void scan_dir(FileBrowserModePrivateData *pd, GFile *path) {
       }
       if (pd->filter_regex &&
           g_regex_match(pd->filter_regex, rd->d_name, 0, NULL)) {
-        printf("skip: %s\n", rd->d_name);
         continue;
       }
       switch (rd->d_type) {
@@ -322,11 +255,14 @@ static void scan_dir(FileBrowserModePrivateData *pd, GFile *path) {
 }
 static gpointer recursive_browser_input_thread(gpointer userdata) {
   FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *)userdata;
-  printf("Start scan.\n");
+  GTimer *t = g_timer_new();
+  g_debug("Start scan.\n");
   scan_dir(pd, pd->current_dir);
   write(pd->pipefd2[1], "r", 1);
   write(pd->pipefd2[1], "q", 1);
-  printf("End scan.\n");
+  double f = g_timer_elapsed(t, NULL);
+  g_debug("End scan: %f\n", f);
+  g_timer_destroy(t);
   return NULL;
 }
 static gboolean recursive_browser_async_read_proc(gint fd,
@@ -380,7 +316,6 @@ static int recursive_browser_mode_init(Mode *sw) {
     if (pipe(pd->pipefd2) == -1) {
       g_error("Failed to create pipe");
     }
-    pd->filter_regex = g_regex_new("^(\\..*)", G_REGEX_OPTIMIZE, 0, NULL);
     pd->wake_source = g_unix_fd_add(pd->pipefd2[0], G_IO_IN,
                                     recursive_browser_async_read_proc, pd);
 
@@ -412,10 +347,9 @@ static ModeMode recursive_browser_mode_result(Mode *sw, int mretv, char **input,
     if (p && p->type == P_BOOLEAN && p->value.b == TRUE) {
       rofi_set_return_code(1);
     }
+
     return MODE_EXIT;
   }
-  gboolean special_command =
-      ((mretv & MENU_CUSTOM_ACTION) == MENU_CUSTOM_ACTION);
   if (mretv & MENU_NEXT) {
     retv = NEXT_DIALOG;
   } else if (mretv & MENU_PREVIOUS) {
@@ -453,6 +387,9 @@ static void recursive_browser_mode_destroy(Mode *sw) {
     if (pd->reading_thread) {
       pd->end_thread = TRUE;
       g_thread_join(pd->reading_thread);
+    }
+    if (pd->filter_regex) {
+      g_regex_unref(pd->filter_regex);
     }
     g_object_unref(pd->current_dir);
     g_free(pd->command);
