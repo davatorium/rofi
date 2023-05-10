@@ -110,6 +110,7 @@ typedef struct {
   guint end_thread;
   gboolean loading;
   int pipefd2[2];
+  GRegex *filter_regex;
 } FileBrowserModePrivateData;
 
 /**
@@ -253,7 +254,9 @@ static void scan_dir(FileBrowserModePrivateData *pd, GFile *path) {
       if (g_strcmp0(rd->d_name, ".") == 0) {
         continue;
       }
-      if (rd->d_name[0] == '.') {
+      if (pd->filter_regex &&
+          g_regex_match(pd->filter_regex, rd->d_name, 0, NULL)) {
+        printf("skip: %s\n", rd->d_name);
         continue;
       }
       switch (rd->d_type) {
@@ -377,6 +380,7 @@ static int recursive_browser_mode_init(Mode *sw) {
     if (pipe(pd->pipefd2) == -1) {
       g_error("Failed to create pipe");
     }
+    pd->filter_regex = g_regex_new("^(\\..*)", G_REGEX_OPTIMIZE, 0, NULL);
     pd->wake_source = g_unix_fd_add(pd->pipefd2[0], G_IO_IN,
                                     recursive_browser_async_read_proc, pd);
 
