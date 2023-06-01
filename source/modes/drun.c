@@ -1483,6 +1483,7 @@ Mode drun_mode = {.name = "drun",
                   ._get_icon = _get_icon,
                   ._preprocess_input = NULL,
                   .private_data = NULL,
-                  .free = NULL};
+		  .free = NULL,
+		  .type  = MODE_TYPE_SWITCHER };
 
 #endif // ENABLE_DRUN

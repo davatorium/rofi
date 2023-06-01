@@ -342,4 +342,5 @@ Mode combi_mode = {.name = "combi",
                    ._get_icon = combi_get_icon,
                    ._preprocess_input = combi_preprocess_input,
                    .private_data = NULL,
-                   .free = NULL};
+		   .free = NULL,
+		   .type = MODE_TYPE_SWITCHER };

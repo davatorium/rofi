@@ -572,5 +572,6 @@ Mode run_mode = {.name = "run",
                  ._get_completion = NULL,
                  ._preprocess_input = NULL,
                  .private_data = NULL,
-                 .free = NULL};
+                 .free = NULL,
+		  .type  = MODE_TYPE_SWITCHER };
 /** @}*/

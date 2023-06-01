@@ -118,4 +118,5 @@ Mode help_keys_mode = {.name = "keys",
                        ._get_completion = NULL,
                        ._get_display_value = _get_display_value,
                        .private_data = NULL,
-                       .free = NULL};
+		       .free = NULL,
+		       .type = MODE_TYPE_SWITCHER };

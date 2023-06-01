@@ -44,6 +44,9 @@
 int mode_init(Mode *mode) {
   g_return_val_if_fail(mode != NULL, FALSE);
   g_return_val_if_fail(mode->_init != NULL, FALSE);
+  if ( mode->type == MODE_TYPE_UNSET ) {
+	  g_warning("Mode '%s' does not have a type set. Please update mode.", mode->name);
+  }
   // to make sure this is initialized correctly.
   mode->fallback_icon_fetch_uid = 0;
   mode->fallback_icon_not_found = FALSE;

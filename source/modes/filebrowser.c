@@ -729,4 +729,5 @@ Mode file_browser_mode = {
     ._preprocess_input = NULL,
     .private_data = NULL,
     .free = NULL,
+    .type = MODE_TYPE_SWITCHER|MODE_TYPE_COMPLETER
 };
