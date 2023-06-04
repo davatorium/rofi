@@ -44,8 +44,9 @@
 int mode_init(Mode *mode) {
   g_return_val_if_fail(mode != NULL, FALSE);
   g_return_val_if_fail(mode->_init != NULL, FALSE);
-  if ( mode->type == MODE_TYPE_UNSET ) {
-	  g_warning("Mode '%s' does not have a type set. Please update mode.", mode->name);
+  if (mode->type == MODE_TYPE_UNSET) {
+    g_warning("Mode '%s' does not have a type set. Please update mode.",
+              mode->name);
   }
   // to make sure this is initialized correctly.
   mode->fallback_icon_fetch_uid = 0;
@@ -208,4 +209,24 @@ char *mode_get_message(const Mode *mode) {
   }
   return NULL;
 }
+
+Mode *mode_create(const Mode *mode) {
+  if (mode->_create) {
+    return mode->_create();
+  }
+  return NULL;
+}
+
+ModeMode mode_completer_result(Mode *mode, int menu_retv, char **input,
+                               unsigned int selected_line, char **path) {
+  if ((mode->type & MODE_TYPE_COMPLETER) == 0) {
+    g_warning("Trying to call completer_result on non completion mode.");
+    return 0;
+  }
+  if (mode->_completer_result) {
+    return mode->_completer_result(mode, menu_retv, input, selected_line, path);
+  }
+  return 0;
+}
+
 /**@}*/

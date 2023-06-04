@@ -165,6 +165,21 @@ static int mode_lookup(const char *name) {
   }
   return -1;
 }
+/**
+ * @param name Name of the mode to lookup.
+ *
+ * Find the index of the mode with name.
+ *
+ * @returns index of the mode in modes, -1 if not found.
+ */
+static const Mode *mode_available_lookup(const char *name) {
+  for (unsigned int i = 0; i < num_available_modes; i++) {
+    if (strcmp(mode_get_name(available_modes[i]), name) == 0) {
+      return available_modes[i];
+    }
+  }
+  return NULL;
+}
 
 /**
  * Teardown the gui.
@@ -1195,4 +1210,13 @@ int rofi_theme_rasi_validate(const char *filename) {
   }
 
   return EXIT_FAILURE;
+}
+
+const Mode *rofi_get_completer(void) {
+  const Mode *index = mode_available_lookup(config.completer_mode);
+  printf("%p\n", index);
+  if (index != NULL) {
+    return index;
+  }
+  return NULL;
 }

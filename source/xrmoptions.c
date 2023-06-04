@@ -439,6 +439,12 @@ static XrmOption xrmOptions[] = {
      NULL,
      "Workaround for XServer issue #300 (issue #611 for rofi.)",
      CONFIG_DEFAULT},
+    {xrm_String,
+     "completer-mode",
+     {.str = &(config.completer_mode)},
+     NULL,
+     "What completer to use for drun/run.",
+     CONFIG_DEFAULT},
 };
 
 /** Dynamic array of extra options */

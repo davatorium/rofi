@@ -230,11 +230,11 @@ static void scan_dir(FileBrowserModePrivateData *pd, GFile *path) {
       case DT_LNK: {
         FBFile *f = g_malloc0(sizeof(FBFile));
         // Rofi expects utf-8, so lets convert the filename.
-        f->name = g_filename_to_utf8(rd->d_name, -1, NULL, NULL, NULL);
+        f->path = g_build_filename(cdir, rd->d_name, NULL);
+        f->name = g_filename_to_utf8(f->path, -1, NULL, NULL, NULL);
         if (f->name == NULL) {
           f->name = rofi_force_utf8(rd->d_name, -1);
         }
-        f->path = g_build_filename(cdir, rd->d_name, NULL);
         f->icon_fetch_uid = 0;
         f->icon_fetch_size = 0;
         f->link = TRUE;
@@ -536,5 +536,4 @@ Mode recursive_browser_mode = {
     ._completer_result = recursive_browser_mode_completer,
     .private_data = NULL,
     .free = NULL,
-    .type = MODE_TYPE_SWITCHER|MODE_TYPE_COMPLETER
-};
+    .type = MODE_TYPE_SWITCHER | MODE_TYPE_COMPLETER};

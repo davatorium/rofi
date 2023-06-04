@@ -184,6 +184,8 @@ typedef struct {
 
   /** workaround for broken xserver (#300 on xserver, #611) */
   gboolean xserver_i300_workaround;
+  /** completer mode */
+  char *completer_mode;
 } Settings;
 
 /** Default number of lines in the list view */
