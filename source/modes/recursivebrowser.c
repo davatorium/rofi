@@ -487,7 +487,7 @@ Mode *create_new_recursive_browser(void) {
   return sw;
 }
 
-#if 0
+#if 1
 ModeMode recursive_browser_mode_completer(Mode *sw, int mretv, char **input,
                                           unsigned int selected_line,
                                           char **path) {
@@ -502,49 +502,15 @@ ModeMode recursive_browser_mode_completer(Mode *sw, int mretv, char **input,
     retv = (mretv & MENU_LOWER_MASK);
   } else if ((mretv & MENU_OK)) {
     if (selected_line < pd->array_length) {
-      if (pd->array[selected_line].type == UP) {
-        GFile *new = g_file_get_parent(pd->current_dir);
-        if (new) {
-          g_object_unref(pd->current_dir);
-          pd->current_dir = new;
-          free_list(pd);
-          get_recursive_browser(sw, pd->current_dir);
-          return RESET_DIALOG;
-        }
-      } else if (pd->array[selected_line].type == DIRECTORY) {
-        GFile *new = g_file_new_for_path(pd->array[selected_line].path);
-        g_object_unref(pd->current_dir);
-        pd->current_dir = new;
-        free_list(pd);
-        get_recursive_browser(sw, pd->current_dir);
-        return RESET_DIALOG;
-      } else if (pd->array[selected_line].type == RFILE) {
+      if (pd->array[selected_line].type == RFILE) {
         *path = g_strescape(pd->array[selected_line].path, NULL);
         return MODE_EXIT;
       }
     }
     retv = RELOAD_DIALOG;
   } else if ((mretv & MENU_CUSTOM_INPUT) && *input) {
-    char *p = rofi_expand_path(*input);
-    char *dir = g_filename_from_utf8(p, -1, NULL, NULL, NULL);
-    g_free(p);
-    if (g_file_test(dir, G_FILE_TEST_EXISTS)) {
-      if (g_file_test(dir, G_FILE_TEST_IS_DIR)) {
-        g_object_unref(pd->current_dir);
-        pd->current_dir = g_file_new_for_path(dir);
-        g_free(dir);
-        free_list(pd);
-        get_recursive_browser(sw, pd->current_dir);
-        return RESET_DIALOG;
-      }
-    }
-    g_free(dir);
     retv = RELOAD_DIALOG;
   } else if ((mretv & MENU_ENTRY_DELETE) == MENU_ENTRY_DELETE) {
-    recursive_browser_config.show_hidden =
-        !recursive_browser_config.show_hidden;
-    free_list(pd);
-    get_recursive_browser(sw, pd->current_dir);
     retv = RELOAD_DIALOG;
   }
   return retv;
@@ -566,8 +532,9 @@ Mode recursive_browser_mode = {
     ._get_message = _get_message,
     ._get_completion = _get_completion,
     ._preprocess_input = NULL,
+    ._create = create_new_recursive_browser,
+    ._completer_result = recursive_browser_mode_completer,
     .private_data = NULL,
     .free = NULL,
-    .create = create_new_recursive_browser,
     .type = MODE_TYPE_SWITCHER|MODE_TYPE_COMPLETER
 };

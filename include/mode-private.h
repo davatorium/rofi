@@ -232,12 +232,12 @@ struct rofi_mode {
   /**
    * Create mode.
    */
-  _mode_create create;
+  _mode_create _create;
 
   /**
    * If this mode is used as completer.
    */
-  _mode_completer_result completer_result;
+  _mode_completer_result _completer_result;
 
   /** Extra fields for script */
   void *ed;
