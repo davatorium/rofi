@@ -788,6 +788,10 @@ configuration {
       directory: "/some/directory";
       /** return 1 on cancel. */
       cancel-returns-1: true;
+      /** filter entries using regex */
+      filter-regex: "(.*cache.*|.*\.o)";
+      /** command */
+      command: "xdg-open";
    }
 }
 ```
