@@ -45,8 +45,15 @@ int mode_init(Mode *mode) {
   g_return_val_if_fail(mode != NULL, FALSE);
   g_return_val_if_fail(mode->_init != NULL, FALSE);
   if (mode->type == MODE_TYPE_UNSET) {
-    g_warning("Mode '%s' does not have a type set. Please update mode.",
+    g_warning("Mode '%s' does not have a type set. Please update mode/plugin.",
               mode->name);
+  }
+  if ((mode->type & MODE_TYPE_COMPLETER) == MODE_TYPE_COMPLETER) {
+    if (mode->_completer_result == NULL) {
+      g_error(
+          "Mode '%s' is incomplete and does not implement _completer_result.",
+          mode->name);
+    }
   }
   // to make sure this is initialized correctly.
   mode->fallback_icon_fetch_uid = 0;
@@ -227,6 +234,15 @@ ModeMode mode_completer_result(Mode *mode, int menu_retv, char **input,
     return mode->_completer_result(mode, menu_retv, input, selected_line, path);
   }
   return 0;
+}
+
+gboolean mode_is_completer(const Mode *mode) {
+  if (mode) {
+    if ((mode->type & MODE_TYPE_COMPLETER) == MODE_TYPE_COMPLETER) {
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 /**@}*/

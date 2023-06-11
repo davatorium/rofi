@@ -1214,9 +1214,11 @@ int rofi_theme_rasi_validate(const char *filename) {
 
 const Mode *rofi_get_completer(void) {
   const Mode *index = mode_available_lookup(config.completer_mode);
-  printf("%p\n", index);
   if (index != NULL) {
     return index;
   }
+  const char *name =
+      config.completer_mode == NULL ? "(null)" : config.completer_mode;
+  g_warning("Mode: %s not found or is not valid for use as completer.", name);
   return NULL;
 }

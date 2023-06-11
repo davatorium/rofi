@@ -269,6 +269,14 @@ Mode *mode_create(const Mode *mode);
 ModeMode mode_completer_result(Mode *sw, int menu_retv, char **input,
                                unsigned int selected_line, char **path);
 
+/**
+ * @param mode The mode to query.
+ *
+ * Check if mode is a valid completer.
+ *
+ * @returns TRUE if mode can be used as completer.
+ */
+gboolean mode_is_completer(const Mode *sw);
 /**@}*/
 G_END_DECLS
 #endif
