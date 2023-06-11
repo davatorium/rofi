@@ -1191,6 +1191,26 @@ rofi -filebrowser-cancel-returns-1 true -show filebrowser
 .PP
 The \fB\fCshow-hidden\fR can also be triggered with the \fB\fCkb-delete-entry\fR keybinding.
 
+.SS Recursive Browser settings
+.PP
+Recursive file browser behavior can be controlled via the following options:
+
+.PP
+.RS
+
+.nf
+configuration {
+   recursivebrowser {
+      /** Directory the file browser starts in. */
+      directory: "/some/directory";
+      /** return 1 on cancel. */
+      cancel-returns-1: true;
+   }
+}
+
+.fi
+.RE
+
 .SS Entry history
 .PP
 The number of previous inputs for the entry box can be modified by setting
