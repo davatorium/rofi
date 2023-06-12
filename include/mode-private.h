@@ -40,11 +40,11 @@ G_BEGIN_DECLS
  */
 typedef enum {
   /** Mode type is not set */
-  MODE_TYPE_UNSET = 0b0000,
+  MODE_TYPE_UNSET = 0x0,
   /** A normal mode. */
-  MODE_TYPE_SWITCHER = 0b0001,
+  MODE_TYPE_SWITCHER = 0x1,
   /** A mode that can be used to completer */
-  MODE_TYPE_COMPLETER = 0b0010,
+  MODE_TYPE_COMPLETER = 0x2,
 } ModeType;
 
 /**

@@ -89,6 +89,7 @@ SOURCES=\
 	source/modes/script.c\
 	source/modes/help-keys.c\
 	source/modes/filebrowser.c\
+	source/modes/recursivebrowser.c\
 	include/display.h\
 	include/xcb.h\
 	include/xcb-internal.h\
@@ -126,6 +127,7 @@ SOURCES=\
 	include/modes/modes.h\
 	include/modes/help-keys.h\
 	include/modes/filebrowser.h\
+	include/modes/recursivebrowser.h\
 	include/modes/dmenuscriptshared.h\
 	resources/resources.c\
 	resources/resources.h
