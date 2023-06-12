@@ -1607,6 +1607,26 @@ static void x11_create_frequently_used_atoms(void) {
   }
 }
 
+char *x11_helper_get_window_manager(void) {
+  char *retv = NULL;
+  xcb_window_t wm_win = 0;
+  xcb_get_property_cookie_t cc = xcb_ewmh_get_supporting_wm_check_unchecked(
+      &xcb->ewmh, xcb_stuff_get_root_window());
+
+  if (xcb_ewmh_get_supporting_wm_check_reply(&xcb->ewmh, cc, &wm_win, NULL)) {
+    xcb_ewmh_get_utf8_strings_reply_t wtitle;
+    xcb_get_property_cookie_t cookie =
+        xcb_ewmh_get_wm_name_unchecked(&(xcb->ewmh), wm_win);
+    if (xcb_ewmh_get_wm_name_reply(&(xcb->ewmh), cookie, &wtitle, (void *)0)) {
+      if (wtitle.strings_len > 0) {
+        retv = g_strdup(wtitle.strings);
+      }
+      xcb_ewmh_get_utf8_strings_reply_wipe(&wtitle);
+    }
+  }
+  return retv;
+}
+
 static void x11_helper_discover_window_manager(void) {
   xcb_window_t wm_win = 0;
   xcb_get_property_cookie_t cc = xcb_ewmh_get_supporting_wm_check_unchecked(

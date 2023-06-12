@@ -358,6 +358,15 @@ static void help(G_GNUC_UNUSED int argc, char **argv) {
   printf("Global options:\n");
   print_options();
   printf("\n");
+  printf("Detected Window manager:\n");
+  char *wm = x11_helper_get_window_manager();
+  if (wm) {
+    printf("\t• %s\n", wm);
+    g_free(wm);
+  } else {
+    printf("\t• No window manager detected.\n");
+  }
+  printf("\n");
   display_dump_monitor_layout();
   printf("\n");
   printf("Detected modes:\n");

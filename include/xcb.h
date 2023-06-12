@@ -249,4 +249,11 @@ void cairo_image_surface_blur(cairo_surface_t *surface, double radius,
 void x11_event_handler_fowarding(xcb_xim_t *im, xcb_xic_t ic,
                                  xcb_key_press_event_t *event, void *user_data);
 #endif
+
+/**
+ * Get the currently detected window manager.
+ *
+ * @returns NULL when non found, otherwise a string (free with g_free)
+ */
+char *x11_helper_get_window_manager(void);
 #endif
