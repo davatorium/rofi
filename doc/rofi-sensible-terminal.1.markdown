@@ -35,6 +35,7 @@ It tries to start one of the following (in that order):
 * konsole
 * alacritty
 * kitty
+* wezterm
 
 
 ## SEE ALSO
