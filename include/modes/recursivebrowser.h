@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2017 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2023 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,24 +25,34 @@
  *
  */
 
-#ifndef ROFI_MODES_MODES_H
-#define ROFI_MODES_MODES_H
+#ifndef ROFI_MODE_RECURSIVE_BROWSER_H
+#define ROFI_MODE_RECURSIVE_BROWSER_H
+#include "mode.h"
+/**
+ * @defgroup FileBrowserMode FileBrowser
+ * @ingroup MODES
+ *
+ *
+ * @{
+ */
+/** #Mode object representing the run dialog. */
+extern Mode recursive_browser_mode;
 
 /**
- * @defgroup MODES Modes
+ * Create a new filebrowser.
+ * @returns a new filebrowser structure.
  */
+Mode *create_new_recursive_browser(void);
 /**
- * List of available modes.
+ * @param sw Mode object.
+ * @param mretv return value passed in.
+ * @param input The user input string.
+ * @param selected_line The user selected line.
+ * @param path The full path as output.
+ *
+ * @returns the state the user selected.
  */
-
-#include "modes/combi.h"
-#include "modes/dmenu.h"
-#include "modes/drun.h"
-#include "modes/filebrowser.h"
-#include "modes/recursivebrowser.h"
-#include "modes/help-keys.h"
-#include "modes/run.h"
-#include "modes/script.h"
-#include "modes/ssh.h"
-#include "modes/window.h"
-#endif // ROFI_MODES_MODES_H
+ModeMode recursive_browser_mode_completer(Mode *sw, int mretv, char **input,
+                                     unsigned int selected_line, char **path);
+/**@}*/
+#endif // ROFI_MODE_RECURSIVE_BROWSER_H

@@ -1134,7 +1134,8 @@ Mode window_mode = {.name = "window",
                     ._get_completion = NULL,
                     ._preprocess_input = NULL,
                     .private_data = NULL,
-                    .free = NULL};
+		    .free = NULL,
+		    .type  = MODE_TYPE_SWITCHER };
 Mode window_mode_cd = {.name = "windowcd",
                        .cfg_name_key = "display-windowcd",
                        ._init = window_mode_init_cd,
@@ -1147,6 +1148,7 @@ Mode window_mode_cd = {.name = "windowcd",
                        ._get_completion = NULL,
                        ._preprocess_input = NULL,
                        .private_data = NULL,
-                       .free = NULL};
+                       .free = NULL,
+		       .type  = MODE_TYPE_SWITCHER };
 
 #endif // WINDOW_MODE

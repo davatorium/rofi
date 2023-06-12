@@ -103,6 +103,8 @@ void rofi_quit_main_loop(void);
  * @return returns Mode * when found, NULL if not.
  */
 Mode *rofi_collect_modes_search(const char *name);
+
+const Mode *rofi_get_completer(void);
 /** Reset terminal */
 #define color_reset "\033[0m"
 /** Set terminal text bold */

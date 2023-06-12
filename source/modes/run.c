@@ -440,8 +440,8 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
       retv = MODE_EXIT;
     } else {
       char *path = NULL;
-      retv = file_browser_mode_completer(rmpd->completer, mretv, input,
-                                         selected_line, &path);
+      retv = mode_completer_result(rmpd->completer, mretv, input, selected_line,
+                                   &path);
       if (retv == MODE_EXIT) {
         if (path == NULL) {
           exec_cmd(rmpd->cmd_list[rmpd->selected_line].entry, run_in_term);
@@ -488,9 +488,12 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
         g_free(*input);
       *input = g_strdup(rmpd->old_completer_input);
 
-      rmpd->completer = create_new_file_browser();
-      mode_init(rmpd->completer);
-      rmpd->file_complete = TRUE;
+      const Mode *comp = rofi_get_completer();
+      if (comp) {
+        rmpd->completer = mode_create(comp);
+        mode_init(rmpd->completer);
+        rmpd->file_complete = TRUE;
+      }
     }
   }
   return retv;
@@ -572,5 +575,6 @@ Mode run_mode = {.name = "run",
                  ._get_completion = NULL,
                  ._preprocess_input = NULL,
                  .private_data = NULL,
-                 .free = NULL};
+                 .free = NULL,
+                 .type = MODE_TYPE_SWITCHER};
 /** @}*/

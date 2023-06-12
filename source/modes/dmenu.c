@@ -257,8 +257,6 @@ static gpointer read_input_thread(gpointer userdata) {
   ssize_t nread = 0;
   ssize_t len = 0;
   char *line = NULL;
-  // Create the message passing queue to the UI thread.
-  pd->async_queue = g_async_queue_new();
   Block *block = NULL;
 
   GTimer *tim = g_timer_new();
@@ -616,6 +614,8 @@ static int dmenu_mode_init(Mode *sw) {
     }
     pd->wake_source =
         g_unix_fd_add(pd->pipefd2[0], G_IO_IN, dmenu_async_read_proc, pd);
+    // Create the message passing queue to the UI thread.
+    pd->async_queue = g_async_queue_new();
     pd->reading_thread =
         g_thread_new("dmenu-read", (GThreadFunc)read_input_thread, pd);
     pd->loading = TRUE;

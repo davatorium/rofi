@@ -645,5 +645,6 @@ Mode ssh_mode = {.name = "ssh",
                  ._get_completion = NULL,
                  ._preprocess_input = NULL,
                  .private_data = NULL,
-                 .free = NULL};
+                 .free = NULL,
+		 .type = MODE_TYPE_SWITCHER };
 /**@}*/

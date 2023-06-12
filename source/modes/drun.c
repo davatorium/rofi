@@ -1182,8 +1182,8 @@ static ModeMode drun_mode_result(Mode *sw, int mretv, char **input,
       retv = MODE_EXIT;
     } else {
       char *path = NULL;
-      retv = file_browser_mode_completer(rmpd->completer, mretv, input,
-                                         selected_line, &path);
+      retv = mode_completer_result(rmpd->completer, mretv, input, selected_line,
+                                   &path);
       if (retv == MODE_EXIT) {
         exec_cmd_entry(&(rmpd->entry_list[rmpd->selected_line]), path);
       }
@@ -1247,9 +1247,12 @@ static ModeMode drun_mode_result(Mode *sw, int mretv, char **input,
             g_free(*input);
           *input = g_strdup(rmpd->old_completer_input);
 
-          rmpd->completer = create_new_file_browser();
-          mode_init(rmpd->completer);
-          rmpd->file_complete = TRUE;
+          const Mode *comp = rofi_get_completer();
+          if (comp) {
+            rmpd->completer = mode_create(comp);
+            mode_init(rmpd->completer);
+            rmpd->file_complete = TRUE;
+          }
         }
         g_regex_unref(regex);
       }
@@ -1483,6 +1486,7 @@ Mode drun_mode = {.name = "drun",
                   ._get_icon = _get_icon,
                   ._preprocess_input = NULL,
                   .private_data = NULL,
-                  .free = NULL};
+                  .free = NULL,
+                  .type = MODE_TYPE_SWITCHER};
 
 #endif // ENABLE_DRUN

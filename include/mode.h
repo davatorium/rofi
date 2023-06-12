@@ -247,6 +247,36 @@ char *mode_preprocess_input(Mode *mode, const char *input);
  * free).
  */
 char *mode_get_message(const Mode *mode);
+
+/**
+ * @param mode The mode to create an instance off.
+ *
+ * @returns a new instance of the mode.
+ */
+Mode *mode_create(const Mode *mode);
+
+/**
+ * @param mode The mode to query
+ * @param menu_retv The menu return value.
+ * @param input Pointer to the user input string. [in][out]
+ * @param selected_line the line selected by the user.
+ * @param path get the path to the selected file. [out]
+ *
+ * Acts on the user interaction.
+ *
+ * @returns the next #ModeMode.
+ */
+ModeMode mode_completer_result(Mode *sw, int menu_retv, char **input,
+                               unsigned int selected_line, char **path);
+
+/**
+ * @param mode The mode to query.
+ *
+ * Check if mode is a valid completer.
+ *
+ * @returns TRUE if mode can be used as completer.
+ */
+gboolean mode_is_completer(const Mode *sw);
 /**@}*/
 G_END_DECLS
 #endif

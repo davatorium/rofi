@@ -777,6 +777,25 @@ rofi -filebrowser-cancel-returns-1 true -show filebrowser
 
 The `show-hidden` can also be triggered with the `kb-delete-entry` keybinding.
 
+### Recursive Browser settings
+
+Recursive file browser behavior can be controlled via the following options:
+
+```css
+configuration {
+   recursivebrowser {
+      /** Directory the file browser starts in. */
+      directory: "/some/directory";
+      /** return 1 on cancel. */
+      cancel-returns-1: true;
+      /** filter entries using regex */
+      filter-regex: "(.*cache.*|.*\.o)";
+      /** command */
+      command: "xdg-open";
+   }
+}
+```
+
 ### Entry history
 
 The number of previous inputs for the entry box can be modified by setting

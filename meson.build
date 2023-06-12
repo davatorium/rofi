@@ -209,6 +209,7 @@ rofi_sources = files(
         'source/modes/script.c',
         'source/modes/help-keys.c',
         'source/modes/filebrowser.c',
+        'source/modes/recursivebrowser.c',
         'include/display.h',
         'include/xcb.h',
         'include/xcb-internal.h',
