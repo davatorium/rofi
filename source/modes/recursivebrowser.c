@@ -52,6 +52,7 @@
 
 #include "rofi-icon-fetcher.h"
 
+/** The default program used to open the file. */
 #define DEFAULT_OPEN "xdg-open"
 
 /**

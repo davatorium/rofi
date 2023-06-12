@@ -34,13 +34,17 @@ G_BEGIN_DECLS
 /** ABI version to check if loaded plugin is compatible. */
 #define ABI_VERSION 7u
 
+/**
+ * Indicator what type of mode this is.
+ * For now it can be the classic switcher, or also implement a completer.
+ */
 typedef enum {
-	/** Mode type is not set */
-	MODE_TYPE_UNSET     = 0b0000,
-	/** A normal mode. */
-	MODE_TYPE_SWITCHER  = 0b0001,
-	/** A mode that can be used to completer */
-	MODE_TYPE_COMPLETER = 0b0010,
+  /** Mode type is not set */
+  MODE_TYPE_UNSET = 0b0000,
+  /** A normal mode. */
+  MODE_TYPE_SWITCHER = 0b0001,
+  /** A mode that can be used to completer */
+  MODE_TYPE_COMPLETER = 0b0010,
 } ModeType;
 
 /**
@@ -160,28 +164,29 @@ typedef char *(*_mode_preprocess_input)(Mode *sw, const char *input);
  */
 typedef char *(*_mode_get_message)(const Mode *sw);
 
-
 /**
  * Create a new instance of this mode.
  * Free (free) result after use, after using mode_destroy.
  *
  * @returns Instantiate a new instance of this mode.
  */
-typedef Mode *(*_mode_create)( void );
+typedef Mode *(*_mode_create)(void);
 
 /**
  * @param sw The #Mode pointer
  * @param menu_retv The return value
  * @param input The input string
  * @param selected_line The selected line
- * @param the path that was completed
+ * @param path the path that was completed
  *
  * Handle the user accepting an entry in completion mode.
  *
  * @returns the next action to take
  */
-typedef ModeMode (*_mode_completer_result)(Mode *sw, int menu_retv, char **input,
-                                 unsigned int selected_line, char **path);
+typedef ModeMode (*_mode_completer_result)(Mode *sw, int menu_retv,
+                                           char **input,
+                                           unsigned int selected_line,
+                                           char **path);
 /**
  * Structure defining a switcher.
  * It consists of a name, callback and if enabled

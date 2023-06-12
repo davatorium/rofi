@@ -356,6 +356,17 @@ void rofi_view_ellipsize_listview(RofiViewState *state,
  */
 gboolean rofi_set_im_window_pos(int new_x, int new_y);
 
+/**
+ * @param wid to test.
+ * @param action the action done.
+ * @param x [unused]
+ * @param y [unsued]
+ * @param user_data
+ *
+ * textbux widget trigger action function.
+ *
+ * @return the result.
+ */
 WidgetTriggerActionResult textbox_button_trigger_action(
     widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x,
     G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data);

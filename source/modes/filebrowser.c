@@ -50,6 +50,7 @@
 #include "rofi-icon-fetcher.h"
 
 #define FILEBROWSER_CACHE_FILE "rofi3.filebrowsercache"
+/** The default program used to open the file. */
 #define DEFAULT_OPEN "xdg-open"
 
 #if defined(__APPLE__)
@@ -712,24 +713,22 @@ ModeMode file_browser_mode_completer(Mode *sw, int mretv, char **input,
 }
 #endif
 
-Mode file_browser_mode = {
-    .display_name = NULL,
-    .abi_version = ABI_VERSION,
-    .name = "filebrowser",
-    .cfg_name_key = "display-filebrowser",
-    ._init = file_browser_mode_init,
-    ._get_num_entries = file_browser_mode_get_num_entries,
-    ._result = file_browser_mode_result,
-    ._destroy = file_browser_mode_destroy,
-    ._token_match = file_browser_token_match,
-    ._get_display_value = _get_display_value,
-    ._get_icon = _get_icon,
-    ._get_message = _get_message,
-    ._get_completion = _get_completion,
-    ._preprocess_input = NULL,
-    ._create = create_new_file_browser,
-    ._completer_result = file_browser_mode_completer,
-    .private_data = NULL,
-    .free = NULL,
-    .type = MODE_TYPE_SWITCHER|MODE_TYPE_COMPLETER
-};
+Mode file_browser_mode = {.display_name = NULL,
+                          .abi_version = ABI_VERSION,
+                          .name = "filebrowser",
+                          .cfg_name_key = "display-filebrowser",
+                          ._init = file_browser_mode_init,
+                          ._get_num_entries = file_browser_mode_get_num_entries,
+                          ._result = file_browser_mode_result,
+                          ._destroy = file_browser_mode_destroy,
+                          ._token_match = file_browser_token_match,
+                          ._get_display_value = _get_display_value,
+                          ._get_icon = _get_icon,
+                          ._get_message = _get_message,
+                          ._get_completion = _get_completion,
+                          ._preprocess_input = NULL,
+                          ._create = create_new_file_browser,
+                          ._completer_result = file_browser_mode_completer,
+                          .private_data = NULL,
+                          .free = NULL,
+                          .type = MODE_TYPE_SWITCHER | MODE_TYPE_COMPLETER};

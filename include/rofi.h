@@ -104,6 +104,12 @@ void rofi_quit_main_loop(void);
  */
 Mode *rofi_collect_modes_search(const char *name);
 
+/**
+ * Query the configure file completer.
+ *
+ * @returns the Mode that can be used for file completion or NULL when not
+ * found.
+ */
 const Mode *rofi_get_completer(void);
 /** Reset terminal */
 #define color_reset "\033[0m"

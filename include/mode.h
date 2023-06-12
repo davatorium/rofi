@@ -256,7 +256,7 @@ char *mode_get_message(const Mode *mode);
 Mode *mode_create(const Mode *mode);
 
 /**
- * @param mode The mode to query
+ * @param sw The mode to query
  * @param menu_retv The menu return value.
  * @param input Pointer to the user input string. [in][out]
  * @param selected_line the line selected by the user.
@@ -270,7 +270,7 @@ ModeMode mode_completer_result(Mode *sw, int menu_retv, char **input,
                                unsigned int selected_line, char **path);
 
 /**
- * @param mode The mode to query.
+ * @param sw The mode to query.
  *
  * Check if mode is a valid completer.
  *

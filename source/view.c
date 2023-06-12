@@ -155,8 +155,11 @@ struct {
   X11CursorType cursor_type;
   /** Entry box */
   gboolean entry_history_enable;
+  /** Array with history entriy input. */
   EntryHistoryIndex *entry_history;
+  /** Length of the array */
   gssize entry_history_length;
+  /** The current index being viewed. */
   gssize entry_history_index;
 } CacheState = {.main_window = XCB_WINDOW_NONE,
                 .fake_bg = NULL,
