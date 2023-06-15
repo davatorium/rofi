@@ -547,6 +547,9 @@ static void config_parse_cmd_option(XrmOption *option) {
 static gboolean config_parser_form_rasi_format(GString *str, char **tokens,
                                                int count, char *argv,
                                                gboolean string) {
+  if (strlen(argv) > 4096) {
+    return FALSE;
+  }
   for (int j = 0; j < (count - 1); j++) {
     g_string_append_printf(str, "%s { ", tokens[j]);
   }
