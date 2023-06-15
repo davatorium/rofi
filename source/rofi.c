@@ -797,8 +797,26 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
     if (find_arg("-markup") >= 0) {
       markup = TRUE;
     }
-    if (!rofi_view_error_dialog(msg, markup)) {
-      g_main_loop_quit(main_loop);
+    // When we pass -, we read from stdin.
+    if (g_strcmp0(msg, "-") == 0) {
+      size_t index = 0, i = 0;
+      size_t length = 1024;
+      msg = malloc(length * sizeof(char));
+      while ((i = fread(&msg[index], 1, 1024, stdin))>0) {
+        index+=i;
+        length+=i;
+        msg = realloc(msg,length * sizeof(char));
+      }
+
+      if (!rofi_view_error_dialog(msg, markup)) {
+        g_main_loop_quit(main_loop);
+      }
+      g_free(msg);
+    } else {
+      // Normal version
+      if (!rofi_view_error_dialog(msg, markup)) {
+        g_main_loop_quit(main_loop);
+      }
     }
   } else if (find_arg_str("-show", &sname) == TRUE) {
     int index = mode_lookup(sname);

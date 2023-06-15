@@ -740,6 +740,8 @@ cause slowdowns when set too high)
 Pops up a message dialog (used internally for showing errors) with *message*.
 Message can be multi-line.
 
+Passing `-e -` reads (blocking) from standard in and displays this.
+
 ### File browser settings
 
 File browser behavior can be controlled via the following options:
