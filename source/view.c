@@ -267,12 +267,6 @@ void rofi_capture_screenshot(void) {
 }
 
 /**
- * Code used for benchmarking drawing the gui, this will keep updating the UI as
- * fast as possible.
- */
-gboolean do_bench = TRUE;
-
-/**
  * Internal structure that hold benchmarking information.
  */
 static struct {

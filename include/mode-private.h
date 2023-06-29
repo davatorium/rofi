@@ -45,6 +45,8 @@ typedef enum {
   MODE_TYPE_SWITCHER = 0x1,
   /** A mode that can be used to completer */
   MODE_TYPE_COMPLETER = 0x2,
+  /** DMenu mode. */
+  MODE_TYPE_DMENU = 0x4,
 } ModeType;
 
 /**

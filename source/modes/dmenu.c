@@ -502,7 +502,8 @@ Mode dmenu_mode = {.name = "dmenu",
                    ._get_message = dmenu_get_message,
                    .private_data = NULL,
                    .free = NULL,
-                   .display_name = "dmenu"};
+                   .display_name = "dmenu",
+                   .type = MODE_TYPE_DMENU};
 
 static int dmenu_mode_init(Mode *sw) {
   if (mode_get_private_data(sw) != NULL) {
