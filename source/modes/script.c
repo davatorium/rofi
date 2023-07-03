@@ -576,6 +576,7 @@ Mode *script_mode_parse_setup(const char *str) {
     sw->_get_icon = script_get_icon;
     sw->_get_completion = NULL, sw->_preprocess_input = NULL,
     sw->_get_display_value = _get_display_value;
+    sw->type = MODE_TYPE_SWITCHER;
     return sw;
   }
   Mode *sw = g_malloc0(sizeof(*sw));
@@ -599,6 +600,7 @@ Mode *script_mode_parse_setup(const char *str) {
     sw->_get_icon = script_get_icon;
     sw->_get_completion = NULL, sw->_preprocess_input = NULL,
     sw->_get_display_value = _get_display_value;
+    sw->type = MODE_TYPE_SWITCHER;
 
     return sw;
   }
