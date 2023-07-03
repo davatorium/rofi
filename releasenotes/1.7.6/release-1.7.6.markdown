@@ -1,6 +1,37 @@
 # 1.7.6: 
 
 
+# Recursive browser
+
+A 2nd, experimental, file browser has been added to rofi. This one shows a flat
+view of all files in the users home directory. The list is loaded asynchronous
+from the UI and depending on disk speed and cache status is fast. (similar to fzf). 
+
+# Entry history
+
+The main entry box now has a history the user can scroll through. With
+`Ctrl+Up/Down` you can access previous filters.
+
+# Rasinc files
+
+If you have multiple themes that share a large common setup, you can now put these in
+`.rasinc` files. These are loaded by rofi, but do not show up in the theme-selector.
+
+# Fixes to theme language grammar in calc 
+
+In the `calc()` method in the theme format an language ambiguity slipped in with the 
+`%` statement. Making it impossible to write down certain formulas. To fix this the modulo 
+operator is now called `module`.  Also several small bugs where fixed in the
+handling of `/` and `-`. 
+
+# Copy current selection to clipboard
+
+A copy to clipboard `Ctrl-c` has been added. This copies the current selection
+to the secondary clipboard. Because the clipboard content is owned by the source
+application (rofi that will close once done), this will only work if you use a
+clipboard manager that takes ownership.
+
+
 # Changelog
 
  * The `-e` message argument now accepts `-` to read from stdin (blocking).
@@ -52,7 +83,7 @@
  * [Window] Check bitmask, not full comparison.
  * [Keyb] Add -list-keybindings commandline option.
  * Fix sed binary call with variable (#1707)
- * [Listview] ADd check before resolving pointer. (#1703)
+ * [Listview] Add check before resolving pointer. (#1703)
  * [Textbox] Add 'placeholder-markup' (#1689)
  * [Theme] if no theme loaded, load default. (#1686)
  * [DMenu] Reset variable correctly so keep-selection is initially off. (#1686)
