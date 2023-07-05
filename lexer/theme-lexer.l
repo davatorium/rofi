@@ -123,6 +123,7 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
                 { \
                     if ( errno != EINTR ) \
                     { \
+                        fprintf(stderr, "Failed to read input from file: %s\n", strerror(errno)); \
                         YY_FATAL_ERROR( "input in flex scanner failed" ); \
                         break; \
                     } \
