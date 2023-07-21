@@ -668,7 +668,6 @@ EXTRA_DIST += \
 	subprojects/libgwater/nl/libgwater-nl.c \
 	subprojects/libgwater/alsa-mixer/libgwater-alsa-mixer.h \
 	subprojects/libgwater/alsa-mixer/libgwater-alsa-mixer.c \
-	doc/meson_build_manpages.sh \
 	data/rofi.png\
 	meson_options.txt \
 	meson.build

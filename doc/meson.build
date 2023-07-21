@@ -1,17 +1,25 @@
 gomd2man = find_program('go-md2man', required: false)
 if gomd2man.found()
-    run_target('update-manpage',
-        command: [ 'meson_build_manpages.sh', files(
-            'rofi.1.markdown',
-            'rofi-theme-selector.1.markdown',
-            'rofi-theme.5.markdown',
-            'rofi-dmenu.5.markdown',
-            'rofi-debugging.5.markdown',
-            'rofi-keys.5.markdown',
-            'rofi-script.5.markdown',
-            'rofi-sensible-terminal.1.markdown'
-        )]
-    )
+    man_targets = []
+    foreach f: [
+        'rofi.1',
+        'rofi-theme-selector.1',
+        'rofi-theme.5',
+        'rofi-dmenu.5',
+        'rofi-debugging.5',
+        'rofi-keys.5',
+        'rofi-script.5',
+        'rofi-sensible-terminal.1'
+    ]
+        man_targets += custom_target(f,
+            input: '.'.join([f, 'markdown']),
+            output: f,
+            command: [ 'go-md2man',
+                '-in', files('.'.join([f,'markdown'])),
+                '-out', files(f)
+            ])
+    endforeach
+    run_target('update-manpage', command: ['true'], depends: man_targets)
 endif
 
 doxy_conf = configuration_data()
