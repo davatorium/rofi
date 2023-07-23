@@ -654,6 +654,30 @@ next keyword). Set to '\\x0' to disable.
 .PP
 Default: '-'
 
+.SS Filtered menu sort
+.PP
+\fB\fC-sort\fR to enable
+.br
+\fB\fC-no-sort\fR to disable
+
+.PP
+Enable, disable sort for filtered menu.
+This setting can be changed at runtime (see \fB\fC-kb-toggle-sort\fR).
+
+.PP
+\fB\fC-sorting-method\fR 'method' to specify the sort method.
+
+.PP
+There are 2 methods:
+
+.RS
+.IP \(bu 2
+\fBlevenshtein\fP (Default)
+.IP \(bu 2
+\fBfzf\fP
+
+.RE
+
 .SS Layout and Theming
 .PP
 \fBIMPORTANT:\fP In newer \fBrofi\fP releases, all the theming options have been
@@ -744,14 +768,11 @@ When one entry is left, automatically select it.
 
 .PP
 \fB\fC-m\fR \fInum\fP
-
-.PP
+.br
 \fB\fC-m\fR \fIname\fP
-
-.PP
+.br
 \fB\fC-monitor\fR \fInum\fP
-
-.PP
+.br
 \fB\fC-monitor\fR \fIname\fP
 
 .PP
@@ -893,6 +914,7 @@ Default: \fIdisabled\fP
 
 .PP
 \fB\fC-parse-known-hosts\fR
+.br
 \fB\fC-no-parse-known-hosts\fR
 
 .PP
@@ -1097,35 +1119,14 @@ Default: {mode} {text}
 .PP
 Note: This setting is ignored if \fB\fCcombi-hide-mode-prefix\fR is enabled.
 
-.SS History and Sorting
+.SS History
 .PP
 \fB\fC-disable-history\fR
+.br
 \fB\fC-no-disable-history\fR (re-enable history)
 
 .PP
 Disable history
-
-.PP
-\fB\fC-sort\fR to enable
-\fB\fC-no-sort\fR to disable
-
-.PP
-Enable, disable sorting.
-This setting can be changed at runtime (see \fB\fC-kb-toggle-sort\fR).
-
-.PP
-\fB\fC-sorting-method\fR 'method' to specify the sorting method.
-
-.PP
-There are 2 sorting methods:
-
-.RS
-.IP \(bu 2
-levenshtein (Default)
-.IP \(bu 2
-fzf sorting.
-
-.RE
 
 .PP
 \fB\fC-max-history-size\fR \fInumber\fP

@@ -299,7 +299,7 @@ Toggle case sensitivity
 
 ### **kb-toggle-sort**
 
-Toggle sort
+Toggle filtered menu sort
 
 **Default**: 	Alt+grave
 
