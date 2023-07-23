@@ -575,7 +575,7 @@ It currently supports:
 - Format: `{Real}em`
 - Format: `{Real}ch`
 - Format: `{Real}%`
-- Format: `{Integer}mm`
+- Format: `{Real}mm`
 
 A distance can be specified in 3 different units:
 
