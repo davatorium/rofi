@@ -251,7 +251,10 @@ void widget_draw(widget *widget, cairo_t *d) {
     cairo_restore(d);
 
     if (left != 0 || top != 0 || right != 0 || bottom != 0) {
-      cairo_save(d);
+      // NOTE: Cairo group push/pop has same effect as cairo_save/cairo_restore,
+      // thus no need for these.
+      cairo_push_group(d);
+      cairo_set_operator(d, CAIRO_OPERATOR_ADD);
       cairo_translate(d, widget->x, widget->y);
       cairo_new_path(d);
       rofi_theme_get_color(widget, "border-color", d);
@@ -417,8 +420,8 @@ void widget_draw(widget *widget, cairo_t *d) {
 
         cairo_fill(d);
       }
-
-      cairo_restore(d);
+      cairo_pop_group_to_source(d);
+      cairo_paint(d);
     }
   }
 }
