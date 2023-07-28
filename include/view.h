@@ -257,12 +257,13 @@ Mode *rofi_view_get_mode(RofiViewState *state);
 void rofi_view_hide(void);
 
 /**
+ * @param refilter  The reload needs to refilter the rows.
  * Indicate the current view needs to reload its data.
  * This can only be done when *more* information is available.
  *
  * The reloading happens 'lazy', multiple calls might be handled at once.
  */
-void rofi_view_reload(void);
+void rofi_view_reload(gboolean refilter);
 
 /**
  * @param state The handle to the view
@@ -370,6 +371,5 @@ gboolean rofi_set_im_window_pos(int new_x, int new_y);
 WidgetTriggerActionResult textbox_button_trigger_action(
     widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x,
     G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data);
-
 /** @} */
 #endif

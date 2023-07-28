@@ -225,7 +225,7 @@ static gboolean dmenu_async_read_proc(gint fd, GIOCondition condition,
         changed = TRUE;
       }
       if (changed) {
-        rofi_view_reload();
+        rofi_view_reload(TRUE);
       }
     } else if (command == 'q') {
       if (pd->loading) {

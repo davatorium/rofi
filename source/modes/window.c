@@ -403,7 +403,7 @@ static gboolean window_client_reload(G_GNUC_UNUSED void *data) {
     window_mode_cd._init(&window_mode_cd);
   }
   if (window_mode.private_data || window_mode_cd.private_data) {
-    rofi_view_reload();
+	  rofi_view_reload(TRUE);
   }
   return G_SOURCE_REMOVE;
 }

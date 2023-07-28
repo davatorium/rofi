@@ -319,7 +319,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     cairo_destroy(cr);
     sentry->surface = surface;
     sentry->query_done = TRUE;
-    rofi_view_reload();
+    rofi_view_reload(FALSE);
     return;
 
   } else {
@@ -338,7 +338,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
       }
       if (icon_path_ == NULL) {
         sentry->query_done = TRUE;
-        rofi_view_reload();
+        rofi_view_reload(FALSE);
         return;
       }
     } else {
@@ -352,7 +352,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   if (suf == NULL) {
     sentry->query_done = TRUE;
     g_free(icon_path_);
-    rofi_view_reload();
+    rofi_view_reload(FALSE);
     return;
   }
 
@@ -373,7 +373,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   sentry->surface = icon_surf;
   g_free(icon_path_);
   sentry->query_done = TRUE;
-  rofi_view_reload();
+  rofi_view_reload(FALSE);
 }
 
 uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,

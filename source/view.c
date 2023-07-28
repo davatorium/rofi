@@ -511,7 +511,6 @@ static gboolean rofi_view_reload_idle(G_GNUC_UNUSED gpointer data) {
       g_free(r);
     }
     current_active_menu->reload = TRUE;
-    current_active_menu->refilter = TRUE;
     rofi_view_queue_redraw();
   }
   CacheState.idle_timeout = 0;
@@ -560,11 +559,16 @@ static void rofi_view_set_user_timeout(G_GNUC_UNUSED gpointer data) {
   }
 }
 
-void rofi_view_reload(void) {
+void rofi_view_reload(gboolean refilter) {
   // @TODO add check if current view is equal to the callee
   if (CacheState.idle_timeout == 0) {
     CacheState.idle_timeout =
         g_timeout_add(1000 / 100, rofi_view_reload_idle, NULL);
+    // @TODO this can be called from a separate thread (not at the moment, as
+    // that usecase refilter == FALSE) Should we add a lock for this?
+    if ( refilter && current_active_menu) {
+	    current_active_menu->refilter = TRUE;
+    }
   }
 }
 void rofi_view_queue_redraw(void) {
