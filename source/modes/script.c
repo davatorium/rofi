@@ -341,8 +341,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
     new_list =
         execute_executor(sw, rmpd->cmd_list[selected_line].entry, &new_length,
                          1, &(rmpd->cmd_list[selected_line]));
-  } else if ((mretv & MENU_CUSTOM_INPUT) && *input != NULL &&
-             *input[0] != '\0') {
+  } else if ((mretv & MENU_CUSTOM_INPUT) && *input != NULL) {
     if (rmpd->no_custom == FALSE) {
       script_mode_reset_highlight(sw);
       new_list = execute_executor(sw, *input, &new_length, 2, NULL);
