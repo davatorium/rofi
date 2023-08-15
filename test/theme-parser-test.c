@@ -1698,7 +1698,8 @@ START_TEST(test_prepare_environment_media_f) {
   wid.name = "window";
   wid.state = "";
   setenv("QER_TEST", "true", 1);
-  rofi_theme_parse_string("window { width: 32; } @media( enabled: env(QER_TEST,false)){ window {width:64; }}");
+  rofi_theme_parse_string("window { width: 32; } @media( enabled: "
+                          "env(QER_TEST,false)){ window {width:64; }}");
   rofi_theme_parse_process_conditionals();
   ck_assert_ptr_nonnull(rofi_theme);
   // ck_assert_ptr_null ( rofi_theme->widgets );
@@ -1716,7 +1717,8 @@ START_TEST(test_prepare_environment_media_nf) {
   widget wid;
   wid.name = "window";
   wid.state = "";
-  rofi_theme_parse_string("window { width: 32; } @media( enabled: env(QER_TEST,false)){ window {width:64; }}");
+  rofi_theme_parse_string("window { width: 32; } @media( enabled: "
+                          "env(QER_TEST,false)){ window {width:64; }}");
   ck_assert_ptr_nonnull(rofi_theme);
   // ck_assert_ptr_null ( rofi_theme->widgets );
   ck_assert_ptr_null(rofi_theme->properties);
@@ -1731,21 +1733,11 @@ END_TEST
 START_TEST(test_prepare_path) {
   char *current_dir = g_get_current_dir();
   ck_assert_ptr_nonnull(current_dir);
-  char *f = rofi_theme_parse_prepare_file("../", NULL);
+  char *f = rofi_theme_parse_prepare_file("../");
   ck_assert_ptr_nonnull(f);
   ck_assert_int_eq(*f, '/');
   ck_assert_str_ne(f, current_dir);
   ck_assert(g_str_has_prefix(current_dir, f) == TRUE);
-  g_free(f);
-
-  f = rofi_theme_parse_prepare_file("../", "/tmp/");
-  ck_assert_ptr_nonnull(f);
-  ck_assert_str_eq(f, "/");
-  g_free(f);
-
-  f = rofi_theme_parse_prepare_file("/tmp/test.rasi", "/random/");
-  ck_assert_ptr_nonnull(f);
-  ck_assert_str_eq(f, "/tmp/test.rasi");
   g_free(f);
 
   g_free(current_dir);

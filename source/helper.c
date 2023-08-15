@@ -1067,6 +1067,14 @@ gboolean helper_execute_command(const char *wd, const char *cmd,
 char *helper_get_theme_path(const char *file, const char **ext,
                             const char *parent_file) {
 
+  char *filename = rofi_expand_path(file);
+  g_debug("Opening theme, testing: %s\n", filename);
+  if (g_path_is_absolute(filename)) {
+    g_debug("Opening theme, path is absolute: %s", filename);
+    if (g_file_test(filename, G_FILE_TEST_EXISTS)) {
+      return filename;
+    }
+  }
   gboolean ext_found = FALSE;
   for (const char **i = ext; *i != NULL; i++) {
     if (g_str_has_suffix(file, *i)) {
@@ -1074,17 +1082,15 @@ char *helper_get_theme_path(const char *file, const char **ext,
       break;
     }
   }
-  char *filename = NULL;
   if (ext_found) {
     filename = rofi_expand_path(file);
   } else {
     g_assert_nonnull(ext[0]);
-    char *temp = rofi_expand_path(file);
+    char *temp = filename;
     // TODO: Pick the first extension. needs fixing.
     filename = g_strconcat(temp, ext[0], NULL);
     g_free(temp);
   }
-  g_debug("Opening theme, testing: %s\n", filename);
   if (g_path_is_absolute(filename)) {
     g_debug("Opening theme, path is absolute: %s", filename);
     if (g_file_test(filename, G_FILE_TEST_EXISTS)) {
