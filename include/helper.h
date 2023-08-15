@@ -394,6 +394,7 @@ char *helper_string_replace_if_exists(char *string, ...);
 /**
  * @param file File name passed to option.
  * @param ext NULL terminated array of file extension passed to option.
+ * @param parent_dir The file that was used to import this file, or NULL.
  *
  * @returns path to theme or copy of filename if not found.
  */
