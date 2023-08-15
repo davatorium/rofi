@@ -1626,8 +1626,8 @@ The specified file can either by *name*, *filename*,*full path*.
 
 If a filename is provided, it will try to resolve it in the following order:
 
-- If path is absolute and file exists, it will pick open the file. This includes expansion of '~' or '~user'
-- On an `@import` or `@theme` it looks in the directory of the file that tried to import it.
+- If path is absolute and file exists, it will open the file. This includes expansion of '~' or '~user'
+- On an `@import` or `@theme` it looks in the directory of the file that tried to include it.
 - `${XDG_CONFIG_HOME}/rofi/themes/`
 - `${XDG_CONFIG_HOME}/rofi/`
 - `${XDG_DATA_HOME}/rofi/themes/`
