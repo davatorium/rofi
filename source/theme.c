@@ -1434,16 +1434,9 @@ void distance_get_linestyle(RofiDistance d, cairo_t *draw) {
   }
 }
 
-char *rofi_theme_parse_prepare_file(const char *file, const char *parent_file) {
-  char *filename = rofi_expand_path(file);
-  // If no absolute path specified, expand it.
-  if (parent_file != NULL && !g_path_is_absolute(filename)) {
-    char *basedir = g_path_get_dirname(parent_file);
-    char *path = g_build_filename(basedir, filename, NULL);
-    g_free(filename);
-    filename = path;
-    g_free(basedir);
-  }
+char *rofi_theme_parse_prepare_file(const char *file) {
+  char *filename = g_strdup(file);
+  // TODO: Why did I write this code? I think it was to get full path.
   GFile *gf = g_file_new_for_path(filename);
   parsed_config_files = g_list_append(parsed_config_files, filename);
   filename = g_file_get_path(gf);

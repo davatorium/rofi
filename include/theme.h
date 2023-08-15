@@ -327,13 +327,12 @@ void rofi_theme_reset(void);
 
 /**
  * @param file File name to prepare.
- * @param parent_file Filename of parent file.
  *
  * Tries to find full path relative to parent file.
  *
  * @returns full path to file.
  */
-char *rofi_theme_parse_prepare_file(const char *file, const char *parent_file);
+char *rofi_theme_parse_prepare_file(const char *file);
 
 /**
  * Process conditionals.

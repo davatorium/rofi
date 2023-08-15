@@ -1064,13 +1064,8 @@ gboolean helper_execute_command(const char *wd, const char *cmd,
   return helper_execute(wd, args, "", cmd, context);
 }
 
-char *helper_get_theme_path(const char *file, const char **ext) {
-  char *filename = rofi_expand_path(file);
-  g_debug("Opening theme, testing: %s\n", filename);
-  if (g_file_test(filename, G_FILE_TEST_EXISTS)) {
-    return filename;
-  }
-  g_free(filename);
+char *helper_get_theme_path(const char *file, const char **ext,
+                            const char *parent_file) {
 
   gboolean ext_found = FALSE;
   for (const char **i = ext; *i != NULL; i++) {
@@ -1079,13 +1074,41 @@ char *helper_get_theme_path(const char *file, const char **ext) {
       break;
     }
   }
+  char *filename = NULL;
   if (ext_found) {
-    filename = g_strdup(file);
+    filename = rofi_expand_path(file);
   } else {
     g_assert_nonnull(ext[0]);
+    char *temp = rofi_expand_path(file);
     // TODO: Pick the first extension. needs fixing.
-    filename = g_strconcat(file, ext[0], NULL);
+    filename = g_strconcat(temp, ext[0], NULL);
+    g_free(temp);
   }
+  g_debug("Opening theme, testing: %s\n", filename);
+  if (g_path_is_absolute(filename)) {
+    g_debug("Opening theme, path is absolute: %s", filename);
+    if (g_file_test(filename, G_FILE_TEST_EXISTS)) {
+      return filename;
+    }
+    g_debug("Opening theme, path is absolute but does not exists: %s",
+            filename);
+  } else {
+    if (parent_file != NULL) {
+      // If no absolute path specified, expand it.
+      char *basedir = g_path_get_dirname(parent_file);
+      char *path = g_build_filename(basedir, filename, NULL);
+      g_free(basedir);
+      g_debug("Opening theme, check in dir where file is included: %s", path);
+      if (g_file_test(path, G_FILE_TEST_EXISTS)) {
+        g_free(filename);
+        return path;
+      }
+      g_debug("Opening theme, file does not exists in dir where file is "
+              "included: %s\n",
+              filename);
+    }
+  }
+
   // Check config's themes directory.
   const char *cpath = g_get_user_config_dir();
   if (cpath) {
