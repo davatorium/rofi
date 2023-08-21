@@ -379,10 +379,10 @@ Some of these types are a combination of other types.
 
 ### String
 
-- Format:  `"[:print:]+"`
+- Format:  `(["'])[:print:]+\1`
 
-A string is always surrounded by double quotes (`"`). Between the quotes there
-can be any printable character.
+Strings are always surrounded by double (`"`) or single (`'`, apostrophe) quotes. Between
+the quotes there can be any printable character.
 
 For example:
 
@@ -393,12 +393,13 @@ font: "Awasome 12";
 The string must be valid UTF-8, special characters can be escaped:
 
 ```css
-text {
-    content: "Line one\n\tIndented line two";
-}
+text { content: "Line one\n\tIndented line two 'Quoted text'"; }
+text { content: 'Line one\n\tIndented line two "Quoted text"'; }
+text { content: "Line one\n\tIndented line two \"Quoted text\""; }
 ```
 
-The following special characters can be escaped: `\b`, `\f`, `\n`, `\r`, `\t`, `\v`, `\` and `"`.
+The following special characters can be escaped: `\b`, `\f`, `\n`, `\r`, `\t`, `\v`, `\`,
+`"` and `'` (double quotes inside single-quotes or in reverse don't need escape).
 
 ### Integer
 

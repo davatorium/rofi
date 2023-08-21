@@ -565,13 +565,13 @@ Some of these types are a combination of other types.
 .SS String
 .RS
 .IP \(bu 2
-Format:  \fB\fC"[:print:]+"\fR
+Format:  \fB\fC(["'])[:print:]+\\1\fR
 
 .RE
 
 .PP
-A string is always surrounded by double quotes (\fB\fC"\fR). Between the quotes there
-can be any printable character.
+Strings are always surrounded by double (\fB\fC"\fR) or single (\fB\fC\&'\fR, apostrophe) quotes. Between
+the quotes there can be any printable character.
 
 .PP
 For example:
@@ -592,15 +592,16 @@ The string must be valid UTF-8, special characters can be escaped:
 .RS
 
 .nf
-text {
-    content: "Line one\\n\\tIndented line two";
-}
+text { content: "Line one\\n\\tIndented line two 'Quoted text'"; }
+text { content: 'Line one\\n\\tIndented line two "Quoted text"'; }
+text { content: "Line one\\n\\tIndented line two \\"Quoted text\\""; }
 
 .fi
 .RE
 
 .PP
-The following special characters can be escaped: \fB\fC\\b\fR, \fB\fC\\f\fR, \fB\fC\\n\fR, \fB\fC\\r\fR, \fB\fC\\t\fR, \fB\fC\\v\fR, \fB\fC\\\fR and \fB\fC"\fR\&.
+The following special characters can be escaped: \fB\fC\\b\fR, \fB\fC\\f\fR, \fB\fC\\n\fR, \fB\fC\\r\fR, \fB\fC\\t\fR, \fB\fC\\v\fR, \fB\fC\\\fR,
+\fB\fC"\fR and \fB\fC\&'\fR (double quotes inside single-quotes or in reverse don't need escape).
 
 .SS Integer
 .RS

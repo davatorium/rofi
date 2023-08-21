@@ -163,17 +163,19 @@ static double rofi_theme_parse_convert_hex ( char high, char low)
 
 ASC     [\x00-\x7f]
 ASCN    [\x00-\t\v-\x7f]
-ASCNP   [\x00-\t\v-\x21\x23-\x7f]
+ASCNP1  [\x00-\t\v-\x21\x23-\x7f]
+ASCNP2  [\x00-\t\v-\x26\x28-\x7f]
 U       [\x80-\xbf]
 U2      [\xc2-\xdf]
 U3      [\xe0-\xef]
 U4      [\xf0-\xf4]
 
- // UANY    {ASC}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
-UANYN   {ASCN}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
- // UONLY   {U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+UONLY   {U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+ // UANY    {ASC}|{UONLY}
+UANYN   {ASCN}|{UONLY}
 
-UANYNP   {ASCNP}|{U2}{U}|{U3}{U}{U}|{U4}{U}{U}{U}
+UANYNP1   {ASCNP1}|{UONLY}
+UANYNP2   {ASCNP2}|{UONLY}
 
 WHITESPACE [[:blank:]]
 WSO        [[:blank:]]*
@@ -181,8 +183,8 @@ WORD       [[:alnum:]-]+
 WORD_ELEMENT [[:alpha:]][[:alnum:]-]*
 WORD_ENV   [[:alpha:]_][[:alnum:]_]*
 COLOR_NAME [[:alpha:]]+
-STRING     \"{UANYN}*\"
-STRING_LIST \"{UANYNP}*\"
+STRING     \"{UANYN}*\"|\'{UANYN}*\'
+STRING_LIST \"{UANYNP1}*\"|\'{UANYNP2}*\'
 CHAR       \'({ASCN}|\\\\|\\\'|\\0)\'
 HEX        [[:xdigit:]]
 NUMBER     [[:digit:]]+
