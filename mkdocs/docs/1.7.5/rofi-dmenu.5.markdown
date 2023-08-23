@@ -20,7 +20,7 @@ Besides, **rofi** offers some extended features (like multi-select, highlighting
 ## BASIC CONCEPT
 
 In `dmenu` mode, **rofi** reads data from standard in, splits them into separate entries and displays them.
-If the user selects an row, this is printed out to standard out, allow the script to process it further.
+If the user selects a row, this is printed out to standard out, allowing the script to process it further.
 
 By default separation of rows is done on new lines, making it easy to pipe the output a one application into 
 **rofi** and the output of rofi into the next.
