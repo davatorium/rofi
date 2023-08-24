@@ -82,6 +82,7 @@
 char *pidfile = NULL;
 /** Location of Cache directory. */
 const char *cache_dir = NULL;
+char *cache_dir_alloc = NULL;
 
 /** List of error messages.*/
 GList *list_of_error_msgs = NULL;
@@ -543,6 +544,11 @@ static void cleanup(void) {
     rofi_theme_free(rofi_configuration);
     rofi_configuration = NULL;
   }
+  // Cleanup memory allocated by rofi_expand_path
+  if (cache_dir_alloc) {
+    g_free(cache_dir_alloc);
+    cache_dir_alloc = NULL;
+  }
 }
 
 /**
@@ -802,10 +808,10 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
       size_t index = 0, i = 0;
       size_t length = 1024;
       msg = malloc(length * sizeof(char));
-      while ((i = fread(&msg[index], 1, 1024, stdin))>0) {
-        index+=i;
-        length+=i;
-        msg = realloc(msg,length * sizeof(char));
+      while ((i = fread(&msg[index], 1, 1024, stdin)) > 0) {
+        index += i;
+        length += i;
+        msg = realloc(msg, length * sizeof(char));
       }
 
       if (!rofi_view_error_dialog(msg, markup)) {
@@ -1087,7 +1093,7 @@ int main(int argc, char *argv[]) {
   cache_dir = g_get_user_cache_dir();
 
   if (config.cache_dir != NULL) {
-    cache_dir = config.cache_dir;
+    cache_dir = cache_dir_alloc = rofi_expand_path(config.cache_dir);
   }
 
   if (g_mkdir_with_parents(cache_dir, 0700) < 0) {
