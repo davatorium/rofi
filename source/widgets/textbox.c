@@ -568,7 +568,11 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
 
   // draw the text
   cairo_save(draw);
+  double x1, y1, x2, y2;
+  cairo_clip_extents(draw, &x1, &y1, &x2, &y2);
   cairo_reset_clip(draw);
+  cairo_rectangle(draw, x1, y1, x2 - x1, y2 - y1);
+  cairo_clip(draw);
 
   gboolean show_outline =
       rofi_theme_get_boolean(WIDGET(tb), "text-outline", FALSE);
