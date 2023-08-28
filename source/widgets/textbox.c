@@ -494,37 +494,29 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   }
   y += top;
 
-  // TODO check if this is still needed after flatning.
-  cairo_set_operator(draw, CAIRO_OPERATOR_OVER);
+  // Set ARGB
+  // NOTE: cairo operator must be OVER at this moment,
+  // to not break subpixel text rendering.
+
   cairo_set_source_rgb(draw, 0.0, 0.0, 0.0);
   // use text color as fallback for themes that don't specify the cursor color
   rofi_theme_get_color(WIDGET(tb), "text-color", draw);
 
-  // Set ARGB
-  // We need to set over, otherwise subpixel hinting wont work.
-  switch (pango_layout_get_alignment(tb->layout)) {
-  case PANGO_ALIGN_CENTER: {
-    int rem =
-        MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
-                   line_width - dot_offset);
-    x = (tb->xalign - 0.5) * rem + widget_padding_get_left(WIDGET(tb));
-    break;
-  }
-  case PANGO_ALIGN_RIGHT: {
-    int rem =
-        MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
-                   line_width - dot_offset);
-    x = -(1.0 - tb->xalign) * rem + widget_padding_get_left(WIDGET(tb));
-    break;
-  }
-  default: {
-    int rem =
-        MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
-                   line_width - dot_offset);
-    x = tb->xalign * rem + widget_padding_get_left(WIDGET(tb));
-    x += dot_offset;
-    break;
-  }
+  { int rem =
+          MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
+                     line_width - dot_offset);
+    switch (pango_layout_get_alignment(tb->layout)) {
+    case PANGO_ALIGN_CENTER:
+      x = rem * (tb->xalign - 0.5);
+      break;
+    case PANGO_ALIGN_RIGHT:
+      x = rem * (tb->xalign - 1.0);
+      break;
+    default:
+      x = rem * tb->xalign + dot_offset;
+      break;
+    }
+    x += widget_padding_get_left(WIDGET(tb));
   }
 
   // draw the cursor
@@ -574,11 +566,12 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   cairo_rectangle(draw, x1, y1, x2 - x1, y2 - y1);
   cairo_clip(draw);
 
-  gboolean show_outline =
-      rofi_theme_get_boolean(WIDGET(tb), "text-outline", FALSE);
+  gboolean show_outline;
   if (tb->show_placeholder) {
     rofi_theme_get_color(WIDGET(tb), "placeholder-color", draw);
     show_outline = FALSE;
+  } else {
+    show_outline = rofi_theme_get_boolean(WIDGET(tb), "text-outline", FALSE);
   }
   cairo_move_to(draw, x, top);
   pango_cairo_show_layout(draw, tb->layout);

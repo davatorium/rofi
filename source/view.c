@@ -1344,20 +1344,18 @@ void rofi_view_update(RofiViewState *state, gboolean qr) {
       cairo_set_source_surface(d, CacheState.fake_bg, 0.0, 0.0);
     } else {
       cairo_set_source_surface(d, CacheState.fake_bg,
-                               -(double)(state->x - CacheState.mon.x),
-                               -(double)(state->y - CacheState.mon.y));
+                               (double)(CacheState.mon.x - state->x),
+                               (double)(CacheState.mon.y - state->y));
     }
-    cairo_paint(d);
-    cairo_set_operator(d, CAIRO_OPERATOR_OVER);
   } else {
     // Paint the background transparent.
     cairo_set_source_rgba(d, 0, 0, 0, 0.0);
-    cairo_paint(d);
   }
-  TICK_N("Background");
-
+  cairo_paint(d);
   // Always paint as overlay over the background.
   cairo_set_operator(d, CAIRO_OPERATOR_OVER);
+
+  TICK_N("Background");
   widget_draw(WIDGET(state->main_window), d);
 
 #ifdef XCB_IMDKIT
