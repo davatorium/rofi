@@ -64,7 +64,7 @@ struct _xcb_stuff {
   } xkb;
   xcb_timestamp_t last_timestamp;
   NkBindingsSeat *bindings_seat;
-  gboolean mouse_seen;
+  uint32_t mouse_seen;
   xcb_window_t focus_revert;
   char *clipboard;
 };

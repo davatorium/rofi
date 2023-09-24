@@ -1264,9 +1264,6 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   case XCB_MOTION_NOTIFY: {
     xcb_motion_notify_event_t *xme = (xcb_motion_notify_event_t *)event;
     gboolean button_mask = xme->state & XCB_EVENT_MASK_BUTTON_1_MOTION;
-    if (button_mask && config.click_to_exit == TRUE) {
-      xcb->mouse_seen = TRUE;
-    }
     rofi_view_handle_mouse_motion(state, xme->event_x, xme->event_y,
                                   !button_mask && config.hover_select);
     break;
@@ -1285,6 +1282,7 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     } else if (x11_button_to_nk_bindings_scroll(bpe->detail, &axis, &steps)) {
       nk_bindings_seat_handle_scroll(xcb->bindings_seat, NULL, axis, steps);
     }
+    xcb->mouse_seen++;
     break;
   }
   case XCB_SELECTION_CLEAR: {
@@ -1347,7 +1345,7 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
       if (!xcb->mouse_seen) {
         rofi_view_temp_click_to_exit(state, bre->event);
       }
-      xcb->mouse_seen = FALSE;
+      xcb->mouse_seen--;
     }
     break;
   }
