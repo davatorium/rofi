@@ -448,7 +448,9 @@ gboolean parse_keys_abe(NkBindings *bindings) {
          entry = strtok_r(NULL, sep, &sp)) {
       if (!nk_bindings_add_binding(bindings, b->scope, entry,
                                    binding_check_action, binding_trigger_action,
-                                   GUINT_TO_POINTER(b->id), NULL, &error)) {
+                                   GUINT_TO_POINTER(b->id), NULL,
+                                   NK_BINDINGS_ADD_FLAG_NONE,
+                                   &error)) {
         if (error->code == NK_BINDINGS_ERROR_ALREADY_REGISTERED &&
             error->domain == NK_BINDINGS_ERROR) {
           char *str = g_markup_printf_escaped(
@@ -485,7 +487,9 @@ gboolean parse_keys_abe(NkBindings *bindings) {
     for (gsize j = 1; j < G_N_ELEMENTS(mouse_default_bindings); ++j) {
       nk_bindings_add_binding(bindings, i, mouse_default_bindings[j],
                               binding_check_action, binding_trigger_action,
-                              GSIZE_TO_POINTER(j), NULL, NULL);
+                              GSIZE_TO_POINTER(j), NULL,
+                              NK_BINDINGS_ADD_FLAG_NONE,
+                              NULL);
     }
   }
 
