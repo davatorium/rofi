@@ -540,6 +540,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
       tb->cursor_x_pos = x + cursor_x;
     }
     if (tb->blink) {
+      cairo_save(draw);
       // use text color as fallback for themes that don't specify the cursor
       // color
       rofi_theme_get_color(WIDGET(tb), "cursor-color", draw);
@@ -555,6 +556,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
       } else {
         cairo_fill(draw);
       }
+      cairo_restore(draw);
     }
   }
 
