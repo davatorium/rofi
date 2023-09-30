@@ -1636,7 +1636,7 @@ static void x11_helper_discover_window_manager(void) {
         xcb_ewmh_get_wm_name_unchecked(&(xcb->ewmh), wm_win);
     if (xcb_ewmh_get_wm_name_reply(&(xcb->ewmh), cookie, &wtitle, (void *)0)) {
       if (wtitle.strings_len > 0) {
-        g_debug("Found window manager: |%s|", wtitle.strings);
+        g_debug("Found window manager: |%.*s|", wtitle.strings_len, wtitle.strings);
         if (g_strcmp0(wtitle.strings, "i3") == 0) {
           current_window_manager =
               WM_DO_NOT_CHANGE_CURRENT_DESKTOP | WM_PANGO_WORKSPACE_NAMES;
