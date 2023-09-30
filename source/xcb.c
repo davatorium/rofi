@@ -1617,7 +1617,7 @@ char *x11_helper_get_window_manager(void) {
         xcb_ewmh_get_wm_name_unchecked(&(xcb->ewmh), wm_win);
     if (xcb_ewmh_get_wm_name_reply(&(xcb->ewmh), cookie, &wtitle, (void *)0)) {
       if (wtitle.strings_len > 0) {
-        retv = g_strdup(wtitle.strings);
+        retv = g_strndup(wtitle.strings, wtitle.strings_len);
       }
       xcb_ewmh_get_utf8_strings_reply_wipe(&wtitle);
     }
@@ -1636,13 +1636,16 @@ static void x11_helper_discover_window_manager(void) {
         xcb_ewmh_get_wm_name_unchecked(&(xcb->ewmh), wm_win);
     if (xcb_ewmh_get_wm_name_reply(&(xcb->ewmh), cookie, &wtitle, (void *)0)) {
       if (wtitle.strings_len > 0) {
-        g_debug("Found window manager: |%s|", wtitle.strings);
-        if (g_strcmp0(wtitle.strings, "i3") == 0) {
+        // Copy the string and add terminating '\0'.
+        char *str = g_strndup(wtitle.strings, wtitle.strings_len);
+        g_debug("Found window manager: |%s|", str);
+        if (g_strcmp0(str, "i3") == 0) {
           current_window_manager =
               WM_DO_NOT_CHANGE_CURRENT_DESKTOP | WM_PANGO_WORKSPACE_NAMES;
-        } else if (g_strcmp0(wtitle.strings, "bspwm") == 0) {
+        } else if (g_strcmp0(str, "bspwm") == 0) {
           current_window_manager = WM_ROOT_WINDOW_OFFSET;
         }
+        g_free(str);
       }
       xcb_ewmh_get_utf8_strings_reply_wipe(&wtitle);
     }
