@@ -40,6 +40,7 @@
 #include <widgets/widget-internal.h>
 #include <widgets/widget.h>
 unsigned int test = 0;
+int rofi_is_in_dmenu_mode = 0;
 #define TASSERT(a)                                                             \
   {                                                                            \
     assert(a);                                                                 \

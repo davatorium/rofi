@@ -49,6 +49,7 @@
 
 #define LOG_DOMAIN "Parser"
 int last_state = 0;
+extern int rofi_is_in_dmenu_mode;
 
 const char *rasi_theme_file_extensions[] = {".rasi", ".rasinc", NULL};
 /**
@@ -298,6 +299,8 @@ CONFIGURATION (?i:configuration)
 
 MEDIA_TYPES (monitor-id|(min|max)-(width|height|aspect-ratio)|enabled)
 
+DMENU (?i:dmenu)
+
 %x INCLUDE
 %x PROPERTIES
 %x PROPERTIES_ENV
@@ -513,6 +516,7 @@ if ( queue == NULL ) {
 <SECTION>":"                      { g_queue_push_head ( queue, GINT_TO_POINTER (YY_START) ); BEGIN(PROPERTIES); return T_PSEP; }
 <PROPERTIES>";"                   { BEGIN(GPOINTER_TO_INT ( g_queue_pop_head ( queue ))); return T_PCLOSE;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_ENV_VAR_CONTENT,MEDIA_ENV_VAR_DEFAULT>(true|false)          { yylval->bval= g_strcmp0(yytext, "true") == 0; return T_BOOLEAN;}
+<MEDIA_CONTENT>{DMENU} { yylval->bval = rofi_is_in_dmenu_mode; return T_BOOLEAN;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{NUMBER}\.{NUMBER} { yylval->fval = g_ascii_strtod(yytext, NULL); return T_DOUBLE;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{NUMBER}            { yylval->ival = (int)g_ascii_strtoll(yytext, NULL, 10); return T_INT;}
 <PROPERTIES,PROPERTIES_ARRAY,PROPERTIES_ENV,PROPERTIES_VAR_DEFAULT,MEDIA_CONTENT>{UNARYMIN}            { return T_MIN; }

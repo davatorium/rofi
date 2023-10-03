@@ -1497,7 +1497,8 @@ It supports the following keys as constraint:
 - `min-aspect-ratio`   load when aspect ratio is over value.
 - `max-aspect-ratio`:  load when aspect ratio is under value.
 - `monitor-id`:        The monitor id, see rofi -help for id's.
-- `enabled`:           Boolean option to enable. Supports environment variable.
+- `enabled`:           Boolean option to enable. Supports environment variable
+  or DMENU to detect if in dmenu mode.
 
 @media takes an integer number or a fraction, for integer number `px` can be
 added.
@@ -1509,7 +1510,13 @@ added.
 ```
 
 ```css
-@media ( enabled: env(DO_LIGHT, false ) {
+@media ( enabled: env(DO_LIGHT, false )) {
+
+}
+```
+
+```css
+@media ( enabled: DMENU) {
 
 }
 ```

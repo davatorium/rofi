@@ -46,6 +46,7 @@
 #include "rofi-icon-fetcher.h"
 static int test = 0;
 unsigned int normal_window_mode = 0;
+int rofi_is_in_dmenu_mode = 0;
 
 #define TASSERT(a)                                                             \
   {                                                                            \

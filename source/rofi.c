@@ -139,7 +139,7 @@ NkBindings *bindings = NULL;
 GMainLoop *main_loop = NULL;
 
 /** Flag indicating we are in dmenu mode. */
-static int dmenu_mode = FALSE;
+int rofi_is_in_dmenu_mode = FALSE;
 /** Rofi's return code */
 int return_code = EXIT_SUCCESS;
 
@@ -789,7 +789,7 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
     }
   }
   // Dmenu mode.
-  if (dmenu_mode == TRUE) {
+  if (rofi_is_in_dmenu_mode == TRUE) {
     // force off sidebar mode:
     config.sidebar_mode = FALSE;
     int retv = dmenu_mode_dialog();
@@ -936,14 +936,14 @@ int main(int argc, char *argv[]) {
   // This has two possible causes.
   // 1 the user specifies it on the command-line.
   if (find_arg("-dmenu") >= 0) {
-    dmenu_mode = TRUE;
+    rofi_is_in_dmenu_mode = TRUE;
   }
   // 2 the binary that executed is called dmenu (e.g. symlink to rofi)
   else {
     // Get the base name of the executable called.
     char *base_name = g_path_get_basename(argv[0]);
     const char *const dmenu_str = "dmenu";
-    dmenu_mode = (strcmp(base_name, dmenu_str) == 0);
+    rofi_is_in_dmenu_mode = (strcmp(base_name, dmenu_str) == 0);
     // Free the basename for dmenu detection.
     g_free(base_name);
   }
@@ -1103,7 +1103,7 @@ int main(int argc, char *argv[]) {
 
   /** dirty hack for dmenu compatibility */
   char *windowid = NULL;
-  if (!dmenu_mode) {
+  if (!rofi_is_in_dmenu_mode) {
     // setup_modes
     if (setup_modes()) {
       cleanup();

@@ -2206,7 +2206,8 @@ It supports the following keys as constraint:
 .IP \(bu 2
 \fB\fCmonitor-id\fR:        The monitor id, see rofi -help for id's.
 .IP \(bu 2
-\fB\fCenabled\fR:           Boolean option to enable. Supports environment variable.
+\fB\fCenabled\fR:           Boolean option to enable. Supports environment variable
+or DMENU to detect if in dmenu mode.
 
 .RE
 
@@ -2229,7 +2230,18 @@ added.
 .RS
 
 .nf
-@media ( enabled: env(DO_LIGHT, false ) {
+@media ( enabled: env(DO_LIGHT, false )) {
+
+}
+
+.fi
+.RE
+
+.PP
+.RS
+
+.nf
+@media ( enabled: DMENU) {
 
 }
 
