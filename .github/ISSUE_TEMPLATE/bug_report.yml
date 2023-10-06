@@ -103,7 +103,7 @@ body:
       description: I confirm that I verified the issue still exists in the latest stable release. 
       options:
         - label: "Yes, I have checked the problem exists in the latest stable version"
-          required: true
+          required: false
       
 
 
