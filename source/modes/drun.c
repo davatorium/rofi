@@ -697,7 +697,7 @@ static void read_desktop_file(DRunModePrivateData *pd, const char *root,
     pd->entry_list[pd->cmd_list_length].url =
         g_key_file_get_locale_string(kf, DRUN_GROUP_NAME, "URL", NULL, NULL);
   } else {
-    pd->entry_list[pd->cmd_list_length].comment = NULL;
+    pd->entry_list[pd->cmd_list_length].url = NULL;
   }
   pd->entry_list[pd->cmd_list_length].icon_name =
       g_key_file_get_locale_string(kf, DRUN_GROUP_NAME, "Icon", NULL, NULL);
@@ -1454,6 +1454,13 @@ static int drun_token_match(const Mode *data, rofi_int_matcher **tokens,
                iter++) {
             test = helper_token_match(ftokens, list[iter]);
           }
+        }
+      }
+      if (matching_entry_fields[DRUN_MATCH_FIELD_URL].enabled_match) {
+
+        // Match executable name.
+        if (test == tokens[j]->invert && rmpd->entry_list[index].url) {
+          test = helper_token_match(ftokens, rmpd->entry_list[index].url);
         }
       }
       if (matching_entry_fields[DRUN_MATCH_FIELD_COMMENT].enabled_match) {
