@@ -124,6 +124,8 @@ typedef struct {
   char **keywords;
   /* Comments */
   char *comment;
+  /* Url */
+  char *url;
   /* Underlying key-file. */
   GKeyFile *key_file;
   /* Used for sorting. */
@@ -155,6 +157,8 @@ typedef enum {
   DRUN_MATCH_FIELD_KEYWORDS,
   /** Comment */
   DRUN_MATCH_FIELD_COMMENT,
+  /** Url */
+  DRUN_MATCH_FIELD_URL,
   /** Number of DRunMatchingFields entries. */
   DRUN_MATCH_NUM_FIELDS,
 } DRunMatchingFields;
@@ -189,6 +193,11 @@ static DRunEntryField matching_entry_fields[DRUN_MATCH_NUM_FIELDS] = {
     },
     {
         .entry_field_name = "comment",
+        .enabled_match = FALSE,
+        .enabled_display = FALSE,
+    },
+    {
+        .entry_field_name = "url",
         .enabled_match = FALSE,
         .enabled_display = FALSE,
     }};
@@ -683,6 +692,13 @@ static void read_desktop_file(DRunModePrivateData *pd, const char *root,
   } else {
     pd->entry_list[pd->cmd_list_length].comment = NULL;
   }
+  if (matching_entry_fields[DRUN_MATCH_FIELD_URL].enabled_match ||
+      matching_entry_fields[DRUN_MATCH_FIELD_URL].enabled_display) {
+    pd->entry_list[pd->cmd_list_length].url =
+        g_key_file_get_locale_string(kf, DRUN_GROUP_NAME, "URL", NULL, NULL);
+  } else {
+    pd->entry_list[pd->cmd_list_length].comment = NULL;
+  }
   pd->entry_list[pd->cmd_list_length].icon_name =
       g_key_file_get_locale_string(kf, DRUN_GROUP_NAME, "Icon", NULL, NULL);
   pd->entry_list[pd->cmd_list_length].icon = NULL;
@@ -830,7 +846,7 @@ static gint drun_int_sort_list(gconstpointer a, gconstpointer b,
  *******************************************/
 
 /** Version of the DRUN cache file format. */
-#define CACHE_VERSION 2
+#define CACHE_VERSION 3
 static void drun_write_str(FILE *fd, const char *str) {
   size_t l = (str == NULL ? 0 : strlen(str));
   fwrite(&l, sizeof(l), 1, fd);
@@ -921,6 +937,7 @@ static void write_cache(DRunModePrivateData *pd, const char *cache_file) {
     drun_write_strv(fd, entry->keywords);
 
     drun_write_str(fd, entry->comment);
+    drun_write_str(fd, entry->url);
     drun_write_integer(fd, (int32_t)entry->type);
   }
 
@@ -1325,6 +1342,8 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
   char *egn = NULL;
   char *en = NULL;
   char *ec = NULL;
+  char *ee = NULL;
+  char *eu = NULL;
   if (dr->generic_name) {
     egn = g_markup_escape_text(dr->generic_name, -1);
   }
@@ -1334,14 +1353,22 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
   if (dr->comment) {
     ec = g_markup_escape_text(dr->comment, -1);
   }
+  if (dr->url) {
+    eu = g_markup_escape_text(dr->url, -1);
+  }
+  if (dr->exec) {
+    ee = g_markup_escape_text(dr->exec, -1);
+  }
 
   char *retv = helper_string_replace_if_exists(
       config.drun_display_format, "{generic}", egn, "{name}", en, "{comment}",
-      ec, "{exec}", dr->exec, "{categories}", cats, "{keywords}", keywords,
-      (char *)0);
+      ec, "{exec}", ee, "{categories}", cats, "{keywords}", keywords, "{url}",
+      eu, (char *)0);
   g_free(egn);
   g_free(en);
   g_free(ec);
+  g_free(eu);
+  g_free(ee);
   g_free(cats);
   g_free(keywords);
   return retv;

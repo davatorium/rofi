@@ -381,6 +381,7 @@ The format string for the `drun` dialog:
 - **exec**: the application's  executable
 - **categories**: the application's categories
 - **comment**: the application comment
+- **url**: The url in case of a link type desktop file
 
 Pango markup can be used to formatting the output.
 
