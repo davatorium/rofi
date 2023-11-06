@@ -166,6 +166,7 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
   pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
   pd->cmd_list[pd->cmd_list_length].icon_fetch_size = 0;
   pd->cmd_list[pd->cmd_list_length].icon_name = NULL;
+  pd->cmd_list[pd->cmd_list_length].display = NULL;
   pd->cmd_list[pd->cmd_list_length].meta = NULL;
   pd->cmd_list[pd->cmd_list_length].info = NULL;
   pd->cmd_list[pd->cmd_list_length].active = FALSE;
@@ -418,7 +419,11 @@ static char *dmenu_get_completion_data(const Mode *data, unsigned int index) {
   Mode *sw = (Mode *)data;
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
   DmenuScriptEntry *retv = (DmenuScriptEntry *)pd->cmd_list;
-  return dmenu_format_output_string(pd, retv[index].entry, index, FALSE);
+  if (retv[index].display) {
+    return dmenu_format_output_string(pd, retv[index].display, index, FALSE);
+  } else {
+    return dmenu_format_output_string(pd, retv[index].entry, index, FALSE);
+  }
 }
 
 static char *get_display_data(const Mode *data, unsigned int index, int *state,
@@ -454,10 +459,16 @@ static char *get_display_data(const Mode *data, unsigned int index, int *state,
   if (pd->cmd_list[index].active) {
     *state |= ACTIVE;
   }
-  char *my_retv =
-      (get_entry ? dmenu_format_output_string(pd, retv[index].entry, index,
-                                              pd->multi_select)
-                 : NULL);
+  char *my_retv = NULL;
+  if (retv[index].display) {
+    my_retv = (get_entry ? dmenu_format_output_string(pd, retv[index].display,
+                                                      index, pd->multi_select)
+                         : NULL);
+  } else {
+    my_retv = (get_entry ? dmenu_format_output_string(pd, retv[index].entry,
+                                                      index, pd->multi_select)
+                         : NULL);
+  }
   return my_retv;
 }
 
@@ -472,6 +483,7 @@ static void dmenu_mode_free(Mode *sw) {
       if (pd->cmd_list[i].entry) {
         g_free(pd->cmd_list[i].entry);
         g_free(pd->cmd_list[i].icon_name);
+        g_free(pd->cmd_list[i].display);
         g_free(pd->cmd_list[i].meta);
         g_free(pd->cmd_list[i].info);
       }

@@ -133,6 +133,8 @@ The following options are supported:
 
 -   **icon**: Set the icon for that row.
 
+-   **display**: Replace the displayed string. (Original string will still be used for searching)
+
 -   **meta**: Specify invisible search terms.
 
 -   **nonselectable**: If true the row cannot activated.

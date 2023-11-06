@@ -8,6 +8,10 @@
 typedef struct {
   /** Entry content. (visible part) */
   char *entry;
+
+  /** Display */
+  char *display;
+
   /** Icon name to display. */
   char *icon_name;
   /** Async icon fetch handler. */

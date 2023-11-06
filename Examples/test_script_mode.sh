@@ -22,6 +22,7 @@ else
     echo -en "\0message\x1fSpecial <b>bold</b>message\n"
 
     echo -en "aap\0icon\x1ffolder\n"
+    echo -en "blob\0icon\x1ffolder\x1fdisplay\x1fblub\n"
     echo "noot"
     echo "mies"
     echo -en "-------------\0nonselectable\x1ftrue\n"
