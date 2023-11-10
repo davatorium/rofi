@@ -119,8 +119,8 @@ The following extra options exists:
     a widget.
 
 The **theme** property cannot change the interface while running, it is only
-usable for small changes in for example background colors of widgets like the
-row color of the listview.
+usable for small changes in, for example background color, of widgets that get
+updated during display like the row color of the listview.
 
 ## Parsing row options
 
