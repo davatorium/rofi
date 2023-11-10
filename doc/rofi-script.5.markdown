@@ -118,6 +118,10 @@ The following extra options exists:
 -   **theme**:       Small theme snippet to f.e. change the background color of
     a widget.
 
+The **theme** property cannot change the interface while running, it is only
+usable for small changes in for example background colors of widgets like the
+row color of the listview.
+
 ## Parsing row options
 
 Extra options for individual rows can be set. The extra option can be specified
