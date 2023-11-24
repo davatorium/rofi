@@ -1944,8 +1944,13 @@ void rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
   case SCOPE_MOUSE_SCROLLBAR:
   case SCOPE_MOUSE_MODE_SWITCHER: {
     gint x = state->mouse.x, y = state->mouse.y;
-    widget *target = widget_find_mouse_target(WIDGET(state->main_window),
-                                              (WidgetType)scope, x, y);
+    // If we already captured a motion, always forward action to this widget.
+    widget *target = state->mouse.motion_target;
+    // If we have not a previous captured motion, lookup widget.
+    if (target == NULL) {
+      target = widget_find_mouse_target(WIDGET(state->main_window),
+                                        (WidgetType)scope, x, y);
+    }
     if (target == NULL) {
       return;
     }
