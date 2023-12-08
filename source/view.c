@@ -555,6 +555,13 @@ static void rofi_view_set_user_timeout(G_GNUC_UNUSED gpointer data) {
         int delay = p->value.i;
         CacheState.user_timeout =
             g_timeout_add(delay * 1000, rofi_view_user_timeout, NULL);
+      } else {
+        Property *p = rofi_theme_find_property(wid, P_DOUBLE, "delay", TRUE);
+        if (p != NULL && p->type == P_DOUBLE && p->value.f > 0.01) {
+          double delay = p->value.f;
+          CacheState.user_timeout =
+              g_timeout_add(delay * 1000, rofi_view_user_timeout, NULL);
+        }
       }
     }
   }
