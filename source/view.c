@@ -2709,7 +2709,7 @@ void rofi_view_switch_mode(RofiViewState *state, Mode *mode) {
   rofi_view_restart(state);
   state->reload = TRUE;
   state->refilter = TRUE;
-  rofi_view_refilter(state);
+  rofi_view_refilter_force(state);
   rofi_view_update(state, TRUE);
 }
 
