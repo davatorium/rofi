@@ -137,7 +137,7 @@ Below is a list of the different modes:
 
 -   **combi**: Combine multiple modes into one.
 
-**Rofi** is known to work on Linux and BSD.
+**Rofi** is known to work on GNU and BSD.
 
 ## Manpage
 
