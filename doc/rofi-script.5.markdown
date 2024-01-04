@@ -137,14 +137,14 @@ The following options are supported:
 
 -   **icon**: Set the icon for that row.
 
--   **display**: Replace the displayed string. (Original string will still be used for searching)
+-   **display**: Replace the displayed string. (Original string will still be used for filtering)
 
--   **meta**: Specify invisible search terms.
+-   **meta**: Specify invisible search terms used for filtering.
 
 -   **nonselectable**: If true the row cannot activated.
 
 -   **info**: Info that, on selection, gets placed in the `ROFI_INFO`
-    environment variable. This entry does not get searched.
+    environment variable. This entry does not get searched for filtering.
 
 -   **urgent**: Set urgent flag on entry (true/false)
 
