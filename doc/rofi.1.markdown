@@ -880,6 +880,13 @@ replaced at runtime:
 - `{cmd}`: the command to execute
 - `{window}`: the window ID of the selected window (in `window-command`)
 
+It processes the string as follows: `{key}`
+is replaced by its value, if `{key}` is not set it is removed. If the `{key}`
+is in between `[]`  all the text between `[]` is removed if `{key}` is not set.
+Otherwise key is replaced and the `[]` are removed.
+
+For example: `{ssh-client} [-p {port}] {host}`
+
 ## THEMING
 
 Please see **rofi-theme(5)** manpage for more information on theming.

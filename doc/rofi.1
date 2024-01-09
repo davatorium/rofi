@@ -1340,6 +1340,15 @@ replaced at runtime:
 
 .RE
 
+.PP
+It processes the string as follows: \fB\fC{key}\fR
+is replaced by its value, if \fB\fC{key}\fR is not set it is removed. If the \fB\fC{key}\fR
+is in between \fB\fC[]\fR  all the text between \fB\fC[]\fR is removed if \fB\fC{key}\fR is not set.
+Otherwise key is replaced and the \fB\fC[]\fR are removed.
+
+.PP
+For example: \fB\fC{ssh-client} [-p {port}] {host}\fR
+
 .SH THEMING
 .PP
 Please see \fBrofi-theme(5)\fP manpage for more information on theming.
