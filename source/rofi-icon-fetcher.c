@@ -51,6 +51,8 @@
 #include "helper.h"
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#include "md5.h"
+
 typedef struct {
   // Context for icon-themes.
   NkXdgThemeContext *xdg_context;
@@ -282,6 +284,87 @@ gboolean rofi_icon_fetcher_file_is_image(const char *const path) {
   return FALSE;
 }
 
+// https://stackoverflow.com/questions/57723372/cast-uint8-t-to-hex-string-2-digits/57723618#57723618
+static int md5_to_hex(char* dest, size_t dest_len, const uint8_t* values, 
+                      size_t val_len) {
+    static const char hex_table[] = "0123456789abcdef";
+    if(dest_len < (val_len*2+1)) /* check that dest is large enough */
+        return 0;
+    while(val_len--) {
+        /* shift down the top nibble and pick a char from the hex_table */
+        *dest++ = hex_table[*values >> 4];
+        /* extract the bottom nibble and pick a char from the hex_table */
+        *dest++ = hex_table[*values++ & 0xF];
+    }
+    *dest = 0;
+    return 1;
+}
+
+// build file thumbnail's path using md5 hash of its encoded uri string
+static gchar* rofi_icon_fetcher_get_file_thumbnail(const gchar* file_path, 
+                                                   int requested_size, 
+                                                   int *thumb_size) {
+  // convert filename to encoded uri string and calc its md5 hash
+  gchar *encoded_entry_name = g_filename_to_uri(file_path, NULL, NULL);
+
+  int md5_size = 16;
+  uint8_t md5[md5_size];
+  md5String(encoded_entry_name, md5);
+
+  g_free(encoded_entry_name);
+
+  // convert md5 hash to hex string
+  int hex_size = md5_size * 2 + 1;
+  char md5_hex[hex_size];
+  md5_to_hex(md5_hex, hex_size, md5, md5_size);
+
+  // determine thumbnail folder based on the request size
+  const gchar* cache_dir = g_get_user_cache_dir();
+  gchar* thumb_path;
+
+  if (requested_size <= 128) {
+    *thumb_size = 128;
+    thumb_path = g_strconcat(cache_dir, "/thumbnails/normal/",
+        md5_hex, ".png", NULL);
+  } else if (requested_size <= 256) {
+    *thumb_size = 256;
+    thumb_path = g_strconcat(cache_dir, "/thumbnails/large/",
+        md5_hex, ".png", NULL);
+  } else if (requested_size <= 512) {
+    *thumb_size = 512;
+    thumb_path = g_strconcat(cache_dir, "/thumbnails/x-large/",
+        md5_hex, ".png", NULL);
+  } else {
+    *thumb_size = 1024;
+    thumb_path = g_strconcat(cache_dir, "/thumbnails/xx-large/",
+        md5_hex, ".png", NULL);
+  }
+
+  return thumb_path;
+}
+
+// retrieves icon key from a .desktop file
+static gchar* rofi_icon_fetcher_get_desktop_icon(const gchar* file_path) {
+  GKeyFile *kf = g_key_file_new();
+  GError *key_error = NULL;
+  gchar *icon_key = NULL;
+  
+  gboolean res = g_key_file_load_from_file(kf, file_path, 0, &key_error);
+  
+  if (res) {
+    icon_key = g_key_file_get_string(kf, "Desktop Entry", "Icon", NULL);
+  } else {
+    g_debug("Failed to parse desktop file %s because: %s.",
+        file_path, key_error->message);
+    
+    g_error_free(key_error);
+  }
+  
+  g_key_file_free(kf);
+  
+  return icon_key;
+}
+
 static void rofi_icon_fetcher_worker(thread_state *sdata,
                                      G_GNUC_UNUSED gpointer user_data) {
   g_debug("starting up icon fetching thread.");
@@ -293,7 +376,79 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   const gchar *icon_path;
   gchar *icon_path_ = NULL;
 
-  if (g_path_is_absolute(sentry->entry->name)) {
+  if (g_str_has_prefix(sentry->entry->name, "thumbnail://")) {
+    // remove uri thumbnail prefix from entry name
+    gchar *entry_name = &sentry->entry->name[12];
+
+    // if the entry name is an absolute path try to fetch its thumbnail
+    if (g_path_is_absolute(entry_name)) {
+      if (g_str_has_suffix(entry_name, ".desktop")) {
+        // if the entry is a .desktop file try to read its icon key
+        gchar *icon_key = rofi_icon_fetcher_get_desktop_icon(entry_name);
+        
+        if (icon_key == NULL || strlen(icon_key) == 0) {
+          // no icon in .desktop file, fallback on mimetype icon (text/plain)
+          icon_path = icon_path_ = nk_xdg_theme_get_icon(
+            rofi_icon_fetcher_data->xdg_context, themes, NULL, "text-plain",
+            MIN(sentry->wsize, sentry->hsize), 1, TRUE);
+          
+          g_free(icon_key);
+        } else if (g_path_is_absolute(icon_key)) {
+          // icon in .desktop file is an absolute path to an image
+          icon_path = icon_path_ = icon_key;
+        } else {
+          // icon in .desktop file is a standard icon name
+          icon_path = icon_path_ = nk_xdg_theme_get_icon(
+            rofi_icon_fetcher_data->xdg_context, themes, NULL, icon_key,
+            MIN(sentry->wsize, sentry->hsize), 1, TRUE);
+          
+          g_free(icon_key);
+        }
+      } else {
+        // look for file thumbnail in appropriate folder based on requested size
+        int requested_size = MAX(sentry->wsize, sentry->hsize);
+        int thumb_size;
+
+        icon_path = icon_path_ = rofi_icon_fetcher_get_file_thumbnail(
+          entry_name, requested_size, &thumb_size);
+
+        if (!g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
+          // TODO: try to generate thumbnail
+          g_debug("%s thumbnail not found, generating...", icon_path);
+
+          // use mime-type of file to show a theme icon
+          char *content_type = g_content_type_guess(entry_name, NULL, 0, NULL);
+          char *mime_type = g_content_type_get_mime_type(content_type);
+
+          // replace forward slashes with minus sign to get the icon's name
+          int index = 0;
+
+          while(mime_type[index]) {
+             if(mime_type[index] == '/')
+                mime_type[index] = '-';
+             index++;
+          }
+          
+          g_free(icon_path_);
+
+          // try to fetch the mime-type icon
+          icon_path = icon_path_ = nk_xdg_theme_get_icon(
+            rofi_icon_fetcher_data->xdg_context, themes, NULL, mime_type,
+            MIN(sentry->wsize, sentry->hsize), 1, TRUE);
+          
+          g_free(mime_type);
+          g_free(content_type);
+        }
+      }
+    }
+
+    // no suitable icon or thumbnail was found
+    if (icon_path_ == NULL) {
+      sentry->query_done = TRUE;
+      rofi_view_reload();
+      return;
+    }
+  } else if (g_path_is_absolute(sentry->entry->name)) {
     icon_path = sentry->entry->name;
   } else if (g_str_has_prefix(sentry->entry->name, "<span")) {
     cairo_surface_t *surface = cairo_image_surface_create(

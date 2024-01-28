@@ -64,6 +64,7 @@ SOURCES=\
 	source/mode.c\
 	source/keyb.c\
 	config/config.c\
+	source/md5.c\
 	source/helper.c\
 	source/timings.c\
 	source/history.c\
@@ -96,6 +97,7 @@ SOURCES=\
 	include/rofi.h\
 	include/rofi-types.h\
 	include/rofi-icon-fetcher.h\
+	include/md5.h\
 	include/mode.h\
 	include/mode-private.h\
 	include/settings.h\
