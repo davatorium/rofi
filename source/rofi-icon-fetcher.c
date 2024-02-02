@@ -156,26 +156,22 @@ static void rofi_icon_fetcher_load_thumbnailers(const gchar *path) {
   g_free(thumb_path);
 }
 
-static gboolean rofi_icon_fetcher_create_thumbnail(const gchar *mime_type,
-                                                   const gchar *filename,
-                                                   const gchar *encoded_uri,
-                                                   const gchar *output_path,
-                                                   int size) {
-  gboolean thumbnail_created = FALSE;
-
-  const gchar *command = g_hash_table_lookup(
-    rofi_icon_fetcher_data->thumbnailers, mime_type);
-
-  if (!command) {
-    return thumbnail_created;
-  }
-
-  // split command string to isolate arguments and expand them in a list
-  GStrvBuilder *cmd_builder = g_strv_builder_new();
+static gchar** setup_thumbnailer_command(const gchar *command,
+                                         const gchar *filename,
+                                         const gchar *encoded_uri,
+                                         const gchar *output_path,
+                                         int size) {
   gchar **command_parts = g_strsplit(command, " ", 0);
   gchar **command_args = NULL;
-
+  
+  GStrvBuilder *cmd_builder = g_strv_builder_new();
+  
   if (command_parts) {
+    // set process niceness value to 19 (low priority)
+    g_strv_builder_add(cmd_builder, "nice");
+    g_strv_builder_add(cmd_builder, "-n");
+    g_strv_builder_add(cmd_builder, "19");
+    
     // add executable and arguments of the thumbnailer to the list
     guint i;
     for (i = 0; command_parts[i] != NULL; i++) {
@@ -200,22 +196,48 @@ static gboolean rofi_icon_fetcher_create_thumbnail(const gchar *mime_type,
   }
 
   g_strv_builder_unref(cmd_builder);
+  
+  return command_args;
+}
 
-  if (command_args) {
-    // launch and wait thumbnailers process
-    gint wait_status;
-    GError *error = NULL;
+static gboolean exec_thumbnailer_command(gchar **command_args) {
+  // launch and wait thumbnailers process
+  gint wait_status;
+  GError *error = NULL;
 
-    gboolean spawned = g_spawn_sync("/usr/bin", command_args,
-      NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL, &wait_status, &error);
+  gboolean spawned = g_spawn_sync("/usr/bin", command_args,
+    NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL, &wait_status, &error);
 
-    if (spawned) {
-      thumbnail_created = g_spawn_check_wait_status(wait_status, NULL);
-    } else {
-      g_warning("Error calling thumbnailer %s: %s", command, error->message);
-      g_error_free(error);
-    }
+  if (spawned) {
+    return g_spawn_check_wait_status(wait_status, NULL);
+  } else {
+    g_warning("Error calling thumbnailer: %s", error->message);
+    g_error_free(error);
     
+    return FALSE;
+  }
+}
+
+static gboolean rofi_icon_fetcher_create_thumbnail(const gchar *mime_type,
+                                                   const gchar *filename,
+                                                   const gchar *encoded_uri,
+                                                   const gchar *output_path,
+                                                   int size) {
+  gboolean thumbnail_created = FALSE;
+
+  gchar *command = g_hash_table_lookup(
+    rofi_icon_fetcher_data->thumbnailers, mime_type);
+
+  if (!command) {
+    return thumbnail_created;
+  }
+
+  // split command string to isolate arguments and expand them in a list  
+  gchar **command_args = setup_thumbnailer_command(
+    command, filename, encoded_uri, output_path, size);
+  
+  if (command_args) {
+    thumbnail_created = exec_thumbnailer_command(command_args);    
     g_strfreev(command_args);
   }
   
@@ -524,9 +546,36 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   if (g_str_has_prefix(sentry->entry->name, "thumbnail://")) {
     // remove uri thumbnail prefix from entry name
     gchar *entry_name = &sentry->entry->name[12];
+    
+    // use custom user command to generate the thumbnail
+    if (config.preview_cmd != NULL) {
+      gchar *encoded_uri = g_filename_to_uri(entry_name, NULL, NULL);
+      int requested_size = MAX(sentry->wsize, sentry->hsize);
+      int thumb_size;
 
-    // if the entry name is an absolute path try to fetch its thumbnail
-    if (g_path_is_absolute(entry_name)) {
+      icon_path = icon_path_ = rofi_icon_fetcher_get_file_thumbnail(
+          entry_name, requested_size, &thumb_size);
+      
+      if (!g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
+        char **command_args = NULL;
+        int argsv = 0;
+        char size_str[33];
+        sprintf(size_str, "%d", thumb_size);
+        
+        helper_parse_setup(
+          config.preview_cmd, &command_args, &argsv,
+          "{input}", entry_name, "{uri}", encoded_uri,
+          "{output}", icon_path_, "{size}", size_str, NULL);
+        
+        if (command_args) {
+          exec_thumbnailer_command(command_args);
+          g_strfreev(command_args);
+        }
+      }
+      
+      g_free(encoded_uri);
+    } else if (g_path_is_absolute(entry_name)) {
+      // if the entry name is an absolute path try to fetch its thumbnail
       if (g_str_has_suffix(entry_name, ".desktop")) {
         // if the entry is a .desktop file try to read its icon key
         gchar *icon_key = rofi_icon_fetcher_get_desktop_icon(entry_name);
@@ -559,8 +608,6 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
 
         if (!g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
           // try to generate thumbnail
-          g_debug("%s thumbnail not found, generating...", icon_path);
-
           gchar *encoded_uri = g_filename_to_uri(entry_name, NULL, NULL);
           char *content_type = g_content_type_guess(entry_name, NULL, 0, NULL);
           char *mime_type = g_content_type_get_mime_type(content_type);
