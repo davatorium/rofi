@@ -45,6 +45,9 @@ Settings config = {
 
     /** Whether to load and show icons */
     .show_icons = FALSE,
+    
+    /** Custom command to generate preview icons */
+    .preview_cmd = NULL,
 
     /** Terminal to use. (for ssh and open in terminal) */
     .terminal_emulator = "rofi-sensible-terminal",
