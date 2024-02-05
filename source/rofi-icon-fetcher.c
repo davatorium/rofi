@@ -183,7 +183,7 @@ static gchar** setup_thumbnailer_command(const gchar *command,
         g_strv_builder_add(cmd_builder, output_path);
       } else if (strcmp(command_parts[i], "%s") == 0) {
         char size_str[33];
-        sprintf(size_str, "%d", size);
+        snprintf(size_str, 33, "%d", size);
         g_strv_builder_add(cmd_builder, size_str);
       } else {
         g_strv_builder_add(cmd_builder, command_parts[i]);
@@ -542,6 +542,12 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   if (g_str_has_prefix(sentry->entry->name, "thumbnail://")) {
     // remove uri thumbnail prefix from entry name
     gchar *entry_name = &sentry->entry->name[12];
+    
+    if (entry_name == NULL || strcmp(entry_name, "") == 0) {
+      sentry->query_done = TRUE;
+      rofi_view_reload();
+      return;
+    }
     
     // use custom user command to generate the thumbnail
     if (config.preview_cmd != NULL) {
