@@ -162,40 +162,42 @@ static gchar** setup_thumbnailer_command(const gchar *command,
                                          const gchar *output_path,
                                          int size) {
   gchar **command_parts = g_strsplit(command, " ", 0);
-  gchar **command_args = NULL;
+  guint command_parts_count = g_strv_length(command_parts);
   
-  GStrvBuilder *cmd_builder = g_strv_builder_new();
+  gchar **command_args = NULL; 
   
   if (command_parts) {
+    command_args = malloc(sizeof(gchar*) * (command_parts_count + 3 + 1));
+    
     // set process niceness value to 19 (low priority)
-    g_strv_builder_add(cmd_builder, "nice");
-    g_strv_builder_add(cmd_builder, "-n");
-    g_strv_builder_add(cmd_builder, "19");
+    guint current_index = 0;
+    
+    command_args[current_index++] = strdup("nice");
+    command_args[current_index++] = strdup("-n");
+    command_args[current_index++] = strdup("19");
     
     // add executable and arguments of the thumbnailer to the list
     guint i;
     for (i = 0; command_parts[i] != NULL; i++) {
       if (strcmp(command_parts[i], "%i") == 0) {
-        g_strv_builder_add(cmd_builder, filename);
+        command_args[current_index++] = strdup(filename);
       } else if (strcmp(command_parts[i], "%u") == 0) {
-        g_strv_builder_add(cmd_builder, encoded_uri);
+        command_args[current_index++] = strdup(encoded_uri);
       } else if (strcmp(command_parts[i], "%o") == 0) {
-        g_strv_builder_add(cmd_builder, output_path);
+        command_args[current_index++] = strdup(output_path);
       } else if (strcmp(command_parts[i], "%s") == 0) {
         char size_str[33];
         snprintf(size_str, 33, "%d", size);
-        g_strv_builder_add(cmd_builder, size_str);
+        command_args[current_index++] = strdup(size_str);
       } else {
-        g_strv_builder_add(cmd_builder, command_parts[i]);
+        command_args[current_index++] = strdup(command_parts[i]);
       }
     }
 
-    command_args = g_strv_builder_end(cmd_builder);
+    command_args[current_index++] = NULL;
 
     g_strfreev(command_parts);
   }
-
-  g_strv_builder_unref(cmd_builder);
   
   return command_args;
 }
