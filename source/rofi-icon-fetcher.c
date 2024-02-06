@@ -211,7 +211,7 @@ static gboolean exec_thumbnailer_command(gchar **command_args) {
     NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL, &wait_status, &error);
 
   if (spawned) {
-    return g_spawn_check_wait_status(wait_status, NULL);
+    return g_spawn_check_exit_status(wait_status, NULL);
   } else {
     g_warning("Error calling thumbnailer: %s", error->message);
     g_error_free(error);
