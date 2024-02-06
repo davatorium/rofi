@@ -545,7 +545,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     // remove uri thumbnail prefix from entry name
     gchar *entry_name = &sentry->entry->name[12];
     
-    if (entry_name == NULL || strcmp(entry_name, "") == 0) {
+    if (strcmp(entry_name, "") == 0) {
       sentry->query_done = TRUE;
       rofi_view_reload();
       return;
@@ -563,7 +563,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
         char **command_args = NULL;
         int argsv = 0;
         char size_str[33];
-        sprintf(size_str, "%d", thumb_size);
+        snprintf(size_str, 33, "%d", thumb_size);
         
         helper_parse_setup(
           config.preview_cmd, &command_args, &argsv,
