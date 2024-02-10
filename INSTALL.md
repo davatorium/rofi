@@ -257,19 +257,19 @@ For more information see the rofi-debugging(5) manpage.
 
 ```bash
     apt install rofi
-````
+```
 
 ### Fedora
 
 ```bash
     dnf install rofi
-````
+```
 
 ### ArchLinux
 
 ```bash
     pacman -S rofi
-````
+```
 
 ### Gentoo
 
@@ -278,13 +278,13 @@ enable ~arch to get the latest release:
 
 ```bash
     echo 'x11-misc/rofi ~amd64' >> /etc/portage/package.accept_keywords
-````
+```
 
 for amd64 or:
 
 ```bash
     echo 'x11-misc/rofi ~x86' >> /etc/portage/package.accept_keywords
-````
+```
 
 for i386.
 
@@ -296,13 +296,13 @@ On both openSUSE Leap and openSUSE Tumbleweed rofi can be installed using:
 
 ```bash
     sudo zypper install rofi
-````
+```
 
 ### FreeBSD
 
 ```bash
     sudo pkg install rofi
-````
+```
 
 ### macOS
 
