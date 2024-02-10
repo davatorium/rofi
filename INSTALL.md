@@ -70,6 +70,11 @@ On debian based systems, the developer packages are in the form of:
 
 ## Install from a release
 
+When downloading from the github release page, make sure to grab the archive
+`rofi-{version}.tar.[g|x]z`. The auto-attached files `source code (zip|tar.gz)`
+by github do not contain a valid release. It misses a setup build system and
+includes irrelevant files.
+
 ### Autotools
 
 Create a build directory and enter it:
