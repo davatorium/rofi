@@ -70,6 +70,11 @@ On debian based systems, the developer packages are in the form of:
 
 ## Install from a release
 
+When downloading from the github release page, make sure to grab the archive
+`rofi-{version}.tar.[g|x]z`. The auto-attached files `source code (zip|tar.gz)`
+by github do not contain a valid release. It misses a setup build system and
+includes irrelevant files.
+
 ### Autotools
 
 Create a build directory and enter it:
@@ -252,19 +257,19 @@ For more information see the rofi-debugging(5) manpage.
 
 ```bash
     apt install rofi
-````
+```
 
 ### Fedora
 
 ```bash
     dnf install rofi
-````
+```
 
 ### ArchLinux
 
 ```bash
     pacman -S rofi
-````
+```
 
 ### Gentoo
 
@@ -273,13 +278,13 @@ enable ~arch to get the latest release:
 
 ```bash
     echo 'x11-misc/rofi ~amd64' >> /etc/portage/package.accept_keywords
-````
+```
 
 for amd64 or:
 
 ```bash
     echo 'x11-misc/rofi ~x86' >> /etc/portage/package.accept_keywords
-````
+```
 
 for i386.
 
@@ -291,13 +296,13 @@ On both openSUSE Leap and openSUSE Tumbleweed rofi can be installed using:
 
 ```bash
     sudo zypper install rofi
-````
+```
 
 ### FreeBSD
 
 ```bash
     sudo pkg install rofi
-````
+```
 
 ### macOS
 

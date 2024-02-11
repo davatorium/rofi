@@ -170,7 +170,7 @@ These will be merged into the theme on load:
 Now if we run it:
 
 ```bash
-REVIEW=true rofi -theme fullscreen-preview.rasi -show filebrowser
+PREVIEW=true rofi -theme fullscreen-preview.rasi -show filebrowser
 ```
 
 It looks like this:

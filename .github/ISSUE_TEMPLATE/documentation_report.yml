@@ -1,0 +1,81 @@
+name: Documentation Bug Report
+description: Report a problem in Rofi Documentation
+labels: [Documentation]
+title: "[Doc] "
+body:
+
+  - type: markdown
+    attributes:
+      value: |
+        First read the
+        [guidelines](https://github.com/DaveDavenport/rofi/blob/next/.github/CONTRIBUTING.md)!
+        This is not optional for any report. People must be able to understand
+        the full context of the report when reading it, at any time.
+
+        If you feel like you “it is simple and requires no explanation”, please
+        consider you’re wrong and still fill the full report. Any report
+        missing required informations will be labeled as “Incomplete Report -
+        Please follow the guidelines” and will be closed. If you ask a
+        question, enter dummy information in required fields to get passed the
+        checks or in general completely ignore the guidelines, the issue will
+        be closed and locked as spam.
+
+        If you are unsure, please use the
+        [discussion](https://github.com/davatorium/rofi/discussions) forum
+        first. It is easy to upgrade a question to an issue in github.
+
+        **Please do not submit reports related to wayland, see
+        [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more
+        information.**
+
+  - type: input
+    attributes:
+      label: "Rofi version (rofi -v)"
+      placeholder: "Version: 1.7.5"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "URL"
+      description: "Please provide a link to the relevant documentation."
+      placeholder: "link to page on https://davatorium.github.io/rofi/ or file on https://github.com/davatorium/rofi/"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Explain the issue with the documentation, please be verbose."
+      placeholder: |
+        * What am I trying to achieve
+        ..
+        * What instructions are unclear, wrong or missing
+        ..
+        * Suggestions for improving the current documentation
+        ..
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Optional fixed text"
+      description: "Suggested new and or improved text for documentation."
+    validations:
+      required: false
+  - type: checkboxes
+    id: wayland
+    attributes:
+      label: Using wayland display server protocol
+      description: I have checked and confirm that my issue is not related to running rofi using wayland as display server protocol. See [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more        information.
+      options:
+        - label: "No, my documentation issue is not about running rofi using the wayland display server protocol"
+          required: true
+  - type: checkboxes
+    id: latestversion
+    attributes:
+      label: I've checked if the issue exists in the latest stable release
+      description: I confirm that I verified the issue still exists in the latest stable release. 
+      options:
+        - label: "Yes, I have checked the problem exists in the latest stable version"
+          required: false
+      
+
+

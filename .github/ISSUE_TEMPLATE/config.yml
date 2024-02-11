@@ -3,9 +3,6 @@ contact_links:
   - name: discussion forum
     url: https://github.com/davatorium/rofi/discussions
     about: Please ask and answer questions here.
-  - name: Rofi subreddit
-    url: https://www.reddit.com/r/qtools/
-    about: Please ask and answer questions here.
   - name: Rofi IRC channel
     url: https://web.libera.chat/?channels=#rofi
     about: Please ask and answer question in real time here.
