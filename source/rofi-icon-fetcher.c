@@ -411,6 +411,7 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
 
   // Push into fetching queue.
   sentry->state.callback = rofi_icon_fetcher_worker;
+  sentry->state.priority = G_PRIORITY_LOW;
   g_thread_pool_push(tpool, sentry, NULL);
 
   return sentry->uid;
@@ -447,6 +448,7 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
 
   // Push into fetching queue.
   sentry->state.callback = rofi_icon_fetcher_worker;
+  sentry->state.priority = G_PRIORITY_LOW;
   g_thread_pool_push(tpool, sentry, NULL);
 
   return sentry->uid;

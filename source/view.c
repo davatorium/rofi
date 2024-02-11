@@ -1444,6 +1444,7 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
       states[i].plen = plen;
       states[i].pattern = pattern;
       states[i].st.callback = filter_elements;
+      states[i].st.priority = G_PRIORITY_HIGH;
       if (i > 0) {
         g_thread_pool_push(tpool, &states[i], NULL);
       }
@@ -2624,6 +2625,15 @@ void rofi_view_cleanup() {
 
   input_history_save();
 }
+
+static int rofi_thread_workers_sort(gconstpointer a,gconstpointer b, gpointer data G_GNUC_UNUSED)
+{
+  thread_state *tsa = (thread_state *)a;
+  thread_state *tsb = (thread_state *)b;
+  // lower number is lower priority..  a is sorted above is a > b. 
+  return tsa->priority-tsb->priority;
+}
+
 void rofi_view_workers_initialize(void) {
   TICK_N("Setup Threadpool, start");
   if (config.threads == 0) {
@@ -2649,6 +2659,7 @@ void rofi_view_workers_initialize(void) {
     g_error_free(error);
     exit(EXIT_FAILURE);
   }
+  g_thread_pool_set_sort_function(tpool, rofi_thread_workers_sort, NULL);
   TICK_N("Setup Threadpool, done");
 }
 void rofi_view_workers_finalize(void) {
