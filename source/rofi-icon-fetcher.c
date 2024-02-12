@@ -51,8 +51,6 @@
 #include "helper.h"
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-#include "md5.h"
-
 // thumbnailers key file's group and file extension
 #define THUMBNAILER_ENTRY_GROUP "Thumbnailer Entry"
 #define THUMBNAILER_EXTENSION   ".thumbnailer"
@@ -453,35 +451,14 @@ gboolean rofi_icon_fetcher_file_is_image(const char *const path) {
   return FALSE;
 }
 
-// https://stackoverflow.com/questions/57723372/cast-uint8-t-to-hex-string-2-digits/57723618#57723618
-static int md5_to_hex(char* dest, size_t dest_len, const uint8_t* values, 
-                      size_t val_len) {
-    static const char hex_table[] = "0123456789abcdef";
-    if(dest_len < (val_len*2+1)) /* check that dest is large enough */
-        return 0;
-    while(val_len--) {
-        /* shift down the top nibble and pick a char from the hex_table */
-        *dest++ = hex_table[*values >> 4];
-        /* extract the bottom nibble and pick a char from the hex_table */
-        *dest++ = hex_table[*values++ & 0xF];
-    }
-    *dest = 0;
-    return 1;
-}
-
 // build thumbnail's path using md5 hash of an entry name
 static gchar* rofi_icon_fetcher_get_thumbnail(gchar* name, 
                                               int requested_size, 
                                               int *thumb_size) {
   // calc entry_name md5 hash
-  int md5_size = 16;
-  uint8_t md5[md5_size];
-  md5String(name, md5);
-
-  // convert md5 hash to hex string
-  int hex_size = md5_size * 2 + 1;
-  char md5_hex[hex_size];
-  md5_to_hex(md5_hex, hex_size, md5, md5_size);
+  GChecksum* checksum = g_checksum_new(G_CHECKSUM_MD5);
+  g_checksum_update(checksum, (guchar*)name, -1);
+  const gchar *md5_hex = g_checksum_get_string(checksum);
 
   // determine thumbnail folder based on the request size
   const gchar* cache_dir = g_get_user_cache_dir();
@@ -504,6 +481,8 @@ static gchar* rofi_icon_fetcher_get_thumbnail(gchar* name,
     thumb_path = g_strconcat(cache_dir, "/thumbnails/xx-large/",
         md5_hex, ".png", NULL);
   }
+  
+  g_checksum_free(checksum);
 
   return thumb_path;
 }
