@@ -165,30 +165,28 @@ static gchar** setup_thumbnailer_command(const gchar *command,
   gchar **command_args = NULL; 
   
   if (command_parts) {
-    command_args = malloc(sizeof(gchar*) * (command_parts_count + 3 + 1));
+    command_args = g_malloc0(sizeof(gchar*) * (command_parts_count + 3 + 1));
     
     // set process niceness value to 19 (low priority)
     guint current_index = 0;
     
-    command_args[current_index++] = strdup("nice");
-    command_args[current_index++] = strdup("-n");
-    command_args[current_index++] = strdup("19");
+    command_args[current_index++] = g_strdup("nice");
+    command_args[current_index++] = g_strdup("-n");
+    command_args[current_index++] = g_strdup("19");
     
     // add executable and arguments of the thumbnailer to the list
     guint i;
     for (i = 0; command_parts[i] != NULL; i++) {
       if (strcmp(command_parts[i], "%i") == 0) {
-        command_args[current_index++] = strdup(filename);
+        command_args[current_index++] = g_strdup(filename);
       } else if (strcmp(command_parts[i], "%u") == 0) {
-        command_args[current_index++] = strdup(encoded_uri);
+        command_args[current_index++] = g_strdup(encoded_uri);
       } else if (strcmp(command_parts[i], "%o") == 0) {
-        command_args[current_index++] = strdup(output_path);
+        command_args[current_index++] = g_strdup(output_path);
       } else if (strcmp(command_parts[i], "%s") == 0) {
-        char size_str[33];
-        snprintf(size_str, 33, "%d", size);
-        command_args[current_index++] = strdup(size_str);
+        command_args[current_index++] = g_strdup_printf("%d", size);
       } else {
-        command_args[current_index++] = strdup(command_parts[i]);
+        command_args[current_index++] = g_strdup(command_parts[i]);
       }
     }
 
@@ -550,13 +548,14 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
       if (!g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
         char **command_args = NULL;
         int argsv = 0;
-        char size_str[33];
-        snprintf(size_str, 33, "%d", thumb_size);
+        gchar *size_str = g_strdup_printf("%d", thumb_size);
         
         helper_parse_setup(
           config.preview_cmd, &command_args, &argsv,
           "{input}", entry_name,
           "{output}", icon_path_, "{size}", size_str, NULL);
+
+        g_free(size_str);
         
         if (command_args) {
           exec_thumbnailer_command(command_args);
