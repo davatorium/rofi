@@ -447,7 +447,10 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
   FBFile *dr = &(pd->array[selected_line]);
   if (dr->icon_fetch_uid > 0 && dr->icon_fetch_size == height) {
     return rofi_icon_fetcher_get(dr->icon_fetch_uid);
-  }else if (dr->type == RFILE) {
+  }
+  if (rofi_icon_fetcher_file_is_image(dr->path)) {
+    dr->icon_fetch_uid = rofi_icon_fetcher_query(dr->path, height);
+  } else if (dr->type == RFILE) {
     gchar* _path = g_strconcat("thumbnail://", dr->path, NULL);
     dr->icon_fetch_uid = rofi_icon_fetcher_query(_path, height);
     g_free(_path);
