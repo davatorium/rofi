@@ -462,26 +462,35 @@ static gchar* rofi_icon_fetcher_get_thumbnail(gchar* name,
 
   // determine thumbnail folder based on the request size
   const gchar* cache_dir = g_get_user_cache_dir();
+  gchar* thumb_dir;
   gchar* thumb_path;
 
   if (requested_size <= 128) {
     *thumb_size = 128;
+    thumb_dir = g_strconcat(cache_dir, "/thumbnails/normal/", NULL);
     thumb_path = g_strconcat(cache_dir, "/thumbnails/normal/",
         md5_hex, ".png", NULL);
   } else if (requested_size <= 256) {
     *thumb_size = 256;
+    thumb_dir = g_strconcat(cache_dir, "/thumbnails/large/", NULL);
     thumb_path = g_strconcat(cache_dir, "/thumbnails/large/",
         md5_hex, ".png", NULL);
   } else if (requested_size <= 512) {
     *thumb_size = 512;
+    thumb_dir = g_strconcat(cache_dir, "/thumbnails/x-large/", NULL);
     thumb_path = g_strconcat(cache_dir, "/thumbnails/x-large/",
         md5_hex, ".png", NULL);
   } else {
     *thumb_size = 1024;
+    thumb_dir = g_strconcat(cache_dir, "/thumbnails/xx-large/", NULL);
     thumb_path = g_strconcat(cache_dir, "/thumbnails/xx-large/",
         md5_hex, ".png", NULL);
   }
-  
+
+  // create thumbnail directory if it does not exist
+  g_mkdir_with_parents(thumb_dir, 0700);
+
+  g_free(thumb_dir);
   g_checksum_free(checksum);
 
   return thumb_path;
