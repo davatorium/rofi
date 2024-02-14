@@ -45,7 +45,7 @@ Settings config = {
 
     /** Whether to load and show icons */
     .show_icons = FALSE,
-    
+
     /** Custom command to generate preview icons */
     .preview_cmd = NULL,
 
