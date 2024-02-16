@@ -74,7 +74,7 @@ AM_PROG_AR
 dnl ---------------------------------------------------------------------
 dnl Base CFLAGS
 dnl ---------------------------------------------------------------------
-AM_CFLAGS="-Wall -Wextra -Wparentheses -Winline -pedantic  -Wunreachable-code"
+AM_CFLAGS="-Wall -Wextra -Wparentheses -Winline -pedantic -Wno-overlength-strings -Wunreachable-code"
 
 dnl ---------------------------------------------------------------------
 dnl Enable source code coverage reporting for GCC
