@@ -22,6 +22,7 @@ flags = [
     '-Winline',
     '-Wunreachable-code',
     '-Werror=missing-prototypes',
+    '-Wno-overlength-strings',
     '-Wno-inline' # A bit too noisy with Bison…
 ]
 foreach f : flags
