@@ -217,13 +217,13 @@ static int lev_sort(const void *p1, const void *p2, void *arg) {
 /**
  * Stores a screenshot of Rofi at that point in time.
  */
-void rofi_capture_screenshot(void) {
-  const char *outp = g_getenv("ROFI_PNG_OUTPUT");
-  if (CacheState.edit_surf == NULL) {
-    // Nothing to store.
-    g_warning("There is no rofi surface to store");
+void rofi_capture_screenshot() {
+  RofiViewState *state = current_active_menu;
+  if (state == NULL || state->main_window == NULL) {
+    g_warning("Nothing to screenshot.");
     return;
   }
+  const char *outp = g_getenv("ROFI_PNG_OUTPUT");
   const char *xdg_pict_dir = g_get_user_special_dir(G_USER_DIRECTORY_PICTURES);
   if (outp == NULL && xdg_pict_dir == NULL) {
     g_warning("XDG user picture directory or ROFI_PNG_OUTPUT is not set. "
@@ -254,12 +254,30 @@ void rofi_capture_screenshot(void) {
     fpath = g_strdup(outp);
   }
   fprintf(stderr, color_green "Storing screenshot %s\n" color_reset, fpath);
-  cairo_status_t status =
-      cairo_surface_write_to_png(CacheState.edit_surf, fpath);
+  cairo_surface_t *surf = cairo_image_surface_create(
+      CAIRO_FORMAT_ARGB32, state->width, state->height);
+  cairo_status_t status = cairo_surface_status(surf);
   if (status != CAIRO_STATUS_SUCCESS) {
     g_warning("Failed to produce screenshot '%s', got error: '%s'", fpath,
               cairo_status_to_string(status));
+  } else {
+    cairo_t *draw = cairo_create(surf);
+    status = cairo_status(draw);
+    if (status != CAIRO_STATUS_SUCCESS) {
+      g_warning("Failed to produce screenshot '%s', got error: '%s'", fpath,
+                cairo_status_to_string(status));
+    } else {
+      widget_draw(WIDGET(state->main_window), draw);
+      status = cairo_surface_write_to_png(surf, fpath);
+      if (status != CAIRO_STATUS_SUCCESS) {
+        g_warning("Failed to produce screenshot '%s', got error: '%s'", fpath,
+                  cairo_status_to_string(status));
+      }
+    }
+    cairo_destroy(draw);
   }
+  // Cleanup
+  cairo_surface_destroy(surf);
   g_free(fpath);
   g_free(filename);
   g_free(timestmp);
