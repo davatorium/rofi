@@ -1010,6 +1010,7 @@ static gboolean drun_read_cache(DRunModePrivateData *pd,
     drun_read_stringv(fd, &(entry->keywords));
 
     drun_read_string(fd, &(entry->comment));
+    drun_read_string(fd, &(entry->url));
     int32_t type = 0;
     drun_read_integer(fd, &(type));
     entry->type = type;
