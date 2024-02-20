@@ -284,6 +284,10 @@ static unsigned int scroll_per_page(listview *lv) {
         (lv->max_elements > 0) ? (lv->selected / lv->max_elements) : 0;
     offset = page * lv->max_elements;
     if (page != lv->cur_page) {
+
+      rofi_view_workers_finalize();
+      rofi_view_workers_initialize();
+
       lv->cur_page = page;
       lv->rchanged = TRUE;
     }
