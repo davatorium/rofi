@@ -89,6 +89,7 @@ typedef struct {
   int hsize;
   cairo_surface_t *surface;
   gboolean query_done;
+  gboolean query_started;
 
   IconFetcherNameEntry *entry;
 } IconFetcherEntry;
@@ -527,6 +528,8 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   const gchar *icon_path;
   gchar *icon_path_ = NULL;
 
+  sentry->query_started = TRUE;
+
   if (g_str_has_prefix(sentry->entry->name, "thumbnail://")) {
     // remove uri thumbnail prefix from entry name
     gchar *entry_name = &sentry->entry->name[12];
@@ -737,6 +740,9 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
        iter = g_list_next(iter)) {
     sentry = iter->data;
     if (sentry->wsize == wsize && sentry->hsize == hsize) {
+      if (!sentry->query_started) {
+        g_thread_pool_push(tpool, sentry, NULL);
+      }
       return sentry->uid;
     }
   }
@@ -748,6 +754,7 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
   sentry->hsize = hsize;
   sentry->entry = entry;
   sentry->query_done = FALSE;
+  sentry->query_started = FALSE;
   sentry->surface = NULL;
 
   entry->sizes = g_list_prepend(entry->sizes, sentry);
@@ -775,6 +782,9 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
        iter = g_list_next(iter)) {
     sentry = iter->data;
     if (sentry->wsize == size && sentry->hsize == size) {
+      if (!sentry->query_started) {
+        g_thread_pool_push(tpool, sentry, NULL);
+      }
       return sentry->uid;
     }
   }
@@ -785,6 +795,8 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
   sentry->wsize = size;
   sentry->hsize = size;
   sentry->entry = entry;
+  sentry->query_done = FALSE;
+  sentry->query_started = FALSE;
   sentry->surface = NULL;
 
   entry->sizes = g_list_prepend(entry->sizes, sentry);
