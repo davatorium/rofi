@@ -2664,7 +2664,8 @@ void rofi_view_workers_initialize(void) {
 }
 void rofi_view_workers_finalize(void) {
   if (tpool) {
-    g_thread_pool_free(tpool, TRUE, TRUE);
+    // Discard all unprocessed jobs and don't wait for current jobs in execution
+    g_thread_pool_free(tpool, TRUE, FALSE);
     tpool = NULL;
   }
 }
