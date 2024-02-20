@@ -715,9 +715,6 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
   if (dr->icon_name == NULL) {
     return NULL;
   }
-  if (dr->icon_fetch_uid > 0 && dr->icon_fetch_size == height) {
-    return rofi_icon_fetcher_get(dr->icon_fetch_uid);
-  }
   uint32_t uid = dr->icon_fetch_uid =
       rofi_icon_fetcher_query(dr->icon_name, height);
   dr->icon_fetch_size = height;
