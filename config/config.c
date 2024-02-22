@@ -50,13 +50,13 @@ Settings config = {
     .terminal_emulator = "rofi-sensible-terminal",
     .ssh_client = "ssh",
     /** Command when executing ssh. */
-    .ssh_command = "{terminal} -e '{ssh-client}' '{host}' [-p {port}]",
+    .ssh_command = "{terminal} -e {ssh-client} {host} [-p {port}]",
     /** Command when running */
-    .run_command = "'{cmd}'",
+    .run_command = "{cmd}",
     /** Command used to list executable commands. empty -> internal */
     .run_list_command = "",
     /** Command executed when running application in terminal */
-    .run_shell_command = "{terminal} -e '{cmd}'",
+    .run_shell_command = "{terminal} -e {cmd}",
     /** Command executed on accep-entry-custom for window modus */
     .window_command = "wmctrl -i -R {window}",
     /** No default icon theme, we search Adwaita and gnome as fallback */

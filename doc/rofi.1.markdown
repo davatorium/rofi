@@ -580,7 +580,7 @@ The pattern *{host}* is replaced by the selected ssh entry.
 
 Pattern: *{ssh-client}*
 
-Default: *{terminal} -e '{ssh-client}' '{host}' [-p {port}]*
+Default: *{terminal} -e {ssh-client} {host}*
 
 `-parse-hosts`
 
@@ -602,7 +602,7 @@ Default: *enabled*
 Set command (*{cmd}*) to execute when running an application.
 See *PATTERN*.
 
-Default: *'{cmd}'*
+Default: *{cmd}*
 
 Example to run applications in a dedicated cgroup with systemd. Requires a
 shell to escape and interpolate the unit name correctly.
@@ -616,7 +616,7 @@ shell to escape and interpolate the unit name correctly.
 Set command to execute when running an application in a shell.
 See *PATTERN*.
 
-Default: *{terminal} -e '{cmd}'*
+Default: *{terminal} -e {cmd}*
 
 `-run-list-command` *cmd*
 
