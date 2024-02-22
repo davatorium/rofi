@@ -444,12 +444,17 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
                                    &path);
       if (retv == MODE_EXIT) {
         if (path == NULL) {
-          exec_cmd(rmpd->cmd_list[rmpd->selected_line].entry, run_in_term);
-        } else {
-          char *arg = g_strdup_printf(
-              "%s '%s'", rmpd->cmd_list[rmpd->selected_line].entry, path);
+          char *arg = g_shell_quote(rmpd->cmd_list[rmpd->selected_line].entry);
           exec_cmd(arg, run_in_term);
           g_free(arg);
+        } else {
+          char *earg = g_shell_quote(rmpd->cmd_list[rmpd->selected_line].entry);
+          char *epath = g_shell_quote(path);
+          char *arg = g_strdup_printf("%s %s", earg, epath);
+          exec_cmd(arg, run_in_term);
+          g_free(arg);
+          g_free(earg);
+          g_free(epath);
         }
       }
       g_free(path);
@@ -458,9 +463,11 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
   }
 
   if ((mretv & MENU_OK) && rmpd->cmd_list[selected_line].entry != NULL) {
-    if (!exec_cmd(rmpd->cmd_list[selected_line].entry, run_in_term)) {
+    char *earg = g_shell_quote(rmpd->cmd_list[selected_line].entry);
+    if (!exec_cmd(earg, run_in_term)) {
       retv = RELOAD_DIALOG;
     }
+    g_free(earg);
   } else if ((mretv & MENU_CUSTOM_INPUT) && *input != NULL &&
              *input[0] != '\0') {
     if (!exec_cmd(*input, run_in_term)) {
