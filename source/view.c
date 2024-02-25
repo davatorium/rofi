@@ -215,7 +215,7 @@ static int lev_sort(const void *p1, const void *p2, void *arg) {
 /**
  * Stores a screenshot of Rofi at that point in time.
  */
-void rofi_capture_screenshot() {
+void rofi_capture_screenshot(void) {
   RofiViewState *state = current_active_menu;
   if (state == NULL || state->main_window == NULL) {
     g_warning("Nothing to screenshot.");
@@ -1597,7 +1597,7 @@ void rofi_view_finalize(RofiViewState *state) {
  * This function should be called when the input of the entry is changed.
  * TODO: Evaluate if this needs to be a 'signal' on textbox?
  */
-static void rofi_view_input_changed() {
+static void rofi_view_input_changed(void) {
   rofi_view_take_action("inputchange");
 
   RofiViewState *state = current_active_menu;
@@ -2591,7 +2591,7 @@ void rofi_view_hide(void) {
   }
 }
 
-void rofi_view_cleanup() {
+void rofi_view_cleanup(void) {
   // Clear clipboard data.
   xcb_stuff_set_clipboard(NULL);
   g_debug("Cleanup.");

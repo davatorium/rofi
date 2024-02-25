@@ -29,7 +29,6 @@
 #define G_LOG_DOMAIN "Theme"
 
 #include "config.h"
-#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -598,11 +597,6 @@ void rofi_theme_print(ThemeWidget *widget) {
     rofi_theme_print_index(widget, 0);
   }
 }
-
-/**
- * Main lex parser.
- */
-int yyparse();
 
 /**
  * Destroy the internal of lex parser.

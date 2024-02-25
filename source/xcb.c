@@ -558,7 +558,7 @@ static int x11_is_extension_present(const char *extension) {
   return present;
 }
 
-static void x11_build_monitor_layout_xinerama() {
+static void x11_build_monitor_layout_xinerama(void) {
   xcb_xinerama_query_screens_cookie_t screens_cookie =
       xcb_xinerama_query_screens_unchecked(xcb->connection);
 
@@ -589,7 +589,7 @@ static void x11_build_monitor_layout_xinerama() {
   free(screens_reply);
 }
 
-static void x11_build_monitor_layout() {
+static void x11_build_monitor_layout(void) {
   if (xcb->monitors) {
     return;
   }
