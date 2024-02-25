@@ -161,7 +161,7 @@ winlist *cache_client = NULL;
  *
  * @returns A new window list.
  */
-static winlist *winlist_new() {
+static winlist *winlist_new(void) {
   winlist *l = g_malloc(sizeof(winlist));
   l->len = 0;
   l->array = g_malloc_n(WINLIST + 1, sizeof(xcb_window_t));
@@ -470,7 +470,7 @@ static int window_match(const Mode *sw, rofi_int_matcher **tokens,
   return match;
 }
 
-static void window_mode_parse_fields() {
+static void window_mode_parse_fields(void) {
   window_matching_fields_parsed = TRUE;
   char *savept = NULL;
   // Make a copy, as strtok will modify it.
@@ -971,7 +971,7 @@ static cairo_user_data_key_t data_key;
 static cairo_surface_t *draw_surface_from_data(uint32_t width, uint32_t height,
                                                uint32_t const *const data) {
   // limit surface size.
-  if ( width >= 65536 || height >= 65536){
+  if (width >= 65536 || height >= 65536) {
     return NULL;
   }
   uint32_t len = width * height;
@@ -1138,8 +1138,8 @@ Mode window_mode = {.name = "window",
                     ._get_completion = NULL,
                     ._preprocess_input = NULL,
                     .private_data = NULL,
-		    .free = NULL,
-		    .type  = MODE_TYPE_SWITCHER };
+                    .free = NULL,
+                    .type = MODE_TYPE_SWITCHER};
 Mode window_mode_cd = {.name = "windowcd",
                        .cfg_name_key = "display-windowcd",
                        ._init = window_mode_init_cd,
@@ -1153,6 +1153,6 @@ Mode window_mode_cd = {.name = "windowcd",
                        ._preprocess_input = NULL,
                        .private_data = NULL,
                        .free = NULL,
-		       .type  = MODE_TYPE_SWITCHER };
+                       .type = MODE_TYPE_SWITCHER};
 
 #endif // WINDOW_MODE
