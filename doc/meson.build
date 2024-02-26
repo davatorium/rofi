@@ -25,8 +25,8 @@ endif
 doxy_conf = configuration_data()
 doxy_conf.set('PACKAGE', meson.project_name())
 doxy_conf.set('VERSION', meson.project_version())
-doxy_conf.set('abs_builddir', join_paths(meson.build_root(), meson.current_build_dir()))
-doxy_conf.set('abs_top_srcdir', meson.source_root())
+doxy_conf.set('abs_builddir', join_paths(meson.project_build_root(), meson.current_build_dir()))
+doxy_conf.set('abs_top_srcdir', meson.project_source_root())
 
 doxyfile = configure_file(
     input: 'rofi.doxy.in',
