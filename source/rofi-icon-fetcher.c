@@ -204,8 +204,8 @@ static gboolean exec_thumbnailer_command(gchar **command_args) {
   gint wait_status;
   GError *error = NULL;
 
-  gboolean spawned = g_spawn_sync("/usr/bin", command_args,
-    NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL, &wait_status, &error);
+  gboolean spawned = g_spawn_sync(NULL, command_args,
+    NULL, G_SPAWN_DEFAULT | G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, &wait_status, &error);
 
   if (spawned) {
     return g_spawn_check_exit_status(wait_status, NULL);
