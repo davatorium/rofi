@@ -672,11 +672,11 @@ t_property_scale_type
 
 t_color_list
 : t_property_color {
-    $$ = g_list_append ( NULL, g_memdup ( (gconstpointer)&($1), sizeof ( ThemeColor )));
+    $$ = g_list_append ( NULL, g_memdup2 ( (gconstpointer)&($1), sizeof ( ThemeColor )));
 }
 | t_color_list T_COMMA t_property_color {
 
-    $$ = g_list_append ($1, g_memdup ( (gconstpointer)&($3), sizeof ( ThemeColor )));
+    $$ = g_list_append ($1, g_memdup2 ( (gconstpointer)&($3), sizeof ( ThemeColor )));
 }
 ;
 

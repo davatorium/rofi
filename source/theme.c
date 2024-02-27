@@ -168,7 +168,7 @@ Property *rofi_theme_property_copy(const Property *p,
     for (GList *l = g_list_first(p->value.image.colors); l;
          l = g_list_next(l)) {
       retv->value.image.colors = g_list_append(
-          retv->value.image.colors, g_memdup(l->data, sizeof(ThemeColor)));
+          retv->value.image.colors, g_memdup2(l->data, sizeof(ThemeColor)));
     }
     break;
   }
