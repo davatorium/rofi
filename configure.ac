@@ -139,7 +139,7 @@ dnl ---------------------------------------------------------------------
 dnl PKG_CONFIG based dependencies
 dnl ---------------------------------------------------------------------
 glib_min_major="2"
-glib_min_minor="40"
+glib_min_minor="72"
 glib_min_version="${glib_min_major}.${glib_min_minor}"
 NK_INIT([bindings xdg-theme])
 PKG_CHECK_MODULES([glib],     [glib-2.0 >= ${glib_min_version} gio-unix-2.0 gmodule-2.0])

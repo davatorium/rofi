@@ -43,7 +43,7 @@ desktop_install_dir = join_paths(get_option('datadir'), 'applications')
 icondir    = join_paths(get_option('datadir'), 'icons','hicolor', 'scalable', 'apps')
 
 glib_min_major=2
-glib_min_minor=40
+glib_min_minor=72
 glib_min_version='@0@.@1@'.format(glib_min_major, glib_min_minor)
 plugins_deps = [
     dependency('glib-2.0', version: '>= @0@'.format(glib_min_version)),
