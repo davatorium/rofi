@@ -91,8 +91,11 @@ typedef struct {
 /**
  * @param cmd The cmd to execute
  * @param run_in_term Indicate if command should be run in a terminal
+ * @param orig The cmd to store in history
  *
  * Execute command and add to history.
+ * Exact entries should be stored unquoted any custom or with filename
+ * should be saved in history quoted.
  */
 static gboolean exec_cmd(const char *cmd, int run_in_term, const char *orig) {
   GError *error = NULL;
