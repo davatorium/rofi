@@ -1,6 +1,6 @@
 project('rofi', 'c',
     version: '1.7.5-dev',
-    meson_version: '>=0.47.0',
+    meson_version: '>=0.59.0',
     license: [ 'MIT' ],
     default_options: [
         'c_std=c99',
@@ -11,8 +11,8 @@ project('rofi', 'c',
 c_compiler = meson.get_compiler('c')
 
 add_project_arguments(
-    '-I@0@'.format(meson.build_root()),
-    '-I@0@'.format(join_paths(meson.source_root(), 'include')),
+    '-I@0@'.format(meson.project_build_root()),
+    '-I@0@'.format(join_paths(meson.project_source_root(), 'include')),
     '-D_DEFAULT_SOURCE=1',
     language: 'c'
 )
@@ -130,7 +130,7 @@ config_h = configure_file(output: 'config.h', configuration: header_conf)
 
 nk_options = [
     'bindings=true',
-    'git-work-tree=@0@'.format(meson.source_root()),
+    'git-work-tree=@0@'.format(meson.project_source_root()),
 ]
 nk = subproject('libnkutils', default_options: nk_options)
 nk_subproject_options = nk.get_variable('nk_options')
@@ -539,7 +539,7 @@ if cppcheck.found()
             '--enable=all',
             '-Uerror_dialog',
             '--inconclusive',
-            '-I@0@'.format(join_paths(meson.source_root(), 'include')),
+            '-I@0@'.format(join_paths(meson.project_source_root(), 'include')),
             rofi_sources
         ],
     )
