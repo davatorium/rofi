@@ -94,7 +94,7 @@ typedef struct {
  *
  * Execute command and add to history.
  */
-static gboolean exec_cmd(const char *cmd, int run_in_term) {
+static gboolean exec_cmd(const char *cmd, int run_in_term, const char *orig) {
   GError *error = NULL;
   if (!cmd || !cmd[0]) {
     return FALSE;
@@ -118,12 +118,12 @@ static gboolean exec_cmd(const char *cmd, int run_in_term) {
      * It is allowed to be a bit slower.
      */
 
-    history_set(path, cmd);
+    history_set(path, orig);
     g_free(path);
     g_free(lf_cmd);
     return TRUE;
   }
-  history_remove(path, cmd);
+  history_remove(path, orig);
   g_free(path);
   g_free(lf_cmd);
   return FALSE;
@@ -445,13 +445,13 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
       if (retv == MODE_EXIT) {
         if (path == NULL) {
           char *arg = g_shell_quote(rmpd->cmd_list[rmpd->selected_line].entry);
-          exec_cmd(arg, run_in_term);
+          exec_cmd(arg, run_in_term, rmpd->cmd_list[rmpd->selected_line].entry);
           g_free(arg);
         } else {
           char *earg = g_shell_quote(rmpd->cmd_list[rmpd->selected_line].entry);
           char *epath = g_shell_quote(path);
           char *arg = g_strdup_printf("%s %s", earg, epath);
-          exec_cmd(arg, run_in_term);
+          exec_cmd(arg, run_in_term, arg);
           g_free(arg);
           g_free(earg);
           g_free(epath);
@@ -464,13 +464,13 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
 
   if ((mretv & MENU_OK) && rmpd->cmd_list[selected_line].entry != NULL) {
     char *earg = g_shell_quote(rmpd->cmd_list[selected_line].entry);
-    if (!exec_cmd(earg, run_in_term)) {
+    if (!exec_cmd(earg, run_in_term, rmpd->cmd_list[selected_line].entry)) {
       retv = RELOAD_DIALOG;
     }
     g_free(earg);
   } else if ((mretv & MENU_CUSTOM_INPUT) && *input != NULL &&
              *input[0] != '\0') {
-    if (!exec_cmd(*input, run_in_term)) {
+    if (!exec_cmd(*input, run_in_term, *input)) {
       retv = RELOAD_DIALOG;
     }
   } else if ((mretv & MENU_ENTRY_DELETE) &&
