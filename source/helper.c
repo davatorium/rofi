@@ -816,7 +816,7 @@ char *rofi_force_utf8(const gchar *data, ssize_t length) {
   GString *string;
 
   if (g_utf8_validate(data, length, &end)) {
-    return g_memdup(data, length + 1);
+    return g_memdup2(data, length + 1);
   }
   string = g_string_sized_new(length + 16);
 
