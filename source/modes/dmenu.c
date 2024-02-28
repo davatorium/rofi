@@ -139,6 +139,7 @@ static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
   (*block)->values[(*block)->length].meta = NULL;
   (*block)->values[(*block)->length].info = NULL;
   (*block)->values[(*block)->length].nonselectable = FALSE;
+  (*block)->values[(*block)->length].permanent = FALSE;
   char *end = data;
   while (end < data + len && *end != '\0') {
     end++;
@@ -668,6 +669,11 @@ static int dmenu_token_match(const Mode *sw, rofi_int_matcher **tokens,
 
   /** Strip out the markup when matching. */
   char *esc = NULL;
+  if (rmpd->cmd_list[index].permanent == TRUE) {
+    // Always match
+    return 1;
+  }
+
   if (rmpd->do_markup) {
     pango_parse_markup(rmpd->cmd_list[index].entry, -1, 0, NULL, &esc, NULL,
                        NULL);

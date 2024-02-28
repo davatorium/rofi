@@ -101,6 +101,9 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
     } else if (strcasecmp(key, "nonselectable") == 0) {
       entry->nonselectable = g_ascii_strcasecmp(value, "true") == 0;
       g_free(value);
+    } else if (strcasecmp(key, "permanent") == 0) {
+      entry->permanent = g_ascii_strcasecmp(value, "true") == 0;
+      g_free(value);
     } else if (strcasecmp(key, "urgent") == 0) {
       entry->urgent = g_ascii_strcasecmp(value, "true") == 0;
       g_free(value);
@@ -252,6 +255,7 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
             retv[(*length)].icon_fetch_uid = 0;
             retv[(*length)].icon_fetch_size = 0;
             retv[(*length)].nonselectable = FALSE;
+            retv[(*length)].permanent = FALSE;
             if (buf_length > 0 && (read_length > (ssize_t)buf_length)) {
               dmenuscript_parse_entry_extras(sw, &(retv[(*length)]),
                                              buffer + buf_length,
@@ -454,6 +458,12 @@ static int script_token_match(const Mode *sw, rofi_int_matcher **tokens,
   ScriptModePrivateData *rmpd = sw->private_data;
   /** Strip out the markup when matching. */
   char *esc = NULL;
+
+  if (rmpd->cmd_list[index].permanent == TRUE) {
+    // Always match
+    return 1;
+  }
+
   if (rmpd->do_markup) {
     pango_parse_markup(rmpd->cmd_list[index].entry, -1, 0, NULL, &esc, NULL,
                        NULL);
