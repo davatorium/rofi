@@ -176,7 +176,7 @@ static winlist *winlist_new(void) {
  *
  * Add one entry. If Full, extend with WINLIST entries.
  *
- * @returns 0 if failed, 1 is successful.
+ * @returns -1 if failed, 0 or higher  is successful.
  */
 static int winlist_append(winlist *l, xcb_window_t w, client *d) {
   if (l->len > 0 && !(l->len % WINLIST)) {
@@ -187,7 +187,7 @@ static int winlist_append(winlist *l, xcb_window_t w, client *d) {
   // Make clang-check happy.
   // TODO: make clang-check clear this should never be 0.
   if (l->data == NULL || l->array == NULL) {
-    return 0;
+    return -1;
   }
 
   l->data[l->len] = d;
@@ -386,7 +386,13 @@ static client *window_client(WindowModePrivateData *pd, xcb_window_t win) {
     c->hint_flags = r.flags;
   }
 
-  winlist_append(cache_client, c->window, c);
+  idx = winlist_append(cache_client, c->window, c);
+  // Should never happen.
+  if (idx < 0) {
+    client_free(c);
+    g_free(c);
+    c = NULL;
+  }
   g_free(attr);
   return c;
 }
