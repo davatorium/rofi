@@ -1460,6 +1460,7 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
       states[i].plen = plen;
       states[i].pattern = pattern;
       states[i].st.callback = filter_elements;
+      states[i].st.free = NULL;
       states[i].st.priority = G_PRIORITY_HIGH;
       if (i > 0) {
         g_thread_pool_push(tpool, &states[i], NULL);
@@ -2650,6 +2651,15 @@ static int rofi_thread_workers_sort(gconstpointer a, gconstpointer b,
   return tsa->priority - tsb->priority;
 }
 
+static void rofi_thread_pool_state_free(gpointer data) {
+  if (data) {
+    thread_state *ts = (thread_state *)data;
+    if (ts->free) {
+      ts->free(data);
+    }
+  }
+}
+
 void rofi_view_workers_initialize(void) {
   TICK_N("Setup Threadpool, start");
   if (config.threads == 0) {
@@ -2661,8 +2671,9 @@ void rofi_view_workers_initialize(void) {
   }
   // Create thread pool
   GError *error = NULL;
-  tpool = g_thread_pool_new(rofi_view_call_thread, NULL, config.threads, FALSE,
-                            &error);
+  tpool = g_thread_pool_new_full(rofi_view_call_thread, NULL,
+                                 rofi_thread_pool_state_free, config.threads,
+                                 FALSE, &error);
   if (error == NULL) {
     // Idle threads should stick around for a max of 60 seconds.
     g_thread_pool_set_max_idle_time(60000);
