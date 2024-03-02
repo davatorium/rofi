@@ -93,6 +93,10 @@ static void rofi_icon_fetch_entry_free(gpointer data);
  */
 IconFetcher *rofi_icon_fetcher_data = NULL;
 
+static void rofi_icon_fetch_thread_pool_entry_remove(gpointer data) {
+  IconFetcherNameEntry *entry = (IconFetcherNameEntry *)data;
+  // Mark it in a way it should be re-fetched on next query?
+}
 static void rofi_icon_fetch_entry_free(gpointer data) {
   IconFetcherNameEntry *entry = (IconFetcherNameEntry *)data;
 
@@ -413,7 +417,7 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
 
   // Push into fetching queue.
   sentry->state.callback = rofi_icon_fetcher_worker;
-  sentry->state.free = rofi_icon_fetch_entry_free;
+  sentry->state.free = rofi_icon_fetch_thread_pool_entry_remove;
   sentry->state.priority = G_PRIORITY_LOW;
   g_thread_pool_push(tpool, sentry, NULL);
 
