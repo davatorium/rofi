@@ -1,4 +1,4 @@
-# ROFI-DMENU 5 rofi-dmenu
+% rofi-dmenu(5) rofi | File Formats Manual
 
 ## NAME
 

@@ -1,4 +1,4 @@
-# ROFI-THEME 5 rofi-theme
+% rofi-theme(5) rofi | File Formats Manual
 
 ## NAME
 

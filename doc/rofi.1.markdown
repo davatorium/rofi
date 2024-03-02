@@ -1,4 +1,4 @@
-# ROFI 1 rofi
+% rofi(1) rofi | General Commands Manual
 
 ## NAME
 

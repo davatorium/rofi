@@ -1,4 +1,4 @@
-# ROFI-KEYS 5 rofi-keys
+% rofi-keys(5) rofi | File Formats Manual
 
 ## NAME
 

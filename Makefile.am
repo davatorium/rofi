@@ -258,15 +258,15 @@ EXTRA_DIST+=\
 # Indent
 ##
 
-update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown ${top_srcdir}/doc/rofi-sensible-terminal.1.markdown ${top_srcdir}/doc/rofi-keys.5.markdown ${top_srcdir}/doc/rofi-dmenu.5.markdown $(top_srcdir)/doc/rofi-debugging.5.markdown
-	go-md2man -in $(top_srcdir)/doc/rofi.1.markdown -out $(top_srcdir)/doc/rofi.1
-	go-md2man -in $(top_srcdir)/doc/rofi-theme-selector.1.markdown -out $(top_srcdir)/doc/rofi-theme-selector.1
-	go-md2man -in $(top_srcdir)/doc/rofi-theme.5.markdown -out $(top_srcdir)/doc/rofi-theme.5
-	go-md2man -in $(top_srcdir)/doc/rofi-debugging.5.markdown -out $(top_srcdir)/doc/rofi-debugging.5
-	go-md2man -in $(top_srcdir)/doc/rofi-keys.5.markdown -out $(top_srcdir)/doc/rofi-keys.5
-	go-md2man -in $(top_srcdir)/doc/rofi-script.5.markdown -out $(top_srcdir)/doc/rofi-script.5
-	go-md2man -in $(top_srcdir)/doc/rofi-dmenu.5.markdown -out $(top_srcdir)/doc/rofi-dmenu.5
-	go-md2man -in $(top_srcdir)/doc/rofi-sensible-terminal.1.markdown -out $(top_srcdir)/doc/rofi-sensible-terminal.1
+generate-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown ${top_srcdir}/doc/rofi-sensible-terminal.1.markdown ${top_srcdir}/doc/rofi-keys.5.markdown ${top_srcdir}/doc/rofi-dmenu.5.markdown $(top_srcdir)/doc/rofi-debugging.5.markdown
+	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi.1.markdown -o $(top_srcdir)/doc/rofi.1
+	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-theme-selector.1.markdown -o $(top_srcdir)/doc/rofi-theme-selector.1
+	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-theme.5.markdown -o $(top_srcdir)/doc/rofi-theme.5
+	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-debugging.5.markdown -o $(top_srcdir)/doc/rofi-debugging.5
+	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-keys.5.markdown -o $(top_srcdir)/doc/rofi-keys.5
+	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-script.5.markdown -o $(top_srcdir)/doc/rofi-script.5
+	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-dmenu.5.markdown -o $(top_srcdir)/doc/rofi-dmenu.5
+	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-sensible-terminal.1.markdown -o $(top_srcdir)/doc/rofi-sensible-terminal.1
 
 ##
 # Rofi test program

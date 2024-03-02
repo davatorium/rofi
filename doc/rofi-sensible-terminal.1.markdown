@@ -1,4 +1,4 @@
-# rofi-sensible-terminal 1 rofi-sensible-terminal
+% rofi-sensible-terminal(1) rofi | General Commands Manual
 
 ## NAME
 
