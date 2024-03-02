@@ -96,6 +96,7 @@ static int box_get_desired_height(widget *wid, const int width) {
   box *b = (box *)wid;
   int spacing = distance_get_pixel(b->spacing, b->type);
   int height = 0;
+  int nw = width - widget_padding_get_padding_width(wid);
   if (b->type == ROFI_ORIENTATION_VERTICAL) {
     int active_widgets = 0;
     for (GList *iter = g_list_first(b->children); iter != NULL;
@@ -105,7 +106,7 @@ static int box_get_desired_height(widget *wid, const int width) {
         continue;
       }
       active_widgets++;
-      height += widget_get_desired_height(child, width);
+      height += widget_get_desired_height(child, nw);
     }
     if (active_widgets > 0) {
       height += (active_widgets - 1) * spacing;
@@ -117,7 +118,7 @@ static int box_get_desired_height(widget *wid, const int width) {
       if (!child->enabled) {
         continue;
       }
-      height = MAX(widget_get_desired_height(child, width), height);
+      height = MAX(widget_get_desired_height(child, nw), height);
     }
   }
   height += widget_padding_get_padding_height(wid);

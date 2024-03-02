@@ -29,7 +29,6 @@
 #define G_LOG_DOMAIN "View"
 
 #include "config.h"
-#include <errno.h>
 #include <locale.h>
 #include <signal.h>
 #include <stdint.h>
@@ -64,7 +63,6 @@
 #include "mode.h"
 #include "modes/modes.h"
 #include "xcb-internal.h"
-#include "xrmoptions.h"
 
 #include "view-internal.h"
 #include "view.h"
@@ -218,12 +216,12 @@ static int lev_sort(const void *p1, const void *p2, void *arg) {
  * Stores a screenshot of Rofi at that point in time.
  */
 void rofi_capture_screenshot(void) {
-  const char *outp = g_getenv("ROFI_PNG_OUTPUT");
-  if (CacheState.edit_surf == NULL) {
-    // Nothing to store.
-    g_warning("There is no rofi surface to store");
+  RofiViewState *state = current_active_menu;
+  if (state == NULL || state->main_window == NULL) {
+    g_warning("Nothing to screenshot.");
     return;
   }
+  const char *outp = g_getenv("ROFI_PNG_OUTPUT");
   const char *xdg_pict_dir = g_get_user_special_dir(G_USER_DIRECTORY_PICTURES);
   if (outp == NULL && xdg_pict_dir == NULL) {
     g_warning("XDG user picture directory or ROFI_PNG_OUTPUT is not set. "
@@ -254,12 +252,30 @@ void rofi_capture_screenshot(void) {
     fpath = g_strdup(outp);
   }
   fprintf(stderr, color_green "Storing screenshot %s\n" color_reset, fpath);
-  cairo_status_t status =
-      cairo_surface_write_to_png(CacheState.edit_surf, fpath);
+  cairo_surface_t *surf = cairo_image_surface_create(
+      CAIRO_FORMAT_ARGB32, state->width, state->height);
+  cairo_status_t status = cairo_surface_status(surf);
   if (status != CAIRO_STATUS_SUCCESS) {
     g_warning("Failed to produce screenshot '%s', got error: '%s'", fpath,
               cairo_status_to_string(status));
+  } else {
+    cairo_t *draw = cairo_create(surf);
+    status = cairo_status(draw);
+    if (status != CAIRO_STATUS_SUCCESS) {
+      g_warning("Failed to produce screenshot '%s', got error: '%s'", fpath,
+                cairo_status_to_string(status));
+    } else {
+      widget_draw(WIDGET(state->main_window), draw);
+      status = cairo_surface_write_to_png(surf, fpath);
+      if (status != CAIRO_STATUS_SUCCESS) {
+        g_warning("Failed to produce screenshot '%s', got error: '%s'", fpath,
+                  cairo_status_to_string(status));
+      }
+    }
+    cairo_destroy(draw);
   }
+  // Cleanup
+  cairo_surface_destroy(surf);
   g_free(fpath);
   g_free(filename);
   g_free(timestmp);
@@ -1444,6 +1460,7 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
       states[i].plen = plen;
       states[i].pattern = pattern;
       states[i].st.callback = filter_elements;
+      states[i].st.free = NULL;
       states[i].st.priority = G_PRIORITY_HIGH;
       if (i > 0) {
         g_thread_pool_push(tpool, &states[i], NULL);
@@ -1581,7 +1598,7 @@ void rofi_view_finalize(RofiViewState *state) {
  * This function should be called when the input of the entry is changed.
  * TODO: Evaluate if this needs to be a 'signal' on textbox?
  */
-static void rofi_view_input_changed() {
+static void rofi_view_input_changed(void) {
   rofi_view_take_action("inputchange");
 
   RofiViewState *state = current_active_menu;
@@ -2575,7 +2592,7 @@ void rofi_view_hide(void) {
   }
 }
 
-void rofi_view_cleanup() {
+void rofi_view_cleanup(void) {
   // Clear clipboard data.
   xcb_stuff_set_clipboard(NULL);
   g_debug("Cleanup.");
@@ -2626,12 +2643,21 @@ void rofi_view_cleanup() {
   input_history_save();
 }
 
-static int rofi_thread_workers_sort(gconstpointer a,gconstpointer b, gpointer data G_GNUC_UNUSED)
-{
+static int rofi_thread_workers_sort(gconstpointer a, gconstpointer b,
+                                    gpointer data G_GNUC_UNUSED) {
   thread_state *tsa = (thread_state *)a;
   thread_state *tsb = (thread_state *)b;
-  // lower number is lower priority..  a is sorted above is a > b. 
-  return tsa->priority-tsb->priority;
+  // lower number is lower priority..  a is sorted above is a > b.
+  return tsa->priority - tsb->priority;
+}
+
+static void rofi_thread_pool_state_free(gpointer data) {
+  if (data) {
+    thread_state *ts = (thread_state *)data;
+    if (ts->free) {
+      ts->free(data);
+    }
+  }
 }
 
 void rofi_view_workers_initialize(void) {
@@ -2645,8 +2671,9 @@ void rofi_view_workers_initialize(void) {
   }
   // Create thread pool
   GError *error = NULL;
-  tpool = g_thread_pool_new(rofi_view_call_thread, NULL, config.threads, FALSE,
-                            &error);
+  tpool = g_thread_pool_new_full(rofi_view_call_thread, NULL,
+                                 rofi_thread_pool_state_free, config.threads,
+                                 FALSE, &error);
   if (error == NULL) {
     // Idle threads should stick around for a max of 60 seconds.
     g_thread_pool_set_max_idle_time(60000);

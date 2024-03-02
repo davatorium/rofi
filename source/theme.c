@@ -29,7 +29,6 @@
 #define G_LOG_DOMAIN "Theme"
 
 #include "config.h"
-#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -169,7 +168,7 @@ Property *rofi_theme_property_copy(const Property *p,
     for (GList *l = g_list_first(p->value.image.colors); l;
          l = g_list_next(l)) {
       retv->value.image.colors = g_list_append(
-          retv->value.image.colors, g_memdup(l->data, sizeof(ThemeColor)));
+          retv->value.image.colors, g_memdup2(l->data, sizeof(ThemeColor)));
     }
     break;
   }
@@ -598,11 +597,6 @@ void rofi_theme_print(ThemeWidget *widget) {
     rofi_theme_print_index(widget, 0);
   }
 }
-
-/**
- * Main lex parser.
- */
-int yyparse();
 
 /**
  * Destroy the internal of lex parser.

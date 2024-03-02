@@ -42,7 +42,7 @@ You can also use [Meson](https://mesonbuild.com/) as an alternative.
 
 -   libcairo-xcb
 
--   libglib2.0 >= 2.68
+-   libglib2.0 >= 2.72
     - gmodule-2.0
     - gio-unix-2.0
 

@@ -1010,6 +1010,7 @@ static gboolean drun_read_cache(DRunModePrivateData *pd,
     drun_read_stringv(fd, &(entry->keywords));
 
     drun_read_string(fd, &(entry->comment));
+    drun_read_string(fd, &(entry->url));
     int32_t type = 0;
     drun_read_integer(fd, &(type));
     entry->type = type;
@@ -1081,7 +1082,7 @@ static void get_apps(DRunModePrivateData *pd) {
   g_free(cache_file);
 }
 
-static void drun_mode_parse_entry_fields() {
+static void drun_mode_parse_entry_fields(void) {
   char *savept = NULL;
   // Make a copy, as strtok will modify it.
   char *switcher_str = g_strdup(config.drun_match_fields);
@@ -1117,7 +1118,7 @@ static void drun_mode_parse_entry_fields() {
   g_free(switcher_str);
 }
 
-static void drun_mode_parse_display_format() {
+static void drun_mode_parse_display_format(void) {
   for (int i = 0; i < DRUN_MATCH_NUM_FIELDS; i++) {
     if (matching_entry_fields[i].enabled_display)
       continue;

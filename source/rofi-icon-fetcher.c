@@ -94,6 +94,8 @@ typedef struct {
   IconFetcherNameEntry *entry;
 } IconFetcherEntry;
 
+// Free method.
+static void rofi_icon_fetch_entry_free(gpointer data);
 /**
  * The icon fetcher internal state.
  */
@@ -709,7 +711,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
       icon_path, sentry->wsize, sentry->hsize, TRUE, &error);
   if (error != NULL) {
     g_warning("Failed to load image: |%s| %d %d %s (%p)", icon_path,
-              sentry->wsize, sentry->hsize, error->message, pb);
+              sentry->wsize, sentry->hsize, error->message, (void *)pb);
     g_error_free(error);
     if (pb) {
       g_object_unref(pb);
@@ -763,6 +765,7 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
 
   // Push into fetching queue.
   sentry->state.callback = rofi_icon_fetcher_worker;
+  sentry->state.free = rofi_icon_fetch_entry_free;
   sentry->state.priority = G_PRIORITY_LOW;
   g_thread_pool_push(tpool, sentry, NULL);
 

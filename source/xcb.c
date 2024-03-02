@@ -558,7 +558,7 @@ static int x11_is_extension_present(const char *extension) {
   return present;
 }
 
-static void x11_build_monitor_layout_xinerama() {
+static void x11_build_monitor_layout_xinerama(void) {
   xcb_xinerama_query_screens_cookie_t screens_cookie =
       xcb_xinerama_query_screens_unchecked(xcb->connection);
 
@@ -589,7 +589,7 @@ static void x11_build_monitor_layout_xinerama() {
   free(screens_reply);
 }
 
-static void x11_build_monitor_layout() {
+static void x11_build_monitor_layout(void) {
   if (xcb->monitors) {
     return;
   }
@@ -775,7 +775,7 @@ static int monitor_get_dimension(int monitor_id, workarea *mon) {
 // find the dimensions of the monitor displaying point x,y
 static void monitor_dimensions(int x, int y, workarea *mon) {
   if (mon == NULL) {
-    g_error("%s: mon == NULL", __FUNCTION__);
+    g_error("%s: mon == NULL", __func__);
     return;
   }
   memset(mon, 0, sizeof(workarea));
@@ -818,7 +818,7 @@ static int pointer_get(xcb_window_t root, int *x, int *y) {
 
 static int monitor_active_from_winid(xcb_drawable_t id, workarea *mon) {
   if (mon == NULL) {
-    g_error("%s: mon == NULL", __FUNCTION__);
+    g_error("%s: mon == NULL", __func__);
     return FALSE;
   }
   xcb_window_t root = xcb->screen->root;
@@ -851,7 +851,7 @@ static int monitor_active_from_id_focused(int mon_id, workarea *mon) {
   xcb_window_t active_window;
   xcb_get_property_cookie_t awc;
   if (mon == NULL) {
-    g_error("%s: mon == NULL", __FUNCTION__);
+    g_error("%s: mon == NULL", __func__);
     return retv;
   }
   awc = xcb_ewmh_get_active_window(&xcb->ewmh, xcb->screen_nbr);
@@ -920,7 +920,7 @@ static int monitor_active_from_id(int mon_id, workarea *mon) {
   xcb_window_t root = xcb->screen->root;
   int x, y;
   if (mon == NULL) {
-    g_error("%s: mon == NULL", __FUNCTION__);
+    g_error("%s: mon == NULL", __func__);
     return FALSE;
   }
   g_debug("Monitor id: %d", mon_id);
@@ -1000,7 +1000,7 @@ workarea mon_cache = {
 };
 int monitor_active(workarea *mon) {
   if (mon == NULL) {
-    g_error("%s: mon == NULL", __FUNCTION__);
+    g_error("%s: mon == NULL", __func__);
     return FALSE;
   }
   g_debug("Monitor active");

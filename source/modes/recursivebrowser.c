@@ -335,7 +335,7 @@ static unsigned int recursive_browser_mode_get_num_entries(const Mode *sw) {
   return pd->array_length;
 }
 
-static ModeMode recursive_browser_mode_result(Mode *sw, int mretv, char **input,
+static ModeMode recursive_browser_mode_result(Mode *sw, int mretv, G_GNUC_UNUSED char **input,
                                               unsigned int selected_line) {
   ModeMode retv = MODE_EXIT;
   FileBrowserModePrivateData *pd =

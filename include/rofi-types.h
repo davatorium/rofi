@@ -370,6 +370,7 @@ typedef struct rofi_int_matcher_t {
  */
 typedef struct _thread_state {
   void (*callback)(struct _thread_state *t, gpointer data);
+  void (*free)(void *);
   int priority;
 } thread_state;
 
