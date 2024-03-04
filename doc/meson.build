@@ -15,11 +15,12 @@ if pandoc.found()
         install_dest = join_paths(get_option('prefix'), get_option('mandir'), 'man' + section_number)
 
         man_targets += custom_target(f,
-            input: '.'.join([f, 'markdown']),
+            input: ['.'.join([f, 'markdown']), 'man_filter.lua'],
             output: f,
             command: [ 'pandoc', '--standalone', '--to=man',
+                '--lua-filter', '@INPUT1@',
                 '-f', 'markdown-tex_math_dollars',
-                '@INPUT@', '-o', '@OUTPUT@' ],
+                '@INPUT0@', '-o', '@OUTPUT@' ],
             install: true,
             install_dir: install_dest,
             build_by_default: true,

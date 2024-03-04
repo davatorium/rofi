@@ -1,4 +1,4 @@
-% rofi(1) rofi | General Commands Manual
+# rofi(1)
 
 ## NAME
 
@@ -312,7 +312,7 @@ launched.
 The time (in ms) boundary filter may take before switch from instant to delayed
 filter mode.
 
-  Default: 300
+Default: 300
 
 A fallback icon can be specified for each mode:
 
@@ -385,7 +385,7 @@ The format string for the `drun` dialog:
 
 Pango markup can be used to formatting the output.
 
-Default: {name} [<span weight='light' size='small'><i>({generic})</i></span>]
+Default: `{name} [<span weight='light' size='small'><i>({generic})</i></span>]`
 
 Note: Only fields enabled in `-drun-match-fields` can be used in the format
 string.
@@ -419,8 +419,7 @@ Default: '-'
 
 ### Filtered menu sort
 
-`-sort` to enable  
-`-no-sort` to disable
+`-[no]-sort`
 
 Enable, disable sort for filtered menu.
 This setting can be changed at runtime (see `-kb-toggle-sort`).
@@ -491,10 +490,7 @@ Default: *1*
 
 When one entry is left, automatically select it.
 
-`-m` *num*  
-`-m` *name*  
-`-monitor` *num*  
-`-monitor` *name*  
+`-m` *num*,  `-m` *name*, `-monitor` *num*, `-monitor` *name*
 
 Select monitor to display **rofi** on. It accepts as input: *primary* (if
 primary output is set), the *xrandr* output name, or integer number (in order
@@ -588,8 +584,7 @@ Parse the `/etc/hosts` file for entries.
 
 Default: *disabled*
 
-`-parse-known-hosts`  
-`-no-parse-known-hosts`
+`-[no-]parse-known-hosts`
 
 Parse the `~/.ssh/known_hosts` file for entries.
 
@@ -723,10 +718,9 @@ Note: This setting is ignored if `combi-hide-mode-prefix` is enabled.
 
 ### History
 
-`-disable-history`  
-`-no-disable-history` (re-enable history)
+`-[no-]disable-history`
 
-Disable history
+Disable or re-enable history
 
 `-max-history-size` *number*
 
@@ -854,8 +848,7 @@ configuration {
 }
 ```
 
-`-click-to-exit`
-`-no-click-to-exit`
+`-[no-]click-to-exit`
 
 Click the mouse outside the **rofi** window to exit.
 

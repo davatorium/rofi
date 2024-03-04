@@ -1,4 +1,4 @@
-% rofi-debugging(5) rofi | File Formats Manual
+# rofi-debugging(5)
 
 ## NAME
 

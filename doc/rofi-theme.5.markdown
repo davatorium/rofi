@@ -1,4 +1,4 @@
-% rofi-theme(5) rofi | File Formats Manual
+# rofi-theme(5)
 
 ## NAME
 
@@ -896,15 +896,19 @@ These are appended after the name or class of the widget.
 
 #### Example
 
-`button selected.normal { }`
+```
+button selected.normal { }
 
-`element selected.urgent { }`
+element selected.urgent { }
+```
 
 Currently only the entrybox and scrollbar have states:
 
 #### Entrybox
 
-`{visible modifier}.{state}`
+```
+{visible modifier}.{state}
+```
 
 Where `visible modifier` can be:
 - normal: no modification
@@ -1551,7 +1555,9 @@ From the pango manpage:
 
 The string must have the form
 
-`\[FAMILY-LIST] \[STYLE-OPTIONS] \[SIZE] \[VARIATIONS]`,
+```text
+\[FAMILY-LIST] \[STYLE-OPTIONS] \[SIZE] \[VARIATIONS]
+```
 
 where FAMILY-LIST is a comma-separated list of families optionally terminated
 by a comma, STYLE\_OPTIONS is a whitespace-separated list of words where each

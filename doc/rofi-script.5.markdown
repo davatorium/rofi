@@ -1,4 +1,4 @@
-% rofi-script(5) rofi | File Formats Manual
+# rofi-script(5)
 
 ## NAME
 

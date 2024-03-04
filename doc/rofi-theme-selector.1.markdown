@@ -1,4 +1,4 @@
-% rofi-theme-selector(1) rofi | General Commands Manual
+# rofi-theme-selector(1)
 
 ## NAME
 
