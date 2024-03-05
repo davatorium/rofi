@@ -169,6 +169,13 @@ AC_ARG_ENABLE([check], AS_HELP_STRING([--disable-check], [Build with checks usin
 AS_IF([test "x${enable_check}" != "xno"], [ PKG_CHECK_MODULES([check],[check >= 0.11.0], [HAVE_CHECK=1]) ])
 AM_CONDITIONAL([USE_CHECK],  [test "x${enable_check}" != "xno" && test "$HAVE_CHECK" -eq 1])
 
+dnl ---------------------------------------------------------------------
+dnl Build man pages
+dnl ---------------------------------------------------------------------
+AC_ARG_ENABLE([man], AS_HELP_STRING([--disable-man], [Build man pages (default: enabled)]))
+
+AS_IF([test "x$enable_man" != "xno" ], [ AC_CHECK_PROG([pandoc], pandoc, [yes])])
+AM_CONDITIONAL([FOUND_PANDOC], [test "x$pandoc" = xyes])
 
 dnl ---------------------------------------------------------------------
 dnl Gets the resource compile tool path.
@@ -209,6 +216,11 @@ if test "x${enable_check}" != "xno" && test "$HAVE_CHECK" -eq 1; then
 echo "Check based tests            Enabled"
 else
 echo "Check based tests            Disabled"
+fi
+if test "x${enable_man}" != "xno" && test "x$pandoc" = "xyes"; then
+echo "Build man pages              Enabled"
+else
+echo "Build man pages              Disabled"
 fi
 echo "-------------------------------------"
 echo "Now type 'make' to build"

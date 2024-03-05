@@ -1,4 +1,4 @@
-# ROFI-KEYS 5 rofi-keys
+# rofi-keys(5)
 
 ## NAME
 
@@ -63,481 +63,481 @@ configuration {
 
 ## Keyboard Bindings
 
-### **kb-primary-paste**:
+`kb-primary-paste`
 
 Paste primary selection
 
-**Default**: 	Control+V,Shift+Insert
+Default: 	Control+V,Shift+Insert
 
-### **kb-secondary-paste**
+`kb-secondary-paste`
 
 Paste clipboard
 
-**Default**: 	Control+v,Insert
+Default: 	Control+v,Insert
 
-### **kb-secondary-copy**
+`kb-secondary-copy`
 
 Copy current selection to clipboard
 
-**Default**: 	Control+c
+Default: 	Control+c
 
-### **kb-clear-line**
+`kb-clear-line`
 
 Clear input line
 
-**Default**: 	Control+w
+Default: 	Control+w
 
-### **kb-move-front**
+`kb-move-front`
 
 Beginning of line
 
-**Default**: 	Control+a
+Default: 	Control+a
 
-### **kb-move-end**
+`kb-move-end`
 
 End of line
 
-**Default**: 	Control+e
+Default: 	Control+e
 
-### **kb-move-word-back**
+`kb-move-word-back`
 
 Move back one word
 
-**Default**: 	Alt+b,Control+Left
+Default: 	Alt+b,Control+Left
 
-### **kb-move-word-forward**
+`kb-move-word-forward`
 
 Move forward one word
 
-**Default**: 	Alt+f,Control+Right
+Default: 	Alt+f,Control+Right
 
-### **kb-move-char-back**
+`kb-move-char-back`
 
 Move back one char
 
-**Default**: 	Left,Control+b
+Default: 	Left,Control+b
 
-### **kb-move-char-forward**
+`kb-move-char-forward`
 
 Move forward one char
 
-**Default**: 	Right,Control+f
+Default: 	Right,Control+f
 
-### **kb-remove-word-back**
+`kb-remove-word-back`
 
 Delete previous word
 
-**Default**: 	Control+Alt+h,Control+BackSpace
+Default: 	Control+Alt+h,Control+BackSpace
 
-### **kb-remove-word-forward**
+`kb-remove-word-forward`
 
 Delete next word
 
-**Default**: 	Control+Alt+d
+Default: 	Control+Alt+d
 
-### **kb-remove-char-forward**
+`kb-remove-char-forward`
 
 Delete next char
 
-**Default**: 	Delete,Control+d
+Default: 	Delete,Control+d
 
-### **kb-remove-char-back**
+`kb-remove-char-back`
 
 Delete previous char
 
-**Default**: 	BackSpace,Shift+BackSpace,Control+h
+Default: 	BackSpace,Shift+BackSpace,Control+h
 
-### **kb-remove-to-eol**
+`kb-remove-to-eol`
 
 Delete till the end of line
 
-**Default**: 	Control+k
+Default: 	Control+k
 
-### **kb-remove-to-sol**
+`kb-remove-to-sol`
 
 Delete till the start of line
 
-**Default**: 	Control+u
+Default: 	Control+u
 
-### **kb-accept-entry**
+`kb-accept-entry`
 
 Accept entry
 
-**Default**: 	Control+j,Control+m,Return,KP\_Enter
+Default: 	Control+j,Control+m,Return,KP\_Enter
 
-### **kb-accept-custom**
-
-Use entered text as command (in ssh/run modes)
-
-**Default**: 	Control+Return
-
-### **kb-accept-custom-alt**
+`kb-accept-custom`
 
 Use entered text as command (in ssh/run modes)
 
-**Default**: 	Control+Shift+Return
+Default: 	Control+Return
 
-### **kb-accept-alt**
+`kb-accept-custom-alt`
+
+Use entered text as command (in ssh/run modes)
+
+Default: 	Control+Shift+Return
+
+`kb-accept-alt`
 
 Use alternate accept command.
 
-**Default**: 	Shift+Return
+Default: 	Shift+Return
 
-### **kb-delete-entry**
+`kb-delete-entry`
 
 Delete entry from history
 
-**Default**: 	Shift+Delete
+Default: 	Shift+Delete
 
-### **kb-mode-next**
+`kb-mode-next`
 
 Switch to the next mode.
 
-**Default**: 	Shift+Right,Control+Tab
+Default: 	Shift+Right,Control+Tab
 
-### **kb-mode-previous**
+`kb-mode-previous`
 
 Switch to the previous mode.
 
-**Default**: 	Shift+Left,Control+ISO\_Left\_Tab
+Default: 	Shift+Left,Control+ISO\_Left\_Tab
 
-### **kb-mode-complete**
+`kb-mode-complete`
 
 Start completion for mode.
 
-**Default**: 	Control+l
+Default: 	Control+l
 
-### **kb-row-left**
+`kb-row-left`
 
 Go to the previous column
 
-**Default**: 	Control+Page\_Up
+Default: 	Control+Page\_Up
 
-### **kb-row-right**
+`kb-row-right`
 
 Go to the next column
 
-**Default**: 	Control+Page\_Down
+Default: 	Control+Page\_Down
 
-### **kb-row-up**
+`kb-row-up`
 
 Select previous entry
 
-**Default**: 	Up,Control+p
+Default: 	Up,Control+p
 
-### **kb-row-down**
+`kb-row-down`
 
 Select next entry
 
-**Default**: 	Down,Control+n
+Default: 	Down,Control+n
 
-### **kb-row-tab**
+`kb-row-tab`
 
 Go to next row, if one left, accept it, if no left next mode.
 
-**Default**:
+Default:
 
-### **kb-element-next**
+`kb-element-next`
 
 Go to next row.
 
-**Default**: Tab
+Default: Tab
 
-### **kb-element-prev**
+`kb-element-prev`
 
 Go to previous row.
 
-**Default**: ISO\_Left\_Tab
+Default: ISO\_Left\_Tab
 
-### **kb-page-prev**
+`kb-page-prev`
 
 Go to the previous page
 
-**Default**: 	Page\_Up
+Default: 	Page\_Up
 
-### **kb-page-next**
+`kb-page-next`
 
 Go to the next page
 
-**Default**: 	Page\_Down
+Default: 	Page\_Down
 
-### **kb-row-first**
+`kb-row-first`
 
 Go to the first entry
 
-**Default**: 	Home,KP\_Home
+Default: 	Home,KP\_Home
 
-### **kb-row-last**
+`kb-row-last`
 
 Go to the last entry
 
-**Default**: 	End,KP\_End
+Default: 	End,KP\_End
 
-### **kb-row-select**
+`kb-row-select`
 
 Set selected item as input text
 
-**Default**: 	Control+space
+Default: 	Control+space
 
-### **kb-screenshot**
+`kb-screenshot`
 
 Take a screenshot of the rofi window
 
-**Default**: 	Alt+S
+Default: 	Alt+S
 
-### **kb-ellipsize**
+`kb-ellipsize`
 
 Toggle between ellipsize modes for displayed data
 
-**Default**: 	Alt+period
+Default: 	Alt+period
 
-### **kb-toggle-case-sensitivity**
+`kb-toggle-case-sensitivity`
 
 Toggle case sensitivity
 
-**Default**: 	grave,dead\_grave
+Default: 	grave,dead\_grave
 
-### **kb-toggle-sort**
+`kb-toggle-sort`
 
 Toggle filtered menu sort
 
-**Default**: 	Alt+grave
+Default: 	Alt+grave
 
-### **kb-cancel**
+`kb-cancel`
 
 Quit rofi
 
-**Default**: 	Escape,Control+g,Control+bracketleft
+Default: 	Escape,Control+g,Control+bracketleft
 
-### **kb-custom-1**
+`kb-custom-1`
 
 Custom keybinding 1
 
-**Default**: 	Alt+1
+Default: 	Alt+1
 
-### **kb-custom-2**
+`kb-custom-2`
 
 Custom keybinding 2
 
-**Default**: 	Alt+2
+Default: 	Alt+2
 
-### **kb-custom-3**
+`kb-custom-3`
 
 Custom keybinding 3
 
-**Default**: 	Alt+3
+Default: 	Alt+3
 
-### **kb-custom-4**
+`kb-custom-4`
 
 Custom keybinding 4
 
-**Default**: 	Alt+4
+Default: 	Alt+4
 
-### **kb-custom-5**
+`kb-custom-5`
 
 Custom Keybinding 5
 
-**Default**: 	Alt+5
+Default: 	Alt+5
 
-### **kb-custom-6**
+`kb-custom-6`
 
 Custom keybinding 6
 
-**Default**: 	Alt+6
+Default: 	Alt+6
 
-### **kb-custom-7**
+`kb-custom-7`
 
 Custom Keybinding 7
 
-**Default**: 	Alt+7
+Default: 	Alt+7
 
-### **kb-custom-8**
+`kb-custom-8`
 
 Custom keybinding 8
 
-**Default**: 	Alt+8
+Default: 	Alt+8
 
-### **kb-custom-9**
+`kb-custom-9`
 
 Custom keybinding 9
 
-**Default**: 	Alt+9
+Default: 	Alt+9
 
-### **kb-custom-10**
+`kb-custom-10`
 
 Custom keybinding 10
 
-**Default**: 	Alt+0
+Default: 	Alt+0
 
-### **kb-custom-11**
+`kb-custom-11`
 
 Custom keybinding 11
 
-**Default**: 	Alt+exclam
+Default: 	Alt+exclam
 
-### **kb-custom-12**
+`kb-custom-12`
 
 Custom keybinding 12
 
-**Default**: 	Alt+at
+Default: 	Alt+at
 
-### **kb-custom-13**
+`kb-custom-13`
 
 Custom keybinding 13
 
-**Default**: 	Alt+numbersign
+Default: 	Alt+numbersign
 
-### **kb-custom-14**
+`kb-custom-14`
 
 Custom keybinding 14
 
-**Default**: 	Alt+dollar
+Default: 	Alt+dollar
 
-### **kb-custom-15**
+`kb-custom-15`
 
 Custom keybinding 15
 
-**Default**: 	Alt+percent
+Default: 	Alt+percent
 
-### **kb-custom-16**
+`kb-custom-16`
 
 Custom keybinding 16
 
-**Default**: 	Alt+dead\_circumflex
+Default: 	Alt+dead\_circumflex
 
-### **kb-custom-17**
+`kb-custom-17`
 
 Custom keybinding 17
 
-**Default**: 	Alt+ampersand
+Default: 	Alt+ampersand
 
-### **kb-custom-18**
+`kb-custom-18`
 
 Custom keybinding 18
 
-**Default**: 	Alt+asterisk
+Default: 	Alt+asterisk
 
-### **kb-custom-19**
+`kb-custom-19`
 
 Custom Keybinding 19
 
-**Default**: 	Alt+parenleft
+Default: 	Alt+parenleft
 
-### **kb-select-1**
+`kb-select-1`
 
 Select row 1
 
-**Default**: 	Super+1
+Default: 	Super+1
 
-### **kb-select-2**
+`kb-select-2`
 
 Select row 2
 
-**Default**: 	Super+2
+Default: 	Super+2
 
-### **kb-select-3**
+`kb-select-3`
 
 Select row 3
 
-**Default**: 	Super+3
+Default: 	Super+3
 
-### **kb-select-4**
+`kb-select-4`
 
 Select row 4
 
-**Default**: 	Super+4
+Default: 	Super+4
 
-### **kb-select-5**
+`kb-select-5`
 
 Select row 5
 
-**Default**: 	Super+5
+Default: 	Super+5
 
-### **kb-select-6**
+`kb-select-6`
 
 Select row 6
 
-**Default**: 	Super+6
+Default: 	Super+6
 
-### **kb-select-7**
+`kb-select-7`
 
 Select row 7
 
-**Default**: 	Super+7
+Default: 	Super+7
 
-### **kb-select-8**
+`kb-select-8`
 
 Select row 8
 
-**Default**: 	Super+8
+Default: 	Super+8
 
-### **kb-select-9**
+`kb-select-9`
 
 Select row 9
 
-**Default**: 	Super+9
+Default: 	Super+9
 
-### **kb-select-10**
+`kb-select-10`
 
 Select row 10
 
-**Default**: 	Super+0
+Default: 	Super+0
 
-### **kb-entry-history-up**
+`kb-entry-history-up`
 
 Go up in the entry history.
 
-**Default**:    Control+Up
+Default:    Control+Up
 
-### **kb-entry-history-down**
+`kb-entry-history-down`
 
 Go down in the entry history.
 
-**Default**:    Control+Down
+Default:    Control+Down
 
 ## Mouse Bindings
 
-### **ml-row-left**
+`ml-row-left`
 
 Go to the previous column
 
-**Default**: 	ScrollLeft
+Default: 	ScrollLeft
 
-### **ml-row-right**
+`ml-row-right`
 
 Go to the next column
 
-**Default**: 	ScrollRight
+Default: 	ScrollRight
 
-### **ml-row-up**
+`ml-row-up`
 
 Select previous entry
 
-**Default**: 	ScrollUp
+Default: 	ScrollUp
 
-### **ml-row-down**
+`ml-row-down`
 
 Select next entry
 
-**Default**: 	ScrollDown
+Default: 	ScrollDown
 
-### **me-select-entry**
+`me-select-entry`
 
 Select hovered row
 
-**Default**: 	MousePrimary
+Default: 	MousePrimary
 
-### **me-accept-entry**
+`me-accept-entry`
 
 Accept hovered row
 
-**Default**: 	MouseDPrimary
+Default: 	MouseDPrimary
 
-### **me-accept-custom**
+`me-accept-custom`
 
 Accept hovered row with custom action
 
-**Default**: 	Control+MouseDPrimary
+Default: 	Control+MouseDPrimary
 
 ## SEE ALSO
 

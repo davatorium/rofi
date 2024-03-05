@@ -1,4 +1,4 @@
-# ROFI-SCRIPT 5 rofi-script
+# rofi-script(5)
 
 ## NAME
 

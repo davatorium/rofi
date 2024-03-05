@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -eu
+
+cd "${MESON_DIST_ROOT}"
+
+# deploy docs
+mkdir build
+meson setup build -Dprefix=/usr
+ninja -C build
+cp build/doc/*.1 doc
+cp build/doc/*.5 doc
+rm -rf build
+
+# configure script
+autoreconf -i
