@@ -1,16 +1,22 @@
-pandoc = find_program('pandoc', required: false)
+man_files = [
+    'rofi.1',
+    'rofi-sensible-terminal.1',
+    'rofi-theme-selector.1',
+    'rofi-debugging.5',
+    'rofi-dmenu.5',
+    'rofi-keys.5',
+    'rofi-script.5',
+    'rofi-theme.5',
+]
+
+fs = import('fs')
+
+pandoc = find_program('pandoc', required: false, version: '>=2.17')
+
 if pandoc.found()
     man_targets = []
-    foreach f: [
-        'rofi.1',
-        'rofi-sensible-terminal.1',
-        'rofi-debugging.5',
-        'rofi-dmenu.5',
-        'rofi-keys.5',
-        'rofi-script.5',
-        'rofi-theme-selector.1',
-        'rofi-theme.5',
-    ]
+    cp_cmds = []
+    foreach f: man_files
         section_number = f.split('.')[1]
         install_dest = join_paths(get_option('prefix'), get_option('mandir'), 'man' + section_number)
 
@@ -26,7 +32,21 @@ if pandoc.found()
             build_by_default: true,
         )
     endforeach
+
     run_target('generate-manpage', command: ['true'], depends: man_targets)
+else
+    man_missing = false
+    foreach f: man_files
+        if not fs.is_file(f)
+            man_missing = true
+        endif
+    endforeach
+
+    if man_missing
+        warning('Man files cannot be generated and not present in source directory, they will not be installed')
+    else
+        install_man(man_files)
+    endif
 endif
 
 doxy_conf = configuration_data()

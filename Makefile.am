@@ -172,19 +172,52 @@ rofi_LDADD=\
 	$(LIBS)
 
 ##
-# Manpage
+# Manpages
 ##
+
+.PHONY: generate-manpage
+
+if FOUND_PANDOC
+
+generate-manpage: doc/rofi.1\
+	doc/rofi-sensible-terminal.1\
+	doc/rofi-theme-selector.1\
+	doc/rofi-debugging.5\
+	doc/rofi-dmenu.5\
+	doc/rofi-keys.5\
+	doc/rofi-script.5\
+	doc/rofi-theme.5
+
+doc/rofi.1: doc/rofi.1.markdown
+	pandoc --standalone --to=man --lua-filter=$(top_srcdir)/doc/man_filter.lua -f markdown-tex_math_dollars -o ./$@ ./$<
+doc/rofi-sensible-terminal.1: doc/rofi-sensible-terminal.1.markdown
+	pandoc --standalone --to=man --lua-filter=$(top_srcdir)/doc/man_filter.lua -f markdown-tex_math_dollars -o ./$@ ./$<
+doc/rofi-theme-selector.1: doc/rofi-theme-selector.1.markdown
+	pandoc --standalone --to=man --lua-filter=$(top_srcdir)/doc/man_filter.lua -f markdown-tex_math_dollars -o ./$@ ./$<
+doc/rofi-debugging.5: doc/rofi-debugging.5.markdown
+	pandoc --standalone --to=man --lua-filter=$(top_srcdir)/doc/man_filter.lua -f markdown-tex_math_dollars -o ./$@ ./$<
+doc/rofi-dmenu.5: doc/rofi-dmenu.5.markdown
+	pandoc --standalone --to=man --lua-filter=$(top_srcdir)/doc/man_filter.lua -f markdown-tex_math_dollars -o ./$@ ./$<
+doc/rofi-keys.5: doc/rofi-keys.5.markdown
+	pandoc --standalone --to=man --lua-filter=$(top_srcdir)/doc/man_filter.lua -f markdown-tex_math_dollars -o ./$@ ./$<
+doc/rofi-script.5: doc/rofi-script.5.markdown
+	pandoc --standalone --to=man --lua-filter=$(top_srcdir)/doc/man_filter.lua -f markdown-tex_math_dollars -o ./$@ ./$<
+doc/rofi-theme.5: doc/rofi-theme.5.markdown
+	pandoc --standalone --to=man --lua-filter=$(top_srcdir)/doc/man_filter.lua -f markdown-tex_math_dollars -o ./$@ ./$<
+
+endif
+
 dist_man1_MANS=\
 	doc/rofi.1\
-	doc/rofi-theme-selector.1\
-	doc/rofi-sensible-terminal.1
+	doc/rofi-sensible-terminal.1\
+	doc/rofi-theme-selector.1
 
 dist_man5_MANS=\
-	doc/rofi-theme.5\
 	doc/rofi-debugging.5\
-	doc/rofi-keys.5\
 	doc/rofi-dmenu.5\
-	doc/rofi-script.5
+	doc/rofi-keys.5\
+	doc/rofi-script.5\
+	doc/rofi-theme.5
 
 EXTRA_DIST += \
 	doc/rofi-theme.5.markdown \
@@ -254,19 +287,7 @@ EXTRA_DIST+=\
 	doc/default_configuration.rasi\
 	doc/default_theme.rasi\
 	Changelog
-##
-# Indent
-##
 
-generate-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown ${top_srcdir}/doc/rofi-sensible-terminal.1.markdown ${top_srcdir}/doc/rofi-keys.5.markdown ${top_srcdir}/doc/rofi-dmenu.5.markdown $(top_srcdir)/doc/rofi-debugging.5.markdown
-	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi.1.markdown -o $(top_srcdir)/doc/rofi.1
-	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-theme-selector.1.markdown -o $(top_srcdir)/doc/rofi-theme-selector.1
-	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-theme.5.markdown -o $(top_srcdir)/doc/rofi-theme.5
-	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-debugging.5.markdown -o $(top_srcdir)/doc/rofi-debugging.5
-	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-keys.5.markdown -o $(top_srcdir)/doc/rofi-keys.5
-	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-script.5.markdown -o $(top_srcdir)/doc/rofi-script.5
-	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-dmenu.5.markdown -o $(top_srcdir)/doc/rofi-dmenu.5
-	pandoc --standalone --to=man -f markdown-tedxt_math_dollars $(top_srcdir)/doc/rofi-sensible-terminal.1.markdown -o $(top_srcdir)/doc/rofi-sensible-terminal.1
 
 ##
 # Rofi test program

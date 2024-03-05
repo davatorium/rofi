@@ -17,6 +17,8 @@ add_project_arguments(
     language: 'c'
 )
 
+meson.add_dist_script('meson-dist-script')
+
 flags = [
     '-Wparentheses',
     '-Winline',
