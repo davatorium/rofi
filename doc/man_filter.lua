@@ -122,6 +122,14 @@ function convert_defs(doc, defs)
     return pandoc.Pandoc(out_blocks, doc.meta)
 end
 
+-- for <2.17 compatibility
+-- equivalent to `doc:walk(filter)`
+local function walk_doc(doc, filter)
+    local div = pandoc.Div(doc.blocks)
+    local blocks = pandoc.walk_block(div, filter).content
+    return pandoc.Pandoc(blocks, doc.meta)
+end
+
 local function extract_title(doc)
     local title = {}
     local section
@@ -141,14 +149,14 @@ local function extract_title(doc)
                 end,
             }
             if el.level == 1 then
-                el:walk(f)
+                pandoc.walk_block(el, f)
                 return {} -- drop
             end
             return nil
         end,
     }
 
-    doc = doc:walk(filter)
+    doc = walk_doc(doc, filter)
 
     local to_inline = function(s)
         local r = {}
@@ -190,7 +198,8 @@ local function decrement_heading(doc)
         end,
     }
 
-    return doc:walk(filter)
+    doc = walk_doc(doc, filter)
+    return doc
 end
 
 local function code_in_strong(doc)
@@ -200,7 +209,8 @@ local function code_in_strong(doc)
         end,
     }
 
-    return doc:walk(filter)
+    doc = walk_doc(doc, filter)
+    return doc
 end
 
 --- Run filtering function through whole document
@@ -211,9 +221,11 @@ end
 --  * decrement heading from 1 for better display
 --  * convert inline code text to Strong as usual in man pages
 function Pandoc(doc)
-    local defs = find_defs(doc)
-
-    doc = convert_defs(doc, defs)
+    if PANDOC_VERSION >= pandoc.types.Version("2.17.0") then
+        -- 2.17 is required for topdown traversal
+        local defs = find_defs(doc)
+        doc = convert_defs(doc, defs)
+    end
 
     doc = extract_title(doc)
 

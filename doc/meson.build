@@ -11,7 +11,7 @@ man_files = [
 
 fs = import('fs')
 
-pandoc = find_program('pandoc', required: false, version: '>=2.17')
+pandoc = find_program('pandoc', required: false, version: '>=2.9')
 
 if pandoc.found()
     man_targets = []
