@@ -656,6 +656,8 @@ EXTRA_DIST += \
 	subprojects/libgwater/wayland-server/meson.build \
 	subprojects/libgwater/meson.build \
 	subprojects/libgwater/win/meson.build \
+	subprojects/libnkutils/bindings/meson.build \
+	subprojects/libnkutils/core/meson.build \
 	subprojects/libnkutils/meson.build \
 	subprojects/libnkutils/meson_options.txt \
 	subprojects/libgwater/wayland/libgwater-wayland.h \
