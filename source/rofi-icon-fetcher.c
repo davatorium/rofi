@@ -94,7 +94,7 @@ static void rofi_icon_fetch_entry_free(gpointer data);
 IconFetcher *rofi_icon_fetcher_data = NULL;
 
 static void rofi_icon_fetch_thread_pool_entry_remove(gpointer data) {
-  IconFetcherNameEntry *entry = (IconFetcherNameEntry *)data;
+  IconFetcherEntry *entry = (IconFetcherEntry *)data;
   // Mark it in a way it should be re-fetched on next query?
 }
 static void rofi_icon_fetch_entry_free(gpointer data) {
