@@ -2653,6 +2653,15 @@ static int rofi_thread_workers_sort(gconstpointer a, gconstpointer b,
 
 static void rofi_thread_pool_state_free(gpointer data) {
   if (data) {
+    // This is a weirdness from glib that should not happen.
+    // It pushes in a 1 to msg sleeping threads to wake up.
+    // This should be removed from queue to avoid hitting this method.
+    // In practice, we still hit it (and crash)
+    if (GPOINTER_TO_UINT(data) == 1) {
+      // Ignore this entry.
+      g_debug("Glib thread-pool bug, received pointer with value 1.");
+      return;
+    }
     thread_state *ts = (thread_state *)data;
     if (ts->free) {
       ts->free(data);

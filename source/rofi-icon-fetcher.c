@@ -246,7 +246,7 @@ static gboolean rofi_icon_fetcher_create_thumbnail(const gchar *mime_type,
 }
 
 static void rofi_icon_fetch_thread_pool_entry_remove(gpointer data) {
-  IconFetcherNameEntry *entry = (IconFetcherNameEntry *)data;
+  IconFetcherEntry *entry = (IconFetcherEntry *)data;
   // Mark it in a way it should be re-fetched on next query?
 }
 

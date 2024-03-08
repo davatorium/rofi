@@ -1,4 +1,4 @@
-# ROFI DEBUGGING 5 rofi debugging
+# rofi-debugging(5)
 
 ## NAME
 
@@ -169,7 +169,7 @@ backtrace via `coredumpctl`.
 
 ## SEE ALSO
 
-rofi-sensible-terminal(1), dmenu(1), rofi-debugging(5), rofi-theme(5),
+rofi-sensible-terminal(1), dmenu(1), rofi-theme(5),
 rofi-script(5), rofi-keys(5),rofi-theme-selector(1)
 
 ## AUTHOR
