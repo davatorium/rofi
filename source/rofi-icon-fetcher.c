@@ -248,6 +248,7 @@ static gboolean rofi_icon_fetcher_create_thumbnail(const gchar *mime_type,
 static void rofi_icon_fetch_thread_pool_entry_remove(gpointer data) {
   IconFetcherEntry *entry = (IconFetcherEntry *)data;
   // Mark it in a way it should be re-fetched on next query?
+  entry->query_started = FALSE;
 }
 
 static void rofi_icon_fetch_entry_free(gpointer data) {
@@ -535,8 +536,6 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   const gchar *icon_path;
   gchar *icon_path_ = NULL;
 
-  sentry->query_started = TRUE;
-
   if (g_str_has_prefix(sentry->entry->name, "thumbnail://")) {
     // remove uri thumbnail prefix from entry name
     gchar *entry_name = &sentry->entry->name[12];
@@ -761,7 +760,7 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
   sentry->hsize = hsize;
   sentry->entry = entry;
   sentry->query_done = FALSE;
-  sentry->query_started = FALSE;
+  sentry->query_started = TRUE;
   sentry->surface = NULL;
 
   entry->sizes = g_list_prepend(entry->sizes, sentry);
@@ -804,7 +803,7 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
   sentry->hsize = size;
   sentry->entry = entry;
   sentry->query_done = FALSE;
-  sentry->query_started = FALSE;
+  sentry->query_started = TRUE;
   sentry->surface = NULL;
 
   entry->sizes = g_list_prepend(entry->sizes, sentry);
@@ -813,6 +812,7 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
 
   // Push into fetching queue.
   sentry->state.callback = rofi_icon_fetcher_worker;
+  sentry->state.free = rofi_icon_fetch_thread_pool_entry_remove;
   sentry->state.priority = G_PRIORITY_LOW;
   g_thread_pool_push(tpool, sentry, NULL);
 
