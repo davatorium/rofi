@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #
 # This code is released in public domain by Han Boetes <han@mijncomputer.nl>
 # Updated by Dave Davenport <qball@gmpclient.org>
