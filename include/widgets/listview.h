@@ -95,6 +95,7 @@ typedef void (*listview_page_changed_cb)(void);
  * @param parent The widget's parent.
  * @param name The name of the to be created widget.
  * @param cb The update callback.
+ * @param page_cb The page change callback.
  * @param udata The user data to pass to the callback
  * @param eh The height of one element
  * @param reverse Reverse the listview order.
