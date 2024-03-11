@@ -351,13 +351,7 @@ static ModeMode recursive_browser_mode_result(Mode *sw, int mretv, G_GNUC_UNUSED
 
     return MODE_EXIT;
   }
-  if (mretv & MENU_NEXT) {
-    retv = NEXT_DIALOG;
-  } else if (mretv & MENU_PREVIOUS) {
-    retv = PREVIOUS_DIALOG;
-  } else if (mretv & MENU_QUICK_SWITCH) {
-    retv = (mretv & MENU_LOWER_MASK);
-  } else if (mretv & MENU_CUSTOM_COMMAND) {
+  if (mretv & MENU_CUSTOM_COMMAND) {
     retv = (mretv & MENU_LOWER_MASK);
   } else if ((mretv & MENU_OK)) {
     if (selected_line < pd->array_length) {
@@ -495,13 +489,7 @@ ModeMode recursive_browser_mode_completer(Mode *sw, int mretv, char **input,
   ModeMode retv = MODE_EXIT;
   FileBrowserModePrivateData *pd =
       (FileBrowserModePrivateData *)mode_get_private_data(sw);
-  if (mretv & MENU_NEXT) {
-    retv = NEXT_DIALOG;
-  } else if (mretv & MENU_PREVIOUS) {
-    retv = PREVIOUS_DIALOG;
-  } else if (mretv & MENU_QUICK_SWITCH) {
-    retv = (mretv & MENU_LOWER_MASK);
-  } else if ((mretv & MENU_OK)) {
+  if ((mretv & MENU_OK)) {
     if (selected_line < pd->array_length) {
       if (pd->array[selected_line].type == RFILE) {
         *path = g_strescape(pd->array[selected_line].path, NULL);
