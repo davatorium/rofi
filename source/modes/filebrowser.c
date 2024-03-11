@@ -473,13 +473,7 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
   }
   gboolean special_command =
       ((mretv & MENU_CUSTOM_ACTION) == MENU_CUSTOM_ACTION);
-  if (mretv & MENU_NEXT) {
-    retv = NEXT_DIALOG;
-  } else if (mretv & MENU_PREVIOUS) {
-    retv = PREVIOUS_DIALOG;
-  } else if (mretv & MENU_QUICK_SWITCH) {
-    retv = (mretv & MENU_LOWER_MASK);
-  } else if (mretv & MENU_CUSTOM_COMMAND) {
+  if (mretv & MENU_CUSTOM_COMMAND) {
     retv = (mretv & MENU_LOWER_MASK);
   } else if ((mretv & MENU_OK)) {
     if (selected_line < pd->array_length) {
@@ -657,13 +651,7 @@ ModeMode file_browser_mode_completer(Mode *sw, int mretv, char **input,
   ModeMode retv = MODE_EXIT;
   FileBrowserModePrivateData *pd =
       (FileBrowserModePrivateData *)mode_get_private_data(sw);
-  if (mretv & MENU_NEXT) {
-    retv = NEXT_DIALOG;
-  } else if (mretv & MENU_PREVIOUS) {
-    retv = PREVIOUS_DIALOG;
-  } else if (mretv & MENU_QUICK_SWITCH) {
-    retv = (mretv & MENU_LOWER_MASK);
-  } else if ((mretv & MENU_OK)) {
+  if ((mretv & MENU_OK)) {
     if (selected_line < pd->array_length) {
       if (pd->array[selected_line].type == UP) {
         GFile *new = g_file_get_parent(pd->current_dir);
