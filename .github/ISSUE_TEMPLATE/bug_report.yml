@@ -39,7 +39,7 @@ body:
       label: "Configuration"
       description: |
         Please use https://gist.github.com and include output of `rofi -dump-config`.
-        n/a is not a valid theme.
+        n/a is not a valid config.
       placeholder: "Gist URL"
     validations:
       required: true
@@ -48,7 +48,7 @@ body:
       label: "Theme"
       description: |
         Please use https://gist.github.com and include output of `rofi -dump-theme`.
-        n/a is not a valid config.
+        n/a is not a valid theme.
       placeholder: "Gist URL"
     validations:
       required: true
