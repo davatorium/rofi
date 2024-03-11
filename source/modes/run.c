@@ -66,6 +66,7 @@ typedef struct {
   char *entry;
   uint32_t icon_fetch_uid;
   uint32_t icon_fetch_size;
+  gboolean from_history;
   /* Surface holding the icon. */
   cairo_surface_t *icon;
 } RunEntry;
@@ -205,6 +206,7 @@ static RunEntry *get_apps_external(RunEntry *retv, unsigned int *length,
         // No duplicate, add it.
         retv = g_realloc(retv, ((*length) + 2) * sizeof(RunEntry));
         retv[(*length)].entry = g_strdup(buffer);
+        retv[(*length)].from_history = FALSE;
         retv[(*length)].icon = NULL;
         retv[(*length)].icon_fetch_uid = 0;
         retv[(*length)].icon_fetch_size = 0;
@@ -221,6 +223,7 @@ static RunEntry *get_apps_external(RunEntry *retv, unsigned int *length,
     }
   }
   retv[(*length)].entry = NULL;
+  retv[(*length)].from_history = FALSE;
   retv[(*length)].icon = NULL;
   retv[(*length)].icon_fetch_uid = 0;
   retv[(*length)].icon_fetch_size = 0;
@@ -245,6 +248,7 @@ static RunEntry *get_apps(unsigned int *length) {
   retv = (RunEntry *)g_malloc0((*length + 1) * sizeof(RunEntry));
   for (unsigned int i = 0; i < *length; i++) {
     retv[i].entry = hretv[i];
+    retv[i].from_history = TRUE;
   }
   g_free(hretv);
   g_free(path);
@@ -332,10 +336,12 @@ static RunEntry *get_apps(unsigned int *length) {
 
         retv = g_realloc(retv, ((*length) + 2) * sizeof(RunEntry));
         retv[(*length)].entry = name;
+        retv[(*length)].from_history = FALSE;
         retv[(*length)].icon = NULL;
         retv[(*length)].icon_fetch_uid = 0;
         retv[(*length)].icon_fetch_size = 0;
         retv[(*length) + 1].entry = NULL;
+        retv[(*length) + 1].from_history = FALSE;
         retv[(*length) + 1].icon = NULL;
         retv[(*length) + 1].icon_fetch_uid = 0;
         retv[(*length) + 1].icon_fetch_size = 0;
@@ -447,7 +453,12 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
                                    &path);
       if (retv == MODE_EXIT) {
         if (path == NULL) {
-          char *arg = g_shell_quote(rmpd->cmd_list[rmpd->selected_line].entry);
+          char *arg;
+          if (rmpd->cmd_list[rmpd->selected_line].from_history) {
+            arg = g_strdup(rmpd->cmd_list[rmpd->selected_line].entry);
+          } else {
+            arg = g_shell_quote(rmpd->cmd_list[rmpd->selected_line].entry);
+          }
           exec_cmd(arg, run_in_term, rmpd->cmd_list[rmpd->selected_line].entry);
           g_free(arg);
         } else {
@@ -466,7 +477,12 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
   }
 
   if ((mretv & MENU_OK) && rmpd->cmd_list[selected_line].entry != NULL) {
-    char *earg = g_shell_quote(rmpd->cmd_list[selected_line].entry);
+    char *earg = NULL;
+    if (rmpd->cmd_list[selected_line].from_history) {
+      earg = g_strdup(rmpd->cmd_list[selected_line].entry);
+    } else {
+      earg = g_shell_quote(rmpd->cmd_list[selected_line].entry);
+    }
     if (!exec_cmd(earg, run_in_term, rmpd->cmd_list[selected_line].entry)) {
       retv = RELOAD_DIALOG;
     }
