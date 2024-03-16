@@ -143,7 +143,7 @@ The following options are supported:
 
 -   **nonselectable**: If true the row cannot activated.
 
--   **permantent**: If true the row always shows, independent of filter.
+-   **permanent**: If true the row always shows, independent of filter.
 
 -   **info**: Info that, on selection, gets placed in the `ROFI_INFO`
     environment variable. This entry does not get searched for filtering.
