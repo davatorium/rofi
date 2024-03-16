@@ -1,0 +1,2003 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../Positioning/theme3-positioning/">
+      
+      
+        <link rel="next" href="../../DynamicThemes/dynamic_themes/">
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Plugins - Rofi Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#build-system" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Rofi Documentation" class="md-header__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Rofi Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Plugins
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Rofi Documentation" class="md-nav__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Rofi Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../COPYING/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/issues" class="md-nav__link">
+        Issue Tracker
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/discussions" class="md-nav__link">
+        Discussions Forum
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../downloads/" class="md-nav__link">
+        Downloads
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../INSTALL/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CONFIG/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../themes/themes/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_8" type="checkbox" id="__nav_8" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" tabindex="0" aria-expanded="true">
+          Guides
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Guides" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Guides
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Transparency/theme3-transparency/" class="md-nav__link">
+        Transparency
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Positioning/theme3-positioning/" class="md-nav__link">
+        Positioning
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Plugins
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Plugins
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build-system" class="md-nav__link">
+    Build system
+  </a>
+  
+    <nav class="md-nav" aria-label="Build system">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configureac" class="md-nav__link">
+    Configure.ac
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#makefileam" class="md-nav__link">
+    Makefile.am
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-the-system" class="md-nav__link">
+    Building the system
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edit-the-c-template" class="md-nav__link">
+    Edit the C template
+  </a>
+  
+    <nav class="md-nav" aria-label="Edit the C template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-mode-description" class="md-nav__link">
+    The mode description
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filebrowsermodeprivatedata" class="md-nav__link">
+    FileBrowserModePrivateData
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    Initialization
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroying" class="md-nav__link">
+    Destroying
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loading-the-entries" class="md-nav__link">
+    Loading the entries
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#showing-the-entries" class="md-nav__link">
+    Showing the entries
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filtering-the-entries" class="md-nav__link">
+    Filtering the entries
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    Running it
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handling-selected-entries" class="md-nav__link">
+    Handling selected entries
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DynamicThemes/dynamic_themes/" class="md-nav__link">
+        Dynamic Theme
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_9" type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" tabindex="0" aria-expanded="false">
+          Current
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Current" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Current
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../current/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../current/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../current/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../current/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../current/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../current/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_10" type="checkbox" id="__nav_10" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10" tabindex="0" aria-expanded="false">
+          1.7.5
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.5" data-md-level="1">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.5
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.5/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.5/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.5/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.5/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.5/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.5/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_11" type="checkbox" id="__nav_11" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_11" tabindex="0" aria-expanded="false">
+          1.7.4
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.4" data-md-level="1">
+        <label class="md-nav__title" for="__nav_11">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.4
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.4/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.4/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.4/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.4/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.4/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.4/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_12" type="checkbox" id="__nav_12" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_12" tabindex="0" aria-expanded="false">
+          1.7.3
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.3" data-md-level="1">
+        <label class="md-nav__title" for="__nav_12">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.3
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.3/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.3/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.3/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.3/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.3/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.3/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_13" type="checkbox" id="__nav_13" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_13" tabindex="0" aria-expanded="false">
+          1.7.2
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.2" data-md-level="1">
+        <label class="md-nav__title" for="__nav_13">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.2
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.2/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.2/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.2/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_14" type="checkbox" id="__nav_14" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_14" tabindex="0" aria-expanded="false">
+          1.7.1
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.1" data-md-level="1">
+        <label class="md-nav__title" for="__nav_14">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.1
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.1/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.1/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.1/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_15" type="checkbox" id="__nav_15" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_15" tabindex="0" aria-expanded="false">
+          1.7.0
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.0" data-md-level="1">
+        <label class="md-nav__title" for="__nav_15">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.0
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.0/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.0/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../1.7.0/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build-system" class="md-nav__link">
+    Build system
+  </a>
+  
+    <nav class="md-nav" aria-label="Build system">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configureac" class="md-nav__link">
+    Configure.ac
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#makefileam" class="md-nav__link">
+    Makefile.am
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-the-system" class="md-nav__link">
+    Building the system
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edit-the-c-template" class="md-nav__link">
+    Edit the C template
+  </a>
+  
+    <nav class="md-nav" aria-label="Edit the C template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-mode-description" class="md-nav__link">
+    The mode description
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filebrowsermodeprivatedata" class="md-nav__link">
+    FileBrowserModePrivateData
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    Initialization
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroying" class="md-nav__link">
+    Destroying
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loading-the-entries" class="md-nav__link">
+    Loading the entries
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#showing-the-entries" class="md-nav__link">
+    Showing the entries
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filtering-the-entries" class="md-nav__link">
+    Filtering the entries
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    Running it
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handling-selected-entries" class="md-nav__link">
+    Handling selected entries
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+  <h1>Plugins</h1>
+
+<blockquote>
+<p>This guide is taken from the 1.4.0 release preview posts. The information
+might be outdated, but in general should still be correct and a good starting
+point for writing a plugin. Links have been updated. A recent plugin that can
+be used as example can be found <a href="https://git.sr.ht/~qball/rofi-ntfy">here</a>.</p>
+</blockquote>
+<h2 id="build-system">Build system</h2>
+<p><strong>Rofi</strong> uses <a href="https://en.wikipedia.org/wiki/GNU_build_system">autotools</a> as
+build system. While there are many opinions about the pre/cons off all the
+different options out there (to many to go into in this blog post), we will
+stick to <a href="https://en.wikipedia.org/wiki/GNU_build_system">autotools</a> for now.</p>
+<p>To make life easier I create a template project
+<a href="https://github.com/davatorium/rofi-plugin-template">here</a></p>
+<p>This includes the 2 files for the build system and the C template.</p>
+<h3 id="configureac">Configure.ac</h3>
+<p>First we are going to update the <code>configure.ac</code> file:</p>
+<pre><code class="language-text">AC_INIT([rofi-plugin-template], [0.0.1],
+[https://my-neat-plugin.org//],[],[https://support.my-neat-plugin.org/])
+
+AC_CONFIG_HEADER([config.h])
+
+AC_CONFIG_MACRO_DIRS([m4])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects dist-xz])
+AM_SILENT_RULES([yes])
+
+AC_PROG_CC([clang gcc cc])
+AC_PROG_CC_C99
+AM_PROG_CC_C_O
+
+AC_USE_SYSTEM_EXTENSIONS
+
+AM_PROG_AR
+
+AM_CFLAGS=&quot;-Wall -Wextra -Wparentheses -Winline -pedantic  -Wunreachable-code&quot;
+
+PKG_PROG_PKG_CONFIG
+
+PKG_CHECK_MODULES([glib],     [glib-2.0 &gt;= 2.40 gio-unix-2.0 gmodule-2.0 ])
+PKG_CHECK_MODULES([rofi],     [rofi])
+
+[rofi_PLUGIN_INSTALL_DIR]=&quot;`$PKG_CONFIG --variable=pluginsdir rofi`&quot;
+AC_SUBST([rofi_PLUGIN_INSTALL_DIR])
+
+LT_INIT([disable-static])
+
+AC_SUBST([AM_CFLAGS])
+
+
+AC_CONFIG_FILES([Makefile ])
+AC_OUTPUT
+</code></pre>
+<p>Basically the only thing here we need to change is the name of the plugin, the
+website and the support site.</p>
+<pre><code class="language-diff">AC_INIT([rofi-file-browser], [0.0.1], [https://davedavenport.github.io/rofi/],[],[https://reddit.org/r/qtools/])
+</code></pre>
+<h3 id="makefileam">Makefile.am</h3>
+<p>We need to make a similar change in the <code>Makefile.am</code> file, this is important so
+each plugin has a unique name. (if they are all called myplugin, it would be
+hard to install more then one plugin.)</p>
+<pre><code class="language-text">ACLOCAL_AMFLAGS=-I m4
+plugindir=@rofi_PLUGIN_INSTALL_DIR@
+
+plugin_LTLIBRARIES = myplugin.la
+
+myplugin_la_SOURCES=\
+         src/myplugin.c
+
+myplugin_la_CFLAGS= @glib_CFLAGS@ @rofi_CFLAGS@
+myplugin_la_LIBADD= @glib_LIBS@ @rofi_LIBS@
+myplugin_la_LDFLAGS= -module -avoid-version
+</code></pre>
+<p>So we do a search and replace from <code>myplugin</code> to <code>file_browser</code>:</p>
+<pre><code class="language-text">ACLOCAL_AMFLAGS=-I m4
+plugindir=${libdir}/rofi/
+
+plugin_LTLIBRARIES = file_browser.la
+
+file_browser_la_SOURCES=\
+         src/file_browser.c
+
+file_browser_la_CFLAGS= @glib_CFLAGS@ @rofi_CFLAGS@
+file_browser_la_LIBADD= @glib_LIBS@ @rofi_LIBS@
+file_browser_la_LDFLAGS= -module -avoid-version
+</code></pre>
+<p>As you noticed I also changed the name of the c template file. This is not
+needed.</p>
+<h2 id="building-the-system">Building the system</h2>
+<p>Now that we have this setup, it is easy to build:</p>
+<ul>
+<li>Generate the build system:</li>
+</ul>
+<pre><code class="language-bash">autoreconf -i
+</code></pre>
+<ul>
+<li>Create a <code>build</code> directory.</li>
+</ul>
+<pre><code class="language-bash">mkdir build
+cd build
+</code></pre>
+<ul>
+<li>Run <code>configure</code> </li>
+</ul>
+<pre><code class="language-bash">../configure
+</code></pre>
+<ul>
+<li>build</li>
+</ul>
+<pre><code class="language-bash">make
+</code></pre>
+<ul>
+<li>install</li>
+</ul>
+<pre><code class="language-bash">make install
+</code></pre>
+<p>You can now test the plugin by calling:</p>
+<pre><code class="language-bash">rofi -show myplugin -modi myplugin
+</code></pre>
+<p>If we start changing the template, the name to use will change.</p>
+<h2 id="edit-the-c-template">Edit the C template</h2>
+<p>The first thing todo is personalize the template. Below I have modified it so
+it is called file-browser:</p>
+<pre><code class="language-c">/**
+ * rofi-file-browser
+ *
+ * MIT/X11 License
+ * Copyright (c) 2017 Qball Cow &lt;qball@gmpclient.org&gt;
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * &quot;Software&quot;), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;string.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;gmodule.h&gt;
+
+#include &lt;rofi/mode.h&gt;
+#include &lt;rofi/helper.h&gt;
+#include &lt;rofi/mode-private.h&gt;
+
+#include &lt;stdint.h&gt;
+
+G_MODULE_EXPORT Mode mode;
+
+/**
+ * The internal data structure holding the private data of the TEST Mode.
+ */
+typedef struct
+{
+    char **array;
+    unsigned int array_length;
+} FileBrowserModePrivateData;
+
+
+static void get_file_browser (  Mode *sw )
+{
+    /**
+     * Get the entries to display.
+     * this gets called on plugin initialization.
+     */
+}
+
+
+static int file_browser_mode_init ( Mode *sw )
+{
+    /**
+     * Called on startup when enabled (in modi list)
+     */
+    if ( mode_get_private_data ( sw ) == NULL ) {
+        FileBrowserModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        mode_set_private_data ( sw, (void *) pd );
+        // Load content.
+        get_file_browser ( sw );
+    }
+    return TRUE;
+}
+static unsigned int file_browser_mode_get_num_entries ( const Mode *sw )
+{
+    const FileBrowserModePrivateData *pd = (const FileBrowserModePrivateData *) mode_get_private_data ( sw );
+    return pd-&gt;array_length;
+}
+
+static ModeMode file_browser_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
+{
+    ModeMode           retv  = MODE_EXIT;
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+    if ( mretv &amp; MENU_NEXT ) {
+        retv = NEXT_DIALOG;
+    } else if ( mretv &amp; MENU_PREVIOUS ) {
+        retv = PREVIOUS_DIALOG;
+    } else if ( mretv &amp; MENU_QUICK_SWITCH ) {
+        retv = ( mretv &amp; MENU_LOWER_MASK );
+    } else if ( ( mretv &amp; MENU_OK ) ) {
+        retv = RELOAD_DIALOG;
+    } else if ( ( mretv &amp; MENU_ENTRY_DELETE ) == MENU_ENTRY_DELETE ) {
+        retv = RELOAD_DIALOG;
+    }
+    return retv;
+}
+
+static void file_browser_mode_destroy ( Mode *sw )
+{
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+    if ( pd != NULL ) {
+        g_free ( pd );
+        mode_set_private_data ( sw, NULL );
+    }
+}
+
+static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **attr_list, int get_entry )
+{
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+    // Only return the string if requested, otherwise only set state.
+    return get_entry ? g_strdup(&quot;n/a&quot;): NULL;
+}
+
+static int file_browser_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
+{
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+    // Call default matching function.
+    return helper_token_match ( tokens, pd-&gt;array[index]);
+}
+
+Mode mode =
+{
+    .abi_version        = ABI_VERSION,
+    .name               = &quot;file_browser&quot;,
+    .cfg_name_key       = &quot;display-file_browser&quot;,
+    ._init              = file_browser_mode_init,
+    ._get_num_entries   = file_browser_mode_get_num_entries,
+    ._result            = file_browser_mode_result,
+    ._destroy           = file_browser_mode_destroy,
+    ._token_match       = file_browser_token_match,
+    ._get_display_value = _get_display_value,
+    ._get_message       = NULL,
+    ._get_completion    = NULL,
+    ._preprocess_input  = NULL,
+    .private_data       = NULL,
+    .free               = NULL,
+};
+</code></pre>
+<p>If we now rebuild the plugin, we need to run the following command:</p>
+<pre><code class="language-bash">rofi -show file_browser -modi file_browser
+</code></pre>
+<h3 id="the-mode-description">The mode description</h3>
+<p>The mode is defined by the <code>Mode</code> structure, every mode in rofi has one of the
+plugins.</p>
+<pre><code class="language-c">Mode mode =
+{
+    .abi_version        = ABI_VERSION,
+    .name               = &quot;file_browser&quot;,
+    .cfg_name_key       = &quot;display-file_browser&quot;,
+    ._init              = file_browser_mode_init,
+    ._get_num_entries   = file_browser_mode_get_num_entries,
+    ._result            = file_browser_mode_result,
+    ._destroy           = file_browser_mode_destroy,
+    ._token_match       = file_browser_token_match,
+    ._get_display_value = _get_display_value,
+    ._get_message       = NULL,
+    ._get_completion    = NULL,
+    ._preprocess_input  = NULL,
+    .private_data       = NULL,
+    .free               = NULL,
+};
+</code></pre>
+<p>The ABI_VERSION is defined in <strong>rofi</strong> header file, so that <strong>rofi</strong> can detect
+what ABI the plugin was compiled against. Not every function needs to be
+implemented, in the plugin we show the minimum set.</p>
+<p>Lets modify each of the above functions to implement something useful.</p>
+<h3 id="filebrowsermodeprivatedata">FileBrowserModePrivateData</h3>
+<p>This is a structure that holds all the private data of this mode.
+We are going to extend this so it can hold the state of information we want to
+view.</p>
+<p>We want to differentiate between 3 different rows:</p>
+<ul>
+<li>Go one level up</li>
+<li>Directory</li>
+<li>Regular file</li>
+</ul>
+<p>So we add an enum:</p>
+<pre><code class="language-c">enum FBFileType {                                                         
+    UP,                                                                   
+    DIRECTORY,                                                            
+    RFILE,                                                                
+};                                                                        
+</code></pre>
+<p>We need a structure that hold each entry.</p>
+<ul>
+<li>
+<p>It should have a <strong>name</strong> we are going to show the user. This will hold an
+    <code>utf-8</code> string. (rofi will only display utf-8). </p>
+</li>
+<li>
+<p>It should hold the <strong>path</strong> to the entry. This will be in the file-systems
+    encoding.</p>
+</li>
+<li>
+<p>The type it holds.</p>
+</li>
+</ul>
+<pre><code class="language-c">typedef struct {                                                          
+    char *name;                                                           
+    char *path;                                                           
+    enum FBFileType type;                                                 
+} FBFile;                                                                 
+</code></pre>
+<p>Then in the <em>private</em> data we hold all the relevant information. </p>
+<ul>
+<li>The current directory to show.</li>
+<li>Array of all the <em>FBFile</em> we want to show.</li>
+<li>The length of the array.</li>
+</ul>
+<pre><code class="language-c">typedef struct                                                            
+{                                                                         
+    GFile *current_dir;                                                   
+    FBFile *array;                                                        
+    unsigned int array_length;                                            
+} FileBrowserModePrivateData;                                             
+</code></pre>
+<h3 id="initialization">Initialization</h3>
+<p>Now that we have the data structure to hold our information, we need to
+initialize it and fill it.</p>
+<pre><code class="language-c">static int file_browser_mode_init ( Mode *sw )                        
+{                                                                     
+    if ( mode_get_private_data ( sw ) == NULL ) {                     
+        FileBrowserModePrivateData *pd = g_malloc0 ( sizeof ( *pd ) );
+        mode_set_private_data ( sw, (void *) pd );                    
+        pd-&gt;current_dir = g_file_new_for_path(g_get_home_dir () );    
+        get_file_browser ( sw );                                      
+    }                                                                 
+    return TRUE;                                                      
+}                                                                     
+</code></pre>
+<p>The function first checked if we already initialized the private data. You can
+include a mode multiple times, and we normally don't want it initialized
+multiple times.</p>
+<p>We then create a, zero initialized,  <code>FileBrowserModePrivateData</code> structure and
+set this on the mode. Set the current directory to the users home directory and
+call <code>get_file_browser</code> that will load in the entries. We will discuss this one
+later.</p>
+<h3 id="destroying">Destroying</h3>
+<p>On shutdown we want to cleanup, so there is also a destroy function.</p>
+<pre><code class="language-c">static void file_browser_mode_destroy ( Mode *sw )                                              
+{                                                                                               
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+    if ( pd != NULL ) {                                                                         
+        g_object_unref ( pd-&gt;current_dir );                                                     
+        free_list ( pd );                                                                       
+        g_free ( pd );                                                                          
+        mode_set_private_data ( sw, NULL );                                                     
+    }                                                                                           
+}                                                                                               
+</code></pre>
+<p>This does the exact opposite.</p>
+<p>For completeness:</p>
+<pre><code class="language-c">static void free_list ( FileBrowserModePrivateData *pd )
+{
+    for ( unsigned int i = 0; i &lt; pd-&gt;array_length; i++ ) {
+        FBFile *fb = &amp; ( pd-&gt;array[i] );
+        g_free ( fb-&gt;name );
+        g_free ( fb-&gt;path );
+    }
+    g_free (pd-&gt;array);
+    pd-&gt;array  = NULL;
+    pd-&gt;array_length = 0;
+}
+</code></pre>
+<h3 id="loading-the-entries">Loading the entries</h3>
+<p>Lets dive deeper into the <code>get_file_browser</code> function.</p>
+<pre><code class="language-c">static void get_file_browser (  Mode *sw )
+{
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+</code></pre>
+<p>We want to get access to the private data structure.</p>
+<pre><code class="language-c">    char *cdir = g_file_get_path ( pd-&gt;current_dir );
+    DIR *dir = opendir ( cdir );
+    if ( dir ) {
+        struct dirent *rd = NULL;
+        while ((rd = readdir (dir)) != NULL )
+        {
+</code></pre>
+<p>We open the directory and we iterate over each entry. We then want to skip over
+hidden files (starting with a .) and insert a special up node for going up one
+directory.  For this  we do not need a path, and we show ".." to the user.</p>
+<pre><code class="language-c">            if ( g_strcmp0 ( rd-&gt;d_name, &quot;..&quot; ) == 0 ){
+                    pd-&gt;array = g_realloc ( pd-&gt;array, (pd-&gt;array_length+1)*sizeof(FBFile));
+                    pd-&gt;array[pd-&gt;array_length].name = g_strdup ( &quot;..&quot; );
+                    pd-&gt;array[pd-&gt;array_length].path = NULL;
+                    pd-&gt;array[pd-&gt;array_length].type = UP;
+                    pd-&gt;array_length++;
+                    continue;
+
+            } else if ( rd-&gt;d_name[0] == '.' ) {
+                continue;
+            }
+</code></pre>
+<p>We do a similar filtering act for the rest of the files, we skip <code>fifo</code>, <code>blk</code>,<code>character</code> and <code>socket</code> files.</p>
+<pre><code class="language-c">            switch ( rd-&gt;d_type )
+            {
+                case DT_BLK:
+                case DT_CHR:
+                case DT_FIFO:
+                case DT_UNKNOWN:
+                case DT_SOCK:
+                    break;
+                case DT_REG:
+                case DT_DIR:
+                    pd-&gt;array = g_realloc ( pd-&gt;array, (pd-&gt;array_length+1)*sizeof(FBFile));
+                    pd-&gt;array[pd-&gt;array_length].name = g_strdup ( rd-&gt;d_name );
+                    pd-&gt;array[pd-&gt;array_length].path = g_build_filename ( pd-&gt;current_dir, rd-&gt;d_name, NULL );
+                    pd-&gt;array[pd-&gt;array_length].type = (rd-&gt;d_type == DT_DIR)? DIRECTORY: RFILE;
+                    pd-&gt;array_length++; 
+            }
+        }
+        closedir ( dir );
+    }
+</code></pre>
+<p>We then sort the list in a way the user expects this.</p>
+<pre><code class="language-c">    g_qsort_with_data ( pd-&gt;array, pd-&gt;array_length, sizeof (FBFile ), compare, NULL );
+}
+</code></pre>
+<p>Qsort here uses the following sort function:</p>
+<pre><code class="language-c">static gint compare ( gconstpointer a, gconstpointer b, gpointer data )
+{
+    FBFile *fa = (FBFile*)a;
+    FBFile *fb = (FBFile*)b;
+    if ( fa-&gt;type != fb-&gt;type ){
+        return (fa-&gt;type - fb-&gt;type);
+    }
+
+    return g_strcmp0 ( fa-&gt;name, fb-&gt;name );
+}
+</code></pre>
+<h2 id="showing-the-entries">Showing the entries</h2>
+<p>When showing each entry, rofi calls the <code>_get_display_value</code> function.  It calls
+them in two situations, to get the state and the display string. Or just to get
+the new state. If you need to return a string (should always be malloced), the
+<code>get_entry</code> parameter is set to 1.</p>
+<p>We currently show the name, and prepend an icon using the Awesome Font.</p>
+<pre><code class="language-c">static char *_get_display_value ( const Mode *sw, unsigned int selected_line, G_GNUC_UNUSED int *state, G_GNUC_UNUSED GList **attr_list, int get_entry )
+{
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+
+    // Only return the string if requested, otherwise only set state.
+    if ( !get_entry ) return NULL;
+    if ( pd-&gt;array[selected_line].type == DIRECTORY ){
+        return g_strdup_printf ( &quot; %s&quot;, pd-&gt;array[selected_line].name);
+    } else if ( pd-&gt;array[selected_line].type == UP ){
+        return g_strdup( &quot; ..&quot;);
+    } else {
+        return g_strdup_printf ( &quot; %s&quot;, pd-&gt;array[selected_line].name);
+    }
+    return g_strdup(&quot;n/a&quot;); 
+}
+</code></pre>
+<p>The <code>selected_line</code> setting will always be within range 0 and the result of
+<code>.get_num_entries</code>.</p>
+<pre><code class="language-c">static unsigned int file_browser_mode_get_num_entries ( const Mode *sw )
+{
+    const FileBrowserModePrivateData *pd = (const FileBrowserModePrivateData *) mode_get_private_data ( sw );
+    return pd-&gt;array_length;
+}
+</code></pre>
+<blockquote>
+<p>The <code>attr_list</code> argument is there for more advanced markup of the string.</p>
+</blockquote>
+<h2 id="filtering-the-entries">Filtering the entries</h2>
+<p>When filtering we want to filter on the file name, we luckily store this entry
+in <code>FBFile::name</code>. To use <strong>rofi</strong>'s matching algorithm we can use the
+<code>helper_token_match</code> function.</p>
+<pre><code class="language-c">static int file_browser_token_match ( const Mode *sw, GRegex **tokens, unsigned int index )
+{
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+
+    // Call default matching function.
+    return helper_token_match ( tokens, pd-&gt;array[index].name);
+}
+</code></pre>
+<p>The <code>index</code> setting will always be within range 0 and the result of
+<code>.get_num_entries</code>.</p>
+<h2 id="running-it">Running it</h2>
+<p>Now we should be able to build it, install it and run it and see the result.</p>
+<pre><code class="language-bash">rofi -show file_browser -modi file_browser
+</code></pre>
+<p><img alt="rofi file browser" src="../rofi-file-browser.png" /></p>
+<h2 id="handling-selected-entries">Handling selected entries</h2>
+<p>This is just an example and can probably be implemented nicer.
+Here it also shows some rudimentary parts in <strong>rofi</strong>, that show some of the
+ugly details, that will be cleaned up in the future.</p>
+<pre><code class="language-c">
+static ModeMode file_browser_mode_result ( Mode *sw, int mretv, char **input, unsigned int selected_line )
+{
+    ModeMode           retv  = MODE_EXIT;
+    FileBrowserModePrivateData *pd = (FileBrowserModePrivateData *) mode_get_private_data ( sw );
+    if ( mretv &amp; MENU_NEXT ) {
+        retv = NEXT_DIALOG;
+    } else if ( mretv &amp; MENU_PREVIOUS ) {
+        retv = PREVIOUS_DIALOG;
+    } else if ( mretv &amp; MENU_QUICK_SWITCH ) {
+        retv = ( mretv &amp; MENU_LOWER_MASK );
+</code></pre>
+<p>This is the user pressing <code>enter</code> on the entry. We handle it differently for
+each type.</p>
+<pre><code class="language-c">    } else if ( ( mretv &amp; MENU_OK ) ) {
+        if ( selected_line &lt; pd-&gt;array_length )
+        {
+            if ( pd-&gt;array[selected_line].type == UP ) {
+                GFile *new = g_file_get_parent ( pd-&gt;current_dir );
+               if ( new ){
+                   g_object_unref ( pd-&gt;current_dir );
+                   pd-&gt;current_dir = new;
+                   free_list (pd);
+                   get_file_browser ( sw );
+                   return RESET_DIALOG;
+               }
+            } else if ( pd-&gt;array[selected_line].type == DIRECTORY ) {
+                GFile *new = g_file_new_for_path ( pd-&gt;array[selected_line].path );
+                g_object_unref ( pd-&gt;current_dir );
+                pd-&gt;current_dir = new;
+                free_list (pd);
+                get_file_browser ( sw );
+                return RESET_DIALOG;
+            } else if ( pd-&gt;array[selected_line].type == RFILE ) {
+                char *d = g_strescape ( pd-&gt;array[selected_line].path,NULL );
+                char *cmd = g_strdup_printf(&quot;xdg-open '%s'&quot;, d );
+                g_free(d);
+                char *cdir = g_file_get_path ( pd-&gt;current_dir );
+                helper_execute_command ( cdir,cmd, FALSE );
+                g_free ( cdir );
+                g_free ( cmd );
+                return MODE_EXIT;
+            }
+        }
+        retv = RELOAD_DIALOG;
+</code></pre>
+<p>Handle custom entry that does not match an entry:</p>
+<pre><code class="language-c">    } else if ( (mretv&amp;MENU_CUSTOM_INPUT) &amp;&amp; *input ) {
+        char *p = rofi_expand_path ( *input );
+        char *dir = g_filename_from_utf8 ( p, -1, NULL, NULL, NULL );
+        g_free (p);
+        if ( g_file_test ( dir, G_FILE_TEST_EXISTS )  )
+        {
+            if ( g_file_test ( dir, G_FILE_TEST_IS_DIR ) ){
+                g_object_unref ( pd-&gt;current_dir );
+                pd-&gt;current_dir = g_file_new_for_path ( dir );
+                g_free ( dir );
+                free_list (pd);
+                get_file_browser ( sw );
+                return RESET_DIALOG;
+            }
+
+        }
+        g_free ( dir );
+        retv = RELOAD_DIALOG;
+</code></pre>
+<p>We do not support <code>delete</code>, just reload.</p>
+<pre><code class="language-c">    } else if ( ( mretv &amp; MENU_ENTRY_DELETE ) == MENU_ENTRY_DELETE ) {
+        retv = RELOAD_DIALOG;
+    }
+    return retv;
+}
+</code></pre>
+<p>The <code>RESET_DIALOG</code> will clear the input bar and reload the view, <code>RELOAD_DIALOG</code>
+will reload the view and re-filter based on the current text. </p>
+<blockquote>
+<p>Note: <code>rofi_expand_path</code> will expand <code>~</code> and <code>~me/</code> into it full absolute
+path. Note: <code>helper_execute_command</code> will spawn command. </p>
+</blockquote>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+        <script src="../../../search/main.js"></script>
+      
+    
+  </body>
+</html>

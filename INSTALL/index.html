@@ -1,0 +1,1794 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../downloads/">
+      
+      
+        <link rel="next" href="../CONFIG/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Installation - Rofi Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#installation-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Rofi Documentation" class="md-header__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Rofi Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Installation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Rofi Documentation" class="md-nav__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Rofi Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COPYING/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/issues" class="md-nav__link">
+        Issue Tracker
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/discussions" class="md-nav__link">
+        Discussions Forum
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../downloads/" class="md-nav__link">
+        Downloads
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Installation
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dependency" class="md-nav__link">
+    DEPENDENCY
+  </a>
+  
+    <nav class="md-nav" aria-label="DEPENDENCY">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-building" class="md-nav__link">
+    For building
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-libraries" class="md-nav__link">
+    External libraries
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-from-a-release" class="md-nav__link">
+    Install from a release
+  </a>
+  
+    <nav class="md-nav" aria-label="Install from a release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#autotools" class="md-nav__link">
+    Autotools
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#meson" class="md-nav__link">
+    Meson
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-a-checkout-from-git" class="md-nav__link">
+    Install a checkout from git
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options-for-configure" class="md-nav__link">
+    Options for configure
+  </a>
+  
+    <nav class="md-nav" aria-label="Options for configure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-locally" class="md-nav__link">
+    Install locally
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options-for-make" class="md-nav__link">
+    Options for make
+  </a>
+  
+    <nav class="md-nav" aria-label="Options for make">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verbose-output" class="md-nav__link">
+    Verbose output
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-build" class="md-nav__link">
+    Debug build
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-a-backtrace" class="md-nav__link">
+    Get a backtrace
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-distribution" class="md-nav__link">
+    Install distribution
+  </a>
+  
+    <nav class="md-nav" aria-label="Install distribution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debian-or-ubuntu" class="md-nav__link">
+    Debian or Ubuntu
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fedora" class="md-nav__link">
+    Fedora
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#archlinux" class="md-nav__link">
+    ArchLinux
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gentoo" class="md-nav__link">
+    Gentoo
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensuse" class="md-nav__link">
+    openSUSE
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#freebsd" class="md-nav__link">
+    FreeBSD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macos" class="md-nav__link">
+    macOS
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONFIG/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../themes/themes/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_8" type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" tabindex="0" aria-expanded="false">
+          Guides
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Guides" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Guides
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/Transparency/theme3-transparency/" class="md-nav__link">
+        Transparency
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/Positioning/theme3-positioning/" class="md-nav__link">
+        Positioning
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins/" class="md-nav__link">
+        Plugins
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/DynamicThemes/dynamic_themes/" class="md-nav__link">
+        Dynamic Theme
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_9" type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" tabindex="0" aria-expanded="false">
+          Current
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Current" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Current
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../current/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../current/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../current/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../current/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../current/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../current/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_10" type="checkbox" id="__nav_10" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10" tabindex="0" aria-expanded="false">
+          1.7.5
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.5" data-md-level="1">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.5
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.5/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.5/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.5/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.5/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.5/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.5/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_11" type="checkbox" id="__nav_11" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_11" tabindex="0" aria-expanded="false">
+          1.7.4
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.4" data-md-level="1">
+        <label class="md-nav__title" for="__nav_11">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.4
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.4/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.4/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.4/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.4/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.4/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.4/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_12" type="checkbox" id="__nav_12" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_12" tabindex="0" aria-expanded="false">
+          1.7.3
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.3" data-md-level="1">
+        <label class="md-nav__title" for="__nav_12">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.3
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.3/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.3/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.3/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.3/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.3/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.3/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_13" type="checkbox" id="__nav_13" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_13" tabindex="0" aria-expanded="false">
+          1.7.2
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.2" data-md-level="1">
+        <label class="md-nav__title" for="__nav_13">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.2
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.2/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.2/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.2/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_14" type="checkbox" id="__nav_14" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_14" tabindex="0" aria-expanded="false">
+          1.7.1
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.1" data-md-level="1">
+        <label class="md-nav__title" for="__nav_14">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.1
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.1/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.1/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.1/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_15" type="checkbox" id="__nav_15" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_15" tabindex="0" aria-expanded="false">
+          1.7.0
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.0" data-md-level="1">
+        <label class="md-nav__title" for="__nav_15">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.0
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.0/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.0/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.7.0/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dependency" class="md-nav__link">
+    DEPENDENCY
+  </a>
+  
+    <nav class="md-nav" aria-label="DEPENDENCY">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-building" class="md-nav__link">
+    For building
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-libraries" class="md-nav__link">
+    External libraries
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-from-a-release" class="md-nav__link">
+    Install from a release
+  </a>
+  
+    <nav class="md-nav" aria-label="Install from a release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#autotools" class="md-nav__link">
+    Autotools
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#meson" class="md-nav__link">
+    Meson
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-a-checkout-from-git" class="md-nav__link">
+    Install a checkout from git
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options-for-configure" class="md-nav__link">
+    Options for configure
+  </a>
+  
+    <nav class="md-nav" aria-label="Options for configure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-locally" class="md-nav__link">
+    Install locally
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options-for-make" class="md-nav__link">
+    Options for make
+  </a>
+  
+    <nav class="md-nav" aria-label="Options for make">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verbose-output" class="md-nav__link">
+    Verbose output
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-build" class="md-nav__link">
+    Debug build
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-a-backtrace" class="md-nav__link">
+    Get a backtrace
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-distribution" class="md-nav__link">
+    Install distribution
+  </a>
+  
+    <nav class="md-nav" aria-label="Install distribution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#debian-or-ubuntu" class="md-nav__link">
+    Debian or Ubuntu
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fedora" class="md-nav__link">
+    Fedora
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#archlinux" class="md-nav__link">
+    ArchLinux
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gentoo" class="md-nav__link">
+    Gentoo
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensuse" class="md-nav__link">
+    openSUSE
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#freebsd" class="md-nav__link">
+    FreeBSD
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macos" class="md-nav__link">
+    macOS
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="installation-guide">Installation guide</h1>
+<p>This guide explains how to install rofi using its build system and how you can
+make debug builds.</p>
+<p>Rofi uses autotools (GNU Build system), for more information see
+<a href="https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html">here</a>.
+You can also use <a href="https://mesonbuild.com/">Meson</a> as an alternative.</p>
+<h2 id="dependency">DEPENDENCY</h2>
+<h3 id="for-building">For building</h3>
+<ul>
+<li>
+<p>C compiler that supports the c99 standard. (gcc or clang)</p>
+</li>
+<li>
+<p>make</p>
+</li>
+<li>
+<p>autoconf</p>
+</li>
+<li>
+<p>automake (1.11.3 or up)</p>
+</li>
+<li>
+<p>pkg-config</p>
+</li>
+<li>
+<p>flex 2.5.39 or higher</p>
+</li>
+<li>
+<p>bison</p>
+</li>
+<li>
+<p>check (Can be disabled using the <code>--disable-check</code> configure flag)
+    check is used for build-time tests and does not affect functionality.</p>
+</li>
+<li>
+<p>Developer packages of the external libraries</p>
+</li>
+<li>
+<p>glib-compile-resources</p>
+</li>
+</ul>
+<h3 id="external-libraries">External libraries</h3>
+<ul>
+<li>
+<p>libpango &gt;= 1.50</p>
+</li>
+<li>
+<p>libpangocairo</p>
+</li>
+<li>
+<p>libcairo</p>
+</li>
+<li>
+<p>libcairo-xcb</p>
+</li>
+<li>
+<p>libglib2.0 &gt;= 2.72</p>
+<ul>
+<li>gmodule-2.0</li>
+<li>gio-unix-2.0</li>
+</ul>
+</li>
+<li>
+<p>libgdk-pixbuf-2.0</p>
+</li>
+<li>
+<p>libstartup-notification-1.0</p>
+</li>
+<li>
+<p>libxkbcommon &gt;= 0.4.1</p>
+</li>
+<li>
+<p>libxkbcommon-x11</p>
+</li>
+<li>
+<p>libxcb (sometimes split, you need libxcb, libxcb-xkb and libxcb-randr
+    libxcb-xinerama)</p>
+</li>
+<li>
+<p>xcb-util</p>
+</li>
+<li>
+<p>xcb-util-wm (sometimes split as libxcb-ewmh and libxcb-icccm)</p>
+</li>
+<li>
+<p>xcb-util-cursor</p>
+</li>
+<li>
+<p>xcb-imdkit  (optional, 1.0.3 or up preferred)</p>
+</li>
+</ul>
+<p>On debian based systems, the developer packages are in the form of:
+<code>&lt;package&gt;-dev</code> on rpm based <code>&lt;package&gt;-devel</code>.</p>
+<h2 id="install-from-a-release">Install from a release</h2>
+<p>When downloading from the github release page, make sure to grab the archive
+<code>rofi-{version}.tar.[g|x]z</code>. The auto-attached files <code>source code (zip|tar.gz)</code>
+by github do not contain a valid release. It misses a setup build system and
+includes irrelevant files.</p>
+<h3 id="autotools">Autotools</h3>
+<p>Create a build directory and enter it:</p>
+<pre><code class="language-bash">    mkdir build &amp;&amp; cd build
+</code></pre>
+<p>Check dependencies and configure build system:</p>
+<pre><code class="language-bash">    ../configure
+</code></pre>
+<p>Build Rofi:</p>
+<pre><code class="language-bash">    make
+</code></pre>
+<p>The actual install, execute as root (if needed):</p>
+<pre><code class="language-bash">    make install
+</code></pre>
+<p>The default installation prefix is: <code>/usr/local/</code> use <code>./configure
+--prefix={prefix}</code> to install into another location.</p>
+<h3 id="meson">Meson</h3>
+<p>Check dependencies and configure build system:</p>
+<pre><code class="language-bash">    meson setup build
+</code></pre>
+<p>Build Rofi:</p>
+<pre><code class="language-bash">    ninja -C build
+</code></pre>
+<p>The actual install, execute as root (if needed):</p>
+<pre><code class="language-bash">    ninja -C build install
+</code></pre>
+<p>The default installation prefix is: <code>/usr/local/</code> use <code>meson setup build
+--prefix={prefix}</code> to install into another location.</p>
+<h2 id="install-a-checkout-from-git">Install a checkout from git</h2>
+<p>The GitHub Pages version of these directions may be out of date.  Please use
+<a href="https://github.com/DaveDavenport/rofi/blob/master/INSTALL.md#install-a-checkout-from-git">INSTALL.md from the online repo</a> or your local repository.</p>
+<p>If you don't have a checkout:</p>
+<pre><code class="language-bash">    git clone --recursive https://github.com/DaveDavenport/rofi
+    cd rofi/
+</code></pre>
+<p>If you already have a checkout:</p>
+<pre><code class="language-bash">    cd rofi/
+    git pull
+    git submodule update --init
+</code></pre>
+<p>For Autotools you have an extra step, to generate build system:</p>
+<pre><code class="language-bash">    autoreconf -i
+</code></pre>
+<p>From this point, use the same steps you use for a release.</p>
+<h2 id="options-for-configure">Options for configure</h2>
+<p>When you run the configure step there are several options you can configure.</p>
+<p>For Autotools, you can see the full list with <code>./configure --help</code>.</p>
+<p>For Meson, before the initial setup, you can see rofi options in
+<code>meson_options.txt</code> and Meson options with <code>meson setup --help</code>. Meson's
+built-in options can be set using regular command line arguments, like so:
+<code>meson setup build --option=value</code>. Rofi-specific options can be set using the
+<code>-D</code> argument, like so: <code>meson setup build -Doption=value</code>. After the build dir
+is set up by <code>meson setup build</code>, the <code>meson configure build</code> command can be
+used to configure options, by the same means.</p>
+<p>The most useful one to set is the installation prefix:</p>
+<pre><code class="language-bash">    # Autotools
+    ../configure --prefix=&lt;installation path&gt;
+
+    # Meson
+    meson setup build --prefix &lt;installation path&gt;
+</code></pre>
+<p>f.e.</p>
+<pre><code class="language-bash">    # Autotools
+    ../configure --prefix=/usr/
+
+    # Meson
+    meson setup build --prefix /usr
+</code></pre>
+<h3 id="install-locally">Install locally</h3>
+<p>or to install locally:</p>
+<pre><code class="language-bash">    # Autotools
+    ../configure --prefix=${HOME}/.local/
+
+    # Meson
+    meson setup build --prefix ${HOME}/.local
+</code></pre>
+<h2 id="options-for-make">Options for make</h2>
+<p>When you run make you can tweak the build process a little.</p>
+<h3 id="verbose-output">Verbose output</h3>
+<p>Show the commands called:</p>
+<pre><code class="language-bash">    # Autotools
+    make V=1
+
+    # Meson
+    ninja -C build -v
+</code></pre>
+<h3 id="debug-build">Debug build</h3>
+<p>Compile with debug symbols and no optimization, this is useful for making
+backtraces:</p>
+<pre><code class="language-bash">    # Autotools
+    make CFLAGS=&quot;-O0 -g3&quot; clean rofi
+
+    # Meson
+    meson configure build --debug
+    ninja -C build
+</code></pre>
+<h3 id="get-a-backtrace">Get a backtrace</h3>
+<p>Getting a backtrace using GDB is not very handy. Because if rofi get stuck, it
+grabs keyboard and mouse. So if it crashes in GDB you are stuck. The best way
+to go is to enable core file. (ulimit -c unlimited in bash) then make rofi
+crash. You can then load the core in GDB.</p>
+<pre><code class="language-bash">    # Autotools
+    gdb rofi core
+
+    # Meson (because it uses a separate build directory)
+    gdb build/rofi core
+</code></pre>
+<blockquote>
+<p>Where the core file is located and what its exact name is different on each
+distributions. Please consult the relevant documentation.</p>
+</blockquote>
+<p>For more information see the rofi-debugging(5) manpage.</p>
+<h2 id="install-distribution">Install distribution</h2>
+<h3 id="debian-or-ubuntu">Debian or Ubuntu</h3>
+<pre><code class="language-bash">    apt install rofi
+</code></pre>
+<h3 id="fedora">Fedora</h3>
+<pre><code class="language-bash">    dnf install rofi
+</code></pre>
+<h3 id="archlinux">ArchLinux</h3>
+<pre><code class="language-bash">    pacman -S rofi
+</code></pre>
+<h3 id="gentoo">Gentoo</h3>
+<p>An ebuild is available, <code>x11-misc/rofi</code>. It's up to date, but you may need to
+enable ~arch to get the latest release:</p>
+<pre><code class="language-bash">    echo 'x11-misc/rofi ~amd64' &gt;&gt; /etc/portage/package.accept_keywords
+</code></pre>
+<p>for amd64 or:</p>
+<pre><code class="language-bash">    echo 'x11-misc/rofi ~x86' &gt;&gt; /etc/portage/package.accept_keywords
+</code></pre>
+<p>for i386.</p>
+<p>To install it, simply issue <code>emerge rofi</code>.</p>
+<h3 id="opensuse">openSUSE</h3>
+<p>On both openSUSE Leap and openSUSE Tumbleweed rofi can be installed using:</p>
+<pre><code class="language-bash">    sudo zypper install rofi
+</code></pre>
+<h3 id="freebsd">FreeBSD</h3>
+<pre><code class="language-bash">    sudo pkg install rofi
+</code></pre>
+<h3 id="macos">macOS</h3>
+<p>On macOS rofi can be installed via <a href="https://www.macports.org">MacPorts</a>:</p>
+<pre><code class="language-bash">    sudo port install rofi
+</code></pre>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+        <script src="../search/main.js"></script>
+      
+    
+  </body>
+</html>

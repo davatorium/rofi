@@ -1,0 +1,1598 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../rofi-debugging.5/">
+      
+      
+        <link rel="next" href="../../1.7.5/rofi.1/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Keys - Rofi Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rofi-keys5" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Rofi Documentation" class="md-header__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Rofi Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Keys
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Rofi Documentation" class="md-nav__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Rofi Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../COPYING/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/issues" class="md-nav__link">
+        Issue Tracker
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/discussions" class="md-nav__link">
+        Discussions Forum
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../downloads/" class="md-nav__link">
+        Downloads
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../INSTALL/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONFIG/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../themes/themes/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_8" type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" tabindex="0" aria-expanded="false">
+          Guides
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Guides" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Guides
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Transparency/theme3-transparency/" class="md-nav__link">
+        Transparency
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Positioning/theme3-positioning/" class="md-nav__link">
+        Positioning
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins/" class="md-nav__link">
+        Plugins
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/DynamicThemes/dynamic_themes/" class="md-nav__link">
+        Dynamic Theme
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_9" type="checkbox" id="__nav_9" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" tabindex="0" aria-expanded="true">
+          Current
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Current" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Current
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Keys
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Keys
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-binding" class="md-nav__link">
+    Setting binding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unsetting-a-binding" class="md-nav__link">
+    Unsetting a binding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyboard-bindings" class="md-nav__link">
+    Keyboard Bindings
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mouse-bindings" class="md-nav__link">
+    Mouse Bindings
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    AUTHOR
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_10" type="checkbox" id="__nav_10" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10" tabindex="0" aria-expanded="false">
+          1.7.5
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.5" data-md-level="1">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.5
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_11" type="checkbox" id="__nav_11" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_11" tabindex="0" aria-expanded="false">
+          1.7.4
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.4" data-md-level="1">
+        <label class="md-nav__title" for="__nav_11">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.4
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_12" type="checkbox" id="__nav_12" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_12" tabindex="0" aria-expanded="false">
+          1.7.3
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.3" data-md-level="1">
+        <label class="md-nav__title" for="__nav_12">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.3
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_13" type="checkbox" id="__nav_13" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_13" tabindex="0" aria-expanded="false">
+          1.7.2
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.2" data-md-level="1">
+        <label class="md-nav__title" for="__nav_13">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.2
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_14" type="checkbox" id="__nav_14" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_14" tabindex="0" aria-expanded="false">
+          1.7.1
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.1" data-md-level="1">
+        <label class="md-nav__title" for="__nav_14">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.1
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_15" type="checkbox" id="__nav_15" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_15" tabindex="0" aria-expanded="false">
+          1.7.0
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.0" data-md-level="1">
+        <label class="md-nav__title" for="__nav_15">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.0
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-binding" class="md-nav__link">
+    Setting binding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unsetting-a-binding" class="md-nav__link">
+    Unsetting a binding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyboard-bindings" class="md-nav__link">
+    Keyboard Bindings
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mouse-bindings" class="md-nav__link">
+    Mouse Bindings
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    AUTHOR
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="rofi-keys5">rofi-keys(5)</h1>
+<h2 id="name">NAME</h2>
+<p><strong>rofi keys</strong> - Rofi Key and Mouse bindings</p>
+<h2 id="description">DESCRIPTION</h2>
+<p><strong>rofi</strong> supports overriding of any of it key and mouse binding.</p>
+<h2 id="setting-binding">Setting binding</h2>
+<p>Bindings can be done on the commandline (-{bindingname}):</p>
+<pre><code class="language-bash">rofi -show run -kb-accept-entry 'Control+Shift+space'
+</code></pre>
+<p>or via the configuration file:</p>
+<pre><code class="language-css">configuration {
+  kb-accept-entry: &quot;Control+Shift+space&quot;;
+}
+</code></pre>
+<p>The key can be set by its name (see above) or its keycode:</p>
+<pre><code class="language-css">configuration {
+  kb-accept-entry: &quot;Control+Shift+[65]&quot;;
+}
+</code></pre>
+<p>An easy way to look up keycode is xev(1).</p>
+<p>Multiple keys can be specified for an action as a comma separated list:</p>
+<pre><code class="language-css">configuration {
+  kb-accept-entry: &quot;Control+Shift+space,Return&quot;;
+}
+</code></pre>
+<p>By Default <strong>rofi</strong> reacts on pressing, to act on the release of all keys
+prepend the binding with <code>!</code>:</p>
+<pre><code class="language-css">configuration {
+  kb-accept-entry: &quot;!Control+Shift+space,Return&quot;;
+}
+</code></pre>
+<h2 id="unsetting-a-binding">Unsetting a binding</h2>
+<p>To unset a binding, pass an empty string.</p>
+<pre><code class="language-css">configuration {
+  kb-clear-line: &quot;&quot;;
+}
+</code></pre>
+<h2 id="keyboard-bindings">Keyboard Bindings</h2>
+<p><code>kb-primary-paste</code></p>
+<p>Paste primary selection</p>
+<p>Default:    Control+V,Shift+Insert</p>
+<p><code>kb-secondary-paste</code></p>
+<p>Paste clipboard</p>
+<p>Default:    Control+v,Insert</p>
+<p><code>kb-secondary-copy</code></p>
+<p>Copy current selection to clipboard</p>
+<p>Default:    Control+c</p>
+<p><code>kb-clear-line</code></p>
+<p>Clear input line</p>
+<p>Default:    Control+w</p>
+<p><code>kb-move-front</code></p>
+<p>Beginning of line</p>
+<p>Default:    Control+a</p>
+<p><code>kb-move-end</code></p>
+<p>End of line</p>
+<p>Default:    Control+e</p>
+<p><code>kb-move-word-back</code></p>
+<p>Move back one word</p>
+<p>Default:    Alt+b,Control+Left</p>
+<p><code>kb-move-word-forward</code></p>
+<p>Move forward one word</p>
+<p>Default:    Alt+f,Control+Right</p>
+<p><code>kb-move-char-back</code></p>
+<p>Move back one char</p>
+<p>Default:    Left,Control+b</p>
+<p><code>kb-move-char-forward</code></p>
+<p>Move forward one char</p>
+<p>Default:    Right,Control+f</p>
+<p><code>kb-remove-word-back</code></p>
+<p>Delete previous word</p>
+<p>Default:    Control+Alt+h,Control+BackSpace</p>
+<p><code>kb-remove-word-forward</code></p>
+<p>Delete next word</p>
+<p>Default:    Control+Alt+d</p>
+<p><code>kb-remove-char-forward</code></p>
+<p>Delete next char</p>
+<p>Default:    Delete,Control+d</p>
+<p><code>kb-remove-char-back</code></p>
+<p>Delete previous char</p>
+<p>Default:    BackSpace,Shift+BackSpace,Control+h</p>
+<p><code>kb-remove-to-eol</code></p>
+<p>Delete till the end of line</p>
+<p>Default:    Control+k</p>
+<p><code>kb-remove-to-sol</code></p>
+<p>Delete till the start of line</p>
+<p>Default:    Control+u</p>
+<p><code>kb-accept-entry</code></p>
+<p>Accept entry</p>
+<p>Default:    Control+j,Control+m,Return,KP_Enter</p>
+<p><code>kb-accept-custom</code></p>
+<p>Use entered text as command (in ssh/run modes)</p>
+<p>Default:    Control+Return</p>
+<p><code>kb-accept-custom-alt</code></p>
+<p>Use entered text as command (in ssh/run modes)</p>
+<p>Default:    Control+Shift+Return</p>
+<p><code>kb-accept-alt</code></p>
+<p>Use alternate accept command.</p>
+<p>Default:    Shift+Return</p>
+<p><code>kb-delete-entry</code></p>
+<p>Delete entry from history</p>
+<p>Default:    Shift+Delete</p>
+<p><code>kb-mode-next</code></p>
+<p>Switch to the next mode.</p>
+<p>Default:    Shift+Right,Control+Tab</p>
+<p><code>kb-mode-previous</code></p>
+<p>Switch to the previous mode.</p>
+<p>Default:    Shift+Left,Control+ISO_Left_Tab</p>
+<p><code>kb-mode-complete</code></p>
+<p>Start completion for mode.</p>
+<p>Default:    Control+l</p>
+<p><code>kb-row-left</code></p>
+<p>Go to the previous column</p>
+<p>Default:    Control+Page_Up</p>
+<p><code>kb-row-right</code></p>
+<p>Go to the next column</p>
+<p>Default:    Control+Page_Down</p>
+<p><code>kb-row-up</code></p>
+<p>Select previous entry</p>
+<p>Default:    Up,Control+p</p>
+<p><code>kb-row-down</code></p>
+<p>Select next entry</p>
+<p>Default:    Down,Control+n</p>
+<p><code>kb-row-tab</code></p>
+<p>Go to next row, if one left, accept it, if no left next mode.</p>
+<p>Default:</p>
+<p><code>kb-element-next</code></p>
+<p>Go to next row.</p>
+<p>Default: Tab</p>
+<p><code>kb-element-prev</code></p>
+<p>Go to previous row.</p>
+<p>Default: ISO_Left_Tab</p>
+<p><code>kb-page-prev</code></p>
+<p>Go to the previous page</p>
+<p>Default:    Page_Up</p>
+<p><code>kb-page-next</code></p>
+<p>Go to the next page</p>
+<p>Default:    Page_Down</p>
+<p><code>kb-row-first</code></p>
+<p>Go to the first entry</p>
+<p>Default:    Home,KP_Home</p>
+<p><code>kb-row-last</code></p>
+<p>Go to the last entry</p>
+<p>Default:    End,KP_End</p>
+<p><code>kb-row-select</code></p>
+<p>Set selected item as input text</p>
+<p>Default:    Control+space</p>
+<p><code>kb-screenshot</code></p>
+<p>Take a screenshot of the rofi window</p>
+<p>Default:    Alt+S</p>
+<p><code>kb-ellipsize</code></p>
+<p>Toggle between ellipsize modes for displayed data</p>
+<p>Default:    Alt+period</p>
+<p><code>kb-toggle-case-sensitivity</code></p>
+<p>Toggle case sensitivity</p>
+<p>Default:    grave,dead_grave</p>
+<p><code>kb-toggle-sort</code></p>
+<p>Toggle filtered menu sort</p>
+<p>Default:    Alt+grave</p>
+<p><code>kb-cancel</code></p>
+<p>Quit rofi</p>
+<p>Default:    Escape,Control+g,Control+bracketleft</p>
+<p><code>kb-custom-1</code></p>
+<p>Custom keybinding 1</p>
+<p>Default:    Alt+1</p>
+<p><code>kb-custom-2</code></p>
+<p>Custom keybinding 2</p>
+<p>Default:    Alt+2</p>
+<p><code>kb-custom-3</code></p>
+<p>Custom keybinding 3</p>
+<p>Default:    Alt+3</p>
+<p><code>kb-custom-4</code></p>
+<p>Custom keybinding 4</p>
+<p>Default:    Alt+4</p>
+<p><code>kb-custom-5</code></p>
+<p>Custom Keybinding 5</p>
+<p>Default:    Alt+5</p>
+<p><code>kb-custom-6</code></p>
+<p>Custom keybinding 6</p>
+<p>Default:    Alt+6</p>
+<p><code>kb-custom-7</code></p>
+<p>Custom Keybinding 7</p>
+<p>Default:    Alt+7</p>
+<p><code>kb-custom-8</code></p>
+<p>Custom keybinding 8</p>
+<p>Default:    Alt+8</p>
+<p><code>kb-custom-9</code></p>
+<p>Custom keybinding 9</p>
+<p>Default:    Alt+9</p>
+<p><code>kb-custom-10</code></p>
+<p>Custom keybinding 10</p>
+<p>Default:    Alt+0</p>
+<p><code>kb-custom-11</code></p>
+<p>Custom keybinding 11</p>
+<p>Default:    Alt+exclam</p>
+<p><code>kb-custom-12</code></p>
+<p>Custom keybinding 12</p>
+<p>Default:    Alt+at</p>
+<p><code>kb-custom-13</code></p>
+<p>Custom keybinding 13</p>
+<p>Default:    Alt+numbersign</p>
+<p><code>kb-custom-14</code></p>
+<p>Custom keybinding 14</p>
+<p>Default:    Alt+dollar</p>
+<p><code>kb-custom-15</code></p>
+<p>Custom keybinding 15</p>
+<p>Default:    Alt+percent</p>
+<p><code>kb-custom-16</code></p>
+<p>Custom keybinding 16</p>
+<p>Default:    Alt+dead_circumflex</p>
+<p><code>kb-custom-17</code></p>
+<p>Custom keybinding 17</p>
+<p>Default:    Alt+ampersand</p>
+<p><code>kb-custom-18</code></p>
+<p>Custom keybinding 18</p>
+<p>Default:    Alt+asterisk</p>
+<p><code>kb-custom-19</code></p>
+<p>Custom Keybinding 19</p>
+<p>Default:    Alt+parenleft</p>
+<p><code>kb-select-1</code></p>
+<p>Select row 1</p>
+<p>Default:    Super+1</p>
+<p><code>kb-select-2</code></p>
+<p>Select row 2</p>
+<p>Default:    Super+2</p>
+<p><code>kb-select-3</code></p>
+<p>Select row 3</p>
+<p>Default:    Super+3</p>
+<p><code>kb-select-4</code></p>
+<p>Select row 4</p>
+<p>Default:    Super+4</p>
+<p><code>kb-select-5</code></p>
+<p>Select row 5</p>
+<p>Default:    Super+5</p>
+<p><code>kb-select-6</code></p>
+<p>Select row 6</p>
+<p>Default:    Super+6</p>
+<p><code>kb-select-7</code></p>
+<p>Select row 7</p>
+<p>Default:    Super+7</p>
+<p><code>kb-select-8</code></p>
+<p>Select row 8</p>
+<p>Default:    Super+8</p>
+<p><code>kb-select-9</code></p>
+<p>Select row 9</p>
+<p>Default:    Super+9</p>
+<p><code>kb-select-10</code></p>
+<p>Select row 10</p>
+<p>Default:    Super+0</p>
+<p><code>kb-entry-history-up</code></p>
+<p>Go up in the entry history.</p>
+<p>Default:    Control+Up</p>
+<p><code>kb-entry-history-down</code></p>
+<p>Go down in the entry history.</p>
+<p>Default:    Control+Down</p>
+<h2 id="mouse-bindings">Mouse Bindings</h2>
+<p><code>ml-row-left</code></p>
+<p>Go to the previous column</p>
+<p>Default:    ScrollLeft</p>
+<p><code>ml-row-right</code></p>
+<p>Go to the next column</p>
+<p>Default:    ScrollRight</p>
+<p><code>ml-row-up</code></p>
+<p>Select previous entry</p>
+<p>Default:    ScrollUp</p>
+<p><code>ml-row-down</code></p>
+<p>Select next entry</p>
+<p>Default:    ScrollDown</p>
+<p><code>me-select-entry</code></p>
+<p>Select hovered row</p>
+<p>Default:    MousePrimary</p>
+<p><code>me-accept-entry</code></p>
+<p>Accept hovered row</p>
+<p>Default:    MouseDPrimary</p>
+<p><code>me-accept-custom</code></p>
+<p>Accept hovered row with custom action</p>
+<p>Default:    Control+MouseDPrimary</p>
+<h2 id="see-also">SEE ALSO</h2>
+<p>rofi(1), rofi-sensible-terminal(1), rofi-theme(5), rofi-script(5)</p>
+<h2 id="author">AUTHOR</h2>
+<p>Qball Cow <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#113;&#98;&#97;&#108;&#108;&#64;&#103;&#109;&#112;&#99;&#108;&#105;&#101;&#110;&#116;&#46;&#111;&#114;&#103;">&#113;&#98;&#97;&#108;&#108;&#64;&#103;&#109;&#112;&#99;&#108;&#105;&#101;&#110;&#116;&#46;&#111;&#114;&#103;</a></p>
+<p>Rasmus Steinke <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#114;&#97;&#115;&#105;&#64;&#120;&#115;&#115;&#110;&#46;&#97;&#116;">&#114;&#97;&#115;&#105;&#64;&#120;&#115;&#115;&#110;&#46;&#97;&#116;</a></p>
+<p>Morgane Glidic <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#43;&#114;&#111;&#102;&#105;&#64;&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#46;&#110;&#101;&#116;">&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#43;&#114;&#111;&#102;&#105;&#64;&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#46;&#110;&#101;&#116;</a></p>
+<p>Original code based on work by: Sean Pringle <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#101;&#97;&#110;&#46;&#112;&#114;&#105;&#110;&#103;&#108;&#101;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#115;&#101;&#97;&#110;&#46;&#112;&#114;&#105;&#110;&#103;&#108;&#101;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a></p>
+<p>For a full list of authors, check the AUTHORS file.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1430 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../rofi-script.5/">
+      
+      
+        <link rel="next" href="../rofi-keys.5/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Debugging - Rofi Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rofi-debugging-5-rofi-debugging" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Rofi Documentation" class="md-header__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Rofi Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Debugging
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Rofi Documentation" class="md-nav__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Rofi Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../COPYING/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/issues" class="md-nav__link">
+        Issue Tracker
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/discussions" class="md-nav__link">
+        Discussions Forum
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../downloads/" class="md-nav__link">
+        Downloads
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../INSTALL/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONFIG/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../themes/themes/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_8" type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" tabindex="0" aria-expanded="false">
+          Guides
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Guides" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Guides
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Transparency/theme3-transparency/" class="md-nav__link">
+        Transparency
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Positioning/theme3-positioning/" class="md-nav__link">
+        Positioning
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins/" class="md-nav__link">
+        Plugins
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/DynamicThemes/dynamic_themes/" class="md-nav__link">
+        Dynamic Theme
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_9" type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" tabindex="0" aria-expanded="false">
+          Current
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Current" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Current
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_10" type="checkbox" id="__nav_10" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10" tabindex="0" aria-expanded="false">
+          1.7.5
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.5" data-md-level="1">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.5
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_11" type="checkbox" id="__nav_11" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_11" tabindex="0" aria-expanded="true">
+          1.7.4
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.4" data-md-level="1">
+        <label class="md-nav__title" for="__nav_11">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.4
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Debugging
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Debugging
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-the-relevant-information-for-an-issue" class="md-nav__link">
+    Get the relevant information for an issue
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timing-traces" class="md-nav__link">
+    Timing traces
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug-domains" class="md-nav__link">
+    Debug domains
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-backtrace" class="md-nav__link">
+    Creating a backtrace.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    AUTHOR
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_12" type="checkbox" id="__nav_12" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_12" tabindex="0" aria-expanded="false">
+          1.7.3
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.3" data-md-level="1">
+        <label class="md-nav__title" for="__nav_12">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.3
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_13" type="checkbox" id="__nav_13" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_13" tabindex="0" aria-expanded="false">
+          1.7.2
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.2" data-md-level="1">
+        <label class="md-nav__title" for="__nav_13">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.2
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_14" type="checkbox" id="__nav_14" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_14" tabindex="0" aria-expanded="false">
+          1.7.1
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.1" data-md-level="1">
+        <label class="md-nav__title" for="__nav_14">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.1
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_15" type="checkbox" id="__nav_15" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_15" tabindex="0" aria-expanded="false">
+          1.7.0
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.0" data-md-level="1">
+        <label class="md-nav__title" for="__nav_15">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.0
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-the-relevant-information-for-an-issue" class="md-nav__link">
+    Get the relevant information for an issue
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timing-traces" class="md-nav__link">
+    Timing traces
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug-domains" class="md-nav__link">
+    Debug domains
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-backtrace" class="md-nav__link">
+    Creating a backtrace.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    AUTHOR
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="rofi-debugging-5-rofi-debugging">ROFI DEBUGGING 5 rofi debugging</h1>
+<h2 id="name">NAME</h2>
+<p>Debugging rofi.</p>
+<p>When reporting an issue with rofi crashing, or misbehaving. It helps to do some small test
+to help pin-point the problem.</p>
+<p>First try disabling your custom configuration: <code>-no-config</code></p>
+<p>This disables the parsing of the configuration files. This runs rofi in <em>stock</em> mode.</p>
+<p>If you run custom C plugins, you can disable the plugins using: <code>-no-plugins</code></p>
+<h2 id="get-the-relevant-information-for-an-issue">Get the relevant information for an issue</h2>
+<p>Please pastebin the output of the following commands:</p>
+<pre><code class="language-bash">rofi -help
+rofi -dump-config
+rofi -dump-theme
+</code></pre>
+<p><code>rofi -help</code>  provides us with the configuration files parsed, the exact version, monitor layout
+and more useful information.</p>
+<p>The <code>rofi -dump-config</code> and <code>rofi -dump-theme</code> output gives us <code>rofi</code>
+interpretation of your configuration and theme.</p>
+<p>Please check the output for identifiable information and remove this.</p>
+<h2 id="timing-traces">Timing traces</h2>
+<p>To get a timing trace, enable the <strong>Timings</strong> debug domain.</p>
+<pre><code class="language-bash">G_MESSAGES_DEBUG=Timings rofi -show drun
+</code></pre>
+<p>It will show a trace with (useful) timing information at relevant points during the execution.
+This will help debugging when rofi is slow to start.</p>
+<p>Example trace:</p>
+<pre><code>(process:14942): Timings-DEBUG: 13:47:39.335: 0.000000 (0.000000): Started
+(process:14942): Timings-DEBUG: 13:47:39.335: 0.000126 (0.000126): ../source/rofi.c:main:786 
+(process:14942): Timings-DEBUG: 13:47:39.335: 0.000163 (0.000037): ../source/rofi.c:main:819 
+(process:14942): Timings-DEBUG: 13:47:39.336: 0.000219 (0.000056): ../source/rofi.c:main:826 Setup Locale
+(process:14942): Timings-DEBUG: 13:47:39.337: 0.001235 (0.001016): ../source/rofi.c:main:828 Collect MODI
+(process:14942): Timings-DEBUG: 13:47:39.337: 0.001264 (0.000029): ../source/rofi.c:main:830 Setup MODI
+(process:14942): Timings-DEBUG: 13:47:39.337: 0.001283 (0.000019): ../source/rofi.c:main:834 Setup mainloop
+(process:14942): Timings-DEBUG: 13:47:39.337: 0.001369 (0.000086): ../source/rofi.c:main:837 NK Bindings
+(process:14942): Timings-DEBUG: 13:47:39.337: 0.001512 (0.000143): ../source/xcb.c:display_setup:1177 Open Display
+(process:14942): Timings-DEBUG: 13:47:39.337: 0.001829 (0.000317): ../source/xcb.c:display_setup:1192 Setup XCB
+(process:14942): Timings-DEBUG: 13:47:39.346: 0.010650 (0.008821): ../source/rofi.c:main:844 Setup Display
+(process:14942): Timings-DEBUG: 13:47:39.346: 0.010715 (0.000065): ../source/rofi.c:main:848 Setup abe
+(process:14942): Timings-DEBUG: 13:47:39.350: 0.015101 (0.004386): ../source/rofi.c:main:883 Load cmd config 
+(process:14942): Timings-DEBUG: 13:47:39.351: 0.015275 (0.000174): ../source/rofi.c:main:907 Setup Modi
+(process:14942): Timings-DEBUG: 13:47:39.351: 0.015291 (0.000016): ../source/view.c:rofi_view_workers_initialize:1922 Setup Threadpool, start
+(process:14942): Timings-DEBUG: 13:47:39.351: 0.015349 (0.000058): ../source/view.c:rofi_view_workers_initialize:1945 Setup Threadpool, done
+(process:14942): Timings-DEBUG: 13:47:39.367: 0.032018 (0.016669): ../source/rofi.c:main:1000 Setup late Display
+(process:14942): Timings-DEBUG: 13:47:39.367: 0.032080 (0.000062): ../source/rofi.c:main:1003 Theme setup
+(process:14942): Timings-DEBUG: 13:47:39.367: 0.032109 (0.000029): ../source/rofi.c:startup:668 Startup
+(process:14942): Timings-DEBUG: 13:47:39.367: 0.032121 (0.000012): ../source/rofi.c:startup:677 Grab keyboard
+(process:14942): Timings-DEBUG: 13:47:39.368: 0.032214 (0.000093): ../source/view.c:__create_window:701 xcb create window
+(process:14942): Timings-DEBUG: 13:47:39.368: 0.032235 (0.000021): ../source/view.c:__create_window:705 xcb create gc
+(process:14942): Timings-DEBUG: 13:47:39.368: 0.033136 (0.000901): ../source/view.c:__create_window:714 create cairo surface
+(process:14942): Timings-DEBUG: 13:47:39.369: 0.033286 (0.000150): ../source/view.c:__create_window:723 pango cairo font setup
+(process:14942): Timings-DEBUG: 13:47:39.369: 0.033351 (0.000065): ../source/view.c:__create_window:761 configure font
+(process:14942): Timings-DEBUG: 13:47:39.381: 0.045896 (0.012545): ../source/view.c:__create_window:769 textbox setup
+(process:14942): Timings-DEBUG: 13:47:39.381: 0.045944 (0.000048): ../source/view.c:__create_window:781 setup window attributes
+(process:14942): Timings-DEBUG: 13:47:39.381: 0.045955 (0.000011): ../source/view.c:__create_window:791 setup window fullscreen
+(process:14942): Timings-DEBUG: 13:47:39.381: 0.045966 (0.000011): ../source/view.c:__create_window:797 setup window name and class
+(process:14942): Timings-DEBUG: 13:47:39.381: 0.045974 (0.000008): ../source/view.c:__create_window:808 setup startup notification
+(process:14942): Timings-DEBUG: 13:47:39.381: 0.045981 (0.000007): ../source/view.c:__create_window:810 done
+(process:14942): Timings-DEBUG: 13:47:39.381: 0.045992 (0.000011): ../source/rofi.c:startup:679 Create Window
+(process:14942): Timings-DEBUG: 13:47:39.381: 0.045999 (0.000007): ../source/rofi.c:startup:681 Parse ABE
+(process:14942): Timings-DEBUG: 13:47:39.381: 0.046113 (0.000114): ../source/rofi.c:startup:684 Config sanity check
+(process:14942): Timings-DEBUG: 13:47:39.384: 0.048229 (0.002116): ../source/dialogs/run.c:get_apps:216 start
+(process:14942): Timings-DEBUG: 13:47:39.390: 0.054626 (0.006397): ../source/dialogs/run.c:get_apps:336 stop
+(process:14942): Timings-DEBUG: 13:47:39.390: 0.054781 (0.000155): ../source/dialogs/drun.c:get_apps:634 Get Desktop apps (start)
+(process:14942): Timings-DEBUG: 13:47:39.391: 0.055264 (0.000483): ../source/dialogs/drun.c:get_apps:641 Get Desktop apps (user dir)
+(process:14942): Timings-DEBUG: 13:47:39.418: 0.082884 (0.027620): ../source/dialogs/drun.c:get_apps:659 Get Desktop apps (system dirs)
+(process:14942): Timings-DEBUG: 13:47:39.418: 0.082944 (0.000060): ../source/dialogs/drun.c:get_apps_history:597 Start drun history
+(process:14942): Timings-DEBUG: 13:47:39.418: 0.082977 (0.000033): ../source/dialogs/drun.c:get_apps_history:617 Stop drun history
+(process:14942): Timings-DEBUG: 13:47:39.419: 0.083638 (0.000661): ../source/dialogs/drun.c:get_apps:664 Sorting done.
+(process:14942): Timings-DEBUG: 13:47:39.419: 0.083685 (0.000047): ../source/view.c:rofi_view_create:1759 
+(process:14942): Timings-DEBUG: 13:47:39.419: 0.083700 (0.000015): ../source/view.c:rofi_view_create:1783 Startup notification
+(process:14942): Timings-DEBUG: 13:47:39.419: 0.083711 (0.000011): ../source/view.c:rofi_view_create:1786 Get active monitor
+(process:14942): Timings-DEBUG: 13:47:39.420: 0.084693 (0.000982): ../source/view.c:rofi_view_refilter:1028 Filter start
+(process:14942): Timings-DEBUG: 13:47:39.421: 0.085992 (0.001299): ../source/view.c:rofi_view_refilter:1132 Filter done
+(process:14942): Timings-DEBUG: 13:47:39.421: 0.086090 (0.000098): ../source/view.c:rofi_view_update:982 
+(process:14942): Timings-DEBUG: 13:47:39.421: 0.086123 (0.000033): ../source/view.c:rofi_view_update:1002 Background
+(process:14942): Timings-DEBUG: 13:47:39.428: 0.092864 (0.006741): ../source/view.c:rofi_view_update:1008 widgets
+</code></pre>
+<h2 id="debug-domains">Debug domains</h2>
+<p>To further debug the plugin, you can get a trace with (lots of) debug information. This debug output can be enabled for
+multiple parts in rofi using the glib debug framework. Debug domains can be enabled by setting the G_MESSAGES_DEBUG
+environment variable. At the time of creation of this page, the following debug domains exist:</p>
+<ul>
+<li>all: Show debug information from all domains.</li>
+<li>X11Helper: The X11 Helper functions.</li>
+<li>View: The main window view functions.</li>
+<li>Widgets.Box: The Box widget.</li>
+<li>Modes.DMenu: The dmenu mode.</li>
+<li>Modes.Run: The run mode.</li>
+<li>Modes.DRun: The desktop file run mode.</li>
+<li>Modes.Window: The window mode.</li>
+<li>Modes.Script: The script mode.</li>
+<li>Modes.Combi: The script mode.</li>
+<li>Modes.Ssh: The ssh mode.</li>
+<li>Rofi: The main application.</li>
+<li>Timings: Get timing output.</li>
+<li>Theme: Theme engine debug output. (warning lots of output).</li>
+<li>Widgets.Icon: The Icon widget.</li>
+<li>Widgets.Box: The box widget.</li>
+<li>Widgets.Container: The container widget.</li>
+<li>Widgets.Window: The window widget.</li>
+<li>Helpers.IconFetcher: Information about icon lookup.</li>
+</ul>
+<p>For full list see <code>man rofi</code>.</p>
+<p>Example: <code>G_MESSAGES_DEBUG=Dialogs.DRun rofi -show drun</code> To get specific output from the Desktop file run dialog.</p>
+<p>To redirect the debug output to a file (<code>~/rofi.log</code>) add:</p>
+<pre><code>rofi -show drun -log ~/rofi.log
+</code></pre>
+<p>Specifying the logfile automatically enabled all log domains.
+This can be useful when rofi is launched from a window manager.</p>
+<h2 id="creating-a-backtrace">Creating a backtrace.</h2>
+<p>First make sure you compile <strong>rofi</strong> with debug symbols:</p>
+<pre><code class="language-bash">make CFLAGS=&quot;-O0 -g3&quot; clean rofi
+</code></pre>
+<p>Getting a backtrace using GDB is not very handy. Because if rofi get stuck, it grabs keyboard and
+mouse. So if it crashes in GDB you are stuck.
+The best way to go is to enable core file. (ulimit -c unlimited in bash) then make rofi crash. You
+can then load the core in GDB.</p>
+<pre><code class="language-bash">gdb rofi core
+</code></pre>
+<p>Then type inside gdb:</p>
+<pre><code>thread apply all bt
+</code></pre>
+<p>The output trace is useful when reporting crashes.</p>
+<p>Some distribution have <code>systemd-coredump</code>, this way you can easily get a backtrace via <code>coredumpctl</code>.</p>
+<h2 id="see-also">SEE ALSO</h2>
+<p><strong>rofi-sensible-terminal(1)</strong>, <strong>dmenu(1)</strong>, <strong>rofi-debugging(5)</strong>, <strong>rofi-theme(5)</strong>, <strong>rofi-script(5)</strong>, <strong>rofi-keys(5)</strong>,<strong>rofi-theme-selector(1)</strong></p>
+<h2 id="author">AUTHOR</h2>
+<ul>
+<li>Qball Cow <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#113;&#98;&#97;&#108;&#108;&#64;&#98;&#108;&#97;&#109;&#101;&#46;&#115;&#101;&#114;&#118;&#105;&#99;&#101;&#115;">&#113;&#98;&#97;&#108;&#108;&#64;&#98;&#108;&#97;&#109;&#101;&#46;&#115;&#101;&#114;&#118;&#105;&#99;&#101;&#115;</a></li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>

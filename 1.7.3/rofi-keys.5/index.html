@@ -1,0 +1,2694 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../rofi-debugging.5/">
+      
+      
+        <link rel="next" href="../../1.7.2/rofi.1/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Keys - Rofi Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rofi-keys-5-rofi-keys" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Rofi Documentation" class="md-header__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Rofi Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Keys
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Rofi Documentation" class="md-nav__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Rofi Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../COPYING/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/issues" class="md-nav__link">
+        Issue Tracker
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/discussions" class="md-nav__link">
+        Discussions Forum
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../downloads/" class="md-nav__link">
+        Downloads
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../INSTALL/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONFIG/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../themes/themes/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_8" type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" tabindex="0" aria-expanded="false">
+          Guides
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Guides" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Guides
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Transparency/theme3-transparency/" class="md-nav__link">
+        Transparency
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Positioning/theme3-positioning/" class="md-nav__link">
+        Positioning
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins/" class="md-nav__link">
+        Plugins
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/DynamicThemes/dynamic_themes/" class="md-nav__link">
+        Dynamic Theme
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_9" type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" tabindex="0" aria-expanded="false">
+          Current
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Current" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Current
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_10" type="checkbox" id="__nav_10" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10" tabindex="0" aria-expanded="false">
+          1.7.5
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.5" data-md-level="1">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.5
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_11" type="checkbox" id="__nav_11" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_11" tabindex="0" aria-expanded="false">
+          1.7.4
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.4" data-md-level="1">
+        <label class="md-nav__title" for="__nav_11">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.4
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_12" type="checkbox" id="__nav_12" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_12" tabindex="0" aria-expanded="true">
+          1.7.3
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.3" data-md-level="1">
+        <label class="md-nav__title" for="__nav_12">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.3
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Keys
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Keys
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-binding" class="md-nav__link">
+    Setting binding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unsetting-a-binding" class="md-nav__link">
+    Unsetting a binding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyboard-bindings" class="md-nav__link">
+    Keyboard Bindings
+  </a>
+  
+    <nav class="md-nav" aria-label="Keyboard Bindings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kb-primary-paste" class="md-nav__link">
+    kb-primary-paste:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-secondary-paste" class="md-nav__link">
+    kb-secondary-paste
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-secondary-copy" class="md-nav__link">
+    kb-secondary-copy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-clear-line" class="md-nav__link">
+    kb-clear-line
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-front" class="md-nav__link">
+    kb-move-front
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-end" class="md-nav__link">
+    kb-move-end
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-word-back" class="md-nav__link">
+    kb-move-word-back
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-word-forward" class="md-nav__link">
+    kb-move-word-forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-char-back" class="md-nav__link">
+    kb-move-char-back
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-char-forward" class="md-nav__link">
+    kb-move-char-forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-word-back" class="md-nav__link">
+    kb-remove-word-back
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-word-forward" class="md-nav__link">
+    kb-remove-word-forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-char-forward" class="md-nav__link">
+    kb-remove-char-forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-char-back" class="md-nav__link">
+    kb-remove-char-back
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-to-eol" class="md-nav__link">
+    kb-remove-to-eol
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-to-sol" class="md-nav__link">
+    kb-remove-to-sol
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-accept-entry" class="md-nav__link">
+    kb-accept-entry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-accept-custom" class="md-nav__link">
+    kb-accept-custom
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-accept-custom-alt" class="md-nav__link">
+    kb-accept-custom-alt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-accept-alt" class="md-nav__link">
+    kb-accept-alt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-delete-entry" class="md-nav__link">
+    kb-delete-entry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-mode-next" class="md-nav__link">
+    kb-mode-next
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-mode-previous" class="md-nav__link">
+    kb-mode-previous
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-mode-complete" class="md-nav__link">
+    kb-mode-complete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-left" class="md-nav__link">
+    kb-row-left
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-right" class="md-nav__link">
+    kb-row-right
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-up" class="md-nav__link">
+    kb-row-up
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-down" class="md-nav__link">
+    kb-row-down
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-tab" class="md-nav__link">
+    kb-row-tab
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-element-next" class="md-nav__link">
+    kb-element-next
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-element-prev" class="md-nav__link">
+    kb-element-prev
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-page-prev" class="md-nav__link">
+    kb-page-prev
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-page-next" class="md-nav__link">
+    kb-page-next
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-first" class="md-nav__link">
+    kb-row-first
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-last" class="md-nav__link">
+    kb-row-last
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-select" class="md-nav__link">
+    kb-row-select
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-screenshot" class="md-nav__link">
+    kb-screenshot
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-ellipsize" class="md-nav__link">
+    kb-ellipsize
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-toggle-case-sensitivity" class="md-nav__link">
+    kb-toggle-case-sensitivity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-toggle-sort" class="md-nav__link">
+    kb-toggle-sort
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-cancel" class="md-nav__link">
+    kb-cancel
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-1" class="md-nav__link">
+    kb-custom-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-2" class="md-nav__link">
+    kb-custom-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-3" class="md-nav__link">
+    kb-custom-3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-4" class="md-nav__link">
+    kb-custom-4
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-5" class="md-nav__link">
+    kb-custom-5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-6" class="md-nav__link">
+    kb-custom-6
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-7" class="md-nav__link">
+    kb-custom-7
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-8" class="md-nav__link">
+    kb-custom-8
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-9" class="md-nav__link">
+    kb-custom-9
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-10" class="md-nav__link">
+    kb-custom-10
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-11" class="md-nav__link">
+    kb-custom-11
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-12" class="md-nav__link">
+    kb-custom-12
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-13" class="md-nav__link">
+    kb-custom-13
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-14" class="md-nav__link">
+    kb-custom-14
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-15" class="md-nav__link">
+    kb-custom-15
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-16" class="md-nav__link">
+    kb-custom-16
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-17" class="md-nav__link">
+    kb-custom-17
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-18" class="md-nav__link">
+    kb-custom-18
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-19" class="md-nav__link">
+    kb-custom-19
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-1" class="md-nav__link">
+    kb-select-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-2" class="md-nav__link">
+    kb-select-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-3" class="md-nav__link">
+    kb-select-3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-4" class="md-nav__link">
+    kb-select-4
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-5" class="md-nav__link">
+    kb-select-5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-6" class="md-nav__link">
+    kb-select-6
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-7" class="md-nav__link">
+    kb-select-7
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-8" class="md-nav__link">
+    kb-select-8
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-9" class="md-nav__link">
+    kb-select-9
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-10" class="md-nav__link">
+    kb-select-10
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mouse-bindings" class="md-nav__link">
+    Mouse Bindings
+  </a>
+  
+    <nav class="md-nav" aria-label="Mouse Bindings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ml-row-left" class="md-nav__link">
+    ml-row-left
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ml-row-right" class="md-nav__link">
+    ml-row-right
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ml-row-up" class="md-nav__link">
+    ml-row-up
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ml-row-down" class="md-nav__link">
+    ml-row-down
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#me-select-entry" class="md-nav__link">
+    me-select-entry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#me-accept-entry" class="md-nav__link">
+    me-accept-entry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#me-accept-custom" class="md-nav__link">
+    me-accept-custom
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    AUTHOR
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_13" type="checkbox" id="__nav_13" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_13" tabindex="0" aria-expanded="false">
+          1.7.2
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.2" data-md-level="1">
+        <label class="md-nav__title" for="__nav_13">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.2
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_14" type="checkbox" id="__nav_14" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_14" tabindex="0" aria-expanded="false">
+          1.7.1
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.1" data-md-level="1">
+        <label class="md-nav__title" for="__nav_14">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.1
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_15" type="checkbox" id="__nav_15" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_15" tabindex="0" aria-expanded="false">
+          1.7.0
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.0" data-md-level="1">
+        <label class="md-nav__title" for="__nav_15">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.0
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-binding" class="md-nav__link">
+    Setting binding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unsetting-a-binding" class="md-nav__link">
+    Unsetting a binding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyboard-bindings" class="md-nav__link">
+    Keyboard Bindings
+  </a>
+  
+    <nav class="md-nav" aria-label="Keyboard Bindings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kb-primary-paste" class="md-nav__link">
+    kb-primary-paste:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-secondary-paste" class="md-nav__link">
+    kb-secondary-paste
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-secondary-copy" class="md-nav__link">
+    kb-secondary-copy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-clear-line" class="md-nav__link">
+    kb-clear-line
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-front" class="md-nav__link">
+    kb-move-front
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-end" class="md-nav__link">
+    kb-move-end
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-word-back" class="md-nav__link">
+    kb-move-word-back
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-word-forward" class="md-nav__link">
+    kb-move-word-forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-char-back" class="md-nav__link">
+    kb-move-char-back
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-move-char-forward" class="md-nav__link">
+    kb-move-char-forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-word-back" class="md-nav__link">
+    kb-remove-word-back
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-word-forward" class="md-nav__link">
+    kb-remove-word-forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-char-forward" class="md-nav__link">
+    kb-remove-char-forward
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-char-back" class="md-nav__link">
+    kb-remove-char-back
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-to-eol" class="md-nav__link">
+    kb-remove-to-eol
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-remove-to-sol" class="md-nav__link">
+    kb-remove-to-sol
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-accept-entry" class="md-nav__link">
+    kb-accept-entry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-accept-custom" class="md-nav__link">
+    kb-accept-custom
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-accept-custom-alt" class="md-nav__link">
+    kb-accept-custom-alt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-accept-alt" class="md-nav__link">
+    kb-accept-alt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-delete-entry" class="md-nav__link">
+    kb-delete-entry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-mode-next" class="md-nav__link">
+    kb-mode-next
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-mode-previous" class="md-nav__link">
+    kb-mode-previous
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-mode-complete" class="md-nav__link">
+    kb-mode-complete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-left" class="md-nav__link">
+    kb-row-left
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-right" class="md-nav__link">
+    kb-row-right
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-up" class="md-nav__link">
+    kb-row-up
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-down" class="md-nav__link">
+    kb-row-down
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-tab" class="md-nav__link">
+    kb-row-tab
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-element-next" class="md-nav__link">
+    kb-element-next
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-element-prev" class="md-nav__link">
+    kb-element-prev
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-page-prev" class="md-nav__link">
+    kb-page-prev
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-page-next" class="md-nav__link">
+    kb-page-next
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-first" class="md-nav__link">
+    kb-row-first
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-last" class="md-nav__link">
+    kb-row-last
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-row-select" class="md-nav__link">
+    kb-row-select
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-screenshot" class="md-nav__link">
+    kb-screenshot
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-ellipsize" class="md-nav__link">
+    kb-ellipsize
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-toggle-case-sensitivity" class="md-nav__link">
+    kb-toggle-case-sensitivity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-toggle-sort" class="md-nav__link">
+    kb-toggle-sort
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-cancel" class="md-nav__link">
+    kb-cancel
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-1" class="md-nav__link">
+    kb-custom-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-2" class="md-nav__link">
+    kb-custom-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-3" class="md-nav__link">
+    kb-custom-3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-4" class="md-nav__link">
+    kb-custom-4
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-5" class="md-nav__link">
+    kb-custom-5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-6" class="md-nav__link">
+    kb-custom-6
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-7" class="md-nav__link">
+    kb-custom-7
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-8" class="md-nav__link">
+    kb-custom-8
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-9" class="md-nav__link">
+    kb-custom-9
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-10" class="md-nav__link">
+    kb-custom-10
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-11" class="md-nav__link">
+    kb-custom-11
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-12" class="md-nav__link">
+    kb-custom-12
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-13" class="md-nav__link">
+    kb-custom-13
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-14" class="md-nav__link">
+    kb-custom-14
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-15" class="md-nav__link">
+    kb-custom-15
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-16" class="md-nav__link">
+    kb-custom-16
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-17" class="md-nav__link">
+    kb-custom-17
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-18" class="md-nav__link">
+    kb-custom-18
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-custom-19" class="md-nav__link">
+    kb-custom-19
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-1" class="md-nav__link">
+    kb-select-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-2" class="md-nav__link">
+    kb-select-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-3" class="md-nav__link">
+    kb-select-3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-4" class="md-nav__link">
+    kb-select-4
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-5" class="md-nav__link">
+    kb-select-5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-6" class="md-nav__link">
+    kb-select-6
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-7" class="md-nav__link">
+    kb-select-7
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-8" class="md-nav__link">
+    kb-select-8
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-9" class="md-nav__link">
+    kb-select-9
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kb-select-10" class="md-nav__link">
+    kb-select-10
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mouse-bindings" class="md-nav__link">
+    Mouse Bindings
+  </a>
+  
+    <nav class="md-nav" aria-label="Mouse Bindings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ml-row-left" class="md-nav__link">
+    ml-row-left
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ml-row-right" class="md-nav__link">
+    ml-row-right
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ml-row-up" class="md-nav__link">
+    ml-row-up
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ml-row-down" class="md-nav__link">
+    ml-row-down
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#me-select-entry" class="md-nav__link">
+    me-select-entry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#me-accept-entry" class="md-nav__link">
+    me-accept-entry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#me-accept-custom" class="md-nav__link">
+    me-accept-custom
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    AUTHOR
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="rofi-keys-5-rofi-keys">ROFI-KEYS 5 rofi-keys</h1>
+<h2 id="name">NAME</h2>
+<p><strong>rofi keys</strong> - Rofi Key and Mouse bindings </p>
+<h2 id="description">DESCRIPTION</h2>
+<p><strong>rofi</strong> supports overriding of any of it key and mouse binding.</p>
+<h2 id="setting-binding">Setting binding</h2>
+<p>Bindings can be done on the commandline (-{bindingname}):</p>
+<pre><code class="language-bash">rofi -show run -kb-accept-entry 'Control+Shift+space'
+</code></pre>
+<p>or via the configuration file:</p>
+<pre><code class="language-css">configuration {
+  kb-accept-entry: &quot;Control+Shift+space&quot;;
+}
+</code></pre>
+<p>The key can be set by its name (see above) or its keycode:</p>
+<pre><code class="language-css">configuration {
+  kb-accept-entry: &quot;Control+Shift+[65]&quot;;
+}
+</code></pre>
+<p>An easy way to look up keycode is xev(1).</p>
+<p>Multiple keys can be specified for an action as a comma separated list:</p>
+<pre><code class="language-css">configuration {
+  kb-accept-entry: &quot;Control+Shift+space,Return&quot;;
+}
+</code></pre>
+<p>By Default <strong>rofi</strong> reacts on pressing, to act on the release of all keys
+prepend the binding with <code>!</code>:</p>
+<pre><code class="language-css">configuration {
+  kb-accept-entry: &quot;!Control+Shift+space,Return&quot;;
+}
+</code></pre>
+<h2 id="unsetting-a-binding">Unsetting a binding</h2>
+<p>To unset a binding, pass an empty string.</p>
+<pre><code class="language-css">configuration {
+  kb-clear-line: &quot;&quot;;
+}
+</code></pre>
+<h2 id="keyboard-bindings">Keyboard Bindings</h2>
+<h3 id="kb-primary-paste"><strong>kb-primary-paste</strong>:</h3>
+<p>Paste primary selection</p>
+<p><strong>Default</strong>:  Control+V,Shift+Insert </p>
+<h3 id="kb-secondary-paste"><strong>kb-secondary-paste</strong></h3>
+<p>Paste clipboard</p>
+<p><strong>Default</strong>:    Control+v,Insert </p>
+<h3 id="kb-secondary-copy"><strong>kb-secondary-copy</strong></h3>
+<p>Copy current selection to clipboard</p>
+<p><strong>Default</strong>:    Control+c</p>
+<h3 id="kb-clear-line"><strong>kb-clear-line</strong></h3>
+<p>Clear input line</p>
+<p><strong>Default</strong>:    Control+w </p>
+<h3 id="kb-move-front"><strong>kb-move-front</strong></h3>
+<p>Beginning of line</p>
+<p><strong>Default</strong>:    Control+a </p>
+<h3 id="kb-move-end"><strong>kb-move-end</strong></h3>
+<p>End of line</p>
+<p><strong>Default</strong>:    Control+e </p>
+<h3 id="kb-move-word-back"><strong>kb-move-word-back</strong></h3>
+<p>Move back one word</p>
+<p><strong>Default</strong>:    Alt+b,Control+Left </p>
+<h3 id="kb-move-word-forward"><strong>kb-move-word-forward</strong></h3>
+<p>Move forward one word</p>
+<p><strong>Default</strong>:    Alt+f,Control+Right </p>
+<h3 id="kb-move-char-back"><strong>kb-move-char-back</strong></h3>
+<p>Move back one char</p>
+<p><strong>Default</strong>:    Left,Control+b </p>
+<h3 id="kb-move-char-forward"><strong>kb-move-char-forward</strong></h3>
+<p>Move forward one char</p>
+<p><strong>Default</strong>:    Right,Control+f </p>
+<h3 id="kb-remove-word-back"><strong>kb-remove-word-back</strong></h3>
+<p>Delete previous word</p>
+<p><strong>Default</strong>:    Control+Alt+h,Control+BackSpace </p>
+<h3 id="kb-remove-word-forward"><strong>kb-remove-word-forward</strong></h3>
+<p>Delete next word</p>
+<p><strong>Default</strong>:    Control+Alt+d </p>
+<h3 id="kb-remove-char-forward"><strong>kb-remove-char-forward</strong></h3>
+<p>Delete next char</p>
+<p><strong>Default</strong>:    Delete,Control+d </p>
+<h3 id="kb-remove-char-back"><strong>kb-remove-char-back</strong></h3>
+<p>Delete previous char</p>
+<p><strong>Default</strong>:    BackSpace,Shift+BackSpace,Control+h </p>
+<h3 id="kb-remove-to-eol"><strong>kb-remove-to-eol</strong></h3>
+<p>Delete till the end of line</p>
+<p><strong>Default</strong>:    Control+k </p>
+<h3 id="kb-remove-to-sol"><strong>kb-remove-to-sol</strong></h3>
+<p>Delete till the start of line</p>
+<p><strong>Default</strong>:    Control+u </p>
+<h3 id="kb-accept-entry"><strong>kb-accept-entry</strong></h3>
+<p>Accept entry</p>
+<p><strong>Default</strong>:    Control+j,Control+m,Return,KP_Enter </p>
+<h3 id="kb-accept-custom"><strong>kb-accept-custom</strong></h3>
+<p>Use entered text as command (in ssh/run modes)</p>
+<p><strong>Default</strong>:    Control+Return </p>
+<h3 id="kb-accept-custom-alt"><strong>kb-accept-custom-alt</strong></h3>
+<p>Use entered text as command (in ssh/run modes)</p>
+<p><strong>Default</strong>:    Control+Shift+Return </p>
+<h3 id="kb-accept-alt"><strong>kb-accept-alt</strong></h3>
+<p>Use alternate accept command.</p>
+<p><strong>Default</strong>:    Shift+Return </p>
+<h3 id="kb-delete-entry"><strong>kb-delete-entry</strong></h3>
+<p>Delete entry from history</p>
+<p><strong>Default</strong>:    Shift+Delete </p>
+<h3 id="kb-mode-next"><strong>kb-mode-next</strong></h3>
+<p>Switch to the next mode.</p>
+<p><strong>Default</strong>:    Shift+Right,Control+Tab </p>
+<h3 id="kb-mode-previous"><strong>kb-mode-previous</strong></h3>
+<p>Switch to the previous mode.</p>
+<p><strong>Default</strong>:    Shift+Left,Control+ISO_Left_Tab </p>
+<h3 id="kb-mode-complete"><strong>kb-mode-complete</strong></h3>
+<p>Start completion for mode.</p>
+<p><strong>Default</strong>:    Control+l </p>
+<h3 id="kb-row-left"><strong>kb-row-left</strong></h3>
+<p>Go to the previous column</p>
+<p><strong>Default</strong>:    Control+Page_Up </p>
+<h3 id="kb-row-right"><strong>kb-row-right</strong></h3>
+<p>Go to the next column</p>
+<p><strong>Default</strong>:    Control+Page_Down </p>
+<h3 id="kb-row-up"><strong>kb-row-up</strong></h3>
+<p>Select previous entry</p>
+<p><strong>Default</strong>:    Up,Control+p </p>
+<h3 id="kb-row-down"><strong>kb-row-down</strong></h3>
+<p>Select next entry</p>
+<p><strong>Default</strong>:    Down,Control+n </p>
+<h3 id="kb-row-tab"><strong>kb-row-tab</strong></h3>
+<p>Go to next row, if one left, accept it, if no left next mode.</p>
+<p><strong>Default</strong>:    </p>
+<h3 id="kb-element-next"><strong>kb-element-next</strong></h3>
+<p>Go to next row.</p>
+<p><strong>Default</strong>: Tab    </p>
+<h3 id="kb-element-prev"><strong>kb-element-prev</strong></h3>
+<p>Go to previous row.</p>
+<p><strong>Default</strong>: ISO_Left_Tab</p>
+<h3 id="kb-page-prev"><strong>kb-page-prev</strong></h3>
+<p>Go to the previous page</p>
+<p><strong>Default</strong>:    Page_Up </p>
+<h3 id="kb-page-next"><strong>kb-page-next</strong></h3>
+<p>Go to the next page</p>
+<p><strong>Default</strong>:    Page_Down </p>
+<h3 id="kb-row-first"><strong>kb-row-first</strong></h3>
+<p>Go to the first entry</p>
+<p><strong>Default</strong>:    Home,KP_Home </p>
+<h3 id="kb-row-last"><strong>kb-row-last</strong></h3>
+<p>Go to the last entry</p>
+<p><strong>Default</strong>:    End,KP_End </p>
+<h3 id="kb-row-select"><strong>kb-row-select</strong></h3>
+<p>Set selected item as input text</p>
+<p><strong>Default</strong>:    Control+space </p>
+<h3 id="kb-screenshot"><strong>kb-screenshot</strong></h3>
+<p>Take a screenshot of the rofi window</p>
+<p><strong>Default</strong>:    Alt+S </p>
+<h3 id="kb-ellipsize"><strong>kb-ellipsize</strong></h3>
+<p>Toggle between ellipsize modes for displayed data</p>
+<p><strong>Default</strong>:    Alt+period </p>
+<h3 id="kb-toggle-case-sensitivity"><strong>kb-toggle-case-sensitivity</strong></h3>
+<p>Toggle case sensitivity</p>
+<p><strong>Default</strong>:    grave,dead_grave </p>
+<h3 id="kb-toggle-sort"><strong>kb-toggle-sort</strong></h3>
+<p>Toggle sort</p>
+<p><strong>Default</strong>:    Alt+grave </p>
+<h3 id="kb-cancel"><strong>kb-cancel</strong></h3>
+<p>Quit rofi</p>
+<p><strong>Default</strong>:    Escape,Control+g,Control+bracketleft </p>
+<h3 id="kb-custom-1"><strong>kb-custom-1</strong></h3>
+<p>Custom keybinding 1</p>
+<p><strong>Default</strong>:    Alt+1 </p>
+<h3 id="kb-custom-2"><strong>kb-custom-2</strong></h3>
+<p>Custom keybinding 2</p>
+<p><strong>Default</strong>:    Alt+2 </p>
+<h3 id="kb-custom-3"><strong>kb-custom-3</strong></h3>
+<p>Custom keybinding 3</p>
+<p><strong>Default</strong>:    Alt+3 </p>
+<h3 id="kb-custom-4"><strong>kb-custom-4</strong></h3>
+<p>Custom keybinding 4</p>
+<p><strong>Default</strong>:    Alt+4 </p>
+<h3 id="kb-custom-5"><strong>kb-custom-5</strong></h3>
+<p>Custom Keybinding 5</p>
+<p><strong>Default</strong>:    Alt+5 </p>
+<h3 id="kb-custom-6"><strong>kb-custom-6</strong></h3>
+<p>Custom keybinding 6</p>
+<p><strong>Default</strong>:    Alt+6 </p>
+<h3 id="kb-custom-7"><strong>kb-custom-7</strong></h3>
+<p>Custom Keybinding 7</p>
+<p><strong>Default</strong>:    Alt+7 </p>
+<h3 id="kb-custom-8"><strong>kb-custom-8</strong></h3>
+<p>Custom keybinding 8</p>
+<p><strong>Default</strong>:    Alt+8 </p>
+<h3 id="kb-custom-9"><strong>kb-custom-9</strong></h3>
+<p>Custom keybinding 9</p>
+<p><strong>Default</strong>:    Alt+9 </p>
+<h3 id="kb-custom-10"><strong>kb-custom-10</strong></h3>
+<p>Custom keybinding 10</p>
+<p><strong>Default</strong>:    Alt+0 </p>
+<h3 id="kb-custom-11"><strong>kb-custom-11</strong></h3>
+<p>Custom keybinding 11</p>
+<p><strong>Default</strong>:    Alt+exclam </p>
+<h3 id="kb-custom-12"><strong>kb-custom-12</strong></h3>
+<p>Custom keybinding 12</p>
+<p><strong>Default</strong>:    Alt+at </p>
+<h3 id="kb-custom-13"><strong>kb-custom-13</strong></h3>
+<p>Custom keybinding 13</p>
+<p><strong>Default</strong>:    Alt+numbersign </p>
+<h3 id="kb-custom-14"><strong>kb-custom-14</strong></h3>
+<p>Custom keybinding 14</p>
+<p><strong>Default</strong>:    Alt+dollar </p>
+<h3 id="kb-custom-15"><strong>kb-custom-15</strong></h3>
+<p>Custom keybinding 15</p>
+<p><strong>Default</strong>:    Alt+percent </p>
+<h3 id="kb-custom-16"><strong>kb-custom-16</strong></h3>
+<p>Custom keybinding 16</p>
+<p><strong>Default</strong>:    Alt+dead_circumflex </p>
+<h3 id="kb-custom-17"><strong>kb-custom-17</strong></h3>
+<p>Custom keybinding 17</p>
+<p><strong>Default</strong>:    Alt+ampersand </p>
+<h3 id="kb-custom-18"><strong>kb-custom-18</strong></h3>
+<p>Custom keybinding 18</p>
+<p><strong>Default</strong>:    Alt+asterisk </p>
+<h3 id="kb-custom-19"><strong>kb-custom-19</strong></h3>
+<p>Custom Keybinding 19</p>
+<p><strong>Default</strong>:    Alt+parenleft </p>
+<h3 id="kb-select-1"><strong>kb-select-1</strong></h3>
+<p>Select row 1</p>
+<p><strong>Default</strong>:    Super+1 </p>
+<h3 id="kb-select-2"><strong>kb-select-2</strong></h3>
+<p>Select row 2</p>
+<p><strong>Default</strong>:    Super+2 </p>
+<h3 id="kb-select-3"><strong>kb-select-3</strong></h3>
+<p>Select row 3</p>
+<p><strong>Default</strong>:    Super+3 </p>
+<h3 id="kb-select-4"><strong>kb-select-4</strong></h3>
+<p>Select row 4</p>
+<p><strong>Default</strong>:    Super+4 </p>
+<h3 id="kb-select-5"><strong>kb-select-5</strong></h3>
+<p>Select row 5</p>
+<p><strong>Default</strong>:    Super+5 </p>
+<h3 id="kb-select-6"><strong>kb-select-6</strong></h3>
+<p>Select row 6</p>
+<p><strong>Default</strong>:    Super+6 </p>
+<h3 id="kb-select-7"><strong>kb-select-7</strong></h3>
+<p>Select row 7</p>
+<p><strong>Default</strong>:    Super+7 </p>
+<h3 id="kb-select-8"><strong>kb-select-8</strong></h3>
+<p>Select row 8</p>
+<p><strong>Default</strong>:    Super+8 </p>
+<h3 id="kb-select-9"><strong>kb-select-9</strong></h3>
+<p>Select row 9</p>
+<p><strong>Default</strong>:    Super+9 </p>
+<h3 id="kb-select-10"><strong>kb-select-10</strong></h3>
+<p>Select row 10</p>
+<p><strong>Default</strong>:    Super+0 </p>
+<h2 id="mouse-bindings">Mouse Bindings</h2>
+<h3 id="ml-row-left"><strong>ml-row-left</strong></h3>
+<p>Go to the previous column</p>
+<p><strong>Default</strong>:    ScrollLeft </p>
+<h3 id="ml-row-right"><strong>ml-row-right</strong></h3>
+<p>Go to the next column</p>
+<p><strong>Default</strong>:    ScrollRight </p>
+<h3 id="ml-row-up"><strong>ml-row-up</strong></h3>
+<p>Select previous entry</p>
+<p><strong>Default</strong>:    ScrollUp </p>
+<h3 id="ml-row-down"><strong>ml-row-down</strong></h3>
+<p>Select next entry</p>
+<p><strong>Default</strong>:    ScrollDown </p>
+<h3 id="me-select-entry"><strong>me-select-entry</strong></h3>
+<p>Select hovered row</p>
+<p><strong>Default</strong>:   MousePrimary </p>
+<h3 id="me-accept-entry"><strong>me-accept-entry</strong></h3>
+<p>Accept hovered row</p>
+<p><strong>Default</strong>:    MouseDPrimary </p>
+<h3 id="me-accept-custom"><strong>me-accept-custom</strong></h3>
+<p>Accept hovered row with custom action</p>
+<p><strong>Default</strong>:    Control+MouseDPrimary </p>
+<h2 id="see-also">SEE ALSO</h2>
+<p>rofi(1), rofi-sensible-terminal(1), rofi-theme(5), rofi-script(5) </p>
+<h2 id="author">AUTHOR</h2>
+<p>Qball Cow <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#113;&#98;&#97;&#108;&#108;&#64;&#103;&#109;&#112;&#99;&#108;&#105;&#101;&#110;&#116;&#46;&#111;&#114;&#103;">&#113;&#98;&#97;&#108;&#108;&#64;&#103;&#109;&#112;&#99;&#108;&#105;&#101;&#110;&#116;&#46;&#111;&#114;&#103;</a></p>
+<p>Rasmus Steinke <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#114;&#97;&#115;&#105;&#64;&#120;&#115;&#115;&#110;&#46;&#97;&#116;">&#114;&#97;&#115;&#105;&#64;&#120;&#115;&#115;&#110;&#46;&#97;&#116;</a></p>
+<p>Morgane Glidic <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#43;&#114;&#111;&#102;&#105;&#64;&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#46;&#110;&#101;&#116;">&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#43;&#114;&#111;&#102;&#105;&#64;&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#46;&#110;&#101;&#116;</a></p>
+<p>Original code based on work by: Sean Pringle <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#101;&#97;&#110;&#46;&#112;&#114;&#105;&#110;&#103;&#108;&#101;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#115;&#101;&#97;&#110;&#46;&#112;&#114;&#105;&#110;&#103;&#108;&#101;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a></p>
+<p>For a full list of authors, check the AUTHORS file.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>

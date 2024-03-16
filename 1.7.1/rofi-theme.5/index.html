@@ -1,0 +1,3088 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../rofi.1/">
+      
+      
+        <link rel="next" href="../rofi-script.5/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Themes - Rofi Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rofi-theme-5-rofi-theme" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Rofi Documentation" class="md-header__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Rofi Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Themes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Rofi Documentation" class="md-nav__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Rofi Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../COPYING/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/issues" class="md-nav__link">
+        Issue Tracker
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/discussions" class="md-nav__link">
+        Discussions Forum
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../downloads/" class="md-nav__link">
+        Downloads
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../INSTALL/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONFIG/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../themes/themes/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_8" type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" tabindex="0" aria-expanded="false">
+          Guides
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Guides" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Guides
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Transparency/theme3-transparency/" class="md-nav__link">
+        Transparency
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Positioning/theme3-positioning/" class="md-nav__link">
+        Positioning
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins/" class="md-nav__link">
+        Plugins
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/DynamicThemes/dynamic_themes/" class="md-nav__link">
+        Dynamic Theme
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_9" type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" tabindex="0" aria-expanded="false">
+          Current
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Current" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Current
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_10" type="checkbox" id="__nav_10" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10" tabindex="0" aria-expanded="false">
+          1.7.5
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.5" data-md-level="1">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.5
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_11" type="checkbox" id="__nav_11" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_11" tabindex="0" aria-expanded="false">
+          1.7.4
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.4" data-md-level="1">
+        <label class="md-nav__title" for="__nav_11">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.4
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_12" type="checkbox" id="__nav_12" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_12" tabindex="0" aria-expanded="false">
+          1.7.3
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.3" data-md-level="1">
+        <label class="md-nav__title" for="__nav_12">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.3
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_13" type="checkbox" id="__nav_13" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_13" tabindex="0" aria-expanded="false">
+          1.7.2
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.2" data-md-level="1">
+        <label class="md-nav__title" for="__nav_13">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.2
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.2/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_14" type="checkbox" id="__nav_14" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_14" tabindex="0" aria-expanded="true">
+          1.7.1
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.1" data-md-level="1">
+        <label class="md-nav__title" for="__nav_14">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.1
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Themes
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Themes
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-theme-loading" class="md-nav__link">
+    DEFAULT THEME LOADING
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format-specification" class="md-nav__link">
+    FORMAT SPECIFICATION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encoding" class="md-nav__link">
+    Encoding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comments" class="md-nav__link">
+    Comments
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#white-space" class="md-nav__link">
+    White space
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-extension" class="md-nav__link">
+    File extension
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-structure" class="md-nav__link">
+    Basic Structure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-properties-section" class="md-nav__link">
+    Global properties section
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#element-theme-section" class="md-nav__link">
+    Element theme section
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#properties-format" class="md-nav__link">
+    Properties Format
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#string" class="md-nav__link">
+    String
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integer" class="md-nav__link">
+    Integer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real" class="md-nav__link">
+    Real
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boolean" class="md-nav__link">
+    Boolean
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#image" class="md-nav__link">
+    Image
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#color" class="md-nav__link">
+    Color
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#text-style" class="md-nav__link">
+    Text style
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#line-style" class="md-nav__link">
+    Line style
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#distance" class="md-nav__link">
+    Distance
+  </a>
+  
+    <nav class="md-nav" aria-label="Distance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calculating-sizes" class="md-nav__link">
+    Calculating sizes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#padding" class="md-nav__link">
+    Padding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#border" class="md-nav__link">
+    Border
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#position" class="md-nav__link">
+    Position
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visibility" class="md-nav__link">
+    Visibility
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    Reference
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#orientation" class="md-nav__link">
+    Orientation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cursor" class="md-nav__link">
+    Cursor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list-of-keywords" class="md-nav__link">
+    List of keywords
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variable" class="md-nav__link">
+    Environment variable
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inherit" class="md-nav__link">
+    Inherit
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#elements-paths" class="md-nav__link">
+    ELEMENTS PATHS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-element-path" class="md-nav__link">
+    SUPPORTED ELEMENT PATH
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#name_1" class="md-nav__link">
+    Name
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state" class="md-nav__link">
+    State
+  </a>
+  
+    <nav class="md-nav" aria-label="State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entrybox" class="md-nav__link">
+    Entrybox:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scrollbar" class="md-nav__link">
+    Scrollbar
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-properties" class="md-nav__link">
+    SUPPORTED PROPERTIES
+  </a>
+  
+    <nav class="md-nav" aria-label="SUPPORTED PROPERTIES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#all-widgets" class="md-nav__link">
+    all widgets:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#window" class="md-nav__link">
+    window:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scrollbar_1" class="md-nav__link">
+    scrollbar:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#box" class="md-nav__link">
+    box:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#textbox" class="md-nav__link">
+    textbox:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#listview" class="md-nav__link">
+    listview:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#listview-text-highlight" class="md-nav__link">
+    listview text highlight:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layout" class="md-nav__link">
+    Layout
+  </a>
+  
+    <nav class="md-nav" aria-label="Layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-structure_1" class="md-nav__link">
+    Basic structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-message-structure" class="md-nav__link">
+    Error message structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-layout" class="md-nav__link">
+    Advanced layout
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#textbox_1" class="md-nav__link">
+    textbox
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#icon" class="md-nav__link">
+    Icon
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#button" class="md-nav__link">
+    button
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#children" class="md-nav__link">
+    Children
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#padding-and-margin" class="md-nav__link">
+    Padding and margin
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spacing" class="md-nav__link">
+    Spacing
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-box-packing" class="md-nav__link">
+    Advanced box packing
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    DEBUGGING
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#media-support" class="md-nav__link">
+    Media support
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#font-parsing" class="md-nav__link">
+    Font Parsing
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-file-handling" class="md-nav__link">
+    Multiple file handling
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    EXAMPLES
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_15" type="checkbox" id="__nav_15" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_15" tabindex="0" aria-expanded="false">
+          1.7.0
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.0" data-md-level="1">
+        <label class="md-nav__title" for="__nav_15">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.0
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-theme-loading" class="md-nav__link">
+    DEFAULT THEME LOADING
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format-specification" class="md-nav__link">
+    FORMAT SPECIFICATION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encoding" class="md-nav__link">
+    Encoding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comments" class="md-nav__link">
+    Comments
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#white-space" class="md-nav__link">
+    White space
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-extension" class="md-nav__link">
+    File extension
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-structure" class="md-nav__link">
+    Basic Structure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-properties-section" class="md-nav__link">
+    Global properties section
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#element-theme-section" class="md-nav__link">
+    Element theme section
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#properties-format" class="md-nav__link">
+    Properties Format
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#string" class="md-nav__link">
+    String
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integer" class="md-nav__link">
+    Integer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real" class="md-nav__link">
+    Real
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boolean" class="md-nav__link">
+    Boolean
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#image" class="md-nav__link">
+    Image
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#color" class="md-nav__link">
+    Color
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#text-style" class="md-nav__link">
+    Text style
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#line-style" class="md-nav__link">
+    Line style
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#distance" class="md-nav__link">
+    Distance
+  </a>
+  
+    <nav class="md-nav" aria-label="Distance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calculating-sizes" class="md-nav__link">
+    Calculating sizes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#padding" class="md-nav__link">
+    Padding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#border" class="md-nav__link">
+    Border
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#position" class="md-nav__link">
+    Position
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visibility" class="md-nav__link">
+    Visibility
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    Reference
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#orientation" class="md-nav__link">
+    Orientation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cursor" class="md-nav__link">
+    Cursor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list-of-keywords" class="md-nav__link">
+    List of keywords
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variable" class="md-nav__link">
+    Environment variable
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inherit" class="md-nav__link">
+    Inherit
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#elements-paths" class="md-nav__link">
+    ELEMENTS PATHS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-element-path" class="md-nav__link">
+    SUPPORTED ELEMENT PATH
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#name_1" class="md-nav__link">
+    Name
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state" class="md-nav__link">
+    State
+  </a>
+  
+    <nav class="md-nav" aria-label="State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entrybox" class="md-nav__link">
+    Entrybox:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scrollbar" class="md-nav__link">
+    Scrollbar
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-properties" class="md-nav__link">
+    SUPPORTED PROPERTIES
+  </a>
+  
+    <nav class="md-nav" aria-label="SUPPORTED PROPERTIES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#all-widgets" class="md-nav__link">
+    all widgets:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#window" class="md-nav__link">
+    window:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scrollbar_1" class="md-nav__link">
+    scrollbar:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#box" class="md-nav__link">
+    box:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#textbox" class="md-nav__link">
+    textbox:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#listview" class="md-nav__link">
+    listview:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#listview-text-highlight" class="md-nav__link">
+    listview text highlight:
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layout" class="md-nav__link">
+    Layout
+  </a>
+  
+    <nav class="md-nav" aria-label="Layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-structure_1" class="md-nav__link">
+    Basic structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-message-structure" class="md-nav__link">
+    Error message structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-layout" class="md-nav__link">
+    Advanced layout
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#textbox_1" class="md-nav__link">
+    textbox
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#icon" class="md-nav__link">
+    Icon
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#button" class="md-nav__link">
+    button
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#children" class="md-nav__link">
+    Children
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#padding-and-margin" class="md-nav__link">
+    Padding and margin
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spacing" class="md-nav__link">
+    Spacing
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-box-packing" class="md-nav__link">
+    Advanced box packing
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    DEBUGGING
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#media-support" class="md-nav__link">
+    Media support
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#font-parsing" class="md-nav__link">
+    Font Parsing
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-file-handling" class="md-nav__link">
+    Multiple file handling
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    EXAMPLES
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="rofi-theme-5-rofi-theme">ROFI-THEME 5 rofi-theme</h1>
+<h2 id="name">NAME</h2>
+<p><strong>rofi-theme</strong> - Rofi theme format files</p>
+<h2 id="default-theme-loading">DEFAULT THEME LOADING</h2>
+<p>By default, rofi loads the default theme. This theme is <strong>always</strong> loaded.
+In the default (always loaded) configuration it does:</p>
+<pre><code class="language-css">@theme &quot;default&quot;
+</code></pre>
+<p>To unload the default theme, and load another theme, add <code>@theme</code> to your
+<code>config.rasi</code> file.</p>
+<p>If you have a theme loaded by <code>@theme</code> or use the default theme, you can tweak
+it by adding overriding elements at the end of your <code>config.rasi</code> file.</p>
+<p>For the difference between <code>@import</code> and <code>@theme</code> see the <code>Multiple file
+handling</code> section in this manpage.</p>
+<p>To see the default theme, run the following command:</p>
+<pre><code class="language-bash">rofi -no-config -dump-theme
+</code></pre>
+<h2 id="description">DESCRIPTION</h2>
+<p>The need for a new theme format was motivated by the fact that the way rofi handled widgets has changed. From a very
+static drawing of lines and text to a nice structured form of packing widgets. This change made it possible to provide a
+more flexible theme framework. The old theme format and config file are not flexible enough to expose these options in a
+user-friendly way. Therefore, a new file format has been created, replacing the old one.</p>
+<h2 id="format-specification">FORMAT SPECIFICATION</h2>
+<h2 id="encoding">Encoding</h2>
+<p>The encoding of the file is utf-8. Both unix (<code>\n</code>) and windows (<code>\r\n</code>) newlines format are supported. But unix is
+preferred.</p>
+<h2 id="comments">Comments</h2>
+<p>C and C++ file comments are supported.</p>
+<ul>
+<li>Anything after  <code>//</code> and before a newline is considered a comment.</li>
+<li>Everything between <code>/*</code> and <code>*/</code> is a comment.</li>
+</ul>
+<p>Comments can be nested and the C comments can be inline.</p>
+<p>The following is valid:</p>
+<pre><code class="language-css">// Magic comment.
+property: /* comment */ value;
+</code></pre>
+<p>However, this is not:</p>
+<pre><code class="language-css">prop/*comment*/erty: value;
+</code></pre>
+<h2 id="white-space">White space</h2>
+<p>White space and newlines, like comments, are ignored by the parser.</p>
+<p>This:</p>
+<pre><code class="language-css">property: name;
+</code></pre>
+<p>Is identical to:</p>
+<pre><code class="language-css">     property             :
+name
+
+;
+</code></pre>
+<h2 id="file-extension">File extension</h2>
+<p>The preferred file extension for the new theme format is <strong>rasi</strong>. This is an
+abbreviation for <strong>r</strong>ofi <strong>a</strong>dvanced <strong>s</strong>tyle <strong>i</strong>nformation.</p>
+<h2 id="basic-structure">Basic Structure</h2>
+<p>Each element has a section with defined properties. Global properties can be defined in section <code>* { }</code>.
+Sub-section names begin with a hash symbol <code>#</code>.</p>
+<p>It is advised to define the <em>global properties section</em> on top of the file to
+make inheritance of properties clearer.</p>
+<pre><code class="language-css">/* Global properties section */
+* {
+    // list of properties
+}
+
+/* Element theme section. */
+{element path} {
+    // list of properties
+}
+{elements... } {
+    // list of properties
+}
+</code></pre>
+<p>If there are multiple sections with the same name, they are merged. Duplicate properties are overwritten and the last
+parsed entry kept.</p>
+<h2 id="global-properties-section">Global properties section</h2>
+<p>A theme can have one or more global properties sections. If there is more than one,
+they will be merged.</p>
+<p>The global properties section denotes the defaults for each element.
+Each property of this section can be referenced with <code>@{identifier}</code>
+(See Properties section)</p>
+<p>A global properties section is indicated with a <code>*</code> as element path.</p>
+<h2 id="element-theme-section">Element theme section</h2>
+<p>A theme can have multiple element theme sections.</p>
+<p>The element path can consist of multiple names separated by whitespace or dots.
+Each element may contain any number of letters, numbers and <code>-</code>'s.
+The first element in the element path should always start with a <code>#</code>.
+Multiple elements can be specified by a <code>,</code>.</p>
+<p>This is a valid element name:</p>
+<pre><code class="language-css">element normal.normal {
+    background-color: blue;
+}
+button {
+    background-color: blue;
+}
+</code></pre>
+<p>And is identical to:</p>
+<pre><code class="language-css">element normal normal, button {
+    background-color: blue;
+}
+</code></pre>
+<p>Each section inherits the global properties. Properties can be explicitly inherited from their parent with the
+<code>inherit</code> keyword.
+In the following example:</p>
+<pre><code class="language-css">window {
+ a: 1;
+ b: 2;
+ children: [ mainbox ];
+}
+mainbox {
+    a: inherit;
+    b: 4;
+    c: 8;
+}
+</code></pre>
+<p>The element <code>mainbox</code> will have the following set of properties (if <code>mainbox</code> is a child of <code>window</code>):</p>
+<pre><code class="language-css">a: 1;
+b: 4;
+c: 8;
+</code></pre>
+<p>If multiple sections are defined with the same name, they are merged by the
+parser. If multiple properties with the same name are defined in one section,
+the last encountered property is used.</p>
+<h2 id="properties-format">Properties Format</h2>
+<p>The properties in a section consist of:</p>
+<pre><code class="language-css">{identifier}: {value};
+</code></pre>
+<p>Both fields are mandatory for a property.</p>
+<p>The <code>identifier</code> names the specified property. Identifiers can consist of any
+combination of numbers, letters and '-'. It must not contain any whitespace.
+The structure of the <code>value</code> defines the type of the property. The current
+parser does not define or enforce a certain type of a particular <code>identifier</code>.
+When used, values with the wrong type that cannot be converted are ignored.</p>
+<p>The current theme format supports different types:</p>
+<ul>
+<li>a string</li>
+<li>an integer number</li>
+<li>a fractional number</li>
+<li>a boolean value</li>
+<li>a color</li>
+<li>image</li>
+<li>text style</li>
+<li>line style</li>
+<li>a distance</li>
+<li>a padding</li>
+<li>a border</li>
+<li>a position</li>
+<li>a reference</li>
+<li>an orientation</li>
+<li>a cursor</li>
+<li>a list of keywords</li>
+<li>an environment variable</li>
+<li>Inherit</li>
+</ul>
+<p>Some of these types are a combination of other types.</p>
+<h2 id="string">String</h2>
+<ul>
+<li>Format:  <code>"[:print:]+"</code></li>
+</ul>
+<p>A string is always surrounded by double quotes (<code>"</code>). Between the quotes there can be any printable character.</p>
+<p>For example:</p>
+<pre><code class="language-css">font: &quot;Awasome 12&quot;;
+</code></pre>
+<p>The string must be valid UTF-8.</p>
+<h2 id="integer">Integer</h2>
+<ul>
+<li>Format: <code>[-+]?[:digit:]+</code></li>
+</ul>
+<p>An integer may contain any number.</p>
+<p>For examples:</p>
+<pre><code class="language-css">lines: 12;
+</code></pre>
+<h2 id="real">Real</h2>
+<ul>
+<li>Format: <code>[-+]?[:digit:]+(\.[:digit:]+)?</code></li>
+</ul>
+<p>A real is an integer with an optional fraction.</p>
+<p>For example:</p>
+<pre><code class="language-css">real: 3.4;
+</code></pre>
+<p>The following is not valid: <code>.3</code>, <code>3.</code> or scientific notation: <code>3.4e-3</code>.</p>
+<h2 id="boolean">Boolean</h2>
+<ul>
+<li>Format: <code>(true|false)</code></li>
+</ul>
+<p>Boolean value is either <code>true</code> or <code>false</code>. This is case-sensitive.</p>
+<p>For example:</p>
+<pre><code class="language-css">dynamic: false;
+</code></pre>
+<h2 id="image">Image</h2>
+<p><strong>rofi</strong> support a limited set of background-image formats.</p>
+<ul>
+<li>Format: url("path to image");</li>
+<li>Format: url("path to image", scale);
+  where scale is: none, both, width, height</li>
+<li>Format: linear-gradient(stop color,stop1, color, stop2 color, ...);</li>
+<li>Format: linear-gradient(to direction, stop color,stop1, color, stop2 color, ...);
+  where direction is:   top,left,right,bottom.</li>
+<li>Format: linear-gradient(angle, stop color,stop1, color, stop2 color, ...);
+  Angle in deg,rad,grad (as used in color).</li>
+</ul>
+<p>Where the <code>path</code> is a string, and <code>stop</code> color is of type color.</p>
+<h2 id="color">Color</h2>
+<p><strong>rofi</strong> supports the color formats as specified in the CSS standard (1,2,3 and some of CSS 4)</p>
+<ul>
+<li>Format: <code>#{HEX}{3}</code> (rgb)</li>
+<li>Format: <code>#{HEX}{4}</code> (rgba)</li>
+<li>Format: <code>#{HEX}{6}</code> (rrggbb)</li>
+<li>Format: <code>#{HEX}{8}</code> (rrggbbaa)</li>
+<li>Format: <code>rgb[a]({INTEGER},{INTEGER},{INTEGER}[, {PERCENTAGE}])</code></li>
+<li>Format: <code>rgb[a]({INTEGER}%,{INTEGER}%,{INTEGER}%[, {PERCENTAGE}])</code></li>
+<li>Format: <code>hsl[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])</code></li>
+<li>Format: <code>hwb[a]( {ANGLE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE}])</code></li>
+<li>Format: <code>cmyk( {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE}, {PERCENTAGE} [, {PERCENTAGE} ])</code></li>
+<li>Format: <code>{named-color} [ / {PERCENTAGE} ]</code></li>
+</ul>
+<p>The white-space format proposed in CSS4 is also supported.</p>
+<p>The different values are:</p>
+<ul>
+<li><code>{HEX}</code> is a hexadecimal number ('0-9a-f' case insensitive).</li>
+<li><code>{INTEGER}</code> value can be between 0 and 255 or 0-100 when representing percentage.</li>
+<li><code>{ANGLE}</code> is the angle on the color wheel, can be in <code>deg</code>, <code>rad</code>, <code>grad</code> or <code>turn</code>. When no unit is specified, degrees is assumed.</li>
+<li><code>{PERCENTAGE}</code> can be between 0-1.0, or 0%-100%</li>
+<li>
+<p><code>{named-color}</code> is one of the following colors:</p>
+<p>AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
+BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan,
+DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki, DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed,
+DarkSalmon, DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise, DarkViolet, DeepPink, DeepSkyBlue,
+DimGray, DimGrey, DodgerBlue, FireBrick, FloralWhite, ForestGreen, Fuchsia, Gainsboro, GhostWhite, Gold, GoldenRod,
+Gray, Grey, Green, GreenYellow, HoneyDew, HotPink, IndianRed, Indigo, Ivory, Khaki, Lavender, LavenderBlush, LawnGreen,
+LemonChiffon, LightBlue, LightCoral, LightCyan, LightGoldenRodYellow, LightGray, LightGrey, LightGreen, LightPink,
+LightSalmon, LightSeaGreen, LightSkyBlue, LightSlateGray, LightSlateGrey, LightSteelBlue, LightYellow, Lime, LimeGreen,
+Linen, Magenta, Maroon, MediumAquaMarine, MediumBlue, MediumOrchid, MediumPurple, MediumSeaGreen, MediumSlateBlue,
+MediumSpringGreen, MediumTurquoise, MediumVioletRed, MidnightBlue, MintCream, MistyRose, Moccasin, NavajoWhite, Navy,
+OldLace, Olive, OliveDrab, Orange, OrangeRed, Orchid, PaleGoldenRod, PaleGreen, PaleTurquoise, PaleVioletRed,
+PapayaWhip, PeachPuff, Peru, Pink, Plum, PowderBlue, Purple, RebeccaPurple, Red, RosyBrown, RoyalBlue, SaddleBrown,
+Salmon, SandyBrown, SeaGreen, SeaShell, Sienna, Silver, SkyBlue, SlateBlue, SlateGray, SlateGrey, Snow, SpringGreen,
+SteelBlue, Tan, Teal, Thistle, Tomato, Turquoise, Violet, Wheat, White, WhiteSmoke, Yellow, YellowGreen,transparent</p>
+</li>
+</ul>
+<p>For example:</p>
+<pre><code class="language-css">background-color: #FF0000;
+border-color: rgba(0,0,1, 0.5);
+text-color: SeaGreen;
+</code></pre>
+<p>or</p>
+<pre><code class="language-css">background-color: transparent;
+text-color: Black;
+</code></pre>
+<h2 id="text-style">Text style</h2>
+<ul>
+<li>Format: <code>(bold|italic|underline|strikethrough|none)</code></li>
+</ul>
+<p>Text style indicates how the highlighted text is emphasized. <code>None</code> indicates that no emphasis
+should be applied.</p>
+<ul>
+<li><code>bold</code>: make the text thicker then the surrounding text.</li>
+<li><code>italic</code>: put the highlighted text in script type (slanted).</li>
+<li><code>underline</code>: put a line under the highlighted text.</li>
+<li><code>strikethrough</code>: put a line through the highlighted text.</li>
+</ul>
+<h2 id="line-style">Line style</h2>
+<ul>
+<li>Format: <code>(dash|solid)</code></li>
+</ul>
+<p>Indicates how a line should be drawn.
+It currently supports:
+ * <code>dash</code>:  a dashed line, where the gap is the same width as the dash
+ * <code>solid</code>: a solid line</p>
+<h2 id="distance">Distance</h2>
+<ul>
+<li>Format: <code>{Integer}px</code></li>
+<li>Format: <code>{Real}em</code></li>
+<li>Format: <code>{Real}ch</code></li>
+<li>Format: <code>{Real}%</code></li>
+<li>Format: <code>{Integer}mm</code></li>
+</ul>
+<p>A distance can be specified in 3 different units:</p>
+<ul>
+<li><code>px</code>: Screen pixels.</li>
+<li><code>em</code>: Relative to text height.</li>
+<li><code>ch</code>: Relative to width of a single number.</li>
+<li><code>mm</code>: Actual size in millimeters (based on dpi).</li>
+<li><code>%</code>:  Percentage of the <strong>monitor</strong> size.</li>
+</ul>
+<p>Distances used in the horizontal direction use the monitor width. Distances in
+the vertical direction use the monitor height.
+For example:</p>
+<pre><code class="language-css">   padding: 10%;
+</code></pre>
+<p>On a full-HD (1920x1080) monitor, it defines a padding of 192 pixels on the left
+and right side and 108 pixels on the top and bottom.</p>
+<h3 id="calculating-sizes">Calculating sizes</h3>
+<p>Rofi supports some maths in calculating sizes. For this it uses the CSS syntax:</p>
+<pre><code class="language-css">width: calc( 100% - 37px );
+</code></pre>
+<p>It supports the following operations:</p>
+<ul>
+<li><code>+</code>   : Add</li>
+<li><code>-</code>   : Subtract</li>
+<li><code>/</code>   : Divide</li>
+<li><code>*</code>   : Multiply</li>
+<li><code>%</code>   : Multiply</li>
+<li><code>min</code> : Minimum of l or rvalue;</li>
+<li><code>max</code> : Maximum of l or rvalue;</li>
+</ul>
+<p>It uses the C precedence ordering.</p>
+<h2 id="padding">Padding</h2>
+<ul>
+<li>Format: <code>{Integer}</code></li>
+<li>Format: <code>{Distance}</code></li>
+<li>Format: <code>{Distance} {Distance}</code></li>
+<li>Format: <code>{Distance} {Distance} {Distance}</code></li>
+<li>Format: <code>{Distance} {Distance} {Distance} {Distance}</code></li>
+</ul>
+<p>If no unit is specified, pixels are assumed.</p>
+<p>The different number of fields in the formats are parsed like:</p>
+<ul>
+<li>1 field: <code>all</code></li>
+<li>2 fields: <code>top&amp;bottom</code> <code>left&amp;right</code></li>
+<li>3 fields: <code>top</code>, <code>left&amp;right</code>, <code>bottom</code></li>
+<li>4 fields: <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code></li>
+</ul>
+<h2 id="border">Border</h2>
+<ul>
+<li>Format: <code>{Integer}</code></li>
+<li>Format: <code>{Distance}</code></li>
+<li>Format: <code>{Distance} {Distance}</code></li>
+<li>Format: <code>{Distance} {Distance} {Distance}</code></li>
+<li>Format: <code>{Distance} {Distance} {Distance} {Distance}</code></li>
+<li>Format: <code>{Distance} {Line style}</code></li>
+<li>Format: <code>{Distance} {Line style} {Distance} {Line style}</code></li>
+<li>Format: <code>{Distance} {Line style} {Distance} {Line style} {Distance} {Line style}</code></li>
+<li>Format: <code>{Distance} {Line style} {Distance} {Line style} {Distance} {Line style} {Distance} {Line style}</code></li>
+</ul>
+<p>Borders are identical to padding, except that each distance field has a line
+style property.</p>
+<blockquote>
+<p>When no unit is specified, pixels are assumed.</p>
+</blockquote>
+<h2 id="position">Position</h2>
+<p>Indicate a place on the window/monitor.</p>
+<ul>
+<li>Format: <code>(center|east|north|west|south|north east|north west|south west|south east)</code></li>
+</ul>
+<pre><code>
+north west   |    north    |  north east
+-------------|-------------|------------
+      west   |   center    |  east
+-------------|-------------|------------
+south west   |    south    |  south east
+</code></pre>
+<h2 id="visibility">Visibility</h2>
+<p>It is possible to hide widgets:</p>
+<p>inputbar {
+    enabled: false;
+}</p>
+<h2 id="reference">Reference</h2>
+<ul>
+<li>Format: <code>@{PROPERTY NAME}</code></li>
+</ul>
+<p>A reference can point to another reference. Currently, the maximum number of redirects is 20.
+A property always refers to another property. It cannot be used for a subpart of the property.
+For example, this is not valid:</p>
+<pre><code class="language-css">highlight: bold @pink;
+</code></pre>
+<p>But this is:</p>
+<pre><code class="language-css">* {
+    myhigh: bold #FAA;
+}
+
+window {
+    highlight: @myhigh;
+}
+</code></pre>
+<ul>
+<li>Format: <code>var(PROPERTY NAME, DEFAULT)</code></li>
+</ul>
+<p>A reference can point to another reference. Currently, the maximum number of redirects is 20.
+A property always refers to another property. It cannot be used for a subpart of the property.</p>
+<p>Example:</p>
+<pre><code class="language-css">window {
+    width: var( width, 30%);
+}
+</code></pre>
+<p>If the property <code>width</code> is set globally (<code>*{}</code>) that value is used, if the property
+<code>width</code> is not set, the default value is used.</p>
+<h2 id="orientation">Orientation</h2>
+<ul>
+<li>Format: <code>(horizontal|vertical)</code></li>
+</ul>
+<p>Specify the orientation of the widget.</p>
+<h2 id="cursor">Cursor</h2>
+<ul>
+<li>Format: <code>(default|pointer|text)</code></li>
+</ul>
+<p>Specify the type of mouse cursor that is set when the mouse pointer is over the widget.</p>
+<h2 id="list-of-keywords">List of keywords</h2>
+<ul>
+<li>Format: <code>[ keyword, keyword ]</code></li>
+</ul>
+<p>A list starts with a '[' and ends with a ']'. The entries in the list are comma-separated.
+The <code>keyword</code> in the list refers to an widget name.</p>
+<h2 id="environment-variable">Environment variable</h2>
+<ul>
+<li>Format: <code>${:alnum:}</code></li>
+</ul>
+<p>This will parse the environment variable as the property value. (that then can be any of the above types).
+The environment variable should be an alphanumeric string without white-space.</p>
+<pre><code class="language-css">* {
+    background-color: ${BG};
+}
+</code></pre>
+<ul>
+<li>Format: <code>env(ENVIRONMENT, default)</code></li>
+</ul>
+<p>This will parse the environment variable as the property value. (that then can be any of the above types).
+The environment variable should be an alphanumeric string without white-space.
+If the environment value is not found, the default value is used.</p>
+<pre><code class="language-css">window {
+    width: env(WIDTH, 40%);
+}
+</code></pre>
+<p>If environment WIDTH is set, then that value is parsed, otherwise the default value (<code>40%</code>).</p>
+<h2 id="inherit">Inherit</h2>
+<ul>
+<li>Format: <code>inherit</code></li>
+</ul>
+<p>Inherits the property from its parent widget.</p>
+<pre><code class="language-css">mainbox {
+    border-color: inherit;
+}
+</code></pre>
+<h2 id="elements-paths">ELEMENTS PATHS</h2>
+<p>Element paths exists of two parts, the first part refers to the actual widget by name.
+Some widgets have an extra state.</p>
+<p>For example:</p>
+<pre><code class="language-css">element selected {
+}
+</code></pre>
+<p>Here <code>element selected</code> is the name of the widget, <code>selected</code> is the state of the widget.</p>
+<p>The difference between dots and spaces is purely cosmetic. These are all the same:</p>
+<pre><code class="language-css">element .selected {
+
+element.selected {
+}
+element selected {
+}
+</code></pre>
+<h2 id="supported-element-path">SUPPORTED ELEMENT PATH</h2>
+<h2 id="name_1">Name</h2>
+<p>The current widgets available in <strong>rofi</strong>:</p>
+<ul>
+<li><code>window</code></li>
+<li><code>overlay</code>: the overlay widget.</li>
+<li><code>mainbox</code>: The mainbox box.<ul>
+<li><code>inputbar</code>: The input bar box.</li>
+<li><code>box</code>: the horizontal @box packing the widgets</li>
+<li><code>case-indicator</code>: the case/sort indicator @textbox</li>
+<li><code>prompt</code>: the prompt @textbox</li>
+<li><code>entry</code>: the main entry @textbox</li>
+<li><code>num-rows</code>: Shows the total number of rows.</li>
+<li><code>num-filtered-rows</code>: Shows the total number of rows after filtering.</li>
+<li><code>listview</code>: The listview.</li>
+<li><code>scrollbar</code>: the listview scrollbar</li>
+<li><code>element</code>: a box in the listview holding the entries<ul>
+<li><code>element-icon</code>: the widget in the listview's entry showing the (optional) icon</li>
+<li><code>element-index</code>: the widget in the listview's entry keybindable index (1,2,3..0)</li>
+<li><code>element-text</code>: the widget in the listview's entry showing the text.</li>
+</ul>
+</li>
+<li><code>mode-switcher</code>: the main horizontal @box packing the buttons.</li>
+<li><code>button</code>: the buttons @textbox for each mode</li>
+<li><code>message</code>: The container holding the textbox.</li>
+<li><code>textbox</code>: the message textbox</li>
+</ul>
+</li>
+</ul>
+<p>Note that these path names match the default theme. Themes that provide a custom layout will have different
+elements, and structure.</p>
+<h2 id="state">State</h2>
+<p>State: State of widget</p>
+<p>Optional flag(s) indicating state of the widget, used for theming.</p>
+<p>These are appended after the name or class of the widget.</p>
+<h3 id="example">Example:</h3>
+<p><code>button selected.normal { }</code></p>
+<p><code>element selected.urgent { }</code></p>
+<p>Currently only the entrybox and scrollbar have states:</p>
+<h3 id="entrybox">Entrybox:</h3>
+<p><code>{visible modifier}.{state}</code></p>
+<p>Where <code>visible modifier</code> can be:
+ * normal: no modification
+ * selected: the entry is selected/highlighted by user
+ * alternate: the entry is at an alternating row (uneven row)</p>
+<p>Where <code>state</code> is:
+ * normal: no modification
+ * urgent: this entry is marked urgent
+ * active: this entry is marked active</p>
+<p>These can be mixed.</p>
+<p>Example:</p>
+<pre><code class="language-css">nametotextbox selected.active {
+    background-color: #003642;
+    text-color: #008ed4;
+}
+</code></pre>
+<p>Sets all selected textboxes marked active to the given text and background color.
+Note that a state modifies the original element, it therefore contains all the properties of that element.</p>
+<h3 id="scrollbar">Scrollbar</h3>
+<p>The scrollbar uses the <code>handle</code> state when drawing the small scrollbar handle.
+This allows the colors used for drawing the handle to be set independently.</p>
+<h2 id="supported-properties">SUPPORTED PROPERTIES</h2>
+<p>The following properties are currently supported:</p>
+<h3 id="all-widgets">all widgets:</h3>
+<ul>
+<li><strong>enabled</strong>:         enable/disable the widget</li>
+<li><strong>padding</strong>:         padding
+  Padding on the inside of the widget</li>
+<li><strong>margin</strong>:          padding
+  Margin on the outside of the widget</li>
+<li><strong>border</strong>:          border
+  Border around the widget (between padding and margin)/</li>
+<li><strong>border-radius</strong>:    padding
+  Sets a radius on the corners of the borders.</li>
+<li><strong>background-color</strong>:      color
+  Background color</li>
+<li><strong>background-image</strong>:      image
+  Background image</li>
+<li><strong>border-color</strong>:      color
+  Color of the border</li>
+<li><strong>cursor</strong>:      cursor
+  Type of mouse cursor that is set when the mouse pointer is hovered over the widget.</li>
+</ul>
+<h3 id="window">window:</h3>
+<ul>
+<li>
+<p><strong>font</strong>:            string
+  The font used in the window</p>
+</li>
+<li>
+<p><strong>transparency</strong>:    string
+  Indicating if transparency should be used and what type:
+  <strong>real</strong> - True transparency. Only works with a compositor.
+  <strong>background</strong> - Take a screenshot of the background image and use that.
+  <strong>screenshot</strong> - Take a screenshot of the screen and use that.
+  <strong>Path</strong> to png file - Use an image.</p>
+</li>
+<li>
+<p><strong>location</strong>:       position
+    The place of the anchor on the monitor</p>
+</li>
+<li><strong>anchor</strong>:         anchor
+    The anchor position on the window</li>
+<li><strong>fullscreen</strong>:     boolean
+    Window is fullscreen.</li>
+<li><strong>width</strong>:          distance
+    The width of the window</li>
+<li><strong>x-offset</strong>:  distance</li>
+<li><strong>y-offset</strong>:  distance
+    The offset of the window to the anchor point, allowing you to push the window left/right/up/down</li>
+</ul>
+<h3 id="scrollbar_1">scrollbar:</h3>
+<ul>
+<li><strong>background-color</strong>:    color</li>
+<li><strong>handle-width</strong>:        distance</li>
+<li><strong>handle-color</strong>:        color</li>
+<li><strong>border-color</strong>:        color</li>
+</ul>
+<h3 id="box">box:</h3>
+<ul>
+<li><strong>orientation</strong>:      orientation
+        Set the direction the elements are packed.</li>
+<li><strong>spacing</strong>:         distance
+        Distance between the packed elements.</li>
+</ul>
+<h3 id="textbox">textbox:</h3>
+<ul>
+<li><strong>background-color</strong>:  color</li>
+<li><strong>border-color</strong>:      the color used for the border around the widget.</li>
+<li><strong>font</strong>:              the font used by this textbox (string).</li>
+<li><strong>str</strong>:               the string to display by this textbox (string).</li>
+<li><strong>vertical-align</strong>:    Vertical alignment of the text. A number between 0 (top) and 1 (bottom).</li>
+<li><strong>horizontal-align</strong>:  Horizontal alignment of the text. A number between 0 (left) and 1 (right).</li>
+<li><strong>text-color</strong>:        the text color to use.</li>
+<li><strong>highlight</strong>:         text style {color}.
+    color is optional, multiple highlight styles can be added like: bold underline italic #000000;
+    This option is only available on the <code>element-text</code> widget.</li>
+<li><strong>width</strong>:             override the desired width for the textbox.</li>
+<li><strong>content</strong>:           Set the displayed text (String).</li>
+<li><strong>placeholder</strong>:       Set the displayed text (String) when nothing is entered.</li>
+<li><strong>placeholder-color</strong>: Color of the placeholder text.</li>
+<li><strong>blink</strong>:             Enable/Disable blinking on an input textbox (Boolean).</li>
+<li><strong>markup</strong>:            Force markup on, beware that only valid pango markup strings are shown.</li>
+</ul>
+<h3 id="listview">listview:</h3>
+<ul>
+<li><strong>columns</strong>:         integer
+    Number of columns to show (at least 1)</li>
+<li><strong>fixed-height</strong>:    boolean
+    Always show <code>lines</code> rows, even if fewer elements are available.</li>
+<li><strong>dynamic</strong>:         boolean
+    <code>True</code> if the size should change when filtering the list, <code>False</code> if it should keep the original height.</li>
+<li><strong>scrollbar</strong>:       boolean
+    If the scrollbar should be enabled/disabled.</li>
+<li><strong>scrollbar-width</strong>: distance
+    Width of the scrollbar</li>
+<li><strong>cycle</strong>:           boolean
+    When navigating, it should wrap around</li>
+<li><strong>spacing</strong>:         distance
+    Spacing between the elements (both vertical and horizontal)</li>
+<li><strong>lines</strong>:           integer
+    Number of rows to show in the list view.</li>
+<li><strong>layout</strong>:           orientation
+    Indicate how elements are stacked. Horizontal implements the dmenu style.</li>
+<li><strong>reverse</strong>:         boolean
+    Reverse the ordering (top down to bottom up).</li>
+<li><strong>fixed-columns</strong>:    boolean
+    Do not reduce the number of columns shown when number of visible elements is not enough to fill them all.</li>
+</ul>
+<p>Each element is a <code>box</code> called <code>element</code>. Each <code>element</code> can contain an <code>element-icon</code> and <code>element-text</code>.</p>
+<h3 id="listview-text-highlight">listview text highlight:</h3>
+<p>The <code>element-text</code> widget in the <code>listview</code> is the one used to show the text.
+On this widget set the <code>highlight</code> property (only place this property is used) to change
+the style of highlighting.
+The <code>highlight</code> property consist of the <code>text-style</code> property and a color.</p>
+<p>To disable highlighting:</p>
+<pre><code class="language-css">  element-text {
+    highlight: None;
+  }
+</code></pre>
+<p>To set to red underlined:</p>
+<pre><code class="language-css">  element-text {
+    highlight: underline red;
+  }
+</code></pre>
+<h2 id="layout">Layout</h2>
+<p>The new format allows the layout of the <strong>rofi</strong> window to be tweaked extensively.
+For each widget, the themer can specify padding, margin, border, font, and more.
+It even allows, as an advanced feature, to pack widgets in a custom structure.</p>
+<h3 id="basic-structure_1">Basic structure</h3>
+<p>The whole view is made out of boxes that pack other boxes or widgets.
+The box can be vertical or horizontal. This is loosely inspired by <a href="http://gtk.org/">GTK</a>.</p>
+<p>The current layout of <strong>rofi</strong> is structured as follows:</p>
+<pre><code>|------------------------------------------------------------------------------------|
+| window {BOX:vertical}                                                              |
+| |-------------------------------------------------------------------------------|  |
+| | mainbox  {BOX:vertical}                                                       |  |
+| | |---------------------------------------------------------------------------| |  |
+| | | inputbar {BOX:horizontal}                                                 | |  |
+| | | |---------| |-| |---------------------------------|---| |---| |---| |---| | |  |
+| | | | prompt  | |:| | entry                           |#fr| | / | |#ns| |ci | | |  |
+| | | |---------| |_| |---------------------------------|---| |---| |---| |---| | |  |
+| | |---------------------------------------------------------------------------| |  |
+| |                                                                               |  |
+| | |---------------------------------------------------------------------------| |  |
+| | | message                                                                   | |  |
+| | | |-----------------------------------------------------------------------| | |  |
+| | | | textbox                                                               | | |  |
+| | | |-----------------------------------------------------------------------| | |  |
+| | |---------------------------------------------------------------------------| |  |
+| |                                                                               |  |
+| | |-----------------------------------------------------------------------------|  |
+| | | listview                                                                    |  |
+| | | |------------------------------------------------------------------------]  |  |
+| | | | element                                                                |  |  |
+| | | | |-----------------| |------------------------------------------------] |  |  |
+| | | | |element-icon     | |element-text                                    | |  |  |
+| | | | |-----------------| |------------------------------------------------| |  |  |
+| | | |------------------------------------------------------------------------]  |  |
+| | |-----------------------------------------------------------------------------|  |
+| |                                                                               |  |
+| | |---------------------------------------------------------------------------| |  |
+| | |  mode-switcher {BOX:horizontal}                                           | |  |
+| | | |---------------|   |---------------|  |--------------| |---------------| | |  |
+| | | | Button        |   | Button        |  | Button       | | Button        | | |  |
+| | | |---------------|   |---------------|  |--------------| |---------------| | |  |
+| | |---------------------------------------------------------------------------| |  |
+| |-------------------------------------------------------------------------------|  |
+|------------------------------------------------------------------------------------|
+
+
+</code></pre>
+<blockquote>
+<ul>
+<li>ci is the case-indicator</li>
+<li>fr is the num-filtered-rows</li>
+<li>ns is the num-rows</li>
+</ul>
+</blockquote>
+<h3 id="error-message-structure">Error message structure</h3>
+<pre><code>|-----------------------------------------------------------------------------------|
+| window {BOX:vertical}                                                             |
+| |------------------------------------------------------------------------------|  |
+| | error-message {BOX:vertical}                                                 |  |
+| | |-------------------------------------------------------------------------|  |  |
+| | | textbox                                                                 |  |  |
+| | |-------------------------------------------------------------------------|  |  |
+| |------------------------------------------------------------------------------|  |
+|-----------------------------------------------------------------------------------|
+
+
+</code></pre>
+<h3 id="advanced-layout">Advanced layout</h3>
+<p>The layout of <strong>rofi</strong> can be tweaked by packing the 'fixed' widgets in a custom structure.</p>
+<p>The following widgets are fixed, as they provide core <strong>rofi</strong> functionality:</p>
+<ul>
+<li>prompt</li>
+<li>entry</li>
+<li>overlay</li>
+<li>case-indicator</li>
+<li>message</li>
+<li>listview</li>
+<li>mode-switcher</li>
+<li>num-rows</li>
+<li>num-filtered-rows</li>
+</ul>
+<p>The following keywords are defined and can be used to automatically pack a subset of the widgets.
+These are used in the default theme as depicted in the figure above.</p>
+<ul>
+<li>mainbox
+   Packs: <code>inputbar, message, listview, mode-switcher</code></li>
+<li>inputbar
+   Packs: <code>prompt,entry,case-indicator</code></li>
+</ul>
+<p>Any widget name starting with <code>textbox</code> is a textbox widget, others are box widgets and can pack other widgets.</p>
+<p>There are several special widgets that can be used by prefixing the name of the widget:</p>
+<h4 id="textbox_1">textbox</h4>
+<p>This is a read-only textbox widget. The displayed string can be set with <code>content</code>.</p>
+<p>Example:</p>
+<pre><code class="language-css">textbox-custom {
+  expand: false;
+  content: &quot;My Message&quot;;
+}
+</code></pre>
+<h4 id="icon">Icon</h4>
+<p>This is an icon widget. The displayed icon can be set with <code>filename</code> and size with <code>size</code>.
+If the property <code>action</code> is set, it acts as a button.
+<code>action</code> can be set to a keybinding name and completes that action. (see rofi -show keys for a list).</p>
+<p>If the <code>squared</code> property is set to <strong>false</strong> the widget height and width are not forced to be equal.</p>
+<p>Example:</p>
+<pre><code class="language-css">icon-paste {
+    expand: false;
+    filename: &quot;gtk-paste&quot;;
+    size: 24;
+    vertical-align: 0.5;
+    action: &quot;kb-primary-paste&quot;;
+}
+</code></pre>
+<h4 id="button">button</h4>
+<p>This is a textbox widget that can have a 'clickable' action.
+The <code>action</code> can be set to:
+<code>keybinding</code>: accepts a keybinding name and completes that action. (see rofi -show keys for a list).</p>
+<pre><code class="language-css">button-paste {
+    expand: false;
+    content: &quot;My Clickable Message&quot;;
+    vertical-align: 0.5;
+    action: &quot;kb-primary-paste&quot;;
+}
+</code></pre>
+<h4 id="children">Children</h4>
+<p>To specify children, set the <code>children</code>
+property (this always happens on the <code>box</code> child, see example below):</p>
+<pre><code class="language-css">inputbar {
+  children: [prompt,entry,overlay,case-indicator];
+}
+</code></pre>
+<p>The theme needs to be updated to match the hierarchy specified.</p>
+<p>Below is an example of a theme emulating dmenu:</p>
+<pre><code class="language-css">* {
+    background-color:      Black;
+    text-color:            White;
+    border-color:          White;
+    font:            &quot;Times New Roman 12&quot;;
+}
+
+window {
+    anchor:     north;
+    location:   north;
+    width:      100%;
+    padding:    4px;
+    children:   [ horibox ];
+}
+
+horibox {
+    orientation: horizontal;
+    children:   [ prompt, entry, listview ];
+}
+
+listview {
+    layout:     horizontal;
+    spacing:    5px;
+    lines:      10;
+}
+
+entry {
+    expand:     false;
+    width:      10em;
+}
+
+element {
+    padding: 0px 2px;
+}
+element selected {
+    background-color: SteelBlue;
+}
+</code></pre>
+<h3 id="padding-and-margin">Padding and margin</h3>
+<p>Just like CSS, <strong>rofi</strong> uses the box model for each widget.</p>
+<pre><code>|-------------------------------------------------------------------|
+| margin                                                            |
+|  |-------------------------------------------------------------|  |
+|  | border                                                      |  |
+|  | |---------------------------------------------------------| |  |
+|  | | padding                                                 | |  |
+|  | | |-----------------------------------------------------| | |  |
+|  | | | content                                             | | |  |
+|  | | |-----------------------------------------------------| | |  |
+|  | |---------------------------------------------------------| |  |
+|  |-------------------------------------------------------------|  |
+|-------------------------------------------------------------------|
+</code></pre>
+<p>Explanation of the different parts:</p>
+<ul>
+<li>Content - The content of the widget.</li>
+<li>Padding - Clears an area around the widget.
+   The padding shows the background color of the widget.</li>
+<li>Border - A border that goes around the padding and content.
+   The border use the border-color of the widget.</li>
+<li>Margin - Clears an area outside the border.
+   The margin is transparent.</li>
+</ul>
+<p>The box model allows us to add a border around elements, and to define space between elements.</p>
+<p>The size of each margin, border, and padding can be set.
+For the border, a linestyle and radius can be set.</p>
+<h3 id="spacing">Spacing</h3>
+<p>Widgets that can pack more then one child widget (currently box and listview) have the <code>spacing</code> property.
+This property sets the distance between the packed widgets (both horizontally and vertically).</p>
+<pre><code>|---------------------------------------|
+|  |--------| s |--------| s |-------|  |
+|  | child  | p | child  | p | child |  |
+|  |        | a |        | a |       |  |
+|  |        | c |        | c |       |  |
+|  |        | i |        | i |       |  |
+|  |        | n |        | n |       |  |
+|  |--------| g |--------| g |-------|  |
+|---------------------------------------|
+</code></pre>
+<h3 id="advanced-box-packing">Advanced box packing</h3>
+<p>More dynamic spacing can be achieved by adding dummy widgets, for example to make one widget centered:</p>
+<pre><code>|----------------------------------------------------|
+|  |---------------|  |--------|  |---------------|  |
+|  | dummy         |  | child  |  | dummy         |  |
+|  | expand: true; |  |        |  | expand: true; |  |
+|  |               |  |        |  |               |  |
+|  |               |  |        |  |               |  |
+|  |               |  |        |  |               |  |
+|  |---------------|  |--------|  |---------------|  |
+|----------------------------------------------------|
+</code></pre>
+<p>If both dummy widgets are set to expand, <code>child</code> will be centered. Depending on the <code>expand</code> flag of child the
+remaining space will be equally divided between both dummy and child widget (expand enabled), or both dummy widgets
+(expand disabled).</p>
+<h2 id="debugging">DEBUGGING</h2>
+<p>To get debug information from the parser, run rofi like:</p>
+<pre><code>G_MESSAGES_DEBUG=Parser rofi -show run
+</code></pre>
+<p>Syntax errors are shown in a popup and printed out to command line with the above command.</p>
+<p>To see the elements queried during running, run:</p>
+<pre><code>G_MESSAGES_DEBUG=Theme rofi -show run
+</code></pre>
+<p>To test minor changes, part of the theme can be passed on the command line, for example to set it to full-screen:</p>
+<pre><code>rofi -theme-str 'window { fullscreen:true;}' -show run
+</code></pre>
+<p>To print the current theme, run:</p>
+<pre><code>rofi -dump-theme
+</code></pre>
+<h2 id="media-support">Media support</h2>
+<p>Parts of the theme can be conditionally loaded, like the CSS <code>@media</code> option.</p>
+<pre><code>@media ( min-width: 120 ) {
+
+}
+</code></pre>
+<p>It supports the following keys as constraint:</p>
+<ul>
+<li><code>min-width</code>:         load when width is bigger or equal then value.</li>
+<li><code>max-width</code>:         load when width is smaller then value.</li>
+<li><code>min-height</code>:        load when height is bigger or equal then value.</li>
+<li><code>max-height</code>:        load when height is smaller then value.</li>
+<li><code>min-aspect-ratio</code>   load when aspect ratio is over value.</li>
+<li><code>max-aspect-ratio</code>:  load when aspect ratio is under value.</li>
+<li><code>monitor-id</code>:        The monitor id, see rofi -help for id's.</li>
+</ul>
+<p>@media takes an integer number or a fraction, for integer number <code>px</code> can be added.</p>
+<pre><code>@media ( min-width: 120 px ) {
+
+}
+</code></pre>
+<h2 id="font-parsing">Font Parsing</h2>
+<p>Rofi uses <a href="https://pango.gnome.org/">pango</a> for font rendering. The font should be specified in a format that pango
+understands.
+This normally is the font name followed by the font size. For example:</p>
+<pre><code>mono 18
+</code></pre>
+<p>Or</p>
+<pre><code>FontAwesome 22
+</code></pre>
+<h2 id="multiple-file-handling">Multiple file handling</h2>
+<p>The rasi file format offers two methods of including other files.
+This can be used to modify existing themes, or have multiple variations on a theme.</p>
+<ul>
+<li>import:  Import and parse a second file.</li>
+<li>theme:   Discard theme, and load file as a fresh theme.</li>
+</ul>
+<p>Syntax:</p>
+<pre><code>@import &quot;myfile&quot;
+@theme &quot;mytheme&quot;
+</code></pre>
+<p>The specified file can either by <em>name</em>, <em>filename</em>,<em>full path</em>.</p>
+<p>If a filename is provided, it will try to resolve it in the following order:</p>
+<ul>
+<li><code>${XDG_CONFIG_HOME}/rofi/themes/</code></li>
+<li><code>${XDG_CONFIG_HOME}/rofi/</code></li>
+<li><code>${XDG_DATA_HOME}/rofi/themes/</code></li>
+<li><code>${INSTALL PREFIX}/share/rofi/themes/</code></li>
+</ul>
+<p>A name is resolved as a filename by appending the <code>.rasi</code> extension.</p>
+<h2 id="examples">EXAMPLES</h2>
+<p>Several examples are installed together with <strong>rofi</strong>. These can be found in <code>{datadir}/rofi/themes/</code>, where
+<code>{datadir}</code> is the install path of <strong>rofi</strong> data. When installed using a package manager, this is usually: <code>/usr/share/</code>.</p>
+<h2 id="see-also">SEE ALSO</h2>
+<p>rofi(1), rofi-script(5), rofi-theme-selector(1)</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>

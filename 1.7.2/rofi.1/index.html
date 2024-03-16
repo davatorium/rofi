@@ -1,0 +1,2710 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../1.7.3/rofi-keys.5/">
+      
+      
+        <link rel="next" href="../rofi-theme.5/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Rofi - Rofi Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rofi-1-rofi" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Rofi Documentation" class="md-header__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Rofi Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Rofi
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Rofi Documentation" class="md-nav__button md-logo" aria-label="Rofi Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Rofi Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/davatorium/rofi/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../COPYING/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/issues" class="md-nav__link">
+        Issue Tracker
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/davatorium/rofi/discussions" class="md-nav__link">
+        Discussions Forum
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../downloads/" class="md-nav__link">
+        Downloads
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../INSTALL/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CONFIG/" class="md-nav__link">
+        Configuration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../themes/themes/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_8" type="checkbox" id="__nav_8" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" tabindex="0" aria-expanded="false">
+          Guides
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Guides" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          Guides
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Transparency/theme3-transparency/" class="md-nav__link">
+        Transparency
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Positioning/theme3-positioning/" class="md-nav__link">
+        Positioning
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/Plugins/2017-04-19-rofi-140-sneak-preview-plugins/" class="md-nav__link">
+        Plugins
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/DynamicThemes/dynamic_themes/" class="md-nav__link">
+        Dynamic Theme
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_9" type="checkbox" id="__nav_9" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9" tabindex="0" aria-expanded="false">
+          Current
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Current" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Current
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../current/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_10" type="checkbox" id="__nav_10" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_10" tabindex="0" aria-expanded="false">
+          1.7.5
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.5" data-md-level="1">
+        <label class="md-nav__title" for="__nav_10">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.5
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.5/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_11" type="checkbox" id="__nav_11" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_11" tabindex="0" aria-expanded="false">
+          1.7.4
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.4" data-md-level="1">
+        <label class="md-nav__title" for="__nav_11">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.4
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.4/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_12" type="checkbox" id="__nav_12" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_12" tabindex="0" aria-expanded="false">
+          1.7.3
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.3" data-md-level="1">
+        <label class="md-nav__title" for="__nav_12">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.3
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-dmenu.5/" class="md-nav__link">
+        Dmenu
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-debugging.5/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.3/rofi-keys.5/" class="md-nav__link">
+        Keys
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_13" type="checkbox" id="__nav_13" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_13" tabindex="0" aria-expanded="true">
+          1.7.2
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.2" data-md-level="1">
+        <label class="md-nav__title" for="__nav_13">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.2
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Rofi
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Rofi
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    SYNOPSIS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    USAGE
+  </a>
+  
+    <nav class="md-nav" aria-label="USAGE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-rofi" class="md-nav__link">
+    Running rofi
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emulating-dmenu" class="md-nav__link">
+    Emulating dmenu
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#display-error-message" class="md-nav__link">
+    Display Error message
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    CONFIGURATION
+  </a>
+  
+    <nav class="md-nav" aria-label="CONFIGURATION">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    General
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#matching" class="md-nav__link">
+    Matching
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layout-and-theming" class="md-nav__link">
+    Layout and Theming
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-setting" class="md-nav__link">
+    PATTERN setting
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-settings" class="md-nav__link">
+    SSH settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-settings" class="md-nav__link">
+    Run settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#window-switcher-settings" class="md-nav__link">
+    Window switcher settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combi-settings" class="md-nav__link">
+    Combi settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#history-and-sorting" class="md-nav__link">
+    History and Sorting
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dmenu-specific" class="md-nav__link">
+    Dmenu specific
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-dialog" class="md-nav__link">
+    Message dialog
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-browser-settings" class="md-nav__link">
+    File browser settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    Other
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pattern" class="md-nav__link">
+    PATTERN
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dmenu-replacement" class="md-nav__link">
+    DMENU REPLACEMENT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#theming" class="md-nav__link">
+    THEMING
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-bindings" class="md-nav__link">
+    KEY BINDINGS
+  </a>
+  
+    <nav class="md-nav" aria-label="KEY BINDINGS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timeout" class="md-nav__link">
+    Timeout
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-change" class="md-nav__link">
+    Input change
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-modi" class="md-nav__link">
+    Available Modi
+  </a>
+  
+    <nav class="md-nav" aria-label="Available Modi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#window" class="md-nav__link">
+    window
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#windowcd" class="md-nav__link">
+    windowcd
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#drun" class="md-nav__link">
+    drun
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh" class="md-nav__link">
+    ssh
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keys" class="md-nav__link">
+    keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#script" class="md-nav__link">
+    script
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combi" class="md-nav__link">
+    combi
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#faq" class="md-nav__link">
+    FAQ
+  </a>
+  
+    <nav class="md-nav" aria-label="FAQ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-text-in-the-window-switcher-is-not-nicely-aligned" class="md-nav__link">
+    The text in the window switcher is not nicely aligned.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-window-is-completely-black" class="md-nav__link">
+    The window is completely black.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-does-the-icon-in-the-top-right-show" class="md-nav__link">
+    What does the icon in the top right show?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    EXAMPLES
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i3" class="md-nav__link">
+    i3
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    LICENSE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#website" class="md-nav__link">
+    WEBSITE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support" class="md-nav__link">
+    SUPPORT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    DEBUGGING
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-tracker" class="md-nav__link">
+    ISSUE TRACKER
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    AUTHOR
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_14" type="checkbox" id="__nav_14" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_14" tabindex="0" aria-expanded="false">
+          1.7.1
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.1" data-md-level="1">
+        <label class="md-nav__title" for="__nav_14">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.1
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.1/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_15" type="checkbox" id="__nav_15" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_15" tabindex="0" aria-expanded="false">
+          1.7.0
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="1.7.0" data-md-level="1">
+        <label class="md-nav__title" for="__nav_15">
+          <span class="md-nav__icon md-icon"></span>
+          1.7.0
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi.1/" class="md-nav__link">
+        Rofi
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-theme.5/" class="md-nav__link">
+        Themes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../1.7.0/rofi-script.5/" class="md-nav__link">
+        Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    NAME
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    SYNOPSIS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    USAGE
+  </a>
+  
+    <nav class="md-nav" aria-label="USAGE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-rofi" class="md-nav__link">
+    Running rofi
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emulating-dmenu" class="md-nav__link">
+    Emulating dmenu
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#display-error-message" class="md-nav__link">
+    Display Error message
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    CONFIGURATION
+  </a>
+  
+    <nav class="md-nav" aria-label="CONFIGURATION">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    General
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#matching" class="md-nav__link">
+    Matching
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layout-and-theming" class="md-nav__link">
+    Layout and Theming
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-setting" class="md-nav__link">
+    PATTERN setting
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-settings" class="md-nav__link">
+    SSH settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-settings" class="md-nav__link">
+    Run settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#window-switcher-settings" class="md-nav__link">
+    Window switcher settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combi-settings" class="md-nav__link">
+    Combi settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#history-and-sorting" class="md-nav__link">
+    History and Sorting
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dmenu-specific" class="md-nav__link">
+    Dmenu specific
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-dialog" class="md-nav__link">
+    Message dialog
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-browser-settings" class="md-nav__link">
+    File browser settings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    Other
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pattern" class="md-nav__link">
+    PATTERN
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dmenu-replacement" class="md-nav__link">
+    DMENU REPLACEMENT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#theming" class="md-nav__link">
+    THEMING
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-bindings" class="md-nav__link">
+    KEY BINDINGS
+  </a>
+  
+    <nav class="md-nav" aria-label="KEY BINDINGS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timeout" class="md-nav__link">
+    Timeout
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-change" class="md-nav__link">
+    Input change
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-modi" class="md-nav__link">
+    Available Modi
+  </a>
+  
+    <nav class="md-nav" aria-label="Available Modi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#window" class="md-nav__link">
+    window
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#windowcd" class="md-nav__link">
+    windowcd
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#drun" class="md-nav__link">
+    drun
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh" class="md-nav__link">
+    ssh
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keys" class="md-nav__link">
+    keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#script" class="md-nav__link">
+    script
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combi" class="md-nav__link">
+    combi
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#faq" class="md-nav__link">
+    FAQ
+  </a>
+  
+    <nav class="md-nav" aria-label="FAQ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-text-in-the-window-switcher-is-not-nicely-aligned" class="md-nav__link">
+    The text in the window switcher is not nicely aligned.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-window-is-completely-black" class="md-nav__link">
+    The window is completely black.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-does-the-icon-in-the-top-right-show" class="md-nav__link">
+    What does the icon in the top right show?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    EXAMPLES
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i3" class="md-nav__link">
+    i3
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    LICENSE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#website" class="md-nav__link">
+    WEBSITE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support" class="md-nav__link">
+    SUPPORT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    DEBUGGING
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-tracker" class="md-nav__link">
+    ISSUE TRACKER
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    SEE ALSO
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#author" class="md-nav__link">
+    AUTHOR
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="rofi-1-rofi">ROFI 1 rofi</h1>
+<h2 id="name">NAME</h2>
+<p><strong>rofi</strong> - A window switcher, application launcher, ssh dialog, dmenu replacement and more</p>
+<h2 id="synopsis">SYNOPSIS</h2>
+<p><strong>rofi</strong> [ -show <em>mode</em> ]|[ -dmenu ]|[ -e <em>msg</em> ] [ CONFIGURATION ]</p>
+<h2 id="description">DESCRIPTION</h2>
+<p><strong>rofi</strong> is an X11 pop-up window switcher, run dialog, dmenu replacement, and more. It focuses on
+being fast to use and have minimal distraction. It supports keyboard and mouse navigation, type to
+filter, tokenized search and more.</p>
+<h2 id="usage">USAGE</h2>
+<p><strong>rofi</strong>'s main functionality is to assist in your workflow, allowing you to quickly switch
+between windows, start applications or log into a remote machine via <code>ssh</code>.
+There are different <em>modi</em> for different types of actions.</p>
+<p><strong>rofi</strong> can also function as (drop-in) replacement for <strong>dmenu(1)</strong>.</p>
+<h3 id="running-rofi">Running rofi</h3>
+<p>To launch <strong>rofi</strong> directly in a certain mode, specify a mode with <code>rofi -show &lt;mode&gt;</code>.
+To show the <code>run</code> dialog:</p>
+<pre><code>rofi -show run
+</code></pre>
+<h3 id="emulating-dmenu">Emulating dmenu</h3>
+<p><strong>rofi</strong> can emulate <strong>dmenu(1)</strong> (a dynamic menu for X11) when launched with the <code>-dmenu</code> flag.</p>
+<p>The website for <code>dmenu</code> can be found <a href="http://tools.suckless.org/dmenu/">here</a>.</p>
+<p><strong>rofi</strong> does not aim to be 100% compatible with <code>dmenu</code>. There are simply too many flavors of <code>dmenu</code>.
+The idea is that the basic usage command-line flags are obeyed, theme-related flags are not.
+Besides, <strong>rofi</strong> offers some extended features (like multi-select, highlighting, message bar, extra key bindings).</p>
+<h3 id="display-error-message">Display Error message</h3>
+<p><strong>rofi</strong> error dialog can also be called from the command line.</p>
+<pre><code>rofi -e "my message"
+</code></pre>
+<p>Markup support can be enabled, see CONFIGURATION options.</p>
+<h2 id="configuration">CONFIGURATION</h2>
+<p>There are currently three methods of setting configuration options (evaluated in order below):</p>
+<ul>
+<li>System configuration file  (for example <code>/etc/rofi.rasi</code>).
+   It first checks <code>XDG_CONFIG_DIRS</code>, and then <code>SYSCONFDIR</code> (that is passed at compile time).
+   It loads the first config file it finds, it does not merge multiple system configuration files.</li>
+<li>Rasi theme file: The new <em>theme</em> format can be used to set configuration values.</li>
+<li>Command-line options: Arguments passed to <strong>rofi</strong>.</li>
+</ul>
+<p>To get a template config file, run: <code>rofi -dump-config &gt; config.rasi</code></p>
+<p>This will contain (commented) all current configuration options, modified options are uncommented.</p>
+<p>The configuration system supports the following types:</p>
+<ul>
+<li>string</li>
+<li>integer (signed and unsigned)</li>
+<li>char</li>
+<li>boolean</li>
+<li>lists</li>
+</ul>
+<p>For the syntax of these options, see the <strong>rofi-theme(5)</strong> manpage.</p>
+<p>For use on the command line, Boolean options have a non-default command-line
+syntax. Example to enable option X:</p>
+<pre><code>-X
+</code></pre>
+<p>To disable option X:</p>
+<pre><code>-no-X
+</code></pre>
+<p>Below is a list of the most important options:</p>
+<h3 id="general">General</h3>
+<p><code>-help</code></p>
+<p>The help option shows the full list of command-line options and the current set values.
+These include dynamic (run-time generated) options.</p>
+<p><code>-version</code></p>
+<p>Show the <strong>rofi</strong> version and exit.</p>
+<p><code>-dump-config</code></p>
+<p>Dump the current active configuration, in rasi format, to stdout and exit.
+Information about the rasi format can be found in the <strong>rofi-theme(5)</strong> manpage.</p>
+<p><code>-dump-theme</code></p>
+<p>Dump the current active theme, in rasi format, to stdout and exit.</p>
+<p><code>-rasi-validate</code> <em>filename</em></p>
+<p>Try to parse the file and return 0 when successful, non-zero when failed.</p>
+<p><code>-threads</code> <em>num</em></p>
+<p>Specify the number of threads <strong>rofi</strong> should use:</p>
+<ul>
+<li>0: Autodetect the number of supported hardware threads.</li>
+<li>1: Disable threading</li>
+<li>
+<p>2..n: Specify the maximum number of threads to use in the thread pool.</p>
+<p>Default:  Autodetect</p>
+</li>
+</ul>
+<p><code>-display</code> <em>display</em></p>
+<p>The X server to contact. Default is <code>$DISPLAY</code>.</p>
+<p><code>-dmenu</code></p>
+<p>Run <strong>rofi</strong> in dmenu mode. This allows for interactive scripts.
+In <code>dmenu</code> mode, <strong>rofi</strong> reads from STDIN, and output to STDOUT.
+A simple example, displaying three pre-defined options:</p>
+<pre><code>echo -e "Option #1\nOption #2\nOption #3" | rofi -dmenu
+</code></pre>
+<p>Or get the options from a script:</p>
+<pre><code>~/my_script.sh | rofi -dmenu
+</code></pre>
+<p><code>-show</code> <em>mode</em></p>
+<p>Open <strong>rofi</strong> in a certain mode. Available modes are <code>window</code>, <code>run</code>, <code>drun</code>, <code>ssh</code>, <code>combi</code>.
+The special argument <code>keys</code> can be used to open a searchable list of supported key bindings
+(see <em>KEY BINDINGS</em>)</p>
+<p>To show the run-dialog:</p>
+<pre><code>rofi -show run
+</code></pre>
+<p>If <code>-show</code> is the last option passed to rofi, the first enabled modi is shown.</p>
+<p><code>-modi</code> <em>mode1,mode2</em></p>
+<p>Specify an ordered, comma-separated list of modes to enable.
+Enabled modes can be changed at runtime. Default key is <code>Ctrl+Tab</code>.
+If no modes are specified, all configured modes will be enabled.
+To only show the <code>run</code> and <code>ssh</code> launcher:</p>
+<pre><code>rofi -modi "run,ssh" -show run
+</code></pre>
+<p>Custom modes can be added using the internal <code>script</code> mode. Each such mode has two parameters:</p>
+<pre><code>&lt;name&gt;:&lt;script&gt;
+</code></pre>
+<p>Example: Have a mode called 'Workspaces' using the <code>i3_switch_workspaces.sh</code> script:</p>
+<pre><code>rofi -modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
+</code></pre>
+<p>Notes: The i3 window manager dislikes commas in the command when specifying an exec command.
+For that case, <code>#</code> can be used as a separator.</p>
+<p><strong>TIP</strong>: The name is allowed to contain spaces:</p>
+<pre><code>rofi -modi "My File Browser:fb.sh" -show "My File Browser"
+</code></pre>
+<p><code>-case-sensitive</code></p>
+<p>Start in case-sensitive mode.
+This option can be changed at run-time using the <code>-kb-toggle-case-sensitivity</code> key binding.</p>
+<p><code>-cycle</code></p>
+<p>Cycle through the result list. Default is 'true'.</p>
+<p><code>-filter</code> <em>filter</em></p>
+<p>Filter the list by setting text in input bar to <em>filter</em></p>
+<p><code>-config</code> <em>filename</em></p>
+<p>Load an alternative configuration file.</p>
+<p><code>-cache-dir</code> <em>filename</em></p>
+<p>Directory that is used to place temporary files, like history.</p>
+<p><code>-scroll-method</code> <em>method</em></p>
+<p>Select the scrolling method. 0: Per page, 1: continuous.</p>
+<p><code>-normalize-match</code></p>
+<p>Normalize the string before matching, so <code>o</code> will match <code>ö</code>, and <code>é</code> matches <code>e</code>.<br />
+This is not a perfect implementation, but works. For now, it disables highlighting of the matched part.</p>
+<p><code>-no-lazy-grab</code></p>
+<p>Disables lazy grab, this forces the keyboard being grabbed before gui is shown.</p>
+<p><code>-no-plugins</code></p>
+<p>Disable plugin loading.</p>
+<p><code>-plugin-path</code> <em>directory</em></p>
+<p>Specify the directory where <strong>rofi</strong> should look for plugins.</p>
+<p><code>-show-icons</code></p>
+<p>Show application icons in <code>drun</code> and <code>window</code> modes.</p>
+<p><code>-icon-theme</code></p>
+<p>Specify icon theme to be used.
+If not specified default theme from DE is used, <em>Adwaita</em> and <em>gnome</em> themes act as
+fallback themes.</p>
+<p><code>-application-fallback-icon</code></p>
+<p>Specify an icon to be used when the application icon in run/drun are not yet loaded or is not available.</p>
+<p><code>-markup</code></p>
+<p>Use Pango markup to format output wherever possible.</p>
+<p><code>-normal-window</code></p>
+<p>Make <strong>rofi</strong> react like a normal application window. Useful for scripts like Clerk that are basically an application.</p>
+<p><code>-[no-]steal-focus</code></p>
+<p>Make rofi steal focus on launch and restore close to window that held it when launched.</p>
+<h3 id="matching">Matching</h3>
+<p><code>-matching</code> <em>method</em></p>
+<p>Specify the matching algorithm used.
+Currently, the following methods are supported:</p>
+<ul>
+<li><strong>normal</strong>: match the int string</li>
+<li><strong>regex</strong>: match a regex input</li>
+<li><strong>glob</strong>: match a glob pattern</li>
+<li><strong>fuzzy</strong>: do a fuzzy match</li>
+<li><strong>prefix</strong>: match prefix</li>
+</ul>
+<p>Default: <em>normal</em></p>
+<p>Note: glob matching might be slow for larger lists</p>
+<p><code>-tokenize</code></p>
+<p>Tokenize the input.</p>
+<p><code>-drun-categories</code> <em>category1</em>,<em>category2</em></p>
+<p>Only show desktop files that are present in the listed categories.</p>
+<p><code>-drun-match-fields</code> <em>field1</em>,<em>field2</em>,...</p>
+<p>When using <code>drun</code>, match only with the specified Desktop entry fields.
+The different fields are:</p>
+<ul>
+<li><strong>name</strong>: the application's name</li>
+<li><strong>generic</strong>: the application's generic name</li>
+<li><strong>exec</strong>: the application's  executable</li>
+<li><strong>categories</strong>: the application's categories</li>
+<li><strong>comment</strong>: the application comment</li>
+<li>
+<p><strong>all</strong>: all the above</p>
+<p>Default: <em>name,generic,exec,categories,keywords</em></p>
+</li>
+</ul>
+<p><code>-drun-display-format</code></p>
+<p>The format string for the <code>drun</code> dialog:</p>
+<ul>
+<li><strong>name</strong>: the application's name</li>
+<li><strong>generic</strong>: the application's generic name</li>
+<li><strong>exec</strong>: the application's  executable</li>
+<li><strong>categories</strong>: the application's categories</li>
+<li><strong>comment</strong>: the application comment</li>
+</ul>
+<p>Pango markup can be used to formatting the output.</p>
+<pre><code>Default: {name} [&lt;span weight='light' size='small'&gt;&lt;i&gt;({generic})&lt;/i&gt;&lt;/span&gt;]
+</code></pre>
+<p>Note: Only fields enabled in <code>-drun-match-fields</code> can be used in the format string.</p>
+<p><code>-[no-]drun-show-actions</code></p>
+<p>Show actions present in the Desktop files.</p>
+<pre><code>Default: false
+</code></pre>
+<p><code>-window-match-fields</code> <em>field1</em>,<em>field2</em>,...</p>
+<p>When using window mode, match only with the specified fields.
+The different fields are:</p>
+<ul>
+<li><strong>title</strong>: window's title</li>
+<li><strong>class</strong>: window's class</li>
+<li><strong>role</strong>: window's role</li>
+<li><strong>name</strong>: window's name</li>
+<li><strong>desktop</strong>: window's current desktop</li>
+<li>
+<p><strong>all</strong>: all the above</p>
+<p>Default: <em>all</em></p>
+</li>
+</ul>
+<p><code>-matching-negate-char</code> <em>char</em></p>
+<p>Set the character used to negate the query (i.e. if it does <strong>not</strong> match the next keyword).
+Set to '\x0' to disable.</p>
+<pre><code>Default: '-'
+</code></pre>
+<h3 id="layout-and-theming">Layout and Theming</h3>
+<p><strong>IMPORTANT:</strong>
+  In newer <strong>rofi</strong> releases, all the theming options have been moved into the new theme format. They are no longer normal
+  <strong>rofi</strong> options that can be passed directly on the command line (there are too many).
+  Small snippets can be passed on the command line: <code>rofi -theme-str 'window {width: 50%;}'</code> to override a single
+  setting. They are merged into the current theme.
+  They can also be appended at the end of the <strong>rofi</strong> config file to override parts of the theme.</p>
+<p>Most of the following options are <strong>deprecated</strong> and should not be used. Please use the new theme format to customize
+<strong>rofi</strong>. More information about the new format can be found in the <strong>rofi-theme(5)</strong> manpage.</p>
+<p><code>-location</code></p>
+<p>Specify where the window should be located. The numbers map to the following locations on screen:</p>
+<pre><code>  1 2 3
+  8 0 4
+  7 6 5
+</code></pre>
+<p>Default: <em>0</em></p>
+<p><code>-fixed-num-lines</code></p>
+<p>Keep a fixed number of visible lines. </p>
+<p><code>-sidebar-mode</code></p>
+<p>Open in sidebar-mode. In this mode, a list of all enabled modes is shown at the bottom.
+(See <code>-modi</code> option)
+To show sidebar, use:</p>
+<pre><code>rofi -show run -sidebar-mode
+</code></pre>
+<p><code>-hover-select</code></p>
+<p>Automatically select the entry the mouse is hovering over. This option is best combined with custom mouse bindings.
+To utilize hover-select and accept an entry in a single click, use:</p>
+<pre><code>rofi -show run -hover-select -me-select-entry '' -me-accept-entry MousePrimary
+</code></pre>
+<p><code>-eh</code> <em>number</em></p>
+<p>Set row height (in chars)
+Default: <em>1</em></p>
+<p><code>-auto-select</code></p>
+<p>When one entry is left, automatically select it.</p>
+<p><code>-m</code> <em>num</em></p>
+<p><code>-m</code> <em>name</em></p>
+<p><code>-monitor</code> <em>num</em></p>
+<p><code>-monitor</code> <em>name</em></p>
+<p>Select monitor to display <strong>rofi</strong> on.
+It accepts as input: <em>primary</em> (if primary output is set), the <em>xrandr</em> output name, or integer number (in order of
+detection). Negative numbers are handled differently:</p>
+<ul>
+<li><strong>-1</strong>: the currently focused monitor.</li>
+<li><strong>-2</strong>: the currently focused window (that is, <strong>rofi</strong> will be displayed on top of the focused window).</li>
+<li><strong>-3</strong>: Position of mouse (overrides the location setting to get normal context menu
+    behavior.)</li>
+<li><strong>-4</strong>: the monitor with the focused window.</li>
+<li>
+<p><strong>-5</strong>: the monitor that shows the mouse pointer.</p>
+<p>Default: <em>-5</em></p>
+</li>
+</ul>
+<p>See <code>rofi -h</code> output for the detected monitors, their position, and size.</p>
+<p><code>-theme</code> <em>filename</em></p>
+<p>Path to the new theme file format. This overrides the old theme settings.</p>
+<p><code>-theme-str</code> <em>string</em></p>
+<p>Allow theme parts to be specified on the command line as an override.</p>
+<p>For example:</p>
+<pre><code>rofi -theme-str '#window { fullscreen: true; }'
+</code></pre>
+<p>This option can be specified multiple times.
+This is now the method to tweak the theme via the command line.</p>
+<p><code>-dpi</code>  <em>number</em></p>
+<p>Override the default DPI setting.</p>
+<ul>
+<li>If set to <code>0</code>, it tries to auto-detect based on X11 screen size (similar to i3 and GTK).</li>
+<li>If set to <code>1</code>, it tries to auto-detect based on the size of the monitor that <strong>rofi</strong> is displayed on (similar to latest Qt 5).</li>
+</ul>
+<p><code>-selected-row</code> <em>selected row</em></p>
+<p>Select a certain row.</p>
+<p>Default: <em>0</em></p>
+<h3 id="pattern-setting">PATTERN setting</h3>
+<p><code>-terminal</code></p>
+<p>Specify which terminal to start.</p>
+<pre><code>rofi -terminal xterm
+</code></pre>
+<p>Pattern: <em>{terminal}</em></p>
+<p>Default: <em>x-terminal-emulator</em></p>
+<p><code>-ssh-client</code> <em>client</em></p>
+<p>Override the used <code>ssh</code> client.</p>
+<p>Pattern: <em>{ssh-client}</em></p>
+<p>Default: <em>ssh</em></p>
+<h3 id="ssh-settings">SSH settings</h3>
+<p><code>-ssh-command</code> <em>cmd</em></p>
+<p>Set the command to execute when starting an ssh session.
+The pattern <em>{host}</em> is replaced by the selected ssh entry.</p>
+<p>Pattern: <em>{ssh-client}</em></p>
+<p>Default: <em>{terminal} -e {ssh-client} {host}</em></p>
+<p><code>-parse-hosts</code></p>
+<p>Parse the <code>/etc/hosts</code> file for entries.</p>
+<p>Default: <em>disabled</em></p>
+<p><code>-parse-known-hosts</code>
+<code>-no-parse-known-hosts</code></p>
+<p>Parse the <code>~/.ssh/known_hosts</code> file for entries.</p>
+<p>Default: <em>enabled</em></p>
+<h3 id="run-settings">Run settings</h3>
+<p><code>-run-command</code> <em>cmd</em></p>
+<p>Set command (<em>{cmd}</em>) to execute when running an application.
+See <em>PATTERN</em>.</p>
+<p>Default: <em>{cmd}</em></p>
+<p><code>-run-shell-command</code> <em>cmd</em></p>
+<p>Set command to execute when running an application in a shell.
+See <em>PATTERN</em>.</p>
+<p>Default: <em>{terminal} -e {cmd}</em></p>
+<p><code>-run-list-command</code> <em>cmd</em></p>
+<p>If set, use an external tool to generate a list of executable commands. Uses <code>run-command</code>.</p>
+<p>Default: <em>{cmd}</em></p>
+<h3 id="window-switcher-settings">Window switcher settings</h3>
+<p><code>-window-format</code> <em>format</em></p>
+<p>Format what is being displayed for windows.</p>
+<p><em>format</em>: {field[:len]}</p>
+<p><em>field</em>:</p>
+<ul>
+<li><strong>w</strong>: desktop name</li>
+<li><strong>t</strong>: title of window</li>
+<li><strong>n</strong>: name</li>
+<li><strong>r</strong>: role</li>
+<li><strong>c</strong>: class</li>
+</ul>
+<p><em>len</em>: maximum field length (0 for auto-size). If length and window <em>width</em> are negative, field length is <em>width - len</em>.<br />
+If length is positive, the entry will be truncated or padded to fill that length.</p>
+<p>default: {w}  {c}   {t}</p>
+<p><code>-window-command</code> <em>cmd</em></p>
+<p>Set command to execute on selected window for an alt action (<code>-kb-accept-alt</code>).
+See <em>PATTERN</em>.</p>
+<p>Default: <em>"wmctrl -i -R {window}"</em></p>
+<p><code>-window-thumbnail</code></p>
+<p>Show window thumbnail (if available) as icon in the window switcher.</p>
+<p>You can stop rofi from exiting when closing a window (allowing multiple to be closed in a row).</p>
+<pre><code class="language-css">configuration {
+  window {
+      close-on-delete: false;
+  }
+}
+</code></pre>
+<h3 id="combi-settings">Combi settings</h3>
+<p><code>-combi-modi</code> <em>mode1</em>,<em>mode2</em></p>
+<p>The modi to combine in combi mode.
+For syntax to <code>-combi-modi</code>, see <code>-modi</code>.
+To get one merge view, of <code>window</code>,<code>run</code>, and <code>ssh</code>:</p>
+<pre><code>rofi -show combi -combi-modi "window,run,ssh" -modi combi
+</code></pre>
+<p><strong>NOTE</strong>: The i3 window manager dislikes commas in the command when specifying an exec command.
+For that case, <code>#</code> can be used as a separator.</p>
+<h3 id="history-and-sorting">History and Sorting</h3>
+<p><code>-disable-history</code>
+<code>-no-disable-history</code> (re-enable history)</p>
+<p>Disable history</p>
+<p><code>-sort</code> to enable
+<code>-no-sort</code> to disable</p>
+<p>Enable, disable sorting.
+This setting can be changed at runtime (see <code>-kb-toggle-sort</code>).</p>
+<p><code>-sorting-method</code> 'method' to specify the sorting method.</p>
+<p>There are 2 sorting methods:</p>
+<ul>
+<li>levenshtein (Default)</li>
+<li>fzf sorting.</li>
+</ul>
+<p><code>-max-history-size</code> <em>number</em></p>
+<p>Maximum number of entries to store in history. Defaults to 25. (WARNING: can cause slowdowns when set too high)</p>
+<h3 id="dmenu-specific">Dmenu specific</h3>
+<p><code>-sep</code> <em>separator</em></p>
+<p>Separator for <code>dmenu</code>. Example: To show a list of 'a' to 'e' with '|' as a separator:</p>
+<pre><code>echo "a|b|c|d|e" | rofi -sep '|' -dmenu
+</code></pre>
+<p><code>-p</code> <em>prompt</em></p>
+<p>Specify the prompt to show in <code>dmenu</code> mode. For example, select 'monkey', a,b,c,d, or e.</p>
+<pre><code>echo "a|b|c|d|e" | rofi -sep '|' -dmenu -p "monkey"
+</code></pre>
+<p>Default: <em>dmenu</em></p>
+<p><code>-l</code> <em>number of lines to show</em></p>
+<p>Maximum number of lines the menu may show before scrolling.</p>
+<pre><code>rofi -dmenu -l 25
+</code></pre>
+<p>Default: <em>15</em></p>
+<p><code>-i</code></p>
+<p>Makes <code>dmenu</code> searches case-insensitive</p>
+<p><code>-a</code> <em>X</em></p>
+<p>Active row, mark <em>X</em> as active. Where <em>X</em> is a comma-separated list of python(1)-style indices and ranges, e.g.  indices start at 0, -1 refers to the last row with -2 preceding it, ranges are left-open and right-close, and so on. You can specify:</p>
+<ul>
+<li>A single row: '5'</li>
+<li>A range of (last 3) rows: '-3:'</li>
+<li>4 rows starting from row 7: '7:11' (or in legacy notation: '7-10')</li>
+<li>A set of rows: '2,0,-9'</li>
+<li>Or any combination: '5,-3:,7:11,2,0,-9'</li>
+</ul>
+<p><code>-u</code> <em>X</em></p>
+<p>Urgent row, mark <em>X</em> as urgent. See <code>-a</code> option for details.</p>
+<p><code>-only-match</code></p>
+<p>Only return a selected item, do not allow custom entry.
+This mode always returns an entry. It will not return if no matching entry is
+selected.</p>
+<p><code>-no-custom</code></p>
+<p>Only return a selected item, do not allow custom entry.
+This mode returns directly when no entries given.</p>
+<p><code>-format</code> <em>format</em></p>
+<p>Allows the output of dmenu to be customized (N is the total number of input entries):</p>
+<ul>
+<li>'s' selected string</li>
+<li>'i' index (0 - (N-1))</li>
+<li>'d' index (1 - N)</li>
+<li>'q' quote string</li>
+<li>'p' Selected string stripped from Pango markup (Needs to be a valid string)</li>
+<li>'f' filter string (user input)</li>
+<li>'F' quoted filter string (user input)</li>
+</ul>
+<p>Default: 's'</p>
+<p><code>-select</code> <em>string</em></p>
+<p>Select first line that matches the given string</p>
+<p><code>-mesg</code> <em>string</em></p>
+<p>Add a message line below the filter entry box. Supports Pango markup.
+For more information on supported markup, see <a href="https://docs.gtk.org/Pango/pango_markup.html">here</a></p>
+<p><code>-dump</code></p>
+<p>Dump the filtered list to stdout and quit.
+This can be used to get the list as <strong>rofi</strong> would filter it.
+Use together with <code>-filter</code> command.</p>
+<p><code>-input</code> <em>file</em></p>
+<p>Reads from <em>file</em> instead of stdin.</p>
+<p><code>-password</code></p>
+<p>Hide the input text. This should not be considered secure!</p>
+<p><code>-markup-rows</code></p>
+<p>Tell <strong>rofi</strong> that DMenu input is Pango markup encoded, and should be rendered.
+See <a href="https://developer.gnome.org/pygtk/stable/pango-markup-language.html">here</a> for details about Pango markup.</p>
+<p><code>-multi-select</code></p>
+<p>Allow multiple lines to be selected. Adds a small selection indicator to the left of each entry.</p>
+<p><code>-sync</code></p>
+<p>Force <strong>rofi</strong> mode to first read all data from stdin before showing the selection window. This is original dmenu behavior.</p>
+<p>Note: the default asynchronous mode will also be automatically disabled if used with conflicting options,
+such as <code>-dump</code>, <code>-only-match</code> or <code>-auto-select</code>.</p>
+<p><code>-async-pre-read</code> <em>number</em></p>
+<p>Reads the first <em>number</em> entries blocking, then switches to async mode.
+This makes it feel more 'snappy'.</p>
+<p><em>default</em>: 25</p>
+<p><code>-window-title</code> <em>title</em></p>
+<p>Set name used for the window title. Will be shown as Rofi - <em>title</em></p>
+<p><code>-w</code> <em>windowid</em></p>
+<p>Position <strong>rofi</strong> over the window with the given X11 window ID.</p>
+<p><code>-keep-right</code></p>
+<p>Set ellipsize mode to start. So, the end of the string is visible.</p>
+<h3 id="message-dialog">Message dialog</h3>
+<p><code>-e</code> <em>message</em></p>
+<p>Pops up a message dialog (used internally for showing errors) with <em>message</em>.
+Message can be multi-line.</p>
+<h3 id="file-browser-settings">File browser settings</h3>
+<p>File browser behavior can be controlled via the following options:</p>
+<pre><code class="language-css">configuration {
+   filebrowser {
+      /** Directory the file browser starts in. */
+      directory: &quot;/some/directory&quot;;
+      /**
+        * Sorting method. Can be set to:
+        *   - &quot;name&quot;
+        *   - &quot;mtime&quot; (modification time)
+        *   - &quot;atime&quot; (access time)
+        *   - &quot;ctime&quot; (change time)
+        */
+      sorting-method: &quot;name&quot;;
+      /** Group directories before files. */
+      directories-first: true;
+   }
+}
+</code></pre>
+<h3 id="other">Other</h3>
+<p><code>-drun-use-desktop-cache</code></p>
+<p>Build and use a cache with the content of desktop files. Usable for systems with slow hard drives.</p>
+<p><code>-drun-reload-desktop-cache</code></p>
+<p>If <code>drun-use-desktop-cache</code> is enabled, rebuild a cache with the content of desktop files.</p>
+<p><code>-drun-url-launcher</code> <em>command</em></p>
+<p>Command to open a Desktop Entry that is a Link.</p>
+<p><code>-pid</code> <em>path</em></p>
+<p>Make <strong>rofi</strong> create a pid file and check this on startup. The pid file prevents multiple <strong>rofi</strong> instances from running simultaneously. This is useful when running <strong>rofi</strong> from a key-binding daemon.</p>
+<p><code>-display-{mode}</code> <em>string</em></p>
+<p>Set the name to use for mode. This is used as prompt and in combi-browser.</p>
+<p>It is now preferred to use the configuration file:</p>
+<pre><code class="language-css">configuration {
+  {mode} {
+    display-name: *string*;
+  }
+}
+</code></pre>
+<p><code>-click-to-exit</code>
+<code>-no-click-to-exit</code></p>
+<p>Click the mouse outside the <strong>rofi</strong> window to exit.</p>
+<p>Default: <em>enabled</em></p>
+<h2 id="pattern">PATTERN</h2>
+<p>To launch commands (for example, when using the ssh launcher), the user can enter the used command-line. The following keys can be used that will be replaced at runtime:</p>
+<ul>
+<li><code>{host}</code>: the host to connect to</li>
+<li><code>{terminal}</code>: the configured terminal (see -terminal-emulator)</li>
+<li><code>{ssh-client}</code>: the configured ssh client (see -ssh-client)</li>
+<li><code>{cmd}</code>: the command to execute</li>
+<li><code>{window}</code>: the window ID of the selected window (in <code>window-command</code>)</li>
+</ul>
+<h2 id="dmenu-replacement">DMENU REPLACEMENT</h2>
+<p>If <code>argv[0]</code> (calling command) is dmenu, <strong>rofi</strong> will start in dmenu mode.
+This way, it can be used as a drop-in replacement for dmenu. Just copy or symlink <strong>rofi</strong> to dmenu in <code>$PATH</code>.</p>
+<pre><code>ln -s /usr/bin/rofi /usr/bin/dmenu
+</code></pre>
+<h2 id="theming">THEMING</h2>
+<p>Please see <strong>rofi-theme(5)</strong> manpage for more information on theming.</p>
+<h2 id="key-bindings">KEY BINDINGS</h2>
+<p><strong>rofi</strong> has the following key bindings:</p>
+<ul>
+<li><code>Control-v, Insert</code>: Paste from clipboard</li>
+<li><code>Control-Shift-v, Shift-Insert</code>: Paste primary selection</li>
+<li><code>Control-u</code>: Clear the line</li>
+<li><code>Control-a</code>: Beginning of line</li>
+<li><code>Control-e</code>: End of line</li>
+<li><code>Control-f, Right</code>: Forward one character</li>
+<li><code>Alt-f, Control-Right</code>: Forward one word</li>
+<li><code>Control-b, Left</code>: Back one character</li>
+<li><code>Alt-b, Control-Left</code>: Back one word</li>
+<li><code>Control-d, Delete</code>: Delete character</li>
+<li><code>Control-Alt-d</code>: Delete word</li>
+<li><code>Control-h, Backspace, Shift-Backspace</code>: Backspace (delete previous character)</li>
+<li><code>Control-Alt-h</code>: Delete previous word</li>
+<li><code>Control-j,Control-m,Enter</code>: Accept entry</li>
+<li><code>Control-n,Down</code>: Select next entry</li>
+<li><code>Control-p,Up</code>: Select previous entry</li>
+<li><code>Page Up</code>: Go to previous page</li>
+<li><code>Page Down</code>: Go to next page</li>
+<li><code>Control-Page Up</code>: Go to previous column</li>
+<li><code>Control-Page Down</code>: Go to next column</li>
+<li><code>Control-Enter</code>: Use entered text as a command (in <code>ssh/run modi</code>)</li>
+<li><code>Shift-Enter</code>: Launch the application in a terminal (in run mode)</li>
+<li><code>Control-Shift-Enter</code>: As Control-Enter and run the command in terminal (in run mode)</li>
+<li><code>Shift-Enter</code>: Return the selected entry and move to the next item while keeping <strong>rofi</strong> open. (in dmenu)</li>
+<li><code>Shift-Right</code>: Switch to the next mode. The list can be customized with the <code>-modi</code> argument.</li>
+<li><code>Shift-Left</code>: Switch to the previous mode. The list can be customized with the <code>-modi</code> argument.</li>
+<li><code>Control-Tab</code>: Switch to the next mode. The list can be customized with the <code>-modi</code> argument.</li>
+<li><code>Control-Shift-Tab</code>: Switch to the previous mode. The list can be customized with the <code>-modi</code> argument.</li>
+<li><code>Control-space</code>: Set selected item as input text.</li>
+<li><code>Shift-Del</code>: Delete entry from history.</li>
+<li><code>grave</code>: Toggle case sensitivity.</li>
+<li><code>Alt-grave</code>: Toggle sorting.</li>
+<li><code>Alt-Shift-S</code>: Take a screenshot and store it in the Pictures directory.</li>
+<li><code>Control-l</code>: File complete for run dialog.</li>
+</ul>
+<p>This list might not be complete, to get a full list of all key bindings
+supported in your rofi, see <code>rofi -h</code>. The options starting with <code>-kb</code> are keybindings.</p>
+<p>Key bindings can be modified using the configuration systems. Multiple keys can be bound
+to one action by comma separating them. For example <code>-kb-primary-paste "Conctrol+v,Insert"</code></p>
+<p>To get a searchable list of key bindings, run <code>rofi -show keys</code>.</p>
+<p>A key binding starting with <code>!</code> will act when all keys have been released.</p>
+<p>You can bind certain events to key-actions:</p>
+<h3 id="timeout">Timeout</h3>
+<p>You can configure an action to be taken when rofi has not been interacted
+with for a certain amount of seconds. You can specify a keybinding to trigger
+after X seconds.</p>
+<pre><code class="language-css">configuration {
+  timeout {
+      delay:  15;
+      action: &quot;kb-cancel&quot;;
+  }
+}
+</code></pre>
+<h3 id="input-change">Input change</h3>
+<p>When the input of the textbox changes:</p>
+<pre><code class="language-css">configuration {
+  inputchange {
+      action: &quot;kb-row-first&quot;;
+  }
+}
+</code></pre>
+<h2 id="available-modi">Available Modi</h2>
+<h3 id="window">window</h3>
+<p>Show a list of all the windows and allow switching between them.
+Pressing the <code>delete-entry</code> binding (<code>shift-delete</code>) will close the window.
+Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) will run a command on the window.
+(See option <code>window-command</code> );</p>
+<p>If there is no match, it will try to launch the input.</p>
+<h3 id="windowcd">windowcd</h3>
+<p>Shows a list of the windows on the current desktop and allows switching between them.
+Pressing the <code>delete-entry</code> binding (<code>shift-delete</code>) will kill the window.
+Pressing the <code>accept-custom</code> binding (<code>control-enter</code> or <code>shift-enter</code>) will run a command on the window.
+(See option <code>window-command</code> );</p>
+<p>If there is no match, it will try to launch the input.</p>
+<h3 id="run">run</h3>
+<p>Shows a list of executables in <code>$PATH</code> and can launch them (optional in a terminal).
+Pressing the <code>delete-entry</code> binding (<code>shift-delete</code>) will remove this entry from the run history.
+Pressing the <code>accept-custom</code> binding (<code>control-enter</code>) will run the command as entered in the entry box.
+Pressing the <code>accept-alt</code> binding (<code>shift-enter</code>) will run the command in a terminal.</p>
+<p>When pressing the <code>mode-complete</code> binding (<code>Control-l</code>), you can use the File Browser mode to launch the application
+with a file as the first argument.</p>
+<h3 id="drun">drun</h3>
+<p>Same as the <strong>run</strong> launches, but the list is created from the installed desktop files. It automatically launches them
+in a terminal if specified in the Desktop File.
+Pressing the <code>delete-entry</code> binding (<code>shift-delete</code>) will remove this entry from the run history.
+Pressing the <code>accept-custom</code> binding (<code>control-enter</code>) will run the command as entered in the entry box.
+Pressing the <code>accept-alt</code> binding (<code>shift-enter</code>) will run the command in a terminal.</p>
+<p>When pressing the <code>mode-complete</code> binding (<code>Control-l</code>), you can use the File Browser mode to launch the application
+passing a file as argument if specified in the desktop file.</p>
+<p>The DRUN mode tries to follow the <a href="https://freedesktop.org/wiki/Specifications/desktop-entry-spec/">XDG Desktop Entry
+Specification</a> and should be compatible with
+applications using this standard.  Some applications create invalid desktop files, <strong>rofi</strong> will discard these entries.
+See the debugging section for more info on DRUN mode, this will print why desktop files are
+discarded.</p>
+<p>There are two advanced options to tweak the behaviour:</p>
+<pre><code class="language-css">configuration {
+   drun {
+      /** Parse user desktop files. */
+      parse-user:   true;
+      /** Parse system desktop files. */
+      parse-system: false;
+   }
+}
+</code></pre>
+<h3 id="ssh">ssh</h3>
+<p>Shows a list of SSH targets based on your <code>ssh</code> config file, and allows to quickly <code>ssh</code> into them.</p>
+<h3 id="keys">keys</h3>
+<p>Shows a searchable list of key bindings.</p>
+<h3 id="script">script</h3>
+<p>Allows custom scripted Modi to be added, see the <strong>rofi-script(5)</strong> manpage for more information.</p>
+<h3 id="combi">combi</h3>
+<p>Combines multiple modi in one list. Specify which modi are included with the <code>-combi-modi</code> option.</p>
+<p>When using the combi mode, a <em>!bang</em> can be used to filter the results by modi.
+All modi that match the bang as a prefix are included.
+For example, say you have specified <code>-combi-modi run,window,windowcd</code>. If your
+query begins with the bang <code>!w</code>, only results from the <code>window</code> and <code>windowcd</code>
+modi are shown, even if the rest of the input text would match results from <code>run</code>.</p>
+<p>If no match, the input is handled by the first combined modi.</p>
+<h2 id="faq">FAQ</h2>
+<h3 id="the-text-in-the-window-switcher-is-not-nicely-aligned">The text in the window switcher is not nicely aligned.</h3>
+<p>Try using a mono-space font.</p>
+<h3 id="the-window-is-completely-black">The window is completely black.</h3>
+<p>Check quotes used on the command-line: you might have used <code>“</code> ("smart quotes") instead of <code>"</code> ("machine quotes").</p>
+<h3 id="what-does-the-icon-in-the-top-right-show">What does the icon in the top right show?</h3>
+<p>The indicator shows:</p>
+<pre><code>` ` Case insensitive and no sorting.
+`-` Case sensitivity enabled, no sorting.
+`+` Case insensitive and Sorting enabled
+`±` Sorting and Case sensitivity enabled"
+</code></pre>
+<h2 id="examples">EXAMPLES</h2>
+<p>Some basic usage examples of <strong>rofi</strong>:</p>
+<p>Show the run dialog:</p>
+<pre><code>rofi -modi run -show run
+</code></pre>
+<p>Show the run dialog, and allow switching to Desktop File run dialog (<code>drun</code>):</p>
+<pre><code>rofi -modi run,drun -show run
+</code></pre>
+<p>Combine the run and Desktop File run dialog (<code>drun</code>):</p>
+<pre><code>rofi -modi combi -show combi -combi-modi run,drun
+</code></pre>
+<p>Combine the run and Desktop File run dialog (<code>drun</code>), and allow switching to window switcher:</p>
+<pre><code>rofi -modi combi,window -show combi -combi-modi run,drun
+</code></pre>
+<p>Pop up a text message claiming that this is the end:</p>
+<pre><code>rofi -e "This is the end"
+</code></pre>
+<p>Pop up a text message in red, bold font claiming that this is still the end:</p>
+<pre><code>rofi -e "&lt;span color='red'&gt;&lt;b&gt;This is still the end&lt;/b&gt;&lt;/span&gt;" -markup
+</code></pre>
+<p>Show all key bindings:</p>
+<pre><code>rofi -show keys
+</code></pre>
+<p>Use <code>qalc</code> to get a simple calculator in <strong>rofi</strong>:</p>
+<pre><code> rofi -show calc -modi "calc:qalc +u8 -nocurrencies"
+</code></pre>
+<h2 id="i3">i3</h2>
+<p>In <a href="http://i3wm.org/">i3</a> you want to bind <strong>rofi</strong> to be launched on key release. Otherwise, it cannot grab the keyboard.
+See also the i3 <a href="http://i3wm.org/docs/userguide.html">manual</a>:</p>
+<p>Some tools (such as <code>import</code> or <code>xdotool</code>) might be unable to run upon a KeyPress event, because the keyboard/pointer is
+still grabbed. For these situations, the <code>--release</code> flag can be used, as it will execute the command after the keys have
+been released.</p>
+<h2 id="license">LICENSE</h2>
+<pre><code>MIT/X11
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</code></pre>
+<h2 id="website">WEBSITE</h2>
+<p><strong>rofi</strong> website can be found <a href="https://davedavenport.github.io/rofi/">here</a></p>
+<h2 id="support">SUPPORT</h2>
+<p><strong>rofi</strong> support can be obtained:
+ * <a href="https://github.com/davatorium/rofi/discussions">GitHub Discussions</a>
+ * <a href="https://reddit.com/r/qtools//">Forum (Reddit)</a>
+ * <a href="irc://irc.libera.chat:6697/#rofi">IRC</a> (#rofi on irc.libera.chat),</p>
+<h2 id="debugging">DEBUGGING</h2>
+<p>To debug, it is smart to first try disabling your custom configuration:
+<code>-no-config</code></p>
+<p>Disable parsing of configuration. This runs rofi in <em>stock</em> mode.</p>
+<p>If you run custom C plugins, you can disable them using:</p>
+<p><code>-no-plugins</code></p>
+<p>Disables the loading of plugins.</p>
+<p>To further debug the plugin, you can get a trace with (lots of) debug information.  This debug output can be enabled for
+multiple parts in rofi using the glib debug framework. Debug domains can be enabled by setting the G_MESSAGES_DEBUG
+environment variable. At the time of creation of this page, the following debug domains exist:</p>
+<ul>
+<li>all: Show debug information from all domains.</li>
+<li>X11Helper: The X11 Helper functions.</li>
+<li>View: The main window view functions.</li>
+<li>Widgets.Box: The Box widget.</li>
+<li>Dialogs.DMenu: The dmenu mode.</li>
+<li>Dialogs.Run: The run mode.</li>
+<li>Dialogs.DRun: The desktop file run mode.</li>
+<li>Dialogs.Window: The window mode.</li>
+<li>Dialogs.Script: The script mode.</li>
+<li>Dialogs.Combi: The script mode.</li>
+<li>Dialogs.Ssh: The ssh mode.</li>
+<li>Rofi: The main application.</li>
+<li>Timings: Get timing output.</li>
+<li>Theme: Theme engine debug output. (warning lots of output).</li>
+<li>Widgets.Icon: The Icon widget.</li>
+<li>Widgets.Box: The box widget.</li>
+<li>Widgets.Container: The container widget.</li>
+<li>Widgets.Window: The window widget.</li>
+<li>Helpers.IconFetcher: Information about icon lookup.</li>
+</ul>
+<p>The output of this can provide useful information when writing an issue.</p>
+<p>More information (possibly outdated) see <a href="https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi">this</a> wiki entry.</p>
+<h2 id="issue-tracker">ISSUE TRACKER</h2>
+<p>The <strong>rofi</strong> issue tracker can be found <a href="https://github.com/DaveDavenport/rofi/issues">here</a></p>
+<p>When creating an issue, please read <a href="https://github.com/DaveDavenport/rofi/blob/master/.github/CONTRIBUTING.md">this</a>
+first.</p>
+<h2 id="see-also">SEE ALSO</h2>
+<p><strong>rofi-sensible-terminal(1)</strong>, <strong>dmenu(1)</strong>, <strong>rofi-theme(5)</strong>, <strong>rofi-script(5)</strong>, <strong>rofi-theme-selector(1)</strong></p>
+<h2 id="author">AUTHOR</h2>
+<ul>
+<li>Qball Cow <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#113;&#98;&#97;&#108;&#108;&#64;&#98;&#108;&#97;&#109;&#101;&#46;&#115;&#101;&#114;&#118;&#105;&#99;&#101;&#115;">&#113;&#98;&#97;&#108;&#108;&#64;&#98;&#108;&#97;&#109;&#101;&#46;&#115;&#101;&#114;&#118;&#105;&#99;&#101;&#115;</a></li>
+<li>Rasmus Steinke <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#114;&#97;&#115;&#105;&#64;&#120;&#115;&#115;&#110;&#46;&#97;&#116;">&#114;&#97;&#115;&#105;&#64;&#120;&#115;&#115;&#110;&#46;&#97;&#116;</a></li>
+<li>Quentin Glidic <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#43;&#114;&#111;&#102;&#105;&#64;&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#46;&#110;&#101;&#116;">&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#43;&#114;&#111;&#102;&#105;&#64;&#115;&#97;&#114;&#100;&#101;&#109;&#102;&#102;&#55;&#46;&#110;&#101;&#116;</a></li>
+</ul>
+<p>Original code based on work by: <a href="https://github.com/seanpringle/simpleswitcher">Sean Pringle</a> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#101;&#97;&#110;&#46;&#112;&#114;&#105;&#110;&#103;&#108;&#101;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#115;&#101;&#97;&#110;&#46;&#112;&#114;&#105;&#110;&#103;&#108;&#101;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a></p>
+<p>For a full list of authors, check the <code>AUTHORS</code> file.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>
