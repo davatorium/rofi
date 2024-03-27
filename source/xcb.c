@@ -890,8 +890,13 @@ static int monitor_active_from_id_focused(int mon_id, workarea *mon) {
       // place the menu above the window
       // if some window is focused, place menu above window, else fall
       // back to selected monitor.
-      mon->x = t->dst_x - r->x + r->border_width;
-      mon->y = t->dst_y - r->y + r->border_width;
+      if (tree_reply->parent == r->root) {
+        mon->x = t->dst_x - r->x + r->border_width;
+        mon->y = t->dst_y - r->y + r->border_width;
+      } else {
+        mon->x = t->dst_x;
+        mon->y = t->dst_y;
+      }
       mon->w = r->width;
       mon->h = r->height;
       retv = TRUE;
