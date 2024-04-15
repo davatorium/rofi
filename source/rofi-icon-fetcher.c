@@ -365,6 +365,17 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   GError *error = NULL;
   GdkPixbuf *pb = gdk_pixbuf_new_from_file_at_scale(
       icon_path, sentry->wsize, sentry->hsize, TRUE, &error);
+
+  /*
+   * The GIF codec throws GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION if it's closed
+   * without decoding all the frames. Since gdk_pixbuf_new_from_file_at_scale
+   * only decodes the first frame, this specific error needs to be ignored.
+   */
+  if (error != NULL && g_error_matches(
+          error, GDK_PIXBUF_ERROR, GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION)) {
+      g_clear_error(&error);
+  }
+
   if (error != NULL) {
     g_warning("Failed to load image: |%s| %d %d %s (%p)", icon_path,
               sentry->wsize, sentry->hsize, error->message, (void *)pb);
