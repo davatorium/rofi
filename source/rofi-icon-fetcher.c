@@ -354,6 +354,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   }
   cairo_surface_t *icon_surf = NULL;
 
+#if 0 // unsure why added in past?
   const char *suf = strrchr(icon_path, '.');
   if (suf == NULL) {
     sentry->query_done = TRUE;
@@ -361,6 +362,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     rofi_view_reload();
     return;
   }
+#endif
 
   GError *error = NULL;
   GdkPixbuf *pb = gdk_pixbuf_new_from_file_at_scale(
@@ -371,9 +373,9 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
    * without decoding all the frames. Since gdk_pixbuf_new_from_file_at_scale
    * only decodes the first frame, this specific error needs to be ignored.
    */
-  if (error != NULL && g_error_matches(
-          error, GDK_PIXBUF_ERROR, GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION)) {
-      g_clear_error(&error);
+  if (error != NULL && g_error_matches(error, GDK_PIXBUF_ERROR,
+                                       GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION)) {
+    g_clear_error(&error);
   }
 
   if (error != NULL) {
