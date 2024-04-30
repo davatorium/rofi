@@ -99,6 +99,8 @@ additional tool.
 * `-placeholder-markup` to enable pango markup when rendering placeholder text (#1690)
 * `urgent` and `active` flags can be controlled for each row in dmenu and script
   modes
+* Fixing window coordinates for non-reparting window manager. (Thanks to Ortango #1969)
+* Fix failing decode of animated gif files. (Thanks to martinsifrar #1975)
 
 ## Website
 
@@ -122,12 +124,14 @@ Special thanks goes to:
   * Gutyina Gergő
   * Jasper Lievisse Adriaanse
   * Jorge
+  * martinsifrar
   * Martin Weinelt
   * Morgane Glidic
   * Naïm Favier
   * Nikita Zlobin
   * nomoo
   * notuxic
+  * Ortango
   * Rasmus Steinke
   * Tim Pope
   * TonCherAmi
@@ -139,6 +143,12 @@ Apologies if I mistyped or missed anybody.
 
 # Changelog
 
+* [xcb] Add border_width to window coordinates (#1969)
+* [IconFetcher] Don't check for extension for image file
+* [IconFetcher] Fix failing decode of animated GIFs. (#1975)
+* [Doc] Fix typos, thx to @Nickwiz
+* [Run] Don't re-quote history items.
+* [Modes] Remove dead code in mode implems (#1960)
 * [View] Work around GThreadPool 1 pointer bug.
 * Also fix typo in icon fetcher.
 * [Github] Bump checkout to v4
