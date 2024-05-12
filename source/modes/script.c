@@ -72,6 +72,8 @@ typedef struct {
   char delim;
   /** no custom */
   gboolean no_custom;
+  /** keep filter */
+  gboolean keep_filter;
 
   gboolean use_hot_keys;
 } ScriptModePrivateData;
@@ -157,6 +159,8 @@ static void parse_header_entry(Mode *sw, char *line, ssize_t length) {
       pd->use_hot_keys = (strcasecmp(value, "true") == 0);
     } else if (strcasecmp(line, "keep-selection") == 0) {
       pd->keep_selection = (strcasecmp(value, "true") == 0);
+    } else if (strcasecmp(line, "keep-filter") == 0) {
+      pd->keep_filter = (strcasecmp(value, "true") == 0);
     } else if (strcasecmp(line, "new-selection") == 0) {
       pd->new_selection = (int64_t)g_ascii_strtoll(value, NULL, 0);
     } else if (strcasecmp(line, "data") == 0) {
@@ -184,6 +188,7 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
   // Reset these between runs.
   pd->new_selection = -1;
   pd->keep_selection = 0;
+  pd->keep_filter = 0;
   // Environment
   char **env = g_get_environ();
 
@@ -320,6 +325,9 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
   ModeMode retv = MODE_EXIT;
   DmenuScriptEntry *new_list = NULL;
   unsigned int new_length = 0;
+  // store them as they might be different on next executor and reset.
+  gboolean keep_filter = rmpd->keep_filter;
+  gboolean keep_selection = rmpd->keep_selection;
 
   if ((mretv & MENU_CUSTOM_COMMAND)) {
     if (rmpd->use_hot_keys) {
@@ -370,7 +378,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
 
     rmpd->cmd_list = new_list;
     rmpd->cmd_list_length = new_length;
-    if (rmpd->keep_selection) {
+    if (keep_selection) {
       if (rmpd->new_selection >= 0 &&
           rmpd->new_selection < rmpd->cmd_list_length) {
         rofi_view_set_selected_line(rofi_view_get_active(),
@@ -378,12 +386,14 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
       } else {
         rofi_view_set_selected_line(rofi_view_get_active(), selected_line);
       }
+    } else {
+      rofi_view_set_selected_line(rofi_view_get_active(), 0);
+    }
+    if (keep_filter == FALSE) {
       g_free(*input);
       *input = NULL;
-      retv = RELOAD_DIALOG;
-    } else {
-      retv = RESET_DIALOG;
     }
+    retv = RELOAD_DIALOG;
   }
   return retv;
 }

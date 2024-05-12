@@ -109,6 +109,8 @@ The following extra options exists:
 -   **keep-selection**: If set, the selection is not moved to the first entry,
     but the current position is maintained. The filter is cleared.
 
+-   **keep-filter**: If set, the filter is not cleared. 
+
 -   **new-selection**: If `keep-selection` is set, this allows you to override
     the selected entry (absolute position).
 
