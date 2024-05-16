@@ -702,6 +702,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   }
   cairo_surface_t *icon_surf = NULL;
 
+#if 0 // unsure why added in past?
   const char *suf = strrchr(icon_path, '.');
   if (suf == NULL) {
     sentry->query_done = TRUE;
@@ -709,10 +710,22 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     rofi_view_reload();
     return;
   }
+#endif
 
   GError *error = NULL;
   GdkPixbuf *pb = gdk_pixbuf_new_from_file_at_scale(
       icon_path, sentry->wsize, sentry->hsize, TRUE, &error);
+
+  /*
+   * The GIF codec throws GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION if it's closed
+   * without decoding all the frames. Since gdk_pixbuf_new_from_file_at_scale
+   * only decodes the first frame, this specific error needs to be ignored.
+   */
+  if (error != NULL && g_error_matches(error, GDK_PIXBUF_ERROR,
+                                       GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION)) {
+    g_clear_error(&error);
+  }
+
   if (error != NULL) {
     g_warning("Failed to load image: |%s| %d %d %s (%p)", icon_path,
               sentry->wsize, sentry->hsize, error->message, (void *)pb);

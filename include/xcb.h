@@ -209,8 +209,6 @@ typedef enum {
   WM_DO_NOT_CHANGE_CURRENT_DESKTOP = 1,
   /** PANGO WORKSPACE NAMES */
   WM_PANGO_WORKSPACE_NAMES = 2,
-  /** Root window offset (for bspwm) */
-  WM_ROOT_WINDOW_OFFSET = 4,
 } WindowManagerQuirk;
 
 /**

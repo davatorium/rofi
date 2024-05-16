@@ -13,7 +13,7 @@ body:
         consider you’re wrong and still fill the full report. Any report
         missing required informations will be labeled as “Incomplete Report -
         Please follow the guidelines” and will be closed. If you ask a
-        question, enter dummy information in required fields to get passed the
+        question, enter dummy information in required fields to get past the
         checks or in general completely ignore the guidelines, the issue will
         be closed and locked as spam.
 
@@ -37,21 +37,26 @@ body:
   - type: input
     attributes:
       label: "Configuration"
-      description: "Please use https://gist.github.com and include output of `rofi -dump-config`."
+      description: |
+        Please use https://gist.github.com and include output of `rofi -dump-config`.
+        n/a is not a valid config.
       placeholder: "Gist URL"
     validations:
       required: true
   - type: input
     attributes:
       label: "Theme"
-      description: "Please use https://gist.github.com and include output of `rofi -dump-theme`."
+      description: |
+        Please use https://gist.github.com and include output of `rofi -dump-theme`.
+        n/a is not a valid theme.
       placeholder: "Gist URL"
     validations:
       required: true
   - type: input
     attributes:
       label: "Timing report"
-      description: "Please use https://gist.github.com and include output of your command with G_MESSAGES_DEBUG=Timings set."
+      description: |
+        Please use https://gist.github.com and include output of your command with G_MESSAGES_DEBUG=Timings set.
       placeholder: "Gist URL"
     validations:
       required: false

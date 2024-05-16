@@ -881,37 +881,38 @@ static int monitor_active_from_id_focused(int mon_id, workarea *mon) {
     free(tree_reply);
     return retv;
   }
-  xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates(
-      xcb->connection, tree_reply->parent, r->root, r->x, r->y);
-  xcb_translate_coordinates_reply_t *t =
-      xcb_translate_coordinates_reply(xcb->connection, ct, NULL);
-  if (t) {
-    if (mon_id == -2) {
-      // place the menu above the window
-      // if some window is focused, place menu above window, else fall
-      // back to selected monitor.
-      mon->x = t->dst_x - r->x;
-      mon->y = t->dst_y - r->y;
-      mon->w = r->width;
-      mon->h = r->height;
-      retv = TRUE;
-      if ((current_window_manager & WM_ROOT_WINDOW_OFFSET) ==
-          WM_ROOT_WINDOW_OFFSET) {
-        mon->x += r->x;
-        mon->y += r->y;
-      }
-      g_debug("mon pos: %d %d %d-%d", mon->x, mon->y, mon->w, mon->h);
-    } else if (mon_id == -4) {
-      g_debug("Find monitor at location: %d %d", t->dst_x, t->dst_y);
-      monitor_dimensions(t->dst_x, t->dst_y, mon);
-      g_debug("Monitor found pos: %d %d %d-%d", mon->x, mon->y, mon->w, mon->h);
-      retv = TRUE;
+  if (tree_reply->parent != r->root) {
+    xcb_translate_coordinates_cookie_t ct = xcb_translate_coordinates(
+        xcb->connection, tree_reply->parent, r->root, r->x, r->y);
+    xcb_translate_coordinates_reply_t *t =
+        xcb_translate_coordinates_reply(xcb->connection, ct, NULL);
+    if (t) {
+      r->x = t->dst_x;
+      r->y = t->dst_y;
+      free(t);
+    } else {
+      g_debug("Failed to get translate position of active window, falling back "
+              "to mouse location (-5).");
+      free(r);
+      free(tree_reply);
+      return retv;
     }
-    free(t);
-  } else {
-    g_debug("Failed to get translate position of active window, falling back "
-            "to mouse location (-5).");
   }
+  if (mon_id == -2) {
+    // place the menu above the window
+    // if some window is focused, place menu above window, else fall
+    // back to selected monitor.
+    mon->x = r->x + r->border_width;
+    mon->y = r->y + r->border_width;
+    mon->w = r->width;
+    mon->h = r->height;
+    retv = TRUE;
+  } else if (mon_id == -4) {
+    g_debug("Find monitor at location: %d %d", r->x, r->y);
+    monitor_dimensions(r->x, r->y, mon);
+    retv = TRUE;
+  }
+  g_debug("mon pos: %d %d %d-%d", mon->x, mon->y, mon->w, mon->h);
   free(r);
   free(tree_reply);
   return retv;
@@ -1642,8 +1643,6 @@ static void x11_helper_discover_window_manager(void) {
         if (g_strcmp0(str, "i3") == 0) {
           current_window_manager =
               WM_DO_NOT_CHANGE_CURRENT_DESKTOP | WM_PANGO_WORKSPACE_NAMES;
-        } else if (g_strcmp0(str, "bspwm") == 0) {
-          current_window_manager = WM_ROOT_WINDOW_OFFSET;
         }
         g_free(str);
       }

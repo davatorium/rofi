@@ -60,12 +60,14 @@
 /**
  * Name of the history file where previously chosen commands are stored.
  */
-#define RUN_CACHE_FILE "rofi-3.runcache"
+#define RUN_CACHE_FILE "rofi-4.runcache"
 
 typedef struct {
   char *entry;
+  char *exec;
   uint32_t icon_fetch_uid;
   uint32_t icon_fetch_size;
+  gboolean from_history;
   /* Surface holding the icon. */
   cairo_surface_t *icon;
 } RunEntry;
@@ -113,6 +115,7 @@ static gboolean exec_cmd(const char *cmd, int run_in_term, const char *orig) {
 
   char *path = g_build_filename(cache_dir, RUN_CACHE_FILE, NULL);
   RofiHelperExecuteContext context = {.name = NULL};
+  char *hist = g_strdup_printf("%s\x1f%s", orig, cmd);
   // FIXME: assume startup notification support for terminals
   if (helper_execute_command(NULL, lf_cmd, run_in_term,
                              run_in_term ? &context : NULL)) {
@@ -121,12 +124,14 @@ static gboolean exec_cmd(const char *cmd, int run_in_term, const char *orig) {
      * It is allowed to be a bit slower.
      */
 
-    history_set(path, orig);
+    history_set(path, hist);
     g_free(path);
     g_free(lf_cmd);
+    g_free(hist);
     return TRUE;
   }
-  history_remove(path, orig);
+  history_remove(path, hist);
+  g_free(hist);
   g_free(path);
   g_free(lf_cmd);
   return FALSE;
@@ -140,8 +145,9 @@ static gboolean exec_cmd(const char *cmd, int run_in_term, const char *orig) {
 static void delete_entry(const RunEntry *cmd) {
   char *path = g_build_filename(cache_dir, RUN_CACHE_FILE, NULL);
 
-  history_remove(path, cmd->entry);
-
+  char *hist = g_strdup_printf("%s\x1f%s", cmd->entry, cmd->exec);
+  history_remove(path, hist);
+  g_free(hist);
   g_free(path);
 }
 
@@ -205,6 +211,8 @@ static RunEntry *get_apps_external(RunEntry *retv, unsigned int *length,
         // No duplicate, add it.
         retv = g_realloc(retv, ((*length) + 2) * sizeof(RunEntry));
         retv[(*length)].entry = g_strdup(buffer);
+        retv[(*length)].exec = g_shell_quote(buffer);
+        retv[(*length)].from_history = FALSE;
         retv[(*length)].icon = NULL;
         retv[(*length)].icon_fetch_uid = 0;
         retv[(*length)].icon_fetch_size = 0;
@@ -221,6 +229,8 @@ static RunEntry *get_apps_external(RunEntry *retv, unsigned int *length,
     }
   }
   retv[(*length)].entry = NULL;
+  retv[(*length)].exec = NULL;
+  retv[(*length)].from_history = FALSE;
   retv[(*length)].icon = NULL;
   retv[(*length)].icon_fetch_uid = 0;
   retv[(*length)].icon_fetch_size = 0;
@@ -244,7 +254,14 @@ static RunEntry *get_apps(unsigned int *length) {
   char **hretv = history_get_list(path, length);
   retv = (RunEntry *)g_malloc0((*length + 1) * sizeof(RunEntry));
   for (unsigned int i = 0; i < *length; i++) {
-    retv[i].entry = hretv[i];
+    gchar **rs = g_strsplit(hretv[i], "\x1f", 2);
+    retv[i].entry = rs[0];
+    retv[i].exec = rs[1];
+    if (retv[i].exec == NULL) {
+      retv[i].exec = g_strdup(rs[0]);
+    }
+    retv[i].from_history = TRUE;
+    g_free(rs);
   }
   g_free(hretv);
   g_free(path);
@@ -259,6 +276,7 @@ static RunEntry *get_apps(unsigned int *length) {
     g_debug("Failed to convert homedir to UTF-8: %s", error->message);
     for (unsigned int i = 0; retv[i].entry != NULL; i++) {
       g_free(retv[i].entry);
+      g_free(retv[i].exec);
     }
     g_free(retv);
     g_clear_error(&error);
@@ -332,10 +350,14 @@ static RunEntry *get_apps(unsigned int *length) {
 
         retv = g_realloc(retv, ((*length) + 2) * sizeof(RunEntry));
         retv[(*length)].entry = name;
+        retv[(*length)].exec = g_shell_quote(name);
+        retv[(*length)].from_history = FALSE;
         retv[(*length)].icon = NULL;
         retv[(*length)].icon_fetch_uid = 0;
         retv[(*length)].icon_fetch_size = 0;
         retv[(*length) + 1].entry = NULL;
+        retv[(*length) + 1].exec = NULL;
+        retv[(*length) + 1].from_history = FALSE;
         retv[(*length) + 1].icon = NULL;
         retv[(*length) + 1].icon_fetch_uid = 0;
         retv[(*length) + 1].icon_fetch_size = 0;
@@ -367,6 +389,8 @@ static RunEntry *get_apps(unsigned int *length) {
     if (g_strcmp0(retv[index].entry, retv[index + 1].entry) == 0) {
       g_free(retv[index].entry);
       retv[index].entry = NULL;
+      g_free(retv[index].exec);
+      retv[index].exec = NULL;
       removed++;
     }
   }
@@ -397,6 +421,7 @@ static void run_mode_destroy(Mode *sw) {
   if (rmpd != NULL) {
     for (unsigned int i = 0; i < rmpd->cmd_list_length; i++) {
       g_free(rmpd->cmd_list[i].entry);
+      g_free(rmpd->cmd_list[i].exec);
       if (rmpd->cmd_list[i].icon != NULL) {
         cairo_surface_destroy(rmpd->cmd_list[i].icon);
       }
@@ -447,16 +472,14 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
                                    &path);
       if (retv == MODE_EXIT) {
         if (path == NULL) {
-          char *arg = g_shell_quote(rmpd->cmd_list[rmpd->selected_line].entry);
+          char *arg = rmpd->cmd_list[rmpd->selected_line].exec;
           exec_cmd(arg, run_in_term, rmpd->cmd_list[rmpd->selected_line].entry);
-          g_free(arg);
         } else {
-          char *earg = g_shell_quote(rmpd->cmd_list[rmpd->selected_line].entry);
+          char *earg = rmpd->cmd_list[rmpd->selected_line].exec;
           char *epath = g_shell_quote(path);
           char *arg = g_strdup_printf("%s %s", earg, epath);
           exec_cmd(arg, run_in_term, arg);
           g_free(arg);
-          g_free(earg);
           g_free(epath);
         }
       }
@@ -466,11 +489,11 @@ static ModeMode run_mode_result(Mode *sw, int mretv, char **input,
   }
 
   if ((mretv & MENU_OK) && rmpd->cmd_list[selected_line].entry != NULL) {
-    char *earg = g_shell_quote(rmpd->cmd_list[selected_line].entry);
+    char *earg = NULL;
+    earg = rmpd->cmd_list[selected_line].exec;
     if (!exec_cmd(earg, run_in_term, rmpd->cmd_list[selected_line].entry)) {
       retv = RELOAD_DIALOG;
     }
-    g_free(earg);
   } else if ((mretv & MENU_CUSTOM_INPUT) && *input != NULL &&
              *input[0] != '\0') {
     if (!exec_cmd(*input, run_in_term, *input)) {

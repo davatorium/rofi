@@ -109,6 +109,8 @@ The following extra options exists:
 -   **keep-selection**: If set, the selection is not moved to the first entry,
     but the current position is maintained. The filter is cleared.
 
+-   **keep-filter**: If set, the filter is not cleared. 
+
 -   **new-selection**: If `keep-selection` is set, this allows you to override
     the selected entry (absolute position).
 
@@ -143,7 +145,7 @@ The following options are supported:
 
 -   **nonselectable**: If true the row cannot activated.
 
--   **permantent**: If true the row always shows, independent of filter.
+-   **permanent**: If true the row always shows, independent of filter.
 
 -   **info**: Info that, on selection, gets placed in the `ROFI_INFO`
     environment variable. This entry does not get searched for filtering.
