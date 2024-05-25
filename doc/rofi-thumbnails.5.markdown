@@ -33,3 +33,38 @@ It is possible to use a custom command to generate thumbnails for generic entry 
     rofi ... -preview-cmd 'path/to/script_or_cmd "{input}" "{output}" "{size}"'
 ```
 rofi will call the script or command substituting `{input}` with the input entry icon name (the string after `\0icon\x1fthumbnail://`), `{output}` with the output filename of the thumbnail and `{size}` with the requested thumbnail size. The script or command is responsible of producing a thumbnail image (if possible respecting the requested size) and saving it in the given `{output}` filename.
+
+### Issues with AppArmor
+In Linux distributions using AppArmor (such as Ubuntu and Debian), the default rules shipped can cause issues with thumbnails generation. If that is the case, AppArmor can be disabled by issuing the following commands
+```
+sudo systemctl stop apparmor
+sudo systemctl disable apparmor
+```
+In alternative, the following apparmor profile con be placed in a file named /etc/apparmor.d/usr.bin.rofi
+```
+#vim:syntax=apparmor
+# AppArmor policy for rofi
+
+#include <tunables/global>
+
+/usr/bin/rofi {
+    #include <abstractions/base>
+
+    # TCP/UDP network access for NFS
+    network inet  stream,
+    network inet6 stream,
+    network inet  dgram,
+    network inet6 dgram,
+
+    /usr/bin/rofi mr,
+
+    @{HOME}/ r,
+    @{HOME}/** rw,
+    owner @{HOME}/.cache/thumbnails/** rw,
+}
+```
+then run 
+```
+apparmor_parser  -r /etc/apparmor.d/usr.bin.rofi
+```
+to reload the rule. This assumes that rofi binary is in /usr/bin, that is the case of a standard package installation.
