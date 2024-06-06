@@ -294,15 +294,17 @@ static unsigned int scroll_per_page(listview *lv) {
 }
 
 static unsigned int scroll_continious(listview *lv) {
-  unsigned int middle = (lv->max_rows - ((lv->max_rows & 1) == 0)) / 2;
+  unsigned int vmid = (lv->max_rows - 1) / 2;
+  unsigned int hmid = (lv->menu_columns - 1) / 2;
+  unsigned int middle = (lv->max_rows * hmid) + vmid;
   unsigned int offset = 0;
   if (lv->selected > middle) {
-    if (lv->selected < (lv->req_elements - (lv->max_rows - middle))) {
+    if (lv->selected < (lv->req_elements - (lv->max_elements - middle))) {
       offset = lv->selected - middle;
     }
     // Don't go below zero.
-    else if (lv->req_elements > lv->max_rows) {
-      offset = lv->req_elements - lv->max_rows;
+    else if (lv->req_elements > lv->max_elements) {
+      offset = lv->req_elements - lv->max_elements;
     }
   }
   if (offset != lv->cur_page) {
