@@ -299,18 +299,46 @@ static unsigned int scroll_per_page(listview *lv) {
   return offset;
 }
 
-static unsigned int scroll_continious(listview *lv) {
-  unsigned int middle = (lv->max_rows - ((lv->max_rows & 1) == 0)) / 2;
+// For vertical packing flow
+static unsigned int scroll_continious_elements(listview *lv) {
+  unsigned int vmid = (lv->max_rows - 1) / 2;
+  unsigned int hmid = (lv->menu_columns - 1) / 2;
+  unsigned int middle = (lv->max_rows * hmid) + vmid;
   unsigned int offset = 0;
   if (lv->selected > middle) {
-    if (lv->selected < (lv->req_elements - (lv->max_rows - middle))) {
+    if (lv->selected < (lv->req_elements - (lv->max_elements - middle))) {
       offset = lv->selected - middle;
     }
     // Don't go below zero.
-    else if (lv->req_elements > lv->max_rows) {
-      offset = lv->req_elements - lv->max_rows;
+    else if (lv->req_elements > lv->max_elements) {
+      offset = lv->req_elements - lv->max_elements;
     }
   }
+  if (offset != lv->cur_page) {
+    // scrollbar_set_handle ( lv->scrollbar, offset );
+    lv->cur_page = offset;
+    lv->rchanged = TRUE;
+  }
+  return offset;
+}
+
+// For horizontal packing flow
+static unsigned int scroll_continious_rows(listview *lv) {
+  unsigned int middle, selected, req_rows, offset;
+  middle = (lv->max_rows - 1) / 2;
+  selected = lv->selected / lv->menu_columns;
+  req_rows = (lv->req_elements + lv->menu_columns - 1) / lv->menu_columns;
+  offset = 0;
+  if (selected > middle) {
+    if (selected < (req_rows - (lv->max_rows - middle))) {
+      offset = selected - middle;
+    }
+    // Don't go below zero.
+    else if (req_rows > lv->max_rows) {
+      offset = req_rows - lv->max_rows;
+    }
+  }
+  offset *= lv->menu_columns;
   if (offset != lv->cur_page) {
     // scrollbar_set_handle ( lv->scrollbar, offset );
     lv->cur_page = offset;
@@ -423,10 +451,12 @@ static void barview_draw(widget *wid, cairo_t *draw) {
 static void listview_draw(widget *wid, cairo_t *draw) {
   unsigned int offset = 0;
   listview *lv = (listview *)wid;
-  if (lv->scroll_type == LISTVIEW_SCROLL_CONTINIOUS) {
-    offset = scroll_continious(lv);
-  } else {
+  if (lv->scroll_type == LISTVIEW_SCROLL_PER_PAGE) {
     offset = scroll_per_page(lv);
+  } else if (lv->pack_direction == ROFI_ORIENTATION_VERTICAL) {
+    offset = scroll_continious_elements(lv);
+  } else {
+    offset = scroll_continious_rows(lv);
   }
   // Set these all together to make sure they update consistently.
   scrollbar_set_max_value(lv->scrollbar, lv->req_elements);
