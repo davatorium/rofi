@@ -56,6 +56,8 @@ typedef enum {
   MENU_NORMAL_WINDOW = 2,
   /** ERROR dialog */
   MENU_ERROR_DIALOG = 4,
+  /** Create transient window. */
+  MENU_TRANSIENT_WINDOW = 8,
 } MenuFlags;
 
 /**
