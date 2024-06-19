@@ -326,6 +326,9 @@ static void print_main_application_options(int is_term) {
                  is_term);
   print_help_msg("-normal-window", "",
                  "Behave as a normal window. (experimental)", NULL, is_term);
+  print_help_msg("-transient-window", "",
+                 "Behave as a modal dialog that is transient to the currently "
+                 "focused window. (experimental)", NULL, is_term);
   print_help_msg("-show", "[mode]",
                  "Show the mode 'mode' and exit. The mode has to be enabled.",
                  NULL, is_term);
@@ -767,6 +770,9 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
 
   if (find_arg("-normal-window") >= 0) {
     window_flags |= MENU_NORMAL_WINDOW;
+  }
+  if (find_arg("-transient-window") >= 0) {
+    window_flags |= MENU_TRANSIENT_WINDOW;
   }
   TICK_N("Grab keyboard");
   __create_window(window_flags);

@@ -1120,7 +1120,25 @@ void __create_window(MenuFlags menu_flags) {
 
   TICK_N("textbox setup");
   // // make it an unmanaged window
-  if (((menu_flags & MENU_NORMAL_WINDOW) == 0)) {
+  if (((menu_flags & MENU_TRANSIENT_WINDOW) != 0)) {
+    xcb_atom_t atoms[] = {xcb->ewmh._NET_WM_STATE_MODAL};
+
+    window_set_atom_prop(box_window, xcb->ewmh._NET_WM_STATE, atoms,
+                         sizeof(atoms) / sizeof(xcb_atom_t));
+    window_set_atom_prop (box_window, xcb->ewmh._NET_WM_WINDOW_TYPE,
+                          &(xcb->ewmh._NET_WM_WINDOW_TYPE_UTILITY), 1);
+    x11_disable_decoration(box_window);
+
+    xcb_window_t active_window;
+    xcb_get_property_cookie_t awc;
+    awc = xcb_ewmh_get_active_window (&xcb->ewmh, xcb->screen_nbr);
+
+    if (xcb_ewmh_get_active_window_reply(&xcb->ewmh, awc, &active_window, NULL)) {
+        xcb_change_property(xcb->connection, XCB_PROP_MODE_REPLACE, box_window,
+                            XCB_ATOM_WM_TRANSIENT_FOR, XCB_ATOM_WINDOW, 32,
+                            1, &active_window);
+    }
+  } else if (((menu_flags & MENU_NORMAL_WINDOW) == 0)) {
     window_set_atom_prop(box_window, xcb->ewmh._NET_WM_STATE,
                          &(xcb->ewmh._NET_WM_STATE_ABOVE), 1);
     uint32_t values[] = {1};

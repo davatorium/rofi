@@ -302,6 +302,12 @@ Use Pango markup to format output wherever possible.
 Make **rofi** react like a normal application window. Useful for scripts like
 Clerk that are basically an application.
 
+`-transient-window`
+
+Make **rofi** react like a modal dialog that is transient to the currently
+focused window. Useful when you use a keyboard shortcut to run and show
+on the window you are working with.
+
 `-[no-]steal-focus`
 
 Make rofi steal focus on launch and restore close to window that held it when
