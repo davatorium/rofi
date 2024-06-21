@@ -120,6 +120,8 @@ struct _listview {
   xcb_timestamp_t last_click;
   listview_mouse_activated_cb mouse_activated;
   void *mouse_activated_data;
+  
+  listview_page_changed_cb page_callback;
 
   char *listview_name;
 
@@ -284,6 +286,10 @@ static unsigned int scroll_per_page(listview *lv) {
         (lv->max_elements > 0) ? (lv->selected / lv->max_elements) : 0;
     offset = page * lv->max_elements;
     if (page != lv->cur_page) {
+
+      if (lv->page_callback)
+        lv->page_callback();
+
       lv->cur_page = page;
       lv->rchanged = TRUE;
     }
@@ -775,7 +781,8 @@ static gboolean listview_element_motion_notify(widget *wid,
 }
 
 listview *listview_create(widget *parent, const char *name,
-                          listview_update_callback cb, void *udata,
+                          listview_update_callback cb,
+                          listview_page_changed_cb page_cb, void *udata,
                           unsigned int eh, gboolean reverse) {
   listview *lv = g_malloc0(sizeof(listview));
   widget_init(WIDGET(lv), parent, WIDGET_TYPE_LISTVIEW, name);
@@ -811,6 +818,8 @@ listview *listview_create(widget *parent, const char *name,
 
   lv->callback = cb;
   lv->udata = udata;
+
+  lv->page_callback = page_cb;
 
   // Some settings.
   lv->spacing = rofi_theme_get_distance(WIDGET(lv), "spacing", DEFAULT_SPACING);

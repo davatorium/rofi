@@ -7,6 +7,7 @@ man_files = [
     'rofi-keys.5',
     'rofi-script.5',
     'rofi-theme.5',
+    'rofi-thumbnails.5',
 ]
 
 fs = import('fs')

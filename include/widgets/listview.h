@@ -84,10 +84,18 @@ typedef void (*listview_selection_changed_callback)(listview *lv,
  */
 typedef void (*listview_mouse_activated_cb)(listview *, gboolean, void *);
 
+
+/**
+ * Callback when current page is changed.
+ */
+typedef void (*listview_page_changed_cb)(void);
+
+
 /**
  * @param parent The widget's parent.
  * @param name The name of the to be created widget.
  * @param cb The update callback.
+ * @param page_cb The page change callback.
  * @param udata The user data to pass to the callback
  * @param eh The height of one element
  * @param reverse Reverse the listview order.
@@ -95,7 +103,8 @@ typedef void (*listview_mouse_activated_cb)(listview *, gboolean, void *);
  * @returns a new listview
  */
 listview *listview_create(widget *parent, const char *name,
-                          listview_update_callback cb, void *udata,
+                          listview_update_callback cb,
+                          listview_page_changed_cb page_cb, void *udata,
                           unsigned int eh, gboolean reverse);
 
 /**

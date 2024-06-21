@@ -1371,6 +1371,11 @@ static void update_callback(textbox *t, icon *ico, unsigned int index,
     textbox_font(t, *type);
   }
 }
+static void page_changed_callback()
+{
+  rofi_view_workers_finalize();
+  rofi_view_workers_initialize();
+}
 
 void rofi_view_update(RofiViewState *state, gboolean qr) {
   if (!widget_need_redraw(WIDGET(state->main_window))) {
@@ -2372,7 +2377,8 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
       return;
     }
     state->list_view = listview_create(parent_widget, name, update_callback,
-                                       state, config.element_height, 0);
+                                       page_changed_callback, state,
+                                       config.element_height, 0);
     listview_set_selection_changed_callback(
         state->list_view, selection_changed_callback, (void *)state);
     box_add((box *)parent_widget, WIDGET(state->list_view), TRUE);
@@ -2718,7 +2724,8 @@ void rofi_view_workers_initialize(void) {
 }
 void rofi_view_workers_finalize(void) {
   if (tpool) {
-    g_thread_pool_free(tpool, TRUE, TRUE);
+    // Discard all unprocessed jobs and don't wait for current jobs in execution
+    g_thread_pool_free(tpool, TRUE, FALSE);
     tpool = NULL;
   }
 }

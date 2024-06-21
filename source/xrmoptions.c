@@ -128,6 +128,13 @@ static XrmOption xrmOptions[] = {
      NULL,
      "Whether to load and show icons",
      CONFIG_DEFAULT},
+    
+    {xrm_String,
+     "preview-cmd",
+     {.str = &config.preview_cmd},
+     NULL,
+     "Custom command to generate preview icons",
+     CONFIG_DEFAULT},
 
     {xrm_String,
      "terminal",

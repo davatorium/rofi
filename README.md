@@ -154,6 +154,7 @@ new issue.
   - [rofi-debugging](doc/rofi-debugging.5.markdown)
   - [rofi-script](doc/rofi-script.5.markdown)
   - [rofi-theme-selector](doc/rofi-theme-selector.1.markdown)
+  - [rofi-thumbnails](doc/rofi-thumbnails.5.markdown)
   - [rofi-keys](doc/rofi-keys.5.markdown)
   - [rofi-dmenu](doc/rofi-dmenu.5.markdown)
 
