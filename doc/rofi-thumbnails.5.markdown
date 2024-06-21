@@ -19,13 +19,13 @@ echo -en "EntryName\0icon\x1fthumbnail://path/to/file\n" | rofi -dmenu -show-ico
 
 ### XDG thumbnailers
 
-XDG thumbnailers are files with a ".thumbnailer" suffix and a structure similar to ".desktop" files for launching applications. They are placed in `/usr/share/thumbnailers/` or `$HOME/.local/share/thumbnailers/`, and contain a list of mimetypes, for which is possible to produce the thumbnail image, and a string with the command to create said image. The example below shows the content of `ffmpegthumbnailer.thumbnailer`, a thumbnailer for video files using ffmpeg:
+XDG thumbnailers are files with a ".thumbnailer" suffix and a structure similar to ".desktop" files for launching applications. They are placed in `/usr/share/thumbnailers/` or `$HOME/.local/share/thumbnailers/`, and contain a list of mimetypes, for which is possible to produce the thumbnail image, and a string with the command to create said image. The example below shows the content of `librsvg.thumbnailer`, a thumbnailer for svg files using librsvg:
 
 ```
 [Thumbnailer Entry]
-TryExec=ffmpegthumbnailer
-Exec=ffmpegthumbnailer -i %i -o %o -s %s -f
-MimeType=video/jpeg;video/mp4;video/mpeg;video/quicktime;video/x-ms-asf;video/x-ms-wm;video/x-ms-wmv;video/x-ms-asx;video/x-ms-wmx;video/x-ms-wvx;video/x-msvideo;video/x-flv;video/x-matroska;application/mxf;video/3gp;video/3gpp;video/dv;video/divx;video/fli;video/flv;video/mp2t;video/mp4v-es;video/msvideo;video/ogg;video/vivo;video/vnd.divx;video/vnd.mpegurl;video/vnd.rn-realvideo;application/vnd.rn-realmedia;video/vnd.vivo;video/webm;video/x-anim;video/x-avi;video/x-flc;video/x-fli;video/x-flic;video/x-m4v;video/x-mpeg;video/x-mpeg2;video/x-nsv;video/x-ogm+ogg;video/x-theora+ogg
+TryExec=/usr/bin/gdk-pixbuf-thumbnailer
+Exec=/usr/bin/gdk-pixbuf-thumbnailer -s %s %u %o
+MimeType=image/svg+xml;image/svg+xml-compressed;
 ```
 
 The images produced are named as the md5sum of the input files and placed, depending on their size, in the XDG thumbnails directories: `$HOME/.cache/thumbnails/{normal,large,x-large,xx-large}`. They are then loaded by **rofi** as entry icons and can also be used by file managers like Thunar, Caja or KDE Dolphin to show their thumbnails. Additionally, if a thumbnail for a file is found in the thumbnails directories (produced previously by **rofi** or a file manager), **rofi** will load it instead of calling the thumbnailer.
