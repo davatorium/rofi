@@ -162,5 +162,5 @@ Settings config = {
     /** workaround for broken xserver (#300 on xserver, #611) */
     .xserver_i300_workaround = FALSE,
     /** What browser to use for completion */
-    .completer_mode = "recursivebrowser",
+    .completer_mode = "filebrowser",
 };
