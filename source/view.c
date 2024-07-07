@@ -1002,10 +1002,6 @@ static void input_history_save(void) {
 }
 
 void __create_window(MenuFlags menu_flags) {
-  // In password mode, disable the entry history.
-  if ((menu_flags & MENU_PASSWORD) == MENU_PASSWORD) {
-    CacheState.entry_history_enable = FALSE;
-  }
   input_history_initialize();
 
   uint32_t selmask = XCB_CW_BACK_PIXMAP | XCB_CW_BORDER_PIXEL |
@@ -1125,18 +1121,19 @@ void __create_window(MenuFlags menu_flags) {
 
     window_set_atom_prop(box_window, xcb->ewmh._NET_WM_STATE, atoms,
                          sizeof(atoms) / sizeof(xcb_atom_t));
-    window_set_atom_prop (box_window, xcb->ewmh._NET_WM_WINDOW_TYPE,
-                          &(xcb->ewmh._NET_WM_WINDOW_TYPE_UTILITY), 1);
+    window_set_atom_prop(box_window, xcb->ewmh._NET_WM_WINDOW_TYPE,
+                         &(xcb->ewmh._NET_WM_WINDOW_TYPE_UTILITY), 1);
     x11_disable_decoration(box_window);
 
     xcb_window_t active_window;
     xcb_get_property_cookie_t awc;
-    awc = xcb_ewmh_get_active_window (&xcb->ewmh, xcb->screen_nbr);
+    awc = xcb_ewmh_get_active_window(&xcb->ewmh, xcb->screen_nbr);
 
-    if (xcb_ewmh_get_active_window_reply(&xcb->ewmh, awc, &active_window, NULL)) {
-        xcb_change_property(xcb->connection, XCB_PROP_MODE_REPLACE, box_window,
-                            XCB_ATOM_WM_TRANSIENT_FOR, XCB_ATOM_WINDOW, 32,
-                            1, &active_window);
+    if (xcb_ewmh_get_active_window_reply(&xcb->ewmh, awc, &active_window,
+                                         NULL)) {
+      xcb_change_property(xcb->connection, XCB_PROP_MODE_REPLACE, box_window,
+                          XCB_ATOM_WM_TRANSIENT_FOR, XCB_ATOM_WINDOW, 32, 1,
+                          &active_window);
     }
   } else if (((menu_flags & MENU_NORMAL_WINDOW) == 0)) {
     window_set_atom_prop(box_window, xcb->ewmh._NET_WM_STATE,
@@ -1371,8 +1368,7 @@ static void update_callback(textbox *t, icon *ico, unsigned int index,
     textbox_font(t, *type);
   }
 }
-static void page_changed_callback()
-{
+static void page_changed_callback() {
   rofi_view_workers_finalize();
   rofi_view_workers_initialize();
 }
@@ -2376,9 +2372,9 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
       g_error("Listview widget can only be added once to the layout.");
       return;
     }
-    state->list_view = listview_create(parent_widget, name, update_callback,
-                                       page_changed_callback, state,
-                                       config.element_height, 0);
+    state->list_view =
+        listview_create(parent_widget, name, update_callback,
+                        page_changed_callback, state, config.element_height, 0);
     listview_set_selection_changed_callback(
         state->list_view, selection_changed_callback, (void *)state);
     box_add((box *)parent_widget, WIDGET(state->list_view), TRUE);
@@ -2495,6 +2491,15 @@ RofiViewState *rofi_view_create(Mode *sw, const char *input,
   state->finalize = finalize;
   state->mouse_seen = FALSE;
 
+  // In password mode, disable the entry history.
+  if ((menu_flags & MENU_PASSWORD) == MENU_PASSWORD) {
+    CacheState.entry_history_enable = FALSE;
+    g_debug("Disable entry history, because password setup.");
+  }
+  if (config.disable_history) {
+    CacheState.entry_history_enable = FALSE;
+    g_debug("Disable entry history, because history disable flag.");
+  }
   // Request the lines to show.
   state->num_lines = mode_get_num_entries(sw);
 
