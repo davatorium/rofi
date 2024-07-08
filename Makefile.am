@@ -673,6 +673,7 @@ desktop_DATA=\
 	data/rofi-theme-selector.desktop
 
 EXTRA_DIST += \
+	doc/man_filter.lua \
 	doc/meson.build \
 	subprojects/libgwater/mpd/meson.build \
 	subprojects/libgwater/nl/meson.build \
@@ -697,6 +698,7 @@ EXTRA_DIST += \
 	subprojects/libgwater/alsa-mixer/libgwater-alsa-mixer.h \
 	subprojects/libgwater/alsa-mixer/libgwater-alsa-mixer.c \
 	data/rofi.png\
+	meson-dist-script \
 	meson_options.txt \
 	meson.build
 
