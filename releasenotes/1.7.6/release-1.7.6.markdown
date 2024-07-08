@@ -23,6 +23,9 @@ configuration {
 }
 ```
 
+A thumbnail generation mechanism is also supported if `-show-icons` is enabled.
+See details and setup in the `rofi-thumbnails(5)` man page. Thanks to giomatfois62 for
+bringing this feature to life!
 
 ## Copy to clipboard support
 
@@ -99,6 +102,8 @@ additional tool.
 * `-placeholder-markup` to enable pango markup when rendering placeholder text (#1690)
 * `urgent` and `active` flags can be controlled for each row in dmenu and script
   modes
+* `-transient-window-mode` to make rofi react like a modal dialog that is transient to
+  the currently focused window.
 * Fixing window coordinates for non-reparting window manager. (Thanks to Ortango #1969)
 * Fix failing decode of animated gif files. (Thanks to martinsifrar #1975)
 
@@ -121,6 +126,7 @@ Special thanks goes to:
   * Dimitris Triantafyllidis
   * duarm
   * Fabian Winter
+  * giomatfois62
   * Gutyina Gergő
   * Jasper Lievisse Adriaanse
   * Jorge
@@ -143,6 +149,14 @@ Apologies if I mistyped or missed anybody.
 
 # Changelog
 
+* #1995: Disable history in password mode, move disabling into create_view.
+* [config] Set filebrowser as default completer.
+* [WIP] xdg thumbnails fetching with fallback on mimetype icons (#1939)
+* Add -transient-window mode (#1988)
+* Fix scrolling for vertical layout with horizontal packing
+* Place continuous scroll center in middle column
+* [Script] Fix keep-selection add keep-filter
+* [RecursiveBrowser] Make implementation not recursive.
 * [xcb] Add border_width to window coordinates (#1969)
 * [IconFetcher] Don't check for extension for image file
 * [IconFetcher] Fix failing decode of animated GIFs. (#1975)
