@@ -79,6 +79,7 @@ deps += [
     dependency('xcb-randr'),
     dependency('xcb-cursor'),
     dependency('xcb-xinerama'),
+    dependency('xcb-keysyms'),
     dependency('cairo-xcb'),
     dependency('libstartup-notification-1.0'),
 ]

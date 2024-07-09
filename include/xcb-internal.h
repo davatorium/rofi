@@ -36,6 +36,7 @@
 #include <libgwater-xcb.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
+#include <xcb/xcb_keysyms.h>
 
 #include <nkutils-bindings.h>
 
@@ -49,6 +50,7 @@ struct _xcb_stuff {
 #ifdef XCB_IMDKIT
   xcb_xic_t ic;
   xcb_xim_t *im;
+  xcb_key_symbols_t *syms;
 #endif
   xcb_ewmh_connection_t ewmh;
   xcb_screen_t *screen;

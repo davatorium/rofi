@@ -31,6 +31,7 @@
 
 #include "config.h"
 #ifdef XCB_IMDKIT
+#include <xcb/xcb_keysyms.h>
 #include <xcb-imdkit/encoding.h>
 #endif
 #include <cairo-xcb.h>
@@ -90,6 +91,7 @@ struct _xcb_stuff xcb_int = {.connection = NULL,
                              .screen = NULL,
 #ifdef XCB_IMDKIT
                              .im = NULL,
+                             .syms = NULL,
 #endif
                              .screen_nbr = -1,
                              .sndisplay = NULL,
@@ -1189,7 +1191,7 @@ static gboolean x11_button_to_nk_bindings_scroll(guint32 x11_button,
 static void rofi_key_press_event_handler(xcb_key_press_event_t *xkpe,
                                          RofiViewState *state) {
   gchar *text;
-  g_log("IMDKit", G_LOG_LEVEL_DEBUG, "press handler");
+  g_log("IMDKit", G_LOG_LEVEL_DEBUG, "press handler %d", xkpe->detail);
 
   xcb->last_timestamp = xkpe->time;
   if (config.xserver_i300_workaround) {
@@ -1208,6 +1210,7 @@ static void rofi_key_press_event_handler(xcb_key_press_event_t *xkpe,
 
 static void rofi_key_release_event_handler(xcb_key_release_event_t *xkre,
                                            G_GNUC_UNUSED RofiViewState *state) {
+  g_log("IMDKit", G_LOG_LEVEL_DEBUG, "release handler %d", xkre->detail);
   xcb->last_timestamp = xkre->time;
   nk_bindings_seat_handle_key(xcb->bindings_seat, NULL, xkre->detail,
                               NK_BINDINGS_KEY_STATE_RELEASE);
@@ -1372,8 +1375,14 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
 #ifdef XCB_IMDKIT
     if (xcb->ic) {
-      g_log("IMDKit", G_LOG_LEVEL_DEBUG, "input xim");
-      xcb_xim_forward_event(xcb->im, xcb->ic, xkpe);
+      xcb_keysym_t sym = xcb_key_press_lookup_keysym(xcb->syms, xkpe, 0);
+      if (xcb_is_modifier_key(sym)) {
+        rofi_key_press_event_handler(xkpe, state);
+      } else {
+        g_log("IMDKit", G_LOG_LEVEL_DEBUG, "press key %d to xim", xkpe->detail);
+        xcb_xim_forward_event(xcb->im, xcb->ic, xkpe);
+        return;
+      }
     } else
 #endif
     {
@@ -1383,7 +1392,21 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   }
   case XCB_KEY_RELEASE: {
     xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
-    rofi_key_release_event_handler(xkre, state);
+#ifdef XCB_IMDKIT
+    if (xcb->ic) {
+      xcb_keysym_t sym = xcb_key_press_lookup_keysym(xcb->syms, xkre, 0);
+      if (xcb_is_modifier_key(sym)) {
+        rofi_key_press_event_handler(xkre, state);
+      } else {
+        g_log("IMDKit", G_LOG_LEVEL_DEBUG, "release key %d to xim", xkre->detail);
+        xcb_xim_forward_event(xcb->im, xcb->ic, xkre);
+        return;
+      }
+    } else
+#endif
+    {
+      rofi_key_release_event_handler(xkre, state);
+    }
     break;
   }
   default:
@@ -1401,7 +1424,15 @@ void x11_event_handler_fowarding(G_GNUC_UNUSED xcb_xim_t *im,
   if (state == NULL) {
     return;
   }
-  rofi_key_press_event_handler(event, state);
+
+  uint8_t type = event->response_type & ~0x80;
+  if (type == XCB_KEY_PRESS) {
+    rofi_key_press_event_handler(event, state);
+  } else if (type == XCB_KEY_RELEASE) {
+    xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
+    rofi_key_release_event_handler(xkre, state);
+  }
+  rofi_view_maybe_update(state);
 }
 #endif
 
@@ -1422,9 +1453,7 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
   }
 
 #ifdef XCB_IMDKIT
-  if (xcb->im
-      && (ev->response_type & ~0x80) != XCB_KEY_PRESS
-      && !xcb_xim_filter_event(xcb->im, ev))
+  if (xcb->im && xcb_xim_filter_event(xcb->im, ev))
     return G_SOURCE_CONTINUE;
 #endif
 
@@ -1659,6 +1688,7 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
   xcb->connection = g_water_xcb_source_get_connection(xcb->source);
 #ifdef XCB_IMDKIT
   xcb->im = xcb_xim_create(xcb->connection, xcb->screen_nbr, NULL);
+  xcb->syms = xcb_key_symbols_alloc(xcb->connection);
 #endif
 
 #ifdef XCB_IMDKIT
