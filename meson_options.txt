@@ -1,4 +1,4 @@
 option('drun', type: 'boolean', value: true, description: 'Desktop file mode')
 option('window', type: 'boolean', value: true, description: 'Window switcher mode')
 option('check', type: 'feature', description: 'Build and run libcheck-based tests')
-option('imdkit', type: 'boolean', value: false, description: 'IMDKit support')
+option('imdkit', type: 'boolean', value: true, description: 'IMDKit support')
