@@ -1383,14 +1383,7 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   }
   case XCB_KEY_RELEASE: {
     xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
-#ifdef XCB_IMDKIT
-    if (xcb->ic) {
-      xcb_xim_forward_event(xcb->im, xcb->ic, xkre);
-    } else
-#endif
-    {
-      rofi_key_release_event_handler(xkre, state);
-    }
+    rofi_key_release_event_handler(xkre, state);
     break;
   }
   default:
@@ -1408,13 +1401,7 @@ void x11_event_handler_fowarding(G_GNUC_UNUSED xcb_xim_t *im,
   if (state == NULL) {
     return;
   }
-  uint8_t type = event->response_type & ~0x80;
-  if (type == XCB_KEY_PRESS) {
-    rofi_key_press_event_handler(event, state);
-  } else if (type == XCB_KEY_RELEASE) {
-    xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
-    rofi_key_release_event_handler(xkre, state);
-  }
+  rofi_key_press_event_handler(event, state);
 }
 #endif
 
@@ -1435,9 +1422,10 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
   }
 
 #ifdef XCB_IMDKIT
-  if (xcb->im && xcb_xim_filter_event(xcb->im, ev)) {
+  if (xcb->im
+      && (ev->response_type & ~0x80) != XCB_KEY_PRESS
+      && !xcb_xim_filter_event(xcb->im, ev))
     return G_SOURCE_CONTINUE;
-  }
 #endif
 
   uint8_t type = ev->response_type & ~0x80;
