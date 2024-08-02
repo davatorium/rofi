@@ -1375,14 +1375,9 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
 #ifdef XCB_IMDKIT
     if (xcb->ic) {
-      xcb_keysym_t sym = xcb_key_press_lookup_keysym(xcb->syms, xkpe, 0);
-      if (xcb_is_modifier_key(sym)) {
-        rofi_key_press_event_handler(xkpe, state);
-      } else {
-        g_log("IMDKit", G_LOG_LEVEL_DEBUG, "press key %d to xim", xkpe->detail);
-        xcb_xim_forward_event(xcb->im, xcb->ic, xkpe);
-        return;
-      }
+      g_log("IMDKit", G_LOG_LEVEL_DEBUG, "press key %d to xim", xkpe->detail);
+      xcb_xim_forward_event(xcb->im, xcb->ic, xkpe);
+      return;
     } else
 #endif
     {
@@ -1394,14 +1389,19 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
     xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
 #ifdef XCB_IMDKIT
     if (xcb->ic) {
+      g_log("IMDKit", G_LOG_LEVEL_DEBUG, "release key %d to xim", xkre->detail);
+
+      // Check if the keysym is a modifier key (e.g., Shift, Ctrl, Alt). If it
+      // is, sleep for 5 milliseconds as a workaround for XCB XIM limitation.
+      // This sleep helps to ensure that XCB XIM can properly handle subsequent
+      // key events that may occur rapidly after a modifier key is pressed.
       xcb_keysym_t sym = xcb_key_press_lookup_keysym(xcb->syms, xkre, 0);
       if (xcb_is_modifier_key(sym)) {
-        rofi_key_press_event_handler(xkre, state);
-      } else {
-        g_log("IMDKit", G_LOG_LEVEL_DEBUG, "release key %d to xim", xkre->detail);
-        xcb_xim_forward_event(xcb->im, xcb->ic, xkre);
-        return;
+        struct timespec five_millis = {.tv_sec = 0, .tv_nsec = 5000000};
+        nanosleep(&five_millis, NULL);
       }
+      xcb_xim_forward_event(xcb->im, xcb->ic, xkre);
+      return;
     } else
 #endif
     {
