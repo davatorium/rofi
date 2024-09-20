@@ -149,6 +149,13 @@ Apologies if I mistyped or missed anybody.
 
 # Changelog
 
+* [Theme] Fixes recursion in double_inside
+* Try to support modifiers in XIM again (#2015)
+* [autoconf] Fix missing dependency.
+* Better XIM interaction by filtering modifiers (#2000)
+* Fix ime and enable build option (#1999)
+* [Autotools] Ship missing files for meson build
+* Fix some compiler warnings
 * #1995: Disable history in password mode, move disabling into create_view.
 * [config] Set filebrowser as default completer.
 * [WIP] xdg thumbnails fetching with fallback on mimetype icons (#1939)
