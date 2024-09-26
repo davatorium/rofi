@@ -1029,7 +1029,8 @@ static double rofi_theme_get_double_inside(const widget *orig, Property *p,
             rofi_theme_find_widget(widget->parent->name, widget->state, FALSE);
         Property *pv =
             rofi_theme_find_property(parent, P_DOUBLE, property, FALSE);
-        return rofi_theme_get_double_inside(orig, pv, widget, property, def);
+        return rofi_theme_get_double_inside(orig, pv, widget->parent, property,
+                                            def);
       }
       return def;
     }
