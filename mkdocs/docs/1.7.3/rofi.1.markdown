@@ -11,45 +11,30 @@
 
 ## DESCRIPTION
 
-**rofi** is an X11 pop-up window switcher, run dialog, dmenu replacement, and
-more. It focuses on being fast to use and have minimal distraction. It supports
-keyboard and mouse navigation, type to filter, tokenized search and more.
+**rofi** is an X11 pop-up window switcher, run dialog, dmenu replacement, and more. It focuses on
+being fast to use and have minimal distraction. It supports keyboard and mouse navigation, type to
+filter, tokenized search and more.
 
 
 ## USAGE
 
-**rofi**'s main functionality is to assist in your workflow, allowing you to
-quickly switch between windows, start applications or log into a remote machine
-via `ssh`. There are different *modes* for different types of actions. **rofi**
-is a standalone application and should not be integrated into scripts. For
-integration into scripts it has a special mode that functions as a (drop-in)
-replacement for **dmenu(1)**. See emulating dmenu below.
+**rofi**'s main functionality is to assist in your workflow, allowing you to quickly switch
+between windows, start applications or log into a remote machine via `ssh`.
+There are different *modi* for different types of actions.
+**rofi** is a standalone application and should not be integrated into scripts.
+For integration into scripts it has a special mode that functions as a
+(drop-in) replacement for **dmenu(1)**. See emulating dmenu below.
 
 ### Running rofi
 
 To launch **rofi** directly in a certain mode, specify a mode with `rofi -show <mode>`.
-To show the `drun` dialog:
+To show the `run` dialog:
 
-```bash
-    rofi -show drun
-```
-
-A very useful setup in minimalistic window managers is to combine `drun`, `run`
-with `window` mode:
-
-```bash
-  rofi -show combi -modes combi -combi-modes "window,drun,run"
-```
-
-In this setup it first list all open applications, then all installed
-applications. So if you type firefox and hit return, it will switch to the
-running firefox, or launch it when it is not running.
-
+    rofi -show run
 
 ### Emulating dmenu
 
-**rofi** can emulate **dmenu(1)** (a dynamic menu for X11) when launched with
-the `-dmenu` flag.
+**rofi** can emulate **dmenu(1)** (a dynamic menu for X11) when launched with the `-dmenu` flag.
 
 For more information see **rofi-dmenu(5)**.
 
@@ -74,29 +59,6 @@ There are currently three methods of setting configuration options (evaluated in
 To get a template config file, run: `rofi -dump-config > config.rasi`
 
 This will contain (commented) all current configuration options, modified options are uncommented.
-
-To get a template config file that sets the icon-theme run: `rofi -icon-theme hicolor -dump-config`.
-
-It is **strongly** recommended to use this as a starting point for your configuration.
-
-An empty configuration section in the config file looks like:
-
-```css
-configuration {
- // set config options here
-}
-```
-
-Most of the configuration options mentioned below (beside options like `-show`,
-`-dump-config` that apply to a single run) can be set here.
-
-For example to set the dpi value to 72:
-
-```css
-configuration {
-	dpi: 72;
-}
-```
 
 The configuration system supports the following types:
 
@@ -123,8 +85,8 @@ Below is a list of the most important options:
 
 `-help`
 
-The help option shows the full list of command-line options and the current set
-values. These include dynamic (run-time generated) options.
+The help option shows the full list of command-line options and the current set values.
+These include dynamic (run-time generated) options.
 
 `-version`
 
@@ -142,11 +104,6 @@ Dump the current active theme, in rasi format, to stdout and exit.
 `-rasi-validate` *filename*
 
 Try to parse the file and return 0 when successful, non-zero when failed.
-
-`-list-keybindings`
-
-List all known keybindings without trying to parse them. This can be used to
-look for duplicate bindings.
 
 `-threads` *num*
 
@@ -174,45 +131,41 @@ Or get the options from a script:
 
     ~/my_script.sh | rofi -dmenu
 
-See the **rofi-dmenu(5)** manpage for more information.
-
 `-show` *mode*
 
-Open **rofi** in a certain mode. Available modes are `window`, `run`, `drun`,
-`ssh`, `combi`. The special argument `keys` can be used to open a searchable
-list of supported key bindings
-(see the **rofi-keys(5)** manpage)
+Open **rofi** in a certain mode. Available modes are `window`, `run`, `drun`, `ssh`, `combi`.
+The special argument `keys` can be used to open a searchable list of supported key bindings
+(see *KEY BINDINGS*)
 
 To show the run-dialog:
 
     rofi -show run
 
-If `-show` is the last option passed to rofi, the first enabled modes is shown.
+If `-show` is the last option passed to rofi, the first enabled modi is shown.
 
-`-modes` *mode1,mode2*
+`-modi` *mode1,mode2*
 
 Specify an ordered, comma-separated list of modes to enable.
 Enabled modes can be changed at runtime. Default key is `Ctrl+Tab`.
 If no modes are specified, all configured modes will be enabled.
 To only show the `run` and `ssh` launcher:
 
-    rofi -modes "run,ssh" -show run
+    rofi -modi "run,ssh" -show run
 
-Custom modes can be added using the internal `script` mode. Each such mode has
-two parameters:
+Custom modes can be added using the internal `script` mode. Each such mode has two parameters:
 
     <name>:<script>
 
 Example: Have a mode called 'Workspaces' using the `i3_switch_workspaces.sh` script:
 
-    rofi -modes "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
+    rofi -modi "window,run,ssh,Workspaces:i3_switch_workspaces.sh" -show Workspaces
 
-Notes: The i3 window manager dislikes commas in the command when specifying an
-exec command. For that case, `#` can be used as a separator.
+Notes: The i3 window manager dislikes commas in the command when specifying an exec command.
+For that case, `#` can be used as a separator.
 
 **TIP**: The name is allowed to contain spaces:
 
-    rofi -modes "My File Browser:fb.sh" -show "My File Browser"
+    rofi -modi "My File Browser:fb.sh" -show "My File Browser"
 
 `-case-sensitive`
 
@@ -266,6 +219,10 @@ Specify icon theme to be used.
 If not specified default theme from DE is used, *Adwaita* and *gnome* themes act as
 fallback themes.
 
+`-application-fallback-icon`
+
+Specify an icon to be used when the application icon in run/drun are not yet loaded or is not available.
+
 `-markup`
 
 Use Pango markup to format output wherever possible.
@@ -277,33 +234,6 @@ Make **rofi** react like a normal application window. Useful for scripts like Cl
 `-[no-]steal-focus`
 
 Make rofi steal focus on launch and restore close to window that held it when launched.
-
-`-refilter-timeout-limit`
-
-The time (in ms) boundary filter may take before switch from instant to delayed filter mode.
-
-  Default: 300
-
-A fallback icon can be specified for each mode:
-
-```css
-configuration {
-    <mode>{
-      fallback-icon: "<icon name>";
-    }
-}
-```
-Example
-
-```css
-configuration {
-    run,drun {
-      fallback-icon: "application-x-addon";
-    }
-}
-```
-
-
 
 ### Matching
 
@@ -417,7 +347,7 @@ Keep a fixed number of visible lines.
 `-sidebar-mode`
 
 Open in sidebar-mode. In this mode, a list of all enabled modes is shown at the bottom.
-(See `-modes` option)
+(See `-modi` option)
 To show sidebar, use:
 
     rofi -show run -sidebar-mode 
@@ -543,12 +473,6 @@ See *PATTERN*.
 
 Default: *{cmd}*
 
-Example to run applications in a dedicated cgroup with systemd. Requires a shell to escape and interpolate the unit name correctly.
-
-```
-"bash -c 'systemd-run --user --unit=app-rofi-\$(systemd-escape {cmd})-\$RANDOM {cmd}'"
-```
-
 `-run-shell-command` *cmd*
 
 Set command to execute when running an application in a shell.
@@ -578,7 +502,7 @@ Format what is being displayed for windows.
  * **r**: role
  * **c**: class
 
-*len*: maximum field length (0 for auto-size). If length is negative, the entry will be unchanged.
+*len*: maximum field length (0 for auto-size). If length and window *width* are negative, field length is *width - len*.  
 If length is positive, the entry will be truncated or padded to fill that length.
 
 
@@ -606,39 +530,16 @@ configuration {
   }
 }
 ```
-You can hide the currently active window with the 'hide-active-window' setting:
-
-```css
-configuration {
-  window {
-      hide-active-window: true;
-  }
-}
-```
-
-or pass `-window-hide-active-window true` on command line.
-
-You can prefer the icon theme above the window set icon with the 'prefer-icon-theme' setting:
-
-```css
-configuration {
-  window {
-      prefer-icon-theme: true;
-  }
-}
-```
-
-or pass `-window-prefer-icon-theme true` on command line.
 
 ### Combi settings
 
-`-combi-modes ` *mode1*,*mode2*
+`-combi-modi` *mode1*,*mode2*
 
-The modes to combine in combi mode.
-For syntax to `-combi-modes`, see `-modes`.
+The modi to combine in combi mode.
+For syntax to `-combi-modi`, see `-modi`.
 To get one merge view, of `window`,`run`, and `ssh`:
 
-    rofi -show combi -combi-modes "window,run,ssh" -modes combi
+    rofi -show combi -combi-modi "window,run,ssh" -modi combi
 
 **NOTE**: The i3 window manager dislikes commas in the command when specifying an exec command.
 For that case, `#` can be used as a separator.
@@ -654,7 +555,7 @@ Pango markup can be used to formatting the output.
 
     Default: {mode} {text}
 
-Note: This setting is ignored if `combi-hide-mode-prefix` is enabled.
+Note: This setting is ignored if `combi-hide-mode-prefix` is eanbled.
 
 
 ### History and Sorting
@@ -708,13 +609,9 @@ configuration {
       sorting-method: "name";
       /** Group directories before files. */
       directories-first: true;
-      /** Show hidden files. */
-      show-hidden: false;
    }
 }
 ```
-
-The `show-hidden` can also be triggered with the `kb-delete-entry` keybinding.
 
 ### Other
 
@@ -760,12 +657,6 @@ Click the mouse outside the **rofi** window to exit.
 
 Default: *enabled*
 
-`-xserver-i300-workaround`
-
-Workaround for bug in Xserver. See issue #611 and #1642 on the rofi issue tracker.
-
-Default: *disabled*
-
 ## PATTERN
 
 To launch commands (for example, when using the ssh launcher), the user can enter the used command-line. The following keys can be used that will be replaced at runtime:
@@ -783,10 +674,54 @@ Please see **rofi-theme(5)** manpage for more information on theming.
 
 ## KEY BINDINGS
 
-Please see the **rofi-keys(5)** manpage for the keybindings and how to set them up.
+**rofi** has the following key bindings:
 
-The keybinding can also be used for actions, when the action is executed the
-mentioned keystroke is inserted:
+  * `Control-v, Insert`: Paste from clipboard
+  * `Control-Shift-v, Shift-Insert`: Paste primary selection
+  * `Control-u`: Clear the line
+  * `Control-a`: Beginning of line
+  * `Control-e`: End of line
+  * `Control-f, Right`: Forward one character
+  * `Alt-f, Control-Right`: Forward one word
+  * `Control-b, Left`: Back one character
+  * `Alt-b, Control-Left`: Back one word
+  * `Control-d, Delete`: Delete character
+  * `Control-Alt-d`: Delete word
+  * `Control-h, Backspace, Shift-Backspace`: Backspace (delete previous character)
+  * `Control-Alt-h`: Delete previous word
+  * `Control-j,Control-m,Enter`: Accept entry
+  * `Control-n,Down`: Select next entry
+  * `Control-p,Up`: Select previous entry
+  * `Page Up`: Go to previous page
+  * `Page Down`: Go to next page
+  * `Control-Page Up`: Go to previous column
+  * `Control-Page Down`: Go to next column
+  * `Control-Enter`: Use entered text as a command (in `ssh/run modi`)
+  * `Shift-Enter`: Launch the application in a terminal (in run mode)
+  * `Control-Shift-Enter`: As Control-Enter and run the command in terminal (in run mode)
+  * `Shift-Enter`: Return the selected entry and move to the next item while keeping **rofi** open. (in dmenu)
+  * `Shift-Right`: Switch to the next mode. The list can be customized with the `-modi` argument.
+  * `Shift-Left`: Switch to the previous mode. The list can be customized with the `-modi` argument.
+  * `Control-Tab`: Switch to the next mode. The list can be customized with the `-modi` argument.
+  * `Control-Shift-Tab`: Switch to the previous mode. The list can be customized with the `-modi` argument.
+  * `Control-space`: Set selected item as input text.
+  * `Shift-Del`: Delete entry from history.
+  * `grave`: Toggle case sensitivity.
+  * `Alt-grave`: Toggle sorting.
+  * `Alt-Shift-S`: Take a screenshot and store it in the Pictures directory.
+  * `Control-l`: File complete for run dialog.
+
+This list might not be complete, to get a full list of all key bindings
+supported in your rofi, see `rofi -h`. The options starting with `-kb` are keybindings.
+
+Key bindings can be modified using the configuration systems. Multiple keys can be bound
+to one action by comma separating them. For example `-kb-primary-paste "Conctrol+v,Insert"`
+
+To get a searchable list of key bindings, run `rofi -show keys`.
+
+A key binding starting with `!` will act when all keys have been released.
+
+You can bind certain events to key-actions:
 
 ### Timeout
 
@@ -815,7 +750,9 @@ configuration {
 }
 ```
 
-## Available Modes
+For a full list of bindings, see the **rofi-keys(5)** manpage.
+
+## Available Modi
 
 ### window
 
@@ -888,25 +825,25 @@ Shows a searchable list of key bindings.
 
 ### script
 
-Allows custom scripted Modes to be added, see the **rofi-script(5)** manpage for more information.
+Allows custom scripted Modi to be added, see the **rofi-script(5)** manpage for more information.
 
 ### combi
 
-Combines multiple modes in one list. Specify which modes are included with the `-combi-modes` option.
+Combines multiple modi in one list. Specify which modi are included with the `-combi-modi` option.
 
-When using the combi mode, a *!bang* can be used to filter the results by modes.
-All modes that match the bang as a prefix are included.
-For example, say you have specified `-combi-modes run,window,windowcd`. If your
+When using the combi mode, a *!bang* can be used to filter the results by modi.
+All modi that match the bang as a prefix are included.
+For example, say you have specified `-combi-modi run,window,windowcd`. If your
 query begins with the bang `!w`, only results from the `window` and `windowcd`
-modes are shown, even if the rest of the input text would match results from `run`.
+modi are shown, even if the rest of the input text would match results from `run`.
 
-If no match, the input is handled by the first combined modes.
+If no match, the input is handled by the first combined modi.
 
 ## FAQ
 
 ### The text in the window switcher is not nicely aligned.
 
-Try using a mono-space font or tabs + the tab-stops setting..
+Try using a mono-space font.
 
 ### The window is completely black.
 
@@ -936,19 +873,19 @@ Some basic usage examples of **rofi**:
 
 Show the run dialog:
 
-    rofi -modes run -show run
+    rofi -modi run -show run
 
 Show the run dialog, and allow switching to Desktop File run dialog (`drun`):
 
-    rofi -modes run,drun -show run
+    rofi -modi run,drun -show run
 
 Combine the run and Desktop File run dialog (`drun`):
 
-    rofi -modes combi -show combi -combi-modes run,drun
+    rofi -modi combi -show combi -combi-modi run,drun
 
 Combine the run and Desktop File run dialog (`drun`), and allow switching to window switcher:
 
-    rofi -modes combi,window -show combi -combi-modes run,drun
+    rofi -modi combi,window -show combi -combi-modi run,drun
 
 Pop up a text message claiming that this is the end:
 
@@ -961,6 +898,10 @@ Pop up a text message in red, bold font claiming that this is still the end:
 Show all key bindings:
 
     rofi -show keys
+
+Use `qalc` to get a simple calculator in **rofi**:
+
+     rofi -show calc -modi "calc:qalc +u8 -nocurrencies"
 
 ## i3
 
@@ -996,28 +937,66 @@ been released.
 
 ## WEBSITE
 
-**rofi** website can be found [here](https://github.com/davatorium/rofi/)
+**rofi** website can be found [here](https://davedavenport.github.io/rofi/)
 
 ## SUPPORT
 
 **rofi** support can be obtained:
  * [GitHub Discussions](https://github.com/davatorium/rofi/discussions)
+ * [Forum (Reddit)](https://reddit.com/r/qtools//)
  * [IRC](irc://irc.libera.chat:6697/#rofi) (#rofi on irc.libera.chat),
 
 ## DEBUGGING
 
-For more information see **rofi-debugging(5)** manpage. 
+To debug, it is smart to first try disabling your custom configuration:
+`-no-config`
+
+Disable parsing of configuration. This runs rofi in *stock* mode.
+
+If you run custom C plugins, you can disable them using:
+
+`-no-plugins`
+
+Disables the loading of plugins.
+
+To further debug the plugin, you can get a trace with (lots of) debug information.  This debug output can be enabled for
+multiple parts in rofi using the glib debug framework. Debug domains can be enabled by setting the G_MESSAGES_DEBUG
+environment variable. At the time of creation of this page, the following debug domains exist:
+
+ * all: Show debug information from all domains.
+ * X11Helper: The X11 Helper functions.
+ * View: The main window view functions.
+ * Widgets.Box: The Box widget.
+ * Dialogs.DMenu: The dmenu mode.
+ * Dialogs.Run: The run mode.
+ * Dialogs.DRun: The desktop file run mode.
+ * Dialogs.Window: The window mode.
+ * Dialogs.Script: The script mode.
+ * Dialogs.Combi: The script mode.
+ * Dialogs.Ssh: The ssh mode.
+ * Rofi: The main application.
+ * Timings: Get timing output.
+ * Theme: Theme engine debug output. (warning lots of output).
+ * Widgets.Icon: The Icon widget.
+ * Widgets.Box: The box widget.
+ * Widgets.Container: The container widget.
+ * Widgets.Window: The window widget.
+ * Helpers.IconFetcher: Information about icon lookup.
+
+The output of this can provide useful information when writing an issue.
+
+More information (possibly outdated) see [this](https://github.com/DaveDavenport/rofi/wiki/Debugging%20Rofi) wiki entry.
 
 ## ISSUE TRACKER
 
-The **rofi** issue tracker can be found [here](https://github.com/davatorium/rofi/issues)
-Before creating an issue, consider posting a question on the [discussion forum](https://github.com/davatorium/rofi/discussions) first.
-When creating an issue, please read [this](https://github.com/davatorium/rofi/blob/master/.github/CONTRIBUTING.md)
+The **rofi** issue tracker can be found [here](https://github.com/DaveDavenport/rofi/issues)
+
+When creating an issue, please read [this](https://github.com/DaveDavenport/rofi/blob/master/.github/CONTRIBUTING.md)
 first.
 
 ## SEE ALSO
 
-**rofi-sensible-terminal(1)**, **dmenu(1)**, **rofi-debugging(5)**, **rofi-theme(5)**, **rofi-script(5)**, **rofi-keys(5)**,**rofi-theme-selector(1)**,**rofi-dmenu(5)**
+**rofi-sensible-terminal(1)**, **dmenu(1)**, **rofi-theme(5)**, **rofi-script(5)**, **rofi-keys(5)**,**rofi-theme-selector(1)**
 
 ## AUTHOR
 
