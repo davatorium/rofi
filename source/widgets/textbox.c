@@ -31,6 +31,7 @@
 #include "helper.h"
 #include "keyb.h"
 #include "mode.h"
+#include "timings.h"
 #include "view.h"
 #include "widgets/textbox.h"
 #include <ctype.h>
@@ -140,6 +141,22 @@ static void textbox_initialize_font(textbox *tb) {
         PangoRectangle rect;
         pango_layout_get_pixel_extents(layout, NULL, &rect);
         tbfc->height = rect.y + rect.height;
+
+        // Try to find height from font. Might be slow?
+        TICK_N("Get font height");
+        PangoFont *font = pango_context_load_font(p_context, tbfc->pfd);
+        if (font) {
+          PangoFontMetrics *fm = pango_font_get_metrics(font, NULL);
+          if (fm) {
+            int h = pango_font_metrics_get_height(fm) / PANGO_SCALE;
+            if (h > 0) {
+              tbfc->height = h;
+            }
+            pango_font_metrics_unref(fm);
+          }
+          g_object_unref(font);
+        }
+        TICK_N("Get font height");
         g_object_unref(layout);
 
         // Cast away consts. (*yuck*) because table_insert does not know it is
@@ -502,9 +519,10 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   // use text color as fallback for themes that don't specify the cursor color
   rofi_theme_get_color(WIDGET(tb), "text-color", draw);
 
-  { int rem =
-          MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
-                     line_width - dot_offset);
+  {
+    int rem =
+        MAX(0, tb->widget.w - widget_padding_get_padding_width(WIDGET(tb)) -
+                   line_width - dot_offset);
     switch (pango_layout_get_alignment(tb->layout)) {
     case PANGO_ALIGN_CENTER:
       x = rem * (tb->xalign - 0.5);
@@ -942,6 +960,12 @@ void textbox_set_pango_context(const char *font, PangoContext *p) {
   PangoRectangle rect;
   pango_layout_get_pixel_extents(layout, NULL, &rect);
   tbfc->height = rect.y + rect.height;
+  if (tbfc->metrics) {
+    int h = pango_font_metrics_get_height(tbfc->metrics) / PANGO_SCALE;
+    if (h > 0) {
+      tbfc->height = h;
+    }
+  }
   g_object_unref(layout);
   tbfc_default = tbfc;
 

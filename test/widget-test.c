@@ -26,6 +26,7 @@
  */
 
 #include "display.h"
+#include "glibconfig.h"
 #include "rofi-icon-fetcher.h"
 #include "rofi.h"
 #include "xcb.h"
@@ -58,6 +59,12 @@ uint32_t rofi_icon_fetcher_query_advanced(G_GNUC_UNUSED const char *name,
                                           G_GNUC_UNUSED const int hsize) {
   return 0;
 }
+void rofi_timings_tick(G_GNUC_UNUSED const char *file,
+                       G_GNUC_UNUSED char const *str, G_GNUC_UNUSED int line,
+                       G_GNUC_UNUSED char const *msg);
+void rofi_timings_tick(G_GNUC_UNUSED const char *file,
+                       G_GNUC_UNUSED char const *str, G_GNUC_UNUSED int line,
+                       G_GNUC_UNUSED char const *msg) {}
 
 cairo_surface_t *rofi_icon_fetcher_get(G_GNUC_UNUSED const uint32_t uid) {
   return NULL;

@@ -58,6 +58,12 @@ int rofi_is_in_dmenu_mode = 0;
 
 ThemeWidget *rofi_configuration = NULL;
 
+void rofi_timings_tick(G_GNUC_UNUSED const char *file,
+                       G_GNUC_UNUSED char const *str, G_GNUC_UNUSED int line,
+                       G_GNUC_UNUSED char const *msg);
+void rofi_timings_tick(G_GNUC_UNUSED const char *file,
+                       G_GNUC_UNUSED char const *str, G_GNUC_UNUSED int line,
+                       G_GNUC_UNUSED char const *msg) {}
 uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
                                  G_GNUC_UNUSED const int size) {
   return 0;
