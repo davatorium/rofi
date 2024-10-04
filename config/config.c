@@ -126,6 +126,8 @@ Settings config = {
     .window_match_fields = "all",
     /** Monitor */
     .monitor = "-5",
+    /** Multiply scrolling amount **/
+    .scroll_multiplier = 1,
     /** Set filter */
     .filter = NULL,
     .dpi = -1,

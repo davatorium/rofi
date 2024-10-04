@@ -98,6 +98,8 @@ typedef struct {
   /** Toggle to enable sorting. */
   unsigned int sort;
   /** Sorting method. */
+  unsigned int scroll_multiplier;
+  /** Sorting method. */
   SortingMethod sorting_method_enum;
   /** Sorting method. */
   char *sorting_method;
