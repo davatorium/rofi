@@ -91,6 +91,10 @@ will now need to install `pandoc` to get the man pages.
 Release tarballs still contain the files and can be installed without
 additional tool.
 
+## Known issues
+
+* `new-selection` is not working for values exceeding the number of rows in previous run. (#2037)
+
 ## Other smaller changes
 
 * new `.rasinc` extension for theme fragments included from other theme files
@@ -149,6 +153,7 @@ Apologies if I mistyped or missed anybody.
 
 # Changelog
 
+* [Textbox] Use FontMetrics font height (if available) to get height
 * [Theme] Fixes recursion in double_inside
 * Try to support modifiers in XIM again (#2015)
 * [autoconf] Fix missing dependency.
