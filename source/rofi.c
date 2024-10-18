@@ -1064,7 +1064,7 @@ int main(int argc, char *argv[]) {
       g_free(etc);
     }
 
-    if (config_path) {
+    if (config_path && g_file_test(config_path, G_FILE_TEST_IS_REGULAR)) {
       if (rofi_theme_parse_file(config_path)) {
         rofi_theme_free(rofi_theme);
         rofi_theme = NULL;
