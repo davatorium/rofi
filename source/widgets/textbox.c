@@ -144,9 +144,9 @@ static void textbox_initialize_font(textbox *tb) {
 
         // Try to find height from font. Might be slow?
         TICK_N("Get font height");
-        PangoFont *font = pango_context_load_font(p_context, tbfc->pfd);
-        if (font) {
-          PangoFontMetrics *fm = pango_font_get_metrics(font, NULL);
+        PangoFont *context_font = pango_context_load_font(p_context, tbfc->pfd);
+        if (context_font) {
+          PangoFontMetrics *fm = pango_font_get_metrics(context_font, NULL);
           if (fm) {
             int h = pango_font_metrics_get_height(fm) / PANGO_SCALE;
             if (h > 0) {
@@ -154,7 +154,7 @@ static void textbox_initialize_font(textbox *tb) {
             }
             pango_font_metrics_unref(fm);
           }
-          g_object_unref(font);
+          g_object_unref(context_font);
         }
         TICK_N("Get font height");
         g_object_unref(layout);
