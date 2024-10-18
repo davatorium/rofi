@@ -85,7 +85,7 @@ typedef enum {
 } WidgetTriggerActionResult;
 
 /**
- * @param widget The container widget itself
+ * @param wid The container widget itself
  * @param type The widget type searched for
  * @param x The X coordination of the mouse event relative to #widget
  * @param y The Y coordination of the mouse event relative to #widget
@@ -95,11 +95,11 @@ typedef enum {
  *
  * @returns A child widget if found, NULL otherwise
  */
-typedef widget *(*widget_find_mouse_target_cb)(widget *widget, WidgetType type,
+typedef widget *(*widget_find_mouse_target_cb)(widget *wid, WidgetType type,
                                                gint x, gint y);
 
 /**
- * @param widget The target widget
+ * @param wid The target widget
  * @param action The action value (which enum it is depends on the widget type)
  * @param x The X coordination of the mouse event relative to #widget
  * @param y The Y coordination of the mouse event relative to #widget
@@ -110,7 +110,7 @@ typedef widget *(*widget_find_mouse_target_cb)(widget *widget, WidgetType type,
  *
  * @returns Whether the action was handled or not, see enum values for details
  */
-typedef WidgetTriggerActionResult (*widget_trigger_action_cb)(widget *widget,
+typedef WidgetTriggerActionResult (*widget_trigger_action_cb)(widget *wid,
                                                               guint action,
                                                               gint x, gint y,
                                                               void *user_data);
@@ -119,7 +119,7 @@ typedef WidgetTriggerActionResult (*widget_trigger_action_cb)(widget *widget,
 #define WIDGET(a) ((widget *)(a))
 
 /**
- * @param widget The widget to check
+ * @param wid The widget to check
  * @param x The X position relative to parent window
  * @param y the Y position relative to parent window
  *
@@ -127,65 +127,63 @@ typedef WidgetTriggerActionResult (*widget_trigger_action_cb)(widget *widget,
  *
  * @return TRUE if x,y falls within the widget
  */
-int widget_intersect(const widget *widget, int x, int y);
+int widget_intersect(const widget *wid, int x, int y);
 
 /**
- * @param widget The widget to move
+ * @param wid The widget to move
  * @param x The new X position relative to parent window
  * @param y The new Y position relative to parent window
  *
  * Moves the widget.
  */
-void widget_move(widget *widget, short x, short y);
+void widget_move(widget *wid, short x, short y);
 
 /**
- * @param widget Handle to widget
+ * @param wid Handle to widget
  * @param type The widget type.
  *
  * Set the widget type.
  */
-void widget_set_type(widget *widget, WidgetType type);
+void widget_set_type(widget *wid, WidgetType type);
 
 /**
- * @param widget Handle to widget
+ * @param wid Handle to widget
  *
  * Check if widget is enabled.
  * @returns TRUE when widget is enabled.
  */
-gboolean widget_enabled(widget *widget);
+gboolean widget_enabled(widget *wid);
 
 /**
- * @param widget Handle to widget
+ * @param wid Handle to widget
  * @param enabled The new state
  *
  * Disable the widget.
  */
-void widget_set_enabled(widget *widget, gboolean enabled);
+void widget_set_enabled(widget *wid, gboolean enabled);
 
 /**
- * @param widget Handle to widget
+ * @param wid Handle to widget
  *
  * Disable the widget.
  */
-static inline void widget_disable(widget *widget) {
-  widget_set_enabled(widget, FALSE);
+static inline void widget_disable(widget *wid) {
+  widget_set_enabled(wid, FALSE);
 }
 /**
- * @param widget Handle to widget
+ * @param wid Handle to widget
  *
  * Enable the widget.
  */
-static inline void widget_enable(widget *widget) {
-  widget_set_enabled(widget, TRUE);
-}
+static inline void widget_enable(widget *wid) { widget_set_enabled(wid, TRUE); }
 
 /**
- * @param widget widget  Handle to the widget
+ * @param wid widget  Handle to the widget
  * @param d The cairo object used to draw itself.
  *
  * Render the textbox.
  */
-void widget_draw(widget *widget, cairo_t *d);
+void widget_draw(widget *wid, cairo_t *d);
 
 /**
  * @param wid Handle to the widget
@@ -195,58 +193,58 @@ void widget_draw(widget *widget, cairo_t *d);
 void widget_free(widget *wid);
 
 /**
- * @param widget The widget toresize
+ * @param wid The widget toresize
  * @param w The new width
  * @param h The new height
  *
  * Resizes the widget.
  */
-void widget_resize(widget *widget, short w, short h);
+void widget_resize(widget *wid, short w, short h);
 
 /**
- * @param widget The widget handle
+ * @param wid The widget handle
  *
  * @returns the height of the widget.
  */
-int widget_get_height(widget *widget);
+int widget_get_height(widget *wid);
 
 /**
- * @param widget The widget handle
+ * @param wid The widget handle
  *
  * @returns the width of the widget.
  */
-int widget_get_width(widget *widget);
+int widget_get_width(widget *wid);
 
 /**
- * @param widget The widget handle
+ * @param wid The widget handle
  *
  * @returns the y position of the widget relative to its parent.
  */
-int widget_get_y_pos(widget *widget);
+int widget_get_y_pos(widget *wid);
 
 /**
- * @param widget The widget handle
+ * @param wid The widget handle
  *
  * @returns the x position of the widget relative to its parent.
  */
-int widget_get_x_pos(widget *widget);
+int widget_get_x_pos(widget *wid);
 
 /**
- * @param widget The widget handle
+ * @param wid The widget handle
  * @param x A pointer to the absolute X coordinates
  * @param y A pointer to the absolute Y coordinates
  *
- * Will modify param x and param y to make them relative to param widget .
+ * Will modify param x and param y to make them relative to param wid .
  */
-void widget_xy_to_relative(widget *widget, gint *x, gint *y);
+void widget_xy_to_relative(widget *wid, gint *x, gint *y);
 
 /**
- * @param widget The widget handle
+ * @param wid The widget handle
  *
  * Update the widget, and its parent recursively.
  * This should be called when size of widget changes.
  */
-void widget_update(widget *widget);
+void widget_update(widget *wid);
 /**
  * @param wid The widget handle
  *

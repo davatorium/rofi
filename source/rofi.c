@@ -328,7 +328,8 @@ static void print_main_application_options(int is_term) {
                  "Behave as a normal window. (experimental)", NULL, is_term);
   print_help_msg("-transient-window", "",
                  "Behave as a modal dialog that is transient to the currently "
-                 "focused window. (experimental)", NULL, is_term);
+                 "focused window. (experimental)",
+                 NULL, is_term);
   print_help_msg("-show", "[mode]",
                  "Show the mode 'mode' and exit. The mode has to be enabled.",
                  NULL, is_term);
@@ -1063,7 +1064,7 @@ int main(int argc, char *argv[]) {
       g_free(etc);
     }
 
-    if (config_path && g_file_test(config_path, G_FILE_TEST_IS_REGULAR)) {
+    if (config_path) {
       if (rofi_theme_parse_file(config_path)) {
         rofi_theme_free(rofi_theme);
         rofi_theme = NULL;
