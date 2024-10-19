@@ -136,17 +136,17 @@ static void icon_resize(widget *wid, short w, short h) {
   }
 }
 
-void icon_set_surface(icon *wid, cairo_surface_t *surf) {
-  wid->icon_fetch_id = 0;
-  if (wid->icon) {
-    cairo_surface_destroy(wid->icon);
-    wid->icon = NULL;
+void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
+  icon_widget->icon_fetch_id = 0;
+  if (icon_widget->icon) {
+    cairo_surface_destroy(icon_widget->icon);
+    icon_widget->icon = NULL;
   }
   if (surf) {
     cairo_surface_reference(surf);
-    wid->icon = surf;
+    icon_widget->icon = surf;
   }
-  widget_queue_redraw(WIDGET(wid));
+  widget_queue_redraw(WIDGET(icon_widget));
 }
 
 icon *icon_create(widget *parent, const char *name) {

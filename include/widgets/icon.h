@@ -59,9 +59,9 @@ icon *icon_create(widget *parent, const char *name);
 void icon_set_size(widget *icon, const int size);
 
 /**
- * @param icon The icon widget handle.
+ * @param icon_widget The icon widget handle.
  * @param surf The surface to display.
  */
-void icon_set_surface(icon *icon, cairo_surface_t *surf);
+void icon_set_surface(icon *icon_widget, cairo_surface_t *surf);
 /**@}*/
 #endif // ROFI_ICON_H
