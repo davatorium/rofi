@@ -2,13 +2,13 @@
 
 ## Recursive file browser
 
-An experimental file browser is introduced in this version. This recursively scans through the 
-users home directory (this is configurable) to find files.
-Its designed to be asynchronous and very fast.
+An experimental file browser is introduced in this version.
+This recursively scans through the users home directory (this is configurable) to find files.
+It is designed to be asynchronous and very fast.
 
 The following settings can be configured:
 
-‘‘‘css
+```css
 configuration {
    recursivebrowser {
       /** Directory the file browser starts in. */
@@ -21,17 +21,21 @@ configuration {
       command: "xdg‐open";
    }
 }
-‘‘‘
+```
 
+A thumbnail generation mechanism is also supported if `-show-icons` is enabled.
+See details and setup in the `rofi-thumbnails(5)` man page. Thanks to giomatfois62 for
+bringing this feature to life!
 
 ## Copy to clipboard support
 
 Add support to copy current selected item to clipboard.
 The added `control-c` binding copies the current selection to the clipboard.
-THIS ONLY WORKS WITH CLIPBOARD MANAGER!!! Once rofi is closes, the data is
+
+**THIS ONLY WORKS WITH CLIPBOARD MANAGER!!!** Once rofi is closed, the data is
 gone!
-    
-## entry box history
+
+## Entry box history
 
 You can now recall and move through previous queries by using
 `kb-entry-history-up` or 'kb-entry-history-down` keys. (`Control-Up`,
@@ -39,28 +43,77 @@ You can now recall and move through previous queries by using
 
 The following settings can be configured:
 
-‘‘‘css
+```css
 configuration {
     entry  {
         max‐history: 30;
     }
 }
-‘‘‘
-
+```
 
 ## Fix calc
 
 There was a non-parsable grammar in the 'calc' part of the language.
 The % operator (modulo) overloaded with percent and could leave to statements
-having multiple valid but contradicting interpretations. To resolve this the modulo
-operator is now `modulo`. Including in this patch several smaller issues with the
-parser where fixed.
+having multiple valid but contradicting interpretations.
+To resolve this the modulo operator is now `modulo`.
 
-## Text outline
+Several smaller issues with the parser were also fixed in this patch.
+
+## Text and cursor outline
+
+Three new properties were added to textbox widgets to control text outline:
+
+* `text-outline` boolean to enable outlines
+* `text-outline-width` to control size
+* `text-outline-color` to control color
+
+![Outlines](./text-outline.png)
+
+Outlines can also be added to cursors, via similarly named
+properties (`cursor-outline-*`).
+
+## Dependencies and packaging
+
+In this version, we have bumped the minimal required versions of some
+dependencies to keep up with bugs and deprecations while staying compatible
+with long-term supported distributions.
+
+* glib: 2.72 or newer
+* meson: 0.59.0 or newer
+
+This roughly corresponds to Ubuntu 22.04 Jammy and Debian Bookworm.
+
+Generated man pages were removed from the git repository and now require
+`pandoc` to build instead of `go-md2man`. If you compile from git, you
+will now need to install `pandoc` to get the man pages.
+
+Release tarballs still contain the files and can be installed without
+additional tool.
+
+## Known issues
+
+* `new-selection` is not working for values exceeding the number of rows in previous run. (#2037)
+
+## Other smaller changes
+
+* new `.rasinc` extension for theme fragments included from other theme files
+* `-ellipsize-mode` mode option in dmenu mode can be set to `start`, `middle` or `end`
+  to control how long entries are ellipsized
+* `-list-keybindings` to print a summary of configured bindings
+* `-window-prefer-icon-theme` to force precedence of theme icons over applications'
+  custom ones (#1702)
+* `-placeholder-markup` to enable pango markup when rendering placeholder text (#1690)
+* `urgent` and `active` flags can be controlled for each row in dmenu and script
+  modes
+* `-transient-window-mode` to make rofi react like a modal dialog that is transient to
+  the currently focused window.
+* Fixing window coordinates for non-reparting window manager. (Thanks to Ortango #1969)
+* Fix failing decode of animated gif files. (Thanks to martinsifrar #1975)
 
 ## Website
 
-The current documentation is now also available on online at:
+The current documentation is now also available online at:
 [https://davatorium.github.io/rofi/](https://davatorium.github.io/rofi/)
 
 # Thanks to
@@ -77,15 +130,18 @@ Special thanks goes to:
   * Dimitris Triantafyllidis
   * duarm
   * Fabian Winter
+  * giomatfois62
   * Gutyina Gergő
   * Jasper Lievisse Adriaanse
   * Jorge
+  * martinsifrar
   * Martin Weinelt
   * Morgane Glidic
   * Naïm Favier
   * Nikita Zlobin
   * nomoo
   * notuxic
+  * Ortango
   * Rasmus Steinke
   * Tim Pope
   * TonCherAmi
@@ -97,6 +153,61 @@ Apologies if I mistyped or missed anybody.
 
 # Changelog
 
+* [Textbox] Use FontMetrics font height (if available) to get height
+* [Theme] Fixes recursion in double_inside
+* Try to support modifiers in XIM again (#2015)
+* [autoconf] Fix missing dependency.
+* Better XIM interaction by filtering modifiers (#2000)
+* Fix ime and enable build option (#1999)
+* [Autotools] Ship missing files for meson build
+* Fix some compiler warnings
+* #1995: Disable history in password mode, move disabling into create_view.
+* [config] Set filebrowser as default completer.
+* [WIP] xdg thumbnails fetching with fallback on mimetype icons (#1939)
+* Add -transient-window mode (#1988)
+* Fix scrolling for vertical layout with horizontal packing
+* Place continuous scroll center in middle column
+* [Script] Fix keep-selection add keep-filter
+* [RecursiveBrowser] Make implementation not recursive.
+* [xcb] Add border_width to window coordinates (#1969)
+* [IconFetcher] Don't check for extension for image file
+* [IconFetcher] Fix failing decode of animated GIFs. (#1975)
+* [Doc] Fix typos, thx to @Nickwiz
+* [Run] Don't re-quote history items.
+* [Modes] Remove dead code in mode implems (#1960)
+* [View] Work around GThreadPool 1 pointer bug.
+* Also fix typo in icon fetcher.
+* [Github] Bump checkout to v4
+* [Doc] Switch to pandoc and remove generated files (#1955)
+* [Build] Add missing dist files from libnkutils
+* [IconFetcher] Don't free on removal from thread-pool
+* Add an item-free method to the thread-pool
+* [Window] write code so clang-check does not complain about leak.
+* [script|dmenu] Add option to make row permanent. (#1952)
+* [run] fix missing doxygen and add explanation.
+* [Run] When passing raw entry, pass it unquoted to history (#1951)
+* Replace deprecated g_memdup by g_memdup2
+* Bump glib version to 2.72
+* [Build] Bump minimal meson version to 0.59.0 (#1947)
+* Fix compiler warnings in window mode.
+* Fix some compiler warnings.
+* [RUN] shell escape command before processing it further.
+* [DRun] Drun read url field from cache.
+* [Build] Reduce amount of warnings (#1944)
+* [View] Don't use xcb surface to render to png, but create surface.
+* [Box] When estimating height, set correct width on children (#1943)
+* [ThreadPool] Sort items in the queue based on priority
+* [Doc] Fix broken ``` guards.
+* [Doc] Remove reddit link from config.yml.
+* [Doc] Clarify in build instructions what release to use.
+* Add extra documentation issue template.
+* Fix typo in dynamic_themes.md (#1941)
+* [DOC] Add explanation to PATTERN of brackets (#1933)
+* [Doc] Update manpage to clarify meta property.
+* [View] On mode switch force refilter instead of queuing. (#1928)
+* [View] Allow float delay (#1926)
+* [View] Always forward motion to the grabbed widget first.
+* [IconFetcher] If last step fails to load icon, don't error out make warning
 * [Script] Update theme property clarification a bit.
 * [Script] Add clarification to theme property.
 * [Dmenu][Script] Add 'display' row option to override whats displayed.
