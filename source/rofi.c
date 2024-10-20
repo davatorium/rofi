@@ -328,7 +328,8 @@ static void print_main_application_options(int is_term) {
                  "Behave as a normal window. (experimental)", NULL, is_term);
   print_help_msg("-transient-window", "",
                  "Behave as a modal dialog that is transient to the currently "
-                 "focused window. (experimental)", NULL, is_term);
+                 "focused window. (experimental)",
+                 NULL, is_term);
   print_help_msg("-show", "[mode]",
                  "Show the mode 'mode' and exit. The mode has to be enabled.",
                  NULL, is_term);

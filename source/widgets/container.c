@@ -42,13 +42,13 @@ struct _container {
 
 static void container_update(widget *wid);
 
-static int container_get_desired_height(widget *widget, const int width) {
-  container *b = (container *)widget;
+static int container_get_desired_height(widget *wid, const int width) {
+  container *b = (container *)wid;
   int height = 0;
   if (b->child) {
     height += widget_get_desired_height(b->child, width);
   }
-  height += widget_padding_get_padding_height(widget);
+  height += widget_padding_get_padding_height(wid);
   return height;
 }
 
@@ -65,21 +65,21 @@ static void container_free(widget *wid) {
   g_free(b);
 }
 
-void container_add(container *container, widget *child) {
-  if (container == NULL) {
+void container_add(container *cont, widget *child) {
+  if (cont == NULL) {
     return;
   }
-  container->child = child;
-  g_assert(child->parent == WIDGET(container));
-  widget_update(WIDGET(container));
+  cont->child = child;
+  g_assert(child->parent == WIDGET(cont));
+  widget_update(WIDGET(cont));
 }
 
-static void container_resize(widget *widget, short w, short h) {
-  container *b = (container *)widget;
+static void container_resize(widget *wid, short w, short h) {
+  container *b = (container *)wid;
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;
     b->widget.h = h;
-    widget_update(widget);
+    widget_update(wid);
   }
 }
 

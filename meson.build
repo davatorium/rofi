@@ -25,7 +25,8 @@ flags = [
     '-Wunreachable-code',
     '-Werror=missing-prototypes',
     '-Wno-overlength-strings',
-    '-Wno-inline' # A bit too noisy with Bison…
+    '-Wno-inline', # A bit too noisy with Bison…
+    '-Wshadow'
 ]
 foreach f : flags
     if c_compiler.has_argument(f)

@@ -53,9 +53,8 @@ struct _icon {
   cairo_surface_t *icon;
 };
 
-static int icon_get_desired_height(widget *widget,
-                                   G_GNUC_UNUSED const int width) {
-  icon *b = (icon *)widget;
+static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
+  icon *b = (icon *)wid;
   int height = b->size;
   if (b->squared == FALSE) {
     if (b->icon) {
@@ -66,12 +65,11 @@ static int icon_get_desired_height(widget *widget,
       height = iconh * scale;
     }
   }
-  height += widget_padding_get_padding_height(widget);
+  height += widget_padding_get_padding_height(wid);
   return height;
 }
-static int icon_get_desired_width(widget *widget,
-                                  G_GNUC_UNUSED const int height) {
-  icon *b = (icon *)widget;
+static int icon_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {
+  icon *b = (icon *)wid;
   int width = b->size;
   if (b->squared == FALSE) {
     if (b->icon) {
@@ -82,7 +80,7 @@ static int icon_get_desired_width(widget *widget,
       width = iconw * scale;
     }
   }
-  width += widget_padding_get_padding_width(widget);
+  width += widget_padding_get_padding_width(wid);
   return width;
 }
 
@@ -129,26 +127,26 @@ static void icon_free(widget *wid) {
   g_free(b);
 }
 
-static void icon_resize(widget *widget, short w, short h) {
-  icon *b = (icon *)widget;
+static void icon_resize(widget *wid, short w, short h) {
+  icon *b = (icon *)wid;
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;
     b->widget.h = h;
-    widget_update(widget);
+    widget_update(wid);
   }
 }
 
-void icon_set_surface(icon *icon, cairo_surface_t *surf) {
-  icon->icon_fetch_id = 0;
-  if (icon->icon) {
-    cairo_surface_destroy(icon->icon);
-    icon->icon = NULL;
+void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
+  icon_widget->icon_fetch_id = 0;
+  if (icon_widget->icon) {
+    cairo_surface_destroy(icon_widget->icon);
+    icon_widget->icon = NULL;
   }
   if (surf) {
     cairo_surface_reference(surf);
-    icon->icon = surf;
+    icon_widget->icon = surf;
   }
-  widget_queue_redraw(WIDGET(icon));
+  widget_queue_redraw(WIDGET(icon_widget));
 }
 
 icon *icon_create(widget *parent, const char *name) {

@@ -31,8 +31,8 @@
 
 #include "config.h"
 #ifdef XCB_IMDKIT
-#include <xcb/xcb_keysyms.h>
 #include <xcb-imdkit/encoding.h>
+#include <xcb/xcb_keysyms.h>
 #endif
 #include <cairo-xcb.h>
 #include <cairo.h>
@@ -128,13 +128,13 @@ const struct {
 } cursor_names[] = {
     {"default", "left_ptr"}, {"pointer", "hand"}, {"text", "xterm"}};
 
-static xcb_visualtype_t *lookup_visual(xcb_screen_t *s, xcb_visualid_t visual) {
+static xcb_visualtype_t *lookup_visual(xcb_screen_t *s, xcb_visualid_t vis) {
   xcb_depth_iterator_t d;
   d = xcb_screen_allowed_depths_iterator(s);
   for (; d.rem; xcb_depth_next(&d)) {
     xcb_visualtype_iterator_t v = xcb_depth_visuals_iterator(d.data);
     for (; v.rem; xcb_visualtype_next(&v)) {
-      if (v.data->visual_id == visual) {
+      if (v.data->visual_id == vis) {
         return v.data;
       }
     }

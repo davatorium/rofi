@@ -362,13 +362,13 @@ t_entry_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
 |  t_entry_list t_name_prefix_optional t_entry_name_path_selectors T_BOPEN t_property_list_optional T_BCLOSE
 {
     for ( GList *liter = g_list_first ( $3); liter; liter = g_list_next ( liter ) ) {
-        ThemeWidget *widget = $1;
-        for ( GList *iter = g_list_first ( (GList*)liter->data ); widget && iter ; iter = g_list_next ( iter ) ) {
-            widget = rofi_theme_find_or_create_name ( widget, iter->data );
+        ThemeWidget *wid = $1;
+        for ( GList *iter = g_list_first ( (GList*)liter->data ); wid && iter ; iter = g_list_next ( iter ) ) {
+            wid = rofi_theme_find_or_create_name ( wid, iter->data );
         }
         g_list_free_full ( (GList*)liter->data, g_free );
-        widget->set = TRUE;
-        rofi_theme_widget_add_properties ( widget, $5);
+        wid->set = TRUE;
+        rofi_theme_widget_add_properties ( wid, $5);
     }
     if ( $5 ) {
         g_hash_table_destroy ( $5 );
@@ -376,78 +376,78 @@ t_entry_list T_CONFIGURATION T_BOPEN t_config_property_list_optional T_BCLOSE {
     g_list_free ( $3 );
 }
 | t_entry_list T_PDEFAULTS T_BOPEN t_property_list_optional T_BCLOSE {
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, "*" );
-    rofi_theme_widget_add_properties (widget, $4);
+    ThemeWidget *wid = rofi_theme_find_or_create_name ( $1, "*" );
+    rofi_theme_widget_add_properties (wid, $4);
     if ( $4 ) {
         g_hash_table_destroy ( $4 );
     }
 }
 | t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP t_property_number T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %f )",$4, $6);
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
-    widget->set = TRUE;
-    widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $4 );
-    widget->media->value = $6;
+    ThemeWidget *wid = rofi_theme_find_or_create_name ( $1, name );
+    wid->set = TRUE;
+    wid->media = g_slice_new0(ThemeMedia);
+    wid->media->type = rofi_theme_parse_media_type ( $4 );
+    wid->media->value = $6;
     for ( unsigned int i = 0; i < $9->num_widgets; i++ ) {
         ThemeWidget *d = $9->widgets[i];
-        rofi_theme_parse_merge_widgets(widget, d);
+        rofi_theme_parse_merge_widgets(wid, d);
     }
     g_free ( $4 );
     g_free ( name );
 }
 | t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_INT T_UNIT_PX T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %d px )",$4, $6);
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
-    widget->set = TRUE;
-    widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $4 );
-    widget->media->value = (double)$6;
+    ThemeWidget *wid = rofi_theme_find_or_create_name ( $1, name );
+    wid->set = TRUE;
+    wid->media = g_slice_new0(ThemeMedia);
+    wid->media->type = rofi_theme_parse_media_type ( $4 );
+    wid->media->value = (double)$6;
     for ( unsigned int i = 0; i < $10->num_widgets; i++ ) {
         ThemeWidget *d = $10->widgets[i];
-        rofi_theme_parse_merge_widgets(widget, d);
+        rofi_theme_parse_merge_widgets(wid, d);
     }
     g_free ( $4 );
     g_free ( name );
 }
 | t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_BOOLEAN T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %s )",$4, $6?"true":"false");
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
-    widget->set = TRUE;
-    widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $4 );
-    widget->media->boolv = $6;
+    ThemeWidget *wid = rofi_theme_find_or_create_name ( $1, name );
+    wid->set = TRUE;
+    wid->media = g_slice_new0(ThemeMedia);
+    wid->media->type = rofi_theme_parse_media_type ( $4 );
+    wid->media->boolv = $6;
     for ( unsigned int i = 0; i < $9->num_widgets; i++ ) {
         ThemeWidget *d = $9->widgets[i];
-        rofi_theme_parse_merge_widgets(widget, d);
+        rofi_theme_parse_merge_widgets(wid, d);
     }
     g_free ( $4 );
     g_free ( name );
 }
 | t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_ENV_START T_PARENT_LEFT T_BOOLEAN T_COMMA T_BOOLEAN T_PARENT_RIGHT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %s )",$4, $8?"true":"false");
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
-    widget->set = TRUE;
-    widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $4 );
-    widget->media->boolv = $8;
+    ThemeWidget *wid = rofi_theme_find_or_create_name ( $1, name );
+    wid->set = TRUE;
+    wid->media = g_slice_new0(ThemeMedia);
+    wid->media->type = rofi_theme_parse_media_type ( $4 );
+    wid->media->boolv = $8;
     for ( unsigned int i = 0; i < $14->num_widgets; i++ ) {
         ThemeWidget *d = $14->widgets[i];
-        rofi_theme_parse_merge_widgets(widget, d);
+        rofi_theme_parse_merge_widgets(wid, d);
     }
     g_free ( $4 );
     g_free ( name );
 }
 | t_entry_list T_MEDIA T_PARENT_LEFT T_MEDIA_TYPE T_PSEP T_ENV_START T_PARENT_LEFT T_COMMA T_BOOLEAN T_PARENT_RIGHT T_PARENT_RIGHT T_BOPEN t_entry_list T_BCLOSE {
     gchar *name = g_strdup_printf("@media ( %s: %s )",$4, $9?"true":"false");
-    ThemeWidget *widget = rofi_theme_find_or_create_name ( $1, name );
-    widget->set = TRUE;
-    widget->media = g_slice_new0(ThemeMedia);
-    widget->media->type = rofi_theme_parse_media_type ( $4 );
-    widget->media->boolv = $9;
+    ThemeWidget *wid = rofi_theme_find_or_create_name ( $1, name );
+    wid->set = TRUE;
+    wid->media = g_slice_new0(ThemeMedia);
+    wid->media->type = rofi_theme_parse_media_type ( $4 );
+    wid->media->boolv = $9;
     for ( unsigned int i = 0; i < $13->num_widgets; i++ ) {
         ThemeWidget *d = $13->widgets[i];
-        rofi_theme_parse_merge_widgets(widget, d);
+        rofi_theme_parse_merge_widgets(wid, d);
     }
     g_free ( $4 );
     g_free ( name );
@@ -487,10 +487,10 @@ t_config_property
 {
   
   for ( GList *iter = g_list_first( $1) ; iter; iter = g_list_next(iter)){
-    ThemeWidget *widget = rofi_configuration;
-    widget = rofi_theme_find_or_create_name ( widget, iter->data );
-    widget->set = TRUE;
-    rofi_theme_widget_add_properties ( widget, $3);
+    ThemeWidget *wid = rofi_configuration;
+    wid = rofi_theme_find_or_create_name ( wid, iter->data );
+    wid->set = TRUE;
+    rofi_theme_widget_add_properties ( wid, $3);
   }
   if ( $3 ) {
     g_hash_table_destroy ( $3 );
