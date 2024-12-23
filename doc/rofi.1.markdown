@@ -246,6 +246,12 @@ exec command. For that case, `#` can be used as a separator.
 Start in case-sensitive mode. This option can be changed at run-time using the
 `-kb-toggle-case-sensitivity` key binding.
 
+`-case-smart`
+
+Start in case-smart mode behave like vim's `smartcase`, which determines
+case-sensitivity by input.  When enabled, this will suppress `-case-sensitive`
+config.
+
 `-cycle`
 
 Cycle through the result list. Default is 'true'.

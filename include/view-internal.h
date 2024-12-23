@@ -144,6 +144,8 @@ struct RofiViewState {
 
   /** Regexs used for matching */
   rofi_int_matcher **tokens;
+  /** For case-sensitivity */
+  gboolean case_sensitive;
 };
 /** @} */
 #endif

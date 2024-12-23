@@ -127,6 +127,8 @@ typedef struct {
 
   /** Search case sensitivity */
   unsigned int case_sensitive;
+  /** Smart case sensitivity like vim */
+  unsigned int case_smart;
   /** Cycle through in the element list */
   unsigned int cycle;
   /** Height of an element in number of rows */

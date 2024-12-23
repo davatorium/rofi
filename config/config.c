@@ -104,6 +104,8 @@ Settings config = {
     .sorting_method = "normal",
     /** Case sensitivity of the search */
     .case_sensitive = FALSE,
+    /** Case smart of the search */
+    .case_smart = FALSE,
     /** Cycle through in the element list */
     .cycle = TRUE,
     /** Height of an element in #chars */

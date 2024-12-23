@@ -200,13 +200,15 @@ char *rofi_expand_path(const char *input);
  * @param needlelen The length of the needle
  * @param haystack The string to match against
  * @param haystacklen The length of the haystack
+ * @param case_sensitive Whether case is significant.
  *
  * UTF-8 aware levenshtein distance calculation
  *
  * @returns the levenshtein distance between needle and haystack
  */
 unsigned int levenshtein(const char *needle, const glong needlelen,
-                         const char *haystack, const glong haystacklen);
+                         const char *haystack, const glong haystacklen,
+                         const int case_sensitive);
 
 /**
  * @param data the unvalidated character array holding possible UTF-8 data
@@ -234,6 +236,7 @@ char *rofi_latin_to_utf8_strdup(const char *input, gssize length);
  * @param plen      Pattern length.
  * @param str       The input to match against pattern.
  * @param slen      Length of str.
+ * @param case_sensitive Whether case is significant.
  *
  *  rofi_scorer_fuzzy_evaluate implements a global sequence alignment algorithm
  * to find the maximum accumulated score by aligning `pattern` to `str`. It
@@ -263,7 +266,7 @@ char *rofi_latin_to_utf8_strdup(const char *input, gssize length);
  * @returns the sorting weight.
  */
 int rofi_scorer_fuzzy_evaluate(const char *pattern, glong plen, const char *str,
-                               glong slen);
+                               glong slen, const int case_sensitive);
 /*@}*/
 
 /**
@@ -352,6 +355,13 @@ cairo_surface_t *cairo_image_surface_create_from_svg(const gchar *file,
  * ranges
  */
 void parse_ranges(char *input, rofi_range_pair **list, unsigned int *length);
+
+/**
+ * @param input String to parse
+ *
+ * @returns String matching should be case sensitive or insensitive
+ */
+int parse_case_sensitivity(const char *input);
 
 /**
  * @param format The format string used. See below for possible syntax.

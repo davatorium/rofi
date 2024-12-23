@@ -142,25 +142,25 @@ int main(int argc, char **argv) {
    */
 
   TASSERT(levenshtein("aap", g_utf8_strlen("aap", -1), "aap",
-                      g_utf8_strlen("aap", -1)) == 0);
+                      g_utf8_strlen("aap", -1), 0) == 0);
   TASSERT(levenshtein("aap", g_utf8_strlen("aap", -1), "aap ",
-                      g_utf8_strlen("aap ", -1)) == 1);
+                      g_utf8_strlen("aap ", -1), 0) == 1);
   TASSERT(levenshtein("aap ", g_utf8_strlen("aap ", -1), "aap",
-                      g_utf8_strlen("aap", -1)) == 1);
+                      g_utf8_strlen("aap", -1), 0) == 1);
   TASSERTE(levenshtein("aap", g_utf8_strlen("aap", -1), "aap noot",
-                       g_utf8_strlen("aap noot", -1)),
+                       g_utf8_strlen("aap noot", -1), 0),
            5u);
   TASSERTE(levenshtein("aap", g_utf8_strlen("aap", -1), "noot aap",
-                       g_utf8_strlen("noot aap", -1)),
+                       g_utf8_strlen("noot aap", -1), 0),
            5u);
   TASSERTE(levenshtein("aap", g_utf8_strlen("aap", -1), "noot aap mies",
-                       g_utf8_strlen("noot aap mies", -1)),
+                       g_utf8_strlen("noot aap mies", -1), 0),
            10u);
   TASSERTE(levenshtein("noot aap mies", g_utf8_strlen("noot aap mies", -1),
-                       "aap", g_utf8_strlen("aap", -1)),
+                       "aap", g_utf8_strlen("aap", -1), 0),
            10u);
   TASSERTE(levenshtein("otp", g_utf8_strlen("otp", -1), "noot aap",
-                       g_utf8_strlen("noot aap", -1)),
+                       g_utf8_strlen("noot aap", -1), 0),
            5u);
   /**
    * Quick converision check.
@@ -192,18 +192,46 @@ int main(int argc, char **argv) {
   }
   {
     TASSERTL(
-        rofi_scorer_fuzzy_evaluate("aap noot mies", 12, "aap noot mies", 12),
+        rofi_scorer_fuzzy_evaluate("aap noot mies", 12, "aap noot mies", 12, 0),
         -605);
-    TASSERTL(rofi_scorer_fuzzy_evaluate("anm", 3, "aap noot mies", 12), -155);
-    TASSERTL(rofi_scorer_fuzzy_evaluate("blu", 3, "aap noot mies", 12),
+    TASSERTL(rofi_scorer_fuzzy_evaluate("anm", 3, "aap noot mies", 12, 0),
+             -155);
+    TASSERTL(rofi_scorer_fuzzy_evaluate("blu", 3, "aap noot mies", 12, 0),
              1073741824);
-    config.case_sensitive = TRUE;
-    TASSERTL(rofi_scorer_fuzzy_evaluate("Anm", 3, "aap noot mies", 12),
+    TASSERTL(rofi_scorer_fuzzy_evaluate("Anm", 3, "aap noot mies", 12, 1),
              1073741754);
-    config.case_sensitive = FALSE;
-    TASSERTL(rofi_scorer_fuzzy_evaluate("Anm", 3, "aap noot mies", 12), -155);
-    TASSERTL(rofi_scorer_fuzzy_evaluate("aap noot mies", 12, "Anm", 3),
+    TASSERTL(rofi_scorer_fuzzy_evaluate("Anm", 3, "aap noot mies", 12, 0),
+             -155);
+    TASSERTL(rofi_scorer_fuzzy_evaluate("aap noot mies", 12, "Anm", 3, 0),
              1073741824);
+  }
+
+  /**
+   * Case sensitivity
+   */
+  {
+    int case_smart = config.case_smart;
+    int case_sensitive = config.case_sensitive;
+    {
+      config.case_smart = FALSE;
+      config.case_sensitive = FALSE;
+      TASSERT(parse_case_sensitivity("all lower case 你好") == 0);
+      TASSERT(parse_case_sensitivity("not All lowEr Case 你好") == 0);
+      config.case_sensitive = TRUE;
+      TASSERT(parse_case_sensitivity("all lower case 你好") == 1);
+      TASSERT(parse_case_sensitivity("not All lowEr Case 你好") == 1);
+    }
+    {
+      config.case_smart = TRUE;
+      config.case_sensitive = TRUE;
+      TASSERT(parse_case_sensitivity("all lower case") == 0);
+      TASSERT(parse_case_sensitivity("AAAAAAAAAAAA") == 1);
+      config.case_sensitive = FALSE;
+      TASSERT(parse_case_sensitivity("all lower case 你好") == 0);
+      TASSERT(parse_case_sensitivity("not All lowEr Case 你好") == 1);
+    }
+    config.case_smart = case_smart;
+    config.case_sensitive = case_sensitive;
   }
 
   char *a;
