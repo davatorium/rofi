@@ -38,7 +38,6 @@
 #include <glib.h>
 #include <math.h>
 #include <string.h>
-#include <xcb/xcb.h>
 
 #include "theme.h"
 
@@ -251,6 +250,15 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
       tb->placeholder = g_markup_escape_text(placeholder, -1);
     }
   }
+  
+  const char *password_mask_char =
+      rofi_theme_get_string(WIDGET(tb), "password-mask", NULL);
+  if (password_mask_char == NULL || (*password_mask_char) == '\0'){
+    tb->password_mask_char = "*";
+  } else {
+    tb->password_mask_char = password_mask_char;
+  }
+
   textbox_text(tb, txt ? txt : "");
   textbox_cursor_end(tb);
 
@@ -337,16 +345,14 @@ static void __textbox_update_pango_text(textbox *tb) {
   }
   tb->show_placeholder = FALSE;
   if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
-    size_t l = g_utf8_strlen(tb->text, -1);
-    unsigned char string[l * 3 + 1]; // "●" is 3 bytes in UTF-8
-    unsigned char *ptr = string;
-    while (l--) { // UTF-8 bytes for Unicode Character “●” (U+25CF)
-        *ptr++ = (char)0xE2;
-        *ptr++ = (char)0x97;
-        *ptr++ = (char)0x8F;
+    size_t text_len = g_utf8_strlen(tb->text, -1);
+    size_t mask_len = strlen(tb->password_mask_char);
+    unsigned char string[text_len * mask_len + 1];
+    for (size_t offset = 0; offset < text_len * mask_len; offset += mask_len) {
+        memcpy(string + offset, tb->password_mask_char, mask_len);
     }
-    *ptr = '\0';
-    pango_layout_set_text(tb->layout, string, l);
+    string[text_len * mask_len] = '\0';
+    pango_layout_set_text(tb->layout, string, -1);
   } else if (tb->flags & TB_MARKUP || tb->tbft & MARKUP) {
     pango_layout_set_markup(tb->layout, tb->text, -1);
   } else {
