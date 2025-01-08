@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <math.h>
 #include <string.h>
+#include <xcb/xcb.h>
 
 #include "theme.h"
 
