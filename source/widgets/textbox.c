@@ -257,7 +257,7 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
   if (password_mask_char == NULL || (*password_mask_char) == '\0'){
     tb->password_mask_char = "*";
   } else {
-    tb->password_mask_char = g_markup_escape_text(password_mask_char, -1);
+    tb->password_mask_char = g_strdup(password_mask_char);
   }
 
   textbox_text(tb, txt ? txt : "");
@@ -553,15 +553,14 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   if (tb->flags & TB_EDITABLE) {
     // We want to place the cursor based on the text shown.
     const char *text = pango_layout_get_text(tb->layout);
-    int text_len = strlen(text);
     // Clamp the position, should not be needed, but we are paranoid.
     int cursor_offset;
     // Calculate cursor position based on mask length
     if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
       int mask_len = strlen(tb->password_mask_char);
-      cursor_offset = MIN(tb->cursor * mask_len, text_len);
+      cursor_offset = MIN(tb->cursor * mask_len, strlen(text));
     } else {
-      cursor_offset = MIN(tb->cursor * text_len, text_len);
+      cursor_offset = MIN(tb->cursor, strlen(text));
     }
     PangoRectangle pos;
     // convert to byte location.
