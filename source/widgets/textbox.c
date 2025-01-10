@@ -555,15 +555,18 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     const char *text = pango_layout_get_text(tb->layout);
     // Clamp the position, should not be needed, but we are paranoid.
     int cursor_offset;
-    // Calculate cursor position based on mask length
+
     if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
+      // Calculate cursor position based on mask length
       int mask_len = strlen(tb->password_mask_char);
       cursor_offset = MIN(tb->cursor * mask_len, strlen(text));
     } else {
-      cursor_offset = MIN(tb->cursor, strlen(text));
+      cursor_offset = MIN(tb->cursor, g_utf8_strlen(text, -1));
+      // convert to byte location.
+      char *offset = g_utf8_offset_to_pointer(text, cursor_offset);
+      cursor_offset = offset - text;
     }
     PangoRectangle pos;
-    // convert to byte location.
     pango_layout_get_cursor_pos(tb->layout, cursor_offset, &pos, NULL);
     int cursor_x = pos.x / PANGO_SCALE;
     int cursor_y = pos.y / PANGO_SCALE;
