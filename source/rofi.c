@@ -823,6 +823,8 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
         msg = realloc(msg, length * sizeof(char));
       }
 
+      msg[index] = 0;
+
       if (!rofi_view_error_dialog(msg, markup)) {
         g_main_loop_quit(main_loop);
       }
