@@ -1,4 +1,4 @@
-AC_INIT([rofi], [1.7.6-dev], [https://github.com/davatorium/rofi/],[],[https://github.com/davatorium/rofi/discussions])
+AC_INIT([rofi], [1.7.8-dev], [https://github.com/davatorium/rofi/],[],[https://github.com/davatorium/rofi/discussions])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])

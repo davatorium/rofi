@@ -20,7 +20,8 @@ configuration {
 
 }
 ```
-You can now set the options in the `configuration` block. 
+
+You can now set the options in the `configuration` block.
 
 ## Create a configuration file from current setup
 
@@ -35,6 +36,7 @@ This will have all the possible settings and their current value.
 If a value is the default value, the entry will be commented.
 
 For example:
+
 ```css
 configuration {               
 /*  modes: "window,run,ssh,drun";*/
@@ -68,8 +70,8 @@ newlines format are supported. But Unix is preferred.
 
 C and C++ file comments are supported.
 
-  - Anything after  `// ` and before a newline is considered a comment.
-  - Everything between `/*` and `*/` is a comment.
+- Anything after  `//` and before a newline is considered a comment.
+- Everything between `/*` and `*/` is a comment.
 
 Comments can be nested and the C comments can be inline.
 
@@ -124,12 +126,12 @@ For example:
 #### Number
 
 An integer may contain any full number.
-                                  
-For example:                     
-                                  
-```css                             
+
+For example:
+
+```css
 eh: 2;                        
-```                               
+```
 
 #### Boolean
 
@@ -144,15 +146,6 @@ show-icons: true;
 This is equal to the `-show-icons` option on the commandline, and `show-icons:
 false;` is equal to `-no-show-icons`.
 
-#### Character
-
-Character value is always surrounded by single quotes (') and should contain a
-single character. It supports escaping.
-
-```css
-matching-negate-char: '-';
-```
-
 #### List
 
 This is not supported by the old configuration system, but can be used in the
@@ -164,6 +157,7 @@ comma-separated. The entry in the list single ASCII words.
 ```css
  combi-modes: [window,drun];
 ```
+
 For older versions you have :
 
 ```css

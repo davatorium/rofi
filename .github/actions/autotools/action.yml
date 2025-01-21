@@ -2,6 +2,9 @@ name: Autotools Build
 description: Builds Rofi using Autotools
 
 inputs:
+  do-release:
+    description: Do a make dist and upload
+    required: true
   cc:
     description: Compiler to use
     required: true
@@ -45,9 +48,10 @@ runs:
         make 
         make check
     - id: upload
-      uses: actions/upload-artifact@v3
+      if: ${{ inputs.do-release == 'true' }}
+      uses: actions/upload-artifact@v4
       with:
-        name: tarballs
+        name: tarballs ${{ github.sha }}
         path: |
           builddir/*.tar.gz
           builddir/*.tar.xz

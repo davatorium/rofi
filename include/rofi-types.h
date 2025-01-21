@@ -14,8 +14,6 @@ typedef enum {
   P_DOUBLE,
   /** String */
   P_STRING,
-  /** Character */
-  P_CHAR,
   /** Boolean */
   P_BOOLEAN,
   /** Color */
@@ -260,8 +258,6 @@ typedef union _PropertyValue {
   double f;
   /** String */
   char *s;
-  /** Character */
-  char c;
   /** boolean */
   gboolean b;
   /** Color */

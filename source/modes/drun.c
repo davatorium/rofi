@@ -226,6 +226,8 @@ struct _DRunModePrivateData {
   char *old_completer_input;
   uint32_t selected_line;
   char *old_input;
+
+  gboolean disable_dbusactivate;
 };
 
 struct RegexEvalArg {
@@ -396,9 +398,10 @@ static gboolean exec_dbus_entry(DRunModeEntry *e, const char *path) {
         &files, g_variant_new_take_string(g_file_get_uri(file)));
     g_object_unref(file);
   }
+  // Wait 1500ms, otherwise assume failed.
   result = g_dbus_connection_call_sync(
       session, e->app_id, object_path, "org.freedesktop.Application", method,
-      params, G_VARIANT_TYPE_UNIT, G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
+      params, G_VARIANT_TYPE_UNIT, G_DBUS_CALL_FLAGS_NONE, 1500, NULL, &error);
 
   g_free(object_path);
 
@@ -415,7 +418,8 @@ static gboolean exec_dbus_entry(DRunModeEntry *e, const char *path) {
   return TRUE;
 }
 
-static void exec_cmd_entry(DRunModeEntry *e, const char *path) {
+static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
+                           const char *path) {
   GError *error = NULL;
   GRegex *reg = g_regex_new("%[a-zA-Z%]", 0, 0, &error);
   if (error != NULL) {
@@ -488,8 +492,12 @@ static void exec_cmd_entry(DRunModeEntry *e, const char *path) {
    * If its required to launch via dbus, do that.
    */
   gboolean launched = FALSE;
-  if (g_key_file_get_boolean(e->key_file, e->action, "DBusActivatable", NULL)) {
-    launched = exec_dbus_entry(e, path);
+  if (!(pd->disable_dbusactivate)) {
+    if (g_key_file_get_boolean(e->key_file, e->action, "DBusActivatable",
+                               NULL)) {
+      printf("DBus launch\n");
+      launched = exec_dbus_entry(e, path);
+    }
   }
   if (launched == FALSE) {
     /** Fallback to old style if not set. */
@@ -1167,6 +1175,11 @@ static void get_apps(DRunModePrivateData *pd) {
       }
       TICK_N("Get Desktop apps (system dirs)");
     }
+    pd->disable_dbusactivate = FALSE;
+    p = rofi_theme_find_property(wid, P_BOOLEAN, "DBusActivatable", TRUE);
+    if (p != NULL && (p->type == P_BOOLEAN && p->value.b == FALSE)) {
+      pd->disable_dbusactivate = TRUE;
+    }
     get_apps_history(pd);
 
     g_qsort_with_data(pd->entry_list, pd->cmd_list_length,
@@ -1300,7 +1313,7 @@ static ModeMode drun_mode_result(Mode *sw, int mretv, char **input,
       retv = mode_completer_result(rmpd->completer, mretv, input, selected_line,
                                    &path);
       if (retv == MODE_EXIT) {
-        exec_cmd_entry(&(rmpd->entry_list[rmpd->selected_line]), path);
+        exec_cmd_entry(rmpd, &(rmpd->entry_list[rmpd->selected_line]), path);
       }
       g_free(path);
     }
@@ -1310,7 +1323,7 @@ static ModeMode drun_mode_result(Mode *sw, int mretv, char **input,
     switch (rmpd->entry_list[selected_line].type) {
     case DRUN_DESKTOP_ENTRY_TYPE_SERVICE:
     case DRUN_DESKTOP_ENTRY_TYPE_APPLICATION:
-      exec_cmd_entry(&(rmpd->entry_list[selected_line]), NULL);
+      exec_cmd_entry(rmpd, &(rmpd->entry_list[selected_line]), NULL);
       break;
     case DRUN_DESKTOP_ENTRY_TYPE_LINK:
       launch_link_entry(&(rmpd->entry_list[selected_line]));

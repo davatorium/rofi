@@ -58,5 +58,5 @@
     selected-urgent-foreground:  @urgent-foreground;
 }
 
-@import "gruvbox-common.rasinc"
+@import "gruvbox-common"
 

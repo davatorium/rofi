@@ -1001,8 +1001,6 @@ configuration {
       parse-user:   true;
       /** Parse system desktop files. */
       parse-system: false;
-      /** Disable DBusActivatable */
-      DBusActivatable: false;
    }
 }
 ```

@@ -128,7 +128,7 @@ static XrmOption xrmOptions[] = {
      NULL,
      "Whether to load and show icons",
      CONFIG_DEFAULT},
-    
+
     {xrm_String,
      "preview-cmd",
      {.str = &config.preview_cmd},
@@ -707,13 +707,14 @@ static gboolean __config_parser_set_property(XrmOption *option,
     *(option->value.num) = (p->value.b);
     option->source = (option->source & ~3) | CONFIG_FILE_THEME;
   } else if (option->type == xrm_Char) {
-    if (p->type != P_CHAR) {
-      *error = g_strdup_printf(
-          "Option: %s needs to be set with a character not a %s.", option->name,
-          PropertyTypeName[p->type]);
+
+    if (p->type != P_STRING) {
+      *error =
+          g_strdup_printf("Option: %s needs to be set with a string not a %s.",
+                          option->name, PropertyTypeName[p->type]);
       return TRUE;
     }
-    *(option->value.charc) = (p->value.c);
+    *(option->value.charc) = (p->value.s[0]);
     option->source = (option->source & ~3) | CONFIG_FILE_THEME;
   } else {
     // TODO add type

@@ -1,3 +1,5 @@
+For newer release ChangeLogs please see the releasenotes.
+
 v1.7.3: Sturtled!
    - [Help] Print out the parsed config/theme files in -help output.
    - [Keybindings] Fix keybindings being modified by -theme-str

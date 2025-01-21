@@ -46,6 +46,7 @@ jobs:
         with:
           cc: gcc
           windowmode: enable
+          do-release: true
   build-autotools-gcc-no-window:
     runs-on: ubuntu-latest
     steps:
@@ -57,6 +58,7 @@ jobs:
         with:
           cc: gcc
           windowmode: disable
+          do-release: false
   build-autotools-clang:
     runs-on: ubuntu-latest
     steps:
@@ -68,3 +70,4 @@ jobs:
         with:
           cc: clang
           windowmode: enable
+          do-release: false

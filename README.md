@@ -9,6 +9,7 @@
 **Please match the documentation and scripts to the version of rofi used**
 
 - [next version](https://github.com/davatorium/rofi)
+- [1.7.7](https://github.com/davatorium/rofi/tree/1.7.7)
 - [1.7.6](https://github.com/davatorium/rofi/tree/1.7.6)
 - [1.7.5](https://github.com/davatorium/rofi/tree/1.7.5)
 - [1.7.4](https://github.com/davatorium/rofi/tree/1.7.4)

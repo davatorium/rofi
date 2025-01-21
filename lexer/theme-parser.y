@@ -164,7 +164,6 @@ static ThemeColor hwb_to_rgb ( double h, double w, double b )
 %token <fval>     T_DOUBLE              "Floating-point number"
 %token <sval>     T_STRING              "UTF-8 encode string"
 %token <sval>     T_MEDIA_TYPE          "Media type"
-%token <cval>     T_CHAR                "Character"
 %token <sval>     T_PROP_NAME           "property name"
 %token <colorval> T_COLOR_NAME          "Color value by name"
 %token <sval>     T_NAME_ELEMENT        "Element name"
@@ -566,10 +565,6 @@ t_property_element
 |   T_STRING {
         $$ = rofi_theme_property_create ( P_STRING );
         $$->value.s = $1;
-    }
-|   T_CHAR {
-        $$ = rofi_theme_property_create ( P_CHAR );
-        $$->value.c = $1;
     }
 |   T_LINK {
         $$ = rofi_theme_property_create ( P_LINK );

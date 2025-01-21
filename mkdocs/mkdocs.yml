@@ -23,6 +23,22 @@ nav:
     - Debugging: current/rofi-debugging.5.markdown
     - Keys: current/rofi-keys.5.markdown
     - Thumbnails: current/rofi-thumbnails.5.markdown
+  - 1.7.8:
+    - Rofi: 1.7.8/rofi.1.markdown 
+    - Themes: 1.7.8/rofi-theme.5.markdown
+    - Dmenu: 1.7.8/rofi-dmenu.5.markdown
+    - Script: 1.7.8/rofi-script.5.markdown
+    - Debugging: 1.7.8/rofi-debugging.5.markdown
+    - Keys: 1.7.8/rofi-keys.5.markdown
+    - Thumbnails: 1.7.8/rofi-thumbnails.5.markdown
+  - 1.7.7:
+    - Rofi: 1.7.7/rofi.1.markdown 
+    - Themes: 1.7.7/rofi-theme.5.markdown
+    - Dmenu: 1.7.7/rofi-dmenu.5.markdown
+    - Script: 1.7.7/rofi-script.5.markdown
+    - Debugging: 1.7.7/rofi-debugging.5.markdown
+    - Keys: 1.7.7/rofi-keys.5.markdown
+    - Thumbnails: 1.7.7/rofi-thumbnails.5.markdown
   - 1.7.6:
     - Rofi: 1.7.6/rofi.1.markdown 
     - Themes: 1.7.6/rofi-theme.5.markdown

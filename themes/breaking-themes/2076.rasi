@@ -1,0 +1,262 @@
+/**
+ * rofi -dump-theme output.
+ * Rofi version: 1.7.7
+ **/
+* {
+    text-color:                  var(urgent-background);
+    red:                         rgba ( 220, 50, 47, 100 % );
+    selected-active-foreground:  var(background);
+    lightfg:                     rgba ( 88, 104, 117, 100 % );
+    separatorcolor:              var(foreground);
+    urgent-foreground:           rgba ( 255, 178, 186, 100 % );
+    alternate-urgent-background: var(lightbg);
+    lightbg:                     rgba ( 238, 232, 213, 100 % );
+    background-color:            var(active-background);
+    border-color:                var(foreground);
+    normal-background:           rgba ( 44, 21, 24, 100 % );
+    selected-urgent-background:  var(red);
+    alternate-active-background: var(lightbg);
+    spacing:                     2;
+    blue:                        rgba ( 38, 139, 210, 100 % );
+    alternate-normal-foreground: var(foreground);
+    urgent-background:           rgba ( 44, 21, 24, 100 % );
+    selected-normal-foreground:  var(lightbg);
+    active-foreground:           rgba ( 255, 178, 186, 100 % );
+    background:                  rgba ( 253, 246, 227, 100 % );
+    font:                        "JetBrainsMono Bold 10";
+    selected-active-background:  var(blue);
+    active-background:           rgba ( 114, 51, 60, 100 % );
+    selected-normal-background:  var(lightfg);
+    alternate-normal-background: var(lightbg);
+    foreground:                  rgba ( 0, 43, 54, 100 % );
+    selected-urgent-foreground:  var(background);
+    normal-foreground:           rgba ( 255, 178, 186, 100 % );
+    alternate-urgent-foreground: var(red);
+    alternate-active-foreground: var(blue);
+}
+element {
+    cursor:           pointer;
+    text-color:       inherit;
+    padding:          5px ;
+    children:         [ "element-icon","element-text" ];
+    background-color: inherit;
+    border-radius:    5px ;
+    border-color:     var(active-background);
+    border:           5px ;
+    spacing:          5px ;
+    background:       transparent;
+}
+element normal.normal {
+    background-color: var(active-background);
+    text-color:       var(urgent-background);
+}
+element normal.urgent {
+    background-color: var(active-background);
+    text-color:       var(urgent-background);
+}
+element normal.active {
+    background-color: var(active-background);
+    text-color:       var(urgent-background);
+}
+element selected.normal {
+    background-color: var(urgent-background);
+    border-color:     var(urgent-background);
+    text-color:       var(urgent-background);
+}
+element selected.urgent {
+    background-color: var(urgent-background);
+    border-color:     var(urgent-background);
+    text-color:       var(urgent-background);
+}
+element selected.active {
+    background-color: var(urgent-background);
+    border-color:     var(urgent-background);
+    text-color:       var(urgent-background);
+}
+element alternate.normal {
+    background-color: var(active-background);
+    text-color:       var(urgent-background);
+}
+element alternate.urgent {
+    background-color: var(active-background);
+    text-color:       var(urgent-background);
+}
+element alternate.active {
+    background-color: var(active-background);
+    text-color:       var(urgent-background);
+}
+element-text {
+    background-color: var(active-background);
+    cursor:           pointer;
+    highlight:        inherit;
+    font:             "JetBrains Mono Medium";
+    text-color:       White;
+}
+element-text selected.normal {
+    background-color: var(urgent-background);
+    border-color:     var(urgent-background);
+    font:             "JetBrains Mono Medium";
+    text-color:       var(active-background);
+}
+element-text selected.urgent {
+    background-color: var(urgent-background);
+    border-color:     var(urgent-background);
+    font:             "JetBrains Mono Medium";
+    text-color:       var(active-background);
+}
+element-text selected.active {
+    background-color: var(urgent-background);
+    border-color:     var(urgent-background);
+    font:             "JetBrains Mono Medium";
+    text-color:       var(active-background);
+}
+element-icon {
+    background-color: inherit;
+    size:             1.0000em ;
+    cursor:           pointer;
+    text-color:       inherit;
+}
+window {
+    padding:          1.0000em ;
+    background-color: var(active-background);
+    border-color:     var(active-background);
+    border:           5px ;
+    border-radius:    10px ;
+}
+mainbox {
+    padding:  0;
+    spacing:  0px ;
+    border:   0;
+    children: [ "message","inputbar","listview" ];
+}
+message {
+    enabled:          true;
+    text-color:       inherit;
+    padding:          0.5000em ;
+    size:             400.0000em ;
+    lines:            8;
+    background-color: var(active-background);
+    margin:           0px 100px ;
+    border-color:     var(active-background);
+    border:           5px ;
+    border-radius:    10px ;
+    columns:          1;
+}
+textbox {
+    text-color:        inherit;
+    markup:            true;
+    blink:             true;
+    size:              400.0000em ;
+    background-color:  inherit;
+    placeholder-color: inherit;
+    vertical-align:    0.50;
+    horizontal-align:  0.50;
+    font:              "JetBrainsMono Bold 15";
+}
+listview {
+    fixed-height:     0;
+    padding:          0.5000em ;
+    scrollbar:        true;
+    lines:            8;
+    background-color: var(active-background);
+    border-radius:    10px ;
+    border-color:     var(active-background);
+    border:           0px 5px 5px ;
+    spacing:          10px ;
+    columns:          1;
+}
+scrollbar {
+    width:        4px ;
+    padding:      0;
+    handle-width: 8px ;
+    border:       0;
+    handle-color: var(urgent-background);
+}
+sidebar {
+    border-color: var(separatorcolor);
+    border:       2px dash 0px 0px ;
+}
+button {
+    cursor:           pointer;
+    text-color:       var(urgent-background);
+    background-color: var(active-background);
+    border-radius:    10px 10px 0px 0px ;
+    border-color:     var(active-background);
+    border:           0px 0px 5px ;
+    horizontal-align: 0.50;
+    spacing:          0;
+}
+button selected {
+    background-color: var(selected-normal-background);
+    text-color:       var(selected-normal-foreground);
+}
+button selected.normal {
+    padding:          0px ;
+    margin:           0px ;
+    background-color: var(active-foreground);
+    border-color:     var(active-background);
+    text-color:       var(urgent-background);
+    border:           5px ;
+    border-radius:    10px ;
+}
+num-filtered-rows {
+    expand:     false;
+    text-color: Gray;
+}
+num-rows {
+    expand:     false;
+    text-color: Gray;
+}
+textbox-num-sep {
+    expand:     false;
+    str:        "/";
+    text-color: Gray;
+}
+inputbar {
+    text-color:       var(normal-foreground);
+    padding:          1px ;
+    children:         [ "entry","overlay","case-indicator" ];
+    margin:           0px 10px ;
+    background-color: var(active-background);
+    border-color:     var(active-background);
+    border:           5px ;
+    spacing:          0.4000em ;
+}
+case-indicator {
+    spacing:    0;
+    text-color: var(normal-foreground);
+}
+entry {
+    text-color:        var(urgent-background);
+    cursor:            text;
+    border:            10px ;
+    background-color:  var(active-foreground);
+    border-radius:     2px ;
+    border-color:      var(active-foreground);
+    placeholder-color: var(active-background);
+    spacing:           0;
+    placeholder:       "Search here";
+}
+prompt {
+    spacing:    0;
+    text-color: var(normal-foreground);
+}
+textbox-prompt-colon {
+    margin:     0px 0.3000em 0.0000em 0.0000em ;
+    expand:     false;
+    str:        ":";
+    text-color: inherit;
+}
+error-message {
+    padding:          12px ;
+    background-color: inherit;
+    border-color:     inherit;
+    border:           0px ;
+    border-radius:    0px ;
+    text-color:       inherit;
+}
+mode-switcher {
+    expand:  true;
+    spacing: 0px ;
+    border:  0px ;
+}

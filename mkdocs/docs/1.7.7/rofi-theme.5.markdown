@@ -1658,14 +1658,6 @@ If a filename is provided, it will try to resolve it in the following order:
 A name is resolved (if it has no valid extension) as a filename by appending the `.rasi` and the `.rasinc` extension.
 It will first look for files with `.rasi`, then for files with `.rasinc`.
 
-If you want to do an optional import, e.g. no error when the file does not exists, you can do:
-
-```css
-?import "myfile"
-```
-
-This still throws an error on syntax error, but won't abort parsing if file does not exists.
-
 ## Examples
 
 Several examples are installed together with **rofi**. These can be found in
