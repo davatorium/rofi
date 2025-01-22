@@ -76,7 +76,6 @@ typedef struct {
   gboolean keep_filter;
 
   gboolean use_hot_keys;
-  gboolean use_delete;
 } ScriptModePrivateData;
 
 /**
@@ -158,8 +157,6 @@ static void parse_header_entry(Mode *sw, char *line, ssize_t length) {
       pd->no_custom = (strcasecmp(value, "true") == 0);
     } else if (strcasecmp(line, "use-hot-keys") == 0) {
       pd->use_hot_keys = (strcasecmp(value, "true") == 0);
-    } else if (strcasecmp(line, "use-delete") == 0) {
-      pd->use_delete = (strcasecmp(value, "true") == 0);
     } else if (strcasecmp(line, "keep-selection") == 0) {
       pd->keep_selection = (strcasecmp(value, "true") == 0);
     } else if (strcasecmp(line, "keep-filter") == 0) {
@@ -351,7 +348,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
       retv = (mretv & MENU_LOWER_MASK);
       return retv;
     }
-  } else if ((mretv & MENU_ENTRY_DELETE) && selected_line != UINT32_MAX && rmpd->use_delete) {
+  } else if ((mretv & MENU_ENTRY_DELETE) && selected_line != UINT32_MAX) {
     script_mode_reset_highlight(sw);
     new_list = execute_executor(sw, rmpd->cmd_list[selected_line].entry, &new_length,
                                 3, &(rmpd->cmd_list[selected_line]));

@@ -107,9 +107,6 @@ The following extra options exists:
 -   **use-hot-keys**: If set to true, it enabled the Custom keybindings for
     script. Warning this breaks the normal rofi flow.
 
--   **use-delete**: If set to true, it enables the `kb-delete-entry` keybinding for
-    script.
-
 -   **keep-selection**: If set, the selection is not moved to the first entry,
     but the current position is maintained. The filter is cleared.
 
