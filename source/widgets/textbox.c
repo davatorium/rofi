@@ -257,7 +257,7 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
   if (password_mask_char == NULL || (*password_mask_char) == '\0'){
     tb->password_mask_char = "*";
   } else {
-    tb->password_mask_char = g_strdup(password_mask_char);
+    tb->password_mask_char = password_mask_char;
   }
 
   textbox_text(tb, txt ? txt : "");
