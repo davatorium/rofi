@@ -349,7 +349,8 @@ static gboolean recursive_browser_async_read_proc(gint fd,
       }
     } else if (command == 'q') {
       if (pd->loading) {
-        rofi_view_set_overlay(rofi_view_get_active(), NULL);
+	// TODO: add enable.
+        //rofi_view_set_overlay(rofi_view_get_active(), NULL);
       }
     }
   }

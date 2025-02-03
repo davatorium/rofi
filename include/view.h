@@ -281,6 +281,14 @@ void rofi_view_switch_mode(RofiViewState *state, Mode *mode);
  * Overlays text over the current view. Passing NULL for text hides the overlay.
  */
 void rofi_view_set_overlay(RofiViewState *state, const char *text);
+/**
+ * @param state The handle to the view
+ * @param text An UTF-8 encoded character array with the text to overlay.
+ *
+ * Overlays text over the current view. Passing NULL for text hides the overlay.
+ * This message is automatically removed after X seconds.
+ */
+void rofi_view_set_overlay_timeout (RofiViewState *state, const char *text);
 
 /**
  * @param state The handle to the view.

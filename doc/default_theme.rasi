@@ -36,6 +36,7 @@ element {
     spacing: 5px ;
     border:  0;
     cursor:  pointer;
+    //children: [element-icon, element-text];
 }
 element normal.normal {
     background-color: var(normal-background);
@@ -141,10 +142,17 @@ textbox-num-sep {
     str:        "/";
 }
 inputbar {
-    padding:    1px ;
-    spacing:    0px ;
+    padding:    1px;
+    spacing:    0px;
     text-color: var(normal-foreground);
-    children:   [ prompt,textbox-prompt-colon,entry, num-filtered-rows, textbox-num-sep, num-rows, case-indicator ];
+    children:   [ prompt,textbox-prompt-colon,entry, overlay,num-filtered-rows, textbox-num-sep, num-rows, case-indicator ];
+}
+overlay {
+    background-color: var(normal-foreground);
+    foreground-color: var(normal-background);
+    text-color: var(normal-background);
+    padding: 0 0.2em;
+    margin: 0 0.2em;
 }
 case-indicator {
     spacing:    0;

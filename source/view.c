@@ -143,6 +143,8 @@ struct {
   gboolean delayed_mode;
   /** timeout handling */
   guint user_timeout;
+  /** timeout overlay */
+  guint overlay_timeout;
   /** debug counter for redraws */
   unsigned long long count;
   /** redraw idle time. */
@@ -172,6 +174,7 @@ struct {
                 .max_refilter_time = 0.0,
                 .delayed_mode = FALSE,
                 .user_timeout = 0,
+		.overlay_timeout = 0,
                 .count = 0L,
                 .repaint_source = 0,
                 .fullscreen = FALSE,
@@ -1979,6 +1982,20 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     }
     break;
   }
+  case MATCHER_UP:
+     config.matching_method = (config.matching_method+1)%MM_NUM_MATCHERS;
+     rofi_view_refilter(state);
+     rofi_view_set_overlay_timeout(state, helper_get_matching_mode_str());
+     break;
+  case MATCHER_DOWN:
+     if ( config.matching_method == 0 ){
+        config.matching_method = MM_NUM_MATCHERS-1;
+     } else {
+        config.matching_method = (config.matching_method-1)%MM_NUM_MATCHERS;
+     }
+     rofi_view_refilter(state);
+     rofi_view_set_overlay_timeout(state, helper_get_matching_mode_str());
+     break;
   }
 }
 
@@ -2722,6 +2739,10 @@ void rofi_view_cleanup(void) {
     g_source_remove(CacheState.refilter_timeout);
     CacheState.refilter_timeout = 0;
   }
+  if ( CacheState.overlay_timeout ) {
+    g_source_remove(CacheState.overlay_timeout);
+    CacheState.overlay_timeout = 0;
+  }
   if (CacheState.user_timeout > 0) {
     g_source_remove(CacheState.user_timeout);
     CacheState.user_timeout = 0;
@@ -2825,9 +2846,35 @@ void rofi_view_workers_finalize(void) {
 }
 Mode *rofi_view_get_mode(RofiViewState *state) { return state->sw; }
 
+
+static gboolean rofi_view_overlay_timeout(G_GNUC_UNUSED gpointer user_data) {
+  RofiViewState *state = rofi_view_get_active();
+  if ( state ) {
+	  widget_disable(WIDGET(state->overlay));
+  }
+  CacheState.overlay_timeout = 0;
+  return G_SOURCE_REMOVE;
+}
+
+void rofi_view_set_overlay_timeout (RofiViewState *state, const char *text) {
+  if (state->overlay == NULL || state->list_view == NULL) {
+    return;
+  }
+  if (text == NULL) {
+    widget_disable(WIDGET(state->overlay));
+    return;
+  }
+  rofi_view_set_overlay(state, text);
+  CacheState.overlay_timeout = g_timeout_add_seconds(3, rofi_view_overlay_timeout, state);
+}
+
 void rofi_view_set_overlay(RofiViewState *state, const char *text) {
   if (state->overlay == NULL || state->list_view == NULL) {
     return;
+  }
+  if ( CacheState.overlay_timeout > 0 ){
+	  g_source_remove(CacheState.overlay_timeout);
+	  CacheState.overlay_timeout = 0;
   }
   if (text == NULL) {
     widget_disable(WIDGET(state->overlay));

@@ -332,6 +332,14 @@ ActionBindingEntry rofi_bindings[] = {
      .name = "kb-entry-history-down",
      .binding = "Control+Down",
      .comment = "Go down in the history of the entry box"},
+    {.id = MATCHER_UP,
+     .name = "kb-matcher-up",
+     .binding = "Super+equal",
+     .comment = "Switch to the previous matcher"},
+    {.id = MATCHER_DOWN,
+     .name = "kb-mather-down",
+     .binding = "Super+minus",
+     .comment = "Switch to the next matcher"},
 
     /* Mouse-aware bindings */
 

@@ -55,6 +55,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+const char * const MatchingMethodStr[MM_NUM_MATCHERS] = {
+	"Normal",
+	"Regex",
+	"Glob",
+	"Fuzzy",
+	"Prefix"
+};
 /**
  * Textual description of positioning rofi.
  */
@@ -67,6 +74,11 @@ int stored_argc = 0;
 char **stored_argv = NULL;
 
 char *helper_string_replace_if_exists_v(char *string, GHashTable *h);
+
+
+const char * helper_get_matching_mode_str(void) {
+	return MatchingMethodStr[config.matching_method];
+}
 
 void cmd_set_arguments(int argc, char **argv) {
   stored_argc = argc;
