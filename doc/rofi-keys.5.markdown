@@ -495,6 +495,18 @@ Go down in the entry history.
 
 Default:    Control+Down
 
+`kb-matcher-up`
+
+Select the next matcher.
+
+Default: Super+equal
+
+`kb-matcher-down`
+
+Select the previous matcher.
+
+Default: Super+minus
+
 ## Mouse Bindings
 
 `ml-row-left`

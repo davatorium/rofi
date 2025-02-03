@@ -127,7 +127,7 @@ END_TEST
 
 START_TEST(test_mode_num_items) {
   unsigned int rows = mode_get_num_entries(&help_keys_mode);
-  ck_assert_int_eq(rows, 79);
+  ck_assert_int_eq(rows, 81);
   for (unsigned int i = 0; i < rows; i++) {
     int state = 0;
     GList *list = NULL;
