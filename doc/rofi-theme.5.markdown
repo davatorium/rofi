@@ -1118,6 +1118,10 @@ The following properties are currently supported:
 - **require-input**:    boolean Listview requires user input to be unhidden.
     The list is still present and hitting accept will activate the first entry.
 
+### Overlay widget
+
+- **timeout**: The time the widget is visible when showing a temporary message.
+
 ## Listview widget
 
 The listview widget is special container widget.

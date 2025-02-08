@@ -2847,6 +2847,7 @@ static gboolean rofi_view_overlay_timeout(G_GNUC_UNUSED gpointer user_data) {
     widget_disable(WIDGET(state->overlay));
   }
   CacheState.overlay_timeout = 0;
+  rofi_view_queue_redraw();
   return G_SOURCE_REMOVE;
 }
 
@@ -2859,8 +2860,9 @@ void rofi_view_set_overlay_timeout(RofiViewState *state, const char *text) {
     return;
   }
   rofi_view_set_overlay(state, text);
+  int timeout = rofi_theme_get_integer(WIDGET(state->overlay), "timeout", 3);
   CacheState.overlay_timeout =
-      g_timeout_add_seconds(3, rofi_view_overlay_timeout, state);
+      g_timeout_add_seconds(timeout, rofi_view_overlay_timeout, state);
 }
 
 void rofi_view_set_overlay(RofiViewState *state, const char *text) {
