@@ -36,7 +36,6 @@ element {
     spacing: 5px ;
     border:  0;
     cursor:  pointer;
-    //children: [element-icon, element-text];
 }
 element normal.normal {
     background-color: var(normal-background);

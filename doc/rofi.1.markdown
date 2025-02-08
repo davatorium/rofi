@@ -361,7 +361,7 @@ Currently, the following methods are supported:
 
 Default: *normal*
 
-Multiple sorting methods can be specified in a comma separated list.
+Multiple matching methods can be specified in a comma separated list.
 The matching up/down keybinding allows cycling through at runtime.
 
 Note: glob matching might be slow for larger lists
