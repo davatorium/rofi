@@ -696,7 +696,7 @@ int config_sanity_check(void) {
     int index = 0;
     if (strv) {
       for (char **str = strv; *str && index < MM_NUM_MATCHERS; str++) {
-        bool found = FALSE;
+        gboolean found = FALSE;
         for (unsigned i = 0; i < MM_NUM_MATCHERS && index < MM_NUM_MATCHERS;
              i++) {
           if (g_ascii_strcasecmp(*str, MatchingMethodStr[i]) == 0) {
