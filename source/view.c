@@ -1984,16 +1984,12 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case MATCHER_UP:
-    config.matching_method = (config.matching_method + 1) % MM_NUM_MATCHERS;
+    helper_select_next_matching_mode();
     rofi_view_refilter(state);
     rofi_view_set_overlay_timeout(state, helper_get_matching_mode_str());
     break;
   case MATCHER_DOWN:
-    if (config.matching_method == 0) {
-      config.matching_method = MM_NUM_MATCHERS - 1;
-    } else {
-      config.matching_method = (config.matching_method - 1) % MM_NUM_MATCHERS;
-    }
+    helper_select_previous_matching_mode();
     rofi_view_refilter(state);
     rofi_view_set_overlay_timeout(state, helper_get_matching_mode_str());
     break;
