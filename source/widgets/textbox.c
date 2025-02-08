@@ -251,6 +251,15 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
       tb->placeholder = g_markup_escape_text(placeholder, -1);
     }
   }
+  
+  const char *password_mask_char =
+      rofi_theme_get_string(WIDGET(tb), "password-mask", NULL);
+  if (password_mask_char == NULL || (*password_mask_char) == '\0'){
+    tb->password_mask_char = "*";
+  } else {
+    tb->password_mask_char = password_mask_char;
+  }
+
   textbox_text(tb, txt ? txt : "");
   textbox_cursor_end(tb);
 
@@ -337,11 +346,14 @@ static void __textbox_update_pango_text(textbox *tb) {
   }
   tb->show_placeholder = FALSE;
   if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
-    size_t l = g_utf8_strlen(tb->text, -1);
-    char string[l + 1];
-    memset(string, '*', l);
-    string[l] = '\0';
-    pango_layout_set_text(tb->layout, string, l);
+    size_t text_len = g_utf8_strlen(tb->text, -1);
+    size_t mask_len = strlen(tb->password_mask_char);
+    unsigned char string[text_len * mask_len + 1];
+    for (size_t offset = 0; offset < text_len * mask_len; offset += mask_len) {
+        memcpy(string + offset, tb->password_mask_char, mask_len);
+    }
+    string[text_len * mask_len] = '\0';
+    pango_layout_set_text(tb->layout, string, -1);
   } else if (tb->flags & TB_MARKUP || tb->tbft & MARKUP) {
     pango_layout_set_markup(tb->layout, tb->text, -1);
   } else {
@@ -542,11 +554,20 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     // We want to place the cursor based on the text shown.
     const char *text = pango_layout_get_text(tb->layout);
     // Clamp the position, should not be needed, but we are paranoid.
-    int cursor_offset = MIN(tb->cursor, g_utf8_strlen(text, -1));
+    int cursor_offset;
+
+    if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
+      // Calculate cursor position based on mask length
+      int mask_len = strlen(tb->password_mask_char);
+      cursor_offset = MIN(tb->cursor * mask_len, strlen(text));
+    } else {
+      cursor_offset = MIN(tb->cursor, g_utf8_strlen(text, -1));
+      // convert to byte location.
+      char *offset = g_utf8_offset_to_pointer(text, cursor_offset);
+      cursor_offset = offset - text;
+    }
     PangoRectangle pos;
-    // convert to byte location.
-    char *offset = g_utf8_offset_to_pointer(text, cursor_offset);
-    pango_layout_get_cursor_pos(tb->layout, offset - text, &pos, NULL);
+    pango_layout_get_cursor_pos(tb->layout, cursor_offset, &pos, NULL);
     int cursor_x = pos.x / PANGO_SCALE;
     int cursor_y = pos.y / PANGO_SCALE;
     int cursor_height = pos.height / PANGO_SCALE;
