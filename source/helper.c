@@ -693,17 +693,19 @@ int config_sanity_check(void) {
 
   if (config.matching) {
     char **strv = g_strsplit(config.matching, ",", 0);
-    int index = 0;
     if (strv) {
-      for (char **str = strv; *str && index < MM_NUM_MATCHERS; str++) {
+      int matching_method_index = 0;
+      for (char **str = strv; *str && matching_method_index < MM_NUM_MATCHERS;
+           str++) {
         gboolean found = FALSE;
-        for (unsigned i = 0; i < MM_NUM_MATCHERS && index < MM_NUM_MATCHERS;
+        for (unsigned i = 0;
+             i < MM_NUM_MATCHERS && matching_method_index < MM_NUM_MATCHERS;
              i++) {
           if (g_ascii_strcasecmp(*str, MatchingMethodStr[i]) == 0) {
-            MatchingMethodEnabled[index] = i;
-            index++;
-            NUMMatchingMethodEnabled = index;
-            if (index == MM_NUM_MATCHERS) {
+            MatchingMethodEnabled[matching_method_index] = i;
+            matching_method_index++;
+            NUMMatchingMethodEnabled = matching_method_index;
+            if (matching_method_index == MM_NUM_MATCHERS) {
               found_error = 1;
               g_string_append_printf(msg,
                                      "\t<b>config.matching</b> = %s to many "
