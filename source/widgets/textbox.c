@@ -348,7 +348,7 @@ static void __textbox_update_pango_text(textbox *tb) {
   if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
     size_t text_len = g_utf8_strlen(tb->text, -1);
     size_t mask_len = strlen(tb->password_mask_char);
-    unsigned char string[text_len * mask_len + 1];
+    char string[text_len * mask_len + 1];
     for (size_t offset = 0; offset < text_len * mask_len; offset += mask_len) {
         memcpy(string + offset, tb->password_mask_char, mask_len);
     }
@@ -554,11 +554,11 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     // We want to place the cursor based on the text shown.
     const char *text = pango_layout_get_text(tb->layout);
     // Clamp the position, should not be needed, but we are paranoid.
-    int cursor_offset;
+    size_t cursor_offset;
 
     if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
       // Calculate cursor position based on mask length
-      int mask_len = strlen(tb->password_mask_char);
+      size_t mask_len = strlen(tb->password_mask_char);
       cursor_offset = MIN(tb->cursor * mask_len, strlen(text));
     } else {
       cursor_offset = MIN(tb->cursor, g_utf8_strlen(text, -1));

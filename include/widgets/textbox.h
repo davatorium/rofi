@@ -82,7 +82,7 @@ typedef struct {
 
   PangoEllipsizeMode emode;
   
-  char *password_mask_char;
+  const char *password_mask_char;
 
   const char *theme_name;
 } textbox;
