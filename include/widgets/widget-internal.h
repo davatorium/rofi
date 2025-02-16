@@ -57,13 +57,13 @@ struct _widget {
   /** The type of the widget */
   WidgetType type;
   /** X position relative to parent */
-  short x;
+  int x;
   /** Y position relative to parent */
-  short y;
+  int y;
   /** Width of the widget */
-  short w;
+  int w;
   /** Height of the widget */
-  short h;
+  int h;
   /** RofiPadding */
   RofiPadding def_margin;
   RofiPadding def_padding;
@@ -94,7 +94,7 @@ struct _widget {
   /** draw widget implementation function */
   void (*draw)(struct _widget *widget, cairo_t *draw);
   /** resize widget implementation function */
-  void (*resize)(struct _widget *, short, short);
+  void (*resize)(struct _widget *, int, int);
   /** update widget implementation function */
   void (*update)(struct _widget *);
 

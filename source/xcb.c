@@ -1172,13 +1172,13 @@ static gboolean x11_button_to_nk_bindings_scroll(guint32 x11_button,
   switch (x11_button) {
   case 4:
     *steps = -1;
-  /* fallthrough */
+    rofi_fallthrough;
   case 5:
     *axis = NK_BINDINGS_SCROLL_AXIS_VERTICAL;
     break;
   case 6:
     *steps = -1;
-  /* fallthrough */
+    rofi_fallthrough;
   case 7:
     *axis = NK_BINDINGS_SCROLL_AXIS_HORIZONTAL;
     break;

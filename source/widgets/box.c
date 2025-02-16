@@ -306,7 +306,7 @@ void box_add(box *wid, widget *child, gboolean expand) {
   widget_update(WIDGET(wid));
 }
 
-static void box_resize(widget *wid, short w, short h) {
+static void box_resize(widget *wid, int w, int h) {
   box *b = (box *)wid;
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;

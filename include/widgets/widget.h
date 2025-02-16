@@ -136,7 +136,7 @@ int widget_intersect(const widget *wid, int x, int y);
  *
  * Moves the widget.
  */
-void widget_move(widget *wid, short x, short y);
+void widget_move(widget *wid, int x, int y);
 
 /**
  * @param wid Handle to widget
@@ -199,7 +199,7 @@ void widget_free(widget *wid);
  *
  * Resizes the widget.
  */
-void widget_resize(widget *wid, short w, short h);
+void widget_resize(widget *wid, int w, int h);
 
 /**
  * @param wid The widget handle

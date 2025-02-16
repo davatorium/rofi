@@ -746,7 +746,7 @@ static inline int act_on_window(xcb_window_t window) {
   int argc = 0;
   char window_regex[100]; /* We are probably safe here */
 
-  g_snprintf(window_regex, sizeof window_regex, "%d", window);
+  g_snprintf(window_regex, sizeof window_regex, "%u", window);
 
   helper_parse_setup(config.window_command, &args, &argc, "{window}",
                      window_regex, (char *)0);

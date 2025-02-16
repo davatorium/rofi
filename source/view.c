@@ -348,7 +348,8 @@ static gboolean rofi_view_repaint(G_GNUC_UNUSED void *data) {
     TICK_N("Expose");
     xcb_copy_area(xcb->connection, CacheState.edit_pixmap,
                   CacheState.main_window, CacheState.gc, 0, 0, 0, 0,
-                  current_active_menu->width, current_active_menu->height);
+                  (short)(current_active_menu->width),
+                  (short)(current_active_menu->height));
     xcb_flush(xcb->connection);
     TICK_N("flush");
     CacheState.repaint_source = 0;
@@ -396,30 +397,30 @@ static void rofi_view_calculate_window_position(RofiViewState *state) {
   switch (location) {
   case WL_NORTH_WEST:
     state->x = CacheState.mon.x;
-  /* FALLTHRU */
+    rofi_fallthrough;
   case WL_NORTH:
     state->y = CacheState.mon.y;
     break;
   case WL_NORTH_EAST:
     state->y = CacheState.mon.y;
-  /* FALLTHRU */
+    rofi_fallthrough;
   case WL_EAST:
     state->x = CacheState.mon.x + CacheState.mon.w;
     break;
   case WL_SOUTH_EAST:
     state->x = CacheState.mon.x + CacheState.mon.w;
-  /* FALLTHRU */
+    rofi_fallthrough;
   case WL_SOUTH:
     state->y = CacheState.mon.y + CacheState.mon.h;
     break;
   case WL_SOUTH_WEST:
     state->y = CacheState.mon.y + CacheState.mon.h;
-  /* FALLTHRU */
+    rofi_fallthrough;
   case WL_WEST:
     state->x = CacheState.mon.x;
     break;
   case WL_CENTER:;
-  /* FALLTHRU */
+    rofi_fallthrough;
   default:
     break;
   }
@@ -482,11 +483,12 @@ static void rofi_view_window_update_size(RofiViewState *state) {
   xcb_free_pixmap(xcb->connection, CacheState.edit_pixmap);
   CacheState.edit_pixmap = xcb_generate_id(xcb->connection);
   xcb_create_pixmap(xcb->connection, depth->depth, CacheState.edit_pixmap,
-                    CacheState.main_window, state->width, state->height);
+                    CacheState.main_window, (short)(state->width),
+                    (short)(state->height));
 
   CacheState.edit_surf =
       cairo_xcb_surface_create(xcb->connection, CacheState.edit_pixmap, visual,
-                               state->width, state->height);
+                               (short)(state->width), (short)(state->height));
   CacheState.edit_draw = cairo_create(CacheState.edit_surf);
 
   g_debug("Re-size window based internal request: %dx%d.", state->width,
@@ -1224,7 +1226,7 @@ static void rofi_view_calculate_window_width(RofiViewState *state) {
     return;
   }
   // Calculate as float to stop silly, big rounding down errors.
-  state->width = (CacheState.mon.w / 100.0f) * DEFAULT_MENU_WIDTH;
+  state->width = (CacheState.mon.w / 100.0) * DEFAULT_MENU_WIDTH;
   // Use theme configured width, if set.
   RofiDistance width = rofi_theme_get_distance(WIDGET(state->main_window),
                                                "width", state->width);
@@ -2056,10 +2058,10 @@ void rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
       return;
     case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END:
       target = NULL;
-    /* FALLTHRU */
+      rofi_fallthrough;
     case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN:
       state->mouse.motion_target = target;
-    /* FALLTHRU */
+      rofi_fallthrough;
     case WIDGET_TRIGGER_ACTION_RESULT_HANDLED:
       return;
     }
@@ -2216,7 +2218,8 @@ void rofi_view_temp_configure_notify(RofiViewState *state,
       xcb_free_pixmap(xcb->connection, CacheState.edit_pixmap);
       CacheState.edit_pixmap = xcb_generate_id(xcb->connection);
       xcb_create_pixmap(xcb->connection, depth->depth, CacheState.edit_pixmap,
-                        CacheState.main_window, state->width, state->height);
+                        CacheState.main_window, (short)(state->width),
+                        (short)(state->height));
 
       CacheState.edit_surf =
           cairo_xcb_surface_create(xcb->connection, CacheState.edit_pixmap,
@@ -2288,6 +2291,7 @@ WidgetTriggerActionResult textbox_button_trigger_action(
       state->skip_absorb = TRUE;
       return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
     }
+    break;
   }
   case MOUSE_CLICK_UP:
   case MOUSE_DCLICK_DOWN:

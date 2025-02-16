@@ -813,18 +813,33 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
       size_t index = 0, i = 0;
       size_t length = 1024;
       msg = malloc(length * sizeof(char));
-      while ((i = fread(&msg[index], 1, 1024, stdin)) > 0) {
-        index += i;
-        length += i;
-        msg = realloc(msg, length * sizeof(char));
-      }
+      if (msg) {
+        while ((i = fread(&msg[index], 1, 1024, stdin)) > 0) {
+          index += i;
+          length += i;
+          char *msgn = realloc(msg, length * sizeof(char));
+          if (msgn == NULL) {
+            g_warning("Failed to re-alloc memory buffer. Input to large?");
+            // Malloc failed.
+            g_free(msg);
+            msg = NULL;
+            // Break out of while
+            break;
+          }
+          msg = msgn;
+        }
 
-      msg[index] = 0;
-
-      if (!rofi_view_error_dialog(msg, markup)) {
-        g_main_loop_quit(main_loop);
+        if (msg) {
+          msg[index] = 0;
+        }
       }
-      g_free(msg);
+      if (msg) {
+
+        if (!rofi_view_error_dialog(msg, markup)) {
+          g_main_loop_quit(main_loop);
+        }
+        g_free(msg);
+      }
     } else {
       // Normal version
       if (!rofi_view_error_dialog(msg, markup)) {

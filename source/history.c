@@ -115,8 +115,8 @@ static char **__history_get_element_list_fields(FILE *fd,
 
     (*length)++;
   }
-  if (buffer_length > 0) {
-    g_free(buffer);
+  if (buffer != NULL) {
+    free(buffer);
   }
   return retv;
 }

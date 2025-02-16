@@ -61,7 +61,7 @@ typedef struct TBFontConfig {
 typedef struct {
   widget widget;
   unsigned long flags;
-  short cursor;
+  int cursor;
   char *text;
   char *placeholder;
   int show_placeholder;
@@ -81,7 +81,7 @@ typedef struct {
   TBFontConfig *tbfc;
 
   PangoEllipsizeMode emode;
-  
+
   const char *password_mask_char;
 
   const char *theme_name;

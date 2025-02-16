@@ -493,14 +493,17 @@ void helper_token_match_set_pango_attr_on_style(PangoAttrList *retv, int start,
     pango_attr_list_insert(retv, pa);
   }
   if (th.style & ROFI_HL_COLOR) {
-    PangoAttribute *pa = pango_attr_foreground_new(
-        th.color.red * 65535, th.color.green * 65535, th.color.blue * 65535);
+    PangoAttribute *pa =
+        pango_attr_foreground_new((guint16)(th.color.red * UINT16_MAX),
+                                  (guint16)(th.color.green * UINT16_MAX),
+                                  (guint16)(th.color.blue * UINT16_MAX));
     pa->start_index = start;
     pa->end_index = end;
     pango_attr_list_insert(retv, pa);
 
     if (th.color.alpha < 1.0) {
-      pa = pango_attr_foreground_alpha_new(th.color.alpha * 65535);
+      pa = pango_attr_foreground_alpha_new(
+          (guint16)(th.color.alpha * UINT16_MAX));
       pa->start_index = start;
       pa->end_index = end;
       pango_attr_list_insert(retv, pa);
@@ -739,7 +742,7 @@ int config_sanity_check(void) {
   }
   if (!(config.location >= 0 && config.location <= 8)) {
     g_string_append_printf(msg,
-                           "\t<b>config.location</b>=%d is invalid. Value "
+                           "\t<b>config.location</b>=%u is invalid. Value "
                            "should be between %d and %d.\n",
                            config.location, 0, 8);
     config.location = WL_CENTER;

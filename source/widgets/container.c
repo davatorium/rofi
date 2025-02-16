@@ -74,7 +74,7 @@ void container_add(container *cont, widget *child) {
   widget_update(WIDGET(cont));
 }
 
-static void container_resize(widget *wid, short w, short h) {
+static void container_resize(widget *wid, int w, int h) {
   container *b = (container *)wid;
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;

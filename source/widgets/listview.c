@@ -34,6 +34,7 @@
 #include <widgets/textbox.h>
 #include <widgets/widget.h>
 
+#include "helper.h"
 #include "settings.h"
 #include "theme.h"
 #include "view.h"
@@ -120,7 +121,7 @@ struct _listview {
   xcb_timestamp_t last_click;
   listview_mouse_activated_cb mouse_activated;
   void *mouse_activated_data;
-  
+
   listview_page_changed_cb page_callback;
 
   char *listview_name;
@@ -660,7 +661,7 @@ void listview_set_selected(listview *lv, unsigned int selected) {
   }
 }
 
-static void listview_resize(widget *wid, short w, short h) {
+static void listview_resize(widget *wid, int w, int h) {
   listview *lv = (listview *)wid;
   lv->widget.w = MAX(0, w);
   lv->widget.h = MAX(0, h);
@@ -757,7 +758,7 @@ static WidgetTriggerActionResult listview_element_trigger_action(
     break;
   case ACCEPT_HOVERED_CUSTOM:
     custom = TRUE;
-  /* FALLTHRU */
+    rofi_fallthrough;
   case ACCEPT_HOVERED_ENTRY:
     listview_set_selected(lv, lv->last_offset + i);
     lv->mouse_activated(lv, custom, lv->mouse_activated_data);

@@ -1447,6 +1447,7 @@ static ModeMode drun_mode_result(Mode *sw, int mretv, char **input,
           }
         }
         g_regex_unref(regex);
+        break;
       }
       default:
         break;

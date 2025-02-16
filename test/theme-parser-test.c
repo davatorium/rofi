@@ -209,6 +209,7 @@ END_TEST
 START_TEST(test_properties_boolean) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   /** Boolean property */
   rofi_theme_parse_string("*{ test: true; test2:/* inline */false; }");
@@ -224,6 +225,7 @@ END_TEST
 START_TEST(test_properties_boolean_reference) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { test: true; test2:/* inline */false;} *{ a:@test; b:@test2;}");
@@ -238,6 +240,7 @@ END_TEST
 START_TEST(test_properties_distance_em) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test: 10em;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -253,6 +256,7 @@ END_TEST
 START_TEST(test_properties_distance_em_linestyle) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { sol: 1.3em solid; dash: 1.5em dash;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -273,6 +277,7 @@ END_TEST
 START_TEST(test_properties_distance_ch) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test: 10ch;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -288,6 +293,7 @@ END_TEST
 START_TEST(test_properties_distance_ch_linestyle) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { sol: 1.3ch solid; dash: 1.5ch dash;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -308,6 +314,7 @@ END_TEST
 START_TEST(test_properties_distance_px) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test: 10px;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -323,6 +330,7 @@ END_TEST
 START_TEST(test_properties_distance_px_linestyle) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { sol: 10px solid; dash: 14px dash;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -342,6 +350,7 @@ END_TEST
 START_TEST(test_properties_distance_percent) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test: 10%;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -357,6 +366,7 @@ END_TEST
 START_TEST(test_properties_distance_percent_linestyle) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { sol: 10% solid; dash: 10% dash;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -377,6 +387,7 @@ END_TEST
 START_TEST(test_properties_distance_mm) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test: 10mm;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -393,6 +404,7 @@ END_TEST
 START_TEST(test_properties_distance_mm_linestyle) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { sol: 10mm solid; dash: 10mm dash;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -412,6 +424,7 @@ END_TEST
 START_TEST(test_properties_position) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { center: center; east: east; west: west; south: "
                           "south; north:north;}");
@@ -474,6 +487,7 @@ END_TEST
 START_TEST(test_properties_style) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { none: none; bold: bold; underline: underline; "
                           "italic: italic; st: italic strikethrough;}");
@@ -493,6 +507,7 @@ END_TEST
 START_TEST(test_properties_style2) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
 
   rofi_theme_parse_string(
@@ -512,6 +527,7 @@ END_TEST
 START_TEST(test_properties_style_color) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { comb: bold #123; }");
   RofiHighlightColorStyle th = {ROFI_HL_BOLD, {0.0, 0.0, 0.0, 0.0}};
@@ -526,6 +542,7 @@ END_TEST
 START_TEST(test_properties_color_h3) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { red: #F00; green: #0F0; blue: #00F; }");
   ThemeWidget *twid = rofi_theme_find_widget(wid.name, wid.state, FALSE);
@@ -550,6 +567,7 @@ END_TEST
 START_TEST(test_properties_color_h6) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { red: #FF0000; green: #00FF00; blue: #0000FF; }");
   ThemeWidget *twid = rofi_theme_find_widget(wid.name, wid.state, FALSE);
@@ -574,6 +592,7 @@ END_TEST
 START_TEST(test_properties_color_h4) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { red: #F003; green: #0F02; blue: #00F1; }");
   ThemeWidget *twid = rofi_theme_find_widget(wid.name, wid.state, FALSE);
@@ -600,6 +619,7 @@ END_TEST
 START_TEST(test_properties_color_h8) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { red: #FF000033; green: #00FF0022; blue: #0000FF11; }");
@@ -627,6 +647,7 @@ END_TEST
 START_TEST(test_properties_color_rgb) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { red: rgb(100%,0%,0%); green: rgb(0%,100%,0%); "
                           "blue: rgb(0%,0%,100%); }");
@@ -651,6 +672,7 @@ END_TEST
 START_TEST(test_properties_color_rgba_p) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { red: rgba(100%,0%,0%,0.3); green: rgba(0%,100%,0%,0.2); blue: "
@@ -679,6 +701,7 @@ END_TEST
 START_TEST(test_properties_color_rgba_percent_p) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { red: rgba(100%,0%,0%,30%); green: rgba(0%,100%,0%,20%); blue: "
@@ -707,6 +730,7 @@ END_TEST
 START_TEST(test_properties_color_rgb_p) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { red: rgb(255,0,0); green: rgb(0,255,0); blue: rgb(0,0,255); }");
@@ -731,6 +755,7 @@ END_TEST
 START_TEST(test_properties_color_rgba) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { red: rgba(255,0,0,0.3); green: "
                           "rgba(0,255,0,0.2); blue: rgba(0 0 255 /0.7); }");
@@ -759,6 +784,7 @@ END_TEST
 START_TEST(test_properties_color_rgba_percent) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { red: rgba(255,0,0,30%); green: "
                           "rgba(0,255,0,20%); blue: rgba(0,0,255,70.0%); }");
@@ -786,6 +812,7 @@ END_TEST
 START_TEST(test_properties_color_argb) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { red: argb:33FF0000; green: argb:2200FF00; blue: argb:110000FF; }");
@@ -813,6 +840,7 @@ END_TEST
 START_TEST(test_properties_color_hsl) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test1: hsl(127,40%,66.66666%); test2: hsl(0, "
                           "100%, 50%); testa: hsl(127,40%, 66.66666%, 30%);}");
@@ -841,6 +869,7 @@ END_TEST
 START_TEST(test_properties_color_hsla) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test1: hsla(127,40%,66.66666%, 40%); test2: "
                           "hsla(0, 100%, 50%,55%); }");
@@ -863,6 +892,7 @@ END_TEST
 START_TEST(test_properties_color_hsl_ws) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { test1: hsl(127 40% 66.66666%); test2: hsl(0  100%  50%); testa: "
@@ -892,6 +922,7 @@ END_TEST
 START_TEST(test_properties_color_hsla_ws) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test1: hsla(127 40% 66.66666% / 0.3); test2: "
                           "hsla(0  100%  50%/ 55%); }");
@@ -914,6 +945,7 @@ END_TEST
 START_TEST(test_properties_color_hwb) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test1: hwb(190,65%,0%); test2: hwb(265, 31%, "
                           "29%); testa: hwb(265, 31%, 29%, 40%); }");
@@ -942,6 +974,7 @@ END_TEST
 START_TEST(test_properties_color_hwb_ws) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { test1: hwb(190 deg 65 %0%); test2: hwb(295 grad 31% 29%);testa: "
@@ -977,6 +1010,7 @@ END_TEST
 START_TEST(test_properties_color_cmyk) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { test1: cmyk ( 41%, 0%, 100%, 0%); test2: cmyk ( 0, 1.0, 1.0, 0);}");
@@ -999,6 +1033,7 @@ END_TEST
 START_TEST(test_properties_color_cmyk_ws) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { test1: cmyk ( 41% 0% 100% 0%); test2: cmyk ( 0 1.0 1.0 0);}");
@@ -1021,6 +1056,7 @@ END_TEST
 START_TEST(test_properties_color_names) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   for (unsigned int iter = 0; iter < num_CSSColors; iter++) {
     char *str = g_strdup_printf("* { color: %s;}", CSSColors[iter].name);
@@ -1053,9 +1089,10 @@ END_TEST
 START_TEST(test_properties_color_names_alpha) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   for (unsigned int iter = 0; iter < num_CSSColors; iter++) {
-    char *str = g_strdup_printf("* { color: %s / %d %%;}", CSSColors[iter].name,
+    char *str = g_strdup_printf("* { color: %s / %u %%;}", CSSColors[iter].name,
                                 iter % 101);
     rofi_theme_parse_string(str);
     ThemeWidget *twid = rofi_theme_find_widget(wid.name, wid.state, FALSE);
@@ -1077,6 +1114,7 @@ END_TEST
 START_TEST(test_properties_padding_2) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test: 10px 20px;}");
   RofiDistance d = (RofiDistance){
@@ -1096,6 +1134,7 @@ END_TEST
 START_TEST(test_properties_padding_3) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test: 10px 30px 20px;}");
   RofiDistance d = (RofiDistance){
@@ -1115,6 +1154,7 @@ END_TEST
 START_TEST(test_properties_padding_4) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test: 10px 30px 20px 40px;}");
   RofiDistance d = (RofiDistance){
@@ -1135,6 +1175,7 @@ END_TEST
 START_TEST(test_properties_string_escape) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "* { font: \"aap\" noot\" mies \";\ntest: \"'123.432'\"; }");
@@ -1150,6 +1191,7 @@ END_TEST
 START_TEST(test_properties_string) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { font: \"blaat€\"; test: 123.432; }");
 
@@ -1161,6 +1203,7 @@ END_TEST
 START_TEST(test_properties_double) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { test: 123.432; }");
   ck_assert_double_eq_tol(rofi_theme_get_double(&wid, "test", 0.0), 123.432,
@@ -1170,6 +1213,7 @@ END_TEST
 START_TEST(test_properties_integer) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { yoffset: 4; }");
   ck_assert_int_eq(rofi_theme_get_integer(&wid, "yoffset", 0), 4);
@@ -1179,6 +1223,7 @@ END_TEST
 START_TEST(test_properties_orientation) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { vert: vertical; hori: horizontal; }");
   ck_assert_int_eq(
@@ -1199,6 +1244,7 @@ END_TEST
 START_TEST(test_properties_orientation_case) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { vert: Vertical; hori: HoriZonTal;}");
   ck_assert_int_eq(
@@ -1212,6 +1258,7 @@ END_TEST
 START_TEST(test_properties_cursor) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { def: default; ptr: pointer; txt: text; }");
   ck_assert_int_eq(rofi_theme_get_cursor_type(&wid, "def", ROFI_CURSOR_TEXT),
@@ -1225,6 +1272,7 @@ END_TEST
 START_TEST(test_properties_cursor_case) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string("* { def: dEfault; ptr: POINter; txt: tExt; }");
   ck_assert_int_eq(rofi_theme_get_cursor_type(&wid, "def", ROFI_CURSOR_TEXT),
@@ -1238,6 +1286,7 @@ END_TEST
 START_TEST(test_properties_list) {
   widget wid;
   wid.name = "blaat";
+  wid.parent = NULL;
   wid.state = NULL;
   rofi_theme_parse_string(
       "#blaat { liste: [];  list1: [ one ]; list2: [ one, two ];}");
@@ -1342,6 +1391,7 @@ END_TEST
 START_TEST(test_prepare_array) {
   widget wid;
   wid.name = "element-text";
+  wid.parent = NULL;
   wid.state = "normal.normal";
   rofi_theme_parse_string("element-text  { tabs: [ 10, 20px, 30px, 40px ];}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1367,6 +1417,7 @@ END_TEST
 START_TEST(test_prepare_math_floor) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 1024 floor 30 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1382,6 +1433,7 @@ END_TEST
 START_TEST(test_prepare_math_ceil) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 1024 ceil 30 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1397,6 +1449,7 @@ END_TEST
 START_TEST(test_prepare_math_round) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 1036 round 30 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1412,6 +1465,7 @@ END_TEST
 START_TEST(test_prepare_math_add) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 1036 + 30 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1427,6 +1481,7 @@ END_TEST
 START_TEST(test_prepare_math_subtract) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 1036 - 30 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1442,6 +1497,7 @@ END_TEST
 START_TEST(test_prepare_math_multiply) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 256*4 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1457,6 +1513,7 @@ END_TEST
 START_TEST(test_prepare_math_modulo) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 255 modulo 4 modulo 5 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1473,6 +1530,7 @@ END_TEST
 START_TEST(test_prepare_math_min) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 256 min 4 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1489,6 +1547,7 @@ END_TEST
 START_TEST(test_prepare_math_max) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 256 max 4 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1505,6 +1564,7 @@ END_TEST
 START_TEST(test_prepare_math_failure) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( 1/2 * 500 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1521,6 +1581,7 @@ END_TEST
 START_TEST(test_prepare_math_failure2) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc( -16/2 * 1.5 );}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1536,6 +1597,7 @@ END_TEST
 START_TEST(test_prepare_math_failure3) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc(10+3);}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1551,6 +1613,7 @@ END_TEST
 START_TEST(test_prepare_math_failure4) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc(10.0+3.2);}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1566,6 +1629,7 @@ END_TEST
 START_TEST(test_prepare_math_failure5) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc(10-3);}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1581,6 +1645,7 @@ END_TEST
 START_TEST(test_prepare_math_failure6) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc(10.0-3.2);}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1596,6 +1661,7 @@ END_TEST
 START_TEST(test_prepare_math_failure7) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc(-10--3);}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1611,6 +1677,7 @@ END_TEST
 START_TEST(test_prepare_math_failure8) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: calc(-10.0--3.2);}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1626,6 +1693,7 @@ END_TEST
 START_TEST(test_prepare_math_failure9) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window  { width: -128;}");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1648,6 +1716,7 @@ END_TEST
 START_TEST(test_prepare_environment_nf) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window {  width: env(QER_TEST,128); }");
   ck_assert_ptr_nonnull(rofi_theme);
@@ -1663,6 +1732,7 @@ END_TEST
 START_TEST(test_prepare_environment_f) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   setenv("QER_TEST", "64", 1);
   rofi_theme_parse_string("window {  width: env(QER_TEST,128); }");
@@ -1680,6 +1750,7 @@ END_TEST
 START_TEST(test_prepare_environment_old_style) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   setenv("QER_TEST", "64", 1);
   rofi_theme_parse_string("window {  width: ${QER_TEST}; }");
@@ -1698,6 +1769,7 @@ END_TEST
 START_TEST(test_prepare_environment_media_f) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   setenv("QER_TEST", "true", 1);
   rofi_theme_parse_string("window { width: 32; } @media( enabled: "
@@ -1718,6 +1790,7 @@ END_TEST
 START_TEST(test_prepare_environment_media_nf) {
   widget wid;
   wid.name = "window";
+  wid.parent = NULL;
   wid.state = "";
   rofi_theme_parse_string("window { width: 32; } @media( enabled: "
                           "env(QER_TEST,false)){ window {width:64; }}");

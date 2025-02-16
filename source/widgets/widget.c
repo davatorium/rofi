@@ -84,7 +84,7 @@ int widget_intersect(const widget *wid, int x, int y) {
   return FALSE;
 }
 
-void widget_resize(widget *wid, short w, short h) {
+void widget_resize(widget *wid, int w, int h) {
   if (wid == NULL) {
     return;
   }
@@ -99,7 +99,7 @@ void widget_resize(widget *wid, short w, short h) {
   // On a resize we always want to update.
   widget_queue_redraw(wid);
 }
-void widget_move(widget *wid, short x, short y) {
+void widget_move(widget *wid, int x, int y) {
   if (wid == NULL) {
     return;
   }

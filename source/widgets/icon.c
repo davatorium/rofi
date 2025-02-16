@@ -127,7 +127,7 @@ static void icon_free(widget *wid) {
   g_free(b);
 }
 
-static void icon_resize(widget *wid, short w, short h) {
+static void icon_resize(widget *wid, int w, int h) {
   icon *b = (icon *)wid;
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;

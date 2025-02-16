@@ -457,5 +457,13 @@ void helper_select_next_matching_mode(void);
 void helper_select_previous_matching_mode(void);
 G_END_DECLS
 
+#if __has_attribute(__fallthrough__)
+#define rofi_fallthrough __attribute__((__fallthrough__))
+#else
+#define rofi_fallthrough                                                       \
+  do {                                                                         \
+  } while (0) /* fallthrough */
+#endif
+
 /**@} */
 #endif // ROFI_HELPER_H
