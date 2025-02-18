@@ -62,8 +62,15 @@ int mode_init(Mode *mode) {
 }
 
 void mode_destroy(Mode *mode) {
-  g_assert(mode != NULL);
-  g_assert(mode->_destroy != NULL);
+  if (mode == NULL) {
+    g_warning("Invalid mode structure.");
+    return;
+  }
+  if (mode->_destroy == NULL) {
+    g_debug("Mode '%s' has no destroy method.", mode->name);
+    return;
+  }
+
   mode->_destroy(mode);
 }
 
@@ -125,7 +132,8 @@ char *mode_get_completion(const Mode *mode, unsigned int selected_line) {
   }
   int state = 0;
   g_assert(mode->_get_display_value != NULL);
-  char *retv = mode->_get_display_value(mode, selected_line, &state, NULL, TRUE);
+  char *retv =
+      mode->_get_display_value(mode, selected_line, &state, NULL, TRUE);
   return retv;
 }
 
@@ -204,7 +212,7 @@ const char *mode_get_display_name(const Mode *mode) {
 }
 
 void mode_set_config(Mode *mode) {
-  if (snprintf(mode->cfg_name_key, 128, "display-%s", mode->name) > 0 ){
+  if (snprintf(mode->cfg_name_key, 128, "display-%s", mode->name) > 0) {
     config_parser_add_option(xrm_String, mode->cfg_name_key,
                              (void **)&(mode->display_name),
                              "The display name of this browser");
@@ -252,10 +260,6 @@ gboolean mode_is_completer(const Mode *mode) {
   return FALSE;
 }
 
-void mode_plugin_set_module(Mode *mode, GModule *mod){
-  mode->module = mod;
-}
-GModule *mode_plugin_get_module(Mode *mode){
-  return mode->module;
-}
+void mode_plugin_set_module(Mode *mode, GModule *mod) { mode->module = mod; }
+GModule *mode_plugin_get_module(Mode *mode) { return mode->module; }
 /**@}*/

@@ -735,6 +735,8 @@ listview_trigger_action(widget *wid, MouseBindingListviewAction action,
   case SCROLL_UP:
     listview_nav_up(lv);
     break;
+  default:
+    break;
   }
   return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
 }
@@ -762,6 +764,8 @@ static WidgetTriggerActionResult listview_element_trigger_action(
   case ACCEPT_HOVERED_ENTRY:
     listview_set_selected(lv, lv->last_offset + i);
     lv->mouse_activated(lv, custom, lv->mouse_activated_data);
+    break;
+  default:
     break;
   }
   return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;

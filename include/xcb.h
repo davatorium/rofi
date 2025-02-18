@@ -237,7 +237,7 @@ cairo_surface_t *x11_helper_get_screenshot_surface_window(xcb_window_t window,
  *
  * Blur the content of the surface with radius and deviation.
  */
-void cairo_image_surface_blur(cairo_surface_t *surface, double radius,
+void cairo_image_surface_blur(cairo_surface_t *surface, int radius,
                               double deviation);
 
 #ifdef XCB_IMDKIT

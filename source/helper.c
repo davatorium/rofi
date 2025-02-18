@@ -275,6 +275,7 @@ static rofi_int_matcher *create_regex(const char *input, int case_sensitive) {
     retv = R(r, case_sensitive);
     g_free(r);
     break;
+  case MM_NORMAL:
   default:
     r = g_regex_escape_string(input, -1);
     retv = R(r, case_sensitive);
@@ -1113,7 +1114,6 @@ gboolean helper_execute_command(const char *wd, const char *cmd,
 
 static char *helper_get_theme_path_check_file(const char *filename,
                                               const char *parent_file) {
-
   // Check if absolute path.
   if (g_path_is_absolute(filename)) {
     g_debug("Opening theme, path is absolute: %s", filename);
@@ -1199,7 +1199,6 @@ static char *helper_get_theme_path_check_file(const char *filename,
 
 char *helper_get_theme_path(const char *file, const char **ext,
                             const char *parent_file) {
-
   char *filename = rofi_expand_path(file);
   g_debug("Opening theme, testing: %s\n", filename);
   if (g_path_is_absolute(filename)) {

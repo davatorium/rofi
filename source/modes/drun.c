@@ -955,20 +955,20 @@ static gint drun_int_sort_list(gconstpointer a, gconstpointer b,
 #define CACHE_VERSION 3
 static int drun_write_str(FILE *fd, const char *str) {
   size_t l = (str == NULL ? 0 : strlen(str));
-  if(fwrite(&l, sizeof(l), 1, fd)<=0){
+  if (fwrite(&l, sizeof(l), 1, fd) <= 0) {
     return 1;
   }
   // Only write string if it is not NULL or empty.
   if (l > 0) {
     // Also writeout terminating '\0'
-    if ( fwrite(str, 1, l + 1, fd) <= 0 ){
+    if (fwrite(str, 1, l + 1, fd) <= 0) {
       return 1;
     }
   }
   return 0;
 }
 static int drun_write_integer(FILE *fd, int32_t val) {
-  if ( fwrite(&val, sizeof(val), 1, fd) <= 0 ){
+  if (fwrite(&val, sizeof(val), 1, fd) <= 0) {
     return 1;
   }
   return 0;
@@ -1001,12 +1001,12 @@ static gboolean drun_read_string(FILE *fd, char **str) {
 }
 static void drun_write_strv(FILE *fd, char **str) {
   guint vl = (str == NULL ? 0 : g_strv_length(str));
-  if ( fwrite(&vl, sizeof(vl), 1, fd) <= 0 ){
+  if (fwrite(&vl, sizeof(vl), 1, fd) <= 0) {
     return;
   }
   for (guint index = 0; index < vl; index++) {
-    if ( drun_write_str(fd, str[index])){
-      return ;
+    if (drun_write_str(fd, str[index])) {
+      return;
     }
   }
 }
@@ -1015,6 +1015,10 @@ static gboolean drun_read_stringv(FILE *fd, char ***str) {
   (*str) = NULL;
   if (fread(&vl, sizeof(vl), 1, fd) != 1) {
     g_warning("Failed to read entry, cache corrupt?");
+    return TRUE;
+  }
+  if (vl > 1024) {
+    g_warning("Cache corrupted, trying to read to to many entries: %u", vl);
     return TRUE;
   }
   if (vl > 0) {
@@ -1041,13 +1045,13 @@ static void write_cache(DRunModePrivateData *pd, const char *cache_file) {
     return;
   }
   uint8_t version = CACHE_VERSION;
-  if ( fwrite(&version, sizeof(version), 1, fd) <= 0 ){
+  if (fwrite(&version, sizeof(version), 1, fd) <= 0) {
     g_warning("Failed to write to drun cache file.");
     (void)(void)fclose(fd);
     return;
   }
 
-  if ( fwrite(&(pd->cmd_list_length), sizeof(pd->cmd_list_length), 1, fd) <= 0){
+  if (fwrite(&(pd->cmd_list_length), sizeof(pd->cmd_list_length), 1, fd) <= 0) {
     g_warning("Failed to write to drun cache file.");
     (void)(void)fclose(fd);
     return;

@@ -522,6 +522,10 @@ void config_parser_add_option(XrmOptionType type, const char *key, void **value,
   case xrm_String:
     extra_options[num_extra_options].mem = ((char *)(*value));
     break;
+  case xrm_Number:
+  case xrm_SNumber:
+  case xrm_Boolean:
+  case xrm_Char:
   default:
     extra_options[num_extra_options].mem = NULL;
     break;

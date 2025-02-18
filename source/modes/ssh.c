@@ -202,7 +202,7 @@ static SshEntry *read_known_hosts_file(const char *path, SshEntry *retv,
         if (start[0] == '[') {
           start++;
           char *strend = strchr(start, ']');
-          if (strend[1] == ':') {
+          if (strend != NULL && strend[1] == ':') {
             *strend = '\0';
             errno = 0;
             gchar *endptr = NULL;
@@ -223,8 +223,9 @@ static SshEntry *read_known_hosts_file(const char *path, SshEntry *retv,
         // Is this host name already in the list?
         // We often get duplicates in hosts file, so lets check this.
         int found = 0;
-        for (unsigned int j = 0; j < (*length); j++) {
-          if (!g_ascii_strcasecmp(start, retv[j].hostname)) {
+        for (unsigned int j = 0; j < (*length) && retv; j++) {
+          if (retv[j].hostname != NULL &&
+              !g_ascii_strcasecmp(start, retv[j].hostname)) {
             found = 1;
             break;
           }
@@ -413,8 +414,9 @@ static void parse_ssh_config_file(SSHModePrivateData *pd, const char *filename,
           // This is a nice little penalty, but doable? time will tell.
           // given num_favorites is max 25.
           int found = 0;
-          for (unsigned int j = 0; j < num_favorites; j++) {
-            if (!g_ascii_strcasecmp(token, (*retv)[j].hostname)) {
+          for (unsigned int j = 0; j < num_favorites && *retv; j++) {
+            if ((*retv)[j].hostname != NULL &&
+                !g_ascii_strcasecmp(token, (*retv)[j].hostname)) {
               found = 1;
               break;
             }
@@ -465,29 +467,39 @@ static SshEntry *get_ssh(SSHModePrivateData *pd, unsigned int *length) {
   path = g_build_filename(cache_dir, SSH_CACHE_FILE, NULL);
   char **h = history_get_list(path, length);
 
-  retv = malloc((*length) * sizeof(SshEntry));
-  for (unsigned int i = 0; i < (*length); i++) {
-    int port = 0;
-    char *portstr = strchr(h[i], '\x1F');
-    if (portstr != NULL) {
-      *portstr = '\0';
-      errno = 0;
-      gchar *endptr = NULL;
-      gint64 number = g_ascii_strtoll(&(portstr[1]), &endptr, 10);
-      if (errno != 0) {
-        g_warning("Failed to parse port number: %s.", &(portstr[1]));
-      } else if (endptr == &(portstr[1])) {
-        g_warning("Failed to parse port number: %s, invalid number.",
-                  &(portstr[1]));
-      } else if (number < 0 || number > 65535) {
-        g_warning("Failed to parse port number: %s, out of range.",
-                  &(portstr[1]));
-      } else {
-        port = number;
-      }
+  if ((*length) > 0) {
+    retv = malloc((*length) * sizeof(SshEntry));
+    if (retv == NULL) {
+      // This should never happen, but if it does..
+      // we fail.
+      *length = 0;
+      g_strfreev(h);
+      g_free(path);
+      return NULL;
     }
-    retv[i].hostname = h[i];
-    retv[i].port = port;
+    for (unsigned int i = 0; i < (*length); i++) {
+      int port = 0;
+      char *portstr = strchr(h[i], '\x1F');
+      if (portstr != NULL) {
+        *portstr = '\0';
+        errno = 0;
+        gchar *endptr = NULL;
+        gint64 number = g_ascii_strtoll(&(portstr[1]), &endptr, 10);
+        if (errno != 0) {
+          g_warning("Failed to parse port number: %s.", &(portstr[1]));
+        } else if (endptr == &(portstr[1])) {
+          g_warning("Failed to parse port number: %s, invalid number.",
+                    &(portstr[1]));
+        } else if (number < 0 || number > 65535) {
+          g_warning("Failed to parse port number: %s, out of range.",
+                    &(portstr[1]));
+        } else {
+          port = number;
+        }
+      }
+      retv[i].hostname = h[i];
+      retv[i].port = port;
+    }
   }
   g_free(h);
 
@@ -646,5 +658,5 @@ Mode ssh_mode = {.name = "ssh",
                  ._preprocess_input = NULL,
                  .private_data = NULL,
                  .free = NULL,
-		 .type = MODE_TYPE_SWITCHER };
+                 .type = MODE_TYPE_SWITCHER};
 /**@}*/

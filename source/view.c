@@ -266,7 +266,8 @@ void rofi_capture_screenshot(void) {
   } else {
     fpath = g_strdup(outp);
   }
-  (void)fprintf(stderr, color_green "Storing screenshot %s\n" color_reset, fpath);
+  (void)fprintf(stderr, color_green "Storing screenshot %s\n" color_reset,
+                fpath);
   cairo_surface_t *surf = cairo_image_surface_create(
       CAIRO_FORMAT_ARGB32, state->width, state->height);
   cairo_status_t status = cairo_surface_status(surf);
@@ -328,8 +329,10 @@ static gboolean bench_update(void) {
     if (fps < BenchMark.min) {
       BenchMark.min = fps;
     }
+    // There never will be so many draws that it does not fit safely in a
+    // doubles. or some loss of precision is an issue for printing fps.
     printf("current: %.2f fps, avg: %.2f fps, min: %.2f fps, %lu draws\r\n",
-           fps, BenchMark.draws / ts, BenchMark.min, BenchMark.draws);
+           fps, ((double)BenchMark.draws) / ts, BenchMark.min, BenchMark.draws);
 
     BenchMark.last_ts = ts;
   }
@@ -849,7 +852,7 @@ rofi_view_setup_fake_transparency(widget *win,
         cairo_destroy(dr);
         cairo_surface_destroy(s);
         if (blur > 0) {
-          cairo_image_surface_blur(CacheState.fake_bg, (double)blur, 0);
+          cairo_image_surface_blur(CacheState.fake_bg, blur, 0);
           TICK_N("BLUR");
         }
       }
@@ -907,8 +910,8 @@ gboolean rofi_set_im_window_pos(int new_x, int new_y) {
 
   static xcb_point_t spot = {.x = 0, .y = 0};
   if (spot.x != new_x || spot.y != new_y) {
-    spot.x = new_x;
-    spot.y = new_y;
+    spot.x = (short)new_x;
+    spot.y = (short)new_y;
     xcb_xim_nested_list nested = xcb_xim_create_nested_list(
         xcb->im, XCB_XIM_XNSpotLocation, &spot, NULL);
     xcb_xim_set_ic_values(xcb->im, xcb->ic, NULL, NULL, XCB_XIM_XNClientWindow,
@@ -923,10 +926,10 @@ static void open_xim_callback(xcb_xim_t *im, G_GNUC_UNUSED void *user_data) {
   RofiViewState *state = rofi_view_get_active();
   uint32_t input_style = XCB_IM_PreeditPosition | XCB_IM_StatusArea;
   xcb_point_t spot;
-  spot.x = widget_get_x_pos(&state->text->widget) +
-           textbox_get_cursor_x_pos(state->text);
-  spot.y = widget_get_y_pos(&state->text->widget) +
-           widget_get_height(&state->text->widget);
+  spot.x = (short)(widget_get_x_pos(&state->text->widget) +
+                   textbox_get_cursor_x_pos(state->text));
+  spot.y = (short)(widget_get_y_pos(&state->text->widget) +
+                   widget_get_height(&state->text->widget));
   xcb_xim_nested_list nested =
       xcb_xim_create_nested_list(im, XCB_XIM_XNSpotLocation, &spot, NULL);
   xcb_xim_create_ic(
@@ -1111,8 +1114,8 @@ void __create_window(MenuFlags menu_flags) {
     // default pango is 96.
     PangoFontMap *font_map = pango_cairo_font_map_get_default();
     // TODO should we round?
-    config.dpi = (int)
-        pango_cairo_font_map_get_resolution((PangoCairoFontMap *)font_map);
+    config.dpi =
+        (int)pango_cairo_font_map_get_resolution((PangoCairoFontMap *)font_map);
   }
   // Setup font.
   // Dummy widget.
@@ -1998,6 +2001,8 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     rofi_view_refilter(state);
     rofi_view_set_overlay_timeout(state, helper_get_matching_mode_str());
     break;
+  default:
+    break;
   }
 }
 
@@ -2025,9 +2030,13 @@ gboolean rofi_view_check_action(RofiViewState *state, BindingsScope scope,
     case WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN:
     case WIDGET_TRIGGER_ACTION_RESULT_HANDLED:
       return TRUE;
+    default:
+      break;
     }
     break;
   }
+  default:
+    break;
   }
   return FALSE;
 }
@@ -2067,9 +2076,13 @@ void rofi_view_trigger_action(RofiViewState *state, BindingsScope scope,
       rofi_fallthrough;
     case WIDGET_TRIGGER_ACTION_RESULT_HANDLED:
       return;
+    default:
+      break;
     }
     break;
   }
+  default:
+    break;
   }
 }
 
@@ -2090,6 +2103,8 @@ static X11CursorType rofi_cursor_type_to_x11_cursor_type(RofiCursorType type) {
 
   case ROFI_CURSOR_TEXT:
     return CURSOR_TEXT;
+  default:
+    break;
   }
 
   return CURSOR_DEFAULT;
@@ -2300,6 +2315,8 @@ WidgetTriggerActionResult textbox_button_trigger_action(
   case MOUSE_DCLICK_DOWN:
   case MOUSE_DCLICK_UP:
     break;
+  default:
+    break;
   }
   return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
 }
@@ -2326,6 +2343,8 @@ static WidgetTriggerActionResult textbox_sidebar_modes_trigger_action(
   case MOUSE_CLICK_UP:
   case MOUSE_DCLICK_DOWN:
   case MOUSE_DCLICK_UP:
+    break;
+  default:
     break;
   }
   return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;

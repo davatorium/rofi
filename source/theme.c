@@ -436,6 +436,9 @@ static void int_rofi_theme_print_property(Property *p) {
     case WL_SOUTH | WL_WEST:
       (void)fputs("southwest", stdout);
       break;
+    default:
+      g_warning("Unknown location specified.");
+      break;
     }
     break;
   }
@@ -1138,6 +1141,9 @@ static gboolean rofi_theme_get_image_inside(Property *p, const widget *wid,
             wid->w / 2.0 + offsetx1, wid->h / 2.0 + offsety1);
         break;
       }
+      default:
+        g_warning("Unknown gradient direction specified.");
+        break;
       };
       guint length = g_list_length(p->value.image.colors);
       if (length > 1) {

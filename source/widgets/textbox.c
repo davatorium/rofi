@@ -120,6 +120,8 @@ textbox_editable_trigger_action(widget *wid,
   case MOUSE_DCLICK_DOWN:
   case MOUSE_DCLICK_UP:
     break;
+  default:
+    break;
   }
   return WIDGET_TRIGGER_ACTION_RESULT_IGNORED;
 }

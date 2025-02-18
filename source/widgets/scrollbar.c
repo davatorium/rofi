@@ -58,8 +58,8 @@ guint scrollbar_scroll_get_line(const scrollbar *sb, int y) {
     return sb->length - 1;
   }
 
-  int r =
-      (int)((sb->length * sb->widget.h) / ((double)(sb->length + sb->pos_length)));
+  int r = (int)((sb->length * sb->widget.h) /
+                ((double)(sb->length + sb->pos_length)));
   int handle = sb->widget.h - r;
   double sec = ((r) / (double)(sb->length - 1));
   int half_handle = handle / 2;
@@ -88,6 +88,8 @@ scrollbar_trigger_action(widget *wid, MouseBindingMouseDefaultAction action,
     return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END;
   case MOUSE_DCLICK_DOWN:
   case MOUSE_DCLICK_UP:
+    break;
+  default:
     break;
   }
   return FALSE;
@@ -164,7 +166,7 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
   double wh = widget_padding_get_remaining_height(wid);
   // Calculate position and size.
   double r = (sb->length * wh) / ((double)(sb->length + sb->pos_length));
-  unsigned int handle = (unsigned int )(wid->h - r);
+  unsigned int handle = (unsigned int)(wid->h - r);
   double sec = ((r) / (double)(sb->length - 1));
   unsigned int height = handle;
   unsigned int y = (unsigned int)(sb->pos * sec);

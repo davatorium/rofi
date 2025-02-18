@@ -61,7 +61,7 @@ typedef struct {
 
   /** Whether to load and show icons  */
   gboolean show_icons;
-  
+
   /** Custom command to generate preview icons */
   char *preview_cmd;
 
@@ -211,7 +211,7 @@ typedef struct {
 /** Default number of columns in the list view */
 #define DEFAULT_MENU_COLUMNS 1
 /** Default window width */
-#define DEFAULT_MENU_WIDTH 50.0f
+#define DEFAULT_MENU_WIDTH 50.0
 
 /** Global Settings structure. */
 extern Settings config;

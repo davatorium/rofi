@@ -331,7 +331,8 @@ gboolean helper_execute(const char *wd, char **args, const char *error_precmd,
  */
 gboolean helper_execute_command(const char *wd, const char *cmd,
                                 gboolean run_in_term,
-                                RofiHelperExecuteContext *context);
+                                RofiHelperExecuteContext *context)
+    __attribute__((nonnull(2)));
 
 /**
  * @param file The file path

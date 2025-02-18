@@ -146,11 +146,10 @@ static xcb_visualtype_t *lookup_visual(xcb_screen_t *s, xcb_visualid_t vis) {
  * website: http://macslow.thepimp.net. I'm not entirely sure he's proud of it,
  * but it has proved immeasurably useful for me. */
 
-static uint32_t *create_kernel(double radius, double deviation,
-                               uint32_t *sum2) {
+static uint32_t *create_kernel(int radius, double deviation, uint32_t *sum2) {
   int size = 2 * (int)(radius) + 1;
   uint32_t *kernel = (uint32_t *)(g_malloc(sizeof(uint32_t) * (size + 1)));
-  double radiusf = fabs(radius) + 1.0;
+  double radiusf = abs(radius) + 1.0;
   double value = -radius;
   uint32_t sum = 0;
   int i;
@@ -162,8 +161,9 @@ static uint32_t *create_kernel(double radius, double deviation,
   kernel[0] = size;
 
   for (i = 0; i < size; i++) {
-    kernel[1 + i] = (uint32_t)(INT16_MAX / (2.506628275 * deviation) *
-                    exp(-((value * value) / (2.0 * (deviation * deviation)))));
+    kernel[1 + i] =
+        (uint32_t)(INT16_MAX / (2.506628275 * deviation) *
+                   exp(-((value * value) / (2.0 * (deviation * deviation)))));
 
     sum += kernel[1 + i];
     value += 1.0;
@@ -174,14 +174,13 @@ static uint32_t *create_kernel(double radius, double deviation,
   return kernel;
 }
 
-inline static uint8_t rofi_uint32_uint8_range(const uint32_t v)
-{
-  if ( v > UINT8_MAX){
+inline static uint8_t rofi_uint32_uint8_range(const uint32_t v) {
+  if (v > UINT8_MAX) {
     return UINT8_MAX;
   }
   return (uint8_t)v;
 }
-void cairo_image_surface_blur(cairo_surface_t *surface, double radius,
+void cairo_image_surface_blur(cairo_surface_t *surface, int radius,
                               double deviation) {
   uint32_t *horzBlur;
   uint32_t *kernel = 0;
@@ -207,7 +206,7 @@ void cairo_image_surface_blur(cairo_surface_t *surface, double radius,
   TICK();
   uint32_t sum = 0;
   kernel = create_kernel(radius, deviation, &sum);
-  if ( sum == 0 ){
+  if (sum == 0) {
     // This is invalid.
     g_warning("Failed to create blurring kernel.");
     g_free(kernel);
@@ -336,7 +335,8 @@ cairo_surface_t *x11_helper_get_screenshot_surface_window(xcb_window_t window,
   double scale = (double)size / max;
 
   cairo_surface_t *s2 = cairo_surface_create_similar_image(
-      t, CAIRO_FORMAT_ARGB32, (int)(reply->width * scale), (int)(reply->height * scale));
+      t, CAIRO_FORMAT_ARGB32, (int)(reply->width * scale),
+      (int)(reply->height * scale));
   free(reply);
 
   if (cairo_surface_status(s2) != CAIRO_STATUS_SUCCESS) {
@@ -563,8 +563,8 @@ static int x11_is_extension_present(const char *extension) {
   // TODO add a quick check for the length of extension.
   // We know how (as it is not a user-provided string) the length
   // will always be less then 2**16
-  xcb_query_extension_cookie_t randr_cookie =
-      xcb_query_extension(xcb->connection, (uint16_t)strlen(extension), extension);
+  xcb_query_extension_cookie_t randr_cookie = xcb_query_extension(
+      xcb->connection, (uint16_t)strlen(extension), extension);
 
   xcb_query_extension_reply_t *randr_reply =
       xcb_query_extension_reply(xcb->connection, randr_cookie, NULL);
@@ -1496,6 +1496,8 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
       rofi_view_maybe_update(rofi_view_get_active());
       break;
     }
+    default:
+      break;
     }
     return G_SOURCE_CONTINUE;
   }
@@ -1630,8 +1632,9 @@ static void x11_create_frequently_used_atoms(void) {
   for (int i = 0; i < NUM_NETATOMS; i++) {
     // we know the length of the atoms are smaller then 2**16, so cast
     // is valid.
-    xcb_intern_atom_cookie_t cc = xcb_intern_atom(
-        xcb->connection, 0, (uint16_t)strlen(netatom_names[i]), netatom_names[i]);
+    xcb_intern_atom_cookie_t cc =
+        xcb_intern_atom(xcb->connection, 0, (uint16_t)strlen(netatom_names[i]),
+                        netatom_names[i]);
     xcb_intern_atom_reply_t *r =
         xcb_intern_atom_reply(xcb->connection, cc, NULL);
     if (r) {
