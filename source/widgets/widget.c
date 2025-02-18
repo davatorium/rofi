@@ -175,22 +175,22 @@ void widget_draw(widget *wid, cairo_t *d) {
     double hspace =
         wid->w - margin_left - margin_right - left / 2.0 - right / 2.0;
     if ((radius_bl + radius_tl) > (vspace)) {
-      int j = ((vspace) / 2.0);
+      int j = (int)((vspace) / 2.0);
       radius_bl = MIN(radius_bl, j);
       radius_tl = MIN(radius_tl, j);
     }
     if ((radius_br + radius_tr) > (vspace)) {
-      int j = ((vspace) / 2.0);
+      int j = (int)((vspace) / 2.0);
       radius_br = MIN(radius_br, j);
       radius_tr = MIN(radius_tr, j);
     }
     if ((radius_tl + radius_tr) > (hspace)) {
-      int j = ((hspace) / 2.0);
+      int j = (int)((hspace) / 2.0);
       radius_tr = MIN(radius_tr, j);
       radius_tl = MIN(radius_tl, j);
     }
     if ((radius_bl + radius_br) > (hspace)) {
-      int j = ((hspace) / 2.0);
+      int j = (int)((hspace) / 2.0);
       radius_br = MIN(radius_br, j);
       radius_bl = MIN(radius_bl, j);
     }

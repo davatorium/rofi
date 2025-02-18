@@ -266,7 +266,7 @@ void rofi_capture_screenshot(void) {
   } else {
     fpath = g_strdup(outp);
   }
-  fprintf(stderr, color_green "Storing screenshot %s\n" color_reset, fpath);
+  (void)fprintf(stderr, color_green "Storing screenshot %s\n" color_reset, fpath);
   cairo_surface_t *surf = cairo_image_surface_create(
       CAIRO_FORMAT_ARGB32, state->width, state->height);
   cairo_status_t status = cairo_surface_status(surf);
@@ -594,7 +594,7 @@ static void rofi_view_set_user_timeout(G_GNUC_UNUSED gpointer data) {
         if (prop != NULL && prop->type == P_DOUBLE && prop->value.f > 0.01) {
           double delay = prop->value.f;
           CacheState.user_timeout =
-              g_timeout_add(delay * 1000, rofi_view_user_timeout, NULL);
+              g_timeout_add((int)(delay * 1000), rofi_view_user_timeout, NULL);
         }
       }
     }
@@ -668,7 +668,8 @@ void rofi_view_set_selected_line(RofiViewState *state,
     }
   }
   listview_set_selected(state->list_view, selected);
-  xcb_clear_area(xcb->connection, CacheState.main_window, 1, 0, 0, 1, 1);
+  // 2nd argument indicates exposure event should be generated.
+  xcb_clear_area(xcb->connection, 1, CacheState.main_window, 0, 0, 0, 0);
   xcb_flush(xcb->connection);
 }
 
@@ -967,7 +968,7 @@ static void input_history_initialize(void) {
         CacheState.entry_history_index++;
       }
       free(line);
-      fclose(fp);
+      (void)fclose(fp);
     }
   }
   g_free(path);
@@ -1001,10 +1002,10 @@ static void input_history_save(void) {
       gssize start = MAX(0, (CacheState.entry_history_length - max_history));
       for (gssize i = start; i < CacheState.entry_history_length; i++) {
         if (strlen(CacheState.entry_history[i].string) > 0) {
-          fprintf(fp, "%s\n", CacheState.entry_history[i].string);
+          (void)fprintf(fp, "%s\n", CacheState.entry_history[i].string);
         }
       }
-      fclose(fp);
+      (void)fclose(fp);
     }
     g_free(path);
   }
@@ -1104,11 +1105,13 @@ void __create_window(MenuFlags menu_flags) {
     g_debug("Auto-detected DPI: %.2lf", dpi);
     PangoFontMap *font_map = pango_cairo_font_map_get_default();
     pango_cairo_font_map_set_resolution((PangoCairoFontMap *)font_map, dpi);
-    config.dpi = dpi;
+    // TODO should be rounded?
+    config.dpi = (int)dpi;
   } else {
     // default pango is 96.
     PangoFontMap *font_map = pango_cairo_font_map_get_default();
-    config.dpi =
+    // TODO should we round?
+    config.dpi = (int)
         pango_cairo_font_map_get_resolution((PangoCairoFontMap *)font_map);
   }
   // Setup font.
@@ -1226,7 +1229,7 @@ static void rofi_view_calculate_window_width(RofiViewState *state) {
     return;
   }
   // Calculate as float to stop silly, big rounding down errors.
-  state->width = (CacheState.mon.w / 100.0) * DEFAULT_MENU_WIDTH;
+  state->width = (int)((CacheState.mon.w / 100.0) * DEFAULT_MENU_WIDTH);
   // Use theme configured width, if set.
   RofiDistance width = rofi_theme_get_distance(WIDGET(state->main_window),
                                                "width", state->width);

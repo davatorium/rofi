@@ -88,7 +88,7 @@ double textbox_get_estimated_ch(void) { return 9.0; }
 void rofi_add_error_message(G_GNUC_UNUSED GString *msg) {}
 void rofi_add_warning_message(G_GNUC_UNUSED GString *msg) {}
 int rofi_view_error_dialog(const char *msg, G_GNUC_UNUSED int markup) {
-  fputs(msg, stderr);
+  (void)fputs(msg, stderr);
   return TRUE;
 }
 
@@ -102,7 +102,7 @@ void display_startup_notification(
 int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
 
   if (setlocale(LC_ALL, "") == NULL) {
-    fprintf(stderr, "Failed to set locale.\n");
+    (void)fprintf(stderr, "Failed to set locale.\n");
     return EXIT_FAILURE;
   }
   char **list = NULL;

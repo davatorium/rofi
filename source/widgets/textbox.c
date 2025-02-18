@@ -518,7 +518,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
 
   if (tb->yalign > 0.001) {
     int bottom = widget_padding_get_bottom(WIDGET(tb));
-    top = (tb->widget.h - bottom - line_height - top) * tb->yalign + top;
+    top = (int)((tb->widget.h - bottom - line_height - top) * tb->yalign) + top;
   }
   y += top;
 
@@ -536,13 +536,13 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
                    line_width);
     switch (pango_layout_get_alignment(tb->layout)) {
     case PANGO_ALIGN_CENTER:
-      x = rem * (tb->xalign - 0.5);
+      x = (int)(rem * (tb->xalign - 0.5));
       break;
     case PANGO_ALIGN_RIGHT:
-      x = rem * (tb->xalign - 1.0);
+      x = (int)(rem * (tb->xalign - 1.0));
       break;
     default:
-      x = rem * tb->xalign;
+      x = (int)(rem * tb->xalign);
       break;
     }
     x += widget_padding_get_left(WIDGET(tb));
@@ -1058,7 +1058,8 @@ double textbox_get_estimated_ch(void) {
 }
 
 int textbox_get_estimated_height(const textbox *tb, int eh) {
-  int height = tb->tbfc->height;
+  // TODO should this be a ceil?
+  int height = (int)(tb->tbfc->height);
   return (eh * height) + widget_padding_get_padding_height(WIDGET(tb));
 }
 int textbox_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {

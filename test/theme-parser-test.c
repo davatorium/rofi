@@ -67,7 +67,7 @@ cairo_surface_t *rofi_icon_fetcher_get(G_GNUC_UNUSED const uint32_t uid) {
 }
 
 int rofi_view_error_dialog(const char *msg, G_GNUC_UNUSED int markup) {
-  fputs(msg, stderr);
+  (void)fputs(msg, stderr);
   return TRUE;
 }
 
@@ -2054,7 +2054,7 @@ int main(int argc, char **argv) {
   cmd_set_arguments(argc, argv);
 
   if (setlocale(LC_ALL, "C") == NULL) {
-    fprintf(stderr, "Failed to set locale.\n");
+    (void)fprintf(stderr, "Failed to set locale.\n");
     return EXIT_FAILURE;
   }
 

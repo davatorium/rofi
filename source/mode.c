@@ -123,9 +123,10 @@ char *mode_get_completion(const Mode *mode, unsigned int selected_line) {
   if (mode->_get_completion != NULL) {
     return mode->_get_completion(mode, selected_line);
   }
-  int state;
+  int state = 0;
   g_assert(mode->_get_display_value != NULL);
-  return mode->_get_display_value(mode, selected_line, &state, NULL, TRUE);
+  char *retv = mode->_get_display_value(mode, selected_line, &state, NULL, TRUE);
+  return retv;
 }
 
 ModeMode mode_result(Mode *mode, int menu_retv, char **input,
@@ -203,10 +204,11 @@ const char *mode_get_display_name(const Mode *mode) {
 }
 
 void mode_set_config(Mode *mode) {
-  snprintf(mode->cfg_name_key, 128, "display-%s", mode->name);
-  config_parser_add_option(xrm_String, mode->cfg_name_key,
-                           (void **)&(mode->display_name),
-                           "The display name of this browser");
+  if (snprintf(mode->cfg_name_key, 128, "display-%s", mode->name) > 0 ){
+    config_parser_add_option(xrm_String, mode->cfg_name_key,
+                             (void **)&(mode->display_name),
+                             "The display name of this browser");
+  }
 }
 
 char *mode_preprocess_input(Mode *mode, const char *input) {

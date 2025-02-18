@@ -81,7 +81,7 @@ int monitor_active(G_GNUC_UNUSED workarea *mon) { return 0; }
 void rofi_view_get_current_monitor(G_GNUC_UNUSED int *width,
                                    G_GNUC_UNUSED int *height) {}
 int rofi_view_error_dialog(const char *msg, G_GNUC_UNUSED int markup) {
-  fputs(msg, stderr);
+  (void)fputs(msg, stderr);
   return FALSE;
 }
 

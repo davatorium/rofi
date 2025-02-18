@@ -989,9 +989,9 @@ static cairo_surface_t *draw_surface_from_data(uint32_t width, uint32_t height,
   for (i = 0; i < len; i++) {
     uint8_t a = (data[i] >> 24) & 0xff;
     double alpha = a / 255.0;
-    uint8_t r = ((data[i] >> 16) & 0xff) * alpha;
-    uint8_t g = ((data[i] >> 8) & 0xff) * alpha;
-    uint8_t b = ((data[i] >> 0) & 0xff) * alpha;
+    uint8_t r = (uint8_t)(((data[i] >> 16) & 0xff) * alpha);
+    uint8_t g = (uint8_t)(((data[i] >> 8) & 0xff) * alpha);
+    uint8_t b = (uint8_t)(((data[i] >> 0) & 0xff) * alpha);
     buffer[i] = (a << 24) | (r << 16) | (g << 8) | b;
   }
 

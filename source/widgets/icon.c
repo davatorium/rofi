@@ -62,7 +62,8 @@ static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
       int iconw = cairo_image_surface_get_width(b->icon);
       int icons = MAX(iconh, iconw);
       double scale = (double)b->size / icons;
-      height = iconh * scale;
+      // TODO should this be a ceil?
+      height = (int)(iconh * scale);
     }
   }
   height += widget_padding_get_padding_height(wid);
@@ -76,8 +77,8 @@ static int icon_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {
       int iconh = cairo_image_surface_get_height(b->icon);
       int iconw = cairo_image_surface_get_width(b->icon);
       int icons = MAX(iconh, iconw);
-      double scale = (double)b->size / icons;
-      width = iconw * scale;
+      double scale = (double)(b->size / (double)icons);
+      width = (int)(iconw * scale);
     }
   }
   width += widget_padding_get_padding_width(wid);

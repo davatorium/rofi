@@ -641,7 +641,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     }
 
     // no suitable icon or thumbnail was found
-    if (icon_path_ == NULL || !g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
+    if (icon_path_ == NULL || !g_file_test(icon_path_, G_FILE_TEST_EXISTS)) {
       sentry->query_done = TRUE;
       rofi_view_reload();
       return;

@@ -838,47 +838,47 @@ void config_xresource_free(void) {
 
 static void config_parse_dump_config_option(FILE *out, XrmOption *option) {
   if (option->type == xrm_Char || (option->source & 3) == CONFIG_DEFAULT) {
-    fprintf(out, "/*");
+    (void)fprintf(out, "/*");
   }
-  fprintf(out, "\t%s: ", option->name);
+  (void)fprintf(out, "\t%s: ", option->name);
   switch (option->type) {
   case xrm_Number:
-    fprintf(out, "%u", *(option->value.num));
+    (void)fprintf(out, "%u", *(option->value.num));
     break;
   case xrm_SNumber:
-    fprintf(out, "%i", *(option->value.snum));
+    (void)fprintf(out, "%i", *(option->value.snum));
     break;
   case xrm_String:
     if ((*(option->value.str)) != NULL) {
       // TODO should this be escaped?
-      fprintf(out, "\"%s\"", *(option->value.str));
+      (void)fprintf(out, "\"%s\"", *(option->value.str));
     }
     break;
   case xrm_Boolean:
-    fprintf(out, "%s", (*(option->value.num) == TRUE) ? "true" : "false");
+    (void)fprintf(out, "%s", (*(option->value.num) == TRUE) ? "true" : "false");
     break;
   case xrm_Char:
     // TODO
     if (*(option->value.charc) > 32 && *(option->value.charc) < 127) {
-      fprintf(out, "'%c'", *(option->value.charc));
+      (void)fprintf(out, "'%c'", *(option->value.charc));
     } else {
-      fprintf(out, "'\\x%02X'", *(option->value.charc));
+      (void)fprintf(out, "'\\x%02X'", *(option->value.charc));
     }
-    fprintf(out, " /* unsupported */");
+    (void)fprintf(out, " /* unsupported */");
     break;
   default:
     break;
   }
 
-  fprintf(out, ";");
+  (void)fprintf(out, ";");
   if (option->type == xrm_Char || (option->source & 3) == CONFIG_DEFAULT) {
-    fprintf(out, "*/");
+    (void)fprintf(out, "*/");
   }
-  fprintf(out, "\n");
+  (void)fprintf(out, "\n");
 }
 
 void config_parse_dump_config_rasi_format(FILE *out, gboolean changes) {
-  fprintf(out, "configuration {\n");
+  (void)fprintf(out, "configuration {\n");
 
   unsigned int entries = sizeof(xrmOptions) / sizeof(*xrmOptions);
   for (unsigned int i = 0; i < entries; ++i) {
@@ -910,10 +910,10 @@ void config_parse_dump_config_rasi_format(FILE *out, gboolean changes) {
     rofi_theme_print_index(rofi_configuration->widgets[index], 2);
   }
 
-  fprintf(out, "}\n");
+  (void)fprintf(out, "}\n");
 
   if (config.theme != NULL) {
-    fprintf(out, "@theme \"%s\"\r\n", config.theme);
+    (void)fprintf(out, "@theme \"%s\"\r\n", config.theme);
   }
 }
 

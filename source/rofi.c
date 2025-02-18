@@ -447,9 +447,9 @@ static void help_print_disabled_mode(const char *mode) {
   int is_term = isatty(fileno(stdout));
   // Only  output to terminal
   if (is_term) {
-    fprintf(stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
+    (void)fprintf(stderr, "Mode %s%s%s is not enabled. I have enabled it for now.\n",
             color_red, mode, color_reset);
-    fprintf(stderr,
+    (void)fprintf(stderr,
             "Please consider adding %s%s%s to the list of enabled modes: "
             "%smodes: [%s%s%s,%s]%s.\n",
             color_red, mode, color_reset, color_green, config.modes,
@@ -789,8 +789,8 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
   if (list_of_warning_msgs != NULL) {
     for (GList *iter = g_list_first(list_of_warning_msgs); iter != NULL;
          iter = g_list_next(iter)) {
-      fputs(((GString *)iter->data)->str, stderr);
-      fputs("\n", stderr);
+      (void)fputs(((GString *)iter->data)->str, stderr);
+      (void)fputs("\n", stderr);
     }
   }
   // Dmenu mode.
@@ -939,7 +939,7 @@ int main(int argc, char *argv[]) {
       cleanup();
       return retv;
     }
-    fprintf(stderr, "Usage: %s -rasi-validate my-theme.rasi", argv[0]);
+    (void)fprintf(stderr, "Usage: %s -rasi-validate my-theme.rasi", argv[0]);
     return EXIT_FAILURE;
   }
 
@@ -1266,13 +1266,13 @@ int rofi_theme_rasi_validate(const char *filename) {
 
   for (GList *iter = g_list_first(list_of_error_msgs); iter != NULL;
        iter = g_list_next(iter)) {
-    fputs(((GString *)iter->data)->str, stderr);
-    fputs("\n", stderr);
+    (void)fputs(((GString *)iter->data)->str, stderr);
+    (void)fputs("\n", stderr);
   }
   for (GList *iter = g_list_first(list_of_warning_msgs); iter != NULL;
        iter = g_list_next(iter)) {
-    fputs(((GString *)iter->data)->str, stderr);
-    fputs("\n", stderr);
+    (void)fputs(((GString *)iter->data)->str, stderr);
+    (void)fputs("\n", stderr);
   }
 
   return EXIT_FAILURE;

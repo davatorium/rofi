@@ -49,7 +49,7 @@ static int scrollbar_get_desired_height(widget *wid,
 // TODO
 // This should behave more like a real scrollbar.
 guint scrollbar_scroll_get_line(const scrollbar *sb, int y) {
-  y -= sb->widget.border.top.base.distance;
+  y -= (int)(sb->widget.border.top.base.distance);
   if (y < 0) {
     return 0;
   }
@@ -58,15 +58,15 @@ guint scrollbar_scroll_get_line(const scrollbar *sb, int y) {
     return sb->length - 1;
   }
 
-  short r =
-      (sb->length * sb->widget.h) / ((double)(sb->length + sb->pos_length));
-  short handle = sb->widget.h - r;
+  int r =
+      (int)((sb->length * sb->widget.h) / ((double)(sb->length + sb->pos_length)));
+  int handle = sb->widget.h - r;
   double sec = ((r) / (double)(sb->length - 1));
-  short half_handle = handle / 2;
+  int half_handle = handle / 2;
   y -= half_handle;
   y = MIN(MAX(0, y), sb->widget.h - 2 * half_handle);
 
-  unsigned int sel = ((y) / sec);
+  unsigned int sel = (unsigned int)((y) / sec);
   return MIN(sel, sb->length - 1);
 }
 
@@ -164,12 +164,12 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
   double wh = widget_padding_get_remaining_height(wid);
   // Calculate position and size.
   double r = (sb->length * wh) / ((double)(sb->length + sb->pos_length));
-  unsigned int handle = wid->h - r;
+  unsigned int handle = (unsigned int )(wid->h - r);
   double sec = ((r) / (double)(sb->length - 1));
   unsigned int height = handle;
-  unsigned int y = sb->pos * sec;
+  unsigned int y = (unsigned int)(sb->pos * sec);
   // Set max pos.
-  y = MIN(y, wh - handle);
+  y = MIN(y, (unsigned int)(wh - handle));
   // Never go out of bar.
   height = MAX(2, height);
   // Cap length;

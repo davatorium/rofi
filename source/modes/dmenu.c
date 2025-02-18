@@ -753,7 +753,7 @@ static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state,
   }
   if (pd->fd_file != NULL) {
     if (pd->fd_file != stdin) {
-      fclose(pd->fd_file);
+      (void)fclose(pd->fd_file);
     }
   }
   if (retv == FALSE) {

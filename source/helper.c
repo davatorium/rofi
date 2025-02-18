@@ -1319,40 +1319,40 @@ void rofi_output_formatted_line(const char *format, const char *string,
                                 int selected_line, const char *filter) {
   for (int i = 0; format && format[i]; i++) {
     if (format[i] == 'i') {
-      fprintf(stdout, "%d", selected_line);
+      (void)fprintf(stdout, "%d", selected_line);
     } else if (format[i] == 'd') {
-      fprintf(stdout, "%d", (selected_line + 1));
+      (void)fprintf(stdout, "%d", (selected_line + 1));
     } else if (format[i] == 's') {
-      fputs(string, stdout);
+      (void)fputs(string, stdout);
     } else if (format[i] == 'p') {
       char *esc = NULL;
       pango_parse_markup(string, -1, 0, NULL, &esc, NULL, NULL);
       if (esc) {
-        fputs(esc, stdout);
+        (void)fputs(esc, stdout);
         g_free(esc);
       } else {
-        fputs("invalid string", stdout);
+        (void)fputs("invalid string", stdout);
       }
     } else if (format[i] == 'q') {
       char *quote = g_shell_quote(string);
-      fputs(quote, stdout);
+      (void)fputs(quote, stdout);
       g_free(quote);
     } else if (format[i] == 'f') {
       if (filter) {
-        fputs(filter, stdout);
+        (void)fputs(filter, stdout);
       }
     } else if (format[i] == 'F') {
       if (filter) {
         char *quote = g_shell_quote(filter);
-        fputs(quote, stdout);
+        (void)fputs(quote, stdout);
         g_free(quote);
       }
     } else {
-      fputc(format[i], stdout);
+      (void)fputc(format[i], stdout);
     }
   }
-  fputc('\n', stdout);
-  fflush(stdout);
+  (void)fputc('\n', stdout);
+  (void)fflush(stdout);
 }
 
 static gboolean helper_eval_cb2(const GMatchInfo *info, GString *res,

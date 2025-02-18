@@ -176,7 +176,7 @@ static void vert_calculate_size(box *b) {
       }
       if (child->expand == TRUE) {
         // Re-calculate to avoid round issues leaving one pixel left.
-        int expanding_widgets_size = (rem) / (expanding_widgets - index);
+        int expanding_widgets_size = (int)((rem) / (expanding_widgets - index));
         widget_move(child, widget_padding_get_left(WIDGET(b)), top);
         top += expanding_widgets_size;
         widget_resize(child, rem_width, expanding_widgets_size);
@@ -246,7 +246,7 @@ static void hori_calculate_size(box *b) {
       }
       if (child->expand == TRUE) {
         // Re-calculate to avoid round issues leaving one pixel left.
-        int expanding_widgets_size = (rem) / (expanding_widgets - index);
+        int expanding_widgets_size = (int)((rem) / (expanding_widgets - index));
         widget_move(child, left, widget_padding_get_top(WIDGET(b)));
         left += expanding_widgets_size;
         widget_resize(child, expanding_widgets_size, rem_height);

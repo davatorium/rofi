@@ -73,7 +73,7 @@ static void __history_write_element_list(FILE *fd, _element **list,
 
   // Write out entries.
   for (unsigned int iter = 0; iter < length; iter++) {
-    fprintf(fd, "%ld %s\n", list[iter]->index - min_value, list[iter]->name);
+    (void)fprintf(fd, "%ld %s\n", list[iter]->index - min_value, list[iter]->name);
   }
 }
 

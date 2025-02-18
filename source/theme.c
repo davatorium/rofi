@@ -264,37 +264,37 @@ inline static void printf_double(double d) {
       0,
   };
   g_ascii_formatd(buf, G_ASCII_DTOSTR_BUF_SIZE, "%.4f", d);
-  fputs(buf, stdout);
+  (void)fputs(buf, stdout);
 }
 
 static void rofi_theme_print_distance_unit(RofiDistanceUnit *unit) {
   if (unit->modtype == ROFI_DISTANCE_MODIFIER_GROUP) {
-    fputs("( ", stdout);
+    (void)fputs("( ", stdout);
   }
   if (unit->left) {
     rofi_theme_print_distance_unit(unit->left);
   }
 
   if (unit->modtype == ROFI_DISTANCE_MODIFIER_ADD) {
-    fputs(" + ", stdout);
+    (void)fputs(" + ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_SUBTRACT) {
-    fputs(" - ", stdout);
+    (void)fputs(" - ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_DIVIDE) {
-    fputs(" / ", stdout);
+    (void)fputs(" / ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MULTIPLY) {
-    fputs(" * ", stdout);
+    (void)fputs(" * ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MODULO) {
-    fputs(" modulo ", stdout);
+    (void)fputs(" modulo ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MIN) {
-    fputs(" min ", stdout);
+    (void)fputs(" min ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_MAX) {
-    fputs(" max ", stdout);
+    (void)fputs(" max ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_ROUND) {
-    fputs(" round ", stdout);
+    (void)fputs(" round ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_FLOOR) {
-    fputs(" floor ", stdout);
+    (void)fputs(" floor ", stdout);
   } else if (unit->modtype == ROFI_DISTANCE_MODIFIER_CEIL) {
-    fputs(" ceil ", stdout);
+    (void)fputs(" ceil ", stdout);
   }
   if (unit->right) {
     rofi_theme_print_distance_unit(unit->right);
@@ -305,28 +305,28 @@ static void rofi_theme_print_distance_unit(RofiDistanceUnit *unit) {
       printf("%upx ", (unsigned int)unit->distance);
     } else if (unit->type == ROFI_PU_MM) {
       printf_double(unit->distance);
-      fputs("mm ", stdout);
+      (void)fputs("mm ", stdout);
     } else if (unit->type == ROFI_PU_PERCENT) {
       printf_double(unit->distance);
-      fputs("% ", stdout);
+      (void)fputs("% ", stdout);
     } else if (unit->type == ROFI_PU_CH) {
       printf_double(unit->distance);
-      fputs("ch ", stdout);
+      (void)fputs("ch ", stdout);
     } else {
       printf_double(unit->distance);
-      fputs("em ", stdout);
+      (void)fputs("em ", stdout);
     }
   }
   if (unit->modtype == ROFI_DISTANCE_MODIFIER_GROUP) {
-    fputs(" )", stdout);
+    (void)fputs(" )", stdout);
   }
 }
 
 static void rofi_theme_print_color(ThemeColor color) {
   uint8_t r, g, b;
-  g = 255 * color.green;
-  r = 255 * color.red;
-  b = 255 * color.blue;
+  g = (uint8_t)(255 * color.green);
+  r = (uint8_t)(255 * color.red);
+  b = (uint8_t)(255 * color.blue);
   if (color.alpha < 0.00001) {
     printf("transparent");
     return;
@@ -345,11 +345,11 @@ static void rofi_theme_print_color(ThemeColor color) {
 }
 static void rofi_theme_print_distance(RofiDistance d) {
   if (d.base.modtype == ROFI_DISTANCE_MODIFIER_GROUP) {
-    fputs("calc( ", stdout);
+    (void)fputs("calc( ", stdout);
   }
   rofi_theme_print_distance_unit(&(d.base));
   if (d.base.modtype == ROFI_DISTANCE_MODIFIER_GROUP) {
-    fputs(")", stdout);
+    (void)fputs(")", stdout);
   }
   if (d.style == ROFI_HL_DASH) {
     printf("dash ");
@@ -410,31 +410,31 @@ static void int_rofi_theme_print_property(Property *p) {
   case P_POSITION: {
     switch (p->value.i) {
     case WL_CENTER:
-      fputs("center", stdout);
+      (void)fputs("center", stdout);
       break;
     case WL_NORTH:
-      fputs("north", stdout);
+      (void)fputs("north", stdout);
       break;
     case WL_SOUTH:
-      fputs("south", stdout);
+      (void)fputs("south", stdout);
       break;
     case WL_WEST:
-      fputs("west", stdout);
+      (void)fputs("west", stdout);
       break;
     case WL_EAST:
-      fputs("east", stdout);
+      (void)fputs("east", stdout);
       break;
     case WL_NORTH | WL_EAST:
-      fputs("northeast", stdout);
+      (void)fputs("northeast", stdout);
       break;
     case WL_SOUTH | WL_EAST:
-      fputs("southeast", stdout);
+      (void)fputs("southeast", stdout);
       break;
     case WL_NORTH | WL_WEST:
-      fputs("northwest", stdout);
+      (void)fputs("northwest", stdout);
       break;
     case WL_SOUTH | WL_WEST:
-      fputs("southwest", stdout);
+      (void)fputs("southwest", stdout);
       break;
     }
     break;
@@ -448,7 +448,7 @@ static void int_rofi_theme_print_property(Property *p) {
   case P_DOUBLE: {
     char sign = (p->value.f < 0);
     int top = (int)fabs(p->value.f);
-    int bottom = (fabs(fmod(p->value.f, 1.0))) * 100;
+    int bottom = (int)((fabs(fmod(p->value.f, 1.0))) * 100);
     printf("%s%d.%02d", sign ? "-" : "", top, bottom);
     break;
   }
@@ -526,8 +526,8 @@ static void rofi_theme_print_property_index(size_t pnl, int cur_depth,
   int pl = strlen(p->name);
   printf("%*s%s:%*s ", cur_depth, "", p->name, (int)pnl - pl, "");
   int_rofi_theme_print_property(p);
-  putchar(';');
-  putchar('\n');
+  (void)putchar(';');
+  (void)putchar('\n');
 }
 
 void rofi_theme_print_index(ThemeWidget *wid, int index) {
@@ -559,11 +559,11 @@ void rofi_theme_print_index(ThemeWidget *wid, int index) {
         for (GList *citer = g_list_first(list); citer != NULL;
              citer = g_list_next(citer)) {
           char *name = (char *)citer->data;
-          fputs(name, stdout);
+          (void)fputs(name, stdout);
           if (citer->prev == NULL && citer->next) {
-            putchar(' ');
+            (void)putchar(' ');
           } else if (citer->next) {
-            putchar('.');
+            (void)putchar('.');
           }
         }
         printf(" {\n");
@@ -840,7 +840,7 @@ static int rofi_theme_get_integer_inside(Property *p, const widget *wid,
 int rofi_theme_get_integer(const widget *wid, const char *property, int def) {
   ThemeWidget *wid_find = rofi_theme_find_widget(wid->name, wid->state, FALSE);
   Property *p = rofi_theme_find_property(wid_find, P_INTEGER, property, FALSE);
-  return (int)rofi_theme_get_integer_inside(p, wid, property, (double)def);
+  return (int)rofi_theme_get_integer_inside(p, wid, property, def);
 }
 static RofiDistance rofi_theme_get_distance_inside(Property *p,
                                                    const widget *wid,
@@ -1403,7 +1403,7 @@ static double distance_unit_get_pixel(RofiDistanceUnit *unit,
 }
 
 int distance_get_pixel(RofiDistance d, RofiOrientation ori) {
-  return distance_unit_get_pixel(&(d.base), ori);
+  return (int)distance_unit_get_pixel(&(d.base), ori);
 }
 
 void distance_get_linestyle(RofiDistance d, cairo_t *draw) {
@@ -1463,7 +1463,7 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
       rwidget->widgets[rwidget->num_widgets] = NULL;
       switch (child_widget->media->type) {
       case THEME_MEDIA_TYPE_MIN_WIDTH: {
-        int w = child_widget->media->value;
+        int w = (int)(child_widget->media->value);
         if (mon.w >= w) {
           for (unsigned int x = 0; x < child_widget->num_widgets; x++) {
             rofi_theme_parse_merge_widgets(rwidget, child_widget->widgets[x]);
@@ -1472,7 +1472,7 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         break;
       }
       case THEME_MEDIA_TYPE_MAX_WIDTH: {
-        int w = child_widget->media->value;
+        int w = (int)(child_widget->media->value);
         if (mon.w < w) {
           for (unsigned int x = 0; x < child_widget->num_widgets; x++) {
             rofi_theme_parse_merge_widgets(rwidget, child_widget->widgets[x]);
@@ -1481,7 +1481,7 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         break;
       }
       case THEME_MEDIA_TYPE_MIN_HEIGHT: {
-        int h = child_widget->media->value;
+        int h = (int)(child_widget->media->value);
         if (mon.h >= h) {
           for (unsigned int x = 0; x < child_widget->num_widgets; x++) {
             rofi_theme_parse_merge_widgets(rwidget, child_widget->widgets[x]);
@@ -1491,7 +1491,7 @@ static void rofi_theme_parse_process_conditionals_int(workarea mon,
         break;
       }
       case THEME_MEDIA_TYPE_MAX_HEIGHT: {
-        int h = child_widget->media->value;
+        int h = (int)(child_widget->media->value);
         if (mon.h < h) {
           for (unsigned int x = 0; x < child_widget->num_widgets; x++) {
             rofi_theme_parse_merge_widgets(rwidget, child_widget->widgets[x]);

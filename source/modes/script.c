@@ -636,7 +636,7 @@ Mode *script_mode_parse_setup(const char *str) {
 
     return sw;
   }
-  fprintf(
+  (void)fprintf(
       stderr,
       "The script command '%s' has %u options, but needs 2: <name>:<script>.",
       str, index);

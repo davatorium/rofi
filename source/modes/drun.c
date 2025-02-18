@@ -953,17 +953,25 @@ static gint drun_int_sort_list(gconstpointer a, gconstpointer b,
 
 /** Version of the DRUN cache file format. */
 #define CACHE_VERSION 3
-static void drun_write_str(FILE *fd, const char *str) {
+static int drun_write_str(FILE *fd, const char *str) {
   size_t l = (str == NULL ? 0 : strlen(str));
-  fwrite(&l, sizeof(l), 1, fd);
+  if(fwrite(&l, sizeof(l), 1, fd)<=0){
+    return 1;
+  }
   // Only write string if it is not NULL or empty.
   if (l > 0) {
     // Also writeout terminating '\0'
-    fwrite(str, 1, l + 1, fd);
+    if ( fwrite(str, 1, l + 1, fd) <= 0 ){
+      return 1;
+    }
   }
+  return 0;
 }
-static void drun_write_integer(FILE *fd, int32_t val) {
-  fwrite(&val, sizeof(val), 1, fd);
+static int drun_write_integer(FILE *fd, int32_t val) {
+  if ( fwrite(&val, sizeof(val), 1, fd) <= 0 ){
+    return 1;
+  }
+  return 0;
 }
 static gboolean drun_read_integer(FILE *fd, int32_t *type) {
   if (fread(type, sizeof(int32_t), 1, fd) != 1) {
@@ -993,9 +1001,13 @@ static gboolean drun_read_string(FILE *fd, char **str) {
 }
 static void drun_write_strv(FILE *fd, char **str) {
   guint vl = (str == NULL ? 0 : g_strv_length(str));
-  fwrite(&vl, sizeof(vl), 1, fd);
+  if ( fwrite(&vl, sizeof(vl), 1, fd) <= 0 ){
+    return;
+  }
   for (guint index = 0; index < vl; index++) {
-    drun_write_str(fd, str[index]);
+    if ( drun_write_str(fd, str[index])){
+      return ;
+    }
   }
 }
 static gboolean drun_read_stringv(FILE *fd, char ***str) {
@@ -1029,9 +1041,17 @@ static void write_cache(DRunModePrivateData *pd, const char *cache_file) {
     return;
   }
   uint8_t version = CACHE_VERSION;
-  fwrite(&version, sizeof(version), 1, fd);
+  if ( fwrite(&version, sizeof(version), 1, fd) <= 0 ){
+    g_warning("Failed to write to drun cache file.");
+    (void)(void)fclose(fd);
+    return;
+  }
 
-  fwrite(&(pd->cmd_list_length), sizeof(pd->cmd_list_length), 1, fd);
+  if ( fwrite(&(pd->cmd_list_length), sizeof(pd->cmd_list_length), 1, fd) <= 0){
+    g_warning("Failed to write to drun cache file.");
+    (void)(void)fclose(fd);
+    return;
+  }
   for (unsigned int index = 0; index < pd->cmd_list_length; index++) {
     DRunModeEntry *entry = &(pd->entry_list[index]);
 
@@ -1053,7 +1073,7 @@ static void write_cache(DRunModePrivateData *pd, const char *cache_file) {
     drun_write_integer(fd, (int32_t)entry->type);
   }
 
-  fclose(fd);
+  (void)(void)fclose(fd);
   TICK_N("DRUN Write CACHE: end");
 }
 
@@ -1080,21 +1100,21 @@ static gboolean drun_read_cache(DRunModePrivateData *pd,
   uint8_t version = 0;
 
   if (fread(&version, sizeof(version), 1, fd) != 1) {
-    fclose(fd);
+    (void)fclose(fd);
     g_warning("Cache corrupt, ignoring.");
     TICK_N("DRUN Read CACHE: stop");
     return TRUE;
   }
 
   if (version != CACHE_VERSION) {
-    fclose(fd);
+    (void)fclose(fd);
     g_warning("Cache file wrong version, ignoring.");
     TICK_N("DRUN Read CACHE: stop");
     return TRUE;
   }
 
   if (fread(&(pd->cmd_list_length), sizeof(pd->cmd_list_length), 1, fd) != 1) {
-    fclose(fd);
+    (void)fclose(fd);
     g_warning("Cache corrupt, ignoring.");
     TICK_N("DRUN Read CACHE: stop");
     return TRUE;
@@ -1171,7 +1191,7 @@ static gboolean drun_read_cache(DRunModePrivateData *pd,
     entry->type = type;
   }
 
-  fclose(fd);
+  (void)fclose(fd);
   if (error) {
     for (size_t i = 0; i < pd->cmd_list_length; i++) {
       drun_entry_clear(&(pd->entry_list[i]));

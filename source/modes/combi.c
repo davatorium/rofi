@@ -254,8 +254,9 @@ static char *combi_mgrv(const Mode *sw, unsigned int selected_line, int *state,
               wid, P_COLOR, pd->switchers[i].mode->name, TRUE);
           if (p != NULL) {
             PangoAttribute *pa = pango_attr_foreground_new(
-                p->value.color.red * 65535, p->value.color.green * 65535,
-                p->value.color.blue * 65535);
+                (guint16)(p->value.color.red * UINT16_MAX),
+                (guint16)(p->value.color.green * UINT16_MAX),
+                (guint16)(p->value.color.blue * UINT16_MAX));
             pa->start_index = PANGO_ATTR_INDEX_FROM_TEXT_BEGINNING;
             pa->end_index = strlen(dname);
             *attr_list = g_list_append(*attr_list, pa);
