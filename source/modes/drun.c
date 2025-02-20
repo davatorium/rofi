@@ -724,8 +724,10 @@ static void read_desktop_file(DRunModePrivateData *pd, const char *root,
   }
 
   if (pd->exclude_categories) {
-    categories = g_key_file_get_locale_string_list(
-        kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL);
+    if (categories == NULL) {
+      categories = g_key_file_get_locale_string_list(
+          kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL);
+    }
     if (rofi_strv_contains((const char *const *)categories,
                             (const char *const *)pd->exclude_categories)) {
       g_strfreev(categories);
