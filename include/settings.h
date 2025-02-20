@@ -119,6 +119,8 @@ typedef struct {
   char *drun_match_fields;
   /** Only show entries in this category */
   char *drun_categories;
+  /** Exclude entries in this category */
+  char *drun_exclude_categories;
   /** Desktop entry show actions */
   unsigned int drun_show_actions;
   /** Desktop format display */

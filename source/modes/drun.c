@@ -215,6 +215,7 @@ struct _DRunModePrivateData {
   unsigned int expected_line_height;
 
   char **show_categories;
+  char **exclude_categories;
 
   // Theme
   const gchar *icon_theme;
@@ -716,6 +717,17 @@ static void read_desktop_file(DRunModePrivateData *pd, const char *root,
         kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL);
     if (!rofi_strv_contains((const char *const *)categories,
                             (const char *const *)pd->show_categories)) {
+      g_strfreev(categories);
+      g_key_file_free(kf);
+      return;
+    }
+  }
+
+  if (pd->exclude_categories) {
+    categories = g_key_file_get_locale_string_list(
+        kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL);
+    if (rofi_strv_contains((const char *const *)categories,
+                            (const char *const *)pd->exclude_categories)) {
       g_strfreev(categories);
       g_key_file_free(kf);
       return;
@@ -1320,6 +1332,10 @@ static int drun_mode_init(Mode *sw) {
     pd->show_categories = g_strsplit(config.drun_categories, ",", 0);
   }
 
+  if (config.drun_exclude_categories && *(config.drun_exclude_categories)) {
+    pd->exclude_categories = g_strsplit(config.drun_exclude_categories, ",", 0);
+  }
+
   drun_mode_parse_entry_fields();
   drun_mode_parse_display_format();
   get_apps(pd);
@@ -1473,6 +1489,7 @@ static void drun_mode_destroy(Mode *sw) {
 
     g_strfreev(rmpd->current_desktop_list);
     g_strfreev(rmpd->show_categories);
+    g_strfreev(rmpd->exclude_categories);
     g_free(rmpd);
     mode_set_private_data(sw, NULL);
   }
