@@ -374,6 +374,10 @@ Tokenize the input.
 
 Only show desktop files that are present in the listed categories.
 
+`-drun-exclude-categories` *category1*,*category2*
+
+Exclude desktop files that are present in the listed categories.
+
 `-drun-match-fields` *field1*,*field2*,...
 
 When using `drun`, match only with the specified Desktop entry fields.
