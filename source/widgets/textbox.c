@@ -552,51 +552,54 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
   if (tb->flags & TB_EDITABLE) {
     // We want to place the cursor based on the text shown.
     const char *text = pango_layout_get_text(tb->layout);
-    // Clamp the position, should not be needed, but we are paranoid.
-    size_t cursor_offset;
+    // hide the cursor, if no text is entered and hide-empty-cursor is set to true
+    if (!(tb->text[0] == '\0' && rofi_theme_get_boolean(WIDGET(tb), "hide-empty-cursor", FALSE) == TRUE)){
+      // Clamp the position, should not be needed, but we are paranoid.
+      size_t cursor_offset;
 
-    if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
-      // Calculate cursor position based on mask length
-      size_t mask_len = strlen(tb->password_mask_char);
-      cursor_offset = MIN(tb->cursor * mask_len, strlen(text));
-    } else {
-      cursor_offset = MIN(tb->cursor, g_utf8_strlen(text, -1));
-      // convert to byte location.
-      char *offset = g_utf8_offset_to_pointer(text, cursor_offset);
-      cursor_offset = offset - text;
-    }
-    PangoRectangle pos;
-    pango_layout_get_cursor_pos(tb->layout, cursor_offset, &pos, NULL);
-    int cursor_x = pos.x / PANGO_SCALE;
-    int cursor_y = pos.y / PANGO_SCALE;
-    int cursor_height = pos.height / PANGO_SCALE;
-    RofiDistance cursor_width =
-        rofi_theme_get_distance(WIDGET(tb), "cursor-width", 2);
-    int cursor_pixel_width =
-        distance_get_pixel(cursor_width, ROFI_ORIENTATION_HORIZONTAL);
-    if ((x + cursor_x) != tb->cursor_x_pos) {
-      tb->cursor_x_pos = x + cursor_x;
-    }
-    if (tb->blink) {
-      // This save/restore state is necessary to render the text in the
-      // correct color when `cursor-color` is set
-      cairo_save(draw);
-      // use text color as fallback for themes that don't specify the cursor
-      // color
-      rofi_theme_get_color(WIDGET(tb), "cursor-color", draw);
-      cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_pixel_width,
-                      cursor_height);
-      if (rofi_theme_get_boolean(WIDGET(tb), "cursor-outline", FALSE)) {
-        cairo_fill_preserve(draw);
-        rofi_theme_get_color(WIDGET(tb), "cursor-outline-color", draw);
-        double width =
-            rofi_theme_get_double(WIDGET(tb), "cursor-outline-width", 0.5);
-        cairo_set_line_width(draw, width);
-        cairo_stroke(draw);
+      if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
+        // Calculate cursor position based on mask length
+        size_t mask_len = strlen(tb->password_mask_char);
+        cursor_offset = MIN(tb->cursor * mask_len, strlen(text));
       } else {
-        cairo_fill(draw);
+        cursor_offset = MIN(tb->cursor, g_utf8_strlen(text, -1));
+        // convert to byte location.
+        char *offset = g_utf8_offset_to_pointer(text, cursor_offset);
+        cursor_offset = offset - text;
       }
-      cairo_restore(draw);
+      PangoRectangle pos;
+      pango_layout_get_cursor_pos(tb->layout, cursor_offset, &pos, NULL);
+      int cursor_x = pos.x / PANGO_SCALE;
+      int cursor_y = pos.y / PANGO_SCALE;
+      int cursor_height = pos.height / PANGO_SCALE;
+      RofiDistance cursor_width =
+          rofi_theme_get_distance(WIDGET(tb), "cursor-width", 2);
+      int cursor_pixel_width =
+          distance_get_pixel(cursor_width, ROFI_ORIENTATION_HORIZONTAL);
+      if ((x + cursor_x) != tb->cursor_x_pos) {
+        tb->cursor_x_pos = x + cursor_x;
+      }
+      if (tb->blink) {
+        // This save/restore state is necessary to render the text in the
+        // correct color when `cursor-color` is set
+        cairo_save(draw);
+        // use text color as fallback for themes that don't specify the cursor
+        // color
+        rofi_theme_get_color(WIDGET(tb), "cursor-color", draw);
+        cairo_rectangle(draw, x + cursor_x, y + cursor_y, cursor_pixel_width,
+                        cursor_height);
+        if (rofi_theme_get_boolean(WIDGET(tb), "cursor-outline", FALSE)) {
+          cairo_fill_preserve(draw);
+          rofi_theme_get_color(WIDGET(tb), "cursor-outline-color", draw);
+          double width =
+              rofi_theme_get_double(WIDGET(tb), "cursor-outline-width", 0.5);
+          cairo_set_line_width(draw, width);
+          cairo_stroke(draw);
+        } else {
+          cairo_fill(draw);
+        }
+        cairo_restore(draw);
+      }
     }
   }
 
