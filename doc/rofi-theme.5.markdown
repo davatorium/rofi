@@ -132,18 +132,18 @@ element-text {
 └─────────────────────────────────────────────────────────────────────┘ 
 ```
 
-We can also specify the color and width of the cursor. You could, for example,
-create a crimson block cursor like this:
+We can also customize the cursor's color, width, and choose to hide it when the input box is empty. You could, for example, create a crimson block cursor that only appears when text is entered, like this:
 
 ```css
 entry {
   cursor-color: rgb(220,20,60);
   cursor-width: 8px;
+  hide-cursor-on-empty: true;
 }
 ```
 
 By default, the `cursor-color` will be the same as the `text-color`. The
-`cursor-width` will always default to 2 pixels.
+`cursor-width` will always default to 2 pixels and `hide-cursor-on-empty` is set to false.
 
 If you want to see the complete theme, including the modification you can run:
 
@@ -1067,6 +1067,9 @@ The following properties are currently supported:
 - **cursor-width**:      The width of the cursor.
 
 - **cursor-color**:      The color used to draw the cursor.
+
+- **hide-cursor-on-empty**: Hides the cursor when the search field is empty.
+    (Boolean)
 
 - **cursor-outline**:      Enable a border (outline) around the cursor.
     (Boolean)
