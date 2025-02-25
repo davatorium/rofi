@@ -553,7 +553,7 @@ static void textbox_draw(widget *wid, cairo_t *draw) {
     // We want to place the cursor based on the text shown.
     const char *text = pango_layout_get_text(tb->layout);
     // hide the cursor, if no text is entered and hide-empty-cursor is set to true
-    if (!(tb->text[0] == '\0' && rofi_theme_get_boolean(WIDGET(tb), "hide-empty-cursor", FALSE) == TRUE)){
+    if (!(tb->text[0] == '\0' && rofi_theme_get_boolean(WIDGET(tb), "hide-cursor-on-empty", FALSE) == TRUE)){
       // Clamp the position, should not be needed, but we are paranoid.
       size_t cursor_offset;
 
