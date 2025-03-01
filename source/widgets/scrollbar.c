@@ -175,8 +175,26 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
   // Cap length;
   rofi_theme_get_color(WIDGET(sb), "handle-color", draw);
 
-  cairo_rectangle(draw, widget_padding_get_left(wid),
-                  widget_padding_get_top(wid) + y,
-                  widget_padding_get_remaining_width(wid), height);
-  cairo_fill(draw);
+  if (rofi_theme_get_boolean(WIDGET(sb), "rounded-corners", FALSE)) {
+    float x = widget_padding_get_left(wid);
+    float width = widget_padding_get_remaining_width(wid);
+
+    float radius = ((width < height) ? width : height) / 2; // Limit radius to prevent overlap
+
+    // Draw rounded rectangle
+    cairo_new_sub_path(draw);
+    cairo_arc(draw, x + width - radius, y + radius, radius, -G_PI_2, 0);
+    cairo_arc(draw, x + width - radius, y + height - radius, radius, 0, G_PI_2);
+    cairo_arc(draw, x + radius, y + height - radius, radius, G_PI_2, G_PI);
+    cairo_arc(draw, x + radius, y + radius, radius, G_PI, 1.5 * G_PI);
+    cairo_close_path(draw);
+
+    cairo_fill(draw);
+  }
+  else {
+    cairo_rectangle(draw, widget_padding_get_left(wid),
+                    widget_padding_get_top(wid) + y,
+                    widget_padding_get_remaining_width(wid), height);
+    cairo_fill(draw);
+  }
 }
