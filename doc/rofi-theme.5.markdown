@@ -1011,7 +1011,7 @@ The following properties are currently supported:
 - **handle-width**:        distance
 - **handle-color**:        color
 - **border-color**:        color
-- **rounded-corners**:     boolean for rounded scrollbar
+- **handle-rounded-corners**:     boolean for rounded scrollbar
 
 ### box
 

@@ -175,7 +175,7 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
   // Cap length;
   rofi_theme_get_color(WIDGET(sb), "handle-color", draw);
 
-  if (rofi_theme_get_boolean(WIDGET(sb), "rounded-corners", FALSE)) {
+  if (rofi_theme_get_boolean(WIDGET(sb), "handle-rounded-corners", FALSE)) {
     float x = widget_padding_get_left(wid);
     float width = widget_padding_get_remaining_width(wid);
 
