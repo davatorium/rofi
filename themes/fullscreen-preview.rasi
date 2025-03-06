@@ -21,7 +21,7 @@ window {
 }
 
 
-/** We add an extra child to this is PREVIEW=true */
+/** We add an extra child to this if PREVIEW=true */
 listview-split {
   orientation: horizontal;
   spacing: 0.4em;
