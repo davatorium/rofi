@@ -179,4 +179,6 @@ Settings config = {
     .xserver_i300_workaround = FALSE,
     /** What browser to use for completion */
     .completer_mode = "filebrowser",
+    /** Whether to enable imdkit, see #2123 */
+    .enable_imdkit = TRUE,
 };

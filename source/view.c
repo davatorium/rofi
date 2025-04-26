@@ -1037,12 +1037,12 @@ void __create_window(MenuFlags menu_flags) {
                        xcb_event_masks,      map};
 
 #ifdef XCB_IMDKIT
-  xcb_xim_set_im_callback(xcb->im, &xim_callback, NULL);
-#endif
+  if (config.enable_imdkit) {
+    xcb_xim_set_im_callback(xcb->im, &xim_callback, NULL);
 
-// Open connection to XIM server.
-#ifdef XCB_IMDKIT
-  xcb_xim_open(xcb->im, open_xim_callback, true, NULL);
+    // Open connection to XIM server.
+    xcb_xim_open(xcb->im, open_xim_callback, true, NULL);
+  }
 #endif
 
   xcb_window_t box_window = xcb_generate_id(xcb->connection);
@@ -1440,11 +1440,13 @@ void rofi_view_update(RofiViewState *state, gboolean qr) {
   widget_draw(WIDGET(state->main_window), d);
 
 #ifdef XCB_IMDKIT
-  int x = widget_get_x_pos(&state->text->widget) +
-          textbox_get_cursor_x_pos(state->text);
-  int y = widget_get_y_pos(&state->text->widget) +
-          widget_get_height(&state->text->widget);
-  rofi_set_im_window_pos(x, y);
+  if (config.enable_imdkit) {
+    int x = widget_get_x_pos(&state->text->widget) +
+            textbox_get_cursor_x_pos(state->text);
+    int y = widget_get_y_pos(&state->text->widget) +
+            widget_get_height(&state->text->widget);
+    rofi_set_im_window_pos(x, y);
+  }
 #endif
 
   TICK_N("widgets");

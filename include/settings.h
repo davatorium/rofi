@@ -206,6 +206,8 @@ typedef struct {
   gboolean xserver_i300_workaround;
   /** completer mode */
   char *completer_mode;
+  /** Whether to enable imdkit, see #2123 */
+  gboolean enable_imdkit;
 } Settings;
 
 /** Default number of lines in the list view */

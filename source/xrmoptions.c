@@ -501,6 +501,12 @@ static XrmOption xrmOptions[] = {
      NULL,
      "What completer to use for drun/run.",
      CONFIG_DEFAULT},
+    {xrm_Boolean,
+     "imdkit",
+     {.snum = &config.enable_imdkit},
+     NULL,
+     "Whether to enable imdkit",
+     CONFIG_DEFAULT},
 };
 
 /** Dynamic array of extra options */

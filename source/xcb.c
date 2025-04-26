@@ -1373,7 +1373,7 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   case XCB_KEY_PRESS: {
     xcb_key_press_event_t *xkpe = (xcb_key_press_event_t *)event;
 #ifdef XCB_IMDKIT
-    if (xcb->ic) {
+    if (config.enable_imdkit && xcb->ic) {
       g_log("IMDKit", G_LOG_LEVEL_DEBUG, "press key %d to xim", xkpe->detail);
       xcb_xim_forward_event(xcb->im, xcb->ic, xkpe);
       return;
@@ -1387,7 +1387,7 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
   case XCB_KEY_RELEASE: {
     xcb_key_release_event_t *xkre = (xcb_key_release_event_t *)event;
 #ifdef XCB_IMDKIT
-    if (xcb->ic) {
+    if (config.enable_imdkit && xcb->ic) {
       g_log("IMDKit", G_LOG_LEVEL_DEBUG, "release key %d to xim", xkre->detail);
 
       // Check if the keysym is a modifier key (e.g., Shift, Ctrl, Alt). If it
@@ -1452,7 +1452,7 @@ static gboolean main_loop_x11_event_handler(xcb_generic_event_t *ev,
   }
 
 #ifdef XCB_IMDKIT
-  if (xcb->im && xcb_xim_filter_event(xcb->im, ev))
+  if (config.enable_imdkit && xcb->im && xcb_xim_filter_event(xcb->im, ev))
     return G_SOURCE_CONTINUE;
 #endif
 
@@ -1675,7 +1675,9 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
 
   xcb->main_loop = main_loop;
 #ifdef XCB_IMDKIT
-  xcb_compound_text_init();
+  if (config.enable_imdkit) {
+    xcb_compound_text_init();
+  }
 #endif
   xcb->source = g_water_xcb_source_new(g_main_loop_get_context(xcb->main_loop),
                                        display_str, &xcb->screen_nbr,
@@ -1686,14 +1688,21 @@ gboolean display_setup(GMainLoop *main_loop, NkBindings *bindings) {
   }
   xcb->connection = g_water_xcb_source_get_connection(xcb->source);
 #ifdef XCB_IMDKIT
-  xcb->im = xcb_xim_create(xcb->connection, xcb->screen_nbr, NULL);
-  xcb->syms = xcb_key_symbols_alloc(xcb->connection);
+  if (config.enable_imdkit) {
+    xcb->im = xcb_xim_create(xcb->connection, xcb->screen_nbr, NULL);
+    xcb->syms = xcb_key_symbols_alloc(xcb->connection);
+  } else {
+    xcb->im = NULL;
+    xcb->syms = NULL;
+  }
 #endif
 
 #ifdef XCB_IMDKIT
 #ifndef XCB_IMDKIT_1_0_3_LOWER
-  xcb_xim_set_use_compound_text(xcb->im, true);
-  xcb_xim_set_use_utf8_string(xcb->im, true);
+  if (config.enable_imdkit) {
+    xcb_xim_set_use_compound_text(xcb->im, true);
+    xcb_xim_set_use_utf8_string(xcb->im, true);
+  }
 #endif
 #endif
 
@@ -1966,9 +1975,11 @@ void display_cleanup(void) {
   xcb_flush(xcb->connection);
   xcb_aux_sync(xcb->connection);
 #ifdef XCB_IMDKIT
-  xcb_xim_close(xcb->im);
-  xcb_xim_destroy(xcb->im);
-  xcb->im = NULL;
+  if (config.enable_imdkit) {
+    xcb_xim_close(xcb->im);
+    xcb_xim_destroy(xcb->im);
+    xcb->im = NULL;
+  }
 #endif
   g_water_xcb_source_free(xcb->source);
   xcb->source = NULL;
