@@ -72,47 +72,51 @@ libgwater = subproject('libgwater')
 # Check if atleast xcb or wayland is allowed in build configuration.
 # No point in having no backend.
 ##
-xcb_allowed= get_option('xcb').allowed()
-wayland_allowed = get_option('wayland').allowed()
-assert(xcb_allowed or wayland_allowed,
+xcb_opt = get_option('xcb')
+wayland_opt = get_option('wayland')
+assert(xcb_opt.allowed() or wayland_opt.allowed(),
     'At least one of these options must be allowed: wayland, xcb')
 
-##
-# Check what two options should be available.
-##
-xcb = dependency('xcb', required: get_option('xcb').enabled())
-wayland_protocols = dependency('wayland-protocols', version: '>= 1.17', required: get_option('wayland').enabled())
-
-xcb_enabled = xcb.found()
-wayland_enabled = wayland_protocols.found()
-
 # XCB stuff
+xcb = dependency('xcb', required: xcb_opt)
+xcb_deps = [
+    xcb,
+    dependency('xcb-aux', required: xcb_opt),
+    dependency('xcb-xkb', required: xcb_opt),
+    dependency('xkbcommon-x11', required: xcb_opt),
+    dependency('xcb-ewmh', required: xcb_opt),
+    dependency('xcb-icccm', required: xcb_opt),
+    dependency('xcb-randr', required: xcb_opt),
+    dependency('xcb-cursor', required: xcb_opt),
+    dependency('xcb-xinerama', required: xcb_opt),
+    dependency('xcb-keysyms', required: xcb_opt),
+    dependency('cairo-xcb', required: xcb_opt),
+    dependency('libstartup-notification-1.0', required: xcb_opt),
+]
+
+xcb_enabled = xcb_opt.allowed()
+foreach dep: xcb_deps
+  xcb_enabled = xcb_enabled and dep.found()
+endforeach
+
 if xcb_enabled
-    deps += [
-        libgwater.get_variable('libgwater_xcb'),
-        xcb,
-        dependency('xcb-aux'),
-        dependency('xcb-xkb'),
-        dependency('xkbcommon-x11'),
-        dependency('xcb-ewmh'),
-        dependency('xcb-icccm'),
-        dependency('xcb-randr'),
-        dependency('xcb-cursor'),
-        dependency('xcb-xinerama'),
-        dependency('xcb-keysyms'),
-        dependency('cairo-xcb'),
-        dependency('libstartup-notification-1.0'),
-    ]
+  deps += xcb_deps + [libgwater.get_variable('libgwater_xcb')]
 endif
 
+wayland_protocols = dependency('wayland-protocols', version: '>= 1.17', required: wayland_opt)
+wayland_deps = [
+  dependency('wayland-client', required: wayland_opt),
+  wayland_protocols,
+  dependency('wayland-cursor', required: wayland_opt),
+]
+
+wayland_enabled = wayland_opt.allowed()
+foreach dep: wayland_deps
+  wayland_enabled = wayland_enabled and dep.found()
+endforeach
 
 if wayland_enabled
-    deps += [
-        dependency('wayland-client'),
-        wayland_protocols,
-        dependency('wayland-cursor'),
-        libgwater.get_variable('libgwater_wayland'),
-    ]
+  deps += wayland_deps + [libgwater.get_variable('libgwater_wayland')]
 endif
 
 ##
