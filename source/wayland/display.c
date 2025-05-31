@@ -1186,6 +1186,19 @@ static void wayland_output_release(wayland_output *self) {
   g_free(self);
 }
 
+double wayland_get_dpi_estimation(void) {
+  double retv = -1.0;
+  if (wayland && g_hash_table_size(wayland->outputs)) {
+    GHashTableIter iter;
+    wayland_output *output;
+    g_hash_table_iter_init(&iter, wayland->outputs);
+    if (g_hash_table_iter_next(&iter, NULL, (gpointer *)&output)) {
+      return wayland_output_get_dpi(output, output->current.scale, height);
+    }
+  }
+  return retv;
+}
+
 static wayland_output *wayland_output_by_name(const char *name) {
 #ifdef WL_OUTPUT_NAME_SINCE_VERSION
   GHashTableIter iter;

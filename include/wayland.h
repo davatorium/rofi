@@ -46,4 +46,11 @@ void display_set_surface_dimensions(int width, int height, int x_margin,
 
 void wayland_display_set_cursor_type(RofiCursorType type);
 
+/**
+ * Tries to guess the DPI.
+ *
+ * @returns an guess for the dpi, or -1 if no guess could be made.
+ */
+double wayland_get_dpi_estimation(void);
+
 #endif
