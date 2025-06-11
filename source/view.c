@@ -1157,6 +1157,10 @@ void __create_window(MenuFlags menu_flags) {
     window_set_atom_prop(box_window, xcb->ewmh._NET_WM_STATE,
                          &(xcb->ewmh._NET_WM_STATE_ABOVE), 1);
     uint32_t values[] = {1};
+    if (getenv("WAYLAND_DISPLAY") != NULL) {
+      x11_disable_decoration(box_window);
+      values[0] = 0;
+    }
     xcb_change_window_attributes(xcb->connection, box_window,
                                  XCB_CW_OVERRIDE_REDIRECT, values);
   } else {
