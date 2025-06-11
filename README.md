@@ -181,6 +181,16 @@ Due to the different architecture and available APIs in Wayland mode, some origi
 - fake transparency
 - window mode on KWin which implements different protocols than the wlr family
 
+### Wayland DPI
+
+On wayland, the output is only known after the first surface is shown. This makes sizing
+rofi windows in absolute size (mm) very difficult, a problem unique for rofi,
+as the actual DPI is unknown before hand. This can be worked around by manually
+passing the right DPI via configuration system. If the `dpi` config option is
+set to `0` and only one monitor is connected rofi will use the DPI of the only
+connected monitor or if you have multiple monitors and you specify a monitor
+name, it will use the DPI of that monitor.
+
 ## Manpage
 
 For more up to date information, please see the manpages. The other sections
