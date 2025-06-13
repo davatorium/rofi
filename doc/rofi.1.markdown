@@ -566,11 +566,18 @@ This is now the method to tweak the theme via the command line.
 
 Override the default DPI setting.
 
+On X11:
+
 - If set to `0`, it tries to auto-detect based on X11 screen size (similar to
     i3 and GTK).
 
 - If set to `1`, it tries to auto-detect based on the size of the monitor
     that **rofi** is displayed on (similar to latest Qt 5).
+
+On Wayland:
+
+- If set to `0` or `1`, it tries to auto-detect if there is one monitor, or if
+there is a `-monitor` name specified.
 
 `-selected-row` *selected row*
 
