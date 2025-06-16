@@ -135,6 +135,9 @@ unsigned int curr_mode = 0;
 /** Handle to NkBindings object for input devices. */
 NkBindings *bindings = NULL;
 
+/** Switches to TRUE when display is set up and ready */
+gboolean display_setup_success = FALSE;
+
 /** Glib main loop. */
 GMainLoop *main_loop = NULL;
 
@@ -391,21 +394,23 @@ static void help(G_GNUC_UNUSED int argc, char **argv, const gboolean compact) {
     printf("\n");
   }
   print_backend_info();
+  if (display_setup_success) {
 #ifdef ENABLE_XCB
-  if (config.backend == DISPLAY_XCB) {
-    printf("Detected Window manager:\n");
-    char *wm = x11_helper_get_window_manager();
-    if (wm) {
-      printf("\t• %s\n", wm);
-      g_free(wm);
-    } else {
-      printf("\t• No window manager detected.\n");
+    if (config.backend == DISPLAY_XCB) {
+      printf("Detected Window manager:\n");
+      char *wm = x11_helper_get_window_manager();
+      if (wm) {
+        printf("\t• %s\n", wm);
+        g_free(wm);
+      } else {
+        printf("\t• No window manager detected.\n");
+      }
+      printf("\n");
     }
+#endif
+    display_dump_monitor_layout();
     printf("\n");
   }
-#endif
-  display_dump_monitor_layout();
-  printf("\n");
   printf("Detected modes:\n");
   print_list_of_modes(is_term);
   printf("\n");
@@ -1078,8 +1083,6 @@ int main(int argc, char *argv[]) {
 
   display_init(proxy);
 
-  TICK_N("Select Backend");
-
   if (setlocale(LC_ALL, "") == NULL) {
     g_warning("Failed to set locale.");
     cleanup();
@@ -1098,17 +1101,6 @@ int main(int argc, char *argv[]) {
 
   bindings = nk_bindings_new(0lu);
   TICK_N("NK Bindings");
-
-  if (!display_setup(main_loop, bindings)) {
-    g_warning("Connection has error");
-    cleanup();
-    return EXIT_FAILURE;
-  }
-  TICK_N("Setup Display");
-
-  // Setup keybinding
-  setup_abe();
-  TICK_N("Setup abe");
 
   if (find_arg("-no-config") < 0) {
     // Load distro default settings
@@ -1243,19 +1235,7 @@ int main(int argc, char *argv[]) {
     cleanup();
     return EXIT_SUCCESS;
   }
-  // Dump.
-  // catch help request
-  if (find_arg("-h") >= 0 || find_arg("-help") >= 0 ||
-      find_arg("--help") >= 0) {
-    help(argc, argv, FALSE);
-    cleanup();
-    return EXIT_SUCCESS;
-  }
-  if (find_arg("-info") >= 0 || find_arg("--info") >= 0) {
-    help(argc, argv, TRUE);
-    cleanup();
-    return EXIT_SUCCESS;
-  }
+
   if (find_arg("-list-keybindings") >= 0) {
     int is_term = isatty(fileno(stdout));
     abe_list_all_bindings(is_term);
@@ -1272,6 +1252,33 @@ int main(int argc, char *argv[]) {
   if (find_arg("-benchmark-ui") >= 0) {
     config.benchmark_ui = TRUE;
   }
+
+  display_setup_success = display_setup(main_loop, bindings);
+  TICK_N("Setup Display");
+
+  // catch help request
+  if (find_arg("-h") >= 0 || find_arg("-help") >= 0 ||
+      find_arg("--help") >= 0) {
+    help(argc, argv, FALSE);
+    cleanup();
+    return EXIT_SUCCESS;
+  }
+  if (find_arg("-info") >= 0 || find_arg("--info") >= 0) {
+    help(argc, argv, TRUE);
+    cleanup();
+    return EXIT_SUCCESS;
+  }
+
+  if (!display_setup_success) {
+    g_warning("Connection has error");
+    cleanup();
+    return EXIT_FAILURE;
+  }
+
+  // Setup keybinding
+  setup_abe();
+  TICK_N("Setup abe");
+
 
   rofi_view_workers_initialize();
   TICK_N("Workers initialize");
