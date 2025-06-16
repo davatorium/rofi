@@ -724,12 +724,32 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
   if (dr->icon_name == NULL) {
     return NULL;
   }
-  uint32_t uid = dr->icon_fetch_uid =
+  if (strchr(dr->icon_name, ',') == NULL) {
+    uint32_t uid = dr->icon_fetch_uid =
       rofi_icon_fetcher_query(dr->icon_name, height);
   dr->icon_fetch_size = height;
   dr->icon_fetch_scale = scale;
 
-  return rofi_icon_fetcher_get(uid);
+    return rofi_icon_fetcher_get(uid);
+  } else {
+    cairo_surface_t *icon_surface = NULL;
+    char *icon_name_copy = g_strdup(dr->icon_name);
+    char *icon_iter = icon_name_copy;
+    char *icon = NULL;
+    // Try each icon in the comma-separated list until one is found
+    while ((icon = strsep(&icon_iter, ",")) != NULL) {
+      uint32_t uid = rofi_icon_fetcher_query(icon, height);
+      icon_surface = rofi_icon_fetcher_get(uid);
+      if (icon_surface != NULL) {
+        dr->icon_fetch_uid = uid;
+        dr->icon_fetch_size = height;
+        dr->icon_fetch_scale = scale;
+        break;
+      }
+    }
+    g_free(icon_name_copy);
+    return icon_surface;
+  }
 }
 
 static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state,

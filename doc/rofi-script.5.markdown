@@ -138,7 +138,7 @@ For example:
 
 The following options are supported:
 
--   **icon**: Set the icon for that row.
+-   **icon**: Set the icon for that row. Multiple fallback icons can be specified using comma-separated values.
 
 -   **display**: Replace the displayed string. (Original string will still be used for filtering)
 
@@ -158,7 +158,7 @@ The following options are supported:
 multiple entries can be passed using the `\x1f` separator.
 
 ```bash
-    echo -en "aap\0icon\x1ffolder\x1finfo\x1ftest\n"
+    echo -en "aap\0icon\x1ffolder,inode-directory\x1finfo\x1ftest\n"
 ```
 
 ## Executing external program
