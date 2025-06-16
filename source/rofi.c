@@ -1270,7 +1270,22 @@ int main(int argc, char *argv[]) {
   }
 
   if (!display_setup_success) {
-    g_warning("Connection has error");
+#ifdef ENABLE_WAYLAND
+#ifdef ENABLE_XCB
+    g_warning("No valid backend was found. Make sure to launch %s from a valid "
+              "X11 or Wayland session.",
+              argv[0]);
+#else
+    g_warning("No valid backend was found. Make sure to launch %s from a valid "
+              "Wayland session.",
+              argv[0]);
+
+#endif
+#else
+    g_warning("No valid backend was found. Make sure to launch %s from a valid "
+              "X11 session.",
+              argv[0]);
+#endif
     cleanup();
     return EXIT_FAILURE;
   }
@@ -1278,7 +1293,6 @@ int main(int argc, char *argv[]) {
   // Setup keybinding
   setup_abe();
   TICK_N("Setup abe");
-
 
   rofi_view_workers_initialize();
   TICK_N("Workers initialize");
