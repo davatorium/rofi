@@ -1,6 +1,6 @@
 /**
  *   MIT/X11 License
- *   Modified  (c) 2017 Morgane Glidic, (c) 2020-2025 lbonn
+ *   Modified  (c) 2017 Morgane Glidic, (c) 2020-2025 lbonn, (c) 2025 lvitals
  *
  *   Permission is hereby granted, free of charge, to any person obtaining
  *   a copy of this software and associated documentation files (the
@@ -29,7 +29,6 @@
 #include <config.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <linux/input-event-codes.h>
 #include <locale.h>
 #include <math.h>
 #include <stdint.h>
@@ -51,6 +50,7 @@
 
 #include <rofi.h>
 
+#include "input-codes.h"
 #include "keyb.h"
 #include "rofi-types.h"
 #include "settings.h"
