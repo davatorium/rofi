@@ -137,6 +137,7 @@ static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
   (*block)->values[(*block)->length].icon_fetch_uid = 0;
   (*block)->values[(*block)->length].icon_fetch_size = 0;
   (*block)->values[(*block)->length].icon_fetch_scale = 0;
+  (*block)->values[(*block)->length].icon_fallback_index = 0;
   (*block)->values[(*block)->length].icon_name = NULL;
   (*block)->values[(*block)->length].meta = NULL;
   (*block)->values[(*block)->length].info = NULL;
@@ -169,6 +170,7 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
   pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
   pd->cmd_list[pd->cmd_list_length].icon_fetch_size = 0;
   pd->cmd_list[pd->cmd_list_length].icon_fetch_scale = 0;
+  pd->cmd_list[pd->cmd_list_length].icon_fallback_index = 0;
   pd->cmd_list[pd->cmd_list_length].icon_name = NULL;
   pd->cmd_list[pd->cmd_list_length].display = NULL;
   pd->cmd_list[pd->cmd_list_length].meta = NULL;
@@ -724,25 +726,43 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
   if (dr->icon_name == NULL) {
     return NULL;
   }
-  cairo_surface_t *icon_surface = NULL;
+
+  if (dr->icon_fetch_uid > 0) {
+    cairo_surface_t *surface = NULL;
+    gboolean query_done = rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
+
+    if (surface != NULL) {
+      return surface;
+    } else if (query_done) {
+      dr->icon_fallback_index++;
+      dr->icon_fetch_uid = 0;
+    } else {
+      return NULL;
+    }
+  }
+
   char *icon_name_copy = g_strdup(dr->icon_name);
   char *icon_iter = icon_name_copy;
-  char *icon = NULL;
+  char *current_icon = NULL;
+  int current_index = 0;
 
   // Try each icon in the comma-separated list until one is found
-  while ((icon = strsep(&icon_iter, ",")) != NULL) {
-    uint32_t uid = rofi_icon_fetcher_query(icon, height);
-    icon_surface = rofi_icon_fetcher_get(uid);
-    if (icon_surface != NULL) {
-      dr->icon_fetch_uid = uid;
+  while ((current_icon = strsep(&icon_iter, ",")) != NULL) {
+    if (current_index == dr->icon_fallback_index) {
+      dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
       dr->icon_fetch_size = height;
       dr->icon_fetch_scale = scale;
       break;
     }
+    current_index++;
+  }
+
+  if (current_icon == NULL) {
+    dr->icon_fetch_uid = 0;
   }
 
   g_free(icon_name_copy);
-  return icon_surface;
+  return NULL;
 }
 
 static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state,
