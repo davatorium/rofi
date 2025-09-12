@@ -509,12 +509,13 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
     // terminal.
     gboolean terminal =
         g_key_file_get_boolean(e->key_file, e->action, "Terminal", NULL);
-    if (helper_execute_command(exec_path, fp, terminal, sn ? &context : NULL)) {
-      char *drun_cach_path = g_build_filename(cache_dir, DRUN_CACHE_FILE, NULL);
-      // Store it based on the unique identifiers (desktop_id).
-      history_set(drun_cach_path, e->desktop_id);
-      g_free(drun_cach_path);
-    }
+    launched = helper_execute_command(exec_path, fp, terminal, sn ? &context : NULL);
+  }
+  if (launched == TRUE) {
+    char *drun_cach_path = g_build_filename(cache_dir, DRUN_CACHE_FILE, NULL);
+    // Store it based on the unique identifiers (desktop_id).
+    history_set(drun_cach_path, e->desktop_id);
+    g_free(drun_cach_path);
   }
   g_free(wmclass);
   g_free(exec_path);
