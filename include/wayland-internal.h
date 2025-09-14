@@ -85,6 +85,8 @@ typedef struct {
 
   uint32_t layer_width;
   uint32_t layer_height;
+
+  struct zwp_text_input_manager_v3 *text_input_manager;
 } wayland_stuff;
 
 struct _wayland_seat {
@@ -120,6 +122,8 @@ struct _wayland_seat {
     double vertical;
     double horizontal;
   } wheel_continuous;
+
+  struct zwp_text_input_v3 *text_input;
 };
 
 /* Supported interface versions */

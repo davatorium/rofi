@@ -66,6 +66,7 @@
 #include "keyboard-shortcuts-inhibit-unstable-v1-protocol.h"
 #include "primary-selection-unstable-v1-protocol.h"
 #include "wlr-layer-shell-unstable-v1-protocol.h"
+#include "text-input-unstable-v3-protocol.h"
 
 #define wayland_output_get_dpi(output, scale, dimension)                       \
   ((output)->current.physical_##dimension > 0 && (scale) > 0                   \
@@ -113,6 +114,8 @@ static gboolean wayland_display_late_setup(void);
 static wayland_stuff wayland_;
 wayland_stuff *wayland = &wayland_;
 static const cairo_user_data_key_t wayland_cairo_surface_user_data;
+
+static const struct zwp_text_input_v3_listener text_input_listener;
 
 static void wayland_buffer_cleanup(wayland_buffer_pool *self) {
   if (!self->to_free) {
@@ -1108,6 +1111,10 @@ static void wayland_pointer_release(wayland_seat *self) {
 }
 
 static void wayland_seat_release(wayland_seat *self) {
+  if (self->text_input) {
+    zwp_text_input_v3_destroy(self->text_input);
+    self->text_input = NULL;
+  }
   wayland_keyboard_release(self);
   wayland_pointer_release(self);
 
@@ -1126,6 +1133,12 @@ static void wayland_seat_capabilities(void *data, struct wl_seat *seat,
       (self->keyboard == NULL)) {
     self->keyboard = wl_seat_get_keyboard(self->seat);
     wl_keyboard_add_listener(self->keyboard, &wayland_keyboard_listener, self);
+    if (wayland->text_input_manager) {
+      self->text_input = zwp_text_input_manager_v3_get_text_input(
+          wayland->text_input_manager, seat);
+      zwp_text_input_v3_add_listener(self->text_input, &text_input_listener,
+                                     self);
+    }
   } else if ((!(capabilities & WL_SEAT_CAPABILITY_POINTER)) &&
              (self->keyboard != NULL)) {
     wayland_keyboard_release(self);
@@ -1169,6 +1182,74 @@ static void wayland_seat_name(void *data, struct wl_seat *seat,
 static const struct wl_seat_listener wayland_seat_listener = {
     .capabilities = wayland_seat_capabilities,
     .name = wayland_seat_name,
+};
+
+static void update_cursor_rectangle(struct zwp_text_input_v3 *text_input) {
+  textbox *tb = rofi_view_get_active_text();
+  if (tb == NULL) {
+    return;
+  }
+
+  widget *tb_widget = WIDGET(tb);
+  int x = widget_get_x_pos(tb_widget) + textbox_get_cursor_x_pos(tb);
+  int y = widget_get_y_pos(tb_widget);
+  int w = 1;
+  int h = widget_get_height(tb_widget);
+  zwp_text_input_v3_set_cursor_rectangle(text_input, x, y, w, h);
+}
+
+static void text_input_enter(void *data, struct zwp_text_input_v3 *text_input,
+                             struct wl_surface *surface) {
+  zwp_text_input_v3_enable(text_input);
+  zwp_text_input_v3_set_content_type(
+      text_input, ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE,
+      ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL);
+  update_cursor_rectangle(text_input);
+  zwp_text_input_v3_commit(text_input);
+}
+static void text_input_leave(void *data, struct zwp_text_input_v3 *text_input,
+                             struct wl_surface *surface) {
+  zwp_text_input_v3_disable(text_input);
+  zwp_text_input_v3_commit(text_input);
+}
+
+static void text_input_preedit_string(void *data,
+                                      struct zwp_text_input_v3 *text_input,
+                                      const char *text, int32_t cursor_begin,
+                                      int32_t cursor_end) {
+  update_cursor_rectangle(text_input);
+  zwp_text_input_v3_commit(text_input);
+}
+
+static void text_input_commit_string(void *data,
+                                     struct zwp_text_input_v3 *text_input,
+                                     const char *text) {
+  if (text == NULL) {
+    return;
+  }
+
+  RofiViewState *state = rofi_view_get_active();
+  if (state) {
+    rofi_view_handle_text(state, text);
+  }
+}
+
+static void
+text_input_delete_surrounding_text(void *data,
+                                   struct zwp_text_input_v3 *text_input,
+                                   uint32_t before_length,
+                                   uint32_t after_length) {}
+
+static void text_input_done(void *data, struct zwp_text_input_v3 *text_input,
+                            uint32_t serial) {}
+
+static const struct zwp_text_input_v3_listener text_input_listener = {
+    .enter = text_input_enter,
+    .leave = text_input_leave,
+    .preedit_string = text_input_preedit_string,
+    .commit_string = text_input_commit_string,
+    .delete_surrounding_text = text_input_delete_surrounding_text,
+    .done = text_input_done,
 };
 
 static void wayland_output_release(wayland_output *self) {
@@ -1377,6 +1458,10 @@ static void wayland_registry_handle_global(void *data,
         registry, name, &wp_cursor_shape_manager_v1_interface, 1);
   }
 #endif
+  else if (strcmp(interface, zwp_text_input_manager_v3_interface.name) == 0) {
+    wayland->text_input_manager = wl_registry_bind(
+        registry, name, &zwp_text_input_manager_v3_interface, 1);
+  }
 }
 
 static void wayland_registry_handle_global_remove(void *data,

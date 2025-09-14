@@ -298,6 +298,14 @@ void rofi_view_restart(RofiViewState *state) {
 
 RofiViewState *rofi_view_get_active(void) { return current_active_menu; }
 
+textbox *rofi_view_get_active_text(void) {
+  RofiViewState *state = rofi_view_get_active();
+  if (state) {
+    return state->text;
+  }
+  return NULL;
+}
+
 void rofi_view_remove_active(RofiViewState *state) {
   if (state == current_active_menu) {
     rofi_view_set_active(NULL);

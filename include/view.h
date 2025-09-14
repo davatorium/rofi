@@ -30,6 +30,7 @@
 
 #include "mode.h"
 #include "widgets/widget.h"
+#include "widgets/textbox.h"
 #include <pango/pango.h>
 #ifdef ENABLE_XCB
 #include <xcb/xcb.h>
@@ -210,6 +211,13 @@ void rofi_view_free(RofiViewState *state);
  * @returns the active view handle or NULL
  */
 RofiViewState *rofi_view_get_active(void);
+
+/**
+  * Get the current active textbox with the user input.
+  *
+  * @returns the active textbox or NULL
+  */
+textbox *rofi_view_get_active_text(void);
 
 /**
  * @param state the new active view handle.
