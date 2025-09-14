@@ -178,7 +178,8 @@ static void parse_header_entry(Mode *sw, char *line, ssize_t length) {
 
 static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
                                           unsigned int *length, int value,
-                                          DmenuScriptEntry *entry) {
+                                          DmenuScriptEntry *entry,
+                                          char *input) {
   ScriptModePrivateData *pd = (ScriptModePrivateData *)sw->private_data;
   int fd = -1;
   GError *error = NULL;
@@ -206,6 +207,10 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
   }
   if (pd->data) {
     env = g_environ_setenv(env, "ROFI_DATA", pd->data, TRUE);
+  }
+
+  if (input != NULL) {
+    env = g_environ_setenv(env, "ROFI_INPUT", input, TRUE);
   }
 
   if (g_shell_parse_argv(sw->ed, &argc, &argv, &error)) {
@@ -300,7 +305,7 @@ static int script_mode_init(Mode *sw) {
     ScriptModePrivateData *pd = g_malloc0(sizeof(*pd));
     pd->delim = '\n';
     sw->private_data = (void *)pd;
-    pd->cmd_list = execute_executor(sw, NULL, &(pd->cmd_list_length), 0, NULL);
+    pd->cmd_list = execute_executor(sw, NULL, &(pd->cmd_list_length), 0, NULL, NULL);
   }
   return TRUE;
 }
@@ -337,11 +342,12 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
       if (selected_line != UINT32_MAX) {
         new_list = execute_executor(sw, rmpd->cmd_list[selected_line].entry,
                                     &new_length, 10 + (mretv & MENU_LOWER_MASK),
-                                    &(rmpd->cmd_list[selected_line]));
+                                    &(rmpd->cmd_list[selected_line]), *input);
       } else {
         if (rmpd->no_custom == FALSE) {
           new_list = execute_executor(sw, *input, &new_length,
-                                      10 + (mretv & MENU_LOWER_MASK), NULL);
+                                      10 + (mretv & MENU_LOWER_MASK), NULL,
+                                      *input);
         } else {
           return RELOAD_DIALOG;
         }
@@ -353,7 +359,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
   } else if ((mretv & MENU_ENTRY_DELETE) && selected_line != UINT32_MAX) {
     script_mode_reset_highlight(sw);
     new_list = execute_executor(sw, rmpd->cmd_list[selected_line].entry, &new_length,
-                                3, &(rmpd->cmd_list[selected_line]));
+                                3, &(rmpd->cmd_list[selected_line]), *input);
   } else if ((mretv & MENU_OK) && rmpd->cmd_list[selected_line].entry != NULL) {
     if (rmpd->cmd_list[selected_line].nonselectable) {
       return RELOAD_DIALOG;
@@ -361,11 +367,11 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
     script_mode_reset_highlight(sw);
     new_list =
         execute_executor(sw, rmpd->cmd_list[selected_line].entry, &new_length,
-                         1, &(rmpd->cmd_list[selected_line]));
+                         1, &(rmpd->cmd_list[selected_line]), *input);
   } else if ((mretv & MENU_CUSTOM_INPUT) && *input != NULL) {
     if (rmpd->no_custom == FALSE) {
       script_mode_reset_highlight(sw);
-      new_list = execute_executor(sw, *input, &new_length, 2, NULL);
+      new_list = execute_executor(sw, *input, &new_length, 2, NULL, *input);
     } else {
       return RELOAD_DIALOG;
     }

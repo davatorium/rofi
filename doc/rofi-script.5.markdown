@@ -71,6 +71,10 @@ Environment get set when selected entry get set with the property value of the
 
 Environment get set when script sets `data` option in header.
 
+### `ROFI_INPUT`
+
+The original input string from user.
+
 ## Passing mode options
 
 Extra options, like setting the prompt, can be set by the script. Extra options
