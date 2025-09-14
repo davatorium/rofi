@@ -88,6 +88,11 @@ Settings config = {
      *
      */
     .location = WL_CENTER,
+    /**
+     * On Wayland, specifies the layer where rofi is rendered. Available layers are
+     * `background`, `bottom`, `top`, `overlay`. The default layer is `overlay`.
+     */
+    .wayland_layer = "overlay",
     /** Y offset */
     .y_offset = 0,
     /** X offset */

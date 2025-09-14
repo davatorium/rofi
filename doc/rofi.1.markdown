@@ -180,6 +180,11 @@ Default:  Autodetect
 
 The X server to contact. Default is `$DISPLAY`.
 
+`-wayland-layer` *layer*
+
+On Wayland, specifies the layer where rofi is rendered. Available layers are
+`background`, `bottom`, `top`, `overlay`. The default layer is `overlay`.
+
 `-dmenu`
 
 Run **rofi** in dmenu mode. This allows for interactive scripts.

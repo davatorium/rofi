@@ -97,6 +97,13 @@ static XrmOption xrmOptions[] = {
      NULL,
      "Location on screen",
      CONFIG_DEFAULT},
+    {xrm_String,
+     "wayland-layer",
+     {.str = &config.wayland_layer},
+     NULL,
+     "On Wayland, specifies the layer where rofi is rendered. "
+     "Available layers are background, bottom, top, overlay.",
+     CONFIG_DEFAULT},
     {xrm_SNumber,
      "yoffset",
      {.snum = &config.y_offset},
