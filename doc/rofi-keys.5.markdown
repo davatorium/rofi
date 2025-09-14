@@ -8,9 +8,9 @@
 
 **rofi** supports overriding of any of it key and mouse binding.
 
-## Setting binding
+## Set a Binding
 
-Bindings can be done on the commandline (-{bindingname}):
+Bindings can be done on the command line (-{bindingname}):
 
 ```bash
 rofi -show run -kb-accept-entry 'Control+Shift+space'
@@ -51,7 +51,7 @@ configuration {
 }
 ```
 
-## Unsetting a binding
+## Unset a Binding
 
 To unset a binding, pass an empty string.
 
@@ -63,495 +63,96 @@ configuration {
 
 ## Keyboard Bindings
 
-`kb-primary-paste`
-
-Paste primary selection
-
-Default:  Control+V,Shift+Insert
-
-`kb-secondary-paste`
-
-Paste clipboard
-
-Default:  Control+v,Insert
-
-`kb-secondary-copy`
-
-Copy current selection to clipboard
-
-Default:  Control+c
-
-`kb-clear-line`
-
-Clear input line
-
-Default:  Control+w
-
-`kb-move-front`
-
-Beginning of line
-
-Default:  Control+a
-
-`kb-move-end`
-
-End of line
-
-Default:  Control+e
-
-`kb-move-word-back`
-
-Move back one word
-
-Default:  Alt+b,Control+Left
-
-`kb-move-word-forward`
-
-Move forward one word
-
-Default:  Alt+f,Control+Right
-
-`kb-move-char-back`
-
-Move back one char
-
-Default:  Left,Control+b
-
-`kb-move-char-forward`
-
-Move forward one char
-
-Default:  Right,Control+f
-
-`kb-remove-word-back`
-
-Delete previous word
-
-Default:  Control+Alt+h,Control+BackSpace
-
-`kb-remove-word-forward`
-
-Delete next word
-
-Default:  Control+Alt+d
-
-`kb-remove-char-forward`
-
-Delete next char
-
-Default:  Delete,Control+d
-
-`kb-remove-char-back`
-
-Delete previous char
-
-Default:  BackSpace,Shift+BackSpace,Control+h
-
-`kb-remove-to-eol`
-
-Delete till the end of line
-
-Default:  Control+k
-
-`kb-remove-to-sol`
-
-Delete till the start of line
-
-Default:  Control+u
-
-`kb-accept-entry`
-
-Accept entry
-
-Default:  Control+j,Control+m,Return,KP\_Enter
-
-`kb-accept-custom`
-
-Use entered text as command (in ssh/run modes)
-
-Default:  Control+Return
-
-`kb-accept-custom-alt`
-
-Use entered text as command (in ssh/run modes)
-
-Default:  Control+Shift+Return
-
-`kb-accept-alt`
-
-Use alternate accept command.
-
-Default:  Shift+Return
-
-`kb-delete-entry`
-
-Delete entry from history
-
-Default:  Shift+Delete
-
-`kb-mode-next`
-
-Switch to the next mode.
-
-Default:  Shift+Right,Control+Tab
-
-`kb-mode-previous`
-
-Switch to the previous mode.
-
-Default:  Shift+Left,Control+ISO\_Left\_Tab
-
-`kb-mode-complete`
-
-Start completion for mode.
-
-Default:  Control+l
-
-`kb-row-left`
-
-Go to the previous column
-
-Default:  Control+Page\_Up
-
-`kb-row-right`
-
-Go to the next column
-
-Default:  Control+Page\_Down
-
-`kb-row-up`
-
-Select previous entry
-
-Default:  Up,Control+p
-
-`kb-row-down`
-
-Select next entry
-
-Default:  Down,Control+n
-
-`kb-row-tab`
-
-Go to next row, if one left, accept it, if no left next mode.
-
-Default:
-
-`kb-element-next`
-
-Go to next row.
-
-Default: Tab
-
-`kb-element-prev`
-
-Go to previous row.
-
-Default: ISO\_Left\_Tab
-
-`kb-page-prev`
-
-Go to the previous page
-
-Default:  Page\_Up
-
-`kb-page-next`
-
-Go to the next page
-
-Default:  Page\_Down
-
-`kb-row-first`
-
-Go to the first entry
-
-Default:  Home,KP\_Home
-
-`kb-row-last`
-
-Go to the last entry
-
-Default:  End,KP\_End
-
-`kb-row-select`
-
-Set selected item as input text
-
-Default:  Control+space
-
-`kb-screenshot`
-
-Take a screenshot of the rofi window
-
-Default:  Alt+S
-
-`kb-ellipsize`
-
-Toggle between ellipsize modes for displayed data
-
-Default:  Alt+period
-
-`kb-toggle-case-sensitivity`
-
-Toggle case sensitivity
-
-Default:  grave,dead\_grave
-
-`kb-toggle-sort`
-
-Toggle filtered menu sort
-
-Default:  Alt+grave
-
-`kb-cancel`
-
-Quit rofi
-
-Default:  Escape,Control+g,Control+bracketleft
-
-`kb-custom-1`
-
-Custom keybinding 1
-
-Default:  Alt+1
-
-`kb-custom-2`
-
-Custom keybinding 2
-
-Default:  Alt+2
-
-`kb-custom-3`
-
-Custom keybinding 3
-
-Default:  Alt+3
-
-`kb-custom-4`
-
-Custom keybinding 4
-
-Default:  Alt+4
-
-`kb-custom-5`
-
-Custom Keybinding 5
-
-Default:  Alt+5
-
-`kb-custom-6`
-
-Custom keybinding 6
-
-Default:  Alt+6
-
-`kb-custom-7`
-
-Custom Keybinding 7
-
-Default:  Alt+7
-
-`kb-custom-8`
-
-Custom keybinding 8
-
-Default:  Alt+8
-
-`kb-custom-9`
-
-Custom keybinding 9
-
-Default:  Alt+9
-
-`kb-custom-10`
-
-Custom keybinding 10
-
-Default:  Alt+0
-
-`kb-custom-11`
-
-Custom keybinding 11
-
-Default:  Alt+exclam
-
-`kb-custom-12`
-
-Custom keybinding 12
-
-Default:  Alt+at
-
-`kb-custom-13`
-
-Custom keybinding 13
-
-Default:  Alt+numbersign
-
-`kb-custom-14`
-
-Custom keybinding 14
-
-Default:  Alt+dollar
-
-`kb-custom-15`
-
-Custom keybinding 15
-
-Default:  Alt+percent
-
-`kb-custom-16`
-
-Custom keybinding 16
-
-Default:  Alt+dead\_circumflex
-
-`kb-custom-17`
-
-Custom keybinding 17
-
-Default:  Alt+ampersand
-
-`kb-custom-18`
-
-Custom keybinding 18
-
-Default:  Alt+asterisk
-
-`kb-custom-19`
-
-Custom Keybinding 19
-
-Default:  Alt+parenleft
-
-`kb-select-1`
-
-Select row 1
-
-Default:  Super+1
-
-`kb-select-2`
-
-Select row 2
-
-Default:  Super+2
-
-`kb-select-3`
-
-Select row 3
-
-Default:  Super+3
-
-`kb-select-4`
-
-Select row 4
-
-Default:  Super+4
-
-`kb-select-5`
-
-Select row 5
-
-Default:  Super+5
-
-`kb-select-6`
-
-Select row 6
-
-Default:  Super+6
-
-`kb-select-7`
-
-Select row 7
-
-Default:  Super+7
-
-`kb-select-8`
-
-Select row 8
-
-Default:  Super+8
-
-`kb-select-9`
-
-Select row 9
-
-Default:  Super+9
-
-`kb-select-10`
-
-Select row 10
-
-Default:  Super+0
-
-`kb-entry-history-up`
-
-Go up in the entry history.
-
-Default:    Control+Up
-
-`kb-entry-history-down`
-
-Go down in the entry history.
-
-Default:    Control+Down
-
-`kb-matcher-up`
-
-Select the next matcher.
-
-Default: Super+equal
-
-`kb-matcher-down`
-
-Select the previous matcher.
-
-Default: Super+minus
+| Keybinding Name              | Description                                 | Default Shortcut(s)                    |
+| ---------------------------- | ------------------------------------------- | -------------------------------------- |
+| `kb-primary-paste`           | Paste primary selection                     | Control+V, Shift+Insert                |
+| `kb-secondary-paste`         | Paste clipboard                             | Control+v, Insert                      |
+| `kb-secondary-copy`          | Copy current selection to clipboard         | Control+c                              |
+| `kb-clear-line`              | Clear input line                            | Control+w                              |
+| `kb-move-front`              | Beginning of line                           | Control+a                              |
+| `kb-move-end`                | End of line                                 | Control+e                              |
+| `kb-move-word-back`          | Move back one word                          | Alt+b, Control+Left                    |
+| `kb-move-word-forward`       | Move forward one word                       | Alt+f, Control+Right                   |
+| `kb-move-char-back`          | Move back one char                          | Left, Control+b                        |
+| `kb-move-char-forward`       | Move forward one char                       | Right, Control+f                       |
+| `kb-remove-word-back`        | Delete previous word                        | Control+Alt+h, Control+BackSpace       |
+| `kb-remove-word-forward`     | Delete next word                            | Control+Alt+d                          |
+| `kb-remove-char-forward`     | Delete next char                            | Delete, Control+d                      |
+| `kb-remove-char-back`        | Delete previous char                        | BackSpace, Shift+BackSpace, Control+h  |
+| `kb-remove-to-eol`           | Delete till the end of line                 | Control+k                              |
+| `kb-remove-to-sol`           | Delete till the start of line               | Control+u                              |
+| `kb-accept-entry`            | Accept entry                                | Control+j, Control+m, Return, KP_Enter |
+| `kb-accept-custom`           | Use entered text as command (ssh/run modes) | Control+Return                         |
+| `kb-accept-custom-alt`       | Use entered text as command (ssh/run modes) | Control+Shift+Return                   |
+| `kb-accept-alt`              | Use alternate accept command                | Shift+Return                           |
+| `kb-delete-entry`            | Delete entry from history                   | Shift+Delete                           |
+| `kb-mode-next`               | Switch to the next mode                     | Shift+Right, Control+Tab               |
+| `kb-mode-previous`           | Switch to the previous mode                 | Shift+Left, Control+ISO_Left_Tab       |
+| `kb-mode-complete`           | Start completion for mode                   | Control+l                              |
+| `kb-row-left`                | Go to the previous column                   | Control+Page_Up                        |
+| `kb-row-right`               | Go to the next column                       | Control+Page_Down                      |
+| `kb-row-up`                  | Select previous entry                       | Up, Control+p                          |
+| `kb-row-down`                | Select next entry                           | Down, Control+n                        |
+| `kb-row-tab`                 | Go to next row or accept/next mode          | —                                      |
+| `kb-element-next`            | Go to next row                              | Tab                                    |
+| `kb-element-prev`            | Go to previous row                          | ISO_Left_Tab                           |
+| `kb-page-prev`               | Go to the previous page                     | Page_Up                                |
+| `kb-page-next`               | Go to the next page                         | Page_Down                              |
+| `kb-row-first`               | Go to the first entry                       | Home, KP_Home                          |
+| `kb-row-last`                | Go to the last entry                        | End, KP_End                            |
+| `kb-row-select`              | Set selected item as input text             | Control+space                          |
+| `kb-screenshot`              | Take a screenshot of the rofi window        | Alt+S                                  |
+| `kb-ellipsize`               | Toggle ellipsize modes                      | Alt+period                             |
+| `kb-toggle-case-sensitivity` | Toggle case sensitivity                     | grave, dead_grave                      |
+| `kb-toggle-sort`             | Toggle filtered menu sort                   | Alt+grave                              |
+| `kb-cancel`                  | Quit rofi                                   | Escape, Control+g, Control+[           |
+| `kb-custom-1`                | Custom keybinding 1                         | Alt+1                                  |
+| `kb-custom-2`                | Custom keybinding 2                         | Alt+2                                  |
+| `kb-custom-3`                | Custom keybinding 3                         | Alt+3                                  |
+| `kb-custom-4`                | Custom keybinding 4                         | Alt+4                                  |
+| `kb-custom-5`                | Custom Keybinding 5                         | Alt+5                                  |
+| `kb-custom-6`                | Custom keybinding 6                         | Alt+6                                  |
+| `kb-custom-7`                | Custom Keybinding 7                         | Alt+7                                  |
+| `kb-custom-8`                | Custom keybinding 8                         | Alt+8                                  |
+| `kb-custom-9`                | Custom keybinding 9                         | Alt+9                                  |
+| `kb-custom-10`               | Custom keybinding 10                        | Alt+0                                  |
+| `kb-custom-11`               | Custom keybinding 11                        | Alt+exclam                             |
+| `kb-custom-12`               | Custom keybinding 12                        | Alt+at                                 |
+| `kb-custom-13`               | Custom keybinding 13                        | Alt+numbersign                         |
+| `kb-custom-14`               | Custom keybinding 14                        | Alt+dollar                             |
+| `kb-custom-15`               | Custom keybinding 15                        | Alt+percent                            |
+| `kb-custom-16`               | Custom keybinding 16                        | Alt+dead_circumflex                    |
+| `kb-custom-17`               | Custom keybinding 17                        | Alt+ampersand                          |
+| `kb-custom-18`               | Custom keybinding 18                        | Alt+asterisk                           |
+| `kb-custom-19`               | Custom Keybinding 19                        | Alt+parenleft                          |
+| `kb-select-1`                | Select row 1                                | Super+1                                |
+| `kb-select-2`                | Select row 2                                | Super+2                                |
+| `kb-select-3`                | Select row 3                                | Super+3                                |
+| `kb-select-4`                | Select row 4                                | Super+4                                |
+| `kb-select-5`                | Select row 5                                | Super+5                                |
+| `kb-select-6`                | Select row 6                                | Super+6                                |
+| `kb-select-7`                | Select row 7                                | Super+7                                |
+| `kb-select-8`                | Select row 8                                | Super+8                                |
+| `kb-select-9`                | Select row 9                                | Super+9                                |
+| `kb-select-10`               | Select row 10                               | Super+0                                |
+| `kb-entry-history-up`        | Go up in the entry history                  | Control+Up                             |
+| `kb-entry-history-down`      | Go down in the entry history                | Control+Down                           |
+| `kb-matcher-up`              | Select the next matcher                     | Super+equal                            |
+| `kb-matcher-down`            | Select the previous matcher                 | Super+minus                            |
 
 ## Mouse Bindings
 
-`ml-row-left`
+| Mouse Binding Name | Description                           | Default Shortcut(s)   |
+| ------------------ | ------------------------------------- | --------------------- |
+| `ml-row-left`      | Go to the previous column             | ScrollLeft            |
+| `ml-row-right`     | Go to the next column                 | ScrollRight           |
+| `ml-row-up`        | Select previous entry                 | ScrollUp              |
+| `ml-row-down`      | Select next entry                     | ScrollDown            |
+| `me-select-entry`  | Select hovered row                    | MousePrimary          |
+| `me-accept-entry`  | Accept hovered row                    | MouseDPrimary         |
+| `me-accept-custom` | Accept hovered row with custom action | Control+MouseDPrimary |
 
-Go to the previous column
-
-Default:  ScrollLeft
-
-`ml-row-right`
-
-Go to the next column
-
-Default:  ScrollRight
-
-`ml-row-up`
-
-Select previous entry
-
-Default:  ScrollUp
-
-`ml-row-down`
-
-Select next entry
-
-Default:  ScrollDown
-
-`me-select-entry`
-
-Select hovered row
-
-Default:  MousePrimary
-
-`me-accept-entry`
-
-Accept hovered row
-
-Default:  MouseDPrimary
-
-`me-accept-custom`
-
-Accept hovered row with custom action
-
-Default:  Control+MouseDPrimary
-
-## Mouse key bindings
+## Mouse Key Bindings
 
 The following mouse buttons can be bound:
 
