@@ -1913,9 +1913,9 @@ static void wayland_get_clipboard_data(int cb_type, ClipboardCb callback,
   }
 
   if (cb_type == CLIPBOARD_DEFAULT) {
-    wl_data_offer_receive(clipboard->offer, "text/plain", fds[1]);
+    wl_data_offer_receive(clipboard->offer, "text/plain;charset=utf-8", fds[1]);
   } else {
-    zwp_primary_selection_offer_v1_receive(clipboard->offer, "text/plain",
+    zwp_primary_selection_offer_v1_receive(clipboard->offer, "text/plain;charset=utf-8",
                                            fds[1]);
   }
   close(fds[1]);
