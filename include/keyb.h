@@ -88,6 +88,8 @@ typedef enum {
   REMOVE_TO_EOL,
   /** Remove till SOL */
   REMOVE_TO_SOL,
+  /** Transpose chars */
+  TRANSPOSE_CHARS,
   /** Accept the current selected entry */
   ACCEPT_ENTRY,
   ACCEPT_ALT,

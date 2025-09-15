@@ -1209,6 +1209,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
   case MOVE_END:
   case REMOVE_TO_EOL:
   case REMOVE_TO_SOL:
+  case TRANSPOSE_CHARS:
   case REMOVE_WORD_BACK:
   case REMOVE_WORD_FORWARD:
   case REMOVE_CHAR_FORWARD:
