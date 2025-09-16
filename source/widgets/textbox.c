@@ -834,33 +834,43 @@ static void textbox_cursor_bkspc(textbox *tb) {
  */
 static void textbox_transpose_chars(textbox *tb) {
   // Need to have more then 2 characters in front of the cursor.
-  if (tb && tb->cursor > 1) {
-    // Find pointer to cursor.
-    gchar *c = g_utf8_offset_to_pointer(tb->text, tb->cursor);
-    // Find previous character pointer. (1)
-    char *pc1 = g_utf8_find_prev_char(tb->text, c);
-    if (pc1) {
-      // Find previous previous character pointer. (2)
-      char *pc2 = g_utf8_find_prev_char(tb->text, pc1);
-      if (pc2) {
-        // Calculate size of each character
-        size_t l2 = pc1 - pc2;
-        size_t l1 = c - pc1;
-        // Create a temp buffer so we can swap.
-        char temp[l2 + l1];
-        // Copy char 1 into first place.
-        memcpy(temp, pc1, l1);
-        // Copy char 2 into 2nd place.
-        memcpy(temp + l1, pc2, l2);
-        // Copy new order back into original string.
-        memcpy(pc2, temp, l2 + l1);
-        // Set modified, lay out need te be redrawn
-        // Stop blink!
-        tb->blink = 2;
-        tb->changed = TRUE;
-      }
-    }
+  if (tb == NULL || tb->cursor < 2) {
+    return;
   }
+  // Find pointer to cursor.
+  gchar *cursor_ptr = g_utf8_offset_to_pointer(tb->text, tb->cursor);
+  if ( cursor_ptr == NULL ){
+    // We should never reach this.
+    g_warning("Invalid cursor index detected.");
+    return;
+  }
+  // Find previous character pointer. (1)
+  gchar *second_char_ptr = g_utf8_find_prev_char(tb->text, cursor_ptr);
+  if (second_char_ptr == NULL) {
+    // Failed to move cursor one back, so we cannot swap.
+    return;
+  }
+  // Find previous previous character pointer. (2)
+  gchar *first_char_ptr = g_utf8_find_prev_char(tb->text, second_char_ptr);
+  if (first_char_ptr == NULL) {
+    // Failed to move cursor back 2 characters, so we cannot swap.
+    return;
+  }
+  // Calculate size of each character
+  size_t first_char_l = second_char_ptr - first_char_ptr;
+  size_t second_char_l = cursor_ptr - second_char_ptr;
+  // Create a temp buffer so we can swap.
+  gchar temp[second_char_l+ first_char_l];
+  // Copy char 2 into first place.
+  memcpy(temp, second_char_ptr, second_char_l);
+  // Copy char 1 into 2nd place.
+  memcpy(temp + second_char_l, first_char_ptr, first_char_l);
+  // Copy new order back into original string.
+  memcpy(first_char_ptr, temp, second_char_l+ first_char_l);
+  // Set modified, lay out need te be redrawn
+  // Stop blink!
+  tb->blink = 2;
+  tb->changed = TRUE;
 }
 static void textbox_cursor_bkspc_word(textbox *tb) {
   if (tb && tb->cursor > 0) {
