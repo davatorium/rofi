@@ -366,7 +366,7 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
                                          gboolean multi_select) {
   if (pd->columns == NULL) {
     if (multi_select) {
-      if (pd->selected_list && bitget(pd->selected_list, index) == TRUE) {
+      if (index < pd->num_selected_list && bitget(pd->selected_list, index) == TRUE) {
         return g_strdup_printf("%s%s", pd->ballot_selected, input);
       } else {
         return g_strdup_printf("%s%s", pd->ballot_unselected, input);
@@ -384,7 +384,7 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
   GString *str_retv = g_string_new("");
 
   if (multi_select) {
-    if (pd->selected_list && bitget(pd->selected_list, index) == TRUE) {
+    if (index < pd->num_selected_list && bitget(pd->selected_list, index) == TRUE) {
       g_string_append(str_retv, pd->ballot_selected);
     } else {
       g_string_append(str_retv, pd->ballot_unselected);
@@ -451,7 +451,7 @@ static char *get_display_data(const Mode *data, unsigned int index, int *state,
       *state |= URGENT;
     }
   }
-  if (pd->selected_list && bitget(pd->selected_list, index) == TRUE) {
+  if (index < pd->num_selected_list && bitget(pd->selected_list, index) == TRUE) {
     *state |= SELECTED;
   }
   if (pd->do_markup) {
@@ -540,7 +540,6 @@ static int dmenu_mode_init(Mode *sw) {
   }
   if (find_arg("-multi-select") >= 0) {
     pd->multi_select = TRUE;
-    pd->async = FALSE;
   }
 
   pd->separator = '\n';
@@ -776,12 +775,10 @@ static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state,
 static void dmenu_print_results(DmenuModePrivateData *pd, const char *input) {
   DmenuScriptEntry *cmd_list = pd->cmd_list;
   int seen = FALSE;
-  if (pd->selected_list != NULL) {
-    for (unsigned int st = 0; st < pd->cmd_list_length; st++) {
-      if (bitget(pd->selected_list, st)) {
-        seen = TRUE;
-        rofi_output_formatted_line(pd->format, cmd_list[st].entry, st, input);
-      }
+  for (unsigned int st = 0; st < pd->num_selected_list; st++) {
+    if ( bitget(pd->selected_list, st)) {
+      seen = TRUE;
+      rofi_output_formatted_line(pd->format, cmd_list[st].entry, st, input);
     }
   }
   if (!seen) {
@@ -823,9 +820,17 @@ static void dmenu_finalize(RofiViewState *state) {
       if ((mretv & MENU_CUSTOM_ACTION) && pd->multi_select) {
         restart = TRUE;
         pd->loading = FALSE;
-        if (pd->selected_list == NULL) {
+        if (pd->num_selected_list != pd->cmd_list_length) {
+          size_t new_length = pd->cmd_list_length/32+1;
           pd->selected_list =
-              g_malloc0(sizeof(uint32_t) * (pd->cmd_list_length / 32 + 1));
+              g_realloc(pd->selected_list,sizeof(uint32_t) * (new_length));
+          if ( pd->num_selected_list == 0 ){
+            memset(pd->selected_list, 0, new_length*sizeof(uint32_t));
+          } else {
+            size_t old_length = pd->num_selected_list/32+1;
+            memset(&pd->selected_list[old_length], 0, (new_length-old_length)*sizeof(uint32_t));
+          }
+          pd->num_selected_list = pd->cmd_list_length;
         }
         pd->selected_count +=
             (bitget(pd->selected_list, pd->selected_line) ? (-1) : (1));
@@ -878,9 +883,17 @@ static void dmenu_finalize(RofiViewState *state) {
     }
     if ((mretv & MENU_CUSTOM_ACTION) && pd->multi_select) {
       restart = TRUE;
-      if (pd->selected_list == NULL) {
-        pd->selected_list =
-            g_malloc0(sizeof(uint32_t) * (pd->cmd_list_length / 32 + 1));
+      if (pd->num_selected_list != pd->cmd_list_length) {
+          size_t new_length = pd->cmd_list_length/32+1;
+          pd->selected_list =
+              g_realloc(pd->selected_list,sizeof(uint32_t) * (new_length));
+          if ( pd->num_selected_list == 0 ){
+            memset(pd->selected_list, 0, new_length*sizeof(uint32_t));
+          } else {
+            size_t old_length = pd->num_selected_list/32+1;
+            memset(&pd->selected_list[old_length], 0, (new_length-old_length)*sizeof(uint32_t));
+          }
+          pd->num_selected_list = pd->cmd_list_length;
       }
       pd->selected_count +=
           (bitget(pd->selected_list, pd->selected_line) ? (-1) : (1));
