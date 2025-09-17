@@ -113,12 +113,13 @@ static void icon_draw(widget *wid, cairo_t *draw) {
       draw, lpad + (b->widget.w - iconw * scale - lpad - rpad) * b->xalign,
       tpad + (b->widget.h - iconh * scale - tpad - bpad) * b->yalign);
   cairo_scale(draw, scale, scale);
-  cairo_pattern_t *pat = cairo_pattern_create_for_surface(b->icon);
   if (rofi_theme_has_property(WIDGET(wid), P_COLOR, "tint")) {
+    cairo_pattern_t *pat = cairo_pattern_create_for_surface(b->icon);
     cairo_set_source_rgb(draw, 0, 0, 0);
     rofi_theme_get_color(WIDGET(wid), "tint", draw);
     cairo_mask(draw, pat);
     cairo_set_operator(draw, CAIRO_OPERATOR_HSL_LUMINOSITY);
+    cairo_pattern_destroy(pat);
   }
   cairo_set_source_surface(draw, b->icon, 0, 0);
   cairo_paint(draw);
