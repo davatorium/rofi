@@ -250,12 +250,14 @@ gboolean rofi_theme_get_image(const widget *widget, const char *property,
 
 /**
  * @param widget   The widget to query
+ * @param type  The type to check
  * @param property The property to query.
  *
  * Check if a rofi theme has a property set.
  *
  */
-gboolean rofi_theme_has_property(const widget *widget, const char *property);
+gboolean rofi_theme_has_property(const widget *widget, const PropertyType type,
+                                 const char *property);
 
 /**
  * @param widget   The widget to query

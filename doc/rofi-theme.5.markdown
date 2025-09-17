@@ -1307,6 +1307,9 @@ a list).
 If the `squared` property is set to **false** the widget height and width are
 not forced to be equal.
 
+If the `tint`  property is set with a white, the icons is greyscale. If
+another color is set, the icon is tinted to that color.
+
 Example:
 
 ```css
