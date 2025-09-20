@@ -61,6 +61,16 @@ unsigned int rofi_get_num_enabled_modes(void);
  *
  * @returns a Mode handle.
  */
+
+/**
+ * @param name Name of the mode to lookup.
+ *
+ * Find the index of the mode with name.
+ *
+ * @returns index of the mode in modes, -1 if not found.
+ */
+int mode_lookup(const char *name);
+
 const Mode *rofi_get_mode(unsigned int index);
 
 /**

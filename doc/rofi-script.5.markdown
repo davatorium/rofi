@@ -125,6 +125,8 @@ The following extra options exists:
 -   **theme**:       Small theme snippet to f.e. change the background color of
     a widget.
 
+-   **switch-mode**:  Switches to the given mode if enabled, otherwise ignored.
+
 The **theme** property cannot change the interface while running, it is only
 usable for small changes in, for example background color, of widgets that get
 updated during display like the row color of the listview.

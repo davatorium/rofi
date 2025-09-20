@@ -77,7 +77,11 @@ typedef struct {
   gboolean keep_filter;
 
   gboolean use_hot_keys;
+
+  gboolean switch_mode;
 } ScriptModePrivateData;
+
+extern unsigned int curr_mode;
 
 /**
  * Shared function between DMENU and Script mode.
@@ -129,6 +133,18 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
  * End of shared functions.
  */
 
+static void script_switch_mode(Mode *sw, char *value) {
+  int index = mode_lookup(value);
+  ScriptModePrivateData *pd = (ScriptModePrivateData *)sw->private_data;
+
+  if (index >= 0)
+  {
+    pd->switch_mode = index;
+  } else {
+    g_warning("Mode \"%s\" not found, please make sure it's enabled.\n", value);
+  }
+}
+
 static void parse_header_entry(Mode *sw, char *line, ssize_t length) {
   ScriptModePrivateData *pd = (ScriptModePrivateData *)sw->private_data;
   ssize_t length_key = 0; // strlen ( line );
@@ -172,6 +188,8 @@ static void parse_header_entry(Mode *sw, char *line, ssize_t length) {
         g_warning("Failed to parse: '%s'", value);
         rofi_clear_error_messages();
       }
+    } else if (strcasecmp(line, "switch-mode") == 0) {
+      script_switch_mode(sw, value);
     }
   }
 }
@@ -306,6 +324,7 @@ static int script_mode_init(Mode *sw) {
     pd->delim = '\n';
     sw->private_data = (void *)pd;
     pd->cmd_list = execute_executor(sw, NULL, &(pd->cmd_list_length), 0, NULL, NULL);
+    pd->switch_mode = -1;
   }
   return TRUE;
 }
@@ -335,6 +354,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
   // store them as they might be different on next executor and reset.
   gboolean keep_filter = rmpd->keep_filter;
   gboolean keep_selection = rmpd->keep_selection;
+  RofiViewState *state = rofi_view_get_active();
 
   if ((mretv & MENU_CUSTOM_COMMAND)) {
     if (rmpd->use_hot_keys) {
@@ -375,6 +395,12 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
     } else {
       return RELOAD_DIALOG;
     }
+  }
+
+  if (state && rmpd->switch_mode >= 0) {
+    curr_mode = rmpd->switch_mode;
+    rmpd->switch_mode = -1;
+    return RESET_DIALOG;
   }
 
   // If a new list was generated, use that an loop around.

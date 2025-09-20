@@ -154,14 +154,7 @@ unsigned int rofi_get_num_enabled_modes(void) { return num_modes; }
 
 const Mode *rofi_get_mode(unsigned int index) { return modes[index]; }
 
-/**
- * @param name Name of the mode to lookup.
- *
- * Find the index of the mode with name.
- *
- * @returns index of the mode in modes, -1 if not found.
- */
-static int mode_lookup(const char *name) {
+int mode_lookup(const char *name) {
   for (unsigned int i = 0; i < num_modes; i++) {
     if (strcmp(mode_get_name(modes[i]), name) == 0) {
       return i;
