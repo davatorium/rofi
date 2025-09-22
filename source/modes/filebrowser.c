@@ -97,7 +97,9 @@ typedef struct {
   uint32_t icon_fetch_size;
   guint icon_fetch_scale;
   gboolean link;
+  /** {time,collate_key} only valid for FB_SORT_{TIME,NAME} respectively */
   time_t time;
+  char *collate_key;
 } FBFile;
 
 typedef struct {
@@ -132,6 +134,7 @@ static void free_list(FileBrowserModePrivateData *pd) {
     FBFile *fb = &(pd->array[i]);
     g_free(fb->name);
     g_free(fb->path);
+    g_free(fb->collate_key);
   }
   g_free(pd->array);
   pd->array = NULL;
@@ -150,7 +153,7 @@ static gint compare_name(gconstpointer a, gconstpointer b,
     return fa->type - fb->type;
   }
 
-  return g_strcmp0(fa->name, fb->name);
+  return g_strcmp0(fa->collate_key, fb->collate_key);
 }
 
 static gint compare_time(gconstpointer a, gconstpointer b,
@@ -223,6 +226,10 @@ static void set_time(FBFile *file) {
   //  g_free(path);
 }
 
+static void set_collate_key(FBFile *file) {
+  file->collate_key = g_utf8_collate_key_for_filename(file->name, -1);
+}
+
 inline static void fb_resize_array(FileBrowserModePrivateData *pd) {
   if ((pd->array_length + 1) > pd->array_length_real) {
     pd->array_length_real += 256;
@@ -254,6 +261,7 @@ static void get_file_browser(Mode *sw) {
         pd->array[pd->array_length].icon_fetch_scale = 0;
         pd->array[pd->array_length].link = FALSE;
         pd->array[pd->array_length].time = -1;
+        pd->array[pd->array_length].collate_key = NULL;
         pd->array_length++;
         continue;
       }
@@ -290,7 +298,9 @@ static void get_file_browser(Mode *sw) {
         pd->array[pd->array_length].icon_fetch_scale = 0;
         pd->array[pd->array_length].link = FALSE;
 
-        if (file_browser_config.sorting_method == FB_SORT_TIME) {
+        if (file_browser_config.sorting_method == FB_SORT_NAME) {
+          set_collate_key(&pd->array[pd->array_length]);
+        } else if (file_browser_config.sorting_method == FB_SORT_TIME) {
           set_time(&pd->array[pd->array_length]);
         }
 
@@ -312,6 +322,11 @@ static void get_file_browser(Mode *sw) {
         pd->array[pd->array_length].link = TRUE;
         // Default to file.
         pd->array[pd->array_length].type = RFILE;
+
+        if (file_browser_config.sorting_method == FB_SORT_NAME) {
+          set_collate_key(&pd->array[pd->array_length]);
+        }
+
         {
           // If we have link, use a stat to fine out what it is, if we fail, we
           // mark it as file.
