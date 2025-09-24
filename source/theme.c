@@ -1592,6 +1592,18 @@ static void rofi_theme_parse_process_links_int(ThemeWidget *wid) {
           }
         }
       }
+      if (pv->type == P_COLOR && pv->value.link.modified == TRUE) {
+        if (pv->value.link.ref == NULL) {
+			rofi_theme_resolve_modified_link(pv);
+			if (pv->value.link.ref && pv->value.link.ref->type == P_COLOR) {
+				ThemeColor referenced_color = pv->value.link.ref->value.color;
+				referenced_color.alpha = pv->value.color.alpha;
+				pv->value.color = referenced_color;
+			} else {
+				g_debug("Reference in alpha overriding does not point to color.");
+			}
+        }
+      }
     }
   }
 }
@@ -1660,3 +1672,12 @@ gboolean rofi_theme_has_property(const widget *wid_in, const PropertyType type,
 }
 
 void rofi_theme_set_disp_scale_func(disp_scale_func func) { disp_scale = func; }
+
+void rofi_theme_resolve_modified_link(Property* p) {
+	g_info("Resolving modified link to %s", p->value.link.name);
+	Property* temp_link = rofi_theme_property_create(P_LINK);
+	temp_link->value.link.name = g_strdup(p->value.link.name);
+	rofi_theme_resolve_link_property(temp_link, 0);
+	p->value.link.ref = temp_link->value.link.ref;
+	rofi_theme_property_free(temp_link);
+}

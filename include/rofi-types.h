@@ -268,6 +268,8 @@ typedef union _PropertyValue {
   struct {
     /** Name */
     char *name;
+	/** Is modified link */
+	gboolean modified;
     /** Cached looked up ref */
     struct Property *ref;
     /** Property default */

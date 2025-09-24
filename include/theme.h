@@ -417,4 +417,7 @@ typedef guint (*disp_scale_func)(void);
  * depending on the display library
  */
 void rofi_theme_set_disp_scale_func(disp_scale_func func);
+
+void rofi_theme_resolve_modified_link(Property*);
+
 #endif
