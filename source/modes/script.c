@@ -81,8 +81,6 @@ typedef struct {
   int switch_mode;
 } ScriptModePrivateData;
 
-extern unsigned int curr_mode;
-
 /**
  * Shared function between DMENU and Script mode.
  */
@@ -137,8 +135,7 @@ static void script_switch_mode(Mode *sw, char *value) {
   int index = mode_lookup(value);
   ScriptModePrivateData *pd = (ScriptModePrivateData *)sw->private_data;
 
-  if (index >= 0)
-  {
+  if (index >= 0) {
     pd->switch_mode = index;
   } else {
     g_warning("Mode \"%s\" not found, please make sure it's enabled.\n", value);
@@ -398,9 +395,11 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
   }
 
   if (state && rmpd->switch_mode >= 0) {
-    curr_mode = rmpd->switch_mode;
+    retv = rmpd->switch_mode;
+    free(*input);
+    *input = NULL;
     rmpd->switch_mode = -1;
-    return RESET_DIALOG;
+    return retv;
   }
 
   // If a new list was generated, use that an loop around.
