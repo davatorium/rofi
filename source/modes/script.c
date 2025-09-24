@@ -78,7 +78,7 @@ typedef struct {
 
   gboolean use_hot_keys;
 
-  int16_t switch_mode;
+  int switch_mode;
 } ScriptModePrivateData;
 
 extern unsigned int curr_mode;
