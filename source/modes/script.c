@@ -351,7 +351,6 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
   // store them as they might be different on next executor and reset.
   gboolean keep_filter = rmpd->keep_filter;
   gboolean keep_selection = rmpd->keep_selection;
-  RofiViewState *state = rofi_view_get_active();
 
   if ((mretv & MENU_CUSTOM_COMMAND)) {
     if (rmpd->use_hot_keys) {
@@ -394,7 +393,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
     }
   }
 
-  if (state && rmpd->switch_mode >= 0) {
+  if (rmpd->switch_mode >= 0) {
     retv = rmpd->switch_mode;
     free(*input);
     *input = NULL;
