@@ -94,7 +94,8 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
     *(extra) = NULL;
     *(extra + 1) = NULL;
     if (strcasecmp(key, "icon") == 0) {
-      entry->icon_name = value;
+      entry->icon_name = g_strsplit(value,",", -1);
+      g_free(value);
     } else if (strcasecmp(key, "display") == 0) {
       entry->display = value;
     } else if (strcasecmp(key, "meta") == 0) {
@@ -409,7 +410,7 @@ static void script_mode_destroy(Mode *sw) {
   if (rmpd != NULL) {
     for (unsigned int i = 0; i < rmpd->cmd_list_length; i++) {
       g_free(rmpd->cmd_list[i].entry);
-      g_free(rmpd->cmd_list[i].icon_name);
+      g_strfreev(rmpd->cmd_list[i].icon_name);
       g_free(rmpd->cmd_list[i].display);
       g_free(rmpd->cmd_list[i].meta);
     }
@@ -518,20 +519,46 @@ static cairo_surface_t *script_get_icon(const Mode *sw,
                                         unsigned int height) {
   ScriptModePrivateData *pd =
       (ScriptModePrivateData *)mode_get_private_data(sw);
+
   const guint scale = display_scale();
+
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
   DmenuScriptEntry *dr = &(pd->cmd_list[selected_line]);
   if (dr->icon_name == NULL) {
     return NULL;
   }
-  if (dr->icon_fetch_uid > 0 && dr->icon_fetch_size == height &&
-      dr->icon_fetch_scale == scale) {
-    return rofi_icon_fetcher_get(dr->icon_fetch_uid);
+
+  if (dr->icon_fetch_uid > 0) {
+    cairo_surface_t *surface = NULL;
+    gboolean query_done = rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
+
+    if (surface != NULL) {
+      return surface;
+    } else if (query_done) {
+      dr->icon_fallback_index++;
+      dr->icon_fetch_uid = 0;
+    } else {
+      return NULL;
+    }
   }
-  dr->icon_fetch_uid = rofi_icon_fetcher_query(dr->icon_name, height);
-  dr->icon_fetch_size = height;
-  dr->icon_fetch_scale = scale;
-  return rofi_icon_fetcher_get(dr->icon_fetch_uid);
+
+  char *current_icon = NULL;
+  if (dr->icon_name && dr->icon_fallback_index >= 0) {
+      int icon_count = g_strv_length(dr->icon_name);
+      if (dr->icon_fallback_index < icon_count) {
+          current_icon = dr->icon_name[dr->icon_fallback_index];
+      }
+  }
+  if ( current_icon ){
+    dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
+    dr->icon_fetch_size = height;
+    dr->icon_fetch_scale = scale;
+
+  } else {
+    dr->icon_fetch_uid = 0;
+  }
+
+  return NULL;
 }
 
 #include "mode-private.h"

@@ -488,7 +488,7 @@ static void dmenu_mode_free(Mode *sw) {
     for (size_t i = 0; i < pd->cmd_list_length; i++) {
       if (pd->cmd_list[i].entry) {
         g_free(pd->cmd_list[i].entry);
-        g_free(pd->cmd_list[i].icon_name);
+        g_strfreev(pd->cmd_list[i].icon_name);
         g_free(pd->cmd_list[i].display);
         g_free(pd->cmd_list[i].meta);
         g_free(pd->cmd_list[i].info);
@@ -741,27 +741,22 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
     }
   }
 
-  char *icon_name_copy = g_strdup(dr->icon_name);
-  char *icon_iter = icon_name_copy;
   char *current_icon = NULL;
-  int current_index = 0;
-
-  // Try each icon in the comma-separated list until one is found
-  while ((current_icon = strsep(&icon_iter, ",")) != NULL) {
-    if (current_index == dr->icon_fallback_index) {
-      dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
-      dr->icon_fetch_size = height;
-      dr->icon_fetch_scale = scale;
-      break;
-    }
-    current_index++;
+  if (dr->icon_name && dr->icon_fallback_index >= 0) {
+      int icon_count = g_strv_length(dr->icon_name);
+      if (dr->icon_fallback_index < icon_count) {
+          current_icon = dr->icon_name[dr->icon_fallback_index];
+      }
   }
+  if ( current_icon ){
+    dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
+    dr->icon_fetch_size = height;
+    dr->icon_fetch_scale = scale;
 
-  if (current_icon == NULL) {
+  } else {
     dr->icon_fetch_uid = 0;
   }
 
-  g_free(icon_name_copy);
   return NULL;
 }
 
