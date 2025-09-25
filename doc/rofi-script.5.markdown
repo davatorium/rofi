@@ -125,6 +125,8 @@ The following extra options exists:
 -   **theme**:       Small theme snippet to f.e. change the background color of
     a widget.
 
+-   **switch-mode**:  Switches to the given mode if enabled, otherwise ignored.
+
 The **theme** property cannot change the interface while running, it is only
 usable for small changes in, for example background color, of widgets that get
 updated during display like the row color of the listview.
@@ -142,7 +144,7 @@ For example:
 
 The following options are supported:
 
--   **icon**: Set the icon for that row.
+-   **icon**: Set the icon for that row. Multiple fallback icons can be specified using comma-separated values.
 
 -   **display**: Replace the displayed string. (Original string will still be used for filtering)
 
@@ -162,7 +164,7 @@ The following options are supported:
 multiple entries can be passed using the `\x1f` separator.
 
 ```bash
-    echo -en "aap\0icon\x1ffolder\x1finfo\x1ftest\n"
+    echo -en "aap\0icon\x1ffolder,inode-directory\x1finfo\x1ftest\n"
 ```
 
 ## Executing external program

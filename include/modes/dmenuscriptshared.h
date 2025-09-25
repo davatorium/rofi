@@ -13,11 +13,13 @@ typedef struct {
   char *display;
 
   /** Icon name to display. */
-  char *icon_name;
+  char **icon_name;
   /** Async icon fetch handler. */
   uint32_t icon_fetch_uid;
   uint32_t icon_fetch_size;
   guint icon_fetch_scale;
+  /** Current fallback icon index being tried */
+  int icon_fallback_index;
   /** Hidden meta keywords. */
   char *meta;
 

@@ -137,6 +137,7 @@ static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
   (*block)->values[(*block)->length].icon_fetch_uid = 0;
   (*block)->values[(*block)->length].icon_fetch_size = 0;
   (*block)->values[(*block)->length].icon_fetch_scale = 0;
+  (*block)->values[(*block)->length].icon_fallback_index = 0;
   (*block)->values[(*block)->length].icon_name = NULL;
   (*block)->values[(*block)->length].meta = NULL;
   (*block)->values[(*block)->length].info = NULL;
@@ -169,6 +170,7 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
   pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
   pd->cmd_list[pd->cmd_list_length].icon_fetch_size = 0;
   pd->cmd_list[pd->cmd_list_length].icon_fetch_scale = 0;
+  pd->cmd_list[pd->cmd_list_length].icon_fallback_index = 0;
   pd->cmd_list[pd->cmd_list_length].icon_name = NULL;
   pd->cmd_list[pd->cmd_list_length].display = NULL;
   pd->cmd_list[pd->cmd_list_length].meta = NULL;
@@ -486,7 +488,7 @@ static void dmenu_mode_free(Mode *sw) {
     for (size_t i = 0; i < pd->cmd_list_length; i++) {
       if (pd->cmd_list[i].entry) {
         g_free(pd->cmd_list[i].entry);
-        g_free(pd->cmd_list[i].icon_name);
+        g_strfreev(pd->cmd_list[i].icon_name);
         g_free(pd->cmd_list[i].display);
         g_free(pd->cmd_list[i].meta);
         g_free(pd->cmd_list[i].info);
@@ -723,12 +725,38 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
   if (dr->icon_name == NULL) {
     return NULL;
   }
-  uint32_t uid = dr->icon_fetch_uid =
-      rofi_icon_fetcher_query(dr->icon_name, height);
-  dr->icon_fetch_size = height;
-  dr->icon_fetch_scale = scale;
 
-  return rofi_icon_fetcher_get(uid);
+  if (dr->icon_fetch_uid > 0) {
+    cairo_surface_t *surface = NULL;
+    gboolean query_done = rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
+
+    if (surface != NULL) {
+      return surface;
+    } else if (query_done) {
+      dr->icon_fallback_index++;
+      dr->icon_fetch_uid = 0;
+    } else {
+      return NULL;
+    }
+  }
+
+  char *current_icon = NULL;
+  if (dr->icon_name && dr->icon_fallback_index >= 0) {
+      int icon_count = g_strv_length(dr->icon_name);
+      if (dr->icon_fallback_index < icon_count) {
+          current_icon = dr->icon_name[dr->icon_fallback_index];
+      }
+  }
+  if ( current_icon ){
+    dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
+    dr->icon_fetch_size = height;
+    dr->icon_fetch_scale = scale;
+
+  } else {
+    dr->icon_fetch_uid = 0;
+  }
+
+  return NULL;
 }
 
 static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state,
