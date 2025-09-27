@@ -93,10 +93,18 @@ void widget_resize(widget *wid, short w, short h) {
   if (wid == NULL) {
     return;
   }
+  printf(" %s %d %d %d %d\n", wid->name, w, h, wid->w, wid->h);
   if (wid->resize != NULL) {
     if (wid->w != w || wid->h != h) {
+      int wn = wid->w;
+      int hn = wid->h;
       wid->resize(wid, w, h);
-      widget_update(wid);
+      printf(" redo %s %d %d %d %d\n", wid->name, w, h, wid->w, wid->h);
+      if (wid->w != wn || wid->h != hn) {
+        widget_update(wid);
+      } else {
+        printf("Skip update, size did not update\n");
+      }
     }
   } else {
     if (wid->w != w || wid->h != h) {

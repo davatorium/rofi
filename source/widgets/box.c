@@ -365,6 +365,7 @@ box *box_create(widget *parent, const char *name, RofiOrientation type) {
 }
 
 static void box_update(widget *wid) {
+  printf("box update: %s\n", wid->name);
   box *b = (box *)wid;
   switch (b->type) {
   case ROFI_ORIENTATION_VERTICAL:
