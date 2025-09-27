@@ -30,6 +30,7 @@
 #define G_LOG_DOMAIN "Widgets.Icon"
 #include "config.h"
 
+#include <math.h>
 #include "theme.h"
 #include "widgets/icon.h"
 #include "widgets/widget-internal.h"
@@ -43,6 +44,8 @@ struct _icon {
 
   // Size of the icon.
   int size;
+  int width;
+  int height;
 
   int squared;
 
@@ -56,14 +59,14 @@ struct _icon {
 
 static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
   icon *b = (icon *)wid;
-  int height = b->size;
+  int height = b->height;
   if (b->squared == FALSE) {
     if (b->icon) {
       int iconh = cairo_image_surface_get_height(b->icon);
       int iconw = cairo_image_surface_get_width(b->icon);
-      int icons = MAX(iconh, iconw);
-      double scale = (double)b->size / icons;
-      height = iconh * scale;
+      if ( ((double) width/iconw) < ((double)b->height/iconh)){
+        height =ceil(((double)width/iconw) * iconh);
+      }
     }
   }
   height += widget_padding_get_padding_height(wid);
@@ -71,14 +74,14 @@ static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
 }
 static int icon_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {
   icon *b = (icon *)wid;
-  int width = b->size;
+  int width = b->width;
   if (b->squared == FALSE) {
     if (b->icon) {
       int iconh = cairo_image_surface_get_height(b->icon);
       int iconw = cairo_image_surface_get_width(b->icon);
-      int icons = MAX(iconh, iconw);
-      double scale = (double)b->size / icons;
-      width = iconw * scale;
+      if ( ((double) height/iconh) < ((double)wid->w/iconw)){
+        width = ceil(iconw*((double)height/iconh));
+      }
     }
   }
   width += widget_padding_get_padding_width(wid);
@@ -100,8 +103,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
   }
   int iconh = cairo_image_surface_get_height(b->icon);
   int iconw = cairo_image_surface_get_width(b->icon);
-  int icons = MAX(iconh, iconw);
-  double scale = (double)b->size / icons;
+  double scale = MIN((double)b->widget.w / iconw, (double)b->widget.h/iconh);
 
   int lpad = widget_padding_get_left(WIDGET(b));
   int rpad = widget_padding_get_right(WIDGET(b));
@@ -174,11 +176,16 @@ icon *icon_create(widget *parent, const char *name) {
   RofiDistance d = rofi_theme_get_distance(WIDGET(b), "size", b->size);
   b->size = distance_get_pixel(d, ROFI_ORIENTATION_VERTICAL);
 
+  d = rofi_theme_get_distance(WIDGET(b), "width", b->size);
+  b->width = distance_get_pixel(d, ROFI_ORIENTATION_HORIZONTAL);
+  d = rofi_theme_get_distance(WIDGET(b), "height", b->size);
+  b->height = distance_get_pixel(d, ROFI_ORIENTATION_VERTICAL);
+
   b->squared = rofi_theme_get_boolean(WIDGET(b), "squared", TRUE);
 
   const char *filename = rofi_theme_get_string(WIDGET(b), "filename", NULL);
   if (filename) {
-    b->icon_fetch_id = rofi_icon_fetcher_query(filename, b->size);
+    b->icon_fetch_id = rofi_icon_fetcher_query_advanced(filename, b->width, b->height);
   }
   b->yalign = rofi_theme_get_double(WIDGET(b), "vertical-align", 0.5);
   b->yalign = MAX(0, MIN(1.0, b->yalign));
