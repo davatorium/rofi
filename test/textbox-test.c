@@ -129,10 +129,8 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
   TASSERT(box->cursor == 6);
 
   TASSERT(widget_get_width(WIDGET(box)) > 0);
-  TASSERT(textbox_get_height(box) > 0);
 
   TASSERT(widget_get_width(WIDGET(box)) >= textbox_get_font_width(box));
-  TASSERT(textbox_get_height(box) >= textbox_get_font_height(box));
 
   TASSERT(textbox_get_estimated_char_width() > 0);
 

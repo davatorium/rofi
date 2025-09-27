@@ -456,7 +456,8 @@ void textbox_moveresize(textbox *tb, int x, int y, int w, int h) {
     int padding = widget_padding_get_padding_width(WIDGET(tb));
     int tw = MAX(1 + padding, w);
     pango_layout_set_width(tb->layout, PANGO_SCALE * (tw - padding));
-    int hd = textbox_get_height(tb);
+    int hd=
+      textbox_get_estimated_height(tb, pango_layout_get_line_count(tb->layout));
     h = MAX(hd, h);
   }
 
@@ -1070,10 +1071,6 @@ int _textbox_get_height(widget *wid) {
         tb, pango_layout_get_line_count(tb->layout));
   }
   return tb->widget.h;
-}
-int textbox_get_height(const textbox *tb) {
-  return textbox_get_font_height(tb) +
-         widget_padding_get_padding_height(WIDGET(tb));
 }
 
 int textbox_get_font_height(const textbox *tb) {

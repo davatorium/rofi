@@ -80,7 +80,7 @@ typedef struct {
   TBFontConfig *tbfc;
 
   PangoEllipsizeMode emode;
-  
+
   const char *password_mask_char;
 
   const char *theme_name;
@@ -205,15 +205,6 @@ void textbox_setup(void);
  * Cleanup the allocated colors and fonts by textbox_setup().
  */
 void textbox_cleanup(void);
-
-/**
- * @param tb Handle to the textbox
- *
- * Get the height of the textbox
- *
- * @returns the height of the textbox in pixels.
- */
-int textbox_get_height(const textbox *tb);
 
 /**
  * @param tb Handle to the textbox
