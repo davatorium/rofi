@@ -25,8 +25,8 @@
  *
  */
 
-#include "helper.h"
 #include "display.h"
+#include "helper.h"
 #include "rofi-icon-fetcher.h"
 #include "rofi.h"
 #include "xrmoptions.h"
@@ -62,6 +62,7 @@ unsigned int test = 0;
 
 int rofi_is_in_dmenu_mode = 0;
 ThemeWidget *rofi_configuration = NULL;
+void rofi_view_queue_redraw(void) {}
 
 uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
                                  G_GNUC_UNUSED const int size) {

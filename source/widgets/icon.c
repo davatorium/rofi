@@ -92,6 +92,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
     b->icon = rofi_icon_fetcher_get(b->icon_fetch_id);
     if (b->icon) {
       cairo_surface_reference(b->icon);
+      widget_update(wid);
     }
   }
   if (b->icon == NULL) {
@@ -155,7 +156,7 @@ void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
     cairo_surface_reference(surf);
     icon_widget->icon = surf;
   }
-  widget_queue_redraw(WIDGET(icon_widget));
+  widget_update(WIDGET(icon_widget));
 }
 
 icon *icon_create(widget *parent, const char *name) {

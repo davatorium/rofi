@@ -2169,7 +2169,13 @@ void rofi_view_cleanup(void) { proxy->cleanup(); }
 
 void rofi_view_hide(void) { proxy->hide(); }
 
-void rofi_view_reload(void) { proxy->reload(); }
+void rofi_view_reload(void) {
+  RofiViewState *state = rofi_view_get_active();
+  if (state) {
+    widget_queue_redraw(WIDGET(state->main_window));
+  }
+  proxy->reload();
+}
 
 void __create_window(MenuFlags menu_flags) {
   proxy->__create_window(menu_flags);

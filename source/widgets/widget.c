@@ -96,10 +96,14 @@ void widget_resize(widget *wid, short w, short h) {
   if (wid->resize != NULL) {
     if (wid->w != w || wid->h != h) {
       wid->resize(wid, w, h);
+      widget_update(wid);
     }
   } else {
-    wid->w = w;
-    wid->h = h;
+    if (wid->w != w || wid->h != h) {
+      wid->w = w;
+      wid->h = h;
+      widget_update(wid);
+    }
   }
   // On a resize we always want to update.
   widget_queue_redraw(wid);
@@ -249,8 +253,10 @@ void widget_draw(widget *wid, cairo_t *d) {
     }
     cairo_clip(d);
 
-    wid->draw(wid, d);
+    // Mark redraw false before drawing, so if we recursively draw and we mark
+    // it for another redraw this is not cleared.
     wid->need_redraw = FALSE;
+    wid->draw(wid, d);
 
     cairo_restore(d);
 
@@ -473,7 +479,7 @@ void widget_xy_to_relative(widget *wid, gint *x, gint *y) {
   }
   widget_xy_to_relative(wid->parent, x, y);
 }
-
+void rofi_view_queue_redraw(void);
 void widget_update(widget *wid) {
   if (wid == NULL) {
     return;
@@ -481,6 +487,11 @@ void widget_update(widget *wid) {
   // When (desired )size of wid changes.
   if (wid->update != NULL) {
     wid->update(wid);
+  }
+  if (wid->parent) {
+    widget_update(wid->parent);
+  } else {
+    rofi_view_queue_redraw();
   }
 }
 

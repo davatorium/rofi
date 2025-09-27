@@ -374,7 +374,4 @@ static void box_update(widget *wid) {
   default:
     hori_calculate_size(b);
   }
-  if (wid->parent) {
-    widget_update(wid->parent);
-  }
 }
