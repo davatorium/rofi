@@ -93,7 +93,6 @@ void widget_resize(widget *wid, short w, short h) {
   if (wid == NULL) {
     return;
   }
-  printf(" %s %d %d %d %d\n", wid->name, w, h, wid->w, wid->h);
   if (wid->resize != NULL) {
     if (wid->w != w || wid->h != h) {
       int wn = wid->w;
@@ -488,7 +487,7 @@ void widget_xy_to_relative(widget *wid, gint *x, gint *y) {
   widget_xy_to_relative(wid->parent, x, y);
 }
 void rofi_view_queue_redraw(void);
-void widget_update(widget *wid) {
+static void widget_update_int (widget *wid) {
   if (wid == NULL) {
     return;
   }
@@ -497,7 +496,23 @@ void widget_update(widget *wid) {
     wid->update(wid);
   }
   if (wid->parent) {
-    widget_update(wid->parent);
+    widget_update_int (wid->parent);
+  } else {
+    //rofi_view_queue_redraw();
+  }
+}
+
+void widget_update(widget *wid) {
+  if (wid == NULL) {
+    return;
+  }
+  printf("update: %s\n", wid->name);
+  // When (desired )size of wid changes.
+  if (wid->update != NULL) {
+    wid->update(wid);
+  }
+  if (wid->parent) {
+    widget_update_int(wid->parent);
   } else {
     rofi_view_queue_redraw();
   }
@@ -507,6 +522,7 @@ void widget_queue_redraw(widget *wid) {
   if (wid == NULL) {
     return;
   }
+  printf("q redraw: %s\n", wid->name);
   widget *iter = wid;
   // Find toplevel widget.
   while (iter->parent != NULL) {

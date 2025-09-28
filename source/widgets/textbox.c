@@ -404,6 +404,9 @@ void textbox_text(textbox *tb, const char *text) {
   if (tb == NULL) {
     return;
   }
+  if ( g_strcmp0(text, tb->text) == 0 ){
+    return;
+  }
   g_free(tb->text);
   const gchar *last_pointer = NULL;
 

@@ -95,6 +95,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
     b->icon = rofi_icon_fetcher_get(b->icon_fetch_id);
     if (b->icon) {
       cairo_surface_reference(b->icon);
+      printf("got icon\n");
       widget_update(wid);
     }
   }
@@ -144,12 +145,16 @@ static void icon_resize(widget *wid, short w, short h) {
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;
     b->widget.h = h;
+    printf("icon resize\n");
     widget_update(wid);
   }
 }
 
 void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
   icon_widget->icon_fetch_id = 0;
+  if ( surf == icon_widget->icon ){
+    return;
+  }
   if (icon_widget->icon) {
     cairo_surface_destroy(icon_widget->icon);
     icon_widget->icon = NULL;
@@ -158,6 +163,7 @@ void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
     cairo_surface_reference(surf);
     icon_widget->icon = surf;
   }
+  printf("set surface\n ");
   widget_update(WIDGET(icon_widget));
 }
 
