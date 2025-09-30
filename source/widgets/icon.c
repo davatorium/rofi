@@ -126,6 +126,7 @@ static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
       printf("adjusted height: %d %d\n", iconw, iconh);
     } else {
       height = b->old_height;
+      printf("adjusted height: %d \n", height);
     }
   }
   height += widget_padding_get_padding_height(wid);
@@ -176,13 +177,13 @@ static void icon_draw(widget *wid, cairo_t *draw) {
   }
   int iconh = cairo_image_surface_get_height(b->icon);
   int iconw = cairo_image_surface_get_width(b->icon);
-  double scale = MIN((double)b->widget.w / iconw, (double)b->widget.h / iconh);
-  scale = MAX(1.0, scale);
-
   int lpad = widget_padding_get_left(WIDGET(b));
   int rpad = widget_padding_get_right(WIDGET(b));
   int tpad = widget_padding_get_top(WIDGET(b));
   int bpad = widget_padding_get_bottom(WIDGET(b));
+  double scalex = (double)(b->widget.w - lpad - rpad) / iconw;
+  double scaley = (double)(b->widget.h - tpad - bpad) / iconh;
+  double scale = MIN(scalex, scaley);
 
   cairo_save(draw);
 
@@ -281,8 +282,10 @@ icon *icon_create(widget *parent, const char *name) {
 
   const char *filename = rofi_theme_get_string(WIDGET(b), "filename", NULL);
   if (filename) {
-    b->icon_fetch_id =
-        rofi_icon_fetcher_query_advanced(filename, b->width, b->height);
+    char **retv = g_malloc0(2 * sizeof(char *));
+    retv[0] = g_strdup(filename);
+    icon_set_icon_names(b, (char const *const *)retv);
+    g_strfreev(retv);
   }
   b->yalign = rofi_theme_get_double(WIDGET(b), "vertical-align", 0.5);
   b->yalign = MAX(0, MIN(1.0, b->yalign));

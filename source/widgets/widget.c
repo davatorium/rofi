@@ -93,6 +93,7 @@ void widget_resize(widget *wid, short w, short h) {
   if (wid == NULL) {
     return;
   }
+  printf("%s:%s: %dx%d\n", __FUNCTION__, wid->name, w, h);
   if (wid->resize != NULL) {
     if (wid->w != w || wid->h != h) {
       int wn = wid->w;
@@ -101,7 +102,8 @@ void widget_resize(widget *wid, short w, short h) {
       if (wid->w != wn || wid->h != hn) {
         widget_update(wid);
       } else {
-        printf("Skip update, size did not update\n");
+        printf("Skip update %s, size did not update %dx%d\n", wid->name, wid->w,
+               wid->h);
       }
     }
   } else {
@@ -109,6 +111,9 @@ void widget_resize(widget *wid, short w, short h) {
       wid->w = w;
       wid->h = h;
       widget_update(wid);
+    } else {
+      printf("Skip update %s, size did not update %dx%d\n", wid->name, wid->w,
+             wid->h);
     }
   }
   // On a resize we always want to update.
@@ -486,7 +491,7 @@ void widget_xy_to_relative(widget *wid, gint *x, gint *y) {
   widget_xy_to_relative(wid->parent, x, y);
 }
 void rofi_view_queue_redraw(void);
-static void widget_update_int (widget *wid) {
+static void widget_update_int(widget *wid) {
   if (wid == NULL) {
     return;
   }
@@ -495,9 +500,9 @@ static void widget_update_int (widget *wid) {
     wid->update(wid);
   }
   if (wid->parent) {
-    widget_update_int (wid->parent);
+    widget_update_int(wid->parent);
   } else {
-    //rofi_view_queue_redraw();
+    rofi_view_queue_redraw();
   }
 }
 
@@ -512,7 +517,7 @@ void widget_update(widget *wid) {
   if (wid->parent) {
     widget_update_int(wid->parent);
   } else {
-    rofi_view_queue_redraw();
+    // rofi_view_queue_redraw();
   }
 }
 
@@ -680,7 +685,10 @@ int widget_get_desired_height(widget *wid, const int width) {
   if (wid->get_desired_height == NULL) {
     return wid->h;
   }
-  return wid->get_desired_height(wid, width);
+  int h = wid->get_desired_height(wid, width);
+  printf("%s:%s %d\n", __FUNCTION__, wid->name, h);
+
+  return h;
 }
 int widget_get_desired_width(widget *wid, const int height) {
   if (wid == NULL) {
