@@ -219,6 +219,8 @@ static void xcb_rofi_view_update(RofiViewState *state, gboolean qr) {
   if (!widget_need_redraw(WIDGET(state->main_window))) {
     return;
   }
+  static size_t i = 0;
+  printf("redraw :%lu\n", i++);
   g_debug("Redraw view");
   TICK();
   cairo_t *d = XcbState.edit_draw;
@@ -259,7 +261,6 @@ static void xcb_rofi_view_update(RofiViewState *state, gboolean qr) {
     rofi_view_queue_redraw();
   }
 }
-
 
 /**
  * Calculates the window position

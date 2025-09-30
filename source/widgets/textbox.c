@@ -31,6 +31,7 @@
 #include "helper.h"
 #include "keyb.h"
 #include "mode.h"
+#include "pango/pango-layout.h"
 #include "timings.h"
 #include "view.h"
 #include "widgets/textbox.h"
@@ -384,7 +385,11 @@ void textbox_set_pango_attributes(textbox *tb, PangoAttrList *list) {
   if (tb == NULL) {
     return;
   }
-  pango_layout_set_attributes(tb->layout, list);
+  if (WIDGET(tb)->need_redraw ||
+      !pango_attr_list_equal(list, pango_layout_get_attributes(tb->layout))) {
+    //    pango_layout_set_text(tb->layout, tb->text, -1);
+    pango_layout_set_attributes(tb->layout, list);
+  }
 }
 
 char *textbox_get_text(const textbox *tb) {
@@ -404,7 +409,7 @@ void textbox_text(textbox *tb, const char *text) {
   if (tb == NULL) {
     return;
   }
-  if ( g_strcmp0(text, tb->text) == 0 ){
+  if (g_strcmp0(text, tb->text) == 0) {
     return;
   }
   g_free(tb->text);
@@ -459,8 +464,8 @@ void textbox_moveresize(textbox *tb, int x, int y, int w, int h) {
     int padding = widget_padding_get_padding_width(WIDGET(tb));
     int tw = MAX(1 + padding, w);
     pango_layout_set_width(tb->layout, PANGO_SCALE * (tw - padding));
-    int hd=
-      textbox_get_estimated_height(tb, pango_layout_get_line_count(tb->layout));
+    int hd = textbox_get_estimated_height(
+        tb, pango_layout_get_line_count(tb->layout));
     h = MAX(hd, h);
   }
 

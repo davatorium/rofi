@@ -624,6 +624,9 @@ void listview_set_num_elements(listview *lv, unsigned int rows) {
     return;
   }
   TICK_N("listview_set_num_elements");
+  if (lv->req_elements == rows) {
+    return;
+  }
   lv->req_elements = rows;
   if (lv->require_input && !lv->filtered) {
     lv->req_elements = 0;

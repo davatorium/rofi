@@ -98,7 +98,6 @@ void widget_resize(widget *wid, short w, short h) {
       int wn = wid->w;
       int hn = wid->h;
       wid->resize(wid, w, h);
-      printf(" redo %s %d %d %d %d\n", wid->name, w, h, wid->w, wid->h);
       if (wid->w != wn || wid->h != hn) {
         widget_update(wid);
       } else {
@@ -506,7 +505,6 @@ void widget_update(widget *wid) {
   if (wid == NULL) {
     return;
   }
-  printf("update: %s\n", wid->name);
   // When (desired )size of wid changes.
   if (wid->update != NULL) {
     wid->update(wid);
@@ -522,7 +520,6 @@ void widget_queue_redraw(widget *wid) {
   if (wid == NULL) {
     return;
   }
-  printf("q redraw: %s\n", wid->name);
   widget *iter = wid;
   // Find toplevel widget.
   while (iter->parent != NULL) {

@@ -713,12 +713,7 @@ static void update_callback(textbox *t, icon *ico, unsigned int index,
       textbox_font(t, *type);
       // Move into list view.
       textbox_text(t, text);
-      PangoAttrList *list = textbox_get_pango_attributes(t);
-      if (list != NULL) {
-        pango_attr_list_ref(list);
-      } else {
-        list = pango_attr_list_new();
-      }
+      PangoAttrList *list = pango_attr_list_new();
 
       if (state->tokens) {
         RofiHighlightColorStyle th = {ROFI_HL_BOLD | ROFI_HL_UNDERLINE,

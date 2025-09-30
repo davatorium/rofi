@@ -30,11 +30,11 @@
 #define G_LOG_DOMAIN "Widgets.Icon"
 #include "config.h"
 
-#include <math.h>
 #include "theme.h"
 #include "widgets/icon.h"
 #include "widgets/widget-internal.h"
 #include "widgets/widget.h"
+#include <math.h>
 #include <stdio.h>
 
 #include "rofi-icon-fetcher.h"
@@ -64,8 +64,8 @@ static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
     if (b->icon) {
       int iconh = cairo_image_surface_get_height(b->icon);
       int iconw = cairo_image_surface_get_width(b->icon);
-      if ( ((double) width/iconw) < ((double)b->height/iconh)){
-        height =ceil(((double)width/iconw) * iconh);
+      if (((double)width / iconw) < ((double)b->height / iconh)) {
+        height = ceil(((double)width / iconw) * iconh);
       }
     }
   }
@@ -79,8 +79,8 @@ static int icon_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {
     if (b->icon) {
       int iconh = cairo_image_surface_get_height(b->icon);
       int iconw = cairo_image_surface_get_width(b->icon);
-      if ( ((double) height/iconh) < ((double)wid->w/iconw)){
-        width = ceil(iconw*((double)height/iconh));
+      if (((double)height / iconh) < ((double)wid->w / iconw)) {
+        width = ceil(iconw * ((double)height / iconh));
       }
     }
   }
@@ -104,7 +104,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
   }
   int iconh = cairo_image_surface_get_height(b->icon);
   int iconw = cairo_image_surface_get_width(b->icon);
-  double scale = MIN((double)b->widget.w / iconw, (double)b->widget.h/iconh);
+  double scale = MIN((double)b->widget.w / iconw, (double)b->widget.h / iconh);
 
   int lpad = widget_padding_get_left(WIDGET(b));
   int rpad = widget_padding_get_right(WIDGET(b));
@@ -145,14 +145,13 @@ static void icon_resize(widget *wid, short w, short h) {
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;
     b->widget.h = h;
-    printf("icon resize\n");
     widget_update(wid);
   }
 }
 
 void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
   icon_widget->icon_fetch_id = 0;
-  if ( surf == icon_widget->icon ){
+  if (surf == icon_widget->icon) {
     return;
   }
   if (icon_widget->icon) {
@@ -163,7 +162,6 @@ void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
     cairo_surface_reference(surf);
     icon_widget->icon = surf;
   }
-  printf("set surface\n ");
   widget_update(WIDGET(icon_widget));
 }
 
@@ -191,7 +189,8 @@ icon *icon_create(widget *parent, const char *name) {
 
   const char *filename = rofi_theme_get_string(WIDGET(b), "filename", NULL);
   if (filename) {
-    b->icon_fetch_id = rofi_icon_fetcher_query_advanced(filename, b->width, b->height);
+    b->icon_fetch_id =
+        rofi_icon_fetcher_query_advanced(filename, b->width, b->height);
   }
   b->yalign = rofi_theme_get_double(WIDGET(b), "vertical-align", 0.5);
   b->yalign = MAX(0, MIN(1.0, b->yalign));
