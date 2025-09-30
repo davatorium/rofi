@@ -131,12 +131,30 @@ static void vert_calculate_size(box *b) {
   int active_widgets = 0;
   int rem_width = widget_padding_get_remaining_width(WIDGET(b));
   int rem_height = widget_padding_get_remaining_height(WIDGET(b));
+
   for (GList *iter = g_list_first(b->children); iter != NULL;
        iter = g_list_next(iter)) {
     widget *child = (widget *)iter->data;
+    if (!child->enabled) {
+      continue;
+    }
+    if (child->expand == TRUE) {
+      expanding_widgets++;
+      continue;
+    }
+    active_widgets++;
+  }
+  for (GList *iter = g_list_first(b->children); iter != NULL;
+       iter = g_list_next(iter)) {
+    widget *child = (widget *)iter->data;
+    // TODO CHECK HOW TO FIX THIS consistently.
+    // TODO PORT TO HORIZ
     if (child->enabled && child->expand == FALSE) {
-      widget_resize(child, rem_width,
-                    widget_get_desired_height(child, rem_width));
+      int exph = widget_get_desired_height(child, rem_width);
+      if (exph > rem_height) {
+        exph = rem_height - (active_widgets - 1) * spacing;
+      }
+      widget_resize(child, rem_width, exph);
     }
   }
   b->max_size = 0;
@@ -146,9 +164,7 @@ static void vert_calculate_size(box *b) {
     if (!child->enabled) {
       continue;
     }
-    active_widgets++;
     if (child->expand == TRUE) {
-      expanding_widgets++;
       continue;
     }
     if (child->h > 0) {
@@ -159,9 +175,9 @@ static void vert_calculate_size(box *b) {
     b->max_size += (active_widgets - 1) * spacing;
   }
   if (b->max_size > rem_height) {
+    g_warning("Widgets to large (height) for box: %d %d", b->max_size,
+              b->widget.h);
     b->max_size = rem_height;
-    g_debug("Widgets to large (height) for box: %d %d", b->max_size,
-            b->widget.h);
     return;
   }
   if (active_widgets > 0) {

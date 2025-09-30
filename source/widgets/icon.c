@@ -27,6 +27,7 @@
 
 /** The log domain of this widget. */
 #include "cairo.h"
+#include "rofi-types.h"
 #define G_LOG_DOMAIN "Widgets.Icon"
 #include "config.h"
 
@@ -43,9 +44,12 @@ struct _icon {
   widget widget;
 
   // Size of the icon.
-  int size;
   int width;
   int height;
+  int old_height;
+  int old_width;
+
+  int size_set;
 
   int squared;
 
@@ -60,22 +64,28 @@ struct _icon {
   cairo_surface_t *icon;
 };
 
-
-void icon_set_icon_names ( icon *wid, char const *  const *icon_names){
-  if ( icon_names == NULL && wid->icon_names == NULL ){
+void icon_set_icon_names(icon *wid, char const *const *icon_names) {
+  if (icon_names == NULL && wid->icon_names == NULL) {
+    wid->icon_fetch_id = 0;
+    if (wid->icon) {
+      cairo_surface_destroy(wid->icon);
+      wid->icon = NULL;
+    }
     return;
   }
-  if ( icon_names && wid->icon_names && g_strv_equal(icon_names, (char const *const *)wid->icon_names) ){
-    return ;
+  if (icon_names && wid->icon_names &&
+      g_strv_equal(icon_names, (char const *const *)wid->icon_names)) {
+    return;
   }
-  if ( wid->icon_names ) {
+  wid->icon_fetch_id = 0;
+  if (wid->icon_names) {
     g_strfreev(wid->icon_names);
   }
-  wid->icon_names = g_strdupv((char**)icon_names);
+  wid->icon_names = g_strdupv((char **)icon_names);
   wid->resolve_num = 0;
 
-  printf("set icons: ");
-  for ( int i = 0; icon_names && icon_names[i]; i++){
+  printf("set icons %s: ", wid->widget.name);
+  for (int i = 0; icon_names && icon_names[i]; i++) {
     printf("%s, ", icon_names[i]);
   }
   printf("\n");
@@ -83,18 +93,26 @@ void icon_set_icon_names ( icon *wid, char const *  const *icon_names){
   cairo_surface_destroy(wid->icon);
   wid->icon = NULL;
 
-  if ( wid->icon_names && wid->icon_names[0] ){
+  if (wid->icon_names && wid->icon_names[0]) {
 
-    wid->icon_fetch_id =
-        rofi_icon_fetcher_query_advanced_widget(wid->icon_names[wid->resolve_num], wid->width, wid->height, WIDGET(wid));
-    if ( rofi_icon_fetcher_get ( wid->icon_fetch_id) != NULL ){
-      printf("icon found\n");
+    int w = wid->widget.w;
+    int h = wid->widget.h;
+    if ((wid->size_set & 1) == 1) {
+      w = wid->width;
+    }
+    if ((wid->size_set & 2) == 2) {
+      h = wid->height;
+    }
+    wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
+        wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
+    if (rofi_icon_fetcher_get(wid->icon_fetch_id) != NULL) {
       widget_queue_redraw(WIDGET(wid));
+      // widget_queue_redraw(WIDGET(wid));
     }
     return;
   }
+  widget_queue_redraw(WIDGET(wid));
   wid->resolve_num = -1;
-
 }
 
 static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
@@ -104,12 +122,15 @@ static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
     if (b->icon) {
       int iconh = cairo_image_surface_get_height(b->icon);
       int iconw = cairo_image_surface_get_width(b->icon);
-      if (((double)width / iconw) < ((double)b->height / iconh)) {
-        height = ceil(((double)width / iconw) * iconh);
-      }
+      b->old_height = height = ceil(((double)width / iconw) * iconh);
+      printf("adjusted height: %d %d\n", iconw, iconh);
+    } else {
+      height = b->old_height;
     }
   }
   height += widget_padding_get_padding_height(wid);
+  printf("desired height: %s %d for %d %p\n", wid->name, height, width,
+         b->icon);
   return height;
 }
 static int icon_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {
@@ -119,9 +140,9 @@ static int icon_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {
     if (b->icon) {
       int iconh = cairo_image_surface_get_height(b->icon);
       int iconw = cairo_image_surface_get_width(b->icon);
-      if (((double)height / iconh) < ((double)wid->w / iconw)) {
-        width = ceil(iconw * ((double)height / iconh));
-      }
+      b->old_width = width = ceil(iconw * ((double)height / iconh));
+    } else {
+      width = b->old_width;
     }
   }
   width += widget_padding_get_padding_width(wid);
@@ -135,15 +156,15 @@ static void icon_draw(widget *wid, cairo_t *draw) {
     b->icon = rofi_icon_fetcher_get(b->icon_fetch_id);
     if (b->icon) {
       cairo_surface_reference(b->icon);
-      printf("got icon\n");
+      printf("got icon: %s\n", wid->name);
       widget_update(wid);
     } else {
-      if ( b->icon_names && b->resolve_num >= 0 ){
+      if (b->icon_names && b->resolve_num >= 0) {
         b->resolve_num++;
 
-        if ( b->icon_names[b->resolve_num]){
-          b->icon_fetch_id =
-            rofi_icon_fetcher_query_advanced_widget(b->icon_names[b->resolve_num], b->width, b->height, WIDGET(wid));
+        if (b->icon_names[b->resolve_num]) {
+          b->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
+              b->icon_names[b->resolve_num], b->width, b->height, WIDGET(wid));
         } else {
           b->resolve_num = -1;
         }
@@ -156,6 +177,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
   int iconh = cairo_image_surface_get_height(b->icon);
   int iconw = cairo_image_surface_get_width(b->icon);
   double scale = MIN((double)b->widget.w / iconw, (double)b->widget.h / iconh);
+  scale = MAX(1.0, scale);
 
   int lpad = widget_padding_get_left(WIDGET(b));
   int rpad = widget_padding_get_right(WIDGET(b));
@@ -196,6 +218,11 @@ static void icon_resize(widget *wid, short w, short h) {
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;
     b->widget.h = h;
+    char **icon_names = b->icon_names;
+    b->icon_names = NULL;
+    printf("%s icon resize %d x %d\n", wid->name, w, h);
+    icon_set_icon_names(b, (char const *const *)icon_names);
+    g_strfreev(icon_names);
     widget_update(wid);
   }
 }
@@ -222,7 +249,6 @@ void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
 icon *icon_create(widget *parent, const char *name) {
   icon *b = g_malloc0(sizeof(icon));
 
-  b->size = 16;
   // Initialize widget.
   widget_init(WIDGET(b), parent, WIDGET_TYPE_UNKNOWN, name);
   b->widget.draw = icon_draw;
@@ -231,13 +257,25 @@ icon *icon_create(widget *parent, const char *name) {
   b->widget.get_desired_height = icon_get_desired_height;
   b->widget.get_desired_width = icon_get_desired_width;
 
-  RofiDistance d = rofi_theme_get_distance(WIDGET(b), "size", b->size);
-  b->size = distance_get_pixel(d, ROFI_ORIENTATION_VERTICAL);
+  if (rofi_theme_has_property(WIDGET(b), P_PADDING, "size")) {
+    RofiDistance d = rofi_theme_get_distance(WIDGET(b), "size", 16);
+    int size = distance_get_pixel(d, ROFI_ORIENTATION_HORIZONTAL);
+    b->size_set = 3;
+    b->width = size;
+    size = distance_get_pixel(d, ROFI_ORIENTATION_VERTICAL);
+    b->height = size;
+  }
 
-  d = rofi_theme_get_distance(WIDGET(b), "width", b->size);
-  b->width = distance_get_pixel(d, ROFI_ORIENTATION_HORIZONTAL);
-  d = rofi_theme_get_distance(WIDGET(b), "height", b->size);
-  b->height = distance_get_pixel(d, ROFI_ORIENTATION_VERTICAL);
+  if (rofi_theme_has_property(WIDGET(b), P_PADDING, "width")) {
+    RofiDistance d = rofi_theme_get_distance(WIDGET(b), "width", 16);
+    b->width = distance_get_pixel(d, ROFI_ORIENTATION_HORIZONTAL);
+    b->size_set |= 1;
+  }
+  if (rofi_theme_has_property(WIDGET(b), P_PADDING, "height")) {
+    RofiDistance d = rofi_theme_get_distance(WIDGET(b), "height", 16);
+    b->height = distance_get_pixel(d, ROFI_ORIENTATION_VERTICAL);
+    b->size_set |= 2;
+  }
 
   b->squared = rofi_theme_get_boolean(WIDGET(b), "squared", TRUE);
 
