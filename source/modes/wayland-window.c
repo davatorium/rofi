@@ -577,11 +577,9 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
   return get_entry ? _generate_display_string(pd, toplevel) : NULL;
 }
 
-static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  unsigned int height) {
+static char **_get_icon_names(const Mode *sw, unsigned int selected_line) {
   WaylandWindowModePrivateData *pd =
       (WaylandWindowModePrivateData *)mode_get_private_data(sw);
-  const guint scale = display_scale();
 
   g_return_val_if_fail(pd != NULL, NULL);
 
@@ -594,23 +592,17 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
     return NULL;
   }
 
-  if (toplevel->cached_icon_uid > 0 && toplevel->cached_icon_size == height &&
-      toplevel->cached_icon_scale == scale) {
-    return rofi_icon_fetcher_get(toplevel->cached_icon_uid);
-  }
-
   /**
    * Lookup icon by lowercase app_id.
    * There's no API to request multiple names, so we do the same as XCB window
-   * mode and search for a lowercase WM_CLASS/app_id.
+   * mode and search for a lowercase WM_CLASS/app_id and if fail with case
    */
   gchar *app_id_lower = g_utf8_strdown(toplevel->app_id, -1);
-  toplevel->cached_icon_size = height;
-  toplevel->cached_icon_scale = scale;
-  toplevel->cached_icon_uid = rofi_icon_fetcher_query(app_id_lower, height);
-  g_free(app_id_lower);
+  char **retv = g_malloc0(3*sizeof(char *));
+  retv[0] = app_id_lower;
+  retv[1] = g_strdup(toplevel->app_id);
 
-  return rofi_icon_fetcher_get(toplevel->cached_icon_uid);
+  return retv; 
 }
 
 #include "mode-private.h"
@@ -624,7 +616,7 @@ Mode wayland_window_mode = {.name = "window",
                             ._result = wayland_window_mode_result,
                             ._token_match = wayland_window_token_match,
                             ._get_display_value = _get_display_value,
-                            ._get_icon = _get_icon,
+                            ._get_icon_names = _get_icon_names,
                             ._get_completion = NULL,
                             ._preprocess_input = NULL,
                             ._get_message = NULL,

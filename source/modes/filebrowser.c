@@ -93,9 +93,6 @@ typedef struct {
   char *name;
   char *path;
   enum FBFileType type;
-  uint32_t icon_fetch_uid;
-  uint32_t icon_fetch_size;
-  guint icon_fetch_scale;
   gboolean link;
   time_t time;
 } FBFile;
@@ -249,9 +246,6 @@ static void get_file_browser(Mode *sw) {
         pd->array[pd->array_length].name = g_strdup("..");
         pd->array[pd->array_length].path = NULL;
         pd->array[pd->array_length].type = UP;
-        pd->array[pd->array_length].icon_fetch_uid = 0;
-        pd->array[pd->array_length].icon_fetch_size = 0;
-        pd->array[pd->array_length].icon_fetch_scale = 0;
         pd->array[pd->array_length].link = FALSE;
         pd->array[pd->array_length].time = -1;
         pd->array_length++;
@@ -285,9 +279,6 @@ static void get_file_browser(Mode *sw) {
             g_build_filename(cdir, rd->d_name, NULL);
         pd->array[pd->array_length].type =
             (rd->d_type == DT_DIR) ? DIRECTORY : RFILE;
-        pd->array[pd->array_length].icon_fetch_uid = 0;
-        pd->array[pd->array_length].icon_fetch_size = 0;
-        pd->array[pd->array_length].icon_fetch_scale = 0;
         pd->array[pd->array_length].link = FALSE;
 
         if (file_browser_config.sorting_method == FB_SORT_TIME) {
@@ -306,9 +297,6 @@ static void get_file_browser(Mode *sw) {
         }
         pd->array[pd->array_length].path =
             g_build_filename(cdir, rd->d_name, NULL);
-        pd->array[pd->array_length].icon_fetch_uid = 0;
-        pd->array[pd->array_length].icon_fetch_size = 0;
-        pd->array[pd->array_length].icon_fetch_scale = 0;
         pd->array[pd->array_length].link = TRUE;
         // Default to file.
         pd->array[pd->array_length].type = RFILE;
@@ -623,26 +611,6 @@ static char **_get_icon_names(const Mode *sw, unsigned int selected_line) {
 
   return retv;
 }
-static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  unsigned int height) {
-  FileBrowserModePrivateData *pd =
-      (FileBrowserModePrivateData *)mode_get_private_data(sw);
-  const guint scale = display_scale();
-  g_return_val_if_fail(pd->array != NULL, NULL);
-  FBFile *dr = &(pd->array[selected_line]);
-  if (rofi_icon_fetcher_file_is_image(dr->path)) {
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(dr->path, height);
-  } else if (dr->type == RFILE) {
-    gchar* _path = g_strconcat("thumbnail://", dr->path, NULL);
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(_path, height);
-    g_free(_path);
-  } else {
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(icon_name[dr->type], height);
-  }
-  dr->icon_fetch_size = height;
-  dr->icon_fetch_scale = scale;
-  return rofi_icon_fetcher_get(dr->icon_fetch_uid);
-}
 
 static char *_get_message(const Mode *sw) {
   FileBrowserModePrivateData *pd =
@@ -740,7 +708,6 @@ Mode file_browser_mode = {.display_name = NULL,
                           ._destroy = file_browser_mode_destroy,
                           ._token_match = file_browser_token_match,
                           ._get_display_value = _get_display_value,
-                          ._get_icon = _get_icon,
                           ._get_icon_names = _get_icon_names,
                           ._get_message = _get_message,
                           ._get_completion = _get_completion,

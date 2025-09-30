@@ -508,26 +508,24 @@ static int recursive_browser_token_match(const Mode *sw,
   return helper_token_match(tokens, pd->array[index].name);
 }
 
-static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  unsigned int height) {
+static char **_get_icon_names(const Mode *sw, unsigned int selected_line) {
   FileBrowserModePrivateData *pd =
       (FileBrowserModePrivateData *)mode_get_private_data(sw);
-  const guint scale = display_scale();
+  char **retv = NULL;
   g_return_val_if_fail(pd->array != NULL, NULL);
   FBFile *dr = &(pd->array[selected_line]);
   if (rofi_icon_fetcher_file_is_image(dr->path)) {
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(dr->path, height);
+    retv = g_malloc0(2*sizeof(char *));
+    retv[0] = g_strdup(dr->path);
   } else if (dr->type == RFILE) {
-    gchar *_path = g_strconcat("thumbnail://", dr->path, NULL);
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(_path, height);
-    g_free(_path);
+    gchar* path = g_strconcat("thumbnail://", dr->path, NULL);
+    retv = g_malloc0(2*sizeof(char *));
+    retv[0] = path;
   } else {
-    dr->icon_fetch_uid =
-        rofi_icon_fetcher_query(rb_icon_name[dr->type], height);
+    retv = g_malloc0(2*sizeof(char *));
+    retv[0] = g_strdup(rb_icon_name[dr->type]);
   }
-  dr->icon_fetch_size = height;
-  dr->icon_fetch_scale = scale;
-  return rofi_icon_fetcher_get(dr->icon_fetch_uid);
+  return retv;
 }
 
 static char *_get_message(const Mode *sw) {
@@ -595,7 +593,7 @@ Mode recursive_browser_mode = {
     ._destroy = recursive_browser_mode_destroy,
     ._token_match = recursive_browser_token_match,
     ._get_display_value = _get_display_value,
-    ._get_icon = _get_icon,
+    ._get_icon_names = _get_icon_names,
     ._get_message = _get_message,
     ._get_completion = _get_completion,
     ._preprocess_input = NULL,

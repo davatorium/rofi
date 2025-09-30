@@ -544,52 +544,15 @@ static char *script_get_message(const Mode *sw) {
   ScriptModePrivateData *pd = sw->private_data;
   return g_strdup(pd->message);
 }
-static cairo_surface_t *script_get_icon(const Mode *sw,
-                                        unsigned int selected_line,
-                                        unsigned int height) {
+static char **script_get_icon_names(const Mode *sw, unsigned int selected_line)
+{
   ScriptModePrivateData *pd =
       (ScriptModePrivateData *)mode_get_private_data(sw);
-
-  const guint scale = display_scale();
-
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
   DmenuScriptEntry *dr = &(pd->cmd_list[selected_line]);
-  if (dr->icon_name == NULL) {
-    return NULL;
-  }
-
-  if (dr->icon_fetch_uid > 0) {
-    cairo_surface_t *surface = NULL;
-    gboolean query_done = rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
-
-    if (surface != NULL) {
-      return surface;
-    } else if (query_done) {
-      dr->icon_fallback_index++;
-      dr->icon_fetch_uid = 0;
-    } else {
-      return NULL;
-    }
-  }
-
-  char *current_icon = NULL;
-  if (dr->icon_name && dr->icon_fallback_index >= 0) {
-      int icon_count = g_strv_length(dr->icon_name);
-      if (dr->icon_fallback_index < icon_count) {
-          current_icon = dr->icon_name[dr->icon_fallback_index];
-      }
-  }
-  if ( current_icon ){
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
-    dr->icon_fetch_size = height;
-    dr->icon_fetch_scale = scale;
-
-  } else {
-    dr->icon_fetch_uid = 0;
-  }
-
-  return NULL;
+  return g_strdupv(dr->icon_name);
 }
+
 
 #include "mode-private.h"
 
@@ -667,7 +630,7 @@ Mode *script_mode_parse_setup(const char *str) {
     sw->_destroy = script_mode_destroy;
     sw->_token_match = script_token_match;
     sw->_get_message = script_get_message;
-    sw->_get_icon = script_get_icon;
+    sw->_get_icon_names = script_get_icon_names;
     sw->_get_completion = NULL, sw->_preprocess_input = NULL,
     sw->_get_display_value = _get_display_value;
     sw->type = MODE_TYPE_SWITCHER;
@@ -691,7 +654,7 @@ Mode *script_mode_parse_setup(const char *str) {
     sw->_destroy = script_mode_destroy;
     sw->_token_match = script_token_match;
     sw->_get_message = script_get_message;
-    sw->_get_icon = script_get_icon;
+    sw->_get_icon_names = script_get_icon_names ;
     sw->_get_completion = NULL, sw->_preprocess_input = NULL,
     sw->_get_display_value = _get_display_value;
     sw->type = MODE_TYPE_SWITCHER;

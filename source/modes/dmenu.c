@@ -58,8 +58,8 @@
 static int dmenu_mode_init(Mode *sw);
 static int dmenu_token_match(const Mode *sw, rofi_int_matcher **tokens,
                              unsigned int index);
-static cairo_surface_t *
-dmenu_get_icon(const Mode *sw, unsigned int selected_line, unsigned int height);
+static char **
+dmenu_get_icon_names(const Mode *sw, unsigned int selected_line);
 static char *dmenu_get_message(const Mode *sw);
 
 static inline unsigned int bitget(uint32_t const *const array,
@@ -134,10 +134,6 @@ static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
   }
   gsize data_len = len;
   // Init.
-  (*block)->values[(*block)->length].icon_fetch_uid = 0;
-  (*block)->values[(*block)->length].icon_fetch_size = 0;
-  (*block)->values[(*block)->length].icon_fetch_scale = 0;
-  (*block)->values[(*block)->length].icon_fallback_index = 0;
   (*block)->values[(*block)->length].icon_name = NULL;
   (*block)->values[(*block)->length].meta = NULL;
   (*block)->values[(*block)->length].info = NULL;
@@ -514,7 +510,7 @@ Mode dmenu_mode = {.name = "dmenu",
                    ._destroy = dmenu_mode_free,
                    ._token_match = dmenu_token_match,
                    ._get_display_value = get_display_data,
-                   ._get_icon = dmenu_get_icon,
+                   ._get_icon_names = dmenu_get_icon_names,
                    ._get_completion = dmenu_get_completion_data,
                    ._preprocess_input = NULL,
                    ._get_message = dmenu_get_message,
@@ -714,49 +710,14 @@ static char *dmenu_get_message(const Mode *sw) {
   }
   return NULL;
 }
-static cairo_surface_t *dmenu_get_icon(const Mode *sw,
-                                       unsigned int selected_line,
-                                       unsigned int height) {
+
+static char ** dmenu_get_icon_names ( const Mode *sw, unsigned int selected_line)
+{
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
-  const guint scale = display_scale();
 
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
   DmenuScriptEntry *dr = &(pd->cmd_list[selected_line]);
-  if (dr->icon_name == NULL) {
-    return NULL;
-  }
-
-  if (dr->icon_fetch_uid > 0) {
-    cairo_surface_t *surface = NULL;
-    gboolean query_done = rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
-
-    if (surface != NULL) {
-      return surface;
-    } else if (query_done) {
-      dr->icon_fallback_index++;
-      dr->icon_fetch_uid = 0;
-    } else {
-      return NULL;
-    }
-  }
-
-  char *current_icon = NULL;
-  if (dr->icon_name && dr->icon_fallback_index >= 0) {
-      int icon_count = g_strv_length(dr->icon_name);
-      if (dr->icon_fallback_index < icon_count) {
-          current_icon = dr->icon_name[dr->icon_fallback_index];
-      }
-  }
-  if ( current_icon ){
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
-    dr->icon_fetch_size = height;
-    dr->icon_fetch_scale = scale;
-
-  } else {
-    dr->icon_fetch_uid = 0;
-  }
-
-  return NULL;
+  return g_strdupv(dr->icon_name);
 }
 
 static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state,

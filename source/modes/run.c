@@ -66,9 +66,6 @@
 typedef struct {
   char *entry;
   char *exec;
-  uint32_t icon_fetch_uid;
-  uint32_t icon_fetch_size;
-  guint icon_fetch_scale;
   gboolean from_history;
   /* Surface holding the icon. */
   cairo_surface_t *icon;
@@ -216,8 +213,6 @@ static RunEntry *get_apps_external(RunEntry *retv, unsigned int *length,
         retv[(*length)].exec = g_shell_quote(buffer);
         retv[(*length)].from_history = FALSE;
         retv[(*length)].icon = NULL;
-        retv[(*length)].icon_fetch_uid = 0;
-        retv[(*length)].icon_fetch_size = 0;
 
         (*length)++;
       }
@@ -234,8 +229,6 @@ static RunEntry *get_apps_external(RunEntry *retv, unsigned int *length,
   retv[(*length)].exec = NULL;
   retv[(*length)].from_history = FALSE;
   retv[(*length)].icon = NULL;
-  retv[(*length)].icon_fetch_uid = 0;
-  retv[(*length)].icon_fetch_size = 0;
   return retv;
 }
 
@@ -355,14 +348,10 @@ static RunEntry *get_apps(unsigned int *length) {
         retv[(*length)].exec = g_shell_quote(name);
         retv[(*length)].from_history = FALSE;
         retv[(*length)].icon = NULL;
-        retv[(*length)].icon_fetch_uid = 0;
-        retv[(*length)].icon_fetch_size = 0;
         retv[(*length) + 1].entry = NULL;
         retv[(*length) + 1].exec = NULL;
         retv[(*length) + 1].from_history = FALSE;
         retv[(*length) + 1].icon = NULL;
-        retv[(*length) + 1].icon_fetch_uid = 0;
-        retv[(*length) + 1].icon_fetch_size = 0;
         (*length)++;
       }
 
@@ -571,30 +560,23 @@ static char *run_get_message(const Mode *sw) {
   }
   return NULL;
 }
-static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  unsigned int height) {
+
+static char **_get_icon_names(const Mode *sw, unsigned int selected_line) {
   RunModePrivateData *pd = (RunModePrivateData *)mode_get_private_data(sw);
-  const guint scale = display_scale();
   if (pd->file_complete) {
-    return pd->completer->_get_icon(pd->completer, selected_line, height);
+    return pd->completer->_get_icon_names(pd->completer, selected_line);
   }
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
   RunEntry *dr = &(pd->cmd_list[selected_line]);
 
-  if (dr->icon_fetch_uid > 0 && dr->icon_fetch_size == height &&
-      dr->icon_fetch_scale == scale) {
-    cairo_surface_t *icon = rofi_icon_fetcher_get(dr->icon_fetch_uid);
-    return icon;
-  }
   /** lookup icon */
   char **str = g_strsplit(dr->entry, " ", 2);
   if (str) {
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(str[0], height);
-    dr->icon_fetch_size = height;
-    dr->icon_fetch_scale = scale;
-    g_strfreev(str);
-    cairo_surface_t *icon = rofi_icon_fetcher_get(dr->icon_fetch_uid);
-    return icon;
+    if ( str[1] != NULL ) {
+      g_free(str[1]);
+      str[1] = NULL;
+    }
+    return str;
   }
   return NULL;
 }
@@ -609,7 +591,7 @@ Mode run_mode = {.name = "run",
                  ._token_match = run_token_match,
                  ._get_message = run_get_message,
                  ._get_display_value = _get_display_value,
-                 ._get_icon = _get_icon,
+                 ._get_icon_names= _get_icon_names,
                  ._get_completion = NULL,
                  ._preprocess_input = NULL,
                  .private_data = NULL,
