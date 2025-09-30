@@ -63,5 +63,7 @@ void icon_set_size(widget *icon, const int size);
  * @param surf The surface to display.
  */
 void icon_set_surface(icon *icon_widget, cairo_surface_t *surf);
+
+void icon_set_icon_names ( icon *icon_widget , char const * const * icon_names);
 /**@}*/
 #endif // ROFI_ICON_H

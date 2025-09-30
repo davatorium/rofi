@@ -84,6 +84,8 @@ typedef struct {
   GMutex *mutex;
   unsigned int *acount;
 
+  widget *widget;
+
   uint32_t uid;
   int wsize;
   int hsize;
@@ -542,7 +544,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
 
     if (strcmp(entry_name, "") == 0) {
       sentry->query_done = TRUE;
-      rofi_view_reload();
+      rofi_view_reload_widget(sentry->widget);
       return;
     }
 
@@ -643,7 +645,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     // no suitable icon or thumbnail was found
     if (icon_path_ == NULL || !g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
       sentry->query_done = TRUE;
-      rofi_view_reload();
+      rofi_view_reload_widget(sentry->widget);
       return;
     }
   } else if (g_path_is_absolute(sentry->entry->name)) {
@@ -672,7 +674,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     cairo_destroy(cr);
     sentry->surface = surface;
     sentry->query_done = TRUE;
-    rofi_view_reload();
+    rofi_view_reload_widget(sentry->widget);
     return;
 
   } else {
@@ -691,7 +693,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
       }
       if (icon_path_ == NULL) {
         sentry->query_done = TRUE;
-        rofi_view_reload();
+        rofi_view_reload_widget(sentry->widget);
         return;
       }
     } else {
@@ -706,7 +708,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   if (suf == NULL) {
     sentry->query_done = TRUE;
     g_free(icon_path_);
-    rofi_view_reload();
+    rofi_view_reload_widget(sentry->widget);
     return;
   }
 #endif
@@ -746,11 +748,15 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   sentry->surface = icon_surf;
   g_free(icon_path_);
   sentry->query_done = TRUE;
-  rofi_view_reload();
+  rofi_view_reload_widget(sentry->widget);
 }
 
 uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
                                           const int hsize) {
+  return rofi_icon_fetcher_query_advanced_widget(name, wsize, hsize, NULL);
+}
+uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name, const int wsize,
+                                          const int hsize, widget *wid) {
   g_debug("Query: %s(%dx%d)", name, wsize, hsize);
   IconFetcherNameEntry *entry =
       g_hash_table_lookup(rofi_icon_fetcher_data->icon_cache, name);
@@ -783,6 +789,7 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
   sentry->query_done = FALSE;
   sentry->query_started = TRUE;
   sentry->surface = NULL;
+  sentry->widget = wid;
 
   entry->sizes = g_list_prepend(entry->sizes, sentry);
   g_hash_table_insert(rofi_icon_fetcher_data->icon_cache_uid,

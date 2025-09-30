@@ -86,6 +86,16 @@ typedef cairo_surface_t *(*_mode_get_icon)(const Mode *sw,
  * @param sw The #Mode pointer
  * @param selected_line The selected line
  *
+ * Obtains the icon if available
+ *
+ * @return Get an array of icon names
+ */
+typedef char **(*_mode_get_icon_names)(const Mode *sw,
+                                           unsigned int selected_line);
+/**
+ * @param sw The #Mode pointer
+ * @param selected_line The selected line
+ *
  * Obtains the string to complete.
  *
  * @return Get the completion string
@@ -216,6 +226,7 @@ struct rofi_mode {
   _mode_get_display_value _get_display_value;
   /** Get the icon for the entry. */
   _mode_get_icon _get_icon;
+  _mode_get_icon_names _get_icon_names;
   /** Get the 'completed' entry. */
   _mode_get_completion _get_completion;
 

@@ -49,6 +49,9 @@ struct _icon {
 
   int squared;
 
+  int resolve_num;
+  char **icon_names;
+
   uint32_t icon_fetch_id;
 
   double yalign, xalign;
@@ -56,6 +59,43 @@ struct _icon {
   // Source surface.
   cairo_surface_t *icon;
 };
+
+
+void icon_set_icon_names ( icon *wid, char const *  const *icon_names){
+  if ( icon_names == NULL && wid->icon_names == NULL ){
+    return;
+  }
+  if ( icon_names && wid->icon_names && g_strv_equal(icon_names, (char const *const *)wid->icon_names) ){
+    return ;
+  }
+  if ( wid->icon_names ) {
+    g_strfreev(wid->icon_names);
+  }
+  wid->icon_names = g_strdupv((char**)icon_names);
+  wid->resolve_num = 0;
+
+  printf("set icons: ");
+  for ( int i = 0; icon_names && icon_names[i]; i++){
+    printf("%s, ", icon_names[i]);
+  }
+  printf("\n");
+
+  cairo_surface_destroy(wid->icon);
+  wid->icon = NULL;
+
+  if ( wid->icon_names && wid->icon_names[0] ){
+
+    wid->icon_fetch_id =
+        rofi_icon_fetcher_query_advanced_widget(wid->icon_names[wid->resolve_num], wid->width, wid->height, WIDGET(wid));
+    if ( rofi_icon_fetcher_get ( wid->icon_fetch_id) != NULL ){
+      printf("icon found\n");
+      widget_queue_redraw(WIDGET(wid));
+    }
+    return;
+  }
+  wid->resolve_num = -1;
+
+}
 
 static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
   icon *b = (icon *)wid;
@@ -97,6 +137,17 @@ static void icon_draw(widget *wid, cairo_t *draw) {
       cairo_surface_reference(b->icon);
       printf("got icon\n");
       widget_update(wid);
+    } else {
+      if ( b->icon_names && b->resolve_num >= 0 ){
+        b->resolve_num++;
+
+        if ( b->icon_names[b->resolve_num]){
+          b->icon_fetch_id =
+            rofi_icon_fetcher_query_advanced_widget(b->icon_names[b->resolve_num], b->width, b->height, WIDGET(wid));
+        } else {
+          b->resolve_num = -1;
+        }
+      }
     }
   }
   if (b->icon == NULL) {
@@ -162,6 +213,9 @@ void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
     cairo_surface_reference(surf);
     icon_widget->icon = surf;
   }
+  g_strfreev(icon_widget->icon_names);
+  icon_widget->icon_names = NULL;
+  icon_widget->resolve_num = -1;
   widget_update(WIDGET(icon_widget));
 }
 

@@ -681,12 +681,10 @@ static void selection_changed_callback(G_GNUC_UNUSED listview *lv,
   }
   if (state->icon_current_entry) {
     if (index < state->filtered_lines) {
-      int icon_height =
-          widget_get_desired_height(WIDGET(state->icon_current_entry),
-                                    WIDGET(state->icon_current_entry)->w);
-      cairo_surface_t *surf_icon =
-          mode_get_icon(state->sw, state->line_map[index], icon_height);
-      icon_set_surface(state->icon_current_entry, surf_icon);
+      char **icon_names =
+          mode_get_icon_names(state->sw, state->line_map[index]);
+      icon_set_icon_names(state->icon_current_entry, (char const * const *)icon_names);
+      g_strfreev(icon_names);
     } else {
       icon_set_surface(state->icon_current_entry, NULL);
     }
@@ -703,10 +701,10 @@ static void update_callback(textbox *t, icon *ico, unsigned int index,
     (*type) |= fstate;
 
     if (ico) {
-      int icon_height = widget_get_desired_height(WIDGET(ico), WIDGET(ico)->w);
-      cairo_surface_t *surf_icon =
-          mode_get_icon(state->sw, state->line_map[index], icon_height);
-      icon_set_surface(ico, surf_icon);
+      char **icons_names =
+          mode_get_icon_names(state->sw, state->line_map[index]);
+      icon_set_icon_names(ico, (char const * const *)icons_names);
+      g_strfreev(icons_names);
     }
     if (t) {
       // TODO needed for markup.
@@ -2163,6 +2161,13 @@ void rofi_view_set_cursor(RofiCursorType type) { proxy->set_cursor(type); }
 void rofi_view_cleanup(void) { proxy->cleanup(); }
 
 void rofi_view_hide(void) { proxy->hide(); }
+
+void rofi_view_reload_widget(widget *w) {
+  if ( w ) {
+    widget_queue_redraw(WIDGET(w));
+  }
+  proxy->reload();
+}
 
 void rofi_view_reload(void) {
   RofiViewState *state = rofi_view_get_active();

@@ -279,6 +279,7 @@ void rofi_view_hide(void);
  * The reloading happens 'lazy', multiple calls might be handled at once.
  */
 void rofi_view_reload(void);
+void rofi_view_reload_widget(widget *w);
 
 /**
  * @param state The handle to the view

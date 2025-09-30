@@ -602,6 +602,27 @@ static int file_browser_token_match(const Mode *sw, rofi_int_matcher **tokens,
   return helper_token_match(tokens, pd->array[index].name);
 }
 
+static char **_get_icon_names(const Mode *sw, unsigned int selected_line) {
+  char **retv = NULL;
+  FileBrowserModePrivateData *pd =
+      (FileBrowserModePrivateData *)mode_get_private_data(sw);
+  g_return_val_if_fail(pd->array != NULL, NULL);
+  FBFile *dr = &(pd->array[selected_line]);
+
+  if (rofi_icon_fetcher_file_is_image(dr->path)) {
+    retv = g_malloc0(2*sizeof(char *));
+    retv[0] = g_strdup(dr->path);
+  } else if (dr->type == RFILE) {
+    gchar* path = g_strconcat("thumbnail://", dr->path, NULL);
+    retv = g_malloc0(2*sizeof(char *));
+    retv[0] = path;
+  } else {
+    retv = g_malloc0(2*sizeof(char *));
+    retv[0] = g_strdup(icon_name[dr->type]);
+  }
+
+  return retv;
+}
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
                                   unsigned int height) {
   FileBrowserModePrivateData *pd =
@@ -720,6 +741,7 @@ Mode file_browser_mode = {.display_name = NULL,
                           ._token_match = file_browser_token_match,
                           ._get_display_value = _get_display_value,
                           ._get_icon = _get_icon,
+                          ._get_icon_names = _get_icon_names,
                           ._get_message = _get_message,
                           ._get_completion = _get_completion,
                           ._preprocess_input = NULL,
