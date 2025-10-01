@@ -103,6 +103,7 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
     if ((wid->size_set & 2) == 2) {
       h = wid->height;
     }
+    printf("%s: %dx%d (1)\n", wid->widget.name, w, h);
     wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
         wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
     if (rofi_icon_fetcher_get(wid->icon_fetch_id) != NULL) {
@@ -164,8 +165,10 @@ static void icon_draw(widget *wid, cairo_t *draw) {
         b->resolve_num++;
 
         if (b->icon_names[b->resolve_num]) {
+          printf("%s: %dx%d (2)\n", b->widget.name, b->width, b->height);
           b->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
-              b->icon_names[b->resolve_num], b->width, b->height, WIDGET(wid));
+              b->icon_names[b->resolve_num], b->widget.w, b->widget.h,
+              WIDGET(wid));
         } else {
           b->resolve_num = -1;
         }

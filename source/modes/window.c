@@ -66,6 +66,7 @@
 #define CLIENTSTATE 10
 #define CLIENTWINDOWTYPE 10
 
+cairo_surface_t *get_net_wm_icon(xcb_window_t xid, uint32_t preferred_size);
 // Fields to match in window mode
 typedef struct {
   char *field_name;
@@ -1060,8 +1061,7 @@ static cairo_surface_t *ewmh_window_icon_from_reply(xcb_get_property_reply_t *r,
   return draw_surface_from_data(found_data[0], found_data[1], found_data + 2);
 }
 /** Get NET_WM_ICON. */
-static cairo_surface_t *get_net_wm_icon(xcb_window_t xid,
-                                        uint32_t preferred_size) {
+cairo_surface_t *get_net_wm_icon(xcb_window_t xid, uint32_t preferred_size) {
   xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(
       xcb->connection, FALSE, xid, xcb->ewmh._NET_WM_ICON, XCB_ATOM_CARDINAL, 0,
       UINT32_MAX);
@@ -1070,6 +1070,23 @@ static cairo_surface_t *get_net_wm_icon(xcb_window_t xid,
   cairo_surface_t *surface = ewmh_window_icon_from_reply(r, preferred_size);
   free(r);
   return surface;
+}
+static char **_get_icon_names(const Mode *sw, unsigned int selected_line) {
+  WindowModePrivateData *rmpd = mode_get_private_data(sw);
+  const guint scale = display_scale();
+  client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
+  if (c == NULL) {
+    return NULL;
+  }
+  char **retv = g_malloc0(4 * sizeof(char *));
+  int index = 0;
+  if (config.window_thumbnail) {
+    retv[index++] =
+        g_strdup_printf("screenshot://%d", rmpd->ids->array[selected_line]);
+  }
+  retv[index++] = g_strdup_printf("xwin://%d", rmpd->ids->array[selected_line]);
+  retv[index++] = g_utf8_strdown(c->class, -1);
+  return retv;
 }
 static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
                                   unsigned int size) {
@@ -1148,7 +1165,7 @@ Mode window_mode = {.name = "window",
                     ._destroy = window_mode_destroy,
                     ._token_match = window_match,
                     ._get_display_value = _get_display_value,
-                    ._get_icon = _get_icon,
+                    ._get_icon_names = _get_icon_names,
                     ._get_completion = NULL,
                     ._preprocess_input = NULL,
                     .private_data = NULL,
@@ -1162,7 +1179,7 @@ Mode window_mode_cd = {.name = "windowcd",
                        ._destroy = window_mode_destroy,
                        ._token_match = window_match,
                        ._get_display_value = _get_display_value,
-                       ._get_icon = _get_icon,
+                       ._get_icon_names = _get_icon_names,
                        ._get_completion = NULL,
                        ._preprocess_input = NULL,
                        .private_data = NULL,

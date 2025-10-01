@@ -26,6 +26,7 @@
  */
 
 /** The log domain of this Helper. */
+#include "xcb.h"
 #define G_LOG_DOMAIN "Helpers.IconFetcher"
 
 #include "config.h"
@@ -720,6 +721,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     height *= sentry->scale;
 
   GError *error = NULL;
+  printf("%s: %d %d\n", icon_path, width, height);
   GdkPixbuf *pb =
       gdk_pixbuf_new_from_file_at_scale(icon_path, width, height, TRUE, &error);
 
@@ -755,8 +757,9 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
                                           const int hsize) {
   return rofi_icon_fetcher_query_advanced_widget(name, wsize, hsize, NULL);
 }
-uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name, const int wsize,
-                                          const int hsize, widget *wid) {
+uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name,
+                                                 const int wsize,
+                                                 const int hsize, widget *wid) {
   g_debug("Query: %s(%dx%d)", name, wsize, hsize);
   IconFetcherNameEntry *entry =
       g_hash_table_lookup(rofi_icon_fetcher_data->icon_cache, name);
@@ -773,6 +776,7 @@ uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name, const int wsi
     if (sentry->wsize == wsize && sentry->hsize == hsize &&
         sentry->scale == scale) {
       if (!sentry->query_started) {
+        printf("push\n");
         g_thread_pool_push(tpool, sentry, NULL);
       }
       return sentry->uid;
@@ -790,11 +794,26 @@ uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name, const int wsi
   sentry->query_started = TRUE;
   sentry->surface = NULL;
   sentry->widget = wid;
-
   entry->sizes = g_list_prepend(entry->sizes, sentry);
   g_hash_table_insert(rofi_icon_fetcher_data->icon_cache_uid,
                       GINT_TO_POINTER(sentry->uid), sentry);
-
+#ifdef WINDOW_MODE
+  extern cairo_surface_t *get_net_wm_icon(xcb_window_t xid,
+                                          uint32_t preferred_size);
+  if (g_str_has_prefix(name, "xwin://")) {
+    sentry->query_done = TRUE;
+    int id = g_ascii_strtoll(&name[7], NULL, 0);
+    sentry->surface = get_net_wm_icon(id, MAX(wsize, hsize));
+    printf("Check windows: %p\n", sentry->surface);
+    return sentry->uid;
+  } else if (g_str_has_prefix(name, "screenshot://")) {
+    sentry->query_done = TRUE;
+    int id = g_ascii_strtoll(&name[strlen("screenshot://")], NULL, 0);
+    sentry->surface =
+        x11_helper_get_screenshot_surface_window(id, MAX(wsize, hsize));
+    printf("Check screenshot: %p\n", sentry->surface);
+  }
+#endif
   // Push into fetching queue.
   sentry->state.callback = rofi_icon_fetcher_worker;
   sentry->state.free = rofi_icon_fetch_thread_pool_entry_remove;
