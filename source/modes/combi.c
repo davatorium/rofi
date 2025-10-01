@@ -296,19 +296,6 @@ static char **combi_get_icon_names(const Mode *sw, unsigned int index) {
   return NULL;
 }
 
-static cairo_surface_t *combi_get_icon(const Mode *sw, unsigned int index,
-                                       unsigned int height) {
-  CombiModePrivateData *pd = mode_get_private_data(sw);
-  for (unsigned i = 0; i < pd->num_switchers; i++) {
-    if (index >= pd->starts[i] && index < (pd->starts[i] + pd->lengths[i])) {
-      cairo_surface_t *icon =
-          mode_get_icon(pd->switchers[i].mode, index - pd->starts[i], height);
-      return icon;
-    }
-  }
-  return NULL;
-}
-
 static char *combi_preprocess_input(Mode *sw, const char *input) {
   CombiModePrivateData *pd = mode_get_private_data(sw);
   for (unsigned i = 0; i < pd->num_switchers; i++) {
@@ -350,8 +337,7 @@ Mode combi_mode = {.name = "combi",
                    ._token_match = combi_mode_match,
                    ._get_completion = combi_get_completion,
                    ._get_display_value = combi_mgrv,
-                   ._get_icon = combi_get_icon,
-                   ._get_icon_names = combi_get_icon_names ,
+                   ._get_icon_names = combi_get_icon_names,
                    ._preprocess_input = combi_preprocess_input,
                    .private_data = NULL,
                    .free = NULL,
