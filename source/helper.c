@@ -780,6 +780,9 @@ int config_sanity_check(void) {
 }
 
 char *rofi_expand_path(const char *input) {
+  if (input == NULL ) {
+    return NULL;
+  }
   char **str = g_strsplit(input, G_DIR_SEPARATOR_S, -1);
   for (unsigned int i = 0; str && str[i]; i++) {
     // Replace ~ with current user homedir.
