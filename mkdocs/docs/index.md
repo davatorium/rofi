@@ -24,13 +24,14 @@ The manpages are grouped on rofi version.
 
 ## Stable
 
-- [Rofi manpage](1.7.9/rofi.1.markdown)
-- [Themes](1.7.9/rofi-theme.5.markdown)
-- [Dmenu](1.7.9/rofi-dmenu.5.markdown)
-- [Script](1.7.9/rofi-script.5.markdown)
-- [Debugging](1.7.9/rofi-debugging.5.markdown)
-- [Keys](1.7.9/rofi-keys.5.markdown)
-- [Thumbnails](1.7.9/rofi-thumbnails.5.markdown)
+- [Rofi manpage](2.0.0/rofi.1.markdown)
+- [Themes](2.0.0/rofi-theme.5.markdown)
+- [Dmenu](2.0.0/rofi-dmenu.5.markdown)
+- [Script](2.0.0/rofi-script.5.markdown)
+- [Debugging](2.0.0/rofi-debugging.5.markdown)
+- [Keys](2.0.0/rofi-keys.5.markdown)
+- [Thumbnails](2.0.0/rofi-thumbnails.5.markdown)
+- [Actions](2.0.0/rofi-actions.5.markdown)
 
 ## Guides
 

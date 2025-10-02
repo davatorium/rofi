@@ -66,7 +66,7 @@ typedef struct {
 
   /** Whether to load and show icons  */
   gboolean show_icons;
-  
+
   /** Custom command to generate preview icons */
   char *preview_cmd;
 
@@ -221,6 +221,8 @@ typedef struct {
   char *completer_mode;
   /** Whether to enable imdkit, see #2123 */
   gboolean enable_imdkit;
+  /** Check for XDG */
+  gboolean disable_xdg_check;
 } Settings;
 
 /** Default number of lines in the list view */

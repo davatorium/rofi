@@ -180,11 +180,6 @@ Default:  Autodetect
 
 The X server to contact. Default is `$DISPLAY`.
 
-`-wayland-layer` *layer*
-
-On Wayland, specifies the layer where rofi is rendered. Available layers are
-`background`, `bottom`, `top`, `overlay`. The default layer is `overlay`.
-
 `-dmenu`
 
 Run **rofi** in dmenu mode. This allows for interactive scripts.
@@ -914,12 +909,6 @@ Workaround for bug in Xserver. See issue #611 and #1642 on the rofi issue
 tracker.
 
 Default: *disabled*
-
-`-disable-xdg-check`
-
-Disables rofi checking for the `XDG_DATA_DIRS` environment variable on startup.
-
-Default: disabled
 
 ## PATTERN
 
