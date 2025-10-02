@@ -84,11 +84,11 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
   wid->icon_names = g_strdupv((char **)icon_names);
   wid->resolve_num = 0;
 
-  printf("set icons %s: ", wid->widget.name);
-  for (int i = 0; icon_names && icon_names[i]; i++) {
-    printf("%s, ", icon_names[i]);
-  }
-  printf("\n");
+  // printf("set icons %s: ", wid->widget.name);
+  // for (int i = 0; icon_names && icon_names[i]; i++) {
+  //   printf("%s, ", icon_names[i]);
+  // }
+  // printf("\n");
 
   cairo_surface_destroy(wid->icon);
   wid->icon = NULL;
@@ -103,7 +103,7 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
     if ((wid->size_set & 2) == 2) {
       h = wid->height;
     }
-    printf("%s: %dx%d (1)\n", wid->widget.name, w, h);
+    // printf("%s: %dx%d (1)\n", wid->widget.name, w, h);
     wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
         wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
     if (rofi_icon_fetcher_get(wid->icon_fetch_id) != NULL) {
@@ -124,15 +124,15 @@ static int icon_get_desired_height(widget *wid, G_GNUC_UNUSED const int width) {
       int iconh = cairo_image_surface_get_height(b->icon);
       int iconw = cairo_image_surface_get_width(b->icon);
       b->old_height = height = ceil(((double)width / iconw) * iconh);
-      printf("adjusted height: %d %d\n", iconw, iconh);
+      // printf("adjusted height: %d %d\n", iconw, iconh);
     } else {
       height = b->old_height;
-      printf("adjusted height: %d \n", height);
+      // printf("adjusted height: %d \n", height);
     }
   }
   height += widget_padding_get_padding_height(wid);
-  printf("desired height: %s %d for %d %p\n", wid->name, height, width,
-         b->icon);
+  // printf("desired height: %s %d for %d %p\n", wid->name, height, width,
+  //        b->icon);
   return height;
 }
 static int icon_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {
@@ -158,14 +158,14 @@ static void icon_draw(widget *wid, cairo_t *draw) {
     b->icon = rofi_icon_fetcher_get(b->icon_fetch_id);
     if (b->icon) {
       cairo_surface_reference(b->icon);
-      printf("got icon: %s\n", wid->name);
+      // printf("got icon: %s\n", wid->name);
       widget_update(wid);
     } else {
       if (b->icon_names && b->resolve_num >= 0) {
         b->resolve_num++;
 
         if (b->icon_names[b->resolve_num]) {
-          printf("%s: %dx%d (2)\n", b->widget.name, b->width, b->height);
+          // printf("%s: %dx%d (2)\n", b->widget.name, b->width, b->height);
           b->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
               b->icon_names[b->resolve_num], b->widget.w, b->widget.h,
               WIDGET(wid));
@@ -224,7 +224,7 @@ static void icon_resize(widget *wid, short w, short h) {
     b->widget.h = h;
     char **icon_names = b->icon_names;
     b->icon_names = NULL;
-    printf("%s icon resize %d x %d\n", wid->name, w, h);
+    // printf("%s icon resize %d x %d\n", wid->name, w, h);
     icon_set_icon_names(b, (char const *const *)icon_names);
     g_strfreev(icon_names);
     widget_update(wid);

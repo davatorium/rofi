@@ -1084,76 +1084,16 @@ static char **_get_icon_names(const Mode *sw, unsigned int selected_line) {
     retv[index++] =
         g_strdup_printf("screenshot://%d", rmpd->ids->array[selected_line]);
   }
-  retv[index++] = g_strdup_printf("xwin://%d", rmpd->ids->array[selected_line]);
-  retv[index++] = g_utf8_strdown(c->class, -1);
-  return retv;
-}
-static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  unsigned int size) {
-  WindowModePrivateData *rmpd = mode_get_private_data(sw);
-  const guint scale = display_scale();
-  client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
-  if (c == NULL) {
-    return NULL;
-  }
-  if (c->icon_fetch_size != size || c->icon_fetch_scale != scale) {
-    if (c->icon) {
-      cairo_surface_destroy(c->icon);
-      c->icon = NULL;
-    }
-    c->thumbnail_checked = FALSE;
-    c->icon_checked = FALSE;
-    c->icon_theme_checked = FALSE;
-  }
-  // TODO: apply scaling to the following two routines
-  if (config.window_thumbnail && c->thumbnail_checked == FALSE) {
-    c->icon = x11_helper_get_screenshot_surface_window(c->window, size);
-    c->thumbnail_checked = TRUE;
-  }
-  if (rmpd->prefer_icon_theme == FALSE) {
-    if (c->icon == NULL && c->icon_checked == FALSE) {
-      c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
-      c->icon_checked = TRUE;
-    }
-    if (c->icon == NULL && c->class && c->icon_theme_checked == FALSE) {
-      if (c->icon_fetch_uid == 0) {
-        char *class_lower = g_utf8_strdown(c->class, -1);
-        c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
-        g_free(class_lower);
-        c->icon_fetch_size = size;
-        c->icon_fetch_scale = scale;
-      }
-      c->icon_theme_checked =
-          rofi_icon_fetcher_get_ex(c->icon_fetch_uid, &(c->icon));
-      if (c->icon) {
-        cairo_surface_reference(c->icon);
-      }
-    }
+  if (rmpd->prefer_icon_theme) {
+    retv[index++] = g_utf8_strdown(c->class, -1);
+    retv[index++] =
+        g_strdup_printf("xwin://%d", rmpd->ids->array[selected_line]);
   } else {
-    if (c->icon == NULL && c->class && c->icon_theme_checked == FALSE) {
-      if (c->icon_fetch_uid == 0 || c->icon_fetch_size != size ||
-          c->icon_fetch_scale != scale) {
-        char *class_lower = g_utf8_strdown(c->class, -1);
-        c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
-        g_free(class_lower);
-        c->icon_fetch_size = size;
-        c->icon_fetch_scale = scale;
-      }
-      c->icon_theme_checked =
-          rofi_icon_fetcher_get_ex(c->icon_fetch_uid, &(c->icon));
-      if (c->icon) {
-        cairo_surface_reference(c->icon);
-      }
-    }
-    if (c->icon_theme_checked == TRUE && c->icon == NULL &&
-        c->icon_checked == FALSE) {
-      c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
-      c->icon_checked = TRUE;
-    }
+    retv[index++] =
+        g_strdup_printf("xwin://%d", rmpd->ids->array[selected_line]);
+    retv[index++] = g_utf8_strdown(c->class, -1);
   }
-  c->icon_fetch_size = size;
-  c->icon_fetch_scale = scale;
-  return c->icon;
+  return retv;
 }
 
 #include "mode-private.h"

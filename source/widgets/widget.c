@@ -93,7 +93,7 @@ void widget_resize(widget *wid, short w, short h) {
   if (wid == NULL) {
     return;
   }
-  printf("%s:%s: %dx%d\n", __FUNCTION__, wid->name, w, h);
+  // printf("%s:%s: %dx%d\n", __FUNCTION__, wid->name, w, h);
   if (wid->resize != NULL) {
     if (wid->w != w || wid->h != h) {
       int wn = wid->w;
@@ -101,9 +101,10 @@ void widget_resize(widget *wid, short w, short h) {
       wid->resize(wid, w, h);
       if (wid->w != wn || wid->h != hn) {
         widget_update(wid);
-      } else {
-        printf("Skip update %s, size did not update %dx%d\n", wid->name, wid->w,
-               wid->h);
+        //    } else {
+        //      printf("Skip update %s, size did not update %dx%d\n", wid->name,
+        //      wid->w,
+        //             wid->h);
       }
     }
   } else {
@@ -111,9 +112,10 @@ void widget_resize(widget *wid, short w, short h) {
       wid->w = w;
       wid->h = h;
       widget_update(wid);
-    } else {
-      printf("Skip update %s, size did not update %dx%d\n", wid->name, wid->w,
-             wid->h);
+      //  } else {
+      //    printf("Skip update %s, size did not update %dx%d\n", wid->name,
+      //    wid->w,
+      //           wid->h);
     }
   }
   // On a resize we always want to update.
@@ -686,7 +688,7 @@ int widget_get_desired_height(widget *wid, const int width) {
     return wid->h;
   }
   int h = wid->get_desired_height(wid, width);
-  printf("%s:%s %d\n", __FUNCTION__, wid->name, h);
+  // printf("%s:%s %d\n", __FUNCTION__, wid->name, h);
 
   return h;
 }

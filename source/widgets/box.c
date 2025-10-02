@@ -127,14 +127,14 @@ static int box_get_desired_height(widget *wid, const int width) {
 }
 
 static void vert_calculate_size(box *b) {
-  printf("vert update: %s\n", b->widget.name);
+  // printf("vert update: %s\n", b->widget.name);
   int spacing = distance_get_pixel(b->spacing, ROFI_ORIENTATION_VERTICAL);
   int expanding_widgets = 0;
   int active_widgets = 0;
   int rem_width = widget_padding_get_remaining_width(WIDGET(b));
   int rem_height = widget_padding_get_remaining_height(WIDGET(b));
-  printf("%s rem w: %d rem h: %d\n", b->widget.name, rem_width, rem_height);
-  printf("children: %d\n", g_list_length(b->children));
+  // printf("%s rem w: %d rem h: %d\n", b->widget.name, rem_width, rem_height);
+  // printf("children: %d\n", g_list_length(b->children));
 
   for (GList *iter = g_list_first(b->children); iter != NULL;
        iter = g_list_next(iter)) {
@@ -148,7 +148,7 @@ static void vert_calculate_size(box *b) {
       continue;
     }
   }
-  printf("ac: %d exp: %d\n", active_widgets, expanding_widgets);
+  // printf("ac: %d exp: %d\n", active_widgets, expanding_widgets);
   for (GList *iter = g_list_first(b->children); iter != NULL;
        iter = g_list_next(iter)) {
     widget *child = (widget *)iter->data;
@@ -176,16 +176,16 @@ static void vert_calculate_size(box *b) {
       b->max_size += child->h;
     }
     if (b->max_size > rem_height) {
-      g_warning("Widgets %s to large (height) for box: %s: %d %d", child->name,
-                b->widget.name, b->max_size, b->widget.h);
+      g_debug("Widgets %s to large (height) for box: %s: %d %d", child->name,
+              b->widget.name, b->max_size, b->widget.h);
     }
   }
   if (active_widgets > 0) {
     b->max_size += (active_widgets - 1) * spacing;
   }
   if (b->max_size > rem_height) {
-    g_warning("Widgets to large (height) for box: %s: %d %d", b->widget.name,
-              b->max_size, b->widget.h);
+    g_debug("Widgets to large (height) for box: %s: %d %d", b->widget.name,
+            b->max_size, b->widget.h);
     b->max_size = rem_height;
     return;
   }
@@ -390,7 +390,7 @@ box *box_create(widget *parent, const char *name, RofiOrientation type) {
 }
 
 static void box_update(widget *wid) {
-  printf("%s box update\n", wid->name);
+  // printf("%s box update\n", wid->name);
   box *b = (box *)wid;
   switch (b->type) {
   case ROFI_ORIENTATION_VERTICAL:
