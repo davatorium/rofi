@@ -1318,19 +1318,6 @@ int main(int argc, char *argv[]) {
   rofi_theme_parse_process_links();
   TICK_N("Theme setup");
 
-  if (!config.disable_xdg_check) {
-    const char *xdd = g_getenv("XDG_DATA_DIRS");
-    if (xdd == NULL || strlen(xdd) == 0) {
-      GString *str = g_string_new(
-          "<b>XDG_DATA_DIRS</b> is not setup on this system.\nThis can "
-          "cause applications and icons to not show.\n"
-          "<i>To disable this warning set 'disable_xdg_check' to <b>true</b> "
-          "in the config file</i>.");
-      rofi_add_warning_message(str);
-      g_warning(str->str);
-    }
-  }
-
   // Setup signal handling sources.
   // SIGINT
   g_unix_signal_add(SIGINT, main_loop_signal_handler_int, NULL);

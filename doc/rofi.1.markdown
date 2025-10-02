@@ -915,12 +915,6 @@ tracker.
 
 Default: *disabled*
 
-`-disable-xdg-check`
-
-Disables rofi checking for the `XDG_DATA_DIRS` environment variable on startup.
-
-Default: disabled
-
 ## PATTERN
 
 To launch commands (for example, when using the ssh launcher), the user can

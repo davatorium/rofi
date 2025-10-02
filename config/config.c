@@ -89,9 +89,8 @@ Settings config = {
      */
     .location = WL_CENTER,
     /**
-     * On Wayland, specifies the layer where rofi is rendered. Available layers
-     * are `background`, `bottom`, `top`, `overlay`. The default layer is
-     * `overlay`.
+     * On Wayland, specifies the layer where rofi is rendered. Available layers are
+     * `background`, `bottom`, `top`, `overlay`. The default layer is `overlay`.
      */
     .wayland_layer = "overlay",
     /** Y offset */
@@ -188,6 +187,4 @@ Settings config = {
     .completer_mode = "filebrowser",
     /** Whether to enable imdkit, see #2123 */
     .enable_imdkit = TRUE,
-    /** Check for XDG_DATA_DIRS on startup */
-    .disable_xdg_check = FALSE,
 };
