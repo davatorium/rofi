@@ -26,6 +26,7 @@
  */
 
 /** The log domain of this dialog. */
+#include "glib.h"
 #define G_LOG_DOMAIN "Modes.Script"
 
 #include "modes/script.h"
@@ -341,6 +342,19 @@ static void script_mode_reset_highlight(Mode *sw) {
   rmpd->active_list = NULL;
 }
 
+static void script_mode_free_entry_list (DmenuScriptEntry *list, unsigned int length )
+{
+    for ( unsigned int i = 0; i < length; i++){
+      g_free(list[i].entry);
+      g_strfreev(list[i].icon_name);
+      g_free(list[i].display);
+      g_free(list[i].meta);
+      g_free(list[i].info);
+
+    }
+    g_free(list);
+
+}
 static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
                                    unsigned int selected_line) {
   ScriptModePrivateData *rmpd = (ScriptModePrivateData *)sw->private_data;
@@ -394,6 +408,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
   }
 
   if (rmpd->switch_mode >= 0) {
+    script_mode_free_entry_list(new_list, new_length);
     retv = rmpd->switch_mode;
     free(*input);
     *input = NULL;
@@ -403,15 +418,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
 
   // If a new list was generated, use that an loop around.
   if (new_list != NULL) {
-    for (unsigned int i = 0; i < rmpd->cmd_list_length; i++) {
-      g_free(rmpd->cmd_list[i].entry);
-      g_free(rmpd->cmd_list[i].icon_name);
-      g_free(rmpd->cmd_list[i].display);
-      g_free(rmpd->cmd_list[i].meta);
-      g_free(rmpd->cmd_list[i].info);
-    }
-    g_free(rmpd->cmd_list);
-
+    script_mode_free_entry_list(rmpd->cmd_list, rmpd->cmd_list_length);
     rmpd->cmd_list = new_list;
     rmpd->cmd_list_length = new_length;
     if (keep_selection) {
@@ -437,13 +444,7 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
 static void script_mode_destroy(Mode *sw) {
   ScriptModePrivateData *rmpd = (ScriptModePrivateData *)sw->private_data;
   if (rmpd != NULL) {
-    for (unsigned int i = 0; i < rmpd->cmd_list_length; i++) {
-      g_free(rmpd->cmd_list[i].entry);
-      g_strfreev(rmpd->cmd_list[i].icon_name);
-      g_free(rmpd->cmd_list[i].display);
-      g_free(rmpd->cmd_list[i].meta);
-    }
-    g_free(rmpd->cmd_list);
+    script_mode_free_entry_list(rmpd->cmd_list, rmpd->cmd_list_length);
     g_free(rmpd->message);
     g_free(rmpd->prompt);
     g_free(rmpd->data);
