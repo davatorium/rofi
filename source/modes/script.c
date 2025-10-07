@@ -96,7 +96,7 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
     *(extra) = NULL;
     *(extra + 1) = NULL;
     if (strcasecmp(key, "icon") == 0) {
-      entry->icon_name = g_strsplit(value,",", -1);
+      entry->icon_name = g_strsplit(value, ",", -1);
       g_free(value);
     } else if (strcasecmp(key, "display") == 0) {
       entry->display = value;
@@ -279,9 +279,6 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
             retv[(*length)].info = NULL;
             retv[(*length)].active = FALSE;
             retv[(*length)].urgent = FALSE;
-            retv[(*length)].icon_fetch_uid = 0;
-            retv[(*length)].icon_fetch_size = 0;
-            retv[(*length)].icon_fetch_scale = 0;
             retv[(*length)].nonselectable = FALSE;
             retv[(*length)].permanent = FALSE;
             if (buf_length > 0 && (read_length > (ssize_t)buf_length)) {
@@ -321,7 +318,8 @@ static int script_mode_init(Mode *sw) {
     ScriptModePrivateData *pd = g_malloc0(sizeof(*pd));
     pd->delim = '\n';
     sw->private_data = (void *)pd;
-    pd->cmd_list = execute_executor(sw, NULL, &(pd->cmd_list_length), 0, NULL, NULL);
+    pd->cmd_list =
+        execute_executor(sw, NULL, &(pd->cmd_list_length), 0, NULL, NULL);
     pd->switch_mode = -1;
   }
   return TRUE;
@@ -362,9 +360,9 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
                                     &(rmpd->cmd_list[selected_line]), *input);
       } else {
         if (rmpd->no_custom == FALSE) {
-          new_list = execute_executor(sw, *input, &new_length,
-                                      10 + (mretv & MENU_LOWER_MASK), NULL,
-                                      *input);
+          new_list =
+              execute_executor(sw, *input, &new_length,
+                               10 + (mretv & MENU_LOWER_MASK), NULL, *input);
         } else {
           return RELOAD_DIALOG;
         }
@@ -375,8 +373,9 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
     }
   } else if ((mretv & MENU_ENTRY_DELETE) && selected_line != UINT32_MAX) {
     script_mode_reset_highlight(sw);
-    new_list = execute_executor(sw, rmpd->cmd_list[selected_line].entry, &new_length,
-                                3, &(rmpd->cmd_list[selected_line]), *input);
+    new_list =
+        execute_executor(sw, rmpd->cmd_list[selected_line].entry, &new_length,
+                         3, &(rmpd->cmd_list[selected_line]), *input);
   } else if ((mretv & MENU_OK) && rmpd->cmd_list[selected_line].entry != NULL) {
     if (rmpd->cmd_list[selected_line].nonselectable) {
       return RELOAD_DIALOG;
@@ -544,15 +543,14 @@ static char *script_get_message(const Mode *sw) {
   ScriptModePrivateData *pd = sw->private_data;
   return g_strdup(pd->message);
 }
-static char **script_get_icon_names(const Mode *sw, unsigned int selected_line)
-{
+static char **script_get_icon_names(const Mode *sw,
+                                    unsigned int selected_line) {
   ScriptModePrivateData *pd =
       (ScriptModePrivateData *)mode_get_private_data(sw);
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
   DmenuScriptEntry *dr = &(pd->cmd_list[selected_line]);
   return g_strdupv(dr->icon_name);
 }
-
 
 #include "mode-private.h"
 
@@ -654,7 +652,7 @@ Mode *script_mode_parse_setup(const char *str) {
     sw->_destroy = script_mode_destroy;
     sw->_token_match = script_token_match;
     sw->_get_message = script_get_message;
-    sw->_get_icon_names = script_get_icon_names ;
+    sw->_get_icon_names = script_get_icon_names;
     sw->_get_completion = NULL, sw->_preprocess_input = NULL,
     sw->_get_display_value = _get_display_value;
     sw->type = MODE_TYPE_SWITCHER;

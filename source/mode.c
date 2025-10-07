@@ -55,9 +55,6 @@ int mode_init(Mode *mode) {
           mode->name);
     }
   }
-  // to make sure this is initialized correctly.
-  mode->fallback_icon_fetch_uid = 0;
-  mode->fallback_icon_not_found = FALSE;
   return mode->_init(mode);
 }
 

@@ -66,7 +66,7 @@ struct _icon {
 
 void icon_set_icon_names(icon *wid, char const *const *icon_names) {
   if (icon_names == NULL && wid->icon_names == NULL) {
-    if ( wid->icon_fetch_id != 0) {
+    if (wid->icon_fetch_id != 0) {
       rofi_icon_fetcher_remove_widget(wid->icon_fetch_id, WIDGET(wid));
     }
     wid->icon_fetch_id = 0;
@@ -82,7 +82,7 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
       g_strv_equal(icon_names, (char const *const *)wid->icon_names)) {
     return;
   }
-  if ( wid->icon_fetch_id != 0) {
+  if (wid->icon_fetch_id != 0) {
     rofi_icon_fetcher_remove_widget(wid->icon_fetch_id, WIDGET(wid));
   }
   wid->icon_fetch_id = 0;
@@ -92,15 +92,9 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
   wid->icon_names = g_strdupv((char **)icon_names);
   wid->resolve_num = 0;
 
-  // printf("set icons %s: ", wid->widget.name);
-  // for (int i = 0; icon_names && icon_names[i]; i++) {
-  //   printf("%s, ", icon_names[i]);
-  // }
-  // printf("\n");
-
-  if ( wid->icon ) {
-	  cairo_surface_destroy(wid->icon);
-	  wid->icon = NULL;
+  if (wid->icon) {
+    cairo_surface_destroy(wid->icon);
+    wid->icon = NULL;
   }
 
   if (wid->icon_names && wid->icon_names[0]) {
@@ -115,22 +109,24 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
     }
     gboolean done = TRUE;
     do {
-	    wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
-			    wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
-	    done = rofi_icon_fetcher_get_ex(wid->icon_fetch_id, &(wid->icon));
-	    if ( done ) {
-		    if ( wid->icon ) {
-			    cairo_surface_reference(wid->icon);
-			    wid->resolve_num = -1;
-			    widget_queue_redraw(WIDGET(wid));
-			    return;
-		    } 
-		    wid->resolve_num++;
-	    }
-    } while ( done  && wid->icon_names[wid->resolve_num] != NULL );
-    if ( wid->icon_names[wid->resolve_num] == NULL){
-	    widget_queue_redraw(WIDGET(wid));
-	    wid->resolve_num = -1;
+      wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
+          wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
+      done = rofi_icon_fetcher_get_ex(wid->icon_fetch_id, &(wid->icon));
+      if (done) {
+        rofi_icon_fetcher_remove_widget(wid->icon_fetch_id, WIDGET(wid));
+        wid->icon_fetch_id = 0;
+        if (wid->icon) {
+          cairo_surface_reference(wid->icon);
+          wid->resolve_num = -1;
+          widget_queue_redraw(WIDGET(wid));
+          return;
+        }
+        wid->resolve_num++;
+      }
+    } while (done && wid->icon_names[wid->resolve_num] != NULL);
+    if (wid->icon_names[wid->resolve_num] == NULL) {
+      widget_queue_redraw(WIDGET(wid));
+      wid->resolve_num = -1;
     }
     return;
   }
@@ -178,7 +174,9 @@ static void icon_draw(widget *wid, cairo_t *draw) {
   // If no icon is loaded. quit.
   if (b->icon == NULL && b->icon_fetch_id > 0) {
     gboolean done = rofi_icon_fetcher_get_ex(b->icon_fetch_id, &(b->icon));
-    if ( done ) {
+    if (done) {
+      rofi_icon_fetcher_remove_widget(b->icon_fetch_id, wid);
+      b->icon_fetch_id = 0;
       if (b->icon) {
         cairo_surface_reference(b->icon);
         // printf("got icon: %s\n", wid->name);
@@ -186,7 +184,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
       } else {
         if (b->icon_names && b->resolve_num >= 0) {
           b->resolve_num++;
-  
+
           if (b->icon_names[b->resolve_num]) {
             // printf("%s: %dx%d (2)\n", b->widget.name, b->width, b->height);
             b->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
@@ -211,8 +209,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
   double scalex = (double)(b->widget.w - lpad - rpad) / iconw;
   double scaley = (double)(b->widget.h - tpad - bpad) / iconh;
   double scale = MIN(scalex, scaley);
-//  scale = MIN(1.0, scale);
-
+  //  scale = MIN(1.0, scale);
 
   cairo_save(draw);
 
@@ -239,7 +236,7 @@ static void icon_free(widget *wid) {
   if (b->icon) {
     cairo_surface_destroy(b->icon);
   }
-  if ( b->icon_fetch_id != 0) {
+  if (b->icon_fetch_id != 0) {
     rofi_icon_fetcher_remove_widget(b->icon_fetch_id, WIDGET(wid));
   }
 
@@ -261,8 +258,9 @@ static void icon_resize(widget *wid, short w, short h) {
 }
 
 void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
-  if ( icon_widget->icon_fetch_id != 0) {
-    rofi_icon_fetcher_remove_widget(icon_widget->icon_fetch_id, WIDGET(icon_widget));
+  if (icon_widget->icon_fetch_id != 0) {
+    rofi_icon_fetcher_remove_widget(icon_widget->icon_fetch_id,
+                                    WIDGET(icon_widget));
   }
   icon_widget->icon_fetch_id = 0;
   if (surf == icon_widget->icon) {

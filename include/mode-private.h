@@ -246,10 +246,6 @@ struct rofi_mode {
   /** Module */
   GModule *module;
 
-  /** Fallack icon.*/
-  uint32_t fallback_icon_fetch_uid;
-  uint32_t fallback_icon_not_found;
-
   /** type */
   ModeType type;
 };
