@@ -81,12 +81,12 @@ typedef struct {
 typedef struct {
   thread_state state;
 
-  GCond *cond;
-  GMutex mutex;
-  unsigned int *acount;
-
-  GMutex *widget_lock;
-  GList *widget;
+  // List of widgets we need to notify when this entry changes. The list is
+  // auto-emptied on notfication. Widgets should remove themself using
+  // rofi_icon_fetcher_remove_widget if destroyed and there is still an
+  // outstanding query.
+  GMutex widget_list_lock;
+  GList *widget_list;
 
   uint32_t uid;
   int wsize;
@@ -546,13 +546,14 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
 
     if (strcmp(entry_name, "") == 0) {
       sentry->query_done = TRUE;
-      g_mutex_lock(&(sentry->mutex));
-      for (GList *iter = g_list_first(sentry->widget); iter; iter = g_list_next(iter)){
+      g_mutex_lock(&(sentry->widget_list_lock));
+      for (GList *iter = g_list_first(sentry->widget_list); iter;
+           iter = g_list_next(iter)) {
         rofi_view_reload_widget((widget *)iter->data);
       }
-      g_list_free(sentry->widget);
-      sentry->widget = NULL;
-      g_mutex_unlock(&(sentry->mutex));
+      g_list_free(sentry->widget_list);
+      sentry->widget_list = NULL;
+      g_mutex_unlock(&(sentry->widget_list_lock));
       return;
     }
 
@@ -654,13 +655,14 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     if (icon_path_ == NULL || !g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
       sentry->query_done = TRUE;
 
-      g_mutex_lock(&(sentry->mutex));
-      for (GList *iter = g_list_first(sentry->widget); iter; iter = g_list_next(iter)){
+      g_mutex_lock(&(sentry->widget_list_lock));
+      for (GList *iter = g_list_first(sentry->widget_list); iter;
+           iter = g_list_next(iter)) {
         rofi_view_reload_widget((widget *)iter->data);
       }
-      g_list_free(sentry->widget);
-      sentry->widget = NULL;
-      g_mutex_unlock(&(sentry->mutex));
+      g_list_free(sentry->widget_list);
+      sentry->widget_list = NULL;
+      g_mutex_unlock(&(sentry->widget_list_lock));
       return;
     }
   } else if (g_path_is_absolute(sentry->entry->name)) {
@@ -690,13 +692,14 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     sentry->surface = surface;
     sentry->query_done = TRUE;
 
-    g_mutex_lock(&(sentry->mutex));
-    for (GList *iter = g_list_first(sentry->widget); iter; iter = g_list_next(iter)){
+    g_mutex_lock(&(sentry->widget_list_lock));
+    for (GList *iter = g_list_first(sentry->widget_list); iter;
+         iter = g_list_next(iter)) {
       rofi_view_reload_widget((widget *)iter->data);
     }
-    g_list_free(sentry->widget);
-    sentry->widget = NULL;
-    g_mutex_unlock(&(sentry->mutex));
+    g_list_free(sentry->widget_list);
+    sentry->widget_list = NULL;
+    g_mutex_unlock(&(sentry->widget_list_lock));
     return;
 
   } else {
@@ -715,13 +718,14 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
       }
       if (icon_path_ == NULL) {
         sentry->query_done = TRUE;
-        g_mutex_lock(&(sentry->mutex));
-        for (GList *iter = g_list_first(sentry->widget); iter; iter = g_list_next(iter)){
+        g_mutex_lock(&(sentry->widget_list_lock));
+        for (GList *iter = g_list_first(sentry->widget_list); iter;
+             iter = g_list_next(iter)) {
           rofi_view_reload_widget((widget *)iter->data);
         }
-        g_list_free(sentry->widget);
-        sentry->widget = NULL;
-        g_mutex_unlock(&(sentry->mutex));
+        g_list_free(sentry->widget_list);
+        sentry->widget_list = NULL;
+        g_mutex_unlock(&(sentry->widget_list_lock));
         return;
       }
     } else {
@@ -736,7 +740,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   if (suf == NULL) {
     sentry->query_done = TRUE;
     g_free(icon_path_);
-    rofi_view_reload_widget(sentry->widget);
+    rofi_view_reload_widget(sentry->widget_list);
     return;
   }
 #endif
@@ -776,13 +780,14 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   sentry->surface = icon_surf;
   g_free(icon_path_);
   sentry->query_done = TRUE;
-  g_mutex_lock(&(sentry->mutex));
-  for (GList *iter = g_list_first(sentry->widget); iter; iter = g_list_next(iter)){
+  g_mutex_lock(&(sentry->widget_list_lock));
+  for (GList *iter = g_list_first(sentry->widget_list); iter;
+       iter = g_list_next(iter)) {
     rofi_view_reload_widget((widget *)iter->data);
   }
-  g_list_free(sentry->widget);
-  sentry->widget = NULL;
-  g_mutex_unlock(&(sentry->mutex));
+  g_list_free(sentry->widget_list);
+  sentry->widget_list = NULL;
+  g_mutex_unlock(&(sentry->widget_list_lock));
 }
 
 uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
@@ -807,9 +812,9 @@ uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name,
     sentry = iter->data;
     if (sentry->wsize == wsize && sentry->hsize == hsize &&
         sentry->scale == scale) {
-      g_mutex_lock(&(sentry->mutex));
-      sentry->widget = g_list_append(sentry->widget, wid); 
-      g_mutex_unlock(&(sentry->mutex));
+      g_mutex_lock(&(sentry->widget_list_lock));
+      sentry->widget_list = g_list_append(sentry->widget_list, wid);
+      g_mutex_unlock(&(sentry->widget_list_lock));
       if (!sentry->query_started) {
         // printf("push\n");
         g_thread_pool_push(tpool, sentry, NULL);
@@ -828,8 +833,8 @@ uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name,
   sentry->query_done = FALSE;
   sentry->query_started = TRUE;
   sentry->surface = NULL;
-  g_mutex_init(&(sentry->mutex));
-  sentry->widget = NULL;
+  g_mutex_init(&(sentry->widget_list_lock));
+  sentry->widget_list = NULL;
   entry->sizes = g_list_prepend(entry->sizes, sentry);
   g_hash_table_insert(rofi_icon_fetcher_data->icon_cache_uid,
                       GINT_TO_POINTER(sentry->uid), sentry);
@@ -853,7 +858,7 @@ uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name,
     return sentry->uid;
   }
 #endif
-  sentry->widget = g_list_append(sentry->widget, wid);
+  sentry->widget_list = g_list_append(sentry->widget_list, wid);
 
   // Push into fetching queue.
   sentry->state.callback = rofi_icon_fetcher_worker;
@@ -932,16 +937,15 @@ gboolean rofi_icon_fetcher_get_ex(const uint32_t uid,
   g_warning("Querying an non-existing uid");
   return FALSE;
 }
-void rofi_icon_fetcher_remove_widget (const uint32_t uid,
-                                  widget *wid) {
+void rofi_icon_fetcher_remove_widget(const uint32_t uid, widget *wid) {
   IconFetcherEntry *sentry = g_hash_table_lookup(
       rofi_icon_fetcher_data->icon_cache_uid, GINT_TO_POINTER(uid));
   if (sentry) {
-	  g_mutex_lock(&(sentry->mutex));
-	  sentry->widget = g_list_remove_all(sentry->widget, wid);
-	  g_mutex_unlock(&(sentry->mutex));
-	  return;
+    g_mutex_lock(&(sentry->widget_list_lock));
+    sentry->widget_list = g_list_remove_all(sentry->widget_list, wid);
+    g_mutex_unlock(&(sentry->widget_list_lock));
+    return;
   }
   g_warning("Querying an non-existing uid");
-  return ;
+  return;
 }

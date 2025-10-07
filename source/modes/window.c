@@ -125,12 +125,6 @@ typedef struct {
   char *wmdesktopstr;
   unsigned int wmdesktopstr_len;
   cairo_surface_t *icon;
-  gboolean icon_checked;
-  uint32_t icon_fetch_uid;
-  uint32_t icon_fetch_size;
-  guint icon_fetch_scale;
-  gboolean thumbnail_checked;
-  gboolean icon_theme_checked;
 } client;
 
 // window lists
@@ -1073,7 +1067,6 @@ cairo_surface_t *get_net_wm_icon(xcb_window_t xid, uint32_t preferred_size) {
 }
 static char **_get_icon_names(const Mode *sw, unsigned int selected_line) {
   WindowModePrivateData *rmpd = mode_get_private_data(sw);
-  const guint scale = display_scale();
   client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
   if (c == NULL) {
     return NULL;
