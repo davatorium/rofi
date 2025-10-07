@@ -385,10 +385,11 @@ void textbox_set_pango_attributes(textbox *tb, PangoAttrList *list) {
   if (tb == NULL) {
     return;
   }
-  if (WIDGET(tb)->need_redraw ||
+  if (/*WIDGET(tb)->need_redraw ||*/
       !pango_attr_list_equal(list, pango_layout_get_attributes(tb->layout))) {
     //    pango_layout_set_text(tb->layout, tb->text, -1);
     pango_layout_set_attributes(tb->layout, list);
+    widget_queue_redraw(WIDGET(tb));
   }
 }
 
@@ -781,6 +782,7 @@ void textbox_insert(textbox *tb, const int char_pos, const char *str,
   // Stop blink!
   tb->blink = 2;
   tb->changed = TRUE;
+  widget_queue_redraw(WIDGET(tb));
 }
 
 // remove text
@@ -810,6 +812,7 @@ void textbox_delete(textbox *tb, int pos, int dlen) {
   // Stop blink!
   tb->blink = 2;
   tb->changed = TRUE;
+  widget_queue_redraw(WIDGET(tb));
 }
 
 /**

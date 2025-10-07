@@ -966,6 +966,7 @@ static void rofi_view_input_changed(void) {
     CacheState.entry_history[CacheState.entry_history_index].index =
         textbox_get_cursor(state->text);
   }
+  rofi_view_reload();
 }
 
 #ifdef ENABLE_WAYLAND
@@ -2162,11 +2163,19 @@ void rofi_view_cleanup(void) { proxy->cleanup(); }
 
 void rofi_view_hide(void) { proxy->hide(); }
 
-void rofi_view_reload_widget(widget *w) {
+static gboolean _rofi_view_reload_widget(void *data)
+{
+  widget *w = (widget*)data;
   if ( w ) {
     widget_queue_redraw(WIDGET(w));
   }
   proxy->reload();
+  return G_SOURCE_REMOVE;
+
+}
+
+void rofi_view_reload_widget(widget *w) {
+  g_idle_add(_rofi_view_reload_widget, w);
 }
 
 void rofi_view_reload(void) {

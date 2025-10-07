@@ -89,6 +89,7 @@ struct _widget {
   /** enable/disable nvisia workaround. */
   gboolean border_disable_nvidia_workaround;
 
+  cairo_surface_t *surf;
   /** Parent widget */
   struct _widget *parent;
   /** Internal */

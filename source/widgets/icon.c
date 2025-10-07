@@ -66,16 +66,24 @@ struct _icon {
 
 void icon_set_icon_names(icon *wid, char const *const *icon_names) {
   if (icon_names == NULL && wid->icon_names == NULL) {
+    if ( wid->icon_fetch_id != 0) {
+      rofi_icon_fetcher_remove_widget(wid->icon_fetch_id, WIDGET(wid));
+    }
     wid->icon_fetch_id = 0;
     if (wid->icon) {
       cairo_surface_destroy(wid->icon);
       wid->icon = NULL;
+      widget_queue_redraw(WIDGET(wid));
     }
+    wid->resolve_num = -1;
     return;
   }
   if (icon_names && wid->icon_names &&
       g_strv_equal(icon_names, (char const *const *)wid->icon_names)) {
     return;
+  }
+  if ( wid->icon_fetch_id != 0) {
+    rofi_icon_fetcher_remove_widget(wid->icon_fetch_id, WIDGET(wid));
   }
   wid->icon_fetch_id = 0;
   if (wid->icon_names) {
@@ -90,8 +98,10 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
   // }
   // printf("\n");
 
-  cairo_surface_destroy(wid->icon);
-  wid->icon = NULL;
+  if ( wid->icon ) {
+	  cairo_surface_destroy(wid->icon);
+	  wid->icon = NULL;
+  }
 
   if (wid->icon_names && wid->icon_names[0]) {
 
@@ -103,12 +113,24 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
     if ((wid->size_set & 2) == 2) {
       h = wid->height;
     }
-    // printf("%s: %dx%d (1)\n", wid->widget.name, w, h);
-    wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
-        wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
-    if (rofi_icon_fetcher_get(wid->icon_fetch_id) != NULL) {
-      widget_queue_redraw(WIDGET(wid));
-      // widget_queue_redraw(WIDGET(wid));
+    gboolean done = TRUE;
+    do {
+	    wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
+			    wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
+	    done = rofi_icon_fetcher_get_ex(wid->icon_fetch_id, &(wid->icon));
+	    if ( done ) {
+		    if ( wid->icon ) {
+			    cairo_surface_reference(wid->icon);
+			    wid->resolve_num = -1;
+			    widget_queue_redraw(WIDGET(wid));
+			    return;
+		    } 
+		    wid->resolve_num++;
+	    }
+    } while ( done  && wid->icon_names[wid->resolve_num] != NULL );
+    if ( wid->icon_names[wid->resolve_num] == NULL){
+	    widget_queue_redraw(WIDGET(wid));
+	    wid->resolve_num = -1;
     }
     return;
   }
@@ -155,22 +177,24 @@ static void icon_draw(widget *wid, cairo_t *draw) {
   icon *b = (icon *)wid;
   // If no icon is loaded. quit.
   if (b->icon == NULL && b->icon_fetch_id > 0) {
-    b->icon = rofi_icon_fetcher_get(b->icon_fetch_id);
-    if (b->icon) {
-      cairo_surface_reference(b->icon);
-      // printf("got icon: %s\n", wid->name);
-      widget_update(wid);
-    } else {
-      if (b->icon_names && b->resolve_num >= 0) {
-        b->resolve_num++;
-
-        if (b->icon_names[b->resolve_num]) {
-          // printf("%s: %dx%d (2)\n", b->widget.name, b->width, b->height);
-          b->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
-              b->icon_names[b->resolve_num], b->widget.w, b->widget.h,
-              WIDGET(wid));
-        } else {
-          b->resolve_num = -1;
+    gboolean done = rofi_icon_fetcher_get_ex(b->icon_fetch_id, &(b->icon));
+    if ( done ) {
+      if (b->icon) {
+        cairo_surface_reference(b->icon);
+        // printf("got icon: %s\n", wid->name);
+        widget_update(wid);
+      } else {
+        if (b->icon_names && b->resolve_num >= 0) {
+          b->resolve_num++;
+  
+          if (b->icon_names[b->resolve_num]) {
+            // printf("%s: %dx%d (2)\n", b->widget.name, b->width, b->height);
+            b->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
+                b->icon_names[b->resolve_num], b->widget.w, b->widget.h,
+                WIDGET(wid));
+          } else {
+            b->resolve_num = -1;
+          }
         }
       }
     }
@@ -187,6 +211,8 @@ static void icon_draw(widget *wid, cairo_t *draw) {
   double scalex = (double)(b->widget.w - lpad - rpad) / iconw;
   double scaley = (double)(b->widget.h - tpad - bpad) / iconh;
   double scale = MIN(scalex, scaley);
+//  scale = MIN(1.0, scale);
+
 
   cairo_save(draw);
 
@@ -213,6 +239,9 @@ static void icon_free(widget *wid) {
   if (b->icon) {
     cairo_surface_destroy(b->icon);
   }
+  if ( b->icon_fetch_id != 0) {
+    rofi_icon_fetcher_remove_widget(b->icon_fetch_id, WIDGET(wid));
+  }
 
   g_free(b);
 }
@@ -232,6 +261,9 @@ static void icon_resize(widget *wid, short w, short h) {
 }
 
 void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
+  if ( icon_widget->icon_fetch_id != 0) {
+    rofi_icon_fetcher_remove_widget(icon_widget->icon_fetch_id, WIDGET(icon_widget));
+  }
   icon_widget->icon_fetch_id = 0;
   if (surf == icon_widget->icon) {
     return;

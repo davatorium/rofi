@@ -99,5 +99,6 @@ gboolean rofi_icon_fetcher_get_ex(const uint32_t uid,
  * @returns true if image, false otherwise.
  */
 gboolean rofi_icon_fetcher_file_is_image(const char *const path);
+void rofi_icon_fetcher_remove_widget (const uint32_t uid, widget *wid);
 /** @} */
 #endif // ROFI_ICON_FETCHER_H
