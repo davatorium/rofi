@@ -453,11 +453,11 @@ void widget_draw(widget *wid, cairo_t *c) {
           cairo_fill(d);
         }
       }
-      char buff[64];
-      snprintf(buff, 64, "%u", wid->repaint_debug_index);
-      cairo_move_to(d, wid->w / 2, wid->h / 2);
-      cairo_set_source_rgba(d, 0, 0, 0, 1);
-      cairo_show_text(d, buff);
+      //char buff[64];
+      //snprintf(buff, 64, "%u", wid->repaint_debug_index);
+      //cairo_move_to(d, wid->w / 2, wid->h / 2);
+      //cairo_set_source_rgba(d, 0, 0, 0, 1);
+      //cairo_show_text(d, buff);
       cairo_destroy(d);
       wid->repaint_debug_index++;
     }

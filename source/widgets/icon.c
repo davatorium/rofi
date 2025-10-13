@@ -109,6 +109,7 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
     }
     gboolean done = TRUE;
     do {
+      //printf("%d: %s\n",wid->resolve_num, wid->icon_names[wid->resolve_num]);
       wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
           wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
       done = rofi_icon_fetcher_get_ex(wid->icon_fetch_id, &(wid->icon));
@@ -172,7 +173,7 @@ static int icon_get_desired_width(widget *wid, G_GNUC_UNUSED const int height) {
 static void icon_draw(widget *wid, cairo_t *draw) {
   icon *b = (icon *)wid;
   // If no icon is loaded. quit.
-  if (b->icon == NULL && b->icon_fetch_id > 0) {
+  while (b->icon == NULL && b->icon_fetch_id > 0) {
     gboolean done = rofi_icon_fetcher_get_ex(b->icon_fetch_id, &(b->icon));
     if (done) {
       rofi_icon_fetcher_remove_widget(b->icon_fetch_id, wid);
@@ -186,7 +187,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
           b->resolve_num++;
 
           if (b->icon_names[b->resolve_num]) {
-            // printf("%s: %dx%d (2)\n", b->widget.name, b->width, b->height);
+            //printf("%d: %s\n",b->resolve_num, b->icon_names[b->resolve_num]);
             b->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
                 b->icon_names[b->resolve_num], b->widget.w, b->widget.h,
                 WIDGET(wid));
@@ -195,6 +196,9 @@ static void icon_draw(widget *wid, cairo_t *draw) {
           }
         }
       }
+    } else {
+      // query in flight.
+      break;
     }
   }
   if (b->icon == NULL) {

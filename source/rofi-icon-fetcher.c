@@ -817,10 +817,12 @@ uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name,
     sentry = iter->data;
     if (sentry->wsize == wsize && sentry->hsize == hsize &&
         sentry->scale == scale) {
-      g_mutex_lock(&(sentry->widget_list_lock));
-      widget_ref(wid);
-      sentry->widget_list = g_list_append(sentry->widget_list, wid);
-      g_mutex_unlock(&(sentry->widget_list_lock));
+      if ( !sentry->query_done ){
+        g_mutex_lock(&(sentry->widget_list_lock));
+        widget_ref(wid);
+        sentry->widget_list = g_list_append(sentry->widget_list, wid);
+        g_mutex_unlock(&(sentry->widget_list_lock));
+      }
       if (!sentry->query_started) {
         printf("push\n");
         g_thread_pool_push(tpool, sentry, NULL);
