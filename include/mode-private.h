@@ -248,6 +248,9 @@ struct rofi_mode {
 
   /** type */
   ModeType type;
+
+  /** fallback icon */
+  const char *fallback_icon;
 };
 G_END_DECLS
 #endif // ROFI_MODE_PRIVATE_H
