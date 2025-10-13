@@ -366,6 +366,7 @@ void rofi_view_free(RofiViewState *state) {
   // Do this here?
   // Wait for final release?
   widget_free(WIDGET(state->main_window));
+  widget_debug();
 
   g_free(state->line_map);
   g_free(state->distance);
@@ -683,7 +684,8 @@ static void selection_changed_callback(G_GNUC_UNUSED listview *lv,
     if (index < state->filtered_lines) {
       char **icon_names =
           mode_get_icon_names(state->sw, state->line_map[index]);
-      icon_set_icon_names(state->icon_current_entry, (char const * const *)icon_names);
+      icon_set_icon_names(state->icon_current_entry,
+                          (char const *const *)icon_names);
       g_strfreev(icon_names);
     } else {
       icon_set_surface(state->icon_current_entry, NULL);
@@ -703,7 +705,7 @@ static void update_callback(textbox *t, icon *ico, unsigned int index,
     if (ico) {
       char **icons_names =
           mode_get_icon_names(state->sw, state->line_map[index]);
-      icon_set_icon_names(ico, (char const * const *)icons_names);
+      icon_set_icon_names(ico, (char const *const *)icons_names);
       g_strfreev(icons_names);
     }
     if (t) {
@@ -2163,18 +2165,20 @@ void rofi_view_cleanup(void) { proxy->cleanup(); }
 
 void rofi_view_hide(void) { proxy->hide(); }
 
-static gboolean _rofi_view_reload_widget(void *data)
-{
-  widget *w = (widget*)data;
-  if ( w ) {
+static gboolean _rofi_view_reload_widget(void *data) {
+  widget *w = (widget *)data;
+  if (w) {
     widget_queue_redraw(WIDGET(w));
   }
+  widget_unref(w);
   proxy->reload();
   return G_SOURCE_REMOVE;
-
 }
 
 void rofi_view_reload_widget(widget *w) {
+  // increase ref, so it does not get free'ed
+  // between this and the idle handler being called.
+  widget_ref(w);
   g_idle_add(_rofi_view_reload_widget, w);
 }
 

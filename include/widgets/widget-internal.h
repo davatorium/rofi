@@ -126,6 +126,11 @@ struct _widget {
   /** Name of widget (used for theming) */
   char *name;
   const char *state;
+
+  int repaint_debug_index;
+
+  GMutex lock;
+  uint32_t ref_count;
 };
 
 /**

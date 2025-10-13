@@ -355,5 +355,10 @@ int widget_get_absolute_xpos(widget *wid);
  * @returns the absolute y-position of widget of the widget in pixels.
  */
 int widget_get_absolute_ypos(widget *wid);
+
+void widget_ref(widget *wid);
+void widget_unref(widget *wid);
+
+void widget_debug(void);
 /**@}*/
 #endif // ROFI_WIDGET_H

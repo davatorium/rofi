@@ -550,6 +550,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
       for (GList *iter = g_list_first(sentry->widget_list); iter;
            iter = g_list_next(iter)) {
         rofi_view_reload_widget((widget *)iter->data);
+        widget_unref((widget *)iter->data);
       }
       g_list_free(sentry->widget_list);
       sentry->widget_list = NULL;
@@ -659,6 +660,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
       for (GList *iter = g_list_first(sentry->widget_list); iter;
            iter = g_list_next(iter)) {
         rofi_view_reload_widget((widget *)iter->data);
+        widget_unref((widget *)iter->data);
       }
       g_list_free(sentry->widget_list);
       sentry->widget_list = NULL;
@@ -696,6 +698,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     for (GList *iter = g_list_first(sentry->widget_list); iter;
          iter = g_list_next(iter)) {
       rofi_view_reload_widget((widget *)iter->data);
+      widget_unref((widget *)iter->data);
     }
     g_list_free(sentry->widget_list);
     sentry->widget_list = NULL;
@@ -722,6 +725,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
         for (GList *iter = g_list_first(sentry->widget_list); iter;
              iter = g_list_next(iter)) {
           rofi_view_reload_widget((widget *)iter->data);
+          widget_unref((widget *)iter->data);
         }
         g_list_free(sentry->widget_list);
         sentry->widget_list = NULL;
@@ -784,6 +788,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   for (GList *iter = g_list_first(sentry->widget_list); iter;
        iter = g_list_next(iter)) {
     rofi_view_reload_widget((widget *)iter->data);
+    widget_unref((widget *)iter->data);
   }
   g_list_free(sentry->widget_list);
   sentry->widget_list = NULL;
@@ -813,10 +818,11 @@ uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name,
     if (sentry->wsize == wsize && sentry->hsize == hsize &&
         sentry->scale == scale) {
       g_mutex_lock(&(sentry->widget_list_lock));
+      widget_ref(wid);
       sentry->widget_list = g_list_append(sentry->widget_list, wid);
       g_mutex_unlock(&(sentry->widget_list_lock));
       if (!sentry->query_started) {
-        // printf("push\n");
+        printf("push\n");
         g_thread_pool_push(tpool, sentry, NULL);
       }
       return sentry->uid;
@@ -858,6 +864,7 @@ uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name,
     return sentry->uid;
   }
 #endif
+  widget_ref(wid);
   sentry->widget_list = g_list_append(sentry->widget_list, wid);
 
   // Push into fetching queue.
@@ -942,6 +949,12 @@ void rofi_icon_fetcher_remove_widget(const uint32_t uid, widget *wid) {
       rofi_icon_fetcher_data->icon_cache_uid, GINT_TO_POINTER(uid));
   if (sentry) {
     g_mutex_lock(&(sentry->widget_list_lock));
+    for (GList *iter = g_list_first(sentry->widget_list); iter;
+         iter = g_list_next(iter)) {
+      if ((iter->data) == wid) {
+        widget_unref(wid);
+      }
+    }
     sentry->widget_list = g_list_remove_all(sentry->widget_list, wid);
     g_mutex_unlock(&(sentry->widget_list_lock));
     return;
