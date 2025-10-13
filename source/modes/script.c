@@ -29,9 +29,9 @@
 #include "glib.h"
 #define G_LOG_DOMAIN "Modes.Script"
 
-#include "modes/script.h"
 #include "display.h"
 #include "helper.h"
+#include "modes/script.h"
 #include "rofi.h"
 #include <assert.h>
 #include <ctype.h>
@@ -265,7 +265,14 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
         } else {
           if (actual_size < ((*length) + 2)) {
             actual_size += 256;
-            retv = g_realloc(retv, (actual_size) * sizeof(DmenuScriptEntry));
+            DmenuScriptEntry *retva =
+                g_realloc(retv, (actual_size) * sizeof(DmenuScriptEntry));
+            if (retva != NULL) {
+              retv = retva;
+            } else {
+              g_warning("Failed to allocate memory.");
+              return retv;
+            }
           }
           if (retv) {
             size_t buf_length = strlen(buffer) + 1;
@@ -342,18 +349,16 @@ static void script_mode_reset_highlight(Mode *sw) {
   rmpd->active_list = NULL;
 }
 
-static void script_mode_free_entry_list (DmenuScriptEntry *list, unsigned int length )
-{
-    for ( unsigned int i = 0; i < length; i++){
-      g_free(list[i].entry);
-      g_strfreev(list[i].icon_name);
-      g_free(list[i].display);
-      g_free(list[i].meta);
-      g_free(list[i].info);
-
-    }
-    g_free(list);
-
+static void script_mode_free_entry_list(DmenuScriptEntry *list,
+                                        unsigned int length) {
+  for (unsigned int i = 0; i < length; i++) {
+    g_free(list[i].entry);
+    g_strfreev(list[i].icon_name);
+    g_free(list[i].display);
+    g_free(list[i].meta);
+    g_free(list[i].info);
+  }
+  g_free(list);
 }
 static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
                                    unsigned int selected_line) {

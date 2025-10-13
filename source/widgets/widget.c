@@ -33,6 +33,8 @@
 #include <glib.h>
 #include <math.h>
 
+GList *active_widgets = NULL;
+
 void widget_init(widget *wid, widget *parent, WidgetType type,
                  const char *name) {
   wid->type = type;
@@ -58,6 +60,9 @@ void widget_init(widget *wid, widget *parent, WidgetType type,
   wid->border_antialiasing = rofi_theme_get_boolean(wid, "border-aa", TRUE);
   wid->border_disable_nvidia_workaround =
       rofi_theme_get_boolean(wid, "border-disable-nvidia-workaround", FALSE);
+  g_mutex_init(&(wid->lock));
+  wid->ref_count = 1;
+  active_widgets = g_list_append(active_widgets, wid);
 }
 
 void widget_set_state(widget *wid, const char *state) {
@@ -100,11 +105,11 @@ void widget_resize(widget *wid, short w, short h) {
       wid->resize(wid, w, h);
       if (wid->w != wn || wid->h != hn) {
         widget_update(wid);
-  if ( wid->surf != NULL ) {
-    cairo_surface_destroy(wid->surf );
-    wid->surf = NULL;
-    widget_queue_redraw(wid);
-  }
+        if (wid->surf != NULL) {
+          cairo_surface_destroy(wid->surf);
+          wid->surf = NULL;
+          widget_queue_redraw(wid);
+        }
       }
     }
   } else {
@@ -112,11 +117,11 @@ void widget_resize(widget *wid, short w, short h) {
       wid->w = w;
       wid->h = h;
       widget_update(wid);
-  if ( wid->surf != NULL ) {
-    cairo_surface_destroy(wid->surf );
-    wid->surf = NULL;
-    widget_queue_redraw(wid);
-  }
+      if (wid->surf != NULL) {
+        cairo_surface_destroy(wid->surf);
+        wid->surf = NULL;
+        widget_queue_redraw(wid);
+      }
     }
   }
   // On a resize we always want to update.
@@ -150,7 +155,7 @@ void widget_set_enabled(widget *wid, gboolean enabled) {
   if (wid->enabled != enabled) {
     wid->enabled = enabled;
     widget_update(wid);
-    //widget_update(wid->parent);
+    // widget_update(wid->parent);
     widget_queue_redraw(wid);
   }
 }
@@ -161,16 +166,17 @@ void widget_draw(widget *wid, cairo_t *c) {
   }
 
   // Check if enabled and if draw is implemented.
-  if (wid->enabled ) {
-    if ( wid->surf  == NULL ){
+  if (wid->enabled) {
+    if (wid->surf == NULL) {
       if (wid->h < 1 || wid->w < 1) {
         wid->need_redraw = FALSE;
         return;
       }
-      wid->surf = cairo_surface_create_similar(cairo_get_target(c), CAIRO_CONTENT_COLOR_ALPHA, wid->w, wid->h);
+      wid->surf = cairo_surface_create_similar(
+          cairo_get_target(c), CAIRO_CONTENT_COLOR_ALPHA, wid->w, wid->h);
       wid->need_redraw = TRUE;
     }
-    if ( wid->need_redraw){
+    if (wid->need_redraw) {
       // Mark redraw false before drawing, so if we recursively draw and we mark
       // it for another redraw this is not cleared.
       wid->need_redraw = FALSE;
@@ -181,34 +187,34 @@ void widget_draw(widget *wid, cairo_t *c) {
       // Don't draw if there is no space.
       // Store current state.
       const int margin_left =
-        distance_get_pixel(wid->margin.left, ROFI_ORIENTATION_HORIZONTAL);
+          distance_get_pixel(wid->margin.left, ROFI_ORIENTATION_HORIZONTAL);
       const int margin_top =
-        distance_get_pixel(wid->margin.top, ROFI_ORIENTATION_VERTICAL);
+          distance_get_pixel(wid->margin.top, ROFI_ORIENTATION_VERTICAL);
       const int margin_right =
-        distance_get_pixel(wid->margin.right, ROFI_ORIENTATION_HORIZONTAL);
+          distance_get_pixel(wid->margin.right, ROFI_ORIENTATION_HORIZONTAL);
       const int margin_bottom =
-        distance_get_pixel(wid->margin.bottom, ROFI_ORIENTATION_VERTICAL);
+          distance_get_pixel(wid->margin.bottom, ROFI_ORIENTATION_VERTICAL);
       const int left =
-        distance_get_pixel(wid->border.left, ROFI_ORIENTATION_HORIZONTAL);
+          distance_get_pixel(wid->border.left, ROFI_ORIENTATION_HORIZONTAL);
       const int right =
-        distance_get_pixel(wid->border.right, ROFI_ORIENTATION_HORIZONTAL);
+          distance_get_pixel(wid->border.right, ROFI_ORIENTATION_HORIZONTAL);
       const int top =
-        distance_get_pixel(wid->border.top, ROFI_ORIENTATION_VERTICAL);
+          distance_get_pixel(wid->border.top, ROFI_ORIENTATION_VERTICAL);
       const int bottom =
-        distance_get_pixel(wid->border.bottom, ROFI_ORIENTATION_VERTICAL);
+          distance_get_pixel(wid->border.bottom, ROFI_ORIENTATION_VERTICAL);
       int radius_bl = distance_get_pixel(wid->border_radius.left,
                                          ROFI_ORIENTATION_HORIZONTAL);
       int radius_tr = distance_get_pixel(wid->border_radius.right,
                                          ROFI_ORIENTATION_HORIZONTAL);
       int radius_tl =
-        distance_get_pixel(wid->border_radius.top, ROFI_ORIENTATION_VERTICAL);
+          distance_get_pixel(wid->border_radius.top, ROFI_ORIENTATION_VERTICAL);
       int radius_br = distance_get_pixel(wid->border_radius.bottom,
                                          ROFI_ORIENTATION_VERTICAL);
 
       double vspace =
-        wid->h - margin_top - margin_bottom - top / 2.0 - bottom / 2.0;
+          wid->h - margin_top - margin_bottom - top / 2.0 - bottom / 2.0;
       double hspace =
-        wid->w - margin_left - margin_right - left / 2.0 - right / 2.0;
+          wid->w - margin_left - margin_right - left / 2.0 - right / 2.0;
       if ((radius_bl + radius_tl) > (vspace)) {
         int j = ((vspace) / 2.0);
         radius_bl = MIN(radius_bl, j);
@@ -237,8 +243,8 @@ void widget_draw(widget *wid, cairo_t *c) {
       // Outer outline outlines
       double x1, y1, x2, y2;
       x1 = margin_left + left / 2.0, y1 = margin_top + top / 2.0,
-        x2 = wid->w - margin_right - right / 2.0,
-        y2 = wid->h - margin_bottom - bottom / 2.0;
+      x2 = wid->w - margin_right - right / 2.0,
+      y2 = wid->h - margin_bottom - bottom / 2.0;
 
       if (radius_tl > 0) {
         cairo_move_to(d, x1, y1 + radius_tl);
@@ -277,10 +283,9 @@ void widget_draw(widget *wid, cairo_t *c) {
         cairo_fill_preserve(d);
       }
       cairo_clip(d);
-      if ( wid->draw ) {
+      if (wid->draw) {
         wid->draw(wid, d);
       }
-
 
       if (left != 0 || top != 0 || right != 0 || bottom != 0) {
         if (wid->border_antialiasing == FALSE) {
@@ -289,7 +294,7 @@ void widget_draw(widget *wid, cairo_t *c) {
         if (wid->border_disable_nvidia_workaround) {
           cairo_set_operator(d, CAIRO_OPERATOR_ADD);
         }
-        //cairo_translate(d, wid->x, wid->y);
+        // cairo_translate(d, wid->x, wid->y);
         cairo_new_path(d);
         rofi_theme_get_color(wid, "border-color", d);
 
@@ -320,26 +325,26 @@ void widget_draw(widget *wid, cairo_t *c) {
         // The left and right part ($) start at thinkness top bottom when no
         // radius
         double offset_ltl =
-          (radius_inner_tl > 0) ? (left) + radius_inner_tl : left;
+            (radius_inner_tl > 0) ? (left) + radius_inner_tl : left;
         double offset_rtr =
-          (radius_inner_tr > 0) ? (right) + radius_inner_tr : right;
+            (radius_inner_tr > 0) ? (right) + radius_inner_tr : right;
         double offset_lbl =
-          (radius_inner_bl > 0) ? (left) + radius_inner_bl : left;
+            (radius_inner_bl > 0) ? (left) + radius_inner_bl : left;
         double offset_rbr =
-          (radius_inner_br > 0) ? (right) + radius_inner_br : right;
+            (radius_inner_br > 0) ? (right) + radius_inner_br : right;
         // The top and bottom part (#) go into the corner when no radius
         double offset_ttl = (radius_inner_tl > 0) ? (top) + radius_inner_tl
-          : (radius_tl > 0)     ? top
-          : 0;
+                            : (radius_tl > 0)     ? top
+                                                  : 0;
         double offset_ttr = (radius_inner_tr > 0) ? (top) + radius_inner_tr
-          : (radius_tr > 0)     ? top
-          : 0;
+                            : (radius_tr > 0)     ? top
+                                                  : 0;
         double offset_bbl = (radius_inner_bl > 0) ? (bottom) + radius_inner_bl
-          : (radius_bl > 0)     ? bottom
-          : 0;
+                            : (radius_bl > 0)     ? bottom
+                                                  : 0;
         double offset_bbr = (radius_inner_br > 0) ? (bottom) + radius_inner_br
-          : (radius_br > 0)     ? bottom
-          : 0;
+                            : (radius_br > 0)     ? bottom
+                                                  : 0;
 
         if (left > 0) {
           cairo_set_line_width(d, left);
@@ -393,7 +398,8 @@ void widget_draw(widget *wid, cairo_t *c) {
           cairo_line_to(d, wid->w - margin_right - right,
                         margin_top + offset_ttr);
           if (radius_inner_tr > 0) {
-            cairo_arc_negative(d, wid->w - margin_right - right - radius_inner_tr,
+            cairo_arc_negative(d,
+                               wid->w - margin_right - right - radius_inner_tr,
                                margin_top + top + radius_inner_tr,
                                radius_inner_tr, 0, -G_PI_2);
             cairo_line_to(d, wid->w - margin_right - offset_rtr,
@@ -413,9 +419,10 @@ void widget_draw(widget *wid, cairo_t *c) {
           cairo_line_to(d, wid->w - margin_right - offset_rbr,
                         wid->h - margin_bottom - bottom);
           if (radius_inner_br > 0) {
-            cairo_arc_negative(d, wid->w - margin_right - right - radius_inner_br,
-                               wid->h - margin_bottom - bottom - radius_inner_br,
-                               radius_inner_br, G_PI_2, 0.0);
+            cairo_arc_negative(
+                d, wid->w - margin_right - right - radius_inner_br,
+                wid->h - margin_bottom - bottom - radius_inner_br,
+                radius_inner_br, G_PI_2, 0.0);
             cairo_line_to(d, wid->w - margin_right - right,
                           wid->h - margin_bottom - offset_bbr);
           }
@@ -434,7 +441,8 @@ void widget_draw(widget *wid, cairo_t *c) {
                         wid->h - margin_bottom - offset_bbl);
           if (radius_inner_bl > 0) {
             cairo_arc_negative(d, margin_left + left + radius_inner_bl,
-                               wid->h - margin_bottom - bottom - radius_inner_bl,
+                               wid->h - margin_bottom - bottom -
+                                   radius_inner_bl,
                                radius_inner_bl, G_PI, G_PI_2);
             cairo_line_to(d, margin_left + offset_lbl,
                           wid->h - margin_bottom - bottom);
@@ -445,28 +453,54 @@ void widget_draw(widget *wid, cairo_t *c) {
           cairo_fill(d);
         }
       }
+      char buff[64];
+      snprintf(buff, 64, "%u", wid->repaint_debug_index);
+      cairo_move_to(d, wid->w / 2, wid->h / 2);
+      cairo_set_source_rgba(d, 0, 0, 0, 1);
+      cairo_show_text(d, buff);
       cairo_destroy(d);
+      wid->repaint_debug_index++;
     }
 
     cairo_save(c);
     cairo_translate(c, wid->x, wid->y);
-    cairo_set_source_surface(c, wid->surf, 0,0);
+    cairo_set_source_surface(c, wid->surf, 0, 0);
     cairo_paint(c);
     cairo_restore(c);
   }
+}
+void widget_ref(widget *wid) {
+  g_mutex_lock(&(wid->lock));
+  wid->ref_count++;
+  g_mutex_unlock(&(wid->lock));
+}
+void widget_unref(widget *wid) {
+  if (wid->ref_count == 1) {
+    printf("widget disapeared\n");
+  }
+  widget_free(wid);
 }
 
 void widget_free(widget *wid) {
   if (wid == NULL) {
     return;
   }
-  if ( wid->surf ) {
-    cairo_surface_destroy(wid->surf );
+  g_mutex_lock(&(wid->lock));
+  wid->ref_count--;
+  if (wid->ref_count > 0) {
+    g_mutex_unlock(&(wid->lock));
+    return;
+  }
+  if (wid->surf) {
+    cairo_surface_destroy(wid->surf);
     wid->surf = NULL;
   }
   if (wid->name != NULL) {
     g_free(wid->name);
   }
+  g_mutex_unlock(&(wid->lock));
+  g_mutex_clear(&(wid->lock));
+  active_widgets = g_list_remove(active_widgets, wid);
   if (wid->free != NULL) {
     wid->free(wid);
   }
@@ -533,14 +567,14 @@ void widget_update(widget *wid) {
   }
   widget_update_int(wid);
   // When (desired )size of wid changes.
-//  if (wid->update != NULL) {
-//    wid->update(wid);
-//  }
-//  if (wid->parent) {
-//    widget_update_int(wid->parent);
-//  } else {
-//    // rofi_view_queue_redraw();
-//  }
+  //  if (wid->update != NULL) {
+  //    wid->update(wid);
+  //  }
+  //  if (wid->parent) {
+  //    widget_update_int(wid->parent);
+  //  } else {
+  //    // rofi_view_queue_redraw();
+  //  }
 }
 
 void widget_queue_redraw(widget *wid) {
@@ -548,7 +582,7 @@ void widget_queue_redraw(widget *wid) {
     return;
   }
   wid->need_redraw = TRUE;
-  widget_queue_redraw( wid->parent);
+  widget_queue_redraw(wid->parent);
 }
 
 gboolean widget_need_redraw(widget *wid) {
@@ -735,4 +769,13 @@ int widget_get_absolute_ypos(widget *wid) {
     retv += widget_get_absolute_ypos(wid->parent);
   }
   return retv;
+}
+void widget_debug(void) {
+  printf("Got %d widgets left in queue\n", g_list_length(active_widgets));
+  for (GList *iter = g_list_first(active_widgets); iter;
+       iter = g_list_next(iter)) {
+    widget *w = (widget *)iter->data;
+    printf("Widget left: %s", w->name);
+    printf("ref count: %u\n", w->ref_count);
+  }
 }
