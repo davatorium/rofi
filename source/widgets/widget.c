@@ -771,7 +771,7 @@ int widget_get_absolute_ypos(widget *wid) {
   return retv;
 }
 void widget_debug(void) {
-  printf("Got %d widgets left in queue\n", g_list_length(active_widgets));
+  g_debug("Got %d widgets left in queue\n", g_list_length(active_widgets));
   for (GList *iter = g_list_first(active_widgets); iter;
        iter = g_list_next(iter)) {
     widget *w = (widget *)iter->data;

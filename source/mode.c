@@ -55,6 +55,7 @@ int mode_init(Mode *mode) {
           mode->name);
     }
   }
+  mode->fallback_icon = NULL;
   ThemeWidget *wid = rofi_config_find_widget(mode->name, NULL, TRUE);
   if (wid) {
     /** Load user entires */
@@ -97,15 +98,15 @@ char **mode_get_icon_names(Mode *mode, unsigned int selected_line) {
   if (mode->_get_icon_names != NULL) {
     retv = mode->_get_icon_names(mode, selected_line);
   }
-  if ( mode->fallback_icon ){
-    if ( retv == NULL ) {
-      retv = g_malloc0(2*sizeof(char*));
+  if (mode->fallback_icon) {
+    if (retv == NULL) {
+      retv = g_malloc0(2 * sizeof(char *));
       retv[0] = g_strdup(mode->fallback_icon);
     } else {
       guint l = g_strv_length(retv);
-      retv = g_realloc(retv, (l+2)*sizeof(char *));
+      retv = g_realloc(retv, (l + 2) * sizeof(char *));
       retv[l] = g_strdup(mode->fallback_icon);
-      retv[l+1] = NULL;
+      retv[l + 1] = NULL;
     }
   }
   return retv;

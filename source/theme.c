@@ -441,9 +441,11 @@ static void int_rofi_theme_print_property(Property *p) {
     }
     break;
   }
-  case P_STRING:
-    printf("\"%s\"", p->value.s);
+  case P_STRING: {
+    char *str = g_strescape(p->value.s, NULL);
+    printf("\"%s\"", str);
     break;
+  }
   case P_INTEGER:
     printf("%d", p->value.i);
     break;
