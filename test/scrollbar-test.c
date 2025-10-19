@@ -133,9 +133,9 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
   TASSERTE(cl, 9999u);
   scrollbar_set_handle_length(sb, 1000);
   cl = scrollbar_scroll_get_line(sb, 10);
-  TASSERTE(cl, 555u);
+  TASSERTE(cl, 556u);
   cl = scrollbar_scroll_get_line(sb, 20);
-  TASSERTE(cl, 1666u);
+  TASSERTE(cl, 1667u);
   cl = scrollbar_scroll_get_line(sb, 0);
   TASSERTE(cl, 0u);
   cl = scrollbar_scroll_get_line(sb, 99);

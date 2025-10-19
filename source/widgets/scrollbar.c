@@ -33,6 +33,8 @@
 
 #include "theme.h"
 
+#include <math.h>
+
 /** The default width of the scrollbar */
 #define DEFAULT_SCROLLBAR_WIDTH 8
 
@@ -65,7 +67,7 @@ guint scrollbar_scroll_get_line(const scrollbar *sb, int y) {
   y -= half_handle;
   y = MIN(MAX(0, y), sb->widget.h - 2 * half_handle);
 
-  unsigned int sel = ((y) / sec);
+  unsigned int sel = round((y) / sec);
   return MIN(sel, sb->length - 1);
 }
 
@@ -178,7 +180,8 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
     float x = widget_padding_get_left(wid);
     float width = widget_padding_get_remaining_width(wid);
 
-    float radius = ((width < height) ? width : height) / 2; // Limit radius to prevent overlap
+    float radius = ((width < height) ? width : height) /
+                   2; // Limit radius to prevent overlap
 
     // Draw rounded rectangle
     cairo_new_sub_path(draw);
@@ -189,8 +192,7 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
     cairo_close_path(draw);
 
     cairo_fill(draw);
-  }
-  else {
+  } else {
     cairo_rectangle(draw, widget_padding_get_left(wid),
                     widget_padding_get_top(wid) + y,
                     widget_padding_get_remaining_width(wid), height);

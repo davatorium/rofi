@@ -377,9 +377,12 @@ The matching up/down keybinding allows cycling through at runtime.
 
 Note: glob matching might be slow for larger lists
 
-`-tokenize`
+`-[no-]tokenize`
 
-Tokenize the input.
+Tokenize the input into words, each word is matched separately with each entry.
+If enabled the search `test this` will match the entry `this test`.
+
+Default: enabled
 
 `-drun-categories` *category1*,*category2*
 
@@ -1170,7 +1173,6 @@ KeyPress event, because the keyboard/pointer is still grabbed. For these
 situations, the `--release` flag can be used, as it will execute the command
 after the keys have been released.
 
-
 ## Hyprland
 
 Hyprland's animations make the launching of **Rofi** feel slower then needed.
@@ -1179,6 +1181,7 @@ To avoid this, add the following rule to your hyprland.conf file:
 ```
 layerrule = noanim,^(rofi)$
 ```
+
 This disables the animations on the **Rofi** window.
 
 ## LICENSE
