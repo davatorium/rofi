@@ -470,11 +470,17 @@ void widget_draw(widget *wid, cairo_t *c) {
   }
 }
 void widget_ref(widget *wid) {
+  if (wid == NULL) {
+    return;
+  }
   g_mutex_lock(&(wid->ref_count_lock));
   wid->ref_count++;
   g_mutex_unlock(&(wid->ref_count_lock));
 }
 void widget_unref(widget *wid) {
+  if (wid == NULL) {
+    return;
+  }
   if (wid->ref_count == 1) {
     printf("widget disapeared\n");
   }
