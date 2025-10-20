@@ -70,8 +70,10 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
  *
  * @returns the uid identifying the request.
  */
-uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name, const int wsize,
-                                          const int hsize, widget *wid);
+uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name,
+                                                 const int wsize,
+                                                 const int hsize,
+                                                 widget *widget);
 /**
  * @param uid The unique id representing the matching request.
  *
@@ -99,6 +101,13 @@ gboolean rofi_icon_fetcher_get_ex(const uint32_t uid,
  * @returns true if image, false otherwise.
  */
 gboolean rofi_icon_fetcher_file_is_image(const char *const path);
-void rofi_icon_fetcher_remove_widget (const uint32_t uid, widget *wid);
+
+/**
+ * @param uid The unique id representing the query.
+ * @param wid The widget to remove from the notification list
+ *
+ * Removes `wid` from the notification list for the request: `uid`.
+ */
+void rofi_icon_fetcher_remove_widget(const uint32_t uid, widget *wid);
 /** @} */
 #endif // ROFI_ICON_FETCHER_H

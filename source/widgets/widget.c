@@ -60,7 +60,7 @@ void widget_init(widget *wid, widget *parent, WidgetType type,
   wid->border_antialiasing = rofi_theme_get_boolean(wid, "border-aa", TRUE);
   wid->border_disable_nvidia_workaround =
       rofi_theme_get_boolean(wid, "border-disable-nvidia-workaround", FALSE);
-  g_mutex_init(&(wid->lock));
+  g_mutex_init(&(wid->ref_count_lock));
   wid->ref_count = 1;
   active_widgets = g_list_append(active_widgets, wid);
 }
@@ -453,11 +453,11 @@ void widget_draw(widget *wid, cairo_t *c) {
           cairo_fill(d);
         }
       }
-      //char buff[64];
-      //snprintf(buff, 64, "%u", wid->repaint_debug_index);
-      //cairo_move_to(d, wid->w / 2, wid->h / 2);
-      //cairo_set_source_rgba(d, 0, 0, 0, 1);
-      //cairo_show_text(d, buff);
+      // char buff[64];
+      // snprintf(buff, 64, "%u", wid->repaint_debug_index);
+      // cairo_move_to(d, wid->w / 2, wid->h / 2);
+      // cairo_set_source_rgba(d, 0, 0, 0, 1);
+      // cairo_show_text(d, buff);
       cairo_destroy(d);
       wid->repaint_debug_index++;
     }
@@ -470,9 +470,9 @@ void widget_draw(widget *wid, cairo_t *c) {
   }
 }
 void widget_ref(widget *wid) {
-  g_mutex_lock(&(wid->lock));
+  g_mutex_lock(&(wid->ref_count_lock));
   wid->ref_count++;
-  g_mutex_unlock(&(wid->lock));
+  g_mutex_unlock(&(wid->ref_count_lock));
 }
 void widget_unref(widget *wid) {
   if (wid->ref_count == 1) {
@@ -485,10 +485,10 @@ void widget_free(widget *wid) {
   if (wid == NULL) {
     return;
   }
-  g_mutex_lock(&(wid->lock));
+  g_mutex_lock(&(wid->ref_count_lock));
   wid->ref_count--;
   if (wid->ref_count > 0) {
-    g_mutex_unlock(&(wid->lock));
+    g_mutex_unlock(&(wid->ref_count_lock));
     return;
   }
   if (wid->surf) {
@@ -498,8 +498,8 @@ void widget_free(widget *wid) {
   if (wid->name != NULL) {
     g_free(wid->name);
   }
-  g_mutex_unlock(&(wid->lock));
-  g_mutex_clear(&(wid->lock));
+  g_mutex_unlock(&(wid->ref_count_lock));
+  g_mutex_clear(&(wid->ref_count_lock));
   active_widgets = g_list_remove(active_widgets, wid);
   if (wid->free != NULL) {
     wid->free(wid);

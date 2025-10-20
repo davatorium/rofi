@@ -25,11 +25,12 @@
  *
  */
 
+#define G_LOG_DOMAIN "Widgets.Icon"
+
 /** The log domain of this widget. */
 #include "cairo.h"
-#include "rofi-types.h"
-#define G_LOG_DOMAIN "Widgets.Icon"
 #include "config.h"
+#include "rofi-types.h"
 
 #include "theme.h"
 #include "widgets/icon.h"
@@ -109,7 +110,7 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
     }
     gboolean done = TRUE;
     do {
-      //printf("%d: %s\n",wid->resolve_num, wid->icon_names[wid->resolve_num]);
+      // printf("%d: %s\n",wid->resolve_num, wid->icon_names[wid->resolve_num]);
       wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
           wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
       done = rofi_icon_fetcher_get_ex(wid->icon_fetch_id, &(wid->icon));
@@ -187,7 +188,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
           b->resolve_num++;
 
           if (b->icon_names[b->resolve_num]) {
-            //printf("%d: %s\n",b->resolve_num, b->icon_names[b->resolve_num]);
+            // printf("%d: %s\n",b->resolve_num, b->icon_names[b->resolve_num]);
             b->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
                 b->icon_names[b->resolve_num], b->widget.w, b->widget.h,
                 WIDGET(wid));

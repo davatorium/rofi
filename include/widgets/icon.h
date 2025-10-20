@@ -64,6 +64,13 @@ void icon_set_size(widget *icon, const int size);
  */
 void icon_set_surface(icon *icon_widget, cairo_surface_t *surf);
 
-void icon_set_icon_names ( icon *icon_widget , char const * const * icon_names);
+/**
+ * @param icon_widget The icon widget handle.
+ * @param icon_names A list of icon names to show.
+ *
+ * Set a list of icon names to show. It tries them in order
+ * until it managed to load one.
+ */
+void icon_set_icon_names(icon *icon_widget, char const *const *icon_names);
 /**@}*/
 #endif // ROFI_ICON_H

@@ -89,6 +89,7 @@ struct _widget {
   /** enable/disable nvisia workaround. */
   gboolean border_disable_nvidia_workaround;
 
+  /** Surface used to buffer drawing. */
   cairo_surface_t *surf;
   /** Parent widget */
   struct _widget *parent;
@@ -129,7 +130,7 @@ struct _widget {
 
   int repaint_debug_index;
 
-  GMutex lock;
+  GMutex ref_count_lock;
   uint32_t ref_count;
 };
 

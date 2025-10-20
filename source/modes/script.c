@@ -24,10 +24,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+#define G_LOG_DOMAIN "Modes.Script"
 
 /** The log domain of this dialog. */
 #include "glib.h"
-#define G_LOG_DOMAIN "Modes.Script"
 
 #include "display.h"
 #include "helper.h"

@@ -91,7 +91,6 @@ window {
     border:           1;
 }
 mainbox {
-    expand: true;
     padding: 0;
     border:  0;
 }

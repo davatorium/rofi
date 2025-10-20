@@ -356,9 +356,23 @@ int widget_get_absolute_xpos(widget *wid);
  */
 int widget_get_absolute_ypos(widget *wid);
 
+/**
+ * @param wid The widget handle
+ *
+ * Increase the ref count of the widget.
+ */
 void widget_ref(widget *wid);
+/**
+ * @param wid The widget handle
+ *
+ * Decrease the ref count of the widget.
+ * If refcount is 0, the widget is free'ed.
+ */
 void widget_unref(widget *wid);
 
+/**
+ * Print debug information about widgets that are still referenced.
+ */
 void widget_debug(void);
 /**@}*/
 #endif // ROFI_WIDGET_H
