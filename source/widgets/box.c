@@ -306,7 +306,6 @@ static void box_free(widget *wid) {
     widget_free(child);
   }
   g_list_free(b->children);
-  g_free(b);
 }
 
 void box_add(box *wid, widget *child, gboolean expand) {
@@ -370,7 +369,7 @@ static void box_set_state(widget *wid, const char *state) {
 }
 
 box *box_create(widget *parent, const char *name, RofiOrientation type) {
-  box *b = g_malloc0(sizeof(box));
+  box *b = g_atomic_rc_box_new0(box);
   // Initialize widget.
   widget_init(WIDGET(b), parent, WIDGET_TYPE_UNKNOWN, name);
   b->type = type;

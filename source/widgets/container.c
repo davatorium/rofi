@@ -62,7 +62,6 @@ static void container_free(widget *wid) {
   container *b = (container *)wid;
 
   widget_free(b->child);
-  g_free(b);
 }
 
 void container_add(container *cont, widget *child) {
@@ -101,7 +100,7 @@ static void container_set_state(widget *wid, const char *state) {
 }
 
 container *container_create(widget *parent, const char *name) {
-  container *b = g_malloc0(sizeof(container));
+  container *b = g_atomic_rc_box_new0(container);
   // Initialize widget.
   widget_init(WIDGET(b), parent, WIDGET_TYPE_UNKNOWN, name);
   b->widget.draw = container_draw;

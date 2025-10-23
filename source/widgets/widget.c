@@ -60,8 +60,6 @@ void widget_init(widget *wid, widget *parent, WidgetType type,
   wid->border_antialiasing = rofi_theme_get_boolean(wid, "border-aa", TRUE);
   wid->border_disable_nvidia_workaround =
       rofi_theme_get_boolean(wid, "border-disable-nvidia-workaround", FALSE);
-  g_mutex_init(&(wid->ref_count_lock));
-  wid->ref_count = 1;
   active_widgets = g_list_append(active_widgets, wid);
 }
 
@@ -473,30 +471,17 @@ void widget_ref(widget *wid) {
   if (wid == NULL) {
     return;
   }
-  g_mutex_lock(&(wid->ref_count_lock));
-  wid->ref_count++;
-  g_mutex_unlock(&(wid->ref_count_lock));
+  g_atomic_rc_box_acquire(wid);
 }
+
 void widget_unref(widget *wid) {
-  if (wid == NULL) {
-    return;
-  }
-  if (wid->ref_count == 1) {
-    printf("widget disapeared\n");
-  }
   widget_free(wid);
 }
 
-void widget_free(widget *wid) {
-  if (wid == NULL) {
-    return;
-  }
-  g_mutex_lock(&(wid->ref_count_lock));
-  wid->ref_count--;
-  if (wid->ref_count > 0) {
-    g_mutex_unlock(&(wid->ref_count_lock));
-    return;
-  }
+static void widget_free_inner(void *wid_in) {
+  widget *wid = wid_in;
+  printf("widget disappeared\n");
+
   if (wid->surf) {
     cairo_surface_destroy(wid->surf);
     wid->surf = NULL;
@@ -504,12 +489,14 @@ void widget_free(widget *wid) {
   if (wid->name != NULL) {
     g_free(wid->name);
   }
-  g_mutex_unlock(&(wid->ref_count_lock));
-  g_mutex_clear(&(wid->ref_count_lock));
   active_widgets = g_list_remove(active_widgets, wid);
-  if (wid->free != NULL) {
-    wid->free(wid);
+}
+
+void widget_free(widget *wid) {
+  if (wid == NULL) {
+    return;
   }
+  g_atomic_rc_box_release_full(wid, widget_free_inner);
 }
 
 int widget_get_height(widget *wid) {
@@ -782,6 +769,5 @@ void widget_debug(void) {
        iter = g_list_next(iter)) {
     widget *w = (widget *)iter->data;
     printf("Widget left: %s", w->name);
-    printf("ref count: %u\n", w->ref_count);
   }
 }

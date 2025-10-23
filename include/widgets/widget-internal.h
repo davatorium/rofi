@@ -129,9 +129,6 @@ struct _widget {
   const char *state;
 
   int repaint_debug_index;
-
-  GMutex ref_count_lock;
-  uint32_t ref_count;
 };
 
 /**

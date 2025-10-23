@@ -244,8 +244,6 @@ static void icon_free(widget *wid) {
   if (b->icon_fetch_id != 0) {
     rofi_icon_fetcher_remove_widget(b->icon_fetch_id, WIDGET(wid));
   }
-
-  g_free(b);
 }
 
 static void icon_resize(widget *wid, short w, short h) {
@@ -286,7 +284,7 @@ void icon_set_surface(icon *icon_widget, cairo_surface_t *surf) {
 }
 
 icon *icon_create(widget *parent, const char *name) {
-  icon *b = g_malloc0(sizeof(icon));
+  icon *b = g_atomic_rc_box_new0(icon);
 
   // Initialize widget.
   widget_init(WIDGET(b), parent, WIDGET_TYPE_UNKNOWN, name);

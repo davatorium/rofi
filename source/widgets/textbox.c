@@ -204,7 +204,7 @@ static void textbox_tab_stops(textbox *tb) {
 textbox *textbox_create(widget *parent, WidgetType type, const char *name,
                         TextboxFlags flags, TextBoxFontType tbft,
                         const char *text, double xalign, double yalign) {
-  textbox *tb = g_slice_new0(textbox);
+  textbox *tb = g_atomic_rc_box_new0(textbox);
 
   widget_init(WIDGET(tb), parent, type, name);
 
@@ -501,8 +501,6 @@ static void textbox_free(widget *wid) {
   if (tb->layout != NULL) {
     g_object_unref(tb->layout);
   }
-
-  g_slice_free(textbox, tb);
 }
 
 static void textbox_draw(widget *wid, cairo_t *draw) {

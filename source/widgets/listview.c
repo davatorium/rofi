@@ -257,7 +257,6 @@ static void listview_free(widget *wid) {
 
   g_free(lv->listview_name);
   widget_free(WIDGET(lv->scrollbar));
-  g_free(lv);
 }
 static unsigned int scroll_per_page_barview(listview *lv) {
   unsigned int offset = lv->last_offset;
@@ -788,7 +787,7 @@ listview *listview_create(widget *parent, const char *name,
                           listview_update_callback cb,
                           listview_page_changed_cb page_cb, void *udata,
                           unsigned int eh, gboolean reverse) {
-  listview *lv = g_malloc0(sizeof(listview));
+  listview *lv = g_atomic_rc_box_new0(listview);
   widget_init(WIDGET(lv), parent, WIDGET_TYPE_LISTVIEW, name);
   lv->listview_name = g_strdup(name);
   lv->widget.free = listview_free;
