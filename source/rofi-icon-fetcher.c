@@ -26,7 +26,6 @@
  */
 
 /** The log domain of this Helper. */
-#include "xcb.h"
 #define G_LOG_DOMAIN "Helpers.IconFetcher"
 
 #include "config.h"
@@ -50,6 +49,10 @@
 
 #include "helper.h"
 #include <gdk-pixbuf/gdk-pixbuf.h>
+
+#ifdef ENABLE_XCB
+#include "xcb.h"
+#endif
 
 /** Desktop entry specifying the thumbnailer. */
 #define THUMBNAILER_ENTRY_GROUP "Thumbnailer Entry"
@@ -848,7 +851,7 @@ uint32_t rofi_icon_fetcher_query_advanced_widget(const char *name,
   entry->sizes = g_list_prepend(entry->sizes, sentry);
   g_hash_table_insert(rofi_icon_fetcher_data->icon_cache_uid,
                       GINT_TO_POINTER(sentry->uid), sentry);
-#ifdef WINDOW_MODE
+#ifdef ENABLE_XCB
   extern cairo_surface_t *get_net_wm_icon(xcb_window_t xid,
                                           uint32_t preferred_size);
   if (g_str_has_prefix(name, "xwin://")) {
