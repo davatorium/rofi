@@ -238,6 +238,7 @@ static void icon_draw(widget *wid, cairo_t *draw) {
 static void icon_free(widget *wid) {
   icon *b = (icon *)wid;
 
+  g_strfreev(b->icon_names);
   if (b->icon) {
     cairo_surface_destroy(b->icon);
   }

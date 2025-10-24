@@ -788,7 +788,7 @@ static void dmenu_finalize(RofiViewState *state) {
 
   char *input = g_strdup(rofi_view_get_user_input(state));
   pd->selected_line = rofi_view_get_selected_line(state);
-  ;
+
   MenuReturn mretv = rofi_view_get_return_value(state);
   unsigned int next_pos = rofi_view_get_next_position(state);
   int restart = 0;

@@ -258,7 +258,7 @@ static RunEntry *get_apps(unsigned int *length) {
     retv[i].from_history = TRUE;
     g_free(rs);
   }
-  g_free(hretv);
+  g_strfreev(hretv);
   g_free(path);
   // Keep track of how many where loaded as favorite.
   num_favorites = (*length);

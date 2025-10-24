@@ -945,6 +945,7 @@ static void rofi_view_refilter_force(RofiViewState *state) {
  */
 void process_result(RofiViewState *state);
 void rofi_view_finalize(RofiViewState *state) {
+  rofi_view_workers_finalize();
   if (state && state->finalize != NULL) {
     state->finalize(state);
   }
