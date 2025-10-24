@@ -490,6 +490,9 @@ static void widget_free_inner(void *wid_in) {
     g_free(wid->name);
   }
   active_widgets = g_list_remove(active_widgets, wid);
+  if (wid->free != NULL) {
+    wid->free(wid);
+  }
 }
 
 void widget_free(widget *wid) {
