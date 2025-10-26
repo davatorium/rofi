@@ -85,7 +85,7 @@ typedef struct {
   thread_state state;
 
   // List of widgets we need to notify when this entry changes. The list is
-  // auto-emptied on notfication. Widgets should remove themself using
+  // auto-emptied on notification. Widgets should remove themselves using
   // rofi_icon_fetcher_remove_widget if destroyed and there is still an
   // outstanding query.
   GMutex widget_list_lock;
@@ -531,6 +531,19 @@ static gchar *rofi_icon_fetcher_get_desktop_icon(const gchar *file_path) {
 
   return icon_key;
 }
+static void rofi_search_entry_reload_widgets(IconFetcherEntry *sentry)
+{
+  g_mutex_lock(&(sentry->widget_list_lock));
+  for (GList *iter = g_list_first(sentry->widget_list); iter;
+  iter = g_list_next(iter)) {
+    rofi_view_reload_widget((widget *)iter->data);
+    widget_unref((widget *)iter->data);
+  }
+  g_list_free(sentry->widget_list);
+  sentry->widget_list = NULL;
+  g_mutex_unlock(&(sentry->widget_list_lock));
+
+}
 
 static void rofi_icon_fetcher_worker(thread_state *sdata,
                                      G_GNUC_UNUSED gpointer user_data) {
@@ -549,15 +562,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
 
     if (strcmp(entry_name, "") == 0) {
       sentry->query_done = TRUE;
-      g_mutex_lock(&(sentry->widget_list_lock));
-      for (GList *iter = g_list_first(sentry->widget_list); iter;
-           iter = g_list_next(iter)) {
-        rofi_view_reload_widget((widget *)iter->data);
-        widget_unref((widget *)iter->data);
-      }
-      g_list_free(sentry->widget_list);
-      sentry->widget_list = NULL;
-      g_mutex_unlock(&(sentry->widget_list_lock));
+      rofi_search_entry_reload_widgets(sentry);
       return;
     }
 
@@ -658,16 +663,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     // no suitable icon or thumbnail was found
     if (icon_path_ == NULL || !g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
       sentry->query_done = TRUE;
-
-      g_mutex_lock(&(sentry->widget_list_lock));
-      for (GList *iter = g_list_first(sentry->widget_list); iter;
-           iter = g_list_next(iter)) {
-        rofi_view_reload_widget((widget *)iter->data);
-        widget_unref((widget *)iter->data);
-      }
-      g_list_free(sentry->widget_list);
-      sentry->widget_list = NULL;
-      g_mutex_unlock(&(sentry->widget_list_lock));
+      rofi_search_entry_reload_widgets(sentry);
       return;
     }
   } else if (g_path_is_absolute(sentry->entry->name)) {
@@ -697,15 +693,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     sentry->surface = surface;
     sentry->query_done = TRUE;
 
-    g_mutex_lock(&(sentry->widget_list_lock));
-    for (GList *iter = g_list_first(sentry->widget_list); iter;
-         iter = g_list_next(iter)) {
-      rofi_view_reload_widget((widget *)iter->data);
-      widget_unref((widget *)iter->data);
-    }
-    g_list_free(sentry->widget_list);
-    sentry->widget_list = NULL;
-    g_mutex_unlock(&(sentry->widget_list_lock));
+    rofi_search_entry_reload_widgets(sentry);
     return;
 
   } else {
@@ -724,15 +712,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
       }
       if (icon_path_ == NULL) {
         sentry->query_done = TRUE;
-        g_mutex_lock(&(sentry->widget_list_lock));
-        for (GList *iter = g_list_first(sentry->widget_list); iter;
-             iter = g_list_next(iter)) {
-          rofi_view_reload_widget((widget *)iter->data);
-          widget_unref((widget *)iter->data);
-        }
-        g_list_free(sentry->widget_list);
-        sentry->widget_list = NULL;
-        g_mutex_unlock(&(sentry->widget_list_lock));
+        rofi_search_entry_reload_widgets(sentry);
         return;
       }
     } else {
@@ -787,15 +767,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   sentry->surface = icon_surf;
   g_free(icon_path_);
   sentry->query_done = TRUE;
-  g_mutex_lock(&(sentry->widget_list_lock));
-  for (GList *iter = g_list_first(sentry->widget_list); iter;
-       iter = g_list_next(iter)) {
-    rofi_view_reload_widget((widget *)iter->data);
-    widget_unref((widget *)iter->data);
-  }
-  g_list_free(sentry->widget_list);
-  sentry->widget_list = NULL;
-  g_mutex_unlock(&(sentry->widget_list_lock));
+  rofi_search_entry_reload_widgets(sentry);
 }
 
 uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,

@@ -58,7 +58,7 @@ int mode_init(Mode *mode) {
   mode->fallback_icon = NULL;
   ThemeWidget *wid = rofi_config_find_widget(mode->name, NULL, TRUE);
   if (wid) {
-    /** Load user entires */
+    /** Load user entries */
     Property *p =
         rofi_theme_find_property(wid, P_STRING, "fallback-icon", TRUE);
     if (p != NULL && (p->type == P_STRING && p->value.s)) {
