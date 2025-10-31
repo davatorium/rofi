@@ -303,12 +303,6 @@ static void wayland_rofi_view_update(RofiViewState *state, gboolean qr) {
   if (!widget_need_redraw(WIDGET(state->main_window))) {
     return;
   }
-  static GTimer *timer = NULL;
-  if ( timer == NULL ) {
-    timer = g_timer_new();
-  }
-  printf("needs redraw: %lf\n", g_timer_elapsed(timer, NULL));
-  g_timer_reset(timer);
   g_debug("Redraw view");
   TICK();
   if (state->pool == NULL) {

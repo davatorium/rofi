@@ -467,20 +467,33 @@ void widget_draw(widget *wid, cairo_t *c) {
     cairo_restore(c);
   }
 }
+
+/**
+ * reference goes downwards.
+ * Destroying goes upwards.
+ *
+ * This is done because the child often references it parent in the drawing
+ * screen. So the parent cannot dissapear before the child.
+ */
 void widget_ref(widget *wid) {
   if (wid == NULL) {
     return;
   }
   g_atomic_rc_box_acquire(wid);
+  if ( wid->parent ) {
+    g_atomic_rc_box_acquire(wid->parent);
+  }
 }
 
 void widget_unref(widget *wid) {
   widget_free(wid);
+  if ( wid->parent ) {
+    widget_free(wid->parent);
+  }
 }
 
 static void widget_free_inner(void *wid_in) {
   widget *wid = wid_in;
-  printf("widget disappeared\n");
 
   if (wid->surf) {
     cairo_surface_destroy(wid->surf);
