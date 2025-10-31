@@ -92,15 +92,15 @@ int widget_intersect(const widget *wid, int x, int y) {
   return FALSE;
 }
 
-void widget_resize(widget *wid, short w, short h) {
+void widget_resize(widget *wid, const short w, const short h, const unsigned int scale ) {
   if (wid == NULL) {
     return;
   }
   if (wid->resize != NULL) {
-    if (wid->w != w || wid->h != h) {
+    if (wid->w != w || wid->h != h || wid->scale != scale ) {
       int wn = wid->w;
       int hn = wid->h;
-      wid->resize(wid, w, h);
+      wid->resize(wid, w, h, scale);
       if (wid->w != wn || wid->h != hn) {
         widget_update(wid);
         if (wid->surf != NULL) {
@@ -111,9 +111,10 @@ void widget_resize(widget *wid, short w, short h) {
       }
     }
   } else {
-    if (wid->w != w || wid->h != h) {
+    if (wid->w != w || wid->h != h || wid->scale != scale ) {
       wid->w = w;
       wid->h = h;
+      wid->scale = scale;
       widget_update(wid);
       if (wid->surf != NULL) {
         cairo_surface_destroy(wid->surf);
@@ -451,11 +452,13 @@ void widget_draw(widget *wid, cairo_t *c) {
           cairo_fill(d);
         }
       }
-      // char buff[64];
-      // snprintf(buff, 64, "%u", wid->repaint_debug_index);
-      // cairo_move_to(d, wid->w / 2, wid->h / 2);
-      // cairo_set_source_rgba(d, 0, 0, 0, 1);
-      // cairo_show_text(d, buff);
+      #if 0
+       char buff[64];
+       snprintf(buff, 64, "%u", wid->repaint_debug_index);
+       cairo_move_to(d, wid->w / 2, wid->h / 2);
+       cairo_set_source_rgba(d, 1, 1, 1, 1);
+       cairo_show_text(d, buff);
+      #endif
       cairo_destroy(d);
       wid->repaint_debug_index++;
     }

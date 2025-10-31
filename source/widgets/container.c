@@ -73,11 +73,12 @@ void container_add(container *cont, widget *child) {
   widget_update(WIDGET(cont));
 }
 
-static void container_resize(widget *wid, short w, short h) {
+static void container_resize(widget *wid, const short w, const short h, const unsigned int scale) {
   container *b = (container *)wid;
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;
     b->widget.h = h;
+    b->widget.scale = scale;
     widget_update(wid);
   }
 }
@@ -118,7 +119,8 @@ static void container_update(widget *wid) {
   if (b->child && b->child->enabled) {
     widget_resize(WIDGET(b->child),
                   widget_padding_get_remaining_width(WIDGET(b)),
-                  widget_padding_get_remaining_height(WIDGET(b)));
+                  widget_padding_get_remaining_height(WIDGET(b)),
+                  wid->scale);
     widget_move(WIDGET(b->child), widget_padding_get_left(WIDGET(b)),
                 widget_padding_get_top(WIDGET(b)));
   }

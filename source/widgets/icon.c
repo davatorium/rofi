@@ -39,6 +39,7 @@
 #include <math.h>
 #include <stdio.h>
 
+
 #include "rofi-icon-fetcher.h"
 
 struct _icon {
@@ -247,14 +248,14 @@ static void icon_free(widget *wid) {
   }
 }
 
-static void icon_resize(widget *wid, short w, short h) {
+static void icon_resize(widget *wid, const short w, const short h, const unsigned int scale) {
   icon *b = (icon *)wid;
-  if (b->widget.w != w || b->widget.h != h) {
+  if (b->widget.w != w || scale != b->widget.scale || b->widget.h != h) {
     b->widget.w = w;
     b->widget.h = h;
+    b->widget.scale = scale;
     char **icon_names = b->icon_names;
     b->icon_names = NULL;
-    // printf("%s icon resize %d x %d\n", wid->name, w, h);
     icon_set_icon_names(b, (char const *const *)icon_names);
     g_strfreev(icon_names);
     widget_update(wid);

@@ -159,7 +159,7 @@ static void vert_calculate_size(box *b) {
       if (exph > rem_height) {
         //        exph = rem_height /*- (active_widgets - 1) * spacing;
       }
-      widget_resize(child, rem_width, exph);
+      widget_resize(child, rem_width, exph, b->widget.scale);
     }
   }
   b->max_size = 0;
@@ -204,7 +204,7 @@ static void vert_calculate_size(box *b) {
         int expanding_widgets_size = (rem) / (expanding_widgets - index);
         widget_move(child, widget_padding_get_left(WIDGET(b)), top);
         top += expanding_widgets_size;
-        widget_resize(child, rem_width, expanding_widgets_size);
+        widget_resize(child, rem_width, expanding_widgets_size, b->widget.scale);
         top += spacing;
         rem -= expanding_widgets_size;
         index++;
@@ -229,7 +229,7 @@ static void hori_calculate_size(box *b) {
     if (child->enabled && child->expand == FALSE) {
       widget_resize(child,
                     widget_get_desired_width(child, rem_height), // child->w,
-                    rem_height);
+                    rem_height, b->widget.scale);
     }
   }
   b->max_size = 0;
@@ -274,7 +274,7 @@ static void hori_calculate_size(box *b) {
         int expanding_widgets_size = (rem) / (expanding_widgets - index);
         widget_move(child, left, widget_padding_get_top(WIDGET(b)));
         left += expanding_widgets_size;
-        widget_resize(child, expanding_widgets_size, rem_height);
+        widget_resize(child, expanding_widgets_size, rem_height, b->widget.scale);
         left += spacing;
         rem -= expanding_widgets_size;
         index++;
@@ -330,11 +330,12 @@ void box_add(box *wid, widget *child, gboolean expand) {
   widget_update(WIDGET(wid));
 }
 
-static void box_resize(widget *wid, short w, short h) {
+static void box_resize(widget *wid, const short w, const short h, const unsigned int scale) {
   box *b = (box *)wid;
-  if (b->widget.w != w || b->widget.h != h) {
+  if (b->widget.w != w || b->widget.h != h || b->widget.scale != scale ) {
     b->widget.w = w;
     b->widget.h = h;
+    b->widget.scale = scale;
     widget_update(wid);
   }
 }

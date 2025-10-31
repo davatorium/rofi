@@ -259,11 +259,12 @@ void textbox_delete(textbox *tb, int pos, int dlen);
  * @param y The new vertical position to place with textbox
  * @param w The new width of the textbox
  * @param h The new height of the textbox
+ * @param scale The new scale of the textbox
  *
  * Move and resize the textbox.
  * TODO remove for #widget_resize and #widget_move
  */
-void textbox_moveresize(textbox *tb, int x, int y, int w, int h);
+void textbox_moveresize(textbox *tb, int x, int y, int w, int h, unsigned int scale );
 
 /**
  * @param tb Handle to the textbox

@@ -71,9 +71,9 @@ static gboolean textbox_blink(gpointer data) {
   return TRUE;
 }
 
-static void textbox_resize(widget *wid, short w, short h) {
+static void textbox_resize(widget *wid, const short w, const short h, const unsigned int scale) {
   textbox *tb = (textbox *)wid;
-  textbox_moveresize(tb, tb->widget.x, tb->widget.y, w, h);
+  textbox_moveresize(tb, tb->widget.x, tb->widget.y, w, h, scale);
 }
 static int textbox_get_desired_height(widget *wid, const int width) {
   textbox *tb = (textbox *)wid;
@@ -433,7 +433,7 @@ void textbox_text(textbox *tb, const char *text) {
   __textbox_update_pango_text(tb);
   if (tb->flags & TB_AUTOWIDTH) {
     textbox_moveresize(tb, tb->widget.x, tb->widget.y, tb->widget.w,
-                       tb->widget.h);
+                       tb->widget.h, tb->widget.scale);
     if (WIDGET(tb)->parent) {
       widget_update(WIDGET(tb));
     }
@@ -444,7 +444,7 @@ void textbox_text(textbox *tb, const char *text) {
 }
 
 // within the parent handled auto width/height modes
-void textbox_moveresize(textbox *tb, int x, int y, int w, int h) {
+void textbox_moveresize(textbox *tb, int x, int y, int w, int h, unsigned int scale ) {
   if (tb->flags & TB_AUTOWIDTH) {
     pango_layout_set_width(tb->layout, -1);
     w = textbox_get_font_width(tb) +
@@ -471,11 +471,12 @@ void textbox_moveresize(textbox *tb, int x, int y, int w, int h) {
   }
 
   if (x != tb->widget.x || y != tb->widget.y || w != tb->widget.w ||
-      h != tb->widget.h) {
+      h != tb->widget.h || scale != tb->widget.scale) {
     tb->widget.x = x;
     tb->widget.y = y;
     tb->widget.h = MAX(1, h);
     tb->widget.w = MAX(1, w);
+    tb->widget.scale = scale;
   }
 
   // We always want to update this

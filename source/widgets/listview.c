@@ -399,7 +399,7 @@ static void barview_draw(widget *wid, cairo_t *draw) {
             twidth = width;
           }
           widget_move(WIDGET(lv->boxes[i].box), left_offset, top_offset);
-          widget_resize(WIDGET(lv->boxes[i].box), twidth, lv->element_height);
+          widget_resize(WIDGET(lv->boxes[i].box), twidth, lv->element_height, lv->widget.scale);
 
           widget_draw(WIDGET(lv->boxes[i].box), draw);
           width -= twidth + spacing_hori;
@@ -421,7 +421,7 @@ static void barview_draw(widget *wid, cairo_t *draw) {
           }
           right_offset -= twidth;
           widget_move(WIDGET(lv->boxes[i].box), right_offset, top_offset);
-          widget_resize(WIDGET(lv->boxes[i].box), twidth, lv->element_height);
+          widget_resize(WIDGET(lv->boxes[i].box), twidth, lv->element_height, lv->widget.scale);
 
           widget_draw(WIDGET(lv->boxes[i].box), draw);
           width -= twidth + spacing_hori;
@@ -525,7 +525,7 @@ static void listview_draw(widget *wid, cairo_t *draw) {
           }
           widget_move(WIDGET(lv->boxes[i].box), ex, ey);
           widget_resize(WIDGET(lv->boxes[i].box), element_width,
-                        lv->element_height);
+                        lv->element_height, lv->widget.scale);
 
         } else {
           unsigned int ex = left_offset + ((i) / lv->max_rows) *
@@ -546,7 +546,7 @@ static void listview_draw(widget *wid, cairo_t *draw) {
           }
           widget_move(WIDGET(lv->boxes[i].box), ex, ey);
           widget_resize(WIDGET(lv->boxes[i].box), element_width,
-                        lv->element_height);
+                        lv->element_height, lv->widget.scale);
         }
         update_element(lv, i, i + offset, TRUE);
         widget_draw(WIDGET(lv->boxes[i].box), draw);
@@ -663,10 +663,11 @@ void listview_set_selected(listview *lv, unsigned int selected) {
   }
 }
 
-static void listview_resize(widget *wid, short w, short h) {
+static void listview_resize(widget *wid, const short w, const short h, const unsigned int scale) {
   listview *lv = (listview *)wid;
   lv->widget.w = MAX(0, w);
   lv->widget.h = MAX(0, h);
+  lv->widget.scale = scale;
   int height = lv->widget.h - widget_padding_get_padding_height(WIDGET(lv));
   int spacing_vert = distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
   if (lv->widget.h == 0) {
@@ -683,7 +684,7 @@ static void listview_resize(widget *wid, short w, short h) {
               widget_padding_get_top(WIDGET(lv)));
 
   widget_resize(WIDGET(lv->scrollbar), widget_get_width(WIDGET(lv->scrollbar)),
-                height);
+                height, lv->widget.scale);
 
   if (lv->type == BARVIEW) {
     lv->max_elements = lv->menu_lines;
@@ -812,7 +813,7 @@ listview *listview_create(widget *parent, const char *name,
       buff[i * 2] = 'a';
       buff[i * 2 + 1] = '\n';
     };
-    textbox_moveresize(row.textbox, 0, 0, 100000000, -1);
+    textbox_moveresize(row.textbox, 0, 0, 100000000, -1, WIDGET(row.textbox)->scale);
     textbox_text(row.textbox, buff);
   }
   // Make textbox very wide.

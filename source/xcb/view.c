@@ -389,7 +389,7 @@ static void xcb_rofi_view_window_update_size(RofiViewState *state) {
   g_debug("Re-size window based internal request: %dx%d.", state->width,
           state->height);
   // Should wrap main window in a widget.
-  widget_resize(WIDGET(state->main_window), state->width, state->height);
+  widget_resize(WIDGET(state->main_window), state->width, state->height, display_scale());
 }
 
 static X11CursorType rofi_cursor_type_to_x11_cursor_type(RofiCursorType type) {
@@ -848,7 +848,7 @@ xcb_rofi_view_temp_configure_notify(RofiViewState *state,
       XcbState.edit_draw = cairo_create(XcbState.edit_surf);
       g_debug("Re-size window based external request: %d %d", state->width,
               state->height);
-      widget_resize(WIDGET(state->main_window), state->width, state->height);
+      widget_resize(WIDGET(state->main_window), state->width, state->height, display_scale());
     }
   }
 }

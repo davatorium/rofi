@@ -1106,8 +1106,14 @@ static gboolean rofi_theme_get_image_inside(Property *p, const widget *wid,
       }
       // FIXME: cache when hsize, wsize and scale do not change without
       // modifying RofiImage (for ABI compatibility)
-      p->value.image.surface_id =
+      if ( p->value.image.surface_wsize != wsize || p->value.image.surface_hsize != hsize || p->value.image.surface_scale != scale ) {
+
+        p->value.image.surface_id =
           rofi_icon_fetcher_query_advanced(p->value.image.url, wsize, hsize);
+        p->value.image.surface_wsize = wsize;
+        p->value.image.surface_hsize = hsize;
+        p->value.image.surface_scale = scale;
+      }
       cairo_surface_t *img = rofi_icon_fetcher_get(p->value.image.surface_id);
 
       if (img != NULL) {
