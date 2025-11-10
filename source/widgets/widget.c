@@ -784,9 +784,10 @@ int widget_get_absolute_ypos(widget *wid) {
 }
 void widget_debug(void) {
   g_debug("Got %d widgets left in queue\n", g_list_length(active_widgets));
+  uint32_t i =0;
   for (GList *iter = g_list_first(active_widgets); iter;
        iter = g_list_next(iter)) {
     widget *w = (widget *)iter->data;
-    printf("Widget left: %s", w->name);
+    printf("%03u Widget left: %s\n", ++i, w->name);
   }
 }
