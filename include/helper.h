@@ -303,6 +303,8 @@ typedef struct {
   const gchar *command;
 } RofiHelperExecuteContext;
 
+void helper_launch_default(const char *filepath);
+
 /**
  * @param wd   The working directory.
  * @param args The arguments of the command to exec.

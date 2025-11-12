@@ -54,6 +54,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <glib/gconvert.h>
+#include <gio/gdesktopappinfo.h>
+
 const char *const MatchingMethodStr[MM_NUM_MATCHERS] = {
     "Normal", "Regex", "Glob", "Fuzzy", "Prefix"};
 
@@ -1070,6 +1073,16 @@ gboolean helper_execute(const char *wd, char **args, const char *error_precmd,
   // Free the args list.
   g_strfreev(args);
   return retv;
+}
+
+void helper_launch_default(const char *filepath)
+{
+    GError *error = NULL;
+    char *uri = g_filename_to_uri(filepath, NULL, &error);
+    if (!g_app_info_launch_default_for_uri(uri, NULL, &error)) {
+        g_printerr("Failed to open directory: %s\n", error->message);
+        g_error_free(error);
+    }
 }
 
 gboolean helper_execute_command(const char *wd, const char *cmd,
