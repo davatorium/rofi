@@ -260,7 +260,6 @@ static void xcb_rofi_view_update(RofiViewState *state, gboolean qr) {
   }
 }
 
-
 /**
  * Calculates the window position
  */
@@ -446,6 +445,7 @@ static gboolean xcb_rofi_view_reload_idle(G_GNUC_UNUSED gpointer data) {
       textbox_text(state->tb_total_rows, r);
       g_free(r);
     }
+    printf("set reload1\n");
     state->reload = TRUE;
     state->refilter = TRUE;
     xcb_rofi_view_queue_redraw();

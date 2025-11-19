@@ -29,6 +29,7 @@
 #define G_LOG_DOMAIN "View"
 
 #include <config.h>
+#include <execinfo.h>
 #include <locale.h>
 #include <signal.h>
 #include <stdint.h>
@@ -762,6 +763,19 @@ static void _rofi_view_reload_row(RofiViewState *state) {
   rofi_view_reload_message_bar(state);
 }
 
+static void print_stacktrace(void) {
+  void *array[50];
+  int size = backtrace(array, 50);
+  char **strings = backtrace_symbols(array, size);
+
+  printf("Stack trace (%d frames):\n", size);
+  for (int i = 0; i < size; i++) {
+    printf("%s\n", strings[i]);
+  }
+
+  free(strings);
+}
+
 static gboolean rofi_view_refilter_real(RofiViewState *state) {
   CacheState.refilter_timeout = 0;
   CacheState.refilter_timeout_count = 0;
@@ -1220,6 +1234,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     if (rc == 1) {
       // Entry changed.
       state->refilter = TRUE;
+      state->reload = TRUE;
       rofi_view_input_changed();
     } else if (rc == 2) {
       // Movement.
@@ -2118,6 +2133,7 @@ void rofi_view_switch_mode(RofiViewState *state, Mode *mode) {
     }
   }
   rofi_view_restart(state);
+  printf("set reload2\n");
   state->reload = TRUE;
   state->refilter = TRUE;
   rofi_view_refilter_force(state);

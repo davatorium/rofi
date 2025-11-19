@@ -250,10 +250,6 @@ gboolean mode_is_completer(const Mode *mode) {
   return FALSE;
 }
 
-void mode_plugin_set_module(Mode *mode, GModule *mod){
-  mode->module = mod;
-}
-GModule *mode_plugin_get_module(Mode *mode){
-  return mode->module;
-}
+void mode_plugin_set_module(Mode *mode, GModule *mod) { mode->module = mod; }
+GModule *mode_plugin_get_module(Mode *mode) { return mode->module; }
 /**@}*/

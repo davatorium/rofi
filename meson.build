@@ -368,6 +368,7 @@ rofi = executable('rofi', rofi_sources + [
         theme_parser,
         default_theme,
     ],
+    link_args : ['-g', '-rdynamic'],
     dependencies: deps,
     install: true,
 )

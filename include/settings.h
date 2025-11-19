@@ -66,7 +66,7 @@ typedef struct {
 
   /** Whether to load and show icons  */
   gboolean show_icons;
-  
+
   /** Custom command to generate preview icons */
   char *preview_cmd;
 
@@ -160,6 +160,7 @@ typedef struct {
   unsigned int parse_known_hosts;
   /** Combi Modes */
   char *combi_modes;
+  char *combi_message_mode;
   char *matching;
   MatchingMethod matching_method;
   unsigned int tokenize;

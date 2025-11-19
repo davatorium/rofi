@@ -839,7 +839,7 @@ static void textbox_transpose_chars(textbox *tb) {
   }
   // Find pointer to cursor.
   gchar *cursor_ptr = g_utf8_offset_to_pointer(tb->text, tb->cursor);
-  if ( cursor_ptr == NULL ){
+  if (cursor_ptr == NULL) {
     // We should never reach this.
     g_warning("Invalid cursor index detected.");
     return;
@@ -860,13 +860,13 @@ static void textbox_transpose_chars(textbox *tb) {
   size_t first_char_l = second_char_ptr - first_char_ptr;
   size_t second_char_l = cursor_ptr - second_char_ptr;
   // Create a temp buffer so we can swap.
-  gchar temp[second_char_l+ first_char_l];
+  gchar temp[second_char_l + first_char_l];
   // Copy char 2 into first place.
   memcpy(temp, second_char_ptr, second_char_l);
   // Copy char 1 into 2nd place.
   memcpy(temp + second_char_l, first_char_ptr, first_char_l);
   // Copy new order back into original string.
-  memcpy(first_char_ptr, temp, second_char_l+ first_char_l);
+  memcpy(first_char_ptr, temp, second_char_l + first_char_l);
   // Set modified, lay out need te be redrawn
   // Stop blink!
   tb->blink = 2;

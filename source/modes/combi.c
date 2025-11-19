@@ -57,9 +57,14 @@ typedef struct {
   // List of switchers to combine.
   unsigned int num_switchers;
   CombiMode *switchers;
+
+  // Index of the switcher whose message should be exposed by combi.
+  // -1 means: no passthrough / disabled.
+  int message_switcher;
 } CombiModePrivateData;
 
 static void combi_mode_parse_switchers(Mode *sw) {
+  printf("test123\n");
   CombiModePrivateData *pd = mode_get_private_data(sw);
   char *savept = NULL;
   // Make a copy, as strtok will modify it.
@@ -96,6 +101,29 @@ static void combi_mode_parse_switchers(Mode *sw) {
   }
   // Free string that was modified by strtok_r
   g_free(switcher_str);
+  // Resolve which mode's message to pass through, if configured.
+  if (config.combi_message_mode != NULL &&
+      config.combi_message_mode[0] != '\0') {
+    pd->message_switcher = -1;
+
+    for (unsigned int i = 0; i < pd->num_switchers; i++) {
+      const char *name = mode_get_name(pd->switchers[i].mode);
+      if (g_strcmp0(name, config.combi_message_mode) == 0) {
+        pd->message_switcher = (int)i;
+        printf("Found msg\n");
+        break;
+      }
+    }
+
+    if (pd->message_switcher == -1) {
+      printf("Found no msg\n");
+      g_warning("Combi: message mode '%s' not found among combi modes; "
+                "no message will be shown.",
+                config.combi_message_mode);
+    }
+  } else {
+    printf("no msg\n");
+  }
 }
 static unsigned int combi_mode_get_num_entries(const Mode *sw) {
   const CombiModePrivateData *pd =
@@ -114,6 +142,8 @@ static int combi_mode_init(Mode *sw) {
   if (mode_get_private_data(sw) == NULL) {
     CombiModePrivateData *pd = g_malloc0(sizeof(*pd));
     mode_set_private_data(sw, (void *)pd);
+
+    pd->message_switcher = -1;
     combi_mode_parse_switchers(sw);
     pd->starts = g_malloc0(sizeof(int) * pd->num_switchers);
     pd->lengths = g_malloc0(sizeof(int) * pd->num_switchers);
@@ -327,7 +357,43 @@ static char *combi_preprocess_input(Mode *sw, const char *input) {
       return g_strdup(eob + 1);
     }
   }
+
+  if (!(pd->message_switcher < 0 ||
+        (unsigned int)pd->message_switcher >= pd->num_switchers)) {
+    Mode *mode = pd->switchers[pd->message_switcher].mode;
+    if (!(mode == NULL || mode->_get_message == NULL)) {
+      mode->_preprocess_input(mode, input);
+    }
+  }
+
+  rofi_view_reload();
   return g_strdup(input);
+}
+
+static char *combi_get_message(const Mode *sw) {
+  const CombiModePrivateData *pd =
+      (const CombiModePrivateData *)mode_get_private_data(sw);
+
+  if (pd == NULL) {
+    return NULL;
+  }
+  if (pd->message_switcher < 0 ||
+      (unsigned int)pd->message_switcher >= pd->num_switchers) {
+    // No configured message source, or out of range
+    return NULL;
+  }
+
+  Mode *mode = pd->switchers[pd->message_switcher].mode;
+  if (mode == NULL || mode->_get_message == NULL) {
+    return NULL;
+  }
+  char *msg = mode->_get_message(mode);
+
+  if (msg != NULL && strlen(msg) == 0) {
+    return NULL;
+  }
+
+  return msg;
 }
 
 Mode combi_mode = {.name = "combi",
@@ -339,6 +405,7 @@ Mode combi_mode = {.name = "combi",
                    ._token_match = combi_mode_match,
                    ._get_completion = combi_get_completion,
                    ._get_display_value = combi_mgrv,
+                   ._get_message = combi_get_message,
                    ._get_icon = combi_get_icon,
                    ._preprocess_input = combi_preprocess_input,
                    .private_data = NULL,
