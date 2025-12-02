@@ -16,7 +16,7 @@ runs:
   using: composite
   steps:
     - id: pip
-      run: pip install git+https://github.com/mesonbuild/meson@e58b3adc7044980bbddca1ad9674ac7b0c5bac0a ninja
+      run: pip install meson ninja
       shell: bash
     - id: setup
       run: meson setup builddir -Dxcb=${{ inputs.xcb }} -Dwayland=${{ inputs.wayland }}

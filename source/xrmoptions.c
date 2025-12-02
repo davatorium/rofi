@@ -415,7 +415,7 @@ static XrmOption xrmOptions[] = {
      "global-kb",
      {.snum = &config.global_kb},
      NULL,
-     "Click outside the window to exit",
+     "Inhibit compositor shortcuts so they can be reused in rofi (wayland)",
      CONFIG_DEFAULT},
     {xrm_String,
      "theme",

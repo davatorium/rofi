@@ -298,9 +298,13 @@ static void print_list_of_modes(int is_term) {
         break;
       }
     }
-    printf("        • %s%s%s%s\n", active ? "+" : "",
+    printf("        • %s%s%s%s", active ? "+" : "",
            is_term ? (active ? color_green : color_red) : "",
            mode_get_name(available_modes[i]), is_term ? color_reset : "");
+    if ( mode_plugin_get_module(available_modes[i]) != NULL ) {
+      printf(" (external)");
+    }
+    printf("\n");
   }
 }
 static void print_main_application_options(int is_term) {

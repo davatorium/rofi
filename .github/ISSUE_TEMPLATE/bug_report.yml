@@ -3,7 +3,6 @@ description: Report a problem in Rofi
 labels: [bug]
 title: "[BUG] "
 body:
-
   - type: markdown
     attributes:
       value: |
@@ -29,6 +28,8 @@ body:
         If you report problems with speed in rofi, please attach a [timing
         trace](https://github.com/davatorium/rofi/blob/next/doc/rofi-debugging.5.markdown#timing-traces).
 
+        If you have a problem that only occurs when launching rofi from a keybinding.
+        First check that the environment the keybinding passes to rofi is correct.
 
   - type: input
     attributes:
@@ -99,7 +100,7 @@ body:
     id: latestversion
     attributes:
       label: I've checked if the issue exists in the latest stable release
-      description: I confirm that I verified the issue still exists in the latest stable release. 
+      description: I confirm that I verified the issue still exists in the latest stable release.
       options:
         - label: "Yes, I have checked the problem exists in the latest stable version"
           required: false
