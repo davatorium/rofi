@@ -110,8 +110,7 @@ void icon_set_icon_names(icon *wid, char const *const *icon_names) {
     }
     gboolean done = TRUE;
     do {
-      // printf("%d: %s\n",wid->resolve_num, wid->icon_names[wid->resolve_num]);
-      wid->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
+      wid->icon_fetch_id = rofi_icon_fetcher_query_widget(
           wid->icon_names[wid->resolve_num], w, h, WIDGET(wid));
       done = rofi_icon_fetcher_get_ex(wid->icon_fetch_id, &(wid->icon));
       if (done) {
@@ -181,15 +180,13 @@ static void icon_draw(widget *wid, cairo_t *draw) {
       b->icon_fetch_id = 0;
       if (b->icon) {
         cairo_surface_reference(b->icon);
-        // printf("got icon: %s\n", wid->name);
         widget_update(wid);
       } else {
         if (b->icon_names && b->resolve_num >= 0) {
           b->resolve_num++;
 
           if (b->icon_names[b->resolve_num]) {
-            // printf("%d: %s\n",b->resolve_num, b->icon_names[b->resolve_num]);
-            b->icon_fetch_id = rofi_icon_fetcher_query_advanced_widget(
+            b->icon_fetch_id = rofi_icon_fetcher_query_widget(
                 b->icon_names[b->resolve_num], b->widget.w, b->widget.h,
                 WIDGET(wid));
           } else {
@@ -247,7 +244,7 @@ static void icon_free(widget *wid) {
   }
 }
 
-static void icon_resize(widget *wid, const short w, const short h,
+static void icon_resize(widget *wid, short w, short h,
                         const unsigned int scale) {
   icon *b = (icon *)wid;
   if (b->widget.w != w || scale != b->widget.scale || b->widget.h != h) {

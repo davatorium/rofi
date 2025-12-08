@@ -127,14 +127,11 @@ static int box_get_desired_height(widget *wid, const int width) {
 }
 
 static void vert_calculate_size(box *b) {
-  // printf("vert update: %s\n", b->widget.name);
   int spacing = distance_get_pixel(b->spacing, ROFI_ORIENTATION_VERTICAL);
   int expanding_widgets = 0;
   int active_widgets = 0;
   int rem_width = widget_padding_get_remaining_width(WIDGET(b));
   int rem_height = widget_padding_get_remaining_height(WIDGET(b));
-  // printf("%s rem w: %d rem h: %d\n", b->widget.name, rem_width, rem_height);
-  // printf("children: %d\n", g_list_length(b->children));
 
   for (GList *iter = g_list_first(b->children); iter != NULL;
        iter = g_list_next(iter)) {
@@ -148,7 +145,6 @@ static void vert_calculate_size(box *b) {
       continue;
     }
   }
-  // printf("ac: %d exp: %d\n", active_widgets, expanding_widgets);
   for (GList *iter = g_list_first(b->children); iter != NULL;
        iter = g_list_next(iter)) {
     widget *child = (widget *)iter->data;
@@ -330,7 +326,7 @@ void box_add(box *wid, widget *child, gboolean expand) {
   widget_update(WIDGET(wid));
 }
 
-static void box_resize(widget *wid, const short w, const short h, const unsigned int scale) {
+static void box_resize(widget *wid, short w, short h, unsigned int scale) {
   box *b = (box *)wid;
   if (b->widget.w != w || b->widget.h != h || b->widget.scale != scale ) {
     b->widget.w = w;
@@ -390,7 +386,6 @@ box *box_create(widget *parent, const char *name, RofiOrientation type) {
 }
 
 static void box_update(widget *wid) {
-  // printf("%s box update\n", wid->name);
   box *b = (box *)wid;
   switch (b->type) {
   case ROFI_ORIENTATION_VERTICAL:

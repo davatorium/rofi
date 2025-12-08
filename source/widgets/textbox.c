@@ -71,7 +71,7 @@ static gboolean textbox_blink(gpointer data) {
   return TRUE;
 }
 
-static void textbox_resize(widget *wid, const short w, const short h, const unsigned int scale) {
+static void textbox_resize(widget *wid, short w, short h, unsigned int scale) {
   textbox *tb = (textbox *)wid;
   textbox_moveresize(tb, tb->widget.x, tb->widget.y, w, h, scale);
 }

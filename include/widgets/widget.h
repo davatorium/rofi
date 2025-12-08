@@ -198,7 +198,7 @@ void widget_free(widget *wid);
  *
  * Resizes the widget.
  */
-void widget_resize(widget *wid, const short w, const short h, const unsigned int scale);
+void widget_resize(widget *wid, short w, short h, unsigned int scale);
 
 /**
  * @param wid The widget handle

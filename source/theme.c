@@ -1109,7 +1109,7 @@ static gboolean rofi_theme_get_image_inside(Property *p, const widget *wid,
       if ( p->value.image.surface_wsize != wsize || p->value.image.surface_hsize != hsize || p->value.image.surface_scale != scale ) {
 
         p->value.image.surface_id =
-          rofi_icon_fetcher_query_advanced(p->value.image.url, wsize, hsize);
+          rofi_icon_fetcher_query(p->value.image.url, wsize, hsize);
         p->value.image.surface_wsize = wsize;
         p->value.image.surface_hsize = hsize;
         p->value.image.surface_scale = scale;

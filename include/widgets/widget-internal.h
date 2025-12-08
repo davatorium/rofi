@@ -102,7 +102,7 @@ struct _widget {
   /** draw widget implementation function */
   void (*draw)(struct _widget *widget, cairo_t *draw);
   /** resize widget implementation function */
-  void (*resize)(struct _widget *, const short, const short, const unsigned int );
+  void (*resize)(struct _widget *, short, short, unsigned int );
   /** update widget implementation function */
   void (*update)(struct _widget *);
 

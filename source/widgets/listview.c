@@ -663,7 +663,7 @@ void listview_set_selected(listview *lv, unsigned int selected) {
   }
 }
 
-static void listview_resize(widget *wid, const short w, const short h, const unsigned int scale) {
+static void listview_resize(widget *wid, short w, short h, unsigned int scale) {
   listview *lv = (listview *)wid;
   lv->widget.w = MAX(0, w);
   lv->widget.h = MAX(0, h);
