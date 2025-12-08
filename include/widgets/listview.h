@@ -138,6 +138,21 @@ void listview_set_selected(listview *lv, unsigned int selected);
  */
 unsigned int listview_get_selected(listview *lv);
 
+
+/**
+ * @param lv The listview handle
+ *
+ * Move the selection one row up.
+ * - Wrap around.
+ */
+void listview_scroll_prev(listview *lv);
+/**
+ * @param lv listview handle.
+ *
+ * Alternate, potentially multi-row alternative to listview_nav_up
+ * - Wrap around.
+ */
+void listview_scroll_next(listview *lv);
 /**
  * @param lv The listview handle
  *
@@ -152,12 +167,12 @@ void listview_nav_next(listview *lv);
  * - Wrap around.
  */
 void listview_nav_prev(listview *lv);
-
 /**
  * @param lv The listview handle
  *
- * Move the selection one row up.
- * - Wrap around.
+ * Alternate, potentially multi-row alternative to listview_nav_down
+ * - No wrap around.
+ * - Do not move to top row when at start.
  */
 void listview_nav_up(listview *lv);
 /**
