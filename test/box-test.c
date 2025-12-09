@@ -74,12 +74,9 @@ ThemeWidget *rofi_configuration = NULL;
 
 void rofi_view_queue_redraw(void) {}
 uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
-                                 G_GNUC_UNUSED const int size) {
-  return 0;
-}
-uint32_t rofi_icon_fetcher_query_advanced(G_GNUC_UNUSED const char *name,
-                                          G_GNUC_UNUSED const int wsize,
-                                          G_GNUC_UNUSED const int hsize) {
+                                 G_GNUC_UNUSED const int wsize,
+                                 G_GNUC_UNUSED const int hsize,
+                                 G_GNUC_UNUSED widget *wid) {
   return 0;
 }
 
@@ -112,7 +109,7 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
   {
     box *b = box_create(NULL, "box", ROFI_ORIENTATION_HORIZONTAL);
     // box_set_padding ( b, 5 );
-    widget_resize(WIDGET(b), 100, 20,1);
+    widget_resize(WIDGET(b), 100, 20, 1);
 
     widget *wid1 = g_malloc0(sizeof(widget));
     wid1->parent = WIDGET(b);
@@ -143,7 +140,7 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
     TASSERTE(wid2->h, 20);
     TASSERTE(wid2->w, 48);
 
-    widget_resize(WIDGET(wid3), 20, 10,1);
+    widget_resize(WIDGET(wid3), 20, 10, 1);
     // TODO should this happen automagically?
     widget_update(WIDGET(b));
     TASSERTE(wid1->h, 20);
@@ -153,7 +150,7 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
     TASSERTE(wid3->h, 20);
     TASSERTE(wid3->w, 20);
 
-    widget_resize(WIDGET(b), 200, 20,1);
+    widget_resize(WIDGET(b), 200, 20, 1);
     TASSERTE(wid1->h, 20);
     TASSERTE(wid1->w, 88);
     TASSERTE(wid2->h, 20);
@@ -165,20 +162,20 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
     widget *wid4 = g_malloc0(sizeof(widget));
     wid4->parent = WIDGET(b);
     widget_enable(WIDGET(wid4));
-    widget_resize(WIDGET(wid4), 20, 20,1);
+    widget_resize(WIDGET(wid4), 20, 20, 1);
     box_add(b, WIDGET(wid4), FALSE);
     TASSERTE(wid4->x, 200 - 20);
     widget *wid5 = g_malloc0(sizeof(widget));
     wid5->parent = WIDGET(b);
     widget_enable(WIDGET(wid5));
-    widget_resize(WIDGET(wid5), 20, 20,1);
+    widget_resize(WIDGET(wid5), 20, 20, 1);
     box_add(b, WIDGET(wid5), TRUE);
     TASSERTE(wid5->x, 149);
     widget_free(WIDGET(b));
   }
   {
     box *b = box_create(NULL, "box", ROFI_ORIENTATION_VERTICAL);
-    widget_resize(WIDGET(b), 20, 100,1);
+    widget_resize(WIDGET(b), 20, 100, 1);
     // box_set_padding ( b, 5 );
 
     widget *wid1 = g_malloc0(sizeof(widget));
@@ -210,7 +207,7 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
     TASSERTE(wid2->w, 20);
     TASSERTE(wid2->h, 48);
 
-    widget_resize(WIDGET(wid3), 10, 20,1);
+    widget_resize(WIDGET(wid3), 10, 20, 1);
     // TODO should this happen automagically?
     widget_update(WIDGET(b));
     TASSERTE(wid1->w, 20);
@@ -220,7 +217,7 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
     TASSERTE(wid3->w, 20);
     TASSERTE(wid3->h, 20);
 
-    widget_resize(WIDGET(b), 20, 200,1);
+    widget_resize(WIDGET(b), 20, 200, 1);
     TASSERTE(wid1->w, 20);
     TASSERTE(wid1->h, 88);
     TASSERTE(wid2->w, 20);
@@ -231,20 +228,20 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
     widget *wid4 = g_malloc0(sizeof(widget));
     wid4->parent = WIDGET(b);
     widget_enable(WIDGET(wid4));
-    widget_resize(WIDGET(wid4), 20, 20,1);
+    widget_resize(WIDGET(wid4), 20, 20, 1);
     box_add(b, WIDGET(wid4), FALSE);
     TASSERTE(wid4->y, 180);
     widget *wid5 = g_malloc0(sizeof(widget));
     wid5->parent = WIDGET(b);
     widget_enable(WIDGET(wid5));
-    widget_resize(WIDGET(wid5), 20, 20,1);
+    widget_resize(WIDGET(wid5), 20, 20, 1);
     box_add(b, WIDGET(wid5), TRUE);
     TASSERTE(wid5->y, 149);
     widget_free(WIDGET(b));
   }
   {
     box *b = box_create(NULL, "box", ROFI_ORIENTATION_VERTICAL);
-    widget_resize(WIDGET(b), 20, 90,1);
+    widget_resize(WIDGET(b), 20, 90, 1);
     // box_set_padding ( b, 5 );
     widget *wid1 = g_malloc0(sizeof(widget));
     wid1->parent = WIDGET(b);

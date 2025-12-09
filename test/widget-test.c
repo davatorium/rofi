@@ -50,12 +50,9 @@ int rofi_is_in_dmenu_mode = 0;
 ThemeWidget *rofi_configuration = NULL;
 
 uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
-                                 G_GNUC_UNUSED const int size) {
-  return 0;
-}
-uint32_t rofi_icon_fetcher_query_advanced(G_GNUC_UNUSED const char *name,
-                                          G_GNUC_UNUSED const int wsize,
-                                          G_GNUC_UNUSED const int hsize) {
+                                 G_GNUC_UNUSED const int wsize,
+                                 G_GNUC_UNUSED const int hsize,
+                                 G_GNUC_UNUSED widget *wid) {
   return 0;
 }
 void rofi_timings_tick(G_GNUC_UNUSED const char *file,
@@ -92,7 +89,7 @@ void display_startup_notification(
 int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
   //    box 20 by 40
   widget *wid = (widget *)g_malloc0(sizeof(widget));
-  widget_resize(wid, 20, 40,1);
+  widget_resize(wid, 20, 40, 1);
   widget_move(wid, 10, 10);
   // Getter, setter x pos
   //
@@ -211,7 +208,7 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
   widget_enable(NULL);
   widget_draw(NULL, NULL);
   widget_free(NULL);
-  widget_resize(NULL, 0, 0,1);
+  widget_resize(NULL, 0, 0, 1);
   widget_update(NULL);
   widget_queue_redraw(NULL);
   TASSERT(widget_need_redraw(NULL) == FALSE);

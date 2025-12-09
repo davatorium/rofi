@@ -33,13 +33,10 @@
 #include "settings.h"
 #include "xrmoptions.h"
 #include <assert.h>
+#include <cairo.h>
 #include <glib.h>
 #include <history.h>
 #include <rofi.h>
-#include <cairo.h>
-#include "display.h"
-#include "settings.h"
-#include "xrmoptions.h"
 #include <stdio.h>
 #include <string.h>
 #include <widgets/textbox.h>
@@ -66,12 +63,9 @@ void rofi_timings_tick(G_GNUC_UNUSED const char *file,
                        G_GNUC_UNUSED char const *str, G_GNUC_UNUSED int line,
                        G_GNUC_UNUSED char const *msg) {}
 uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
-                                 G_GNUC_UNUSED const int size) {
-  return 0;
-}
-uint32_t rofi_icon_fetcher_query_advanced(G_GNUC_UNUSED const char *name,
-                                          G_GNUC_UNUSED const int wsize,
-                                          G_GNUC_UNUSED const int hsize) {
+                                 G_GNUC_UNUSED const int wsize,
+                                 G_GNUC_UNUSED const int hsize,
+                                 G_GNUC_UNUSED widget *wid) {
   return 0;
 }
 

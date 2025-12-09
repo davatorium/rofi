@@ -48,15 +48,11 @@ static int test = 0;
 ThemeWidget *rofi_theme = NULL;
 
 uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
-                                 G_GNUC_UNUSED const int size) {
+                                 G_GNUC_UNUSED const int wsize,
+                                 G_GNUC_UNUSED const int hsize,
+                                 G_GNUC_UNUSED widget *wid) {
   return 0;
 }
-uint32_t rofi_icon_fetcher_query_advanced(G_GNUC_UNUSED const char *name,
-                                          G_GNUC_UNUSED const int wsize,
-                                          G_GNUC_UNUSED const int hsize) {
-  return 0;
-}
-
 cairo_surface_t *rofi_icon_fetcher_get(G_GNUC_UNUSED const uint32_t uid) {
   return NULL;
 }

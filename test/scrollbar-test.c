@@ -63,14 +63,10 @@ unsigned int test = 0;
 int rofi_is_in_dmenu_mode = 0;
 ThemeWidget *rofi_configuration = NULL;
 void rofi_view_queue_redraw(void) {}
-
 uint32_t rofi_icon_fetcher_query(G_GNUC_UNUSED const char *name,
-                                 G_GNUC_UNUSED const int size) {
-  return 0;
-}
-uint32_t rofi_icon_fetcher_query_advanced(G_GNUC_UNUSED const char *name,
-                                          G_GNUC_UNUSED const int wsize,
-                                          G_GNUC_UNUSED const int hsize) {
+                                 G_GNUC_UNUSED const int wsize,
+                                 G_GNUC_UNUSED const int hsize,
+                                 G_GNUC_UNUSED widget *wid) {
   return 0;
 }
 
@@ -102,7 +98,7 @@ void rofi_view_get_current_monitor(G_GNUC_UNUSED int *width,
 
 int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
   scrollbar *sb = scrollbar_create(NULL, "scrollbar");
-  widget_resize(WIDGET(sb), 10, 100,1);
+  widget_resize(WIDGET(sb), 10, 100, 1);
 
   scrollbar_set_handle(NULL, 10213);
   scrollbar_set_max_value(NULL, 10);
