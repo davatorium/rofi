@@ -2170,8 +2170,8 @@ static gboolean _rofi_view_reload_widget(void *data) {
   widget *w = (widget *)data;
   if (w) {
     widget_queue_redraw(WIDGET(w));
+    widget_unref(w);
   }
-  widget_unref(w);
   proxy->reload();
   return G_SOURCE_REMOVE;
 }
