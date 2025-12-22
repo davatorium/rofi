@@ -24,6 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
+
 #define G_LOG_DOMAIN "Modes.Script"
 
 /** The log domain of this dialog. */
@@ -265,14 +266,14 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
         } else {
           if (actual_size < ((*length) + 2)) {
             actual_size += 256;
-            DmenuScriptEntry *retva =
+            // Check if it returns NULL, if it does, break out and show what we
+            // have so far.
+            DmenuScriptEntry *retvn =
                 g_realloc(retv, (actual_size) * sizeof(DmenuScriptEntry));
-            if (retva != NULL) {
-              retv = retva;
-            } else {
-              g_warning("Failed to allocate memory.");
-              return retv;
+            if (retvn == NULL) {
+              break;
             }
+            retv = retvn;
           }
           if (retv) {
             size_t buf_length = strlen(buffer) + 1;

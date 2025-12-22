@@ -62,6 +62,7 @@
 typedef struct _SshEntry {
   /** SSH hostname */
   char *hostname;
+  char **aliases;
   /** SSH port number */
   int port;
 } SshEntry;
@@ -397,6 +398,7 @@ static void parse_ssh_config_file(SSHModePrivateData *pd, const char *filename,
         // by whitespace; while host names may be quoted with double quotes
         // to represent host names containing spaces, we don't support this
         // (how many host names contain spaces?).
+        int aliases = 0;
         while ((token = strtok_r(NULL, SSH_TOKEN_DELIM, &strtok_pointer))) {
           // We do not want to show wildcard entries, as you cannot ssh to them.
           const char *const sep = "*?";
@@ -424,12 +426,25 @@ static void parse_ssh_config_file(SSHModePrivateData *pd, const char *filename,
             continue;
           }
 
-          // Add this host name to the list.
-          (*retv) = g_realloc((*retv), ((*length) + 2) * sizeof(SshEntry));
-          (*retv)[(*length)].hostname = g_strdup(token);
-          (*retv)[(*length)].port = 0;
-          (*retv)[(*length) + 1].hostname = NULL;
-          (*length)++;
+          if ( aliases == 0  ){
+            // Add this host name to the list.
+            (*retv) = g_realloc((*retv), ((*length) + 2) * sizeof(SshEntry));
+            (*retv)[(*length)].hostname = g_strdup(token);
+            (*retv)[(*length)].aliases = NULL;
+            (*retv)[(*length)].port = 0;
+            (*retv)[(*length) + 1].hostname = NULL;
+            (*length)++;
+            aliases = 1;
+          } else {
+            int index = (*length)-1;
+            int l = 0;
+            if ((*retv)[index].aliases != NULL ) {
+              l = g_strv_length((*retv)[index].aliases);
+            }
+            (*retv)[index].aliases = g_realloc((*retv)[index].aliases, (l+2)*sizeof(char*));
+            (*retv)[index].aliases[l] = g_strdup(token);
+            (*retv)[index].aliases[l+1] = NULL;
+          }
         }
       }
       g_free(low_token);
@@ -558,6 +573,7 @@ static void ssh_mode_destroy(Mode *sw) {
   if (rmpd != NULL) {
     for (unsigned int i = 0; i < rmpd->hosts_list_length; i++) {
       g_free(rmpd->hosts_list[i].hostname);
+      g_strfreev(rmpd->hosts_list[i].aliases);
     }
     g_list_free_full(rmpd->user_known_hosts, g_free);
     g_free(rmpd->hosts_list);
@@ -616,7 +632,27 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
                                 G_GNUC_UNUSED GList **attr_list,
                                 int get_entry) {
   SSHModePrivateData *rmpd = (SSHModePrivateData *)mode_get_private_data(sw);
-  return get_entry ? g_strdup(rmpd->hosts_list[selected_line].hostname) : NULL;
+  if ( get_entry){
+    GString *str = g_string_new(rmpd->hosts_list[selected_line].hostname);
+
+    if( rmpd->hosts_list[selected_line].aliases ){
+      g_string_append(str, " (");
+      for ( int i = 0; rmpd->hosts_list[selected_line].aliases[i]; i++){
+        g_string_append_printf(str, " %s", rmpd->hosts_list[selected_line].aliases[i]);
+        if ( rmpd->hosts_list[selected_line].aliases[i+1] != NULL ) {
+          g_string_append(str, ",");
+        }
+      }
+      g_string_append(str, " )");
+    }
+
+
+    char *cstr = str->str;
+    g_string_free(str, FALSE);
+    return cstr;
+  }
+
+  return NULL;
 }
 
 /**
@@ -631,7 +667,12 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
 static int ssh_token_match(const Mode *sw, rofi_int_matcher **tokens,
                            unsigned int index) {
   SSHModePrivateData *rmpd = (SSHModePrivateData *)mode_get_private_data(sw);
-  return helper_token_match(tokens, rmpd->hosts_list[index].hostname);
+  int s = helper_token_match(tokens, rmpd->hosts_list[index].hostname);
+  for ( int i = 0; rmpd->hosts_list[index].aliases && rmpd->hosts_list[index].aliases[i]; i++){
+    s |= helper_token_match(tokens, rmpd->hosts_list[index].aliases[i]);
+  }
+  return s;
+
 }
 #include "mode-private.h"
 Mode ssh_mode = {.name = "ssh",

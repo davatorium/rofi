@@ -66,6 +66,11 @@
 /** The filename of the drun quick-load cache file. */
 #define DRUN_DESKTOP_CACHE_FILE "rofi-drun-desktop.cache"
 
+/** Maximum string lengths we support in our drun cache is 10kbyte */
+#define DRUN_MAX_STRING_LENGTH (10 * 1024 * 1024)
+
+#define DRUN_MAX_NUM_ENTRIES (256 * 1024)
+
 /** The group name used in desktop files */
 char *DRUN_GROUP_NAME = "Desktop Entry";
 
@@ -505,7 +510,8 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
     // terminal.
     gboolean terminal =
         g_key_file_get_boolean(e->key_file, e->action, "Terminal", NULL);
-    launched = helper_execute_command(exec_path, fp, terminal, sn ? &context : NULL);
+    launched =
+        helper_execute_command(exec_path, fp, terminal, sn ? &context : NULL);
   }
   if (launched == TRUE) {
     char *drun_cach_path = g_build_filename(cache_dir, DRUN_CACHE_FILE, NULL);
@@ -727,7 +733,7 @@ static void read_desktop_file(DRunModePrivateData *pd, const char *root,
           kf, DRUN_GROUP_NAME, "Categories", NULL, NULL, NULL);
     }
     if (rofi_strv_contains((const char *const *)categories,
-                            (const char *const *)pd->exclude_categories)) {
+                           (const char *const *)pd->exclude_categories)) {
       g_strfreev(categories);
       g_key_file_free(kf);
       return;
@@ -993,6 +999,9 @@ static gboolean drun_read_string(FILE *fd, char **str) {
   if (l > 0) {
     // Include \0
     l++;
+    if (l > DRUN_MAX_STRING_LENGTH) {
+      return TRUE;
+    }
     (*str) = g_malloc(l);
     if (fread((*str), 1, l, fd) != l) {
       g_warning("Failed to read entry, cache corrupt?");
@@ -1015,13 +1024,19 @@ static gboolean drun_read_stringv(FILE *fd, char ***str) {
     g_warning("Failed to read entry, cache corrupt?");
     return TRUE;
   }
-  if (vl > 0) {
-    // Include terminating NULL entry.
-    (*str) = g_malloc0((vl + 1) * sizeof(**str));
-    for (guint index = 0; index < vl; index++) {
-      if (drun_read_string(fd, &((*str)[index]))) {
-        return TRUE;
-      }
+  if (vl == 0) {
+    return FALSE;
+  }
+  size_t ss = sizeof(char **) * (vl + 1);
+  if (ss >= (sizeof(char **) * (UINT16_MAX))) {
+    g_warning("Array of string vector is to long: %u", vl);
+    return FALSE;
+  }
+  // Include terminating NULL entry.
+  (*str) = g_malloc0(ss);
+  for (guint index = 0; index < vl; index++) {
+    if (drun_read_string(fd, &((*str)[index]))) {
+      return TRUE;
     }
   }
   return FALSE;
@@ -1112,8 +1127,15 @@ static gboolean drun_read_cache(DRunModePrivateData *pd,
   // set actual length to length;
   pd->cmd_list_length_actual = pd->cmd_list_length;
 
-  pd->entry_list =
-      g_malloc0(pd->cmd_list_length_actual * sizeof(*(pd->entry_list)));
+  // Do size check, check on size with
+  gsize newsize = sizeof(DRunModeEntry) * pd->cmd_list_length;
+  if ((DRUN_MAX_NUM_ENTRIES * sizeof(DRunModeEntry) < newsize)) {
+    fclose(fd);
+    g_warning("Cache has to many entries.");
+    TICK_N("DRUN Read CACHE: stop");
+    return TRUE;
+  }
+  pd->entry_list = g_malloc0(newsize);
 
   int error = 0;
   for (unsigned int index = 0; !error && index < pd->cmd_list_length; index++) {
