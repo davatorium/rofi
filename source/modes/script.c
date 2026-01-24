@@ -25,13 +25,14 @@
  *
  */
 
-/** The log domain of this dialog. */
-#include "glib.h"
 #define G_LOG_DOMAIN "Modes.Script"
 
-#include "modes/script.h"
+/** The log domain of this dialog. */
+#include "glib.h"
+
 #include "display.h"
 #include "helper.h"
+#include "modes/script.h"
 #include "rofi.h"
 #include <assert.h>
 #include <ctype.h>
@@ -97,7 +98,7 @@ void dmenuscript_parse_entry_extras(G_GNUC_UNUSED Mode *sw,
     *(extra) = NULL;
     *(extra + 1) = NULL;
     if (strcasecmp(key, "icon") == 0) {
-      entry->icon_name = g_strsplit(value,",", -1);
+      entry->icon_name = g_strsplit(value, ",", -1);
       g_free(value);
     } else if (strcasecmp(key, "display") == 0) {
       entry->display = value;
@@ -265,7 +266,14 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
         } else {
           if (actual_size < ((*length) + 2)) {
             actual_size += 256;
-            retv = g_realloc(retv, (actual_size) * sizeof(DmenuScriptEntry));
+            // Check if it returns NULL, if it does, break out and show what we
+            // have so far.
+            DmenuScriptEntry *retvn =
+                g_realloc(retv, (actual_size) * sizeof(DmenuScriptEntry));
+            if (retvn == NULL) {
+              break;
+            }
+            retv = retvn;
           }
           if (retv) {
             size_t buf_length = strlen(buffer) + 1;
@@ -322,7 +330,8 @@ static int script_mode_init(Mode *sw) {
     ScriptModePrivateData *pd = g_malloc0(sizeof(*pd));
     pd->delim = '\n';
     sw->private_data = (void *)pd;
-    pd->cmd_list = execute_executor(sw, NULL, &(pd->cmd_list_length), 0, NULL, NULL);
+    pd->cmd_list =
+        execute_executor(sw, NULL, &(pd->cmd_list_length), 0, NULL, NULL);
     pd->switch_mode = -1;
   }
   return TRUE;
@@ -344,18 +353,16 @@ static void script_mode_reset_highlight(Mode *sw) {
   rmpd->active_list = NULL;
 }
 
-static void script_mode_free_entry_list (DmenuScriptEntry *list, unsigned int length )
-{
-    for ( unsigned int i = 0; i < length; i++){
-      g_free(list[i].entry);
-      g_strfreev(list[i].icon_name);
-      g_free(list[i].display);
-      g_free(list[i].meta);
-      g_free(list[i].info);
-
-    }
-    g_free(list);
-
+static void script_mode_free_entry_list(DmenuScriptEntry *list,
+                                        unsigned int length) {
+  for (unsigned int i = 0; i < length; i++) {
+    g_free(list[i].entry);
+    g_strfreev(list[i].icon_name);
+    g_free(list[i].display);
+    g_free(list[i].meta);
+    g_free(list[i].info);
+  }
+  g_free(list);
 }
 static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
                                    unsigned int selected_line) {
@@ -376,9 +383,9 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
                                     &(rmpd->cmd_list[selected_line]), *input);
       } else {
         if (rmpd->no_custom == FALSE) {
-          new_list = execute_executor(sw, *input, &new_length,
-                                      10 + (mretv & MENU_LOWER_MASK), NULL,
-                                      *input);
+          new_list =
+              execute_executor(sw, *input, &new_length,
+                               10 + (mretv & MENU_LOWER_MASK), NULL, *input);
         } else {
           return RELOAD_DIALOG;
         }
@@ -389,8 +396,9 @@ static ModeMode script_mode_result(Mode *sw, int mretv, char **input,
     }
   } else if ((mretv & MENU_ENTRY_DELETE) && selected_line != UINT32_MAX) {
     script_mode_reset_highlight(sw);
-    new_list = execute_executor(sw, rmpd->cmd_list[selected_line].entry, &new_length,
-                                3, &(rmpd->cmd_list[selected_line]), *input);
+    new_list =
+        execute_executor(sw, rmpd->cmd_list[selected_line].entry, &new_length,
+                         3, &(rmpd->cmd_list[selected_line]), *input);
   } else if ((mretv & MENU_OK) && rmpd->cmd_list[selected_line].entry != NULL) {
     if (rmpd->cmd_list[selected_line].nonselectable) {
       return RELOAD_DIALOG;
@@ -561,7 +569,8 @@ static cairo_surface_t *script_get_icon(const Mode *sw,
 
   if (dr->icon_fetch_uid > 0) {
     cairo_surface_t *surface = NULL;
-    gboolean query_done = rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
+    gboolean query_done =
+        rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
 
     if (surface != NULL) {
       return surface;
@@ -575,12 +584,12 @@ static cairo_surface_t *script_get_icon(const Mode *sw,
 
   char *current_icon = NULL;
   if (dr->icon_name && dr->icon_fallback_index >= 0) {
-      int icon_count = g_strv_length(dr->icon_name);
-      if (dr->icon_fallback_index < icon_count) {
-          current_icon = dr->icon_name[dr->icon_fallback_index];
-      }
+    int icon_count = g_strv_length(dr->icon_name);
+    if (dr->icon_fallback_index < icon_count) {
+      current_icon = dr->icon_name[dr->icon_fallback_index];
+    }
   }
-  if ( current_icon ){
+  if (current_icon) {
     dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
     dr->icon_fetch_size = height;
     dr->icon_fetch_scale = scale;

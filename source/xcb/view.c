@@ -260,7 +260,6 @@ static void xcb_rofi_view_update(RofiViewState *state, gboolean qr) {
   }
 }
 
-
 /**
  * Calculates the window position
  */
@@ -640,7 +639,9 @@ static void xcb___create_window(MenuFlags menu_flags) {
   error = xcb_request_check(xcb->connection, cc);
   if (error) {
     g_error("xcb_create_window() failed error=0x%x\n", error->error_code);
-    exit(EXIT_FAILURE);
+    // g_error will cause the program to segfault.
+    // This is an unexpected error.
+    // exit(EXIT_FAILURE);
   }
 
   TICK_N("xcb create window");

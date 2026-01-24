@@ -115,7 +115,9 @@ static char **__history_get_element_list_fields(FILE *fd,
 
     (*length)++;
   }
-  if (buffer_length > 0) {
+  // Don't use buffer_length to check, as static
+  // code analysis fails on this.
+  if (buffer != NULL) {
     g_free(buffer);
   }
   return retv;
@@ -182,6 +184,7 @@ void history_set(const char *filename, const char *entry) {
   }
 
   // Check if program should be ignored
+  // TODO: This code does not! belong here.
   for (char *checked_prefix = strtok(config.ignored_prefixes, ";");
        checked_prefix != NULL; checked_prefix = strtok(NULL, ";")) {
     // For each ignored prefix

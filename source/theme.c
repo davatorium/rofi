@@ -1303,9 +1303,7 @@ rofi_theme_get_highlight_inside(Property *p, widget *wid, const char *property,
     }
     return th;
   }
-  g_debug("Theme entry: #%s %s property %s unset.", wid->name,
-          wid->state ? wid->state : "", property);
-  return th;
+  // UNREACHABLE
 }
 RofiHighlightColorStyle rofi_theme_get_highlight(widget *wid,
                                                  const char *property,

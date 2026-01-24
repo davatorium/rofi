@@ -13,8 +13,6 @@ body:
 
         If you are unsure, please use the [discussion](https://github.com/davatorium/rofi/discussions) forum first. It is easy to upgrade a question to an issue in github.
 
-        **Please do not submit reports related to wayland, see [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more information.**
-
         **Requesting a feature is no guarantee it will be added.**
 
   - type: checkboxes
@@ -49,7 +47,7 @@ body:
       required: true
   - type: input
     attributes:
-      label: "Configuration"
+      label: "Configuration & Information"
       description: "Please use https://gist.github.com and include output of `rofi -info`, `rofi -dump-config` and `rofi -dump-theme`."
       placeholder: "Gist URL"
     validations:
