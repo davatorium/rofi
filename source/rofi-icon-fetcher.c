@@ -30,6 +30,9 @@
 
 #include "config.h"
 #include <stdlib.h>
+#include <dirent.h>
+#include <limits.h>
+#include <sys/stat.h>
 
 #include "helper.h"
 #include "rofi-icon-fetcher.h"
@@ -48,12 +51,22 @@
 #include <stdint.h>
 
 #include "helper.h"
-#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gio/gio.h>
+
+/* ThorVG for fast image rendering (SVG and PNG) */
+#include <thorvg_capi.h>
 
 /** Desktop entry specifying the thumbnailer. */
 #define THUMBNAILER_ENTRY_GROUP "Thumbnailer Entry"
 /** Extension used for the thumbnailer. */
 #define THUMBNAILER_EXTENSION ".thumbnailer"
+
+/** Fast icon path cache - maps "name" or "name:size" to path */
+typedef struct {
+  GHashTable *cache;        /* name -> path */
+  GHashTable *cache_sized;  /* "name:size" -> path */
+  gboolean initialized;
+} IconPathCache;
 
 typedef struct {
   // Context for icon-themes.
@@ -64,12 +77,13 @@ typedef struct {
   // On uid.
   GHashTable *icon_cache_uid;
 
-  // list extensions
-  GList *supported_extensions;
   uint32_t last_uid;
 
   // thumbnailers per mime-types hashmap
   GHashTable *thumbnailers;
+
+  // Fast icon path cache
+  IconPathCache path_cache;
 } IconFetcher;
 
 typedef struct {
@@ -246,12 +260,6 @@ static gboolean rofi_icon_fetcher_create_thumbnail(const gchar *mime_type,
   return thumbnail_created;
 }
 
-static void rofi_icon_fetch_thread_pool_entry_remove(gpointer data) {
-  IconFetcherEntry *entry = (IconFetcherEntry *)data;
-  // Mark it in a way it should be re-fetched on next query?
-  entry->query_started = FALSE;
-}
-
 static void rofi_icon_fetch_entry_free(gpointer data) {
   IconFetcherNameEntry *entry = (IconFetcherNameEntry *)data;
 
@@ -270,8 +278,167 @@ static void rofi_icon_fetch_entry_free(gpointer data) {
   g_free(entry);
 }
 
+/**
+ * Fast Icon Path Cache
+ *
+ * Scans icon directories at startup and builds a hash table for O(1) lookups.
+ */
+
+/* Icon directory to scan (in priority order) */
+static const char *icon_search_dirs[] = {
+  "/usr/share/icons",
+  "/usr/share/pixmaps",
+  NULL
+};
+
+/* Scan a single directory and add icons to cache */
+static void scan_icon_dir(IconPathCache *cache, const char *base_path, const char *subdir, int size_hint) {
+  char path[PATH_MAX];
+  snprintf(path, sizeof(path), "%s/%s", base_path, subdir);
+
+  DIR *dir = opendir(path);
+  if (!dir) return;
+
+  struct dirent *ent;
+  char filepath[PATH_MAX];
+
+  while ((ent = readdir(dir)) != NULL) {
+    if (ent->d_name[0] == '.') continue;
+
+    /* Get extension */
+    const char *ext = strrchr(ent->d_name, '.');
+    if (!ext) continue;
+
+    /* Check for supported image extensions */
+    gboolean is_image = (g_ascii_strcasecmp(ext, ".png") == 0 ||
+                         g_ascii_strcasecmp(ext, ".svg") == 0 ||
+                         g_ascii_strcasecmp(ext, ".svgz") == 0 ||
+                         g_ascii_strcasecmp(ext, ".xpm") == 0);
+    if (!is_image) continue;
+
+    /* Get icon name (without extension) */
+    char *icon_name = g_strndup(ent->d_name, ext - ent->d_name);
+    snprintf(filepath, sizeof(filepath), "%s/%s", path, ent->d_name);
+
+    /* Add to unsized cache if not already present (first match wins = priority) */
+    if (!g_hash_table_contains(cache->cache, icon_name)) {
+      g_hash_table_insert(cache->cache, g_strdup(icon_name), g_strdup(filepath));
+    }
+
+    /* Add sized entry if we know the size */
+    if (size_hint > 0) {
+      char *sized_key = g_strdup_printf("%s:%d", icon_name, size_hint);
+      if (!g_hash_table_contains(cache->cache_sized, sized_key)) {
+        g_hash_table_insert(cache->cache_sized, sized_key, g_strdup(filepath));
+      } else {
+        g_free(sized_key);
+      }
+    }
+
+    g_free(icon_name);
+  }
+  closedir(dir);
+}
+
+/* Recursively scan icon theme directories */
+static void scan_icon_theme_dir(IconPathCache *cache, const char *theme_path, const char *theme_name) {
+  DIR *dir = opendir(theme_path);
+  if (!dir) return;
+
+  struct dirent *ent;
+  char subdir[PATH_MAX];
+
+  while ((ent = readdir(dir)) != NULL) {
+    if (ent->d_name[0] == '.') continue;
+    if (ent->d_type != DT_DIR) continue;
+
+    /* Parse directory name for size (e.g., "48x48", "scalable", "128x128@2") */
+    int size = 0;
+    const char *p = ent->d_name;
+    while (*p && !g_ascii_isdigit(*p)) p++;
+    if (*p) size = atoi(p);
+
+    snprintf(subdir, sizeof(subdir), "%s/%s", theme_path, ent->d_name);
+
+    /* Scan this directory */
+    scan_icon_dir(cache, subdir, "", size);
+
+    /* Also scan subdirectories (e.g., apps, mimetypes, categories) */
+    DIR *subdir_dir = opendir(subdir);
+    if (subdir_dir) {
+      struct dirent *subent;
+      char subsubdir[PATH_MAX];
+      while ((subent = readdir(subdir_dir)) != NULL) {
+        if (subent->d_name[0] == '.') continue;
+        if (subent->d_type != DT_DIR) continue;
+        snprintf(subsubdir, sizeof(subsubdir), "%s/%s", subdir, subent->d_name);
+        scan_icon_dir(cache, subsubdir, "", size);
+      }
+      closedir(subdir_dir);
+    }
+  }
+  closedir(dir);
+}
+
+/* Build the icon path cache */
+static void build_icon_path_cache(IconPathCache *cache) {
+  if (cache->initialized) return;
+
+  cache->cache = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+  cache->cache_sized = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+
+  /* Get configured icon theme */
+  const char *icon_theme = config.icon_theme;
+  char theme_path[PATH_MAX];
+
+  /* Scan icon directories */
+  for (int i = 0; icon_search_dirs[i]; i++) {
+    const char *base = icon_search_dirs[i];
+
+    /* Scan configured theme first (highest priority) */
+    if (icon_theme && icon_theme[0]) {
+      snprintf(theme_path, sizeof(theme_path), "%s/%s", base, icon_theme);
+      scan_icon_theme_dir(cache, theme_path, icon_theme);
+    }
+
+    /* Scan fallback themes */
+    snprintf(theme_path, sizeof(theme_path), "%s/Adwaita", base);
+    scan_icon_theme_dir(cache, theme_path, "Adwaita");
+
+    snprintf(theme_path, sizeof(theme_path), "%s/hicolor", base);
+    scan_icon_theme_dir(cache, theme_path, "hicolor");
+
+    /* Scan pixmaps directly */
+    if (g_ascii_strcasecmp(base, "/usr/share/pixmaps") == 0) {
+      scan_icon_dir(cache, base, "", 48);
+    }
+  }
+
+  cache->initialized = TRUE;
+  g_info("Icon path cache built: %d icons", g_hash_table_size(cache->cache));
+}
+
+/* Fast icon path lookup from cache */
+static const char *lookup_icon_path_cache(IconPathCache *cache, const char *name, int size) {
+  if (!cache->initialized || !name) return NULL;
+
+  /* Try sized lookup first */
+  if (size > 0) {
+    char *sized_key = g_strdup_printf("%s:%d", name, size);
+    const char *path = g_hash_table_lookup(cache->cache_sized, sized_key);
+    g_free(sized_key);
+    if (path) return path;
+  }
+
+  /* Fall back to unsized lookup */
+  return g_hash_table_lookup(cache->cache, name);
+}
+
 void rofi_icon_fetcher_init(void) {
   g_assert(rofi_icon_fetcher_data == NULL);
+
+  /* Initialize ThorVG engine for fast image rendering */
+  tvg_engine_init(0);
 
   static const gchar *const icon_fallback_themes[] = {"Adwaita", "gnome", NULL};
   const char *themes[2] = {config.icon_theme, NULL};
@@ -287,22 +454,6 @@ void rofi_icon_fetcher_init(void) {
   rofi_icon_fetcher_data->icon_cache = g_hash_table_new_full(
       g_str_hash, g_str_equal, NULL, rofi_icon_fetch_entry_free);
 
-  GSList *l = gdk_pixbuf_get_formats();
-  for (GSList *li = l; li != NULL; li = g_slist_next(li)) {
-    gchar **exts =
-        gdk_pixbuf_format_get_extensions((GdkPixbufFormat *)li->data);
-
-    for (unsigned int i = 0; exts && exts[i]; i++) {
-      rofi_icon_fetcher_data->supported_extensions =
-          g_list_append(rofi_icon_fetcher_data->supported_extensions, exts[i]);
-      g_info("Add image extension: %s", exts[i]);
-      exts[i] = NULL;
-    }
-
-    g_free(exts);
-  }
-  g_slist_free(l);
-
   // load available thumbnailers from system dirs and user dir
   rofi_icon_fetcher_data->thumbnailers = g_hash_table_new_full(
       g_str_hash, g_str_equal, (GDestroyNotify)g_free, (GDestroyNotify)g_free);
@@ -316,10 +467,13 @@ void rofi_icon_fetcher_init(void) {
   for (i = 0; system_data_dirs[i] != NULL; i++) {
     rofi_icon_fetcher_load_thumbnailers(system_data_dirs[i]);
   }
-}
 
-static void free_wrapper(gpointer data, G_GNUC_UNUSED gpointer user_data) {
-  g_free(data);
+  /* Build fast icon path cache */
+  g_info("Building icon path cache...");
+  double start = g_get_monotonic_time() / 1000.0;
+  build_icon_path_cache(&rofi_icon_fetcher_data->path_cache);
+  double elapsed = g_get_monotonic_time() / 1000.0 - start;
+  g_info("Icon path cache built in %.1f ms", elapsed);
 }
 
 void rofi_icon_fetcher_destroy(void) {
@@ -334,110 +488,18 @@ void rofi_icon_fetcher_destroy(void) {
   g_hash_table_unref(rofi_icon_fetcher_data->icon_cache_uid);
   g_hash_table_unref(rofi_icon_fetcher_data->icon_cache);
 
-  g_list_foreach(rofi_icon_fetcher_data->supported_extensions, free_wrapper,
-                 NULL);
-  g_list_free(rofi_icon_fetcher_data->supported_extensions);
+  /* Free icon path cache */
+  if (rofi_icon_fetcher_data->path_cache.cache) {
+    g_hash_table_unref(rofi_icon_fetcher_data->path_cache.cache);
+  }
+  if (rofi_icon_fetcher_data->path_cache.cache_sized) {
+    g_hash_table_unref(rofi_icon_fetcher_data->path_cache.cache_sized);
+  }
+
   g_free(rofi_icon_fetcher_data);
-}
 
-/*
- * _rofi_icon_fetcher_get_icon_surface and alpha_mult
- * are inspired by gdk_cairo_set_source_pixbuf
- * GDK is:
- *     Copyright (C) 2011-2018 Red Hat, Inc.
- */
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-/** Location of red byte */
-#define RED_BYTE 2
-/** Location of green byte */
-#define GREEN_BYTE 1
-/** Location of blue byte */
-#define BLUE_BYTE 0
-/** Location of alpha byte */
-#define ALPHA_BYTE 3
-#else
-/** Location of red byte */
-#define RED_BYTE 1
-/** Location of green byte */
-#define GREEN_BYTE 2
-/** Location of blue byte */
-#define BLUE_BYTE 3
-/** Location of alpha byte */
-#define ALPHA_BYTE 0
-#endif
-
-static inline guchar alpha_mult(guchar c, guchar a) {
-  guint16 t;
-  switch (a) {
-  case 0xff:
-    return c;
-  case 0x00:
-    return 0x00;
-  default:
-    t = c * a + 0x7f;
-    return ((t >> 8) + t) >> 8;
-  }
-}
-
-static cairo_surface_t *
-rofi_icon_fetcher_get_surface_from_pixbuf(GdkPixbuf *pixbuf) {
-  gint width, height;
-  const guchar *pixels;
-  gint stride;
-  gboolean alpha;
-
-  if (pixbuf == NULL) {
-    return NULL;
-  }
-
-  width = gdk_pixbuf_get_width(pixbuf);
-  height = gdk_pixbuf_get_height(pixbuf);
-  pixels = gdk_pixbuf_read_pixels(pixbuf);
-  stride = gdk_pixbuf_get_rowstride(pixbuf);
-  alpha = gdk_pixbuf_get_has_alpha(pixbuf);
-
-  cairo_surface_t *surface = NULL;
-
-  gint cstride;
-  guint lo, o;
-  guchar a = 0xff;
-  const guchar *pixels_end, *line;
-  guchar *cpixels;
-
-  pixels_end = pixels + height * stride;
-  o = alpha ? 4 : 3;
-  lo = o * width;
-
-  surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-  cpixels = cairo_image_surface_get_data(surface);
-  cstride = cairo_image_surface_get_stride(surface);
-
-  cairo_surface_flush(surface);
-  while (pixels < pixels_end) {
-    line = pixels;
-    const guchar *line_end = line + lo;
-    guchar *cline = cpixels;
-
-    while (line < line_end) {
-      if (alpha) {
-        a = line[3];
-      }
-      cline[RED_BYTE] = alpha_mult(line[0], a);
-      cline[GREEN_BYTE] = alpha_mult(line[1], a);
-      cline[BLUE_BYTE] = alpha_mult(line[2], a);
-      cline[ALPHA_BYTE] = a;
-
-      line += o;
-      cline += 4;
-    }
-
-    pixels += stride;
-    cpixels += cstride;
-  }
-  cairo_surface_mark_dirty(surface);
-  cairo_surface_flush(surface);
-
-  return surface;
+  /* Terminate ThorVG engine */
+  tvg_engine_term();
 }
 
 gboolean rofi_icon_fetcher_file_is_image(const char *const path) {
@@ -450,13 +512,14 @@ gboolean rofi_icon_fetcher_file_is_image(const char *const path) {
   }
   suf++;
 
-  for (GList *iter = rofi_icon_fetcher_data->supported_extensions; iter != NULL;
-       iter = g_list_next(iter)) {
-    if (g_ascii_strcasecmp(iter->data, suf) == 0) {
-      return TRUE;
-    }
-  }
-  return FALSE;
+  /* Check for supported image extensions (thorvg supports these) */
+  return (g_ascii_strcasecmp(suf, "png") == 0 ||
+          g_ascii_strcasecmp(suf, "svg") == 0 ||
+          g_ascii_strcasecmp(suf, "svgz") == 0 ||
+          g_ascii_strcasecmp(suf, "jpg") == 0 ||
+          g_ascii_strcasecmp(suf, "jpeg") == 0 ||
+          g_ascii_strcasecmp(suf, "webp") == 0 ||
+          g_ascii_strcasecmp(suf, "tvg") == 0);
 }
 
 // build thumbnail's path using md5 hash of an entry name
@@ -525,228 +588,184 @@ static gchar *rofi_icon_fetcher_get_desktop_icon(const gchar *file_path) {
   return icon_key;
 }
 
-static void rofi_icon_fetcher_worker(thread_state *sdata,
-                                     G_GNUC_UNUSED gpointer user_data) {
-  g_debug("starting up icon fetching thread.");
-  // as long as dr->icon is updated atomicly.. (is a pointer write atomic?)
-  // this should be fine running in another thread.
-  IconFetcherEntry *sentry = (IconFetcherEntry *)sdata;
-  const gchar *themes[] = {config.icon_theme, NULL};
+/**
+ * Load an image file using ThorVG and convert to a cairo surface.
+ * This is significantly faster than using gdk-pixbuf for both SVG and PNG.
+ */
+static cairo_surface_t *rofi_icon_fetcher_load_image_thorvg(const char *path,
+                                                             int width, int height) {
+  if (width <= 0 || height <= 0) {
+    return NULL;
+  }
 
+  /* Create a picture and load the SVG file */
+  Tvg_Paint picture = tvg_picture_new();
+  if (!picture) {
+    g_warning("ThorVG: Failed to create picture");
+    return NULL;
+  }
+
+  Tvg_Result result = tvg_picture_load(picture, path);
+  if (result != TVG_RESULT_SUCCESS) {
+    g_debug("ThorVG: Failed to load SVG %s: %d", path, result);
+    tvg_paint_unref(picture, TRUE);
+    return NULL;
+  }
+
+  /* Get original size and calculate scale */
+  float orig_w, orig_h;
+  tvg_picture_get_size(picture, &orig_w, &orig_h);
+  if (orig_w <= 0 || orig_h <= 0) {
+    orig_w = width;
+    orig_h = height;
+  }
+
+  /* Calculate scaled size maintaining aspect ratio */
+  float scale = (float)width / orig_w;
+  if (height / orig_h < scale) {
+    scale = (float)height / orig_h;
+  }
+  float scaled_w = orig_w * scale;
+  float scaled_h = orig_h * scale;
+
+  /* Set the picture size */
+  tvg_picture_set_size(picture, scaled_w, scaled_h);
+
+  /* Allocate buffer for ARGB32 output */
+  uint32_t *buffer = g_malloc0(width * height * sizeof(uint32_t));
+  if (!buffer) {
+    tvg_paint_unref(picture, TRUE);
+    return NULL;
+  }
+
+  /* Create a sw canvas */
+  Tvg_Canvas canvas = tvg_swcanvas_create(TVG_ENGINE_OPTION_DEFAULT);
+  if (!canvas) {
+    g_warning("ThorVG: Failed to create canvas");
+    g_free(buffer);
+    tvg_paint_unref(picture, TRUE);
+    return NULL;
+  }
+
+  result = tvg_swcanvas_set_target(canvas, buffer, width, width, height,
+                                    TVG_COLORSPACE_ARGB8888);
+  if (result != TVG_RESULT_SUCCESS) {
+    g_warning("ThorVG: Failed to set canvas target: %d", result);
+    tvg_canvas_destroy(canvas);
+    g_free(buffer);
+    tvg_paint_unref(picture, TRUE);
+    return NULL;
+  }
+
+  /* Push picture to canvas and render */
+  result = tvg_canvas_add(canvas, picture);
+  if (result != TVG_RESULT_SUCCESS) {
+    g_warning("ThorVG: Failed to push picture: %d", result);
+    tvg_canvas_destroy(canvas);
+    g_free(buffer);
+    return NULL;
+  }
+
+  result = tvg_canvas_draw(canvas, TRUE);
+  if (result != TVG_RESULT_SUCCESS) {
+    g_warning("ThorVG: Failed to draw: %d", result);
+    tvg_canvas_destroy(canvas);
+    g_free(buffer);
+    return NULL;
+  }
+
+  result = tvg_canvas_sync(canvas);
+  if (result != TVG_RESULT_SUCCESS) {
+    g_warning("ThorVG: Failed to sync: %d", result);
+    tvg_canvas_destroy(canvas);
+    g_free(buffer);
+    return NULL;
+  }
+
+  /* Create cairo surface from the buffer */
+  cairo_surface_t *surface = cairo_image_surface_create_for_data(
+      (unsigned char *)buffer, CAIRO_FORMAT_ARGB32, width, height,
+      width * 4);
+
+  /* Make cairo own the buffer so it frees it when surface is destroyed */
+  cairo_surface_set_user_data(surface, NULL, buffer,
+                               (cairo_destroy_func_t)g_free);
+
+  tvg_canvas_destroy(canvas);
+
+  return surface;
+}
+
+/**
+ * Synchronously load an icon - called directly from query functions.
+ * This is fast enough (~50us) to not need async threading.
+ */
+static cairo_surface_t *rofi_icon_fetcher_load_icon_sync(const char *name, int wsize, int hsize, guint scale) {
+  const gchar *themes[] = {config.icon_theme, NULL};
   const gchar *icon_path;
   gchar *icon_path_ = NULL;
+  cairo_surface_t *icon_surf = NULL;
 
-  if (g_str_has_prefix(sentry->entry->name, "thumbnail://")) {
-    // remove uri thumbnail prefix from entry name
-    gchar *entry_name = &sentry->entry->name[12];
-
-    if (strcmp(entry_name, "") == 0) {
-      sentry->query_done = TRUE;
-      rofi_view_reload();
-      return;
-    }
-
-    // use custom user command to generate the thumbnail
-    if (config.preview_cmd != NULL) {
-      int requested_size = MAX(sentry->wsize, sentry->hsize);
-      int thumb_size;
-
-      icon_path = icon_path_ = rofi_icon_fetcher_get_thumbnail(
-          entry_name, requested_size, &thumb_size);
-
-      if (!g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
-        char **command_args = NULL;
-        int argsv = 0;
-        gchar *size_str = g_strdup_printf("%d", thumb_size);
-
-        helper_parse_setup(config.preview_cmd, &command_args, &argsv, "{input}",
-                           entry_name, "{output}", icon_path_, "{size}",
-                           size_str, NULL);
-
-        g_free(size_str);
-
-        if (command_args) {
-          exec_thumbnailer_command(command_args);
-          g_strfreev(command_args);
-        }
-      }
-    } else if (g_path_is_absolute(entry_name)) {
-      // if the entry name is an absolute path try to fetch its thumbnail
-      if (g_str_has_suffix(entry_name, ".desktop")) {
-        // if the entry is a .desktop file try to read its icon key
-        gchar *icon_key = rofi_icon_fetcher_get_desktop_icon(entry_name);
-
-        if (icon_key == NULL || strlen(icon_key) == 0) {
-          // no icon in .desktop file, fallback on mimetype icon (text/plain)
-          icon_path = icon_path_ = nk_xdg_theme_get_icon(
-              rofi_icon_fetcher_data->xdg_context, themes, NULL, "text-plain",
-              MIN(sentry->wsize, sentry->hsize), 1, TRUE);
-
-          g_free(icon_key);
-        } else if (g_path_is_absolute(icon_key)) {
-          // icon in .desktop file is an absolute path to an image
-          icon_path = icon_path_ = icon_key;
-        } else {
-          // icon in .desktop file is a standard icon name
-          icon_path = icon_path_ = nk_xdg_theme_get_icon(
-              rofi_icon_fetcher_data->xdg_context, themes, NULL, icon_key,
-              MIN(sentry->wsize, sentry->hsize), 1, TRUE);
-
-          g_free(icon_key);
-        }
-      } else {
-        // build encoded uri string from absolute file path
-        gchar *encoded_uri = g_filename_to_uri(entry_name, NULL, NULL);
-        int requested_size = MAX(sentry->wsize, sentry->hsize);
-        int thumb_size;
-
-        // look for file thumbnail in appropriate folder based on requested size
-        icon_path = icon_path_ = rofi_icon_fetcher_get_thumbnail(
-            encoded_uri, requested_size, &thumb_size);
-
-        if (!g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
-          // try to generate thumbnail
-          char *content_type = g_content_type_guess(entry_name, NULL, 0, NULL);
-          char *mime_type = g_content_type_get_mime_type(content_type);
-
-          if (mime_type) {
-            gboolean created = rofi_icon_fetcher_create_thumbnail(
-                mime_type, entry_name, encoded_uri, icon_path_, thumb_size);
-
-            if (!created) {
-              // replace forward slashes with minus sign to get the icon's name
-              int index = 0;
-
-              while (mime_type[index]) {
-                if (mime_type[index] == '/')
-                  mime_type[index] = '-';
-                index++;
-              }
-
-              g_free(icon_path_);
-
-              // try to fetch the mime-type icon
-              icon_path = icon_path_ = nk_xdg_theme_get_icon(
-                  rofi_icon_fetcher_data->xdg_context, themes, NULL, mime_type,
-                  MIN(sentry->wsize, sentry->hsize), 1, TRUE);
-            }
-
-            g_free(mime_type);
-            g_free(content_type);
-          }
-        }
-
-        g_free(encoded_uri);
-      }
-    }
-
-    // no suitable icon or thumbnail was found
-    if (icon_path_ == NULL || !g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
-      sentry->query_done = TRUE;
-      rofi_view_reload();
-      return;
-    }
-  } else if (g_path_is_absolute(sentry->entry->name)) {
-    icon_path = sentry->entry->name;
-  } else if (g_str_has_prefix(sentry->entry->name, "<span")) {
-    cairo_surface_t *surface = cairo_image_surface_create(
-        CAIRO_FORMAT_ARGB32, sentry->wsize, sentry->hsize);
+  /* Handle absolute paths directly */
+  if (g_path_is_absolute(name)) {
+    icon_path = name;
+  } else if (g_str_has_prefix(name, "<span")) {
+    /* Pango markup - render text */
+    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, wsize, hsize);
     cairo_t *cr = cairo_create(surface);
     PangoLayout *layout = pango_cairo_create_layout(cr);
-    pango_layout_set_markup(layout, sentry->entry->name, -1);
+    pango_layout_set_markup(layout, name, -1);
 
     int width, height;
     pango_layout_get_size(layout, &width, &height);
-    double ws = sentry->wsize / ((double)width / PANGO_SCALE);
-    double wh = sentry->hsize / ((double)height / PANGO_SCALE);
-    double scale = MIN(ws, wh);
+    double ws = wsize / ((double)width / PANGO_SCALE);
+    double wh = hsize / ((double)height / PANGO_SCALE);
+    double s = MIN(ws, wh);
 
-    cairo_move_to(
-        cr, (sentry->wsize - ((double)width / PANGO_SCALE) * scale) / 2.0,
-        (sentry->hsize - ((double)height / PANGO_SCALE) * scale) / 2.0);
-    cairo_scale(cr, scale, scale);
+    cairo_move_to(cr, (wsize - ((double)width / PANGO_SCALE) * s) / 2.0,
+                     (hsize - ((double)height / PANGO_SCALE) * s) / 2.0);
+    cairo_scale(cr, s, s);
     pango_cairo_update_layout(cr, layout);
     pango_layout_get_size(layout, &width, &height);
     pango_cairo_show_layout(cr, layout);
     g_object_unref(layout);
     cairo_destroy(cr);
-    sentry->surface = surface;
-    sentry->query_done = TRUE;
-    rofi_view_reload();
-    return;
-
+    return surface;
   } else {
-    icon_path = icon_path_ = nk_xdg_theme_get_icon(
-        rofi_icon_fetcher_data->xdg_context, themes, NULL, sentry->entry->name,
-        MIN(sentry->wsize, sentry->hsize), sentry->scale, TRUE);
-    if (icon_path_ == NULL) {
-      g_debug("failed to get icon %s(%dx%d): n/a", sentry->entry->name,
-              sentry->wsize, sentry->hsize);
+    /* Regular icon name - use fast cache lookup */
+    int size = MIN(wsize, hsize);
+    icon_path = lookup_icon_path_cache(&rofi_icon_fetcher_data->path_cache, name, size);
 
-      const char *ext = g_strrstr(sentry->entry->name, ".");
-      if (ext) {
-        const char *exts2[2] = {ext, NULL};
-        icon_path = icon_path_ =
-            helper_get_theme_path(sentry->entry->name, exts2, NULL);
-      }
-      if (icon_path_ == NULL) {
-        sentry->query_done = TRUE;
-        rofi_view_reload();
-        return;
-      }
+    if (icon_path != NULL) {
+      icon_path_ = g_strdup(icon_path);
     } else {
-      g_debug("found icon %s(%dx%d): %s", sentry->entry->name, sentry->wsize,
-              sentry->hsize, icon_path);
+      /* Cache miss - fall back to theme lookup */
+      icon_path = icon_path_ = nk_xdg_theme_get_icon(
+          rofi_icon_fetcher_data->xdg_context, themes, NULL, name, size, scale, TRUE);
+
+      if (icon_path_ == NULL) {
+        /* Try as filename with extension */
+        const char *ext = g_strrstr(name, ".");
+        if (ext) {
+          const char *exts2[2] = {ext, NULL};
+          icon_path = icon_path_ = helper_get_theme_path(name, exts2, NULL);
+        }
+        if (icon_path_ == NULL) {
+          return NULL;
+        }
+      }
     }
   }
-  cairo_surface_t *icon_surf = NULL;
 
-#if 0 // unsure why added in past?
-  const char *suf = strrchr(icon_path, '.');
-  if (suf == NULL) {
-    sentry->query_done = TRUE;
-    g_free(icon_path_);
-    rofi_view_reload();
-    return;
-  }
-#endif
+  /* Load the image with ThorVG */
+  int width = wsize, height = hsize;
+  if (width > 0) width *= scale;
+  if (height > 0) height *= scale;
 
-  int width = sentry->wsize, height = sentry->hsize;
-  if (width > 0)
-    width *= sentry->scale;
-  if (height > 0)
-    height *= sentry->scale;
+  icon_surf = rofi_icon_fetcher_load_image_thorvg(icon_path, width, height);
 
-  GError *error = NULL;
-  GdkPixbuf *pb =
-      gdk_pixbuf_new_from_file_at_scale(icon_path, width, height, TRUE, &error);
-
-  /*
-   * The GIF codec throws GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION if it's closed
-   * without decoding all the frames. Since gdk_pixbuf_new_from_file_at_scale
-   * only decodes the first frame, this specific error needs to be ignored.
-   */
-  if (error != NULL && g_error_matches(error, GDK_PIXBUF_ERROR,
-                                       GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION)) {
-    g_clear_error(&error);
-  }
-
-  if (error != NULL) {
-    g_warning("Failed to load image: |%s| %d %d %s (%p)", icon_path,
-              sentry->wsize, sentry->hsize, error->message, (void *)pb);
-    g_error_free(error);
-    if (pb) {
-      g_object_unref(pb);
-    }
-  } else {
-    icon_surf = rofi_icon_fetcher_get_surface_from_pixbuf(pb);
-    g_object_unref(pb);
-  }
-
-  sentry->surface = icon_surf;
   g_free(icon_path_);
-  sentry->query_done = TRUE;
-  rofi_view_reload();
+  return icon_surf;
 }
 
 uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
@@ -766,14 +785,12 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
     sentry = iter->data;
     if (sentry->wsize == wsize && sentry->hsize == hsize &&
         sentry->scale == scale) {
-      if (!sentry->query_started) {
-        g_thread_pool_push(tpool, sentry, NULL);
-      }
+      /* Already have this size cached - return immediately */
       return sentry->uid;
     }
   }
 
-  // Not found.
+  // Not found - create new entry and load synchronously
   sentry = g_new0(IconFetcherEntry, 1);
   sentry->uid = ++(rofi_icon_fetcher_data->last_uid);
   sentry->wsize = wsize;
@@ -788,11 +805,9 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
   g_hash_table_insert(rofi_icon_fetcher_data->icon_cache_uid,
                       GINT_TO_POINTER(sentry->uid), sentry);
 
-  // Push into fetching queue.
-  sentry->state.callback = rofi_icon_fetcher_worker;
-  sentry->state.free = rofi_icon_fetch_thread_pool_entry_remove;
-  sentry->state.priority = G_PRIORITY_LOW;
-  g_thread_pool_push(tpool, sentry, NULL);
+  /* Load synchronously - fast enough with thorvg (~50us) */
+  sentry->surface = rofi_icon_fetcher_load_icon_sync(name, wsize, hsize, scale);
+  sentry->query_done = TRUE;
 
   return sentry->uid;
 }
@@ -812,14 +827,12 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
     sentry = iter->data;
     if (sentry->wsize == size && sentry->hsize == size &&
         sentry->scale == scale) {
-      if (!sentry->query_started) {
-        g_thread_pool_push(tpool, sentry, NULL);
-      }
+      /* Already have this size cached - return immediately */
       return sentry->uid;
     }
   }
 
-  // Not found.
+  // Not found - create new entry and load synchronously
   sentry = g_new0(IconFetcherEntry, 1);
   sentry->uid = ++(rofi_icon_fetcher_data->last_uid);
   sentry->wsize = size;
@@ -834,11 +847,9 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
   g_hash_table_insert(rofi_icon_fetcher_data->icon_cache_uid,
                       GINT_TO_POINTER(sentry->uid), sentry);
 
-  // Push into fetching queue.
-  sentry->state.callback = rofi_icon_fetcher_worker;
-  sentry->state.free = rofi_icon_fetch_thread_pool_entry_remove;
-  sentry->state.priority = G_PRIORITY_LOW;
-  g_thread_pool_push(tpool, sentry, NULL);
+  /* Load synchronously - fast enough with thorvg (~50us) */
+  sentry->surface = rofi_icon_fetcher_load_icon_sync(name, size, size, scale);
+  sentry->query_done = TRUE;
 
   return sentry->uid;
 }

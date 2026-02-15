@@ -62,7 +62,7 @@ deps = [
     dependency('pango'),
     dependency('pangocairo'),
     dependency('xkbcommon'),
-    dependency('gdk-pixbuf-2.0'),
+    dependency('thorvg-1'),
     dep_lm,
 ]
 
@@ -619,6 +619,18 @@ if check.found()
         dependencies: deps,
     ))
 endif
+
+# Benchmark for drun mode (run manually with: ./build/benchmark-drun)
+benchmark_drun_exe = executable('benchmark-drun', [
+        'test/benchmark-drun.c',
+    ],
+    dependencies: [
+        dependency('glib-2.0'),
+    ],
+)
+run_target('run-benchmark-drun',
+    command: [benchmark_drun_exe]
+)
 
 
 rofi_sources += theme_lexer_sources
