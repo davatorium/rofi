@@ -217,7 +217,8 @@ static void scan_dir(FileBrowserModePrivateData *pd, GFile *path) {
         case DT_SOCK:
         default:
           break;
-        case DT_REG: {
+        case DT_REG:
+        case DT_DIR: {
           FBFile *f = g_malloc0(sizeof(FBFile));
           // Rofi expects utf-8, so lets convert the filename.
           f->path = g_build_filename(cdir, rd->d_name, NULL);
@@ -238,13 +239,14 @@ static void scan_dir(FileBrowserModePrivateData *pd, GFile *path) {
           if (g_async_queue_length(pd->async_queue) > 10000) {
             write(pd->pipefd2[1], "r", 1);
           }
-          break;
-        }
-        case DT_DIR: {
-          char *d = g_build_filename(cdir, rd->d_name, NULL);
-          GFile *dirp = g_file_new_for_path(d);
-          g_queue_push_tail(dirs_to_scan, dirp);
-          g_free(d);
+
+          if (rd->d_type == DT_DIR) {
+            char *d = g_build_filename(cdir, rd->d_name, NULL);
+            GFile *dirp = g_file_new_for_path(d);
+            g_queue_push_tail(dirs_to_scan, dirp);
+            g_free(d);
+          }
+
           break;
         }
         case DT_UNKNOWN:
@@ -430,7 +432,7 @@ static ModeMode recursive_browser_mode_result(Mode *sw, int mretv,
     retv = (mretv & MENU_LOWER_MASK);
   } else if ((mretv & MENU_OK)) {
     if (selected_line < pd->array_length) {
-      if (pd->array[selected_line].type == RFILE) {
+      if (pd->array[selected_line].type == RFILE || pd->array[selected_line].type == DIRECTORY) {
         char *d_esc = g_shell_quote(pd->array[selected_line].path);
         char *cmd = g_strdup_printf("%s %s", pd->command, d_esc);
         g_free(d_esc);
