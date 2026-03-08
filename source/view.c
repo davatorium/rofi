@@ -306,6 +306,15 @@ textbox *rofi_view_get_active_text(void) {
   return NULL;
 }
 
+void rofi_view_cancel(RofiViewState *state) {
+  if (state == NULL) {
+    return;
+  }
+
+  state->retv = MENU_CANCEL;
+  state->quit = TRUE;
+}
+
 void rofi_view_remove_active(RofiViewState *state) {
   if (state == current_active_menu) {
     rofi_view_set_active(NULL);
@@ -2192,3 +2201,7 @@ void rofi_view_get_size(RofiViewState *state, gint *width, gint *height) {
 void rofi_view_ping_mouse(RofiViewState *state) { proxy->ping_mouse(state); }
 
 void rofi_view_pool_refresh(void) { proxy->pool_refresh(); }
+
+void rofi_view_get_menu_rect(int *x, int *y, int *w, int *h) {
+  proxy->get_menu_rect(x, y, w, h);
+}

@@ -29,8 +29,8 @@
 #define ROFI_VIEW_H
 
 #include "mode.h"
-#include "widgets/widget.h"
 #include "widgets/textbox.h"
+#include "widgets/widget.h"
 #include <pango/pango.h>
 #ifdef ENABLE_XCB
 #include <xcb/xcb.h>
@@ -213,10 +213,10 @@ void rofi_view_free(RofiViewState *state);
 RofiViewState *rofi_view_get_active(void);
 
 /**
-  * Get the current active textbox with the user input.
-  *
-  * @returns the active textbox or NULL
-  */
+ * Get the current active textbox with the user input.
+ *
+ * @returns the active textbox or NULL
+ */
 textbox *rofi_view_get_active_text(void);
 
 /**
@@ -372,7 +372,10 @@ void rofi_view_ping_mouse(RofiViewState *state);
 void rofi_view_set_window_title(const char *title);
 void rofi_view_pool_refresh(void);
 
+void rofi_view_get_menu_rect(int *x, int *y, int *w, int *h);
+
 void rofi_view_set_cursor(RofiCursorType type);
+
 
 /**
  * Input history
@@ -407,6 +410,9 @@ void rofi_view_ellipsize_listview(RofiViewState *state,
  * main_window
  */
 gboolean rofi_set_im_window_pos(int new_x, int new_y);
+
+// Cancel the current view
+void rofi_view_cancel(RofiViewState *state);
 
 /**
  * @param wid to test.

@@ -195,6 +195,9 @@ typedef struct _view_proxy {
   void (*get_size)(struct RofiViewState *state, gint *width, gint *height);
 
   void (*pool_refresh)(void);
+
+  void (*get_menu_rect)(int *x, int *y, int *w, int *h);
+
 } view_proxy;
 
 typedef struct {
