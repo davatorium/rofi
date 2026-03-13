@@ -33,6 +33,8 @@
 #include <glib.h>
 #include <math.h>
 
+GList *active_widgets = NULL;
+
 void widget_init(widget *wid, widget *parent, WidgetType type,
                  const char *name) {
   wid->type = type;
@@ -58,6 +60,7 @@ void widget_init(widget *wid, widget *parent, WidgetType type,
   wid->border_antialiasing = rofi_theme_get_boolean(wid, "border-aa", TRUE);
   wid->border_disable_nvidia_workaround =
       rofi_theme_get_boolean(wid, "border-disable-nvidia-workaround", FALSE);
+  active_widgets = g_list_append(active_widgets, wid);
 }
 
 void widget_set_state(widget *wid, const char *state) {
@@ -89,17 +92,37 @@ int widget_intersect(const widget *wid, int x, int y) {
   return FALSE;
 }
 
-void widget_resize(widget *wid, short w, short h) {
+void widget_resize(widget *wid, const short w, const short h,
+                   const unsigned int scale) {
   if (wid == NULL) {
     return;
   }
   if (wid->resize != NULL) {
-    if (wid->w != w || wid->h != h) {
-      wid->resize(wid, w, h);
+    if (wid->w != w || wid->h != h || wid->scale != scale) {
+      int wn = wid->w;
+      int hn = wid->h;
+      wid->resize(wid, w, h, scale);
+      if (wid->w != wn || wid->h != hn) {
+        widget_update(wid);
+        if (wid->surf != NULL) {
+          cairo_surface_destroy(wid->surf);
+          wid->surf = NULL;
+          widget_queue_redraw(wid);
+        }
+      }
     }
   } else {
-    wid->w = w;
-    wid->h = h;
+    if (wid->w != w || wid->h != h || wid->scale != scale) {
+      wid->w = w;
+      wid->h = h;
+      wid->scale = scale;
+      widget_update(wid);
+      if (wid->surf != NULL) {
+        cairo_surface_destroy(wid->surf);
+        wid->surf = NULL;
+        widget_queue_redraw(wid);
+      }
+    }
   }
   // On a resize we always want to update.
   widget_queue_redraw(wid);
@@ -132,24 +155,40 @@ void widget_set_enabled(widget *wid, gboolean enabled) {
   if (wid->enabled != enabled) {
     wid->enabled = enabled;
     widget_update(wid);
-    widget_update(wid->parent);
+    // widget_update(wid->parent);
     widget_queue_redraw(wid);
   }
 }
 
-void widget_draw(widget *wid, cairo_t *d) {
+void widget_draw(widget *wid, cairo_t *c) {
+  // Widget needs to exist and be enabled.
   if (wid == NULL) {
     return;
   }
+  if (wid->enabled == FALSE) {
+    return;
+  }
+
   // Check if enabled and if draw is implemented.
-  if (wid->enabled && wid->draw) {
-    // Don't draw if there is no space.
+  if (wid->surf == NULL) {
     if (wid->h < 1 || wid->w < 1) {
       wid->need_redraw = FALSE;
       return;
     }
+    wid->surf = cairo_surface_create_similar(
+        cairo_get_target(c), CAIRO_CONTENT_COLOR_ALPHA, wid->w, wid->h);
+    wid->need_redraw = TRUE;
+  }
+  if (wid->need_redraw) {
+    // Mark redraw false before drawing, so if we recursively draw and we mark
+    // it for another redraw this is not cleared.
+    wid->need_redraw = FALSE;
+    cairo_t *d = cairo_create(wid->surf);
+    cairo_set_operator(d, CAIRO_OPERATOR_CLEAR);
+    cairo_paint(d);
+    cairo_set_operator(d, CAIRO_OPERATOR_OVER);
+    // Don't draw if there is no space.
     // Store current state.
-    cairo_save(d);
     const int margin_left =
         distance_get_pixel(wid->margin.left, ROFI_ORIENTATION_HORIZONTAL);
     const int margin_top =
@@ -202,7 +241,6 @@ void widget_draw(widget *wid, cairo_t *d) {
 
     // Background painting.
     // Set new x/y position.
-    cairo_translate(d, wid->x, wid->y);
     cairo_set_line_width(d, 0);
 
     // Outer outline outlines
@@ -248,21 +286,18 @@ void widget_draw(widget *wid, cairo_t *d) {
       cairo_fill_preserve(d);
     }
     cairo_clip(d);
-
-    wid->draw(wid, d);
-    wid->need_redraw = FALSE;
-
-    cairo_restore(d);
+    if (wid->draw) {
+      wid->draw(wid, d);
+    }
 
     if (left != 0 || top != 0 || right != 0 || bottom != 0) {
-      cairo_save(d);
       if (wid->border_antialiasing == FALSE) {
         cairo_set_antialias(d, CAIRO_ANTIALIAS_NONE);
       }
       if (wid->border_disable_nvidia_workaround) {
         cairo_set_operator(d, CAIRO_OPERATOR_ADD);
       }
-      cairo_translate(d, wid->x, wid->y);
+      // cairo_translate(d, wid->x, wid->y);
       cairo_new_path(d);
       rofi_theme_get_color(wid, "border-color", d);
 
@@ -417,8 +452,66 @@ void widget_draw(widget *wid, cairo_t *d) {
 
         cairo_fill(d);
       }
-      cairo_restore(d);
     }
+#if 0
+       char buff[64];
+       snprintf(buff, 64, "%u", wid->repaint_debug_index);
+       cairo_move_to(d, wid->w / 2, wid->h / 2);
+       cairo_set_source_rgba(d, 1, 1, 1, 1);
+       cairo_show_text(d, buff);
+#endif
+    cairo_destroy(d);
+    wid->repaint_debug_index++;
+  }
+
+  cairo_save(c);
+  cairo_translate(c, wid->x, wid->y);
+  cairo_set_source_surface(c, wid->surf, 0, 0);
+  cairo_paint(c);
+  cairo_restore(c);
+}
+
+/**
+ * reference goes downwards.
+ * Destroying goes upwards.
+ *
+ * This is done because the child often references it parent in the drawing
+ * screen. So the parent cannot dissapear before the child.
+ */
+void widget_ref(widget *wid) {
+  if (wid == NULL) {
+    return;
+  }
+  g_atomic_rc_box_acquire(wid);
+  if (wid->parent) {
+    g_atomic_rc_box_acquire(wid->parent);
+  }
+}
+
+void widget_unref(widget *wid) {
+  if (wid == NULL) {
+    return;
+  }
+  widget *parent = wid->parent;
+  widget_free(wid);
+  if (parent) {
+    widget_free(parent);
+  }
+}
+
+static void widget_free_inner(void *wid_in) {
+  widget *wid = wid_in;
+
+  if (wid->surf) {
+    cairo_surface_destroy(wid->surf);
+    wid->surf = NULL;
+  }
+  if (wid->name != NULL) {
+    g_free(wid->name);
+  }
+  active_widgets = g_list_remove(active_widgets, wid);
+  if (wid->free != NULL) {
+    wid->free(wid);
   }
 }
 
@@ -426,12 +519,7 @@ void widget_free(widget *wid) {
   if (wid == NULL) {
     return;
   }
-  if (wid->name != NULL) {
-    g_free(wid->name);
-  }
-  if (wid->free != NULL) {
-    wid->free(wid);
-  }
+  g_atomic_rc_box_release_full(wid, widget_free_inner);
 }
 
 int widget_get_height(widget *wid) {
@@ -473,8 +561,8 @@ void widget_xy_to_relative(widget *wid, gint *x, gint *y) {
   }
   widget_xy_to_relative(wid->parent, x, y);
 }
-
-void widget_update(widget *wid) {
+void rofi_view_queue_redraw(void);
+static void widget_update_int(widget *wid) {
   if (wid == NULL) {
     return;
   }
@@ -482,19 +570,35 @@ void widget_update(widget *wid) {
   if (wid->update != NULL) {
     wid->update(wid);
   }
+  if (wid->parent) {
+    widget_update_int(wid->parent);
+  } else {
+    rofi_view_queue_redraw();
+  }
+}
+
+void widget_update(widget *wid) {
+  if (wid == NULL) {
+    return;
+  }
+  widget_update_int(wid);
+  // When (desired )size of wid changes.
+  //  if (wid->update != NULL) {
+  //    wid->update(wid);
+  //  }
+  //  if (wid->parent) {
+  //    widget_update_int(wid->parent);
+  //  } else {
+  //    // rofi_view_queue_redraw();
+  //  }
 }
 
 void widget_queue_redraw(widget *wid) {
   if (wid == NULL) {
     return;
   }
-  widget *iter = wid;
-  // Find toplevel widget.
-  while (iter->parent != NULL) {
-    iter->need_redraw = TRUE;
-    iter = iter->parent;
-  }
-  iter->need_redraw = TRUE;
+  wid->need_redraw = TRUE;
+  widget_queue_redraw(wid->parent);
 }
 
 gboolean widget_need_redraw(widget *wid) {
@@ -648,7 +752,9 @@ int widget_get_desired_height(widget *wid, const int width) {
   if (wid->get_desired_height == NULL) {
     return wid->h;
   }
-  return wid->get_desired_height(wid, width);
+  int h = wid->get_desired_height(wid, width);
+
+  return h;
 }
 int widget_get_desired_width(widget *wid, const int height) {
   if (wid == NULL) {
@@ -679,4 +785,13 @@ int widget_get_absolute_ypos(widget *wid) {
     retv += widget_get_absolute_ypos(wid->parent);
   }
   return retv;
+}
+void widget_debug(void) {
+  g_debug("Got %d widgets left in queue\n", g_list_length(active_widgets));
+  uint32_t i = 0;
+  for (GList *iter = g_list_first(active_widgets); iter;
+       iter = g_list_next(iter)) {
+    widget *w = (widget *)iter->data;
+    printf("%03u Widget left: %s\n", ++i, w->name);
+  }
 }

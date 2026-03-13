@@ -26,10 +26,11 @@
  */
 
 /** The log domain of this widget. */
+#include <math.h>
 #define G_LOG_DOMAIN "Widgets.Box"
 
-#include "widgets/box.h"
 #include "theme.h"
+#include "widgets/box.h"
 #include "widgets/widget-internal.h"
 #include "widgets/widget.h"
 #include <stdio.h>
@@ -126,20 +127,15 @@ static int box_get_desired_height(widget *wid, const int width) {
 }
 
 static void vert_calculate_size(box *b) {
+  // printf("vert update: %s\n", b->widget.name);
   int spacing = distance_get_pixel(b->spacing, ROFI_ORIENTATION_VERTICAL);
   int expanding_widgets = 0;
   int active_widgets = 0;
   int rem_width = widget_padding_get_remaining_width(WIDGET(b));
   int rem_height = widget_padding_get_remaining_height(WIDGET(b));
-  for (GList *iter = g_list_first(b->children); iter != NULL;
-       iter = g_list_next(iter)) {
-    widget *child = (widget *)iter->data;
-    if (child->enabled && child->expand == FALSE) {
-      widget_resize(child, rem_width,
-                    widget_get_desired_height(child, rem_width));
-    }
-  }
-  b->max_size = 0;
+  // printf("%s rem w: %d rem h: %d\n", b->widget.name, rem_width, rem_height);
+  // printf("children: %d\n", g_list_length(b->children));
+
   for (GList *iter = g_list_first(b->children); iter != NULL;
        iter = g_list_next(iter)) {
     widget *child = (widget *)iter->data;
@@ -151,17 +147,46 @@ static void vert_calculate_size(box *b) {
       expanding_widgets++;
       continue;
     }
+  }
+  // printf("ac: %d exp: %d\n", active_widgets, expanding_widgets);
+  for (GList *iter = g_list_first(b->children); iter != NULL;
+       iter = g_list_next(iter)) {
+    widget *child = (widget *)iter->data;
+    // TODO CHECK HOW TO FIX THIS consistently.
+    // TODO PORT TO HORIZ
+    if (child->enabled && child->expand == FALSE) {
+      int exph = widget_get_desired_height(child, rem_width);
+      if (exph > rem_height) {
+        //        exph = rem_height /*- (active_widgets - 1) * spacing;
+      }
+      widget_resize(child, rem_width, exph, b->widget.scale);
+    }
+  }
+  b->max_size = 0;
+  for (GList *iter = g_list_first(b->children); iter != NULL;
+       iter = g_list_next(iter)) {
+    widget *child = (widget *)iter->data;
+    if (!child->enabled) {
+      continue;
+    }
+    if (child->expand == TRUE) {
+      continue;
+    }
     if (child->h > 0) {
       b->max_size += child->h;
+    }
+    if (b->max_size > rem_height) {
+      g_debug("Widgets %s to large (height) for box: %s: %d %d", child->name,
+              b->widget.name, b->max_size, b->widget.h);
     }
   }
   if (active_widgets > 0) {
     b->max_size += (active_widgets - 1) * spacing;
   }
   if (b->max_size > rem_height) {
+    g_debug("Widgets to large (height) for box: %s: %d %d", b->widget.name,
+            b->max_size, b->widget.h);
     b->max_size = rem_height;
-    g_debug("Widgets to large (height) for box: %d %d", b->max_size,
-            b->widget.h);
     return;
   }
   if (active_widgets > 0) {
@@ -179,7 +204,7 @@ static void vert_calculate_size(box *b) {
         int expanding_widgets_size = (rem) / (expanding_widgets - index);
         widget_move(child, widget_padding_get_left(WIDGET(b)), top);
         top += expanding_widgets_size;
-        widget_resize(child, rem_width, expanding_widgets_size);
+        widget_resize(child, rem_width, expanding_widgets_size, b->widget.scale);
         top += spacing;
         rem -= expanding_widgets_size;
         index++;
@@ -204,7 +229,7 @@ static void hori_calculate_size(box *b) {
     if (child->enabled && child->expand == FALSE) {
       widget_resize(child,
                     widget_get_desired_width(child, rem_height), // child->w,
-                    rem_height);
+                    rem_height, b->widget.scale);
     }
   }
   b->max_size = 0;
@@ -249,7 +274,7 @@ static void hori_calculate_size(box *b) {
         int expanding_widgets_size = (rem) / (expanding_widgets - index);
         widget_move(child, left, widget_padding_get_top(WIDGET(b)));
         left += expanding_widgets_size;
-        widget_resize(child, expanding_widgets_size, rem_height);
+        widget_resize(child, expanding_widgets_size, rem_height, b->widget.scale);
         left += spacing;
         rem -= expanding_widgets_size;
         index++;
@@ -281,7 +306,6 @@ static void box_free(widget *wid) {
     widget_free(child);
   }
   g_list_free(b->children);
-  g_free(b);
 }
 
 void box_add(box *wid, widget *child, gboolean expand) {
@@ -306,11 +330,12 @@ void box_add(box *wid, widget *child, gboolean expand) {
   widget_update(WIDGET(wid));
 }
 
-static void box_resize(widget *wid, short w, short h) {
+static void box_resize(widget *wid, const short w, const short h, const unsigned int scale) {
   box *b = (box *)wid;
-  if (b->widget.w != w || b->widget.h != h) {
+  if (b->widget.w != w || b->widget.h != h || b->widget.scale != scale ) {
     b->widget.w = w;
     b->widget.h = h;
+    b->widget.scale = scale;
     widget_update(wid);
   }
 }
@@ -345,7 +370,7 @@ static void box_set_state(widget *wid, const char *state) {
 }
 
 box *box_create(widget *parent, const char *name, RofiOrientation type) {
-  box *b = g_malloc0(sizeof(box));
+  box *b = g_atomic_rc_box_new0(box);
   // Initialize widget.
   widget_init(WIDGET(b), parent, WIDGET_TYPE_UNKNOWN, name);
   b->type = type;
@@ -365,6 +390,7 @@ box *box_create(widget *parent, const char *name, RofiOrientation type) {
 }
 
 static void box_update(widget *wid) {
+  // printf("%s box update\n", wid->name);
   box *b = (box *)wid;
   switch (b->type) {
   case ROFI_ORIENTATION_VERTICAL:
@@ -373,8 +399,5 @@ static void box_update(widget *wid) {
   case ROFI_ORIENTATION_HORIZONTAL:
   default:
     hori_calculate_size(b);
-  }
-  if (wid->parent) {
-    widget_update(wid->parent);
   }
 }

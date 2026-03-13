@@ -58,8 +58,7 @@
 static int dmenu_mode_init(Mode *sw);
 static int dmenu_token_match(const Mode *sw, rofi_int_matcher **tokens,
                              unsigned int index);
-static cairo_surface_t *
-dmenu_get_icon(const Mode *sw, unsigned int selected_line, unsigned int height);
+static char **dmenu_get_icon_names(const Mode *sw, unsigned int selected_line);
 static char *dmenu_get_message(const Mode *sw);
 
 static inline unsigned int bitget(uint32_t const *const array,
@@ -134,10 +133,6 @@ static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
   }
   gsize data_len = len;
   // Init.
-  (*block)->values[(*block)->length].icon_fetch_uid = 0;
-  (*block)->values[(*block)->length].icon_fetch_size = 0;
-  (*block)->values[(*block)->length].icon_fetch_scale = 0;
-  (*block)->values[(*block)->length].icon_fallback_index = 0;
   (*block)->values[(*block)->length].icon_name = NULL;
   (*block)->values[(*block)->length].meta = NULL;
   (*block)->values[(*block)->length].info = NULL;
@@ -167,10 +162,6 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
                                                sizeof(DmenuScriptEntry));
   }
   // Init.
-  pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
-  pd->cmd_list[pd->cmd_list_length].icon_fetch_size = 0;
-  pd->cmd_list[pd->cmd_list_length].icon_fetch_scale = 0;
-  pd->cmd_list[pd->cmd_list_length].icon_fallback_index = 0;
   pd->cmd_list[pd->cmd_list_length].icon_name = NULL;
   pd->cmd_list[pd->cmd_list_length].display = NULL;
   pd->cmd_list[pd->cmd_list_length].meta = NULL;
@@ -368,7 +359,8 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
                                          gboolean multi_select) {
   if (pd->columns == NULL) {
     if (multi_select) {
-      if (index < pd->num_selected_list && bitget(pd->selected_list, index) == TRUE) {
+      if (index < pd->num_selected_list &&
+          bitget(pd->selected_list, index) == TRUE) {
         return g_strdup_printf("%s%s", pd->ballot_selected, input);
       } else {
         return g_strdup_printf("%s%s", pd->ballot_unselected, input);
@@ -386,7 +378,8 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
   GString *str_retv = g_string_new("");
 
   if (multi_select) {
-    if (index < pd->num_selected_list && bitget(pd->selected_list, index) == TRUE) {
+    if (index < pd->num_selected_list &&
+        bitget(pd->selected_list, index) == TRUE) {
       g_string_append(str_retv, pd->ballot_selected);
     } else {
       g_string_append(str_retv, pd->ballot_unselected);
@@ -453,7 +446,8 @@ static char *get_display_data(const Mode *data, unsigned int index, int *state,
       *state |= URGENT;
     }
   }
-  if (index < pd->num_selected_list && bitget(pd->selected_list, index) == TRUE) {
+  if (index < pd->num_selected_list &&
+      bitget(pd->selected_list, index) == TRUE) {
     *state |= SELECTED;
   }
   if (pd->do_markup) {
@@ -514,7 +508,7 @@ Mode dmenu_mode = {.name = "dmenu",
                    ._destroy = dmenu_mode_free,
                    ._token_match = dmenu_token_match,
                    ._get_display_value = get_display_data,
-                   ._get_icon = dmenu_get_icon,
+                   ._get_icon_names = dmenu_get_icon_names,
                    ._get_completion = dmenu_get_completion_data,
                    ._preprocess_input = NULL,
                    ._get_message = dmenu_get_message,
@@ -714,49 +708,13 @@ static char *dmenu_get_message(const Mode *sw) {
   }
   return NULL;
 }
-static cairo_surface_t *dmenu_get_icon(const Mode *sw,
-                                       unsigned int selected_line,
-                                       unsigned int height) {
+
+static char **dmenu_get_icon_names(const Mode *sw, unsigned int selected_line) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
-  const guint scale = display_scale();
 
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
   DmenuScriptEntry *dr = &(pd->cmd_list[selected_line]);
-  if (dr->icon_name == NULL) {
-    return NULL;
-  }
-
-  if (dr->icon_fetch_uid > 0) {
-    cairo_surface_t *surface = NULL;
-    gboolean query_done = rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
-
-    if (surface != NULL) {
-      return surface;
-    } else if (query_done) {
-      dr->icon_fallback_index++;
-      dr->icon_fetch_uid = 0;
-    } else {
-      return NULL;
-    }
-  }
-
-  char *current_icon = NULL;
-  if (dr->icon_name && dr->icon_fallback_index >= 0) {
-      int icon_count = g_strv_length(dr->icon_name);
-      if (dr->icon_fallback_index < icon_count) {
-          current_icon = dr->icon_name[dr->icon_fallback_index];
-      }
-  }
-  if ( current_icon ){
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
-    dr->icon_fetch_size = height;
-    dr->icon_fetch_scale = scale;
-
-  } else {
-    dr->icon_fetch_uid = 0;
-  }
-
-  return NULL;
+  return g_strdupv(dr->icon_name);
 }
 
 static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state,
@@ -804,7 +762,7 @@ static void dmenu_print_results(DmenuModePrivateData *pd, const char *input) {
   DmenuScriptEntry *cmd_list = pd->cmd_list;
   int seen = FALSE;
   for (unsigned int st = 0; st < pd->num_selected_list; st++) {
-    if ( bitget(pd->selected_list, st)) {
+    if (bitget(pd->selected_list, st)) {
       seen = TRUE;
       rofi_output_formatted_line(pd->format, cmd_list[st].entry, st, input);
     }
@@ -830,7 +788,7 @@ static void dmenu_finalize(RofiViewState *state) {
 
   char *input = g_strdup(rofi_view_get_user_input(state));
   pd->selected_line = rofi_view_get_selected_line(state);
-  ;
+
   MenuReturn mretv = rofi_view_get_return_value(state);
   unsigned int next_pos = rofi_view_get_next_position(state);
   int restart = 0;
@@ -849,14 +807,15 @@ static void dmenu_finalize(RofiViewState *state) {
         restart = TRUE;
         pd->loading = FALSE;
         if (pd->num_selected_list != pd->cmd_list_length) {
-          size_t new_length = pd->cmd_list_length/32+1;
+          size_t new_length = pd->cmd_list_length / 32 + 1;
           pd->selected_list =
-              g_realloc(pd->selected_list,sizeof(uint32_t) * (new_length));
-          if ( pd->num_selected_list == 0 ){
-            memset(pd->selected_list, 0, new_length*sizeof(uint32_t));
+              g_realloc(pd->selected_list, sizeof(uint32_t) * (new_length));
+          if (pd->num_selected_list == 0) {
+            memset(pd->selected_list, 0, new_length * sizeof(uint32_t));
           } else {
-            size_t old_length = pd->num_selected_list/32+1;
-            memset(&pd->selected_list[old_length], 0, (new_length-old_length)*sizeof(uint32_t));
+            size_t old_length = pd->num_selected_list / 32 + 1;
+            memset(&pd->selected_list[old_length], 0,
+                   (new_length - old_length) * sizeof(uint32_t));
           }
           pd->num_selected_list = pd->cmd_list_length;
         }
@@ -912,16 +871,17 @@ static void dmenu_finalize(RofiViewState *state) {
     if ((mretv & MENU_CUSTOM_ACTION) && pd->multi_select) {
       restart = TRUE;
       if (pd->num_selected_list != pd->cmd_list_length) {
-          size_t new_length = pd->cmd_list_length/32+1;
-          pd->selected_list =
-              g_realloc(pd->selected_list,sizeof(uint32_t) * (new_length));
-          if ( pd->num_selected_list == 0 ){
-            memset(pd->selected_list, 0, new_length*sizeof(uint32_t));
-          } else {
-            size_t old_length = pd->num_selected_list/32+1;
-            memset(&pd->selected_list[old_length], 0, (new_length-old_length)*sizeof(uint32_t));
-          }
-          pd->num_selected_list = pd->cmd_list_length;
+        size_t new_length = pd->cmd_list_length / 32 + 1;
+        pd->selected_list =
+            g_realloc(pd->selected_list, sizeof(uint32_t) * (new_length));
+        if (pd->num_selected_list == 0) {
+          memset(pd->selected_list, 0, new_length * sizeof(uint32_t));
+        } else {
+          size_t old_length = pd->num_selected_list / 32 + 1;
+          memset(&pd->selected_list[old_length], 0,
+                 (new_length - old_length) * sizeof(uint32_t));
+        }
+        pd->num_selected_list = pd->cmd_list_length;
       }
       pd->selected_count +=
           (bitget(pd->selected_list, pd->selected_line) ? (-1) : (1));

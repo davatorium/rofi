@@ -29,8 +29,8 @@
 #define ROFI_VIEW_H
 
 #include "mode.h"
-#include "widgets/widget.h"
 #include "widgets/textbox.h"
+#include "widgets/widget.h"
 #include <pango/pango.h>
 #ifdef ENABLE_XCB
 #include <xcb/xcb.h>
@@ -213,10 +213,10 @@ void rofi_view_free(RofiViewState *state);
 RofiViewState *rofi_view_get_active(void);
 
 /**
-  * Get the current active textbox with the user input.
-  *
-  * @returns the active textbox or NULL
-  */
+ * Get the current active textbox with the user input.
+ *
+ * @returns the active textbox or NULL
+ */
 textbox *rofi_view_get_active_text(void);
 
 /**
@@ -279,6 +279,16 @@ void rofi_view_hide(void);
  * The reloading happens 'lazy', multiple calls might be handled at once.
  */
 void rofi_view_reload(void);
+
+/**
+ * @param widget The widget that needs to be reloaded.
+ *
+ * Indicate the current view needs to reload its data.
+ * This can only be done when *more* information is available.
+ *
+ * The reloading happens 'lazy', multiple calls might be handled at once.
+ */
+void rofi_view_reload_widget(widget *widget);
 
 /**
  * @param state The handle to the view

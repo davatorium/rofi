@@ -33,7 +33,7 @@
 G_BEGIN_DECLS
 
 /** ABI version to check if loaded plugin is compatible. */
-#define ABI_VERSION 7u
+#define ABI_VERSION 8u
 
 /**
  * @defgroup MODE Mode
@@ -146,6 +146,7 @@ char *mode_get_display_value(const Mode *mode, unsigned int selected_line,
 cairo_surface_t *mode_get_icon(Mode *mode, unsigned int selected_line,
                                unsigned int height);
 
+char **mode_get_icon_names(Mode *mode, unsigned int selected_line);
 /**
  * @param mode The mode to query
  * @param selected_line The entry to query

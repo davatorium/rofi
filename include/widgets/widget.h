@@ -194,10 +194,11 @@ void widget_free(widget *wid);
  * @param wid The widget toresize
  * @param w The new width
  * @param h The new height
+ * @param scale The new scale
  *
  * Resizes the widget.
  */
-void widget_resize(widget *wid, short w, short h);
+void widget_resize(widget *wid, const short w, const short h, const unsigned int scale);
 
 /**
  * @param wid The widget handle
@@ -355,5 +356,24 @@ int widget_get_absolute_xpos(widget *wid);
  * @returns the absolute y-position of widget of the widget in pixels.
  */
 int widget_get_absolute_ypos(widget *wid);
+
+/**
+ * @param wid The widget handle
+ *
+ * Increase the ref count of the widget.
+ */
+void widget_ref(widget *wid);
+/**
+ * @param wid The widget handle
+ *
+ * Decrease the ref count of the widget.
+ * If refcount is 0, the widget is free'ed.
+ */
+void widget_unref(widget *wid);
+
+/**
+ * Print debug information about widgets that are still referenced.
+ */
+void widget_debug(void);
 /**@}*/
 #endif // ROFI_WIDGET_H

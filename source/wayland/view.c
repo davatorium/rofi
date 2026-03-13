@@ -146,7 +146,7 @@ static void wayland_rofi_view_window_update_size(RofiViewState *state) {
   int offset_x = rofi_get_offset_px(state, ROFI_ORIENTATION_HORIZONTAL);
   int offset_y = rofi_get_offset_px(state, ROFI_ORIENTATION_VERTICAL);
 
-  widget_resize(WIDGET(state->main_window), state->width, state->height);
+  widget_resize(WIDGET(state->main_window), state->width, state->height, display_scale());
   display_set_surface_dimensions(state->width, state->height, offset_x,
                                  offset_y, rofi_get_location(state));
   rofi_view_pool_refresh();

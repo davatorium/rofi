@@ -66,6 +66,7 @@
 #define CLIENTSTATE 10
 #define CLIENTWINDOWTYPE 10
 
+cairo_surface_t *get_net_wm_icon(xcb_window_t xid, uint32_t preferred_size);
 // Fields to match in window mode
 typedef struct {
   char *field_name;
@@ -124,12 +125,6 @@ typedef struct {
   char *wmdesktopstr;
   unsigned int wmdesktopstr_len;
   cairo_surface_t *icon;
-  gboolean icon_checked;
-  uint32_t icon_fetch_uid;
-  uint32_t icon_fetch_size;
-  guint icon_fetch_scale;
-  gboolean thumbnail_checked;
-  gboolean icon_theme_checked;
 } client;
 
 // window lists
@@ -1060,8 +1055,7 @@ static cairo_surface_t *ewmh_window_icon_from_reply(xcb_get_property_reply_t *r,
   return draw_surface_from_data(found_data[0], found_data[1], found_data + 2);
 }
 /** Get NET_WM_ICON. */
-static cairo_surface_t *get_net_wm_icon(xcb_window_t xid,
-                                        uint32_t preferred_size) {
+cairo_surface_t *get_net_wm_icon(xcb_window_t xid, uint32_t preferred_size) {
   xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(
       xcb->connection, FALSE, xid, xcb->ewmh._NET_WM_ICON, XCB_ATOM_CARDINAL, 0,
       UINT32_MAX);
@@ -1071,72 +1065,28 @@ static cairo_surface_t *get_net_wm_icon(xcb_window_t xid,
   free(r);
   return surface;
 }
-static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
-                                  unsigned int size) {
+static char **_get_icon_names(const Mode *sw, unsigned int selected_line) {
   WindowModePrivateData *rmpd = mode_get_private_data(sw);
-  const guint scale = display_scale();
   client *c = window_client(rmpd, rmpd->ids->array[selected_line]);
   if (c == NULL) {
     return NULL;
   }
-  if (c->icon_fetch_size != size || c->icon_fetch_scale != scale) {
-    if (c->icon) {
-      cairo_surface_destroy(c->icon);
-      c->icon = NULL;
-    }
-    c->thumbnail_checked = FALSE;
-    c->icon_checked = FALSE;
-    c->icon_theme_checked = FALSE;
+  char **retv = g_malloc0(4 * sizeof(char *));
+  int index = 0;
+  if (config.window_thumbnail) {
+    retv[index++] =
+        g_strdup_printf("screenshot://%d", rmpd->ids->array[selected_line]);
   }
-  // TODO: apply scaling to the following two routines
-  if (config.window_thumbnail && c->thumbnail_checked == FALSE) {
-    c->icon = x11_helper_get_screenshot_surface_window(c->window, size);
-    c->thumbnail_checked = TRUE;
-  }
-  if (rmpd->prefer_icon_theme == FALSE) {
-    if (c->icon == NULL && c->icon_checked == FALSE) {
-      c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
-      c->icon_checked = TRUE;
-    }
-    if (c->icon == NULL && c->class && c->icon_theme_checked == FALSE) {
-      if (c->icon_fetch_uid == 0) {
-        char *class_lower = g_utf8_strdown(c->class, -1);
-        c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
-        g_free(class_lower);
-        c->icon_fetch_size = size;
-        c->icon_fetch_scale = scale;
-      }
-      c->icon_theme_checked =
-          rofi_icon_fetcher_get_ex(c->icon_fetch_uid, &(c->icon));
-      if (c->icon) {
-        cairo_surface_reference(c->icon);
-      }
-    }
+  if (rmpd->prefer_icon_theme) {
+    retv[index++] = g_utf8_strdown(c->class, -1);
+    retv[index++] =
+        g_strdup_printf("xwin://%d", rmpd->ids->array[selected_line]);
   } else {
-    if (c->icon == NULL && c->class && c->icon_theme_checked == FALSE) {
-      if (c->icon_fetch_uid == 0 || c->icon_fetch_size != size ||
-          c->icon_fetch_scale != scale) {
-        char *class_lower = g_utf8_strdown(c->class, -1);
-        c->icon_fetch_uid = rofi_icon_fetcher_query(class_lower, size);
-        g_free(class_lower);
-        c->icon_fetch_size = size;
-        c->icon_fetch_scale = scale;
-      }
-      c->icon_theme_checked =
-          rofi_icon_fetcher_get_ex(c->icon_fetch_uid, &(c->icon));
-      if (c->icon) {
-        cairo_surface_reference(c->icon);
-      }
-    }
-    if (c->icon_theme_checked == TRUE && c->icon == NULL &&
-        c->icon_checked == FALSE) {
-      c->icon = get_net_wm_icon(rmpd->ids->array[selected_line], size);
-      c->icon_checked = TRUE;
-    }
+    retv[index++] =
+        g_strdup_printf("xwin://%d", rmpd->ids->array[selected_line]);
+    retv[index++] = g_utf8_strdown(c->class, -1);
   }
-  c->icon_fetch_size = size;
-  c->icon_fetch_scale = scale;
-  return c->icon;
+  return retv;
 }
 
 #include "mode-private.h"
@@ -1148,7 +1098,7 @@ Mode window_mode = {.name = "window",
                     ._destroy = window_mode_destroy,
                     ._token_match = window_match,
                     ._get_display_value = _get_display_value,
-                    ._get_icon = _get_icon,
+                    ._get_icon_names = _get_icon_names,
                     ._get_completion = NULL,
                     ._preprocess_input = NULL,
                     .private_data = NULL,
@@ -1162,7 +1112,7 @@ Mode window_mode_cd = {.name = "windowcd",
                        ._destroy = window_mode_destroy,
                        ._token_match = window_match,
                        ._get_display_value = _get_display_value,
-                       ._get_icon = _get_icon,
+                       ._get_icon_names = _get_icon_names,
                        ._get_completion = NULL,
                        ._preprocess_input = NULL,
                        .private_data = NULL,

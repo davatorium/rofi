@@ -257,7 +257,6 @@ static void listview_free(widget *wid) {
 
   g_free(lv->listview_name);
   widget_free(WIDGET(lv->scrollbar));
-  g_free(lv);
 }
 static unsigned int scroll_per_page_barview(listview *lv) {
   unsigned int offset = lv->last_offset;
@@ -400,7 +399,7 @@ static void barview_draw(widget *wid, cairo_t *draw) {
             twidth = width;
           }
           widget_move(WIDGET(lv->boxes[i].box), left_offset, top_offset);
-          widget_resize(WIDGET(lv->boxes[i].box), twidth, lv->element_height);
+          widget_resize(WIDGET(lv->boxes[i].box), twidth, lv->element_height, lv->widget.scale);
 
           widget_draw(WIDGET(lv->boxes[i].box), draw);
           width -= twidth + spacing_hori;
@@ -422,7 +421,7 @@ static void barview_draw(widget *wid, cairo_t *draw) {
           }
           right_offset -= twidth;
           widget_move(WIDGET(lv->boxes[i].box), right_offset, top_offset);
-          widget_resize(WIDGET(lv->boxes[i].box), twidth, lv->element_height);
+          widget_resize(WIDGET(lv->boxes[i].box), twidth, lv->element_height, lv->widget.scale);
 
           widget_draw(WIDGET(lv->boxes[i].box), draw);
           width -= twidth + spacing_hori;
@@ -526,7 +525,7 @@ static void listview_draw(widget *wid, cairo_t *draw) {
           }
           widget_move(WIDGET(lv->boxes[i].box), ex, ey);
           widget_resize(WIDGET(lv->boxes[i].box), element_width,
-                        lv->element_height);
+                        lv->element_height, lv->widget.scale);
 
         } else {
           unsigned int ex = left_offset + ((i) / lv->max_rows) *
@@ -547,7 +546,7 @@ static void listview_draw(widget *wid, cairo_t *draw) {
           }
           widget_move(WIDGET(lv->boxes[i].box), ex, ey);
           widget_resize(WIDGET(lv->boxes[i].box), element_width,
-                        lv->element_height);
+                        lv->element_height, lv->widget.scale);
         }
         update_element(lv, i, i + offset, TRUE);
         widget_draw(WIDGET(lv->boxes[i].box), draw);
@@ -624,6 +623,9 @@ void listview_set_num_elements(listview *lv, unsigned int rows) {
     return;
   }
   TICK_N("listview_set_num_elements");
+  if (lv->req_elements == rows) {
+    return;
+  }
   lv->req_elements = rows;
   if (lv->require_input && !lv->filtered) {
     lv->req_elements = 0;
@@ -661,10 +663,11 @@ void listview_set_selected(listview *lv, unsigned int selected) {
   }
 }
 
-static void listview_resize(widget *wid, short w, short h) {
+static void listview_resize(widget *wid, const short w, const short h, const unsigned int scale) {
   listview *lv = (listview *)wid;
   lv->widget.w = MAX(0, w);
   lv->widget.h = MAX(0, h);
+  lv->widget.scale = scale;
   int height = lv->widget.h - widget_padding_get_padding_height(WIDGET(lv));
   int spacing_vert = distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
   if (lv->widget.h == 0) {
@@ -681,7 +684,7 @@ static void listview_resize(widget *wid, short w, short h) {
               widget_padding_get_top(WIDGET(lv)));
 
   widget_resize(WIDGET(lv->scrollbar), widget_get_width(WIDGET(lv->scrollbar)),
-                height);
+                height, lv->widget.scale);
 
   if (lv->type == BARVIEW) {
     lv->max_elements = lv->menu_lines;
@@ -785,7 +788,7 @@ listview *listview_create(widget *parent, const char *name,
                           listview_update_callback cb,
                           listview_page_changed_cb page_cb, void *udata,
                           unsigned int eh, gboolean reverse) {
-  listview *lv = g_malloc0(sizeof(listview));
+  listview *lv = g_atomic_rc_box_new0(listview);
   widget_init(WIDGET(lv), parent, WIDGET_TYPE_LISTVIEW, name);
   lv->listview_name = g_strdup(name);
   lv->widget.free = listview_free;
@@ -810,7 +813,7 @@ listview *listview_create(widget *parent, const char *name,
       buff[i * 2] = 'a';
       buff[i * 2 + 1] = '\n';
     };
-    textbox_moveresize(row.textbox, 0, 0, 100000000, -1);
+    textbox_moveresize(row.textbox, 0, 0, 100000000, -1, WIDGET(row.textbox)->scale);
     textbox_text(row.textbox, buff);
   }
   // Make textbox very wide.

@@ -31,6 +31,7 @@
 #include "helper.h"
 #include "keyb.h"
 #include "mode.h"
+#include "pango/pango-layout.h"
 #include "timings.h"
 #include "view.h"
 #include "widgets/textbox.h"
@@ -70,9 +71,9 @@ static gboolean textbox_blink(gpointer data) {
   return TRUE;
 }
 
-static void textbox_resize(widget *wid, short w, short h) {
+static void textbox_resize(widget *wid, const short w, const short h, const unsigned int scale) {
   textbox *tb = (textbox *)wid;
-  textbox_moveresize(tb, tb->widget.x, tb->widget.y, w, h);
+  textbox_moveresize(tb, tb->widget.x, tb->widget.y, w, h, scale);
 }
 static int textbox_get_desired_height(widget *wid, const int width) {
   textbox *tb = (textbox *)wid;
@@ -203,7 +204,7 @@ static void textbox_tab_stops(textbox *tb) {
 textbox *textbox_create(widget *parent, WidgetType type, const char *name,
                         TextboxFlags flags, TextBoxFontType tbft,
                         const char *text, double xalign, double yalign) {
-  textbox *tb = g_slice_new0(textbox);
+  textbox *tb = g_atomic_rc_box_new0(textbox);
 
   widget_init(WIDGET(tb), parent, type, name);
 
@@ -384,7 +385,12 @@ void textbox_set_pango_attributes(textbox *tb, PangoAttrList *list) {
   if (tb == NULL) {
     return;
   }
-  pango_layout_set_attributes(tb->layout, list);
+  if (/*WIDGET(tb)->need_redraw ||*/
+      !pango_attr_list_equal(list, pango_layout_get_attributes(tb->layout))) {
+    //    pango_layout_set_text(tb->layout, tb->text, -1);
+    pango_layout_set_attributes(tb->layout, list);
+    widget_queue_redraw(WIDGET(tb));
+  }
 }
 
 char *textbox_get_text(const textbox *tb) {
@@ -402,6 +408,9 @@ int textbox_get_cursor(const textbox *tb) {
 // set the default text to display
 void textbox_text(textbox *tb, const char *text) {
   if (tb == NULL) {
+    return;
+  }
+  if (g_strcmp0(text, tb->text) == 0) {
     return;
   }
   g_free(tb->text);
@@ -424,9 +433,9 @@ void textbox_text(textbox *tb, const char *text) {
   __textbox_update_pango_text(tb);
   if (tb->flags & TB_AUTOWIDTH) {
     textbox_moveresize(tb, tb->widget.x, tb->widget.y, tb->widget.w,
-                       tb->widget.h);
+                       tb->widget.h, tb->widget.scale);
     if (WIDGET(tb)->parent) {
-      widget_update(WIDGET(tb)->parent);
+      widget_update(WIDGET(tb));
     }
   }
 
@@ -435,7 +444,7 @@ void textbox_text(textbox *tb, const char *text) {
 }
 
 // within the parent handled auto width/height modes
-void textbox_moveresize(textbox *tb, int x, int y, int w, int h) {
+void textbox_moveresize(textbox *tb, int x, int y, int w, int h, unsigned int scale ) {
   if (tb->flags & TB_AUTOWIDTH) {
     pango_layout_set_width(tb->layout, -1);
     w = textbox_get_font_width(tb) +
@@ -456,16 +465,18 @@ void textbox_moveresize(textbox *tb, int x, int y, int w, int h) {
     int padding = widget_padding_get_padding_width(WIDGET(tb));
     int tw = MAX(1 + padding, w);
     pango_layout_set_width(tb->layout, PANGO_SCALE * (tw - padding));
-    int hd = textbox_get_height(tb);
+    int hd = textbox_get_estimated_height(
+        tb, pango_layout_get_line_count(tb->layout));
     h = MAX(hd, h);
   }
 
   if (x != tb->widget.x || y != tb->widget.y || w != tb->widget.w ||
-      h != tb->widget.h) {
+      h != tb->widget.h || scale != tb->widget.scale) {
     tb->widget.x = x;
     tb->widget.y = y;
     tb->widget.h = MAX(1, h);
     tb->widget.w = MAX(1, w);
+    tb->widget.scale = scale;
   }
 
   // We always want to update this
@@ -491,8 +502,6 @@ static void textbox_free(widget *wid) {
   if (tb->layout != NULL) {
     g_object_unref(tb->layout);
   }
-
-  g_slice_free(textbox, tb);
 }
 
 static void textbox_draw(widget *wid, cairo_t *draw) {
@@ -772,6 +781,7 @@ void textbox_insert(textbox *tb, const int char_pos, const char *str,
   // Stop blink!
   tb->blink = 2;
   tb->changed = TRUE;
+  widget_queue_redraw(WIDGET(tb));
 }
 
 // remove text
@@ -801,6 +811,7 @@ void textbox_delete(textbox *tb, int pos, int dlen) {
   // Stop blink!
   tb->blink = 2;
   tb->changed = TRUE;
+  widget_queue_redraw(WIDGET(tb));
 }
 
 /**
@@ -839,7 +850,7 @@ static void textbox_transpose_chars(textbox *tb) {
   }
   // Find pointer to cursor.
   gchar *cursor_ptr = g_utf8_offset_to_pointer(tb->text, tb->cursor);
-  if ( cursor_ptr == NULL ){
+  if (cursor_ptr == NULL) {
     // We should never reach this.
     g_warning("Invalid cursor index detected.");
     return;
@@ -860,13 +871,13 @@ static void textbox_transpose_chars(textbox *tb) {
   size_t first_char_l = second_char_ptr - first_char_ptr;
   size_t second_char_l = cursor_ptr - second_char_ptr;
   // Create a temp buffer so we can swap.
-  gchar temp[second_char_l+ first_char_l];
+  gchar temp[second_char_l + first_char_l];
   // Copy char 2 into first place.
   memcpy(temp, second_char_ptr, second_char_l);
   // Copy char 1 into 2nd place.
   memcpy(temp + second_char_l, first_char_ptr, first_char_l);
   // Copy new order back into original string.
-  memcpy(first_char_ptr, temp, second_char_l+ first_char_l);
+  memcpy(first_char_ptr, temp, second_char_l + first_char_l);
   // Set modified, lay out need te be redrawn
   // Stop blink!
   tb->blink = 2;
@@ -1070,10 +1081,6 @@ int _textbox_get_height(widget *wid) {
         tb, pango_layout_get_line_count(tb->layout));
   }
   return tb->widget.h;
-}
-int textbox_get_height(const textbox *tb) {
-  return textbox_get_font_height(tb) +
-         widget_padding_get_padding_height(WIDGET(tb));
 }
 
 int textbox_get_font_height(const textbox *tb) {
