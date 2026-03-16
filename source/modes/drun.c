@@ -446,13 +446,17 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
   if (launched == FALSE) {
     gchar **envp = g_get_environ();
     guint envp_l = g_strv_length(envp);
-    envp = g_realloc(envp, sizeof(char *) * (envp_l + 4));
+    envp = g_realloc(envp, sizeof(char *) * (envp_l + 6));
     envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_ID=%s", e->desktop_id);
     envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_PATH=%s", e->path);
     envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_NAME=%s", e->name);
+    envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_NAME_L=%s", e->name);
+    envp[envp_l] = NULL;
+    if (e->generic_name) {
+      envp[envp_l++] =
+          g_strdup_printf("DESKTOP_ENTRY_GENERICNAME_L=%s", e->generic_name);
+    }
     envp[envp_l++] = NULL;
-
-    /** Fallback to old style if not set. */
 
     // Returns false if not found, if key not found, we don't want run in
     // terminal.
