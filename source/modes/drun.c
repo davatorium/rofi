@@ -405,7 +405,7 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
   RofiHelperExecuteContext context = {
       .name = e->name,
       .icon = e->icon_name,
-      .app_id = e->app_id,
+      .app_id = e->desktop_id,
   };
   gboolean sn =
       g_key_file_get_boolean(e->key_file, e->action, "StartupNotify", NULL);
