@@ -418,7 +418,7 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
 
   gboolean launched = FALSE;
 
-  if (pd->disable_giolaunch == TRUE) {
+  if (pd->disable_giolaunch == FALSE) {
     GDesktopAppInfo *gdai = g_desktop_app_info_new_from_keyfile(e->key_file);
 
     if (gdai != NULL) {
@@ -444,14 +444,24 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
   }
 
   if (launched == FALSE) {
+    gchar **envp = g_get_environ();
+    guint envp_l = g_strv_length(envp);
+    envp = g_realloc(envp, sizeof(char *) * (envp_l + 4));
+    envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_ID=%s", e->desktop_id);
+    envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_PATH=%s", e->path);
+    envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_NAME=%s", e->name);
+    envp[envp_l++] = NULL;
+
     /** Fallback to old style if not set. */
 
     // Returns false if not found, if key not found, we don't want run in
     // terminal.
     gboolean terminal =
         g_key_file_get_boolean(e->key_file, e->action, "Terminal", NULL);
-    launched =
-        helper_execute_command(exec_path, fp, terminal, sn ? &context : NULL);
+    launched = helper_execute_command_env(exec_path, fp, terminal,
+                                          sn ? &context : NULL, envp);
+
+    g_strfreev(envp);
   }
   if (launched == TRUE) {
     char *drun_cach_path = g_build_filename(cache_dir, DRUN_CACHE_FILE, NULL);
