@@ -71,8 +71,8 @@ runs:
       shell: bash
     - id: check
       run: |
-        curl -L https://github.com/libcheck/check/releases/download/0.14.0/check-0.14.0.tar.gz | tar xzf -
-        cd check-0.14.0
+        curl -L https://github.com/libcheck/check/releases/download/0.15.2/check-0.15.2.tar.gz | tar xzf -
+        cd check-0.15.2
         ./configure
         make
         sudo make install

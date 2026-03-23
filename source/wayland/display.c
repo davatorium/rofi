@@ -65,8 +65,8 @@
 #endif
 #include "keyboard-shortcuts-inhibit-unstable-v1-protocol.h"
 #include "primary-selection-unstable-v1-protocol.h"
-#include "wlr-layer-shell-unstable-v1-protocol.h"
 #include "text-input-unstable-v3-protocol.h"
+#include "wlr-layer-shell-unstable-v1-protocol.h"
 
 #define wayland_output_get_dpi(output, scale, dimension)                       \
   ((output)->current.physical_##dimension > 0 && (scale) > 0                   \
@@ -204,6 +204,8 @@ wayland_buffer_pool *display_buffer_pool_new(gint width, gint height) {
 
   wayland_buffer_pool *pool;
   pool = g_new0(wayland_buffer_pool, 1);
+  pool->data = data;
+  pool->size = pool_size;
 
   pool->width = width;
   pool->height = height;
