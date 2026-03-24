@@ -263,6 +263,8 @@ Start in case-smart mode behave like vim's `smartcase`, which determines
 case-sensitivity by input.  When enabled, this will suppress `-case-sensitive`
 config.
 
+Default: disabled.
+
 `-cycle`
 
 Cycle through the result list. Default is 'true'.
@@ -1180,6 +1182,17 @@ To avoid this, add the following rule to your hyprland.conf file:
 
 ```
 layerrule = noanim,^(rofi)$
+```
+
+For hyprland >= 0.53.0:
+
+```
+layerrule {
+    name = fix-rofi
+    match:namespace = rofi
+    no_anim = true
+ }
+
 ```
 
 This disables the animations on the **Rofi** window.

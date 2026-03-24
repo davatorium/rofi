@@ -403,18 +403,23 @@ static gboolean exec_dbus_entry(DRunModeEntry *e, const char *path) {
     g_object_unref(file);
   }
   // Wait 1500ms, otherwise assume failed.
-  result = g_dbus_connection_call_sync(
-      session, e->app_id, object_path, "org.freedesktop.Application", method,
-      params, G_VARIANT_TYPE_UNIT, G_DBUS_CALL_FLAGS_NONE, 1500, NULL, &error);
-
+  result = NULL;
+  if (g_dbus_is_name(e->app_id)) {
+    result = g_dbus_connection_call_sync(
+        session, e->app_id, object_path, "org.freedesktop.Application", method,
+        params, G_VARIANT_TYPE_UNIT, G_DBUS_CALL_FLAGS_NONE, 1500, NULL,
+        &error);
+  }
   g_free(object_path);
 
   if (result) {
     g_variant_unref(result);
   } else {
-    g_warning("error sending %s message to application: %s\n", "Open",
-              error->message);
-    g_error_free(error);
+    if (error != NULL) {
+      g_warning("error sending %s message to application: %s\n", "Open",
+                error->message);
+      g_error_free(error);
+    }
     g_object_unref(session);
     return FALSE;
   }
