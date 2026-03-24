@@ -99,13 +99,13 @@ static void icon_draw(widget *wid, cairo_t *draw) {
   }
   int iconh = cairo_image_surface_get_height(b->icon);
   int iconw = cairo_image_surface_get_width(b->icon);
-  int icons = MAX(iconh, iconw);
-  double scale = (double)b->size / icons;
-
   int lpad = widget_padding_get_left(WIDGET(b));
   int rpad = widget_padding_get_right(WIDGET(b));
   int tpad = widget_padding_get_top(WIDGET(b));
   int bpad = widget_padding_get_bottom(WIDGET(b));
+  double scalex = (double)(b->widget.w - lpad - rpad) / iconw;
+  double scaley = (double)(b->widget.h - tpad - bpad) / iconh;
+  double scale = MIN(scalex, scaley);
 
   cairo_save(draw);
 
