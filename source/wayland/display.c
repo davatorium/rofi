@@ -117,6 +117,8 @@ static const cairo_user_data_key_t wayland_cairo_surface_user_data;
 
 static const struct zwp_text_input_v3_listener text_input_listener;
 
+static const struct _view_proxy *wayland_display_view_proxy(void);
+
 static void wayland_buffer_cleanup(wayland_buffer_pool *self) {
   if (!self->to_free) {
     return;
@@ -583,8 +585,27 @@ static void wayland_pointer_send_events(wayland_seat *self) {
     return;
   }
 
+  int menu_x = 0, menu_y = 0, menu_w = 0, menu_h = 0;
+
+  gboolean capture = config.click_to_exit;
+
+  if (capture) {
+    rofi_view_get_menu_rect(&menu_x, &menu_y, &menu_w, &menu_h);
+    if (menu_w <= 0 || menu_h <= 0) {
+      capture = FALSE;
+    }
+  }
+
   if (self->motion.x > -1 || self->motion.y > -1) {
-    rofi_view_handle_mouse_motion(state, self->motion.x, self->motion.y,
+    int motion_x = self->motion.x;
+    int motion_y = self->motion.y;
+
+    if (capture) {
+      motion_x -= menu_x;
+      motion_y -= menu_y;
+    }
+
+    rofi_view_handle_mouse_motion(state, motion_x, motion_y,
                                   config.hover_select);
     self->motion.x = -1;
     self->motion.y = -1;
@@ -604,17 +625,42 @@ static void wayland_pointer_send_events(wayland_seat *self) {
   }
 
   if (self->button.button > 0) {
+    gboolean inside = TRUE;
+
+    if (capture) {
+      inside = self->button.x >= menu_x && self->button.x < menu_x + menu_w &&
+               self->button.y >= menu_y && self->button.y < menu_y + menu_h;
+    }
+
     if (self->button.pressed) {
-      rofi_view_handle_mouse_motion(state, self->button.x, self->button.y,
-                                    FALSE);
+      if (capture && !inside) {
+        rofi_view_cancel(state);
+
+        self->button.button = 0;
+        rofi_view_maybe_update(state);
+        return;
+      }
+
+      int button_x = self->button.x;
+      int button_y = self->button.y;
+
+      if (capture) {
+        button_x -= menu_x;
+        button_y -= menu_y;
+      }
+
+      rofi_view_handle_mouse_motion(state, button_x, button_y, FALSE);
       nk_bindings_seat_handle_button(wayland->bindings_seat, NULL, button,
                                      NK_BINDINGS_BUTTON_STATE_PRESS,
                                      self->button.time);
     } else {
-      nk_bindings_seat_handle_button(wayland->bindings_seat, NULL, button,
-                                     NK_BINDINGS_BUTTON_STATE_RELEASE,
-                                     self->button.time);
+      if (!capture || inside) {
+        nk_bindings_seat_handle_button(wayland->bindings_seat, NULL, button,
+                                       NK_BINDINGS_BUTTON_STATE_RELEASE,
+                                       self->button.time);
+      }
     }
+
     self->button.button = 0;
   }
 
@@ -1203,9 +1249,9 @@ static void update_cursor_rectangle(struct zwp_text_input_v3 *text_input) {
 static void text_input_enter(void *data, struct zwp_text_input_v3 *text_input,
                              struct wl_surface *surface) {
   zwp_text_input_v3_enable(text_input);
-  zwp_text_input_v3_set_content_type(
-      text_input, ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE,
-      ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL);
+  zwp_text_input_v3_set_content_type(text_input,
+                                     ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE,
+                                     ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL);
   update_cursor_rectangle(text_input);
   zwp_text_input_v3_commit(text_input);
 }
@@ -1236,11 +1282,9 @@ static void text_input_commit_string(void *data,
   }
 }
 
-static void
-text_input_delete_surrounding_text(void *data,
-                                   struct zwp_text_input_v3 *text_input,
-                                   uint32_t before_length,
-                                   uint32_t after_length) {}
+static void text_input_delete_surrounding_text(
+    void *data, struct zwp_text_input_v3 *text_input, uint32_t before_length,
+    uint32_t after_length) {}
 
 static void text_input_done(void *data, struct zwp_text_input_v3 *text_input,
                             uint32_t serial) {}
@@ -1289,18 +1333,18 @@ static wayland_output *wayland_output_by_name(const char *name) {
 }
 double wayland_get_dpi_estimation(void) {
   double retv = -1.0;
-  if ( wayland == 0 ) {
+  if (wayland == 0) {
     return -1.0;
   }
   gsize noutputs = g_hash_table_size(wayland->outputs);
-  if ( noutputs == 1) {
+  if (noutputs == 1) {
     GHashTableIter iter;
     wayland_output *output;
     g_hash_table_iter_init(&iter, wayland->outputs);
     if (g_hash_table_iter_next(&iter, NULL, (gpointer *)&output)) {
       return wayland_output_get_dpi(output, output->current.scale, height);
     }
-  } else if (noutputs > 1 && config.monitor != NULL ) {
+  } else if (noutputs > 1 && config.monitor != NULL) {
     wayland_output *output = wayland_output_by_name(config.monitor);
     if (output != NULL) {
       return wayland_output_get_dpi(output, output->current.scale, height);
@@ -1710,7 +1754,8 @@ static gboolean wayland_display_late_setup(void) {
     layer = ZWLR_LAYER_SHELL_V1_LAYER_BACKGROUND;
   } else {
     layer = ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY;
-    g_warning("Unknown wayland layer: %s, using default overlay", config.wayland_layer);
+    g_warning("Unknown wayland layer: %s, using default overlay",
+              config.wayland_layer);
   }
   wayland->wlr_surface = zwlr_layer_shell_v1_get_layer_surface(
       wayland->layer_shell, wayland->surface, wlo, layer, "rofi");
@@ -1762,6 +1807,11 @@ gboolean display_get_surface_dimensions(int *width, int *height) {
   return FALSE;
 }
 
+/* Click-capture is limited to the current output. If the menu is larger than
+ * the monitor and visually overflows onto another output, the overflowed area
+ * will not be part of the capture surface and clicks there will not trigger
+ * click-to-exit.
+ */
 void display_set_surface_dimensions(int width, int height, int x_margin,
                                     int y_margin, int loc) {
 
@@ -1917,8 +1967,8 @@ static void wayland_get_clipboard_data(int cb_type, ClipboardCb callback,
   if (cb_type == CLIPBOARD_DEFAULT) {
     wl_data_offer_receive(clipboard->offer, "text/plain;charset=utf-8", fds[1]);
   } else {
-    zwp_primary_selection_offer_v1_receive(clipboard->offer, "text/plain;charset=utf-8",
-                                           fds[1]);
+    zwp_primary_selection_offer_v1_receive(clipboard->offer,
+                                           "text/plain;charset=utf-8", fds[1]);
   }
   close(fds[1]);
 

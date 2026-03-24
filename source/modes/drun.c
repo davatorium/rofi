@@ -60,6 +60,8 @@
 
 #include "rofi-icon-fetcher.h"
 
+#include <gio-unix-2.0/gio/gdesktopappinfo.h>
+
 /** The filename of the history cache file. */
 #define DRUN_CACHE_FILE "rofi3.druncache"
 
@@ -234,7 +236,8 @@ struct _DRunModePrivateData {
   uint32_t selected_line;
   char *old_input;
 
-  gboolean disable_dbusactivate;
+  // GIO Launch
+  gboolean disable_giolaunch;
 };
 
 struct RegexEvalArg {
@@ -342,94 +345,6 @@ static void launch_link_entry(DRunModeEntry *e) {
     g_free(path);
   }
 }
-static gchar *app_path_for_id(const gchar *app_id) {
-  gchar *path;
-  gint i;
-
-  path = g_strconcat("/", app_id, NULL);
-  for (i = 0; path[i]; i++) {
-    if (path[i] == '.')
-      path[i] = '/';
-    if (path[i] == '-')
-      path[i] = '_';
-  }
-
-  return path;
-}
-static GVariant *app_get_platform_data(void) {
-  GVariantBuilder builder;
-  const gchar *startup_id;
-
-  g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
-
-  if ((startup_id = g_getenv("DESKTOP_STARTUP_ID")))
-    g_variant_builder_add(&builder, "{sv}", "desktop-startup-id",
-                          g_variant_new_string(startup_id));
-
-  if ((startup_id = g_getenv("XDG_ACTIVATION_TOKEN")))
-    g_variant_builder_add(&builder, "{sv}", "activation-token",
-                          g_variant_new_string(startup_id));
-
-  return g_variant_builder_end(&builder);
-}
-
-static gboolean exec_dbus_entry(DRunModeEntry *e, const char *path) {
-  GVariantBuilder files;
-  GDBusConnection *session;
-  GError *error = NULL;
-  gchar *object_path;
-  GVariant *result;
-  GVariant *params = NULL;
-  const char *method = "Activate";
-  g_debug("Trying to launch desktop file using dbus activation.");
-
-  session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
-  if (!session) {
-    g_warning("unable to connect to D-Bus: %s\n", error->message);
-    g_error_free(error);
-    return FALSE;
-  }
-
-  object_path = app_path_for_id(e->app_id);
-
-  g_variant_builder_init(&files, G_VARIANT_TYPE_STRING_ARRAY);
-
-  if (path != NULL) {
-    method = "Open";
-    params = g_variant_new("(as@a{sv})", &files, app_get_platform_data());
-  } else {
-    params = g_variant_new("(@a{sv})", app_get_platform_data());
-  }
-  if (path) {
-    GFile *file = g_file_new_for_commandline_arg(path);
-    g_variant_builder_add_value(
-        &files, g_variant_new_take_string(g_file_get_uri(file)));
-    g_object_unref(file);
-  }
-  // Wait 1500ms, otherwise assume failed.
-  result = NULL;
-  if (g_dbus_is_name(e->app_id)) {
-    result = g_dbus_connection_call_sync(
-        session, e->app_id, object_path, "org.freedesktop.Application", method,
-        params, G_VARIANT_TYPE_UNIT, G_DBUS_CALL_FLAGS_NONE, 1500, NULL,
-        &error);
-  }
-  g_free(object_path);
-
-  if (result) {
-    g_variant_unref(result);
-  } else {
-    if (error != NULL) {
-      g_warning("error sending %s message to application: %s\n", "Open",
-                error->message);
-      g_error_free(error);
-    }
-    g_object_unref(session);
-    return FALSE;
-  }
-  g_object_unref(session);
-  return TRUE;
-}
 
 static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
                            const char *path) {
@@ -490,7 +405,7 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
   RofiHelperExecuteContext context = {
       .name = e->name,
       .icon = e->icon_name,
-      .app_id = e->app_id,
+      .app_id = e->desktop_id,
   };
   gboolean sn =
       g_key_file_get_boolean(e->key_file, e->action, "StartupNotify", NULL);
@@ -501,26 +416,56 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
         g_key_file_get_string(e->key_file, e->action, "StartupWMClass", NULL);
   }
 
-  /**
-   * If its required to launch via dbus, do that.
-   */
   gboolean launched = FALSE;
-  if (!(pd->disable_dbusactivate)) {
-    if (g_key_file_get_boolean(e->key_file, e->action, "DBusActivatable",
-                               NULL)) {
-      printf("DBus launch\n");
-      launched = exec_dbus_entry(e, path);
+
+  if (pd->disable_giolaunch == FALSE) {
+    GDesktopAppInfo *gdai = g_desktop_app_info_new_from_keyfile(e->key_file);
+
+    if (gdai != NULL) {
+      GError *ai_error = NULL;
+      GList *files = NULL;
+      if (path) {
+        GFile *file = g_file_new_for_path(path);
+        files = g_list_append(files, (void *)file);
+      }
+      launched = g_app_info_launch(G_APP_INFO(gdai), files, NULL, &ai_error);
+      if (ai_error) {
+        g_warning("Failed to launch application using GAppInfo::Launch: %s",
+                  ai_error->message);
+        g_error_free(ai_error);
+      }
+      g_object_unref(gdai);
+      if (files != NULL) {
+        g_list_free_full(files, g_object_unref);
+      }
+    } else {
+      g_warning("Failed to create GDesktopAppInfo for: %s", e->path);
     }
   }
+
   if (launched == FALSE) {
-    /** Fallback to old style if not set. */
+    gchar **envp = g_get_environ();
+    guint envp_l = g_strv_length(envp);
+    envp = g_realloc(envp, sizeof(char *) * (envp_l + 6));
+    envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_ID=%s", e->desktop_id);
+    envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_PATH=%s", e->path);
+    envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_NAME=%s", e->name);
+    envp[envp_l++] = g_strdup_printf("DESKTOP_ENTRY_NAME_L=%s", e->name);
+    envp[envp_l] = NULL;
+    if (e->generic_name) {
+      envp[envp_l++] =
+          g_strdup_printf("DESKTOP_ENTRY_GENERICNAME_L=%s", e->generic_name);
+    }
+    envp[envp_l++] = NULL;
 
     // Returns false if not found, if key not found, we don't want run in
     // terminal.
     gboolean terminal =
         g_key_file_get_boolean(e->key_file, e->action, "Terminal", NULL);
-    launched =
-        helper_execute_command(exec_path, fp, terminal, sn ? &context : NULL);
+    launched = helper_execute_command_env(exec_path, fp, terminal,
+                                          sn ? &context : NULL, envp);
+
+    g_strfreev(envp);
   }
   if (launched == TRUE) {
     char *drun_cach_path = g_build_filename(cache_dir, DRUN_CACHE_FILE, NULL);
@@ -678,7 +623,7 @@ static void read_desktop_file(DRunModePrivateData *pd, const char *root,
     return;
   }
 
-  // We need Exec, don't support DBusActivatable
+  // We need Exec, don't support
   if (desktop_entry_type == DRUN_DESKTOP_ENTRY_TYPE_APPLICATION &&
       !g_key_file_has_key(kf, DRUN_GROUP_NAME, "Exec", NULL)) {
     g_debug("[%s] [%s] Unsupported desktop file: no 'Exec' key present for "
@@ -1278,11 +1223,12 @@ static void get_apps(DRunModePrivateData *pd) {
       }
       TICK_N("Get Desktop apps (system dirs)");
     }
-    pd->disable_dbusactivate = FALSE;
-    p = rofi_theme_find_property(wid, P_BOOLEAN, "DBusActivatable", TRUE);
+    pd->disable_giolaunch = FALSE;
+    p = rofi_theme_find_property(wid, P_BOOLEAN, "gio-launch", TRUE);
     if (p != NULL && (p->type == P_BOOLEAN && p->value.b == FALSE)) {
-      pd->disable_dbusactivate = TRUE;
+      pd->disable_giolaunch = TRUE;
     }
+
     get_apps_history(pd);
 
     g_qsort_with_data(pd->entry_list, pd->cmd_list_length,

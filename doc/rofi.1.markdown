@@ -1052,8 +1052,8 @@ configuration {
       parse-user:   true;
       /** Parse system desktop files. */
       parse-system: false;
-      /** Disable DBusActivatable */
-      DBusActivatable: false;
+      /** Launch applications using GIO's app launch */
+      gio-launch: false;
    }
 }
 ```

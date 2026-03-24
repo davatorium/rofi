@@ -64,6 +64,7 @@
  */
 static void wayland_rofi_view_update(RofiViewState *state, gboolean qr);
 
+void process_result(RofiViewState *state);
 /**
  * Structure holding some state
  */
@@ -81,6 +82,16 @@ static struct {
 
   int monitor_width;
   int monitor_height;
+
+  int surface_width;
+  int surface_height;
+
+  int menu_width;
+  int menu_height;
+
+  int menu_x;
+  int menu_y;
+
 } WlState = {
     .flags = MENU_NORMAL,
     .idle_timeout = 0,
@@ -89,6 +100,15 @@ static struct {
     .fullscreen = FALSE,
     .monitor_width = 0,
     .monitor_height = 0,
+
+    .surface_width = 0,
+    .surface_height = 0,
+
+    .menu_width = 0,
+    .menu_height = 0,
+
+    .menu_x = 0,
+    .menu_y = 0,
 };
 
 static void wayland_rofi_view_get_current_monitor(int *width, int *height) {
@@ -139,16 +159,106 @@ static int rofi_get_offset_px(RofiViewState *state, RofiOrientation ori) {
   return distance_get_pixel(offset, ori);
 }
 
+static void window_update_size_normal(RofiViewState *state, int offset_x,
+                                      int offset_y) {
+  WlState.surface_width = state->width;
+  WlState.surface_height = state->height;
+  WlState.menu_x = 0;
+  WlState.menu_y = 0;
+
+  display_set_surface_dimensions(state->width, state->height, offset_x,
+                                 offset_y, rofi_get_location(state));
+}
+
+static void window_update_size_with_outside_click(RofiViewState *state,
+                                                  int offset_x, int offset_y) {
+  int screen_width = 0;
+  int screen_height = 0;
+  int loc = rofi_get_location(state);
+
+  wayland_rofi_view_get_current_monitor(&screen_width, &screen_height);
+
+  if (screen_width <= 0 || screen_height <= 0) {
+    screen_width = state->width;
+    screen_height = state->height;
+  }
+
+  WlState.surface_width = screen_width;
+  WlState.surface_height = screen_height;
+
+  switch (loc) {
+  case WL_NORTH_WEST:
+    WlState.menu_x = offset_x;
+    WlState.menu_y = offset_y;
+    break;
+  case WL_NORTH:
+    WlState.menu_x =
+        (WlState.surface_width - WlState.menu_width) / 2 + offset_x;
+    WlState.menu_y = offset_y;
+    break;
+  case WL_NORTH_EAST:
+    WlState.menu_x = WlState.surface_width - WlState.menu_width - offset_x;
+    WlState.menu_y = offset_y;
+    break;
+  case WL_EAST:
+    WlState.menu_x = WlState.surface_width - WlState.menu_width - offset_x;
+    WlState.menu_y =
+        (WlState.surface_height - WlState.menu_height) / 2 + offset_y;
+    break;
+  case WL_SOUTH_EAST:
+    WlState.menu_x = WlState.surface_width - WlState.menu_width - offset_x;
+    WlState.menu_y = WlState.surface_height - WlState.menu_height - offset_y;
+    break;
+  case WL_SOUTH:
+    WlState.menu_x =
+        (WlState.surface_width - WlState.menu_width) / 2 + offset_x;
+    WlState.menu_y = WlState.surface_height - WlState.menu_height - offset_y;
+    break;
+  case WL_SOUTH_WEST:
+    WlState.menu_x = offset_x;
+    WlState.menu_y = WlState.surface_height - WlState.menu_height - offset_y;
+    break;
+  case WL_WEST:
+    WlState.menu_x = offset_x;
+    WlState.menu_y =
+        (WlState.surface_height - WlState.menu_height) / 2 + offset_y;
+    break;
+  case WL_CENTER:
+  default:
+    WlState.menu_x =
+        (WlState.surface_width - WlState.menu_width) / 2 + offset_x;
+    WlState.menu_y =
+        (WlState.surface_height - WlState.menu_height) / 2 + offset_y;
+    break;
+  }
+
+  /* Click-capture is limited to the current output. If the menu is larger than
+   * the output and visually overflows onto another output, the overflowed area
+   * will not be part of the capture surface and clicks there will not trigger
+   * click-to-exit.
+   */
+  display_set_surface_dimensions(WlState.surface_width, WlState.surface_height,
+                                 0, 0, WL_NORTH_WEST);
+}
+
 static void wayland_rofi_view_window_update_size(RofiViewState *state) {
   if (state == NULL) {
     return;
   }
+
   int offset_x = rofi_get_offset_px(state, ROFI_ORIENTATION_HORIZONTAL);
   int offset_y = rofi_get_offset_px(state, ROFI_ORIENTATION_VERTICAL);
 
   widget_resize(WIDGET(state->main_window), state->width, state->height);
-  display_set_surface_dimensions(state->width, state->height, offset_x,
-                                 offset_y, rofi_get_location(state));
+
+  WlState.menu_width = state->width;
+  WlState.menu_height = state->height;
+
+  if (config.click_to_exit) {
+    window_update_size_with_outside_click(state, offset_x, offset_y);
+  } else {
+    window_update_size_normal(state, offset_x, offset_y);
+  }
   rofi_view_pool_refresh();
 }
 
@@ -211,15 +321,16 @@ static void wayland_rofi_view_queue_redraw(void) {
 }
 
 static void wayland___create_window(MenuFlags menu_flags) {
+
   input_history_initialize();
 
   TICK_N("create cairo surface");
-  // TODO should we update the drawable each time?
   PangoContext *p = pango_context_new();
   pango_context_set_font_map(p, pango_cairo_font_map_get_default());
   TICK_N("pango cairo font setup");
 
   WlState.flags = menu_flags;
+
   // Setup dpi
   PangoFontMap *font_map = pango_cairo_font_map_get_default();
   if (config.dpi > 1) {
@@ -305,18 +416,30 @@ static void wayland_rofi_view_update(RofiViewState *state, gboolean qr) {
   }
   g_debug("Redraw view");
   TICK();
-  if (state->pool == NULL) {
-    state->pool = display_buffer_pool_new(state->width, state->height);
+
+  int buffer_width = state->width;
+  int buffer_height = state->height;
+
+  if (config.click_to_exit) {
+    buffer_width = WlState.surface_width;
+    buffer_height = WlState.surface_height;
   }
+
+  if (state->pool == NULL) {
+    state->pool = display_buffer_pool_new(buffer_width, buffer_height);
+  }
+
   cairo_surface_t *surface = display_buffer_pool_get_next_buffer(state->pool);
   if (surface == NULL) {
     // no available buffer, bail out
     return;
   }
+
   cairo_t *d = cairo_create(surface);
   cairo_set_operator(d, CAIRO_OPERATOR_SOURCE);
+
   // Paint the background transparent.
-  cairo_set_source_rgba(d, 0, 0, 0, 0.0);
+  cairo_set_source_rgba(d, 0, 0, 0, 0);
   guint scale = display_scale();
   cairo_surface_set_device_scale(surface, scale, scale);
   cairo_paint(d);
@@ -324,6 +447,16 @@ static void wayland_rofi_view_update(RofiViewState *state, gboolean qr) {
 
   // Always paint as overlay over the background.
   cairo_set_operator(d, CAIRO_OPERATOR_OVER);
+
+  if (config.click_to_exit) {
+    g_debug("draw capture mode: surface=%dx%d menu=%dx%d pos=(%d,%d)",
+            WlState.surface_width, WlState.surface_height, WlState.menu_width,
+            WlState.menu_height, WlState.menu_x, WlState.menu_y);
+    cairo_translate(d, WlState.menu_x, WlState.menu_y);
+  } else {
+    g_debug("draw normal mode: surface=%dx%d", buffer_width, buffer_height);
+  }
+
   widget_draw(WIDGET(state->main_window), d);
 
   TICK_N("widgets");
@@ -334,13 +467,6 @@ static void wayland_rofi_view_update(RofiViewState *state, gboolean qr) {
     wayland_rofi_view_queue_redraw();
   }
 }
-
-/**
- * @param state The Menu Handle
- *
- * Check if a finalize function is set, and if sets executes it.
- */
-void process_result(RofiViewState *state);
 
 static void wayland_rofi_view_frame_callback(void) {
   if (WlState.repaint_source == 0) {
@@ -410,6 +536,17 @@ static void wayland_rofi_view_pool_refresh(void) {
   wayland_rofi_view_update(state, TRUE);
 }
 
+static void wayland_rofi_view_get_menu_rect(int *x, int *y, int *w, int *h) {
+  if (x)
+    *x = WlState.menu_x;
+  if (y)
+    *y = WlState.menu_y;
+  if (w)
+    *w = WlState.menu_width;
+  if (h)
+    *h = WlState.menu_height;
+}
+
 static view_proxy view_ = {
     .update = wayland_rofi_view_update,
     .temp_configure_notify = NULL,
@@ -437,6 +574,8 @@ static view_proxy view_ = {
     .get_size = wayland_rofi_view_get_size,
 
     .pool_refresh = wayland_rofi_view_pool_refresh,
+
+    .get_menu_rect = wayland_rofi_view_get_menu_rect,
 };
 
 const view_proxy *wayland_view_proxy = &view_;
