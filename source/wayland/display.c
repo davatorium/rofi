@@ -55,6 +55,7 @@
 #include "rofi-types.h"
 #include "settings.h"
 #include "view.h"
+#include "view-internal.h"
 
 #include "display-internal.h"
 #include "display.h"
@@ -1256,7 +1257,20 @@ static void text_input_enter(void *data, struct zwp_text_input_v3 *text_input,
   zwp_text_input_v3_commit(text_input);
 }
 static void text_input_leave(void *data, struct zwp_text_input_v3 *text_input,
-                             struct wl_surface *surface) {
+                              struct wl_surface *surface) {
+  wayland_seat *seat = data;
+  
+  // Clean up all text input state
+  if (seat->committed_text) {
+    g_free(seat->committed_text);
+    seat->committed_text = NULL;
+  }
+  if (seat->preedit_text) {
+    g_free(seat->preedit_text);
+    seat->preedit_text = NULL;
+  }
+  seat->in_preedit = FALSE;
+  
   zwp_text_input_v3_disable(text_input);
   zwp_text_input_v3_commit(text_input);
 }
@@ -1266,25 +1280,134 @@ static void text_input_preedit_string(void *data,
                                       const char *text, int32_t cursor_begin,
                                       int32_t cursor_end) {
   update_cursor_rectangle(text_input);
+  
+  RofiViewState *state = rofi_view_get_active();
+  wayland_seat *seat = data;
+  
+  if (state && state->text) {
+    if (!seat->in_preedit) {
+      // First time entering preedit mode, save current text
+      if (seat->committed_text) {
+        g_free(seat->committed_text);
+      }
+      seat->committed_text = textbox_get_text(state->text);
+      seat->in_preedit = TRUE;
+    }
+    
+    // Update preedit text
+    if (seat->preedit_text) {
+      g_free(seat->preedit_text);
+    }
+    seat->preedit_text = text ? g_strdup(text) : NULL;
+    
+    if (seat->preedit_text && strlen(seat->preedit_text) > 0) {
+      // Create combined text with preedit
+      char *combined = g_strconcat(seat->committed_text, seat->preedit_text, NULL);
+      
+      // Set the combined text
+      textbox_text(state->text, combined);
+      
+      // Add underline attribute to the preedit portion
+      PangoAttrList *attrs = pango_attr_list_new();
+      int preedit_start = g_utf8_strlen(seat->committed_text, -1);
+      int preedit_end = preedit_start + g_utf8_strlen(seat->preedit_text, -1);
+      
+      PangoAttribute *underline = pango_attr_underline_new(PANGO_UNDERLINE_SINGLE);
+      underline->start_index = g_utf8_offset_to_pointer(combined, preedit_start) - combined;
+      underline->end_index = g_utf8_offset_to_pointer(combined, preedit_end) - combined;
+      pango_attr_list_insert(attrs, underline);
+      
+      textbox_set_pango_attributes(state->text, attrs);
+      pango_attr_list_unref(attrs);
+      
+      g_free(combined);
+    } else {
+      // Preedit cleared, show committed text only
+      textbox_text(state->text, seat->committed_text);
+      seat->in_preedit = FALSE;
+    }
+    
+    // Trigger a redraw
+    rofi_view_queue_redraw();
+  }
+  
   zwp_text_input_v3_commit(text_input);
 }
 
 static void text_input_commit_string(void *data,
-                                     struct zwp_text_input_v3 *text_input,
-                                     const char *text) {
+                                      struct zwp_text_input_v3 *text_input,
+                                      const char *text) {
   if (text == NULL) {
     return;
   }
 
+  wayland_seat *seat = data;
+
   RofiViewState *state = rofi_view_get_active();
   if (state) {
+    // If we have committed_text, restore it first to avoid duplicates
+    if (seat->committed_text) {
+      textbox_text(state->text, seat->committed_text);
+    }
+    
+    // Append the committed text
     rofi_view_handle_text(state, text);
+    
+    // Update committed_text and clear preedit state
+    if (seat->committed_text) {
+      g_free(seat->committed_text);
+    }
+    seat->committed_text = textbox_get_text(state->text);
+    
+    if (seat->preedit_text) {
+      g_free(seat->preedit_text);
+      seat->preedit_text = NULL;
+    }
+    seat->in_preedit = FALSE;
   }
 }
 
 static void text_input_delete_surrounding_text(
     void *data, struct zwp_text_input_v3 *text_input, uint32_t before_length,
-    uint32_t after_length) {}
+    uint32_t after_length) {
+  wayland_seat *seat = data;
+  RofiViewState *state = rofi_view_get_active();
+  
+  if (!state || !state->text || before_length == 0) {
+    return;
+  }
+  
+  // Get current text
+  char *current_text = textbox_get_text(state->text);
+  if (!current_text) {
+    return;
+  }
+  
+  // Calculate the position to delete from
+  // We assume the cursor is at the end (simplified for this use case)
+  size_t text_len = strlen(current_text);
+  size_t delete_start = text_len - before_length;
+  
+  if (delete_start > text_len) {
+    g_free(current_text);
+    return;
+  }
+  
+  // Create new text with the portion deleted
+  char *new_text = g_strndup(current_text, delete_start);
+  textbox_text(state->text, new_text);
+  
+  // Update committed_text
+  if (seat->committed_text) {
+    g_free(seat->committed_text);
+  }
+  seat->committed_text = new_text;
+  
+  g_free(current_text);
+  
+  // Trigger a redraw
+  rofi_view_queue_redraw();
+}
 
 static void text_input_done(void *data, struct zwp_text_input_v3 *text_input,
                             uint32_t serial) {}
