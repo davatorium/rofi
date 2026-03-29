@@ -191,6 +191,7 @@ static void teardown(int pfd) {
 
   display_early_cleanup();
 
+  rofi_view_workers_finalize();
   // Cleanup view
   rofi_view_cleanup();
 

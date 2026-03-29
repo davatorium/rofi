@@ -795,7 +795,12 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int wsize,
       }
       if (!sentry->query_started) {
         printf("push\n");
+        GError *error = NULL;
         g_thread_pool_push(tpool, sentry, NULL);
+        if (error) {
+          printf("MSG: %s\n", error->message);
+          g_error_free(error);
+        }
       }
       return sentry->uid;
     }
@@ -845,7 +850,12 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int wsize,
   sentry->state.callback = rofi_icon_fetcher_worker;
   sentry->state.free = rofi_icon_fetch_thread_pool_entry_remove;
   sentry->state.priority = G_PRIORITY_LOW;
-  g_thread_pool_push(tpool, sentry, NULL);
+  GError *error = NULL;
+  g_thread_pool_push(tpool, sentry, &error);
+  if (error) {
+    printf("MSG: %s\n", error->message);
+    g_error_free(error);
+  }
 
   return sentry->uid;
 }
