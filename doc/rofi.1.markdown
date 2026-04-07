@@ -840,6 +840,8 @@ configuration {
       filter-regex: "(.*cache.*|.*\.o)";
       /** command */
       command: "xdg-open";
+      /** show directories in results */
+      include-directories: false;
    }
 }
 ```

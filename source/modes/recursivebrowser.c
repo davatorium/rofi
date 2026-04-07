@@ -95,6 +95,7 @@ typedef struct {
   gboolean loading;
   int pipefd2[2];
   GRegex *filter_regex;
+  gboolean include_directories;
 } FileBrowserModePrivateData;
 
 static void free_list(FileBrowserModePrivateData *pd) {
@@ -153,6 +154,11 @@ static void recursive_browser_mode_init_config(Mode *sw) {
     pd->command = g_strdup(p->value.s);
   } else {
     pd->command = g_strdup(DEFAULT_OPEN);
+  }
+
+  p = rofi_theme_find_property(wid, P_BOOLEAN, "include-directories", TRUE);
+  if (p != NULL && p->type == P_BOOLEAN) {
+    pd->include_directories = p->value.b;
   }
 
   if (found_error) {
@@ -219,34 +225,34 @@ static void scan_dir(FileBrowserModePrivateData *pd, GFile *path) {
           break;
         case DT_REG:
         case DT_DIR: {
-          FBFile *f = g_malloc0(sizeof(FBFile));
-          // Rofi expects utf-8, so lets convert the filename.
-          f->path = g_build_filename(cdir, rd->d_name, NULL);
-          f->name = g_filename_to_utf8(f->path, -1, NULL, NULL, NULL);
-          if (f->name == NULL) {
-            f->name = rofi_force_utf8(rd->d_name, -1);
-          }
-          if (f->name == NULL) {
-            f->name = g_strdup("n/a");
-          }
-          f->type = (rd->d_type == DT_DIR) ? DIRECTORY : RFILE;
-          f->icon_fetch_uid = 0;
-          f->icon_fetch_size = 0;
-          f->icon_fetch_scale = 0;
-          f->link = FALSE;
+          if (rd->d_type == DT_REG || pd->include_directories) {
+            FBFile *f = g_malloc0(sizeof(FBFile));
+            // Rofi expects utf-8, so lets convert the filename.
+            f->path = g_build_filename(cdir, rd->d_name, NULL);
+            f->name = g_filename_to_utf8(f->path, -1, NULL, NULL, NULL);
+            if (f->name == NULL) {
+              f->name = rofi_force_utf8(rd->d_name, -1);
+            }
+            if (f->name == NULL) {
+              f->name = g_strdup("n/a");
+            }
+            f->type = (rd->d_type == DT_DIR) ? DIRECTORY : RFILE;
+            f->icon_fetch_uid = 0;
+            f->icon_fetch_size = 0;
+            f->icon_fetch_scale = 0;
+            f->link = FALSE;
 
-          g_async_queue_push(pd->async_queue, f);
-          if (g_async_queue_length(pd->async_queue) > 10000) {
-            write(pd->pipefd2[1], "r", 1);
+            g_async_queue_push(pd->async_queue, f);
+            if (g_async_queue_length(pd->async_queue) > 10000) {
+              write(pd->pipefd2[1], "r", 1);
+            }
           }
-
           if (rd->d_type == DT_DIR) {
             char *d = g_build_filename(cdir, rd->d_name, NULL);
             GFile *dirp = g_file_new_for_path(d);
             g_queue_push_tail(dirs_to_scan, dirp);
             g_free(d);
           }
-
           break;
         }
         case DT_UNKNOWN:
