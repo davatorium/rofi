@@ -408,6 +408,7 @@ install_data(
     'themes/iggy.rasi',
     'themes/material.rasi',
     'themes/iggy.jpg',
+		'themes/transparent.rasi',
     'themes/fullscreen-preview.rasi',
     install_dir: themedir
 )
