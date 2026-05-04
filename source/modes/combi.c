@@ -300,8 +300,13 @@ static cairo_surface_t *combi_get_icon(const Mode *sw, unsigned int index,
 
 static char *combi_preprocess_input(Mode *sw, const char *input) {
   CombiModePrivateData *pd = mode_get_private_data(sw);
+  char *input_preprocessed = g_strdup(input);
   for (unsigned i = 0; i < pd->num_switchers; i++) {
     pd->switchers[i].disable = FALSE;
+    char *input_preprocessed_old = input_preprocessed;
+    input_preprocessed =
+        mode_preprocess_input(pd->switchers[i].mode, input_preprocessed);
+    g_free(input_preprocessed_old);
   }
   if (input != NULL && input[0] == '!') {
     // Implement strchrnul behaviour.
