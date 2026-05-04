@@ -332,7 +332,7 @@ static char *combi_preprocess_input(Mode *sw, const char *input) {
       return g_strdup(eob + 1);
     }
   }
-  return g_strdup(input);
+  return g_strdup(input_preprocessed);
 }
 
 Mode combi_mode = {.name = "combi",
