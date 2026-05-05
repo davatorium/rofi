@@ -312,6 +312,7 @@ static char *combi_preprocess_input(Mode *sw, const char *input) {
     }
     ssize_t bang_len = g_utf8_pointer_to_offset(input, eob) - 1;
     if (bang_len > 0) {
+      char *stripped_input = g_strdup(eob + 1);
       for (unsigned i = 0; i < pd->num_switchers; i++) {
         const char *mode_name = mode_get_name(pd->switchers[i].mode);
         size_t mode_name_len = g_utf8_strlen(mode_name, -1);
@@ -319,12 +320,18 @@ static char *combi_preprocess_input(Mode *sw, const char *input) {
               utf8_strncmp(&input[1], mode_name, bang_len) == 0)) {
           // No match.
           pd->switchers[i].disable = TRUE;
+        } else {
+          char *old_stripped_input = stripped_input;
+          stripped_input =
+              mode_preprocess_input(pd->switchers[i].mode, stripped_input);
+          g_free(old_stripped_input);
         }
       }
-      if (eob[0] == '\0' || eob[1] == '\0') {
+      if (eob[0] == '\0' || stripped_input[0] == '\0') {
+        g_free(stripped_input);
         return NULL;
       }
-      return g_strdup(eob + 1);
+      return stripped_input;
     }
   }
   char *input_preprocessed = g_strdup(input);
