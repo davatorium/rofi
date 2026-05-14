@@ -423,6 +423,12 @@ static ModeMode wayland_window_mode_result(Mode *sw, int mretv,
         (ForeignToplevelHandle *)g_list_nth_data(pd->toplevels, selected_line);
     foreign_toplevel_handle_close(toplevel);
     wl_display_flush(pd->wayland->display);
+    ThemeWidget *wid = rofi_config_find_widget(sw->name, NULL, TRUE);
+    Property *p =
+        rofi_theme_find_property(wid, P_BOOLEAN, "close-on-delete", TRUE);
+    if (p && p->type == P_BOOLEAN && p->value.b == FALSE) {
+        return RELOAD_DIALOG;
+    }
   }
 
   return retv;
