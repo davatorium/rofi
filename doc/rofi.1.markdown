@@ -982,21 +982,25 @@ configuration {
 
 ### window
 
-Show a list of all the windows and allow switching between them. Pressing the
-`delete-entry` binding (`shift-delete`) will close the window. Pressing the
-`accept-custom` binding (`control-enter` or `shift-enter`) will run a command
-on the window. (See option `window-command` );
+Show a list of all the windows and allow switching between them.
+Pressing the `delete-entry` binding (`shift-delete`) will close the window.
+Pressing the `accept-alt` binding (`shift-enter`) will run a command on the
+window. (See option `window-command` );
 
-If there is no match, it will try to launch the input.
+If there is no match, or if `accept-custom` (`control-enter`) is pressed, it
+will try to launch the input.
 
 ### windowcd
 
+Same as the **window** mode, but lists only windows on the current desktop.
 Shows a list of the windows on the current desktop and allows switching between
-them. Pressing the `delete-entry` binding (`shift-delete`) will kill the
-window. Pressing the `accept-custom` binding (`control-enter` or `shift-enter`)
-will run a command on the window. (See option `window-command` );
+them.
+Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
+Pressing the `accept-alt` binding (`shift-enter`) will run a command on the
+window. (See option `window-command` );
 
-If there is no match, it will try to launch the input.
+If there is no match, or if `accept-custom` (`control-enter`) is pressed, it
+will try to launch the input.
 
 ### run
 
