@@ -48,8 +48,10 @@
 #include "mode-private.h"
 #include "rofi-icon-fetcher.h"
 
+#include "ext-foreign-toplevel-list-v1-protocol.h"
 #include "wlr-foreign-toplevel-management-unstable-v1-protocol.h"
 
+#define EXT_FOREIGN_TOPLEVEL_VERSION 1
 #define WLR_FOREIGN_TOPLEVEL_VERSION 3
 
 enum WaylandWindowMatchingFields {
@@ -61,7 +63,9 @@ enum WaylandWindowMatchingFields {
 typedef struct _WaylandWindowModePrivateData {
   wayland_stuff *wayland;
   struct wl_registry *registry;
+  struct ext_foreign_toplevel_list_v1 *list;
   struct zwlr_foreign_toplevel_manager_v1 *manager;
+  GList *ext_toplevels; /* List of ExtForeignToplevelHandle */
   GList *wlr_toplevels; /* List of WlrForeignToplevelHandle */
 
   /* initial rendering complete, updates allowed */
@@ -85,6 +89,14 @@ enum ForeignToplevelState {
 };
 
 typedef struct {
+  struct ext_foreign_toplevel_handle_v1 *handle;
+  WaylandWindowModePrivateData *view;
+
+  gchar *app_id;
+  gchar *identifier;
+} ExtForeignToplevelHandle;
+
+typedef struct {
   struct zwlr_foreign_toplevel_handle_v1 *handle;
   WaylandWindowModePrivateData *view;
 
@@ -99,8 +111,17 @@ typedef struct {
   guint cached_icon_scale;
 } WlrForeignToplevelHandle;
 
-static void wlr_foreign_toplevel_handle_free(WlrForeignToplevelHandle *self) {
+static void ext_foreign_toplevel_handle_free(ExtForeignToplevelHandle *self) {
+  if (self->handle) {
+    ext_foreign_toplevel_handle_v1_destroy(self->handle);
+    self->handle = NULL;
+  }
+  g_free(self->app_id);
+  g_free(self->identifier);
+  g_free(self);
+}
 
+static void wlr_foreign_toplevel_handle_free(WlrForeignToplevelHandle *self) {
   if (self->handle) {
     zwlr_foreign_toplevel_handle_v1_destroy(self->handle);
     self->handle = NULL;
@@ -144,6 +165,63 @@ static void wlr_foreign_toplevel_handle_activate(WlrForeignToplevelHandle *self,
 static void wlr_foreign_toplevel_handle_close(WlrForeignToplevelHandle *self) {
   zwlr_foreign_toplevel_handle_v1_close(self->handle);
 }
+
+/* events (ext-foreign-toplevel-list-v1) */
+
+static void ext_foreign_toplevel_handle_done(
+    void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_handle_v1 *handle) {
+}
+
+static void ext_foreign_toplevel_handle_closed(
+    void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_handle_v1 *handle) {
+}
+
+static void ext_foreign_toplevel_handle_identifier(
+    void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_handle_v1 *handle,
+    const char *identifier) {
+}
+
+static void ext_foreign_toplevel_handle_title(
+    G_GNUC_UNUSED void *data,
+    G_GNUC_UNUSED struct ext_foreign_toplevel_handle_v1 *handle,
+    G_GNUC_UNUSED const char *title) {
+  /* ignore */
+}
+
+static void ext_foreign_toplevel_handle_app_id(
+    void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_handle_v1 *handle,
+    const char *app_id) {
+}
+
+static struct ext_foreign_toplevel_handle_v1_listener
+    ext_foreign_toplevel_handle_listener = {
+        .identifier = &ext_foreign_toplevel_handle_identifier,
+        .title = &ext_foreign_toplevel_handle_title,
+        .app_id = &ext_foreign_toplevel_handle_app_id,
+        .closed = &ext_foreign_toplevel_handle_closed,
+        .done = &ext_foreign_toplevel_handle_done};
+
+static ExtForeignToplevelHandle *
+ext_foreign_toplevel_handle_new(struct ext_foreign_toplevel_handle_v1 *handle,
+                                WaylandWindowModePrivateData *view) {
+  return NULL;
+}
+
+static void ext_foreign_toplevel_list_toplevel(
+    void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_list_v1 *list,
+    struct ext_foreign_toplevel_handle_v1 *toplevel) {
+}
+
+static void ext_foreign_toplevel_list_finished(
+    G_GNUC_UNUSED void *data,
+    struct ext_foreign_toplevel_list_v1 *list) {
+  ext_foreign_toplevel_list_v1_destroy(list);
+}
+
+static struct ext_foreign_toplevel_list_v1_listener
+    ext_foreign_toplevel_list_listener = {
+        .toplevel = &ext_foreign_toplevel_list_toplevel,
+        .finished = &ext_foreign_toplevel_list_finished};
 
 /* events (wlr-foreign-toplevel-management-unstable-v1) */
 
@@ -277,6 +355,12 @@ static void handle_global(void *data, struct wl_registry *registry,
         registry, name, &zwlr_foreign_toplevel_manager_v1_interface,
         MIN(version, WLR_FOREIGN_TOPLEVEL_VERSION));
   }
+  else if (g_strcmp0(interface, ext_foreign_toplevel_list_v1_interface.name) ==
+           0) {
+    pd->list = (struct ext_foreign_toplevel_list_v1 *)wl_registry_bind(
+        registry, name, &ext_foreign_toplevel_list_v1_interface,
+        MIN(version, EXT_FOREIGN_TOPLEVEL_VERSION));
+  }
 }
 
 static void handle_global_remove(G_GNUC_UNUSED void *data,
@@ -333,6 +417,15 @@ static void get_wayland_window(Mode *sw) {
     g_warning("Unable to initialize Window mode: Wayland compositor does not "
               "support wlr-foreign-toplevel-management protocol");
     return;
+  }
+
+  if (pd->list == NULL) {
+    g_warning("Window mode: Wayland compositor does not support "
+              "ext-foreign-toplevel-list protocol; window-command will not work");
+    /* don't need to abort, we'll check for empty identifiers when running window-command */
+  } else {
+    ext_foreign_toplevel_list_v1_add_listener(
+        pd->list, &ext_foreign_toplevel_list_listener, pd);
   }
 
   zwlr_foreign_toplevel_manager_v1_add_listener(
