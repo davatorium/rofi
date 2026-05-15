@@ -67,6 +67,8 @@
 #include "primary-selection-unstable-v1-protocol.h"
 #include "text-input-unstable-v3-protocol.h"
 #include "wlr-layer-shell-unstable-v1-protocol.h"
+#include "xdg-activation-v1-protocol.h"
+#include "xdg-shell-protocol.h"
 
 #define wayland_output_get_dpi(output, scale, dimension)                       \
   ((output)->current.physical_##dimension > 0 && (scale) > 0                   \
@@ -1425,6 +1427,91 @@ static const struct wl_output_listener wayland_output_listener = {
 #endif
 };
 
+static void wayland_xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base,
+                                     uint32_t serial) {
+  xdg_wm_base_pong(xdg_wm_base, serial);
+}
+
+static const struct xdg_wm_base_listener wayland_xdg_wm_base_listener = {
+    .ping = wayland_xdg_wm_base_ping,
+};
+
+/* Single configure handler for both parent and popup xdg_surfaces — the
+ * data pointer tells us which "configured" flag to flip. */
+static void wayland_xdg_surface_configure(void *data,
+                                          struct xdg_surface *xdg_surface,
+                                          uint32_t serial) {
+  gboolean *configured_flag = data;
+  xdg_surface_ack_configure(xdg_surface, serial);
+  *configured_flag = TRUE;
+}
+
+static const struct xdg_surface_listener wayland_xdg_surface_listener = {
+    .configure = wayland_xdg_surface_configure,
+};
+
+/* The parent toplevel is maximized and transparent; we ignore the size it
+ * suggests for layout (rofi sizes itself) but DO record it so we know how
+ * large the transparent backing buffer needs to be and where on it to
+ * anchor the popup. */
+static void wayland_xdg_parent_toplevel_configure(
+    void *data, struct xdg_toplevel *xdg_toplevel, int32_t width,
+    int32_t height, struct wl_array *states) {
+  if (width > 0 && height > 0) {
+    wayland->xdg_parent_width = (uint32_t)width;
+    wayland->xdg_parent_height = (uint32_t)height;
+  }
+}
+
+static void
+wayland_xdg_parent_toplevel_close(void *data,
+                                  struct xdg_toplevel *xdg_toplevel) {
+  g_main_loop_quit(wayland->main_loop);
+}
+
+static void wayland_xdg_parent_toplevel_configure_bounds(
+    void *data, struct xdg_toplevel *xdg_toplevel, int32_t width,
+    int32_t height) {}
+
+static void wayland_xdg_parent_toplevel_wm_capabilities(
+    void *data, struct xdg_toplevel *xdg_toplevel, struct wl_array *caps) {}
+
+static const struct xdg_toplevel_listener wayland_xdg_parent_toplevel_listener =
+    {
+        .configure = wayland_xdg_parent_toplevel_configure,
+        .close = wayland_xdg_parent_toplevel_close,
+#ifdef XDG_TOPLEVEL_CONFIGURE_BOUNDS_SINCE_VERSION
+        .configure_bounds = wayland_xdg_parent_toplevel_configure_bounds,
+#endif
+#ifdef XDG_TOPLEVEL_WM_CAPABILITIES_SINCE_VERSION
+        .wm_capabilities = wayland_xdg_parent_toplevel_wm_capabilities,
+#endif
+};
+
+/* Popup that carries rofi's actual UI. The compositor's configure tells us
+ * where it actually landed (after any constraint adjustment); rofi already
+ * caches its size separately, so we just acknowledge. */
+static void wayland_xdg_popup_configure(void *data, struct xdg_popup *xdg_popup,
+                                        int32_t x, int32_t y, int32_t width,
+                                        int32_t height) {}
+
+static void wayland_xdg_popup_done(void *data, struct xdg_popup *xdg_popup) {
+  /* Compositor dismissed the popup (e.g. parent unmapped). Treat as quit. */
+  g_main_loop_quit(wayland->main_loop);
+}
+
+static void wayland_xdg_popup_repositioned(void *data,
+                                           struct xdg_popup *xdg_popup,
+                                           uint32_t token) {}
+
+static const struct xdg_popup_listener wayland_xdg_popup_listener = {
+    .configure = wayland_xdg_popup_configure,
+    .popup_done = wayland_xdg_popup_done,
+#ifdef XDG_POPUP_REPOSITIONED_SINCE_VERSION
+    .repositioned = wayland_xdg_popup_repositioned,
+#endif
+};
+
 static void wayland_registry_handle_global(void *data,
                                            struct wl_registry *registry,
                                            uint32_t name, const char *interface,
@@ -1441,6 +1528,18 @@ static void wayland_registry_handle_global(void *data,
     wayland->layer_shell =
         wl_registry_bind(registry, name, &zwlr_layer_shell_v1_interface,
                          MIN(version, WL_LAYER_SHELL_INTERFACE_VERSION));
+  } else if (g_strcmp0(interface, xdg_wm_base_interface.name) == 0) {
+    wayland->global_names[WAYLAND_GLOBAL_XDG_WM_BASE] = name;
+    /* v3 brings xdg_popup.reposition, which we need to resize the popup
+     * after rofi computes its content size. Mutter advertises v6. */
+    wayland->xdg_wm_base = wl_registry_bind(
+        registry, name, &xdg_wm_base_interface, MIN(version, 3));
+    xdg_wm_base_add_listener(wayland->xdg_wm_base, &wayland_xdg_wm_base_listener,
+                             NULL);
+  } else if (g_strcmp0(interface, xdg_activation_v1_interface.name) == 0) {
+    wayland->global_names[WAYLAND_GLOBAL_XDG_ACTIVATION] = name;
+    wayland->xdg_activation = wl_registry_bind(
+        registry, name, &xdg_activation_v1_interface, MIN(version, 1));
   } else if (g_strcmp0(
                  interface,
                  zwp_keyboard_shortcuts_inhibit_manager_v1_interface.name) ==
@@ -1534,6 +1633,14 @@ static void wayland_registry_handle_global_remove(void *data,
       zwlr_layer_shell_v1_destroy(wayland->layer_shell);
       wayland->layer_shell = NULL;
       break;
+    case WAYLAND_GLOBAL_XDG_WM_BASE:
+      xdg_wm_base_destroy(wayland->xdg_wm_base);
+      wayland->xdg_wm_base = NULL;
+      break;
+    case WAYLAND_GLOBAL_XDG_ACTIVATION:
+      xdg_activation_v1_destroy(wayland->xdg_activation);
+      wayland->xdg_activation = NULL;
+      break;
     case WAYLAND_GLOBAL_KEYBOARD_SHORTCUTS_INHIBITOR:
       zwp_keyboard_shortcuts_inhibit_manager_v1_destroy(
           wayland->kb_shortcuts_inhibit_manager);
@@ -1609,10 +1716,39 @@ static void wayland_surface_destroy(void) {
     zwlr_layer_surface_v1_destroy(wayland->wlr_surface);
     wayland->wlr_surface = NULL;
   }
+  /* Popup must be destroyed before its parent toplevel. */
+  if (wayland->xdg_popup != NULL) {
+    xdg_popup_destroy(wayland->xdg_popup);
+    wayland->xdg_popup = NULL;
+  }
+  if (wayland->xdg_surface != NULL) {
+    xdg_surface_destroy(wayland->xdg_surface);
+    wayland->xdg_surface = NULL;
+  }
+  wayland->xdg_configured = FALSE;
   if (wayland->surface != NULL) {
     wl_surface_destroy(wayland->surface);
     wayland->surface = NULL;
   }
+  if (wayland->xdg_parent_toplevel != NULL) {
+    xdg_toplevel_destroy(wayland->xdg_parent_toplevel);
+    wayland->xdg_parent_toplevel = NULL;
+  }
+  if (wayland->xdg_parent_xdg_surface != NULL) {
+    xdg_surface_destroy(wayland->xdg_parent_xdg_surface);
+    wayland->xdg_parent_xdg_surface = NULL;
+  }
+  wayland->xdg_parent_configured = FALSE;
+  if (wayland->xdg_parent_wl_surface != NULL) {
+    wl_surface_destroy(wayland->xdg_parent_wl_surface);
+    wayland->xdg_parent_wl_surface = NULL;
+  }
+  if (wayland->xdg_parent_buffer != NULL) {
+    wl_buffer_destroy(wayland->xdg_parent_buffer);
+    wayland->xdg_parent_buffer = NULL;
+  }
+  wayland->xdg_parent_width = 0;
+  wayland->xdg_parent_height = 0;
 }
 
 static void
@@ -1721,8 +1857,16 @@ static gboolean wayland_display_setup(GMainLoop *main_loop,
     return FALSE;
   }
   if (wayland->layer_shell == NULL) {
-    g_error("Rofi on wayland requires support for the layer shell protocol");
-    return FALSE;
+    if (wayland->xdg_wm_base != NULL) {
+      g_message("Compositor lacks wlr-layer-shell; falling back to xdg-shell. "
+                "Keyboard grab and always-on-top are not available; "
+                "positioning is approximated via xdg_popup.");
+      wayland->use_xdg_shell = TRUE;
+    } else {
+      g_error("Rofi on wayland requires support for either the layer shell "
+              "protocol or xdg-shell");
+      return FALSE;
+    }
   }
 
   wayland->bindings_seat = nk_bindings_seat_new(bindings, XKB_CONTEXT_NO_FLAGS);
@@ -1733,6 +1877,42 @@ static gboolean wayland_display_setup(GMainLoop *main_loop,
   return TRUE;
 }
 
+/* One-shot fullscreen transparent wl_buffer for the carrier toplevel.
+ * Only the carrier (xdg_parent) uses this; the popup uses rofi's normal
+ * cairo buffer pool. */
+static struct wl_buffer *wayland_create_transparent_buffer(int32_t width,
+                                                           int32_t height) {
+  int32_t stride = width * 4;
+  size_t size = (size_t)stride * (size_t)height;
+
+  gchar filename[PATH_MAX];
+  g_snprintf(filename, PATH_MAX, "%s/rofi-wayland-xdg-parent",
+             g_get_user_runtime_dir());
+  int fd = g_open(filename, O_CREAT | O_RDWR, 0600);
+  g_unlink(filename);
+  if (fd < 0) {
+    return NULL;
+  }
+  if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0 || ftruncate(fd, size) < 0) {
+    close(fd);
+    return NULL;
+  }
+  void *data = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  if (data == MAP_FAILED) {
+    close(fd);
+    return NULL;
+  }
+  memset(data, 0, size); /* ARGB 0,0,0,0 — fully transparent */
+
+  struct wl_shm_pool *pool = wl_shm_create_pool(wayland->shm, fd, size);
+  struct wl_buffer *buffer = wl_shm_pool_create_buffer(
+      pool, 0, width, height, stride, WL_SHM_FORMAT_ARGB8888);
+  wl_shm_pool_destroy(pool);
+  munmap(data, size);
+  close(fd);
+  return buffer;
+}
+
 static gboolean wayland_display_late_setup(void) {
   wayland_output *output = wayland_output_by_name(config.monitor);
 
@@ -1740,6 +1920,118 @@ static gboolean wayland_display_late_setup(void) {
   if (output != NULL) {
     wlo = output->output;
   }
+
+  if (wayland->use_xdg_shell) {
+    /* Step 1: maximized transparent xdg_toplevel "carrier".
+     * Mutter doesn't let clients position xdg_toplevels, but it DOES honor
+     * xdg_positioner for xdg_popups parented to a toplevel. So we make a
+     * screen-sized invisible toplevel and parent the real UI popup to it.
+     * set_maximized (not set_fullscreen): fullscreen takes Mutter's
+     * unredirected path which bypasses compositing — transparency becomes
+     * black and input regions stop passing through. */
+    wayland->xdg_parent_wl_surface =
+        wl_compositor_create_surface(wayland->compositor);
+    wayland->xdg_parent_xdg_surface = xdg_wm_base_get_xdg_surface(
+        wayland->xdg_wm_base, wayland->xdg_parent_wl_surface);
+    xdg_surface_add_listener(wayland->xdg_parent_xdg_surface,
+                             &wayland_xdg_surface_listener,
+                             &wayland->xdg_parent_configured);
+    wayland->xdg_parent_toplevel =
+        xdg_surface_get_toplevel(wayland->xdg_parent_xdg_surface);
+    xdg_toplevel_add_listener(wayland->xdg_parent_toplevel,
+                              &wayland_xdg_parent_toplevel_listener, NULL);
+    xdg_toplevel_set_title(wayland->xdg_parent_toplevel, "rofi");
+    xdg_toplevel_set_app_id(wayland->xdg_parent_toplevel, "rofi");
+    xdg_toplevel_set_maximized(wayland->xdg_parent_toplevel);
+    (void)wlo;
+
+    wl_surface_commit(wayland->xdg_parent_wl_surface);
+
+    while (!wayland->xdg_parent_configured ||
+           wayland->xdg_parent_width == 0 ||
+           wayland->xdg_parent_height == 0) {
+      if (wl_display_dispatch(wayland->display) < 0) {
+        return FALSE;
+      }
+    }
+
+    /* Attach a fully-transparent screen-sized buffer to the carrier and set
+     * an empty input region so pointer events fall through. */
+    wayland->xdg_parent_buffer = wayland_create_transparent_buffer(
+        (int32_t)wayland->xdg_parent_width,
+        (int32_t)wayland->xdg_parent_height);
+    if (wayland->xdg_parent_buffer == NULL) {
+      g_error("Failed to allocate transparent buffer for xdg-shell carrier");
+      return FALSE;
+    }
+    struct wl_region *empty_region =
+        wl_compositor_create_region(wayland->compositor);
+    wl_surface_set_input_region(wayland->xdg_parent_wl_surface, empty_region);
+    wl_region_destroy(empty_region);
+    wl_surface_attach(wayland->xdg_parent_wl_surface,
+                      wayland->xdg_parent_buffer, 0, 0);
+    wl_surface_damage(wayland->xdg_parent_wl_surface, 0, 0,
+                      (int32_t)wayland->xdg_parent_width,
+                      (int32_t)wayland->xdg_parent_height);
+    wl_surface_commit(wayland->xdg_parent_wl_surface);
+
+    /* Step 2: rofi-content wl_surface, wrapped as an xdg_popup parented
+     * to the carrier. Positioner places it at parent (= work area) center. */
+    wayland->surface = wl_compositor_create_surface(wayland->compositor);
+    wayland->xdg_surface =
+        xdg_wm_base_get_xdg_surface(wayland->xdg_wm_base, wayland->surface);
+    xdg_surface_add_listener(wayland->xdg_surface,
+                             &wayland_xdg_surface_listener,
+                             &wayland->xdg_configured);
+
+    /* Initial popup size: rofi will reposition once it computes its
+     * actual content layout. */
+    int32_t initial_w = 600, initial_h = 400;
+    struct xdg_positioner *positioner =
+        xdg_wm_base_create_positioner(wayland->xdg_wm_base);
+    xdg_positioner_set_size(positioner, initial_w, initial_h);
+    int32_t cx = ((int32_t)wayland->xdg_parent_width - initial_w) / 2;
+    int32_t cy = ((int32_t)wayland->xdg_parent_height - initial_h) / 2;
+    xdg_positioner_set_anchor_rect(positioner, cx, cy, 1, 1);
+    xdg_positioner_set_anchor(positioner, XDG_POSITIONER_ANCHOR_TOP_LEFT);
+    xdg_positioner_set_gravity(positioner, XDG_POSITIONER_GRAVITY_BOTTOM_RIGHT);
+    wayland->xdg_popup = xdg_surface_get_popup(
+        wayland->xdg_surface, wayland->xdg_parent_xdg_surface, positioner);
+    xdg_positioner_destroy(positioner);
+    xdg_popup_add_listener(wayland->xdg_popup, &wayland_xdg_popup_listener,
+                           NULL);
+
+    /* Report the carrier's size as the "available screen size" so rofi's
+     * layout pass knows how big it could be. */
+    wayland->layer_width = wayland->xdg_parent_width;
+    wayland->layer_height = wayland->xdg_parent_height;
+
+    wl_surface_add_listener(wayland->surface, &wayland_surface_interface,
+                            wayland);
+    wl_surface_commit(wayland->surface);
+
+    while (!wayland->xdg_configured) {
+      if (wl_display_dispatch(wayland->display) < 0) {
+        return FALSE;
+      }
+    }
+
+    /* xdg-activation token (set by gtk-launch when launched from a .desktop
+     * file with StartupNotify=true) goes on the carrier toplevel — that's
+     * the surface Mutter focuses; the popup inherits keyboard focus. */
+    if (wayland->xdg_activation != NULL) {
+      const char *token = g_getenv("XDG_ACTIVATION_TOKEN");
+      if (token != NULL && *token != '\0') {
+        xdg_activation_v1_activate(wayland->xdg_activation, token,
+                                   wayland->xdg_parent_wl_surface);
+        g_unsetenv("XDG_ACTIVATION_TOKEN");
+      }
+    }
+
+    wayland_frame_callback(wayland, wayland->frame_cb, 0);
+    return TRUE;
+  }
+
   wayland->surface = wl_compositor_create_surface(wayland->compositor);
 
   uint32_t layer = ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY;
@@ -1816,6 +2108,70 @@ void display_set_surface_dimensions(int width, int height, int x_margin,
 
   wayland->layer_width = width;
   wayland->layer_height = height;
+
+  if (wayland->use_xdg_shell) {
+    if (wayland->xdg_popup == NULL || width <= 0 || height <= 0) {
+      return;
+    }
+    /* Recompute the anchor rect on the parent so the popup ends up at the
+     * requested edge/corner, mirroring layer-shell's set_anchor+set_margin.
+     * With anchor=TOP_LEFT/gravity=BOTTOM_RIGHT, the popup's top-left
+     * corner ends up at the anchor point. */
+    int32_t pw = (int32_t)wayland->xdg_parent_width;
+    int32_t ph = (int32_t)wayland->xdg_parent_height;
+    int32_t cx, cy;
+    switch (loc) {
+    case WL_NORTH_WEST:
+      cx = x_margin;
+      cy = y_margin;
+      break;
+    case WL_NORTH:
+      cx = (pw - width) / 2;
+      cy = y_margin;
+      break;
+    case WL_NORTH_EAST:
+      cx = pw - width - x_margin;
+      cy = y_margin;
+      break;
+    case WL_EAST:
+      cx = pw - width - x_margin;
+      cy = (ph - height) / 2;
+      break;
+    case WL_SOUTH_EAST:
+      cx = pw - width - x_margin;
+      cy = ph - height - y_margin;
+      break;
+    case WL_SOUTH:
+      cx = (pw - width) / 2;
+      cy = ph - height - y_margin;
+      break;
+    case WL_SOUTH_WEST:
+      cx = x_margin;
+      cy = ph - height - y_margin;
+      break;
+    case WL_WEST:
+      cx = x_margin;
+      cy = (ph - height) / 2;
+      break;
+    case WL_CENTER:
+    default:
+      cx = (pw - width) / 2;
+      cy = (ph - height) / 2;
+      break;
+    }
+
+    struct xdg_positioner *positioner =
+        xdg_wm_base_create_positioner(wayland->xdg_wm_base);
+    xdg_positioner_set_size(positioner, width, height);
+    xdg_positioner_set_anchor_rect(positioner, cx, cy, 1, 1);
+    xdg_positioner_set_anchor(positioner, XDG_POSITIONER_ANCHOR_TOP_LEFT);
+    xdg_positioner_set_gravity(positioner, XDG_POSITIONER_GRAVITY_BOTTOM_RIGHT);
+    xdg_popup_reposition(wayland->xdg_popup, positioner,
+                         ++wayland->xdg_popup_reposition_token);
+    xdg_positioner_destroy(positioner);
+    return;
+  }
+
   zwlr_layer_surface_v1_set_size(wayland->wlr_surface, width, height);
 
   uint32_t wlr_anchor = 0;
