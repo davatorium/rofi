@@ -62,7 +62,7 @@ typedef struct _WaylandWindowModePrivateData {
   wayland_stuff *wayland;
   struct wl_registry *registry;
   struct zwlr_foreign_toplevel_manager_v1 *manager;
-  GList *toplevels; /* List of ForeignToplevelHandle */
+  GList *wlr_toplevels; /* List of WlrForeignToplevelHandle */
 
   /* initial rendering complete, updates allowed */
   gboolean visible;
@@ -97,9 +97,9 @@ typedef struct {
   unsigned int cached_icon_uid;
   unsigned int cached_icon_size;
   guint cached_icon_scale;
-} ForeignToplevelHandle;
+} WlrForeignToplevelHandle;
 
-static void foreign_toplevel_handle_free(ForeignToplevelHandle *self) {
+static void wlr_foreign_toplevel_handle_free(WlrForeignToplevelHandle *self) {
 
   if (self->handle) {
     zwlr_foreign_toplevel_handle_v1_destroy(self->handle);
@@ -112,14 +112,14 @@ static void foreign_toplevel_handle_free(ForeignToplevelHandle *self) {
 
 static void toplevels_list_update_max_len(gpointer data, gpointer user_data) {
   WaylandWindowModePrivateData *pd = (WaylandWindowModePrivateData *)user_data;
-  ForeignToplevelHandle *entry = (ForeignToplevelHandle *)data;
+  WlrForeignToplevelHandle *entry = (WlrForeignToplevelHandle *)data;
 
   pd->title_len = MAX(entry->title_len, pd->title_len);
   pd->app_id_len = MAX(entry->app_id_len, pd->app_id_len);
 }
 
 /* Update column alignment and schedule reload */
-static void wayland_window_update_toplevel(ForeignToplevelHandle *toplevel) {
+static void wayland_window_update_toplevel(WlrForeignToplevelHandle *toplevel) {
   WaylandWindowModePrivateData *pd = toplevel->view;
 
   if (!pd->visible) {
@@ -129,28 +129,28 @@ static void wayland_window_update_toplevel(ForeignToplevelHandle *toplevel) {
     /* async update, recalculate from scratch */
     pd->title_len = 0;
     pd->app_id_len = 0;
-    g_list_foreach(pd->toplevels, toplevels_list_update_max_len, pd);
+    g_list_foreach(pd->wlr_toplevels, toplevels_list_update_max_len, pd);
     rofi_view_reload();
   }
 }
 
 /* requests */
 
-static void foreign_toplevel_handle_activate(ForeignToplevelHandle *self,
-                                             struct wl_seat *seat) {
+static void wlr_foreign_toplevel_handle_activate(WlrForeignToplevelHandle *self,
+                                                 struct wl_seat *seat) {
   zwlr_foreign_toplevel_handle_v1_activate(self->handle, seat);
 }
 
-static void foreign_toplevel_handle_close(ForeignToplevelHandle *self) {
+static void wlr_foreign_toplevel_handle_close(WlrForeignToplevelHandle *self) {
   zwlr_foreign_toplevel_handle_v1_close(self->handle);
 }
 
-/* events */
+/* events (wlr-foreign-toplevel-management-unstable-v1) */
 
-static void foreign_toplevel_handle_title(
+static void wlr_foreign_toplevel_handle_title(
     void *data, G_GNUC_UNUSED struct zwlr_foreign_toplevel_handle_v1 *handle,
     const char *title) {
-  ForeignToplevelHandle *self = (ForeignToplevelHandle *)data;
+  WlrForeignToplevelHandle *self = (WlrForeignToplevelHandle *)data;
   if (self->title) {
     g_free(self->title);
   }
@@ -158,10 +158,10 @@ static void foreign_toplevel_handle_title(
   self->title_len = g_utf8_strlen(self->title, -1);
 }
 
-static void foreign_toplevel_handle_app_id(
+static void wlr_foreign_toplevel_handle_app_id(
     void *data, G_GNUC_UNUSED struct zwlr_foreign_toplevel_handle_v1 *handle,
     const char *app_id) {
-  ForeignToplevelHandle *self = (ForeignToplevelHandle *)data;
+  WlrForeignToplevelHandle *self = (WlrForeignToplevelHandle *)data;
   if (self->app_id) {
     g_free(self->app_id);
   }
@@ -169,52 +169,52 @@ static void foreign_toplevel_handle_app_id(
   self->app_id_len = g_utf8_strlen(self->app_id, -1);
 }
 
-static void foreign_toplevel_handle_output_enter(
+static void wlr_foreign_toplevel_handle_output_enter(
     G_GNUC_UNUSED void *data,
     G_GNUC_UNUSED struct zwlr_foreign_toplevel_handle_v1 *handle,
     G_GNUC_UNUSED struct wl_output *output) {
   /* ignore */
 }
 
-static void foreign_toplevel_handle_output_leave(
+static void wlr_foreign_toplevel_handle_output_leave(
     G_GNUC_UNUSED void *data,
     G_GNUC_UNUSED struct zwlr_foreign_toplevel_handle_v1 *handle,
     G_GNUC_UNUSED struct wl_output *output) {
   /* ignore */
 }
 
-static void foreign_toplevel_handle_state(
+static void wlr_foreign_toplevel_handle_state(
     void *data, G_GNUC_UNUSED struct zwlr_foreign_toplevel_handle_v1 *handle,
     struct wl_array *value) {
-  ForeignToplevelHandle *self = (ForeignToplevelHandle *)data;
+  WlrForeignToplevelHandle *self = (WlrForeignToplevelHandle *)data;
   uint32_t *elem;
 
   self->state = 0;
   wl_array_for_each(elem, value) { self->state |= 1 << *elem; }
 }
 
-static void foreign_toplevel_handle_done(
+static void wlr_foreign_toplevel_handle_done(
     void *data, G_GNUC_UNUSED struct zwlr_foreign_toplevel_handle_v1 *handle) {
-  ForeignToplevelHandle *self = (ForeignToplevelHandle *)data;
+  WlrForeignToplevelHandle *self = (WlrForeignToplevelHandle *)data;
 
-  g_debug("window %p id=%s title=%s state=%d\n", (void *)self, self->app_id,
-          self->title, self->state);
+  g_debug("wlr window %p id=%s title=%s state=%d", (void *)self,
+          self->app_id, self->title, self->state);
 
   wayland_window_update_toplevel(self);
 }
 
-static void foreign_toplevel_handle_closed(
+static void wlr_foreign_toplevel_handle_closed(
     void *data, G_GNUC_UNUSED struct zwlr_foreign_toplevel_handle_v1 *handle) {
-  ForeignToplevelHandle *self = (ForeignToplevelHandle *)data;
+  WlrForeignToplevelHandle *self = (WlrForeignToplevelHandle *)data;
 
   /* the handle is inert and will receive no further events */
   self->state = TOPLEVEL_STATE_CLOSED;
-  self->view->toplevels = g_list_remove(self->view->toplevels, self);
+  self->view->wlr_toplevels = g_list_remove(self->view->wlr_toplevels, self);
   wayland_window_update_toplevel(self);
-  foreign_toplevel_handle_free(self);
+  wlr_foreign_toplevel_handle_free(self);
 }
 
-static void foreign_toplevel_handle_parent(
+static void wlr_foreign_toplevel_handle_parent(
     G_GNUC_UNUSED void *data,
     G_GNUC_UNUSED struct zwlr_foreign_toplevel_handle_v1 *handle,
     G_GNUC_UNUSED struct zwlr_foreign_toplevel_handle_v1 *parent) {
@@ -222,48 +222,48 @@ static void foreign_toplevel_handle_parent(
 }
 
 static struct zwlr_foreign_toplevel_handle_v1_listener
-    foreign_toplevel_handle_listener = {
-        .title = &foreign_toplevel_handle_title,
-        .app_id = &foreign_toplevel_handle_app_id,
-        .output_enter = &foreign_toplevel_handle_output_enter,
-        .output_leave = &foreign_toplevel_handle_output_leave,
-        .state = &foreign_toplevel_handle_state,
-        .done = &foreign_toplevel_handle_done,
-        .closed = &foreign_toplevel_handle_closed,
-        .parent = &foreign_toplevel_handle_parent};
+    wlr_foreign_toplevel_handle_listener = {
+        .title = &wlr_foreign_toplevel_handle_title,
+        .app_id = &wlr_foreign_toplevel_handle_app_id,
+        .output_enter = &wlr_foreign_toplevel_handle_output_enter,
+        .output_leave = &wlr_foreign_toplevel_handle_output_leave,
+        .state = &wlr_foreign_toplevel_handle_state,
+        .done = &wlr_foreign_toplevel_handle_done,
+        .closed = &wlr_foreign_toplevel_handle_closed,
+        .parent = &wlr_foreign_toplevel_handle_parent};
 
-static ForeignToplevelHandle *
-foreign_toplevel_handle_new(struct zwlr_foreign_toplevel_handle_v1 *handle,
-                            WaylandWindowModePrivateData *view) {
-  ForeignToplevelHandle *self =
-      (ForeignToplevelHandle *)g_malloc0(sizeof(ForeignToplevelHandle));
+static WlrForeignToplevelHandle *
+wlr_foreign_toplevel_handle_new(struct zwlr_foreign_toplevel_handle_v1 *handle,
+                                WaylandWindowModePrivateData *view) {
+  WlrForeignToplevelHandle *self =
+      (WlrForeignToplevelHandle *)g_malloc0(sizeof(WlrForeignToplevelHandle));
 
   self->handle = handle;
   self->view = view;
   zwlr_foreign_toplevel_handle_v1_add_listener(
-      handle, &foreign_toplevel_handle_listener, self);
+      handle, &wlr_foreign_toplevel_handle_listener, self);
   return self;
 }
 
-static void foreign_toplevel_manager_toplevel(
+static void wlr_foreign_toplevel_manager_toplevel(
     void *data, G_GNUC_UNUSED struct zwlr_foreign_toplevel_manager_v1 *manager,
     struct zwlr_foreign_toplevel_handle_v1 *toplevel) {
   WaylandWindowModePrivateData *pd = (WaylandWindowModePrivateData *)data;
 
-  ForeignToplevelHandle *handle = foreign_toplevel_handle_new(toplevel, pd);
-  pd->toplevels = g_list_prepend(pd->toplevels, handle);
+  WlrForeignToplevelHandle *handle = wlr_foreign_toplevel_handle_new(toplevel, pd);
+  pd->wlr_toplevels = g_list_prepend(pd->wlr_toplevels, handle);
 }
 
-static void foreign_toplevel_manager_finished(
+static void wlr_foreign_toplevel_manager_finished(
     G_GNUC_UNUSED void *data,
     struct zwlr_foreign_toplevel_manager_v1 *manager) {
   zwlr_foreign_toplevel_manager_v1_destroy(manager);
 }
 
 static struct zwlr_foreign_toplevel_manager_v1_listener
-    foreign_toplevel_manager_listener = {
-        .toplevel = &foreign_toplevel_manager_toplevel,
-        .finished = &foreign_toplevel_manager_finished};
+    wlr_foreign_toplevel_manager_listener = {
+        .toplevel = &wlr_foreign_toplevel_manager_toplevel,
+        .finished = &wlr_foreign_toplevel_manager_finished};
 
 static void handle_global(void *data, struct wl_registry *registry,
                           uint32_t name, const char *interface,
@@ -336,22 +336,22 @@ static void get_wayland_window(Mode *sw) {
   }
 
   zwlr_foreign_toplevel_manager_v1_add_listener(
-      pd->manager, &foreign_toplevel_manager_listener, pd);
+      pd->manager, &wlr_foreign_toplevel_manager_listener, pd);
   /* fetch initial set of windows */
   wl_display_roundtrip(wayland->display);
   pd->visible = TRUE;
 }
 
-static void toplevels_list_item_free(gpointer data,
-                                     G_GNUC_UNUSED gpointer user_data) {
-  foreign_toplevel_handle_free((ForeignToplevelHandle *)data);
+static void wlr_toplevels_list_item_free(gpointer data,
+                                         G_GNUC_UNUSED gpointer user_data) {
+  wlr_foreign_toplevel_handle_free((WlrForeignToplevelHandle *)data);
 }
 
 static void wayland_window_private_free(WaylandWindowModePrivateData *pd) {
-  if (pd->toplevels) {
-    g_list_foreach(pd->toplevels, toplevels_list_item_free, NULL);
-    g_list_free(pd->toplevels);
-    pd->toplevels = NULL;
+  if (pd->wlr_toplevels) {
+    g_list_foreach(pd->wlr_toplevels, wlr_toplevels_list_item_free, NULL);
+    g_list_free(pd->wlr_toplevels);
+    pd->wlr_toplevels = NULL;
   }
 
   if (pd->registry) {
@@ -393,7 +393,7 @@ static unsigned int wayland_window_mode_get_num_entries(const Mode *sw) {
 
   g_return_val_if_fail(pd != NULL, 0);
 
-  return g_list_length(pd->toplevels);
+  return g_list_length(pd->wlr_toplevels);
 }
 
 static ModeMode wayland_window_mode_result(Mode *sw, int mretv,
@@ -413,15 +413,15 @@ static ModeMode wayland_window_mode_result(Mode *sw, int mretv,
     retv = (ModeMode)(mretv & MENU_LOWER_MASK);
   } else if ((mretv & MENU_OK)) {
     rofi_view_hide();
-    ForeignToplevelHandle *toplevel =
-        (ForeignToplevelHandle *)g_list_nth_data(pd->toplevels, selected_line);
-    foreign_toplevel_handle_activate(toplevel, pd->wayland->last_seat->seat);
+    WlrForeignToplevelHandle *toplevel =
+        (WlrForeignToplevelHandle *)g_list_nth_data(pd->wlr_toplevels, selected_line);
+    wlr_foreign_toplevel_handle_activate(toplevel, pd->wayland->last_seat->seat);
     wl_display_flush(pd->wayland->display);
 
   } else if ((mretv & MENU_ENTRY_DELETE) == MENU_ENTRY_DELETE) {
-    ForeignToplevelHandle *toplevel =
-        (ForeignToplevelHandle *)g_list_nth_data(pd->toplevels, selected_line);
-    foreign_toplevel_handle_close(toplevel);
+    WlrForeignToplevelHandle *toplevel =
+        (WlrForeignToplevelHandle *)g_list_nth_data(pd->wlr_toplevels, selected_line);
+    wlr_foreign_toplevel_handle_close(toplevel);
     wl_display_flush(pd->wayland->display);
     ThemeWidget *wid = rofi_config_find_widget(sw->name, NULL, TRUE);
     Property *p =
@@ -472,8 +472,8 @@ static int wayland_window_token_match(const Mode *sw, rofi_int_matcher **tokens,
                                       unsigned int index) {
   WaylandWindowModePrivateData *pd =
       (WaylandWindowModePrivateData *)mode_get_private_data(sw);
-  ForeignToplevelHandle *toplevel =
-      (ForeignToplevelHandle *)g_list_nth_data(pd->toplevels, index);
+  WlrForeignToplevelHandle *toplevel =
+      (WlrForeignToplevelHandle *)g_list_nth_data(pd->wlr_toplevels, index);
 
   g_return_val_if_fail(toplevel != NULL, 0);
 
@@ -540,7 +540,7 @@ static void helper_eval_add_str(GString *str, const char *input, int len,
 
 struct arg {
   const WaylandWindowModePrivateData *pd;
-  ForeignToplevelHandle *toplevel;
+  WlrForeignToplevelHandle *toplevel;
 };
 
 static gboolean helper_eval_cb(const GMatchInfo *info, GString *str,
@@ -573,7 +573,7 @@ static gboolean helper_eval_cb(const GMatchInfo *info, GString *str,
 }
 
 static char *_generate_display_string(const WaylandWindowModePrivateData *pd,
-                                      ForeignToplevelHandle *toplevel) {
+                                      WlrForeignToplevelHandle *toplevel) {
 
   struct arg d = {pd, toplevel};
   char *res = g_regex_replace_eval(pd->window_regex, config.window_format, -1,
@@ -589,8 +589,8 @@ static char *_get_display_value(const Mode *sw, unsigned int selected_line,
 
   g_return_val_if_fail(pd != NULL, NULL);
 
-  ForeignToplevelHandle *toplevel =
-      (ForeignToplevelHandle *)g_list_nth_data(pd->toplevels, selected_line);
+  WlrForeignToplevelHandle *toplevel =
+      (WlrForeignToplevelHandle *)g_list_nth_data(pd->wlr_toplevels, selected_line);
 
   if (toplevel == NULL || toplevel->state & TOPLEVEL_STATE_CLOSED) {
     return get_entry ? g_strdup("Window has vanished") : NULL;
@@ -613,8 +613,8 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
 
   g_return_val_if_fail(pd != NULL, NULL);
 
-  ForeignToplevelHandle *toplevel =
-      (ForeignToplevelHandle *)g_list_nth_data(pd->toplevels, selected_line);
+  WlrForeignToplevelHandle *toplevel =
+      (WlrForeignToplevelHandle *)g_list_nth_data(pd->wlr_toplevels, selected_line);
 
   /* some apps don't have app_id (WM_CLASS). this is fine */
   if (toplevel == NULL || toplevel->app_id == NULL ||
