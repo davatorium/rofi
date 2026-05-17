@@ -179,10 +179,16 @@ wayland_buffer_pool *display_buffer_pool_new(gint width, gint height) {
   size = (size_t)stride * height;
   pool_size = size * wayland->buffer_count;
 
-  fd = memfd_create("rofi-wayland-surface", MFD_CLOEXEC);
+  gchar *shm_name = "/rofi-wayland-surface";
+  fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, 0600);
+  shm_unlink(shm_name);
   if (fd < 0) {
     g_warning("creating a buffer file for %zu B failed: %s", pool_size,
               g_strerror(errno));
+    return NULL;
+  }
+  if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
+    g_close(fd, NULL);
     return NULL;
   }
   if (ftruncate(fd, pool_size) < 0) {
