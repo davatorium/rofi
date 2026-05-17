@@ -140,6 +140,7 @@ static void wayland_buffer_cleanup(wayland_buffer_pool *self) {
   }
 
   munmap(self->data, self->size);
+  g_free(self->buffers);
   g_free(self);
 }
 
@@ -178,18 +179,10 @@ wayland_buffer_pool *display_buffer_pool_new(gint width, gint height) {
   size = (size_t)stride * height;
   pool_size = size * wayland->buffer_count;
 
-  gchar filename[PATH_MAX];
-  g_snprintf(filename, PATH_MAX, "%s/rofi-wayland-surface",
-             g_get_user_runtime_dir());
-  fd = g_open(filename, O_CREAT | O_RDWR, 0);
-  g_unlink(filename);
+  fd = memfd_create("rofi-wayland-surface", MFD_CLOEXEC);
   if (fd < 0) {
     g_warning("creating a buffer file for %zu B failed: %s", pool_size,
               g_strerror(errno));
-    return NULL;
-  }
-  if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
-    g_close(fd, NULL);
     return NULL;
   }
   if (ftruncate(fd, pool_size) < 0) {
