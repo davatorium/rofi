@@ -305,7 +305,7 @@ Specify the directory where **rofi** should look for plugins.
 
 `-show-icons`
 
-Show application icons in `drun` and `window` modes.
+Load and show icons in the default theme.
 
 `-icon-theme`
 
