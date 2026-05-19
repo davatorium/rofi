@@ -81,6 +81,7 @@ struct _listview {
   unsigned int cur_page;
   unsigned int last_offset;
   unsigned int selected;
+  unsigned int viewport_offset;
 
   unsigned int element_height;
   unsigned int max_rows;
@@ -104,6 +105,10 @@ struct _listview {
   gboolean filtered;
 
   gboolean cycle;
+  gboolean hover_select;
+  gint mouse_x;
+  gint mouse_y;
+  gboolean mouse_hovering;
 
   ScrollType scroll_type;
 
@@ -123,6 +128,10 @@ struct _listview {
   void *mouse_activated_data;
 
   listview_page_changed_cb page_callback;
+  void *page_udata;
+
+  listview_hover_update_cb hover_update_callback;
+  void *hover_update_udata;
 
   char *listview_name;
 
@@ -449,6 +458,9 @@ static void barview_draw(widget *wid, cairo_t *draw) {
   }
 }
 
+static void listview_update_hover_from_mouse(listview *lv);
+static void listview_sync_positions(listview *lv);
+
 static void listview_draw(widget *wid, cairo_t *draw) {
   unsigned int offset = 0;
   listview *lv = (listview *)wid;
@@ -459,6 +471,18 @@ static void listview_draw(widget *wid, cairo_t *draw) {
   } else {
     offset = scroll_continious_rows(lv);
   }
+
+  if (lv->hover_select) {
+    unsigned int max_offset = lv->req_elements > lv->max_elements
+                                  ? lv->req_elements - lv->max_elements
+                                  : 0;
+    if (lv->viewport_offset <= max_offset) {
+      offset = lv->viewport_offset;
+    } else {
+      offset = max_offset;
+    }
+  }
+
   // Set these all together to make sure they update consistently.
   scrollbar_set_max_value(lv->scrollbar, lv->req_elements);
   scrollbar_set_handle_length(lv->scrollbar, lv->cur_columns * lv->max_rows);
@@ -561,6 +585,10 @@ static void listview_draw(widget *wid, cairo_t *draw) {
     }
   }
   widget_draw(WIDGET(lv->scrollbar), draw);
+
+  if (lv->hover_select) {
+    listview_update_hover_from_mouse(lv);
+  }
 }
 static WidgetTriggerActionResult
 listview_element_trigger_action(widget *wid,
@@ -696,6 +724,9 @@ static widget *listview_find_mouse_target(widget *wid, WidgetType type, gint x,
   widget *target = NULL;
   gint rx, ry;
   listview *lv = (listview *)wid;
+  lv->mouse_x = x;
+  lv->mouse_y = y;
+  lv->mouse_hovering = TRUE;
   if (widget_enabled(WIDGET(lv->scrollbar)) &&
       widget_intersect(WIDGET(lv->scrollbar), x, y)) {
     rx = x - widget_get_x_pos(WIDGET(lv->scrollbar));
@@ -730,10 +761,31 @@ listview_trigger_action(widget *wid, MouseBindingListviewAction action,
     listview_nav_right(lv);
     break;
   case SCROLL_DOWN:
-    listview_nav_down(lv);
+    if (lv->hover_select) {
+      unsigned int max_offset = lv->req_elements > lv->max_elements
+                                    ? lv->req_elements - lv->max_elements
+                                    : 0;
+      if (lv->viewport_offset < max_offset) {
+        lv->viewport_offset++;
+        listview_sync_positions(lv);
+        listview_update_hover_from_mouse(lv);
+        widget_queue_redraw(WIDGET(lv));
+      }
+    } else {
+      listview_nav_down(lv);
+    }
     break;
   case SCROLL_UP:
-    listview_nav_up(lv);
+    if (lv->hover_select) {
+      if (lv->viewport_offset > 0) {
+        lv->viewport_offset--;
+        listview_sync_positions(lv);
+        listview_update_hover_from_mouse(lv);
+        widget_queue_redraw(WIDGET(lv));
+      }
+    } else {
+      listview_nav_up(lv);
+    }
     break;
   }
   return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
@@ -767,10 +819,11 @@ static WidgetTriggerActionResult listview_element_trigger_action(
   return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
 }
 
-static gboolean listview_element_motion_notify(widget *wid,
-                                               G_GNUC_UNUSED gint x,
-                                               G_GNUC_UNUSED gint y) {
+static gboolean listview_element_motion_notify(widget *wid, gint x, gint y) {
   listview *lv = (listview *)wid->parent;
+  lv->mouse_x = x;
+  lv->mouse_y = y;
+  lv->mouse_hovering = TRUE;
   unsigned int max = MIN(lv->cur_elements, lv->req_elements - lv->last_offset);
   unsigned int i;
   for (i = 0; i < max && WIDGET(lv->boxes[i].box) != wid; i++) {
@@ -779,6 +832,122 @@ static gboolean listview_element_motion_notify(widget *wid,
     listview_set_selected(lv, lv->last_offset + i);
   }
   return TRUE;
+}
+
+static void listview_update_hover_from_mouse(listview *lv) {
+  if (!lv->hover_select || !lv->mouse_hovering) {
+    return;
+  }
+  int spacing_vert = distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
+  int top_offset = widget_padding_get_top(WIDGET(lv));
+  int rel_y = lv->mouse_y - top_offset;
+  if (rel_y < 0) {
+    return;
+  }
+  unsigned int item_height = lv->element_height + spacing_vert;
+  if (item_height == 0) {
+    return;
+  }
+  unsigned int row = rel_y / item_height;
+  unsigned int max = MIN(lv->cur_elements, lv->req_elements - lv->last_offset);
+  if (row < max) {
+    unsigned int idx = lv->last_offset + row;
+    if (idx != listview_get_selected(lv)) {
+      listview_set_selected(lv, idx);
+    }
+  }
+}
+
+static void listview_sync_positions(listview *lv) {
+  unsigned int offset = 0;
+  if (lv->scroll_type == LISTVIEW_SCROLL_PER_PAGE) {
+    offset = scroll_per_page(lv);
+  } else if (lv->pack_direction == ROFI_ORIENTATION_VERTICAL) {
+    offset = scroll_continious_elements(lv);
+  } else {
+    offset = scroll_continious_rows(lv);
+  }
+  if (lv->hover_select) {
+    unsigned int max_offset = lv->req_elements > lv->max_elements
+                                  ? lv->req_elements - lv->max_elements
+                                  : 0;
+    if (lv->viewport_offset <= max_offset) {
+      offset = lv->viewport_offset;
+    } else {
+      offset = max_offset;
+    }
+  }
+  lv->last_offset = offset;
+  int spacing_vert = distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
+  int spacing_hori =
+      distance_get_pixel(lv->spacing, ROFI_ORIENTATION_HORIZONTAL);
+  int left_offset = widget_padding_get_left(WIDGET(lv));
+  int top_offset = widget_padding_get_top(WIDGET(lv));
+  if (lv->cur_elements > 0 && lv->max_rows > 0) {
+    unsigned int max = MIN(lv->cur_elements, lv->req_elements - offset);
+    unsigned int width = lv->widget.w;
+    width -= widget_padding_get_padding_width(WIDGET(lv));
+    if (widget_enabled(WIDGET(lv->scrollbar))) {
+      width -= spacing_hori;
+      width -= widget_get_width(WIDGET(lv->scrollbar));
+    }
+    unsigned int element_width =
+        (width - spacing_hori * (lv->cur_columns - 1)) / lv->cur_columns;
+    int d = width - (element_width + spacing_hori) * (lv->cur_columns - 1) -
+            element_width;
+    if (lv->cur_columns > 1) {
+      int diff = d / (lv->cur_columns - 1);
+      if (diff >= 1) {
+        spacing_hori += 1;
+        d -= lv->cur_columns - 1;
+      }
+    }
+    for (unsigned int i = 0; i < max; i++) {
+      if (lv->pack_direction == ROFI_ORIENTATION_HORIZONTAL) {
+        unsigned int ex = left_offset + ((i) % lv->cur_columns) *
+                                            (element_width + spacing_hori);
+        unsigned int ey = 0;
+        if (lv->reverse) {
+          ey = WIDGET(lv)->h -
+               (widget_padding_get_bottom(WIDGET(lv)) +
+                ((i) / lv->cur_columns) *
+                    (lv->element_height + spacing_vert)) -
+               lv->element_height;
+          if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
+            ex += d;
+          }
+        } else {
+          ey = top_offset +
+               ((i) / lv->cur_columns) * (lv->element_height + spacing_vert);
+          if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
+            ex += d;
+          }
+        }
+        widget_move(WIDGET(lv->boxes[i].box), ex, ey);
+        widget_resize(WIDGET(lv->boxes[i].box), element_width,
+                      lv->element_height);
+      } else {
+        unsigned int ex = left_offset + ((i) / lv->max_rows) *
+                                            (element_width + spacing_hori);
+        if ((i) / lv->max_rows == (lv->cur_columns - 1)) {
+          ex += d;
+        }
+        unsigned int ey = 0;
+        if (lv->reverse) {
+          ey = WIDGET(lv)->h -
+               (widget_padding_get_bottom(WIDGET(lv)) +
+                ((i) % lv->max_rows) * (lv->element_height + spacing_vert)) -
+               lv->element_height;
+        } else {
+          ey = top_offset +
+               ((i) % lv->max_rows) * (lv->element_height + spacing_vert);
+        }
+        widget_move(WIDGET(lv->boxes[i].box), ex, ey);
+        widget_resize(WIDGET(lv->boxes[i].box), element_width,
+                      lv->element_height);
+      }
+    }
+  }
 }
 
 listview *listview_create(widget *parent, const char *name,
@@ -1139,6 +1308,19 @@ void listview_set_show_scrollbar(listview *lv, gboolean enabled) {
 void listview_set_scroll_type(listview *lv, ScrollType type) {
   if (lv) {
     lv->scroll_type = type;
+  }
+}
+
+void listview_set_hover_select(listview *lv, gboolean hover_select) {
+  if (lv) {
+    lv->hover_select = hover_select;
+  }
+}
+
+void listview_set_hover_update_callback(listview *lv, listview_hover_update_cb cb, void *udata) {
+  if (lv) {
+    lv->hover_update_callback = cb;
+    lv->hover_update_udata = udata;
   }
 }
 

@@ -115,6 +115,26 @@ void listview_set_selection_changed_callback(
 
 /**
  * @param lv The listview handle
+ * @param hover_select Enable hover select mode (disables scroll-to-selection)
+ */
+void listview_set_hover_select(listview *lv, gboolean hover_select);
+
+/**
+ * Callback type for hover update after scroll.
+ */
+typedef void (*listview_hover_update_cb)(void *udata);
+
+/**
+ * @param lv The listview handle
+ * @param cb Callback function
+ * @param udata User data
+ *
+ * Set the hover update callback (called after scroll to re-evaluate hover selection).
+ */
+void listview_set_hover_update_callback(listview *lv, listview_hover_update_cb cb, void *udata);
+
+/**
+ * @param lv The listview handle
  * @param rows Number of elements
  *
  * Set the maximum number of elements to display.
