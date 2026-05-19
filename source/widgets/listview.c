@@ -172,8 +172,10 @@ static void listview_set_state(_listview_row r, TextBoxFontType tbft) {
 static void listview_add_widget(listview *lv, _listview_row *row, widget *wid,
                                 const char *label) {
   if (strcasecmp(label, "element-icon") == 0) {
-    row->icon = icon_create(WIDGET(wid), "element-icon");
-    box_add((box *)wid, WIDGET(row->icon), FALSE);
+    if (config.show_icons) {
+      row->icon = icon_create(WIDGET(wid), "element-icon");
+      box_add((box *)wid, WIDGET(row->icon), FALSE);
+    }
   } else if (strcasecmp(label, "element-text") == 0) {
     row->textbox =
         textbox_create(WIDGET(wid), WIDGET_TYPE_TEXTBOX_TEXT, "element-text",
@@ -227,12 +229,8 @@ static void listview_create_row(listview *lv, _listview_row *row) {
   GList *list = NULL;
   list = rofi_theme_get_list_strings(WIDGET(row->box), "children");
   if (list == NULL) {
-    if (config.show_icons) {
-      list = g_list_append(list, g_strdup("element-icon"));
-      list = g_list_append(list, g_strdup("element-text"));
-    } else {
-      list = g_list_append(list, g_strdup("element-text"));
-    }
+    list = g_list_append(list, g_strdup("element-icon"));
+    list = g_list_append(list, g_strdup("element-text"));
   }
 
   row->textbox = NULL;
