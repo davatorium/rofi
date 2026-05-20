@@ -95,7 +95,13 @@ GQueue *queue = NULL;
 
 ParseObject *current = NULL;
 
-
+static int file_queue_find(ParseObject *obj, const char *filename )
+{
+    if ( obj->type == PT_FILE ){
+        return !g_str_equal(obj->filename, filename);
+    }
+    return 1;
+}
 
 static double rofi_theme_parse_convert_hex ( char high, char low)
 {
@@ -431,31 +437,39 @@ if ( queue == NULL ) {
     char *file2 = helper_get_theme_path ( &yytext[1], rasi_theme_file_extensions, top->filename );
     char *filename = rofi_theme_parse_prepare_file ( file2 );
     g_free ( file2 );
-    FILE *f = fopen ( filename, "rb" );
-    if ( f ) {
-        top->location = *yylloc;
-        ParseObject *po = g_malloc0(sizeof(ParseObject));
-        po->type = PT_FILE;
-        po->filename = filename;
-        po->filein = f;
-        current = po;
-        g_queue_push_head ( file_queue, po );
-
-        yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
-        yylloc->first_line = yylloc->last_line = 1;
-        yylloc->first_column = yylloc->last_column = 1;
-        yylloc->filename = current->filename;
+    if ( g_queue_find_custom(file_queue, filename, (GCompareFunc)file_queue_find ) != NULL ){
+      char *str = g_markup_printf_escaped ( "Trying to recursively import: <i>%s</i>, import skipped.",
+          filename );
+      rofi_add_warning_message( g_string_new(str));
+      g_free ( str );
+      g_free(filename);
     } else {
-	if ( !import_optional ) {
-		char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
-				filename, strerror ( errno ) );
-		rofi_add_warning_message ( g_string_new ( str ) );
-		g_free ( str );
-	} else {
-		g_warning("Trying to parse optional theme: '%s', Error: %s",
-			filename, strerror(errno));
-	}
+      FILE *f = fopen ( filename, "rb" );
+      if ( f ) {
+          top->location = *yylloc;
+          ParseObject *po = g_malloc0(sizeof(ParseObject));
+          po->type = PT_FILE;
+          po->filename = filename;
+          po->filein = f;
+          current = po;
+          g_queue_push_head ( file_queue, po );
+
+          yypush_buffer_state (yy_create_buffer ( 0, YY_BUF_SIZE ));
+          yylloc->first_line = yylloc->last_line = 1;
+          yylloc->first_column = yylloc->last_column = 1;
+          yylloc->filename = current->filename;
+      } else {
+        if ( !import_optional ) {
+          char *str = g_markup_printf_escaped ( "Failed to open theme: <i>%s</i>\nError: <b>%s</b>",
+              filename, strerror ( errno ) );
+          rofi_add_warning_message ( g_string_new ( str ) );
+          g_free ( str );
+        } else {
+          g_warning("Trying to parse optional theme: '%s', Error: %s",
+            filename, strerror(errno));
+        }
         g_free(filename);
+      }
     }
     // Pop out of include. */
     BEGIN(GPOINTER_TO_INT(g_queue_pop_head ( queue )));
