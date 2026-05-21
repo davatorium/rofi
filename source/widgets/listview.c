@@ -128,10 +128,6 @@ struct _listview {
   void *mouse_activated_data;
 
   listview_page_changed_cb page_callback;
-  void *page_udata;
-
-  listview_hover_update_cb hover_update_callback;
-  void *hover_update_udata;
 
   char *listview_name;
 
@@ -1319,13 +1315,6 @@ void listview_set_scroll_type(listview *lv, ScrollType type) {
 void listview_set_hover_select(listview *lv, gboolean hover_select) {
   if (lv) {
     lv->hover_select = hover_select;
-  }
-}
-
-void listview_set_hover_update_callback(listview *lv, listview_hover_update_cb cb, void *udata) {
-  if (lv) {
-    lv->hover_update_callback = cb;
-    lv->hover_update_udata = udata;
   }
 }
 

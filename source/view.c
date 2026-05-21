@@ -761,13 +761,6 @@ static void page_changed_callback(void) {
   rofi_view_workers_initialize();
 }
 
-static void hover_update_callback(void *udata) {
-  (void)udata;
-  if (config.hover_select && current_active_menu) {
-    rofi_view_ping_mouse(current_active_menu);
-  }
-}
-
 static void _rofi_view_reload_row(RofiViewState *state) {
   g_free(state->line_map);
   g_free(state->distance);
@@ -1745,7 +1738,6 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
     box_add((box *)parent_widget, WIDGET(state->list_view), TRUE);
     listview_set_scroll_type(state->list_view, config.scroll_method);
     listview_set_hover_select(state->list_view, config.hover_select);
-    listview_set_hover_update_callback(state->list_view, hover_update_callback, NULL);
     listview_set_mouse_activated_cb(
         state->list_view, rofi_view_listview_mouse_activated_cb, state);
 
