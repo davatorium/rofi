@@ -484,12 +484,21 @@ static void listview_draw(widget *wid, cairo_t *draw) {
   }
 
   // Set these all together to make sure they update consistently.
-  scrollbar_set_max_value(lv->scrollbar, lv->req_elements);
-  scrollbar_set_handle_length(lv->scrollbar, lv->cur_columns * lv->max_rows);
-  if (lv->reverse) {
-    scrollbar_set_handle(lv->scrollbar, lv->req_elements - lv->selected - 1);
+  if (lv->hover_select) {
+    unsigned int max_offset = lv->req_elements > lv->max_elements
+                                  ? lv->req_elements - lv->max_elements
+                                  : 0;
+    scrollbar_set_max_value(lv->scrollbar, max_offset);
+    scrollbar_set_handle_length(lv->scrollbar, 1);
+    scrollbar_set_handle(lv->scrollbar, lv->viewport_offset);
   } else {
-    scrollbar_set_handle(lv->scrollbar, lv->selected);
+    scrollbar_set_max_value(lv->scrollbar, lv->req_elements);
+    scrollbar_set_handle_length(lv->scrollbar, lv->cur_columns * lv->max_rows);
+    if (lv->reverse) {
+      scrollbar_set_handle(lv->scrollbar, lv->req_elements - lv->selected - 1);
+    } else {
+      scrollbar_set_handle(lv->scrollbar, lv->selected);
+    }
   }
   lv->last_offset = offset;
   int spacing_vert = distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
