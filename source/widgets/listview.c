@@ -585,10 +585,6 @@ static void listview_draw(widget *wid, cairo_t *draw) {
     }
   }
   widget_draw(WIDGET(lv->scrollbar), draw);
-
-  if (lv->hover_select) {
-    listview_update_hover_from_mouse(lv);
-  }
 }
 static WidgetTriggerActionResult
 listview_element_trigger_action(widget *wid,
