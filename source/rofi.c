@@ -844,8 +844,9 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
   if (list_of_warning_msgs != NULL) {
     for (GList *iter = g_list_first(list_of_warning_msgs); iter != NULL;
          iter = g_list_next(iter)) {
-      fputs(((GString *)iter->data)->str, stderr);
-      fputs("\n", stderr);
+      g_warning(((GString*)iter->data)->str, NULL);
+      //fputs(((GString *)iter->data)->str, stderr);
+      //fputs("\n", stderr);
     }
   }
   // Dmenu mode.
