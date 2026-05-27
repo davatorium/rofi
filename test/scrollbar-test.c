@@ -96,6 +96,8 @@ double textbox_get_estimated_ch(void) { return 8.0; }
 
 void listview_set_selected(G_GNUC_UNUSED listview *lv,
                            G_GNUC_UNUSED unsigned int selected) {}
+void listview_scrollbar_scroll_to(G_GNUC_UNUSED listview *lv,
+                                  G_GNUC_UNUSED unsigned int line) {}
 void rofi_view_get_current_monitor(G_GNUC_UNUSED int *width,
                                    G_GNUC_UNUSED int *height) {}
 
@@ -123,18 +125,18 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
   TASSERTE(sb->pos_length, 1u);
 
   guint cl = scrollbar_scroll_get_line(sb, 10);
-  TASSERTE(cl, 1010u);
+  TASSERTE(cl, 1000u);
   cl = scrollbar_scroll_get_line(sb, 20);
-  TASSERTE(cl, 2020u);
+  TASSERTE(cl, 2000u);
   cl = scrollbar_scroll_get_line(sb, 0);
   TASSERTE(cl, 0u);
   cl = scrollbar_scroll_get_line(sb, 99);
-  TASSERTE(cl, 9999u);
+  TASSERTE(cl, 9899u);
   scrollbar_set_handle_length(sb, 1000);
   cl = scrollbar_scroll_get_line(sb, 10);
-  TASSERTE(cl, 556u);
+  TASSERTE(cl, 600u);
   cl = scrollbar_scroll_get_line(sb, 20);
-  TASSERTE(cl, 1667u);
+  TASSERTE(cl, 1700u);
   cl = scrollbar_scroll_get_line(sb, 0);
   TASSERTE(cl, 0u);
   cl = scrollbar_scroll_get_line(sb, 99);

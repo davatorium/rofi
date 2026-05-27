@@ -496,6 +496,19 @@ static void listview_draw(widget *wid, cairo_t *draw) {
       scrollbar_set_handle(lv->scrollbar, lv->selected);
     }
   }
+  // Auto-hide scrollbar when everything fits
+  if (lv->type == LISTVIEW && widget_enabled(WIDGET(lv->scrollbar))) {
+    gboolean scrollbar_needed = lv->req_elements > lv->max_elements;
+    if (lv->hover_select) {
+      unsigned int mo = lv->req_elements > lv->max_elements
+                            ? lv->req_elements - lv->max_elements
+                            : 0;
+      scrollbar_needed = mo > 0;
+    }
+    if (!scrollbar_needed) {
+      widget_disable(WIDGET(lv->scrollbar));
+    }
+  }
   lv->last_offset = offset;
   int spacing_vert = distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
   int spacing_hori =
@@ -515,6 +528,7 @@ static void listview_draw(widget *wid, cairo_t *draw) {
       unsigned int width = lv->widget.w;
       width -= widget_padding_get_padding_width(wid);
       if (widget_enabled(WIDGET(lv->scrollbar))) {
+        width -= spacing_hori;
         width -= spacing_hori;
         width -= widget_get_width(WIDGET(lv->scrollbar));
       }
@@ -687,6 +701,22 @@ void listview_set_selected(listview *lv, unsigned int selected) {
     if (lv->sc_callback) {
       lv->sc_callback(lv, UINT32_MAX, lv->sc_udata);
     }
+  }
+}
+
+void listview_scrollbar_scroll_to(listview *lv, unsigned int line) {
+  if (lv == NULL) {
+    return;
+  }
+  if (lv->hover_select) {
+    unsigned int max_offset = lv->req_elements > lv->max_elements
+                                  ? lv->req_elements - lv->max_elements
+                                  : 0;
+    lv->viewport_offset = MIN(line, max_offset);
+    listview_sync_positions(lv);
+    widget_queue_redraw(WIDGET(lv));
+  } else {
+    listview_set_selected(lv, line);
   }
 }
 
@@ -889,6 +919,7 @@ static void listview_sync_positions(listview *lv) {
     unsigned int width = lv->widget.w;
     width -= widget_padding_get_padding_width(WIDGET(lv));
     if (widget_enabled(WIDGET(lv->scrollbar))) {
+      width -= spacing_hori;
       width -= spacing_hori;
       width -= widget_get_width(WIDGET(lv->scrollbar));
     }

@@ -137,6 +137,16 @@ void listview_set_selected(listview *lv, unsigned int selected);
 
 /**
  * @param lv The listview handle
+ * @param line The line index to scroll to
+ *
+ * Handle scrollbar scroll action. In normal mode this is equivalent to
+ * listview_set_selected. In hover-select mode this scrolls the viewport
+ * to the given line and updates the hover selection from mouse position.
+ */
+void listview_scrollbar_scroll_to(listview *lv, unsigned int line);
+
+/**
+ * @param lv The listview handle
  *
  * Returns the selected row.
  *

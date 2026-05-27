@@ -36,7 +36,7 @@
 #include <math.h>
 
 /** The default width of the scrollbar */
-#define DEFAULT_SCROLLBAR_WIDTH 8
+#define DEFAULT_SCROLLBAR_WIDTH 14
 
 static void scrollbar_draw(widget *, cairo_t *);
 static void scrollbar_free(widget *);
@@ -50,30 +50,32 @@ static int scrollbar_get_desired_height(widget *wid,
 // TODO
 // This should behave more like a real scrollbar.
 guint scrollbar_scroll_get_line(const scrollbar *sb, int y) {
-  y -= sb->widget.border.top.base.distance;
+  const widget *wid = (const widget *)sb;
+  int pad_top = widget_padding_get_top(wid);
+  int wh = widget_padding_get_remaining_height(wid);
+
+  y -= pad_top;
   if (y < 0) {
     return 0;
   }
-
-  if (y > sb->widget.h) {
+  if (y >= wh || sb->length <= 1) {
     return sb->length - 1;
   }
 
-  short r =
-      (sb->length * sb->widget.h) / ((double)(sb->length + sb->pos_length));
-  short handle = sb->widget.h - r;
-  double sec = ((r) / (double)(sb->length - 1));
-  short half_handle = handle / 2;
-  y -= half_handle;
-  y = MIN(MAX(0, y), sb->widget.h - 2 * half_handle);
+  double r = (sb->length * wh) / ((double)(sb->length + sb->pos_length));
+  double handle = wh - r;
+  double sec = r / (double)(sb->length - 1);
+  double half_handle = handle / 2.0;
+  double y_pos = y - half_handle;
+  y_pos = CLAMP(y_pos, 0.0, wh - handle);
 
-  unsigned int sel = round((y) / sec);
+  unsigned int sel = (unsigned int)round(y_pos / sec);
   return MIN(sel, sb->length - 1);
 }
 
 static void scrollbar_scroll(scrollbar *sb, int y) {
-  listview_set_selected((listview *)sb->widget.parent,
-                        scrollbar_scroll_get_line(sb, y));
+  listview_scrollbar_scroll_to((listview *)sb->widget.parent,
+                                scrollbar_scroll_get_line(sb, y));
 }
 
 static WidgetTriggerActionResult
@@ -82,10 +84,42 @@ scrollbar_trigger_action(widget *wid, MouseBindingMouseDefaultAction action,
                          G_GNUC_UNUSED void *user_data) {
   scrollbar *sb = (scrollbar *)wid;
   switch (action) {
-  case MOUSE_CLICK_DOWN:
-    return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN;
-  case MOUSE_CLICK_UP:
+  case MOUSE_CLICK_DOWN: {
+    sb->pressed = TRUE;
+    // Check if click is on the handle or on the track
+    const widget *cwid = (const widget *)sb;
+    int pad_top = widget_padding_get_top(cwid);
+    int wh = widget_padding_get_remaining_height(cwid);
+    int click_y = y - pad_top;
+
+    if (wh > 0 && sb->length > 1 && sb->length > sb->pos_length) {
+      double r = (sb->length * wh) / ((double)(sb->length + sb->pos_length));
+      double handle = wh - r;
+      double sec = r / (double)(sb->length - 1);
+      double handle_y = sb->pos * sec;
+
+      if (click_y < handle_y) {
+        // Click above handle: page up
+        unsigned int page = sb->pos_length;
+        unsigned int target = sb->pos > page ? sb->pos - page : 0;
+        listview_scrollbar_scroll_to((listview *)sb->widget.parent, target);
+        return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN;
+      }
+      if (click_y > handle_y + handle) {
+        // Click below handle: page down
+        unsigned int page = sb->pos_length;
+        unsigned int max_pos = sb->length - sb->pos_length;
+        unsigned int target = sb->pos + page < max_pos ? sb->pos + page : max_pos;
+        listview_scrollbar_scroll_to((listview *)sb->widget.parent, target);
+        return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN;
+      }
+    }
+    // Click on handle: jump to position
     scrollbar_scroll(sb, y);
+    return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_BEGIN;
+  }
+  case MOUSE_CLICK_UP:
+    sb->pressed = FALSE;
     return WIDGET_TRIGGER_ACTION_RESULT_GRAB_MOTION_END;
   case MOUSE_DCLICK_DOWN:
   case MOUSE_DCLICK_UP:
@@ -109,6 +143,9 @@ scrollbar *scrollbar_create(widget *parent, const char *name) {
   sb->width = rofi_theme_get_distance(WIDGET(sb), "handle-width",
                                       DEFAULT_SCROLLBAR_WIDTH);
   int width = distance_get_pixel(sb->width, ROFI_ORIENTATION_HORIZONTAL);
+  // Add left padding to widen the click target without moving the handle.
+  WIDGET(sb)->padding.left.base.distance = 6;
+  WIDGET(sb)->padding.left.base.type = ROFI_PU_PX;
   sb->widget.w = widget_padding_get_padding_width(WIDGET(sb)) + width;
   sb->widget.h = widget_padding_get_padding_height(WIDGET(sb));
 
@@ -165,7 +202,7 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
   double wh = widget_padding_get_remaining_height(wid);
   // Calculate position and size.
   double r = (sb->length * wh) / ((double)(sb->length + sb->pos_length));
-  unsigned int handle = wid->h - r;
+  unsigned int handle = (unsigned int)(wh - r);
   double sec = ((r) / (double)(sb->length - 1));
   unsigned int height = handle;
   unsigned int y = sb->pos * sec;
@@ -175,6 +212,9 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
   height = MAX(2, height);
   // Cap length;
   rofi_theme_get_color(WIDGET(sb), "handle-color", draw);
+  if (sb->pressed) {
+    rofi_theme_get_color(WIDGET(sb), "handle-pressed-color", draw);
+  }
 
   if (rofi_theme_get_boolean(WIDGET(sb), "handle-rounded-corners", FALSE)) {
     float x = widget_padding_get_left(wid);
@@ -182,13 +222,14 @@ static void scrollbar_draw(widget *wid, cairo_t *draw) {
 
     float radius = ((width < height) ? width : height) /
                    2; // Limit radius to prevent overlap
+    float draw_y = widget_padding_get_top(wid) + y;
 
     // Draw rounded rectangle
     cairo_new_sub_path(draw);
-    cairo_arc(draw, x + width - radius, y + radius, radius, -G_PI_2, 0);
-    cairo_arc(draw, x + width - radius, y + height - radius, radius, 0, G_PI_2);
-    cairo_arc(draw, x + radius, y + height - radius, radius, G_PI_2, G_PI);
-    cairo_arc(draw, x + radius, y + radius, radius, G_PI, 1.5 * G_PI);
+    cairo_arc(draw, x + width - radius, draw_y + radius, radius, -G_PI_2, 0);
+    cairo_arc(draw, x + width - radius, draw_y + height - radius, radius, 0, G_PI_2);
+    cairo_arc(draw, x + radius, draw_y + height - radius, radius, G_PI_2, G_PI);
+    cairo_arc(draw, x + radius, draw_y + radius, radius, G_PI, 1.5 * G_PI);
     cairo_close_path(draw);
 
     cairo_fill(draw);
