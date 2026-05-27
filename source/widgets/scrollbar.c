@@ -90,9 +90,8 @@ scrollbar_trigger_action(widget *wid, MouseBindingMouseDefaultAction action,
     const widget *cwid = (const widget *)sb;
     int pad_top = widget_padding_get_top(cwid);
     int wh = widget_padding_get_remaining_height(cwid);
-    int click_y = y - pad_top;
-
     if (wh > 0 && sb->length > 1 && sb->length > sb->pos_length) {
+      int click_y = y - pad_top;
       double r = (sb->length * wh) / ((double)(sb->length + sb->pos_length));
       double handle = wh - r;
       double sec = r / (double)(sb->length - 1);
