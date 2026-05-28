@@ -145,7 +145,7 @@ static XrmOption xrmOptions[] = {
         "show-icons",
         {.snum = &config.show_icons},
         NULL,
-        "Whether to load and show icons",
+        "Whether to load and show icons in the default theme",
     },
 
     {

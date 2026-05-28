@@ -780,7 +780,7 @@ int config_sanity_check(void) {
 }
 
 char *rofi_expand_path(const char *input) {
-  if (input == NULL ) {
+  if (input == NULL) {
     return NULL;
   }
   char **str = g_strsplit(input, G_DIR_SEPARATOR_S, -1);
@@ -1047,6 +1047,11 @@ int utf8_strncmp(const char *a, const char *b, size_t n) {
 gboolean helper_execute(const char *wd, char **args, const char *error_precmd,
                         const char *error_cmd,
                         RofiHelperExecuteContext *context) {
+  return helper_execute_env(wd, args, error_precmd, error_cmd, context, NULL);
+}
+gboolean helper_execute_env(const char *wd, char **args,
+                            const char *error_precmd, const char *error_cmd,
+                            RofiHelperExecuteContext *context, gchar **envp) {
   gboolean retv = TRUE;
   GError *error = NULL;
 
@@ -1055,7 +1060,7 @@ gboolean helper_execute(const char *wd, char **args, const char *error_precmd,
 
   display_startup_notification(context, &child_setup, &user_data);
 
-  g_spawn_async(wd, args, NULL, G_SPAWN_SEARCH_PATH, child_setup, user_data,
+  g_spawn_async(wd, args, envp, G_SPAWN_SEARCH_PATH, child_setup, user_data,
                 NULL, &error);
   if (error != NULL) {
     char *msg = g_strdup_printf("Failed to execute: '%s%s'\nError: '%s'",
@@ -1075,6 +1080,13 @@ gboolean helper_execute(const char *wd, char **args, const char *error_precmd,
 gboolean helper_execute_command(const char *wd, const char *cmd,
                                 gboolean run_in_term,
                                 RofiHelperExecuteContext *context) {
+  return helper_execute_command_env(wd, cmd, run_in_term, context, NULL);
+}
+
+gboolean helper_execute_command_env(const char *wd, const char *cmd,
+                                    gboolean run_in_term,
+                                    RofiHelperExecuteContext *context,
+                                    char **envp) {
   char **args = NULL;
   int argc = 0;
 
@@ -1109,7 +1121,7 @@ gboolean helper_execute_command(const char *wd, const char *cmd,
     }
   }
 
-  return helper_execute(wd, args, "", cmd, context);
+  return helper_execute_env(wd, args, "", cmd, context, envp);
 }
 
 static char *helper_get_theme_path_check_file(const char *filename,

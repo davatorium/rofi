@@ -305,7 +305,7 @@ Specify the directory where **rofi** should look for plugins.
 
 `-show-icons`
 
-Show application icons in `drun` and `window` modes.
+Load and show icons in the default theme.
 
 `-icon-theme`
 
@@ -1052,8 +1052,8 @@ configuration {
       parse-user:   true;
       /** Parse system desktop files. */
       parse-system: false;
-      /** Disable DBusActivatable */
-      DBusActivatable: false;
+      /** Launch applications using GIO's app launch */
+      gio-launch: false;
    }
 }
 ```

@@ -382,7 +382,10 @@ void rofi_view_ping_mouse(RofiViewState *state);
 void rofi_view_set_window_title(const char *title);
 void rofi_view_pool_refresh(void);
 
+void rofi_view_get_menu_rect(int *x, int *y, int *w, int *h);
+
 void rofi_view_set_cursor(RofiCursorType type);
+
 
 /**
  * Input history
@@ -417,6 +420,9 @@ void rofi_view_ellipsize_listview(RofiViewState *state,
  * main_window
  */
 gboolean rofi_set_im_window_pos(int new_x, int new_y);
+
+// Cancel the current view
+void rofi_view_cancel(RofiViewState *state);
 
 /**
  * @param wid to test.

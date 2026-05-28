@@ -309,6 +309,21 @@ typedef struct {
  * @param error_precmd Prefix to error message command.
  * @param error_cmd Error message command
  * @param context The startup notification context, if any
+ * @param envp The environment to launch the application with.
+ *
+ * Executes the command
+ *
+ * @returns TRUE when successful, FALSE when failed.
+ */
+gboolean helper_execute_env(const char *wd, char **args,
+                            const char *error_precmd, const char *error_cmd,
+                            RofiHelperExecuteContext *context, gchar **envp);
+/**
+ * @param wd   The working directory.
+ * @param args The arguments of the command to exec.
+ * @param error_precmd Prefix to error message command.
+ * @param error_cmd Error message command
+ * @param context The startup notification context, if any
  *
  * Executes the command
  *
@@ -333,6 +348,22 @@ gboolean helper_execute_command(const char *wd, const char *cmd,
                                 gboolean run_in_term,
                                 RofiHelperExecuteContext *context);
 
+/**
+ * @param wd The work directory (optional)
+ * @param cmd The cmd to execute
+ * @param run_in_term Indicate if command should be run in a terminal
+ * @param context The startup notification context, if any
+ * @param envp  The environment to launch the application with
+ *
+ * Execute command.
+ * If needed members of context are NULL, they will be filled.
+ *
+ * @returns FALSE On failure, TRUE on success
+ */
+gboolean helper_execute_command_env(const char *wd, const char *cmd,
+                                    gboolean run_in_term,
+                                    RofiHelperExecuteContext *context,
+                                    char **envp);
 /**
  * @param file The file path
  * @param height The wanted height
