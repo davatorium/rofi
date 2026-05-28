@@ -743,8 +743,9 @@ static void update_callback(textbox *t, icon *ico, unsigned int index,
   }
 }
 static void page_changed_callback(void) {
-  rofi_view_workers_finalize();
-  rofi_view_workers_initialize();
+  // TODO: why is this code here?
+  // rofi_view_workers_finalize();
+  // rofi_view_workers_initialize();
 }
 
 static void _rofi_view_reload_row(RofiViewState *state) {
@@ -819,7 +820,12 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
       states[i].st.free = NULL;
       states[i].st.priority = G_PRIORITY_HIGH;
       if (i > 0) {
-        g_thread_pool_push(tpool, &states[i], NULL);
+        GError *error = NULL;
+        g_thread_pool_push(tpool, &states[i], &error);
+        if (error) {
+          printf("MSG: %s\n", error->message);
+          g_error_free(error);
+        }
       }
     }
     // Run one in this thread.
@@ -945,7 +951,7 @@ static void rofi_view_refilter_force(RofiViewState *state) {
  */
 void process_result(RofiViewState *state);
 void rofi_view_finalize(RofiViewState *state) {
-  rofi_view_workers_finalize();
+  // rofi_view_workers_finalize();
   if (state && state->finalize != NULL) {
     state->finalize(state);
   }
@@ -1509,6 +1515,7 @@ void rofi_view_maybe_update(RofiViewState *state) {
     // Exec custom user commands
     rofi_quit_user_callback(state);
     // This menu is done.
+    //    printf("maybe update finalize\n");
     rofi_view_finalize(state);
     // If there a state. (for example error) reload it.
     state = rofi_view_get_active();
