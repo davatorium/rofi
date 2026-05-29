@@ -70,6 +70,28 @@ xcb_window_t xcb_stuff_get_root_window(void);
 char *window_get_text_prop(xcb_window_t w, xcb_atom_t atom);
 
 /**
+ * @param w The xcb_window_t to read property from.
+ * @param atom The property identifier
+ *
+ * Issue the request half of window_get_text_prop(). Pairs with
+ * window_get_text_prop_collect() so several properties can be requested up
+ * front (pipelined) before their replies are collected.
+ *
+ * @returns the request cookie
+ */
+xcb_get_property_cookie_t window_get_text_prop_request(xcb_window_t w,
+                                                       xcb_atom_t atom);
+
+/**
+ * @param c The cookie returned by window_get_text_prop_request()
+ *
+ * Collect the reply half of window_get_text_prop(). Supports utf8.
+ *
+ * @returns a newly allocated string with the result or NULL
+ */
+char *window_get_text_prop_collect(xcb_get_property_cookie_t c);
+
+/**
  * @param w The xcb_window_t to set property on
  * @param prop Atom of the property to change
  * @param atoms List of atoms to change the property too

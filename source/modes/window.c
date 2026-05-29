@@ -275,26 +275,6 @@ static void x11_cache_free(void) {
   cache_client = NULL;
 }
 
-/**
- * @param d Display connection to X server
- * @param w window
- *
- * Get window attributes.
- * This functions uses caching.
- *
- * @returns a XWindowAttributes
- */
-static xcb_get_window_attributes_reply_t *
-window_get_attributes(xcb_window_t w) {
-  xcb_get_window_attributes_cookie_t c =
-      xcb_get_window_attributes(xcb->connection, w);
-  xcb_get_window_attributes_reply_t *r =
-      xcb_get_window_attributes_reply(xcb->connection, c, NULL);
-  if (r) {
-    return r;
-  }
-  return NULL;
-}
 // _NET_WM_STATE_*
 static int client_has_state(client *c, xcb_atom_t state) {
   for (int i = 0; i < c->states; i++) {
@@ -326,9 +306,28 @@ static client *window_client(WindowModePrivateData *pd, xcb_window_t win) {
     return cache_client->data[idx];
   }
 
-  // if this fails, we're up that creek
-  xcb_get_window_attributes_reply_t *attr = window_get_attributes(win);
+  // Issue every property request for this window up front. XCB sends them
+  // without blocking, so they pipeline to the server and we pay a single
+  // round-trip for the whole window instead of one per property below.
+  xcb_get_window_attributes_cookie_t attr_cky =
+      xcb_get_window_attributes(xcb->connection, win);
+  xcb_get_property_cookie_t state_cky = xcb_ewmh_get_wm_state(&xcb->ewmh, win);
+  xcb_get_property_cookie_t type_cky =
+      xcb_ewmh_get_wm_window_type(&xcb->ewmh, win);
+  xcb_get_property_cookie_t name_cky =
+      window_get_text_prop_request(win, xcb->ewmh._NET_WM_NAME);
+  xcb_get_property_cookie_t wmname_cky =
+      window_get_text_prop_request(win, XCB_ATOM_WM_NAME);
+  xcb_get_property_cookie_t role_cky =
+      window_get_text_prop_request(win, netatoms[WM_WINDOW_ROLE]);
+  xcb_get_property_cookie_t class_cky = xcb_icccm_get_wm_class(xcb->connection, win);
+  xcb_get_property_cookie_t hints_cky = xcb_icccm_get_wm_hints(xcb->connection, win);
 
+  // if this fails, we're up that creek. The other replies we requested are
+  // discarded by xcb when the connection is processed/closed, so there is
+  // nothing to free on this path.
+  xcb_get_window_attributes_reply_t *attr =
+      xcb_get_window_attributes_reply(xcb->connection, attr_cky, NULL);
   if (!attr) {
     return NULL;
   }
@@ -338,53 +337,51 @@ static client *window_client(WindowModePrivateData *pd, xcb_window_t win) {
   // copy xattr so we don't have to care when stuff is freed
   memmove(&c->xattr, attr, sizeof(xcb_get_window_attributes_reply_t));
 
-  xcb_get_property_cookie_t cky = xcb_ewmh_get_wm_state(&xcb->ewmh, win);
   xcb_ewmh_get_atoms_reply_t states;
-  if (xcb_ewmh_get_wm_state_reply(&xcb->ewmh, cky, &states, NULL)) {
+  if (xcb_ewmh_get_wm_state_reply(&xcb->ewmh, state_cky, &states, NULL)) {
     c->states = MIN(CLIENTSTATE, states.atoms_len);
     memcpy(c->state, states.atoms,
            MIN(CLIENTSTATE, states.atoms_len) * sizeof(xcb_atom_t));
     xcb_ewmh_get_atoms_reply_wipe(&states);
   }
-  cky = xcb_ewmh_get_wm_window_type(&xcb->ewmh, win);
-  if (xcb_ewmh_get_wm_window_type_reply(&xcb->ewmh, cky, &states, NULL)) {
+  if (xcb_ewmh_get_wm_window_type_reply(&xcb->ewmh, type_cky, &states, NULL)) {
     c->window_types = MIN(CLIENTWINDOWTYPE, states.atoms_len);
     memcpy(c->window_type, states.atoms,
            MIN(CLIENTWINDOWTYPE, states.atoms_len) * sizeof(xcb_atom_t));
     xcb_ewmh_get_atoms_reply_wipe(&states);
   }
 
-  char *tmp_title = window_get_text_prop(c->window, xcb->ewmh._NET_WM_NAME);
-  if (tmp_title == NULL) {
-    tmp_title = window_get_text_prop(c->window, XCB_ATOM_WM_NAME);
-  }
-  if (tmp_title != NULL) {
-    c->title = g_markup_escape_text(tmp_title, -1);
+  // Prefer _NET_WM_NAME, fall back to WM_NAME. Both were requested above, so the
+  // fallback adds no round-trip; both are owned and freed, the chosen title is
+  // only borrowed.
+  char *net_title = window_get_text_prop_collect(name_cky);
+  char *legacy_title = window_get_text_prop_collect(wmname_cky);
+  const char *title = net_title ? net_title : legacy_title;
+  if (title != NULL) {
+    c->title = g_markup_escape_text(title, -1);
   } else {
     c->title = g_strdup("<i>no title set</i>");
   }
   pd->title_len =
       MAX(c->title ? g_utf8_strlen(c->title, -1) : 0, pd->title_len);
-  g_free(tmp_title);
+  g_free(net_title);
+  g_free(legacy_title);
 
-  char *tmp_role = window_get_text_prop(c->window, netatoms[WM_WINDOW_ROLE]);
+  char *tmp_role = window_get_text_prop_collect(role_cky);
   c->role = g_markup_escape_text(tmp_role ? tmp_role : "", -1);
   pd->role_len = MAX(c->role ? g_utf8_strlen(c->role, -1) : 0, pd->role_len);
   g_free(tmp_role);
 
-  cky = xcb_icccm_get_wm_class(xcb->connection, c->window);
   xcb_icccm_get_wm_class_reply_t wcr;
-  if (xcb_icccm_get_wm_class_reply(xcb->connection, cky, &wcr, NULL)) {
+  if (xcb_icccm_get_wm_class_reply(xcb->connection, class_cky, &wcr, NULL)) {
     c->class = g_markup_escape_text(wcr.class_name, -1);
     c->name = g_markup_escape_text(wcr.instance_name, -1);
     pd->name_len = MAX(c->name ? g_utf8_strlen(c->name, -1) : 0, pd->name_len);
     xcb_icccm_get_wm_class_reply_wipe(&wcr);
   }
 
-  xcb_get_property_cookie_t cc =
-      xcb_icccm_get_wm_hints(xcb->connection, c->window);
   xcb_icccm_wm_hints_t r;
-  if (xcb_icccm_get_wm_hints_reply(xcb->connection, cc, &r, NULL)) {
+  if (xcb_icccm_get_wm_hints_reply(xcb->connection, hints_cky, &r, NULL)) {
     c->hint_flags = r.flags;
   }
 

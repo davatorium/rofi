@@ -385,9 +385,12 @@ cairo_surface_t *x11_helper_get_bg_surface(void) {
 // retrieve a text property from a window
 // technically we could use window_get_prop(), but this is better for character
 // set support
-char *window_get_text_prop(xcb_window_t w, xcb_atom_t atom) {
-  xcb_get_property_cookie_t c = xcb_get_property(
-      xcb->connection, 0, w, atom, XCB_GET_PROPERTY_TYPE_ANY, 0, UINT_MAX);
+xcb_get_property_cookie_t window_get_text_prop_request(xcb_window_t w,
+                                                       xcb_atom_t atom) {
+  return xcb_get_property(xcb->connection, 0, w, atom,
+                          XCB_GET_PROPERTY_TYPE_ANY, 0, UINT_MAX);
+}
+char *window_get_text_prop_collect(xcb_get_property_cookie_t c) {
   xcb_get_property_reply_t *r =
       xcb_get_property_reply(xcb->connection, c, NULL);
   if (r) {
@@ -409,6 +412,9 @@ char *window_get_text_prop(xcb_window_t w, xcb_atom_t atom) {
     free(r);
   }
   return NULL;
+}
+char *window_get_text_prop(xcb_window_t w, xcb_atom_t atom) {
+  return window_get_text_prop_collect(window_get_text_prop_request(w, atom));
 }
 
 void window_set_atom_prop(xcb_window_t w, xcb_atom_t prop, xcb_atom_t *atoms,
