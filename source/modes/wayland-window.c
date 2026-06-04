@@ -170,15 +170,29 @@ static void wlr_foreign_toplevel_handle_close(WlrForeignToplevelHandle *self) {
 
 static void ext_foreign_toplevel_handle_done(
     void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_handle_v1 *handle) {
+  ExtForeignToplevelHandle *self = (ExtForeignToplevelHandle *)data;
+
+  g_debug("ext window %p id=%s identifier=%s", (void *)self,
+          self->app_id, self->identifier);
 }
 
 static void ext_foreign_toplevel_handle_closed(
     void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_handle_v1 *handle) {
+  ExtForeignToplevelHandle *self = (ExtForeignToplevelHandle *)data;
+
+  /* the handle is inert and will receive no further events */
+  self->view->ext_toplevels = g_list_remove(self->view->ext_toplevels, self);
+  ext_foreign_toplevel_handle_free(self);
 }
 
 static void ext_foreign_toplevel_handle_identifier(
     void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_handle_v1 *handle,
     const char *identifier) {
+  ExtForeignToplevelHandle *self = (ExtForeignToplevelHandle *)data;
+  if (self->identifier) {
+    g_free(self->identifier);
+  }
+  self->identifier = g_strdup(identifier);
 }
 
 static void ext_foreign_toplevel_handle_title(
@@ -191,6 +205,11 @@ static void ext_foreign_toplevel_handle_title(
 static void ext_foreign_toplevel_handle_app_id(
     void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_handle_v1 *handle,
     const char *app_id) {
+  ExtForeignToplevelHandle *self = (ExtForeignToplevelHandle *)data;
+  if (self->app_id) {
+    g_free(self->app_id);
+  }
+  self->app_id = g_strdup(app_id);
 }
 
 static struct ext_foreign_toplevel_handle_v1_listener
@@ -204,12 +223,23 @@ static struct ext_foreign_toplevel_handle_v1_listener
 static ExtForeignToplevelHandle *
 ext_foreign_toplevel_handle_new(struct ext_foreign_toplevel_handle_v1 *handle,
                                 WaylandWindowModePrivateData *view) {
-  return NULL;
+  ExtForeignToplevelHandle *self =
+      (ExtForeignToplevelHandle *)g_malloc0(sizeof(ExtForeignToplevelHandle));
+
+  self->handle = handle;
+  self->view = view;
+  ext_foreign_toplevel_handle_v1_add_listener(
+      handle, &ext_foreign_toplevel_handle_listener, self);
+  return self;
 }
 
 static void ext_foreign_toplevel_list_toplevel(
     void *data, G_GNUC_UNUSED struct ext_foreign_toplevel_list_v1 *list,
     struct ext_foreign_toplevel_handle_v1 *toplevel) {
+  WaylandWindowModePrivateData *pd = (WaylandWindowModePrivateData *)data;
+
+  ExtForeignToplevelHandle *handle = ext_foreign_toplevel_handle_new(toplevel, pd);
+  pd->ext_toplevels = g_list_prepend(pd->ext_toplevels, handle);
 }
 
 static void ext_foreign_toplevel_list_finished(
