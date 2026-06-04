@@ -94,6 +94,7 @@ typedef struct {
 
   gchar *app_id;
   gchar *identifier;
+  gboolean used;
 } ExtForeignToplevelHandle;
 
 typedef struct {
@@ -105,6 +106,7 @@ typedef struct {
   gchar *title;
   glong title_len;
   int state;
+  gchar *identifier; /* set from ext-foreign-toplevel data */
 
   unsigned int cached_icon_uid;
   unsigned int cached_icon_size;
@@ -128,7 +130,38 @@ static void wlr_foreign_toplevel_handle_free(WlrForeignToplevelHandle *self) {
   }
   g_free(self->title);
   g_free(self->app_id);
+  /* identifier might not have been set, if ext-foreign-toplevel never happened */
+  if (self->identifier) {
+    g_free(self->identifier);
+    self->identifier = NULL;
+  }
   g_free(self);
+}
+
+/* Set the `identifier` of the first wlr toplevel with matching class that
+ * doesn't yet have an `identifier` */
+static void wlr_toplevels_set_one_identifier(gpointer data, gpointer user_data) {
+  GList *wlr_toplevels = (GList *)user_data;
+  ExtForeignToplevelHandle *entry = (ExtForeignToplevelHandle *)data;
+
+  if (entry->used) {
+    // this ext toplevel has already been matched to a wlr toplevel
+    return;
+  }
+  do {
+    WlrForeignToplevelHandle *toplevel =
+      (WlrForeignToplevelHandle *)(wlr_toplevels->data);
+
+    if (toplevel->identifier) continue;
+    if (g_strcmp0(toplevel->app_id, entry->app_id) != 0) continue;
+    // found the first wlr toplevel with matching class and no existing identifier
+    g_debug("matched ext window %p to wlr window %p via app_id=%s, "
+            "assigning identifier=%s",
+            (void *)entry, (void *)toplevel, entry->app_id, entry->identifier);
+    toplevel->identifier = g_strdup(entry->identifier);
+    entry->used = TRUE;
+    break;
+  } while ((wlr_toplevels = g_list_next(wlr_toplevels)) != NULL);
 }
 
 static void toplevels_list_update_max_len(gpointer data, gpointer user_data) {
@@ -228,6 +261,7 @@ ext_foreign_toplevel_handle_new(struct ext_foreign_toplevel_handle_v1 *handle,
 
   self->handle = handle;
   self->view = view;
+  self->used = FALSE;
   ext_foreign_toplevel_handle_v1_add_listener(
       handle, &ext_foreign_toplevel_handle_listener, self);
   return self;
@@ -519,6 +553,55 @@ static unsigned int wayland_window_mode_get_num_entries(const Mode *sw) {
   return g_list_length(pd->wlr_toplevels);
 }
 
+static inline int wayland_act_on_window(WlrForeignToplevelHandle *toplevel,
+                                        WaylandWindowModePrivateData *pd) {
+  // match up wlr to ext toplevels, and set their identifiers
+  if (toplevel->identifier == NULL) {
+    /* NOTE: This assumes toplevels of the same class are received in the same
+     * order via both the wlr and ext protocols! i.e. if we get the order
+     * [firefox, kitty1, kitty2] via wlr and [kitty1, firefox, kitty2] via ext,
+     * that's fine, because the two kitty instances are in the same order.
+     * However, getting [kitty2, firefox, kitty1] via ext would break our
+     * mapping of ext to wlr toplevels, so a window-command on kitty1 would
+     * target kitty2 instead.
+     */
+    g_list_foreach(pd->ext_toplevels, wlr_toplevels_set_one_identifier,
+                   pd->wlr_toplevels);
+  }
+  if (toplevel->identifier == NULL) {
+    rofi_view_error_dialog(
+        "Couldn't resolve {window} identifier for the selected window",
+        FALSE);
+    return FALSE;
+  }
+  g_debug("resolved selected window to identifier %s", toplevel->identifier);
+
+  int retv = TRUE;
+  char **args = NULL;
+  int argc = 0;
+
+  helper_parse_setup(config.window_command, &args, &argc, "{window}",
+                     toplevel->identifier, (char *)0);
+
+  GError *error = NULL;
+  g_spawn_async(NULL, args, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL,
+                &error);
+  if (error != NULL) {
+    char *msg = g_strdup_printf(
+        "Failed to execute action for window: '%s'\nError: '%s'",
+        toplevel->identifier, error->message);
+    rofi_view_error_dialog(msg, FALSE);
+    g_free(msg);
+    // print error.
+    g_error_free(error);
+    retv = FALSE;
+  }
+
+  // Free the args list.
+  g_strfreev(args);
+  return retv;
+}
+
 static ModeMode wayland_window_mode_result(Mode *sw, int mretv,
                                            G_GNUC_UNUSED char **input,
                                            unsigned int selected_line) {
@@ -538,8 +621,15 @@ static ModeMode wayland_window_mode_result(Mode *sw, int mretv,
     rofi_view_hide();
     WlrForeignToplevelHandle *toplevel =
         (WlrForeignToplevelHandle *)g_list_nth_data(pd->wlr_toplevels, selected_line);
-    wlr_foreign_toplevel_handle_activate(toplevel, pd->wayland->last_seat->seat);
-    wl_display_flush(pd->wayland->display);
+    if (mretv & MENU_CUSTOM_ACTION) {
+      // Run custom command on the window
+      wayland_act_on_window(toplevel, pd);
+    } else {
+      // Activate the window normally
+      wlr_foreign_toplevel_handle_activate(
+          toplevel, pd->wayland->last_seat->seat);
+      wl_display_flush(pd->wayland->display);
+    }
 
   } else if ((mretv & MENU_ENTRY_DELETE) == MENU_ENTRY_DELETE) {
     WlrForeignToplevelHandle *toplevel =
