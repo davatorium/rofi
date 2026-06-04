@@ -931,6 +931,9 @@ replaced at runtime:
 - `{ssh-client}`: the configured ssh client (see -ssh-client)
 - `{cmd}`: the command to execute
 - `{window}`: the window ID of the selected window (in `window-command`)
+  - Under Wayland, this is a compositor-specific ["stable
+    identifier"](https://wayland.app/protocols/ext-foreign-toplevel-list-v1#ext_foreign_toplevel_handle_v1:event:identifier)
+    for the window. Check your compositor's documentation for usage.
 
 It processes the string as follows: `{key}`
 is replaced by its value, if `{key}` is not set it is removed. If the `{key}`
