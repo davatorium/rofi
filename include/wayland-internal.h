@@ -14,6 +14,8 @@ typedef enum {
   WAYLAND_GLOBAL_COMPOSITOR,
   WAYLAND_GLOBAL_SHM,
   WAYLAND_GLOBAL_LAYER_SHELL,
+  WAYLAND_GLOBAL_XDG_WM_BASE,
+  WAYLAND_GLOBAL_XDG_ACTIVATION,
   WAYLAND_GLOBAL_KEYBOARD_SHORTCUTS_INHIBITOR,
   WAYLAND_GLOBAL_CURSOR_SHAPE,
   _WAYLAND_GLOBAL_SIZE,
@@ -56,6 +58,9 @@ typedef struct {
 
   struct zwlr_layer_shell_v1 *layer_shell;
 
+  struct xdg_wm_base *xdg_wm_base;
+  struct xdg_activation_v1 *xdg_activation;
+
   struct zwp_keyboard_shortcuts_inhibit_manager_v1 *kb_shortcuts_inhibit_manager;
 
   struct wl_shm *shm;
@@ -76,6 +81,23 @@ typedef struct {
   GHashTable *outputs;
   struct wl_surface *surface;
   struct zwlr_layer_surface_v1 *wlr_surface;
+  /* xdg-shell fallback path: rofi's content lives in an xdg_popup parented
+   * to a fullscreen, transparent xdg_toplevel "carrier". The carrier exists
+   * only so the popup has a parent that spans the screen, which lets
+   * xdg_positioner place the popup at any pixel-precise location (something
+   * a bare xdg_toplevel cannot do under Mutter). */
+  struct wl_surface *xdg_parent_wl_surface;
+  struct xdg_surface *xdg_parent_xdg_surface;
+  struct xdg_toplevel *xdg_parent_toplevel;
+  struct wl_buffer *xdg_parent_buffer;
+  gboolean xdg_parent_configured;
+  uint32_t xdg_parent_width;
+  uint32_t xdg_parent_height;
+  struct xdg_surface *xdg_surface;
+  struct xdg_popup *xdg_popup;
+  uint32_t xdg_popup_reposition_token;
+  gboolean xdg_configured;
+  gboolean use_xdg_shell;
   struct wl_callback *frame_cb;
   size_t scales[3];
   int32_t scale;
