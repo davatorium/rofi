@@ -124,6 +124,9 @@ struct _wayland_seat {
   } wheel_continuous;
 
   struct zwp_text_input_v3 *text_input;
+  char *preedit_text; // Current preedit text (e.g., pinyin)
+  char *committed_text; // Text before preedit started
+  gboolean in_preedit; // Whether we are in preedit mode
 };
 
 /* Supported interface versions */
