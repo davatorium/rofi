@@ -275,9 +275,9 @@ int rofi_scorer_fuzzy_evaluate(const char *pattern, glong plen, const char *str,
  * @param slen      Length of str.
  * @param case_sensitive Whether case is significant.
  *
- *  rofi_scorer_fzf_v2_evaluate is a faithful port of fzf's default fuzzy
- * scoring algorithm (FuzzyMatchV2 from junegunn/fzf). Unlike
- * rofi_scorer_fuzzy_evaluate, it aims to reproduce fzf's ranking: it rewards
+ *  rofi_scorer_fzf_v2_evaluate is a port of fzf's default fuzzy scoring
+ * algorithm (FuzzyMatchV2 from junegunn/fzf). Unlike
+ * rofi_scorer_fuzzy_evaluate, it aims to match fzf's ranking: it rewards
  * contiguous matches and word-boundary/camelCase starts with fzf's own
  * weights and gap penalties, without penalising how deep in the string the
  * match begins.
@@ -286,7 +286,7 @@ int rofi_scorer_fuzzy_evaluate(const char *pattern, glong plen, const char *str,
  * conditions: each term is scored separately against `str` and the scores are
  * summed, exactly like fzf. A line matches only if every term matches.
  *
- * A higher return value is a better match. FZF_MIN_SCORE is returned when any
+ * A higher return value is a better match. FZF_V2_MIN_SCORE is returned when any
  * term is not a subsequence of `str`.
  *
  * @returns the fzf match score (higher is better).

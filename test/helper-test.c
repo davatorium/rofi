@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
              1073741824);
   }
   {
-    /* Faithful fzf (FuzzyMatchV2) scorer: higher is better, G_MININT/2 for a
+    /* fzf (FuzzyMatchV2) scorer: higher is better, G_MININT/2 for a
      * non-match. */
     /* Each whitespace-separated term ("aap", "noot", "mies") is scored
      * independently against the line and the scores summed. */
