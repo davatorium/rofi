@@ -202,6 +202,42 @@ int main(int argc, char **argv) {
     TASSERTL(rofi_scorer_fuzzy_evaluate("aap noot mies", 12, "Anm", 3, 0),
              1073741824);
   }
+  {
+    /* Faithful fzf (FuzzyMatchV2) scorer: higher is better, G_MININT/2 for a
+     * non-match. */
+    /* Each whitespace-separated term ("aap", "noot", "mies") is scored
+     * independently against the line and the scores summed. */
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("aap noot mies", 12, "aap noot mies",
+                                         12, 0),
+             316);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("anm", 3, "aap noot mies", 12, 0), 58);
+    /* Not a subsequence -> non-match sentinel. */
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("blu", 3, "aap noot mies", 12, 0),
+             G_MININT / 2);
+    /* Case-sensitive: upper-case pattern does not match lower-case text. */
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("Anm", 3, "aap noot mies", 12, 1),
+             G_MININT / 2);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("Anm", 3, "aap noot mies", 12, 0), 58);
+    /* A contiguous match must outscore a scattered one (the fzf property the
+     * rofi-native scorer lacks). */
+    TASSERT(rofi_scorer_fzf_v2_evaluate(
+                "wip", 3, "hourglass not done; wip; in progress", 36, 0) >
+            rofi_scorer_fzf_v2_evaluate("wip", 3, "locked with pen", 15, 0));
+    /* Whitespace-separated terms are scored independently and summed (fzf's
+     * AND semantics). */
+    TASSERTL(
+        rofi_scorer_fzf_v2_evaluate("noot mies", 9, "aap noot mies", 12, 0),
+        228);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("aap mies", 8, "aap noot mies", 12, 0),
+             202);
+    /* A line matches only if every term matches. */
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("aap xyz", 7, "aap noot mies", 12, 0),
+             G_MININT / 2);
+    /* Leading/trailing/duplicate separators produce no empty terms. */
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("  aap   mies  ", 14, "aap noot mies",
+                                         12, 0),
+             202);
+  }
 
   /**
    * Case sensitivity

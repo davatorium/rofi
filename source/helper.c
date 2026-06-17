@@ -680,11 +680,13 @@ int config_sanity_check(void) {
       config.sorting_method_enum = SORT_NORMAL;
     } else if (g_strcmp0(config.sorting_method, "fzf") == 0) {
       config.sorting_method_enum = SORT_FZF;
+    } else if (g_strcmp0(config.sorting_method, "fzf-v2") == 0) {
+      config.sorting_method_enum = SORT_FZF_V2;
     } else {
       g_string_append_printf(
           msg,
           "\t<b>config.sorting_method</b>=%s is not a valid sorting "
-          "strategy.\nValid options are: normal or fzf.\n",
+          "strategy.\nValid options are: normal, fzf or fzf-v2.\n",
           config.sorting_method);
       found_error = 1;
     }
@@ -1020,6 +1022,318 @@ int rofi_scorer_fuzzy_evaluate(const char *pattern, glong plen, const char *str,
   g_free(score);
   g_free(dp);
   return -lefts;
+}
+
+/****
+ * Faithful port of fzf's FuzzyMatchV2 scoring algorithm.
+ *
+ * This mirrors the default fuzzy scorer from junegunn/fzf
+ * (src/algo/algo.go), as opposed to the rofi-specific scorer above which was
+ * only loosely inspired by fzf. The aim is to reproduce fzf's ranking: a
+ * Smith-Waterman style DP with bonuses for word boundaries, camelCase and
+ * consecutive matches, and penalties for gaps.
+ *
+ * The implementation is split in two:
+ *  - rofi_scorer_fzf_v2_term() scores a single whitespace-free term, and is
+ *    the literal port of FuzzyMatchV2.
+ *  - rofi_scorer_fzf_v2_evaluate() is the public entry point: it normalises
+ *    and decodes the text once, then splits the pattern into whitespace-
+ *    separated terms and sums their scores (fzf's AND semantics).
+ *
+ * Two of fzf's optimisations are intentionally dropped for clarity, neither of
+ * which changes the resulting score: the asciiFuzzyIndex pre-scan that narrows
+ * the search range, and the matrix-width reduction (a full M*N matrix is used
+ * instead of the [F[0], lastIdx] band). Match positions / backtrace are not
+ * computed as only the score is needed for sorting.
+ */
+
+/** Score for a matched character. */
+#define FZF_SCORE_MATCH 16
+/** Penalty for opening a gap. */
+#define FZF_SCORE_GAP_START (-3)
+/** Penalty for extending a gap. */
+#define FZF_SCORE_GAP_EXTENSION (-1)
+/** Bonus for a match at a word boundary. */
+#define FZF_BONUS_BOUNDARY 8
+/** Bonus for a match on a non-word character. */
+#define FZF_BONUS_NON_WORD 8
+/** Bonus for a camelCase / letter-to-digit boundary. */
+#define FZF_BONUS_CAMEL_123 (FZF_BONUS_BOUNDARY + FZF_SCORE_GAP_EXTENSION)
+/** Bonus for a consecutive match. */
+#define FZF_BONUS_CONSECUTIVE                                                  \
+  (-(FZF_SCORE_GAP_START + FZF_SCORE_GAP_EXTENSION))
+/** Multiplier applied to the bonus of the first matched character. */
+#define FZF_BONUS_FIRST_CHAR_MULTIPLIER 2
+/** Bonus for a boundary right after whitespace. */
+#define FZF_BONUS_BOUNDARY_WHITE (FZF_BONUS_BOUNDARY + 2)
+/** Bonus for a boundary right after a delimiter character. */
+#define FZF_BONUS_BOUNDARY_DELIMITER (FZF_BONUS_BOUNDARY + 1)
+/** Returned for a non-match (pattern is not a subsequence). */
+#define FZF_MIN_SCORE (G_MININT / 2)
+
+/** fzf character classes (order matters, mirrors algo.go). */
+enum FzfCharClass {
+  FZF_CHAR_WHITE = 0,
+  FZF_CHAR_NON_WORD,
+  FZF_CHAR_DELIMITER,
+  FZF_CHAR_LOWER,
+  FZF_CHAR_UPPER,
+  FZF_CHAR_LETTER,
+  FZF_CHAR_NUMBER
+};
+
+static enum FzfCharClass rofi_scorer_fzf_char_class(gunichar c) {
+  if (g_unichar_islower(c)) {
+    return FZF_CHAR_LOWER;
+  }
+  if (g_unichar_isupper(c)) {
+    return FZF_CHAR_UPPER;
+  }
+  if (g_unichar_isdigit(c)) {
+    return FZF_CHAR_NUMBER;
+  }
+  if (g_unichar_isalpha(c)) {
+    return FZF_CHAR_LETTER;
+  }
+  if (g_unichar_isspace(c)) {
+    return FZF_CHAR_WHITE;
+  }
+  /* fzf's delimiterChars; all ASCII. */
+  if (c < 0x80 && strchr("/,:;|", (char)c) != NULL) {
+    return FZF_CHAR_DELIMITER;
+  }
+  return FZF_CHAR_NON_WORD;
+}
+
+static int rofi_scorer_fzf_bonus_for(enum FzfCharClass prev,
+                                     enum FzfCharClass cur) {
+  if (cur >= FZF_CHAR_NON_WORD) {
+    switch (prev) {
+    case FZF_CHAR_WHITE:
+      return FZF_BONUS_BOUNDARY_WHITE;
+    case FZF_CHAR_DELIMITER:
+      return FZF_BONUS_BOUNDARY_DELIMITER;
+    case FZF_CHAR_NON_WORD:
+      return FZF_BONUS_BOUNDARY;
+    default:
+      break;
+    }
+  }
+  if ((prev == FZF_CHAR_LOWER && cur == FZF_CHAR_UPPER) ||
+      (prev != FZF_CHAR_NUMBER && cur == FZF_CHAR_NUMBER)) {
+    return FZF_BONUS_CAMEL_123;
+  }
+  switch (cur) {
+  case FZF_CHAR_NON_WORD:
+  case FZF_CHAR_DELIMITER:
+    return FZF_BONUS_NON_WORD;
+  case FZF_CHAR_WHITE:
+    return FZF_BONUS_BOUNDARY_WHITE;
+  default:
+    break;
+  }
+  return 0;
+}
+
+/**
+ * Score a single term (no embedded whitespace) against pre-decoded text.
+ *
+ * @param pat   The term as UTF-32 code points.
+ * @param M     Term length.
+ * @param tmatch Text code points, already case-folded when !case_sensitive.
+ * @param B     Per-position character bonus for the text (text-only, so it is
+ *              computed once and reused for every term).
+ * @param N     Text length.
+ * @param case_sensitive Whether case is significant.
+ *
+ * @returns the fzf score for this term, or FZF_MIN_SCORE if the term is not a
+ * subsequence of the text.
+ */
+static int rofi_scorer_fzf_v2_term(const gunichar *pat, glong M,
+                                   const gunichar *tmatch, const int *B,
+                                   glong N, int case_sensitive) {
+  if (M == 0) {
+    return 0;
+  }
+  if (M > N) {
+    return FZF_MIN_SCORE;
+  }
+
+  int result = FZF_MIN_SCORE;
+  int *H = g_malloc0_n((gsize)M * N, sizeof(int));
+  int *C = g_malloc0_n((gsize)M * N, sizeof(int));
+  glong *F = g_malloc_n(M, sizeof(glong));
+
+  gunichar pchar0 = case_sensitive ? pat[0] : g_unichar_tolower(pat[0]);
+
+  /* Phase 1: first DP row (pattern[0]) and the greedy first-occurrence
+   * positions F[] that bound the DP region. */
+  int prev_h0 = 0;
+  gboolean in_gap = FALSE;
+  glong pidx = 0, last_idx = 0;
+  gunichar pchar_adv = pchar0;
+  int max_score = 0;
+  for (glong off = 0; off < N; off++) {
+    int bonus = B[off];
+
+    if (pidx < M && tmatch[off] == pchar_adv) {
+      F[pidx] = off;
+      pidx++;
+      pchar_adv = case_sensitive ? pat[MIN(pidx, M - 1)]
+                                 : g_unichar_tolower(pat[MIN(pidx, M - 1)]);
+      last_idx = off;
+    }
+
+    if (tmatch[off] == pchar0) {
+      int sc = FZF_SCORE_MATCH + bonus * FZF_BONUS_FIRST_CHAR_MULTIPLIER;
+      H[off] = sc;
+      C[off] = 1;
+      if (M == 1 && sc > max_score) {
+        max_score = sc;
+        if (bonus >= FZF_BONUS_BOUNDARY) {
+          /* Forward search: a boundary match of a 1-char pattern is optimal. */
+          prev_h0 = H[off];
+          break;
+        }
+      }
+      in_gap = FALSE;
+    } else {
+      int v = prev_h0 + (in_gap ? FZF_SCORE_GAP_EXTENSION : FZF_SCORE_GAP_START);
+      H[off] = MAX(v, 0);
+      C[off] = 0;
+      in_gap = TRUE;
+    }
+    prev_h0 = H[off];
+  }
+  if (pidx != M) {
+    goto cleanup; /* not a subsequence */
+  }
+  if (M == 1) {
+    result = max_score;
+    goto cleanup;
+  }
+
+  /* Phase 2: fill the rest of the score matrix. Each row i only spans
+   * [F[i], last_idx]; cells outside stay 0. */
+  for (glong i = 1; i < M; i++) {
+    gunichar pchar = case_sensitive ? pat[i] : g_unichar_tolower(pat[i]);
+    glong f = F[i];
+    in_gap = FALSE;
+    int *row = H + i * N;
+    int *crow = C + i * N;
+    int *diag = H + (i - 1) * N;
+    int *cdiag = C + (i - 1) * N;
+    for (glong j = f; j <= last_idx; j++) {
+      int s1 = 0, s2, consecutive = 0;
+      int hleft = (j > f) ? row[j - 1] : 0;
+      s2 = hleft + (in_gap ? FZF_SCORE_GAP_EXTENSION : FZF_SCORE_GAP_START);
+      if (pchar == tmatch[j]) {
+        int b = B[j];
+        s1 = diag[j - 1] + FZF_SCORE_MATCH;
+        consecutive = cdiag[j - 1] + 1;
+        if (consecutive > 1) {
+          int fb = B[j - consecutive + 1];
+          if (b >= FZF_BONUS_BOUNDARY && b > fb) {
+            consecutive = 1;
+          } else {
+            b = MAX(b, MAX(FZF_BONUS_CONSECUTIVE, fb));
+          }
+        }
+        if (s1 + b < s2) {
+          s1 += B[j];
+          consecutive = 0;
+        } else {
+          s1 += b;
+        }
+      }
+      crow[j] = consecutive;
+      in_gap = s1 < s2;
+      int sc = MAX(MAX(s1, s2), 0);
+      if (i == M - 1 && sc > max_score) {
+        max_score = sc;
+      }
+      row[j] = sc;
+    }
+  }
+  result = max_score;
+
+cleanup:
+  g_free(H);
+  g_free(C);
+  g_free(F);
+  return result;
+}
+
+int rofi_scorer_fzf_v2_evaluate(const char *pattern, glong plen,
+                                const char *str, glong slen,
+                                int case_sensitive) {
+  /* plen is unused (the per-term lengths are recomputed after decoding) but is
+   * kept so this matches the rofi_scorer_fuzzy_evaluate() signature and the
+   * call site can treat both scorers uniformly. */
+  (void)plen;
+  if (slen > FUZZY_SCORER_MAX_LENGTH) {
+    return FZF_MIN_SCORE;
+  }
+
+  /* When normalize-match is on, score the same (accent-stripped) text the
+   * matcher matched against, so fzf's per-rune comparison stays consistent
+   * with rofi's matching. This is rofi's equivalent of fzf's normalizeRune
+   * table. */
+  char *npattern = NULL, *nstr = NULL;
+  if (config.normalize_match) {
+    npattern = utf8_helper_simplify_string(pattern);
+    nstr = utf8_helper_simplify_string(str);
+    pattern = npattern;
+    str = nstr;
+  }
+
+  glong N;
+  gunichar *txt = g_utf8_to_ucs4_fast(str, -1, &N);
+
+  /* Pre-compute, once per string, the case-folded text and per-position
+   * bonuses (both depend only on the text, not the pattern). The character
+   * class is always taken from the original character so camelCase bonuses
+   * survive case folding, exactly like fzf. */
+  gunichar *tmatch = g_malloc_n(N, sizeof(gunichar));
+  int *B = g_malloc_n(N, sizeof(int));
+  enum FzfCharClass prev_class = FZF_CHAR_WHITE;
+  for (glong off = 0; off < N; off++) {
+    enum FzfCharClass c = rofi_scorer_fzf_char_class(txt[off]);
+    tmatch[off] = case_sensitive ? txt[off] : g_unichar_tolower(txt[off]);
+    B[off] = rofi_scorer_fzf_bonus_for(prev_class, c);
+    prev_class = c;
+  }
+
+  /* fzf treats whitespace-separated terms as independent AND conditions and
+   * sums their scores; a line matches only if every term matches. */
+  int total = 0;
+  gboolean any_term = FALSE;
+  gchar **terms = g_strsplit_set(pattern, " \t\n\r\v\f", -1);
+  for (gchar **t = terms; *t != NULL; t++) {
+    if ((*t)[0] == '\0') {
+      continue; /* skip empty fields from consecutive separators */
+    }
+    any_term = TRUE;
+    glong tm;
+    gunichar *pat = g_utf8_to_ucs4_fast(*t, -1, &tm);
+    int s = rofi_scorer_fzf_v2_term(pat, tm, tmatch, B, N, case_sensitive);
+    g_free(pat);
+    if (s == FZF_MIN_SCORE) {
+      total = FZF_MIN_SCORE;
+      break;
+    }
+    total += s;
+  }
+  g_strfreev(terms);
+
+  int result = any_term ? total : 0;
+
+  g_free(tmatch);
+  g_free(B);
+  g_free(txt);
+  g_free(npattern);
+  g_free(nstr);
+  return result;
 }
 
 /**
