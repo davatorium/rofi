@@ -24,8 +24,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-#include "keyb.h"
 #include "config.h"
+#include "keyb.h"
 #include "rofi.h"
 #include "xrmoptions.h"
 #include <glib.h>
