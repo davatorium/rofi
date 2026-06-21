@@ -25,9 +25,10 @@
  */
 #define G_LOG_DOMAIN "Modes.RecursiveBrowser"
 
+#include "config.h"
+
 #include "glib.h"
 
-#include "config.h"
 #include <errno.h>
 #include <gio/gio.h>
 #include <gmodule.h>
