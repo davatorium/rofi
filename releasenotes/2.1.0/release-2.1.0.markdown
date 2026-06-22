@@ -1,9 +1,40 @@
 # 2.1.0
 
+This release mainly includes small improvements and bug fixes.
+
 ## GIO launch
+
+## Wayland: click-to-exit
+
+Click-to-exit is finally enabled in Wayland by default.
+Due to the way it is implemented, it has some side-effects in multi-monitor setup: rofi windows will not spill into other screens but be cropped out.
+
+Thanks to @benny-e for helping out with this feature!
+
+## Wayland: improved wayland window mode
+
+TODO
 
 ## Changelog
 
+* fixing docs typo
+* Wayland: Fix IME positioning and display refresh
+* Fix glib inclusion order
+* [DOC] Describe `{window}` placeholder behavior under Wayland
+* [WaylandWindow] Map ext to wlr toplevels; support window-command
+* [WaylandWindow] Actually handle ext-foreign-toplevel-list-v1 messages
+* [WaylandWindow] Add protocol skeleton for ext-foreign-toplevel-list-v1
+* [WaylandWindow] Rename wlr toplevel stuff in prep for ext toplevel
+* Remove CodeQL
+* [DOC] Update keybind descriptions for window, windowcd modes
+* [WaylandWindow] Support accept-custom action to run entered commands
+* [WaylandWindow] Honor window.close-on-delete config option
+* [Listview] Remove weird x-offset
+* [Wayland] fix: sigbus with shm file (#2292)
+* [Theme] Try to detect recursive importing and skip file
+* [rofi] Print warning messages using g_warning
+* [DOC] Clarify that -show-icons applies to default theme.
+* [comb] makes combi compatible with `mode_preprocess_input` (#2288)
 * Add transparent theme  (#2115)
 * [Icon] Fix drawing size of icon.
 * [DRUN] Change dbus to gio launch (#2275)
