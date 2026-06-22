@@ -316,6 +316,7 @@ if wayland_enabled
     wayland_scanner = find_program('wayland-scanner')
     protocols = files(
         wayland_sys_protocols_dir + '/stable/xdg-shell/xdg-shell.xml',
+        wayland_sys_protocols_dir + '/staging/ext-foreign-toplevel-list/ext-foreign-toplevel-list-v1.xml',
         wayland_sys_protocols_dir + '/unstable/primary-selection/primary-selection-unstable-v1.xml',
         wayland_sys_protocols_dir + '/unstable/keyboard-shortcuts-inhibit/keyboard-shortcuts-inhibit-unstable-v1.xml',
         wayland_sys_protocols_dir + '/unstable/text-input/text-input-unstable-v3.xml',

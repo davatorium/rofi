@@ -616,7 +616,7 @@ It supports the following operations:
 - `+`      : Add
 - `-`      : Subtract
 - `/`      : Divide
-- `-`      : Multiply
+- `*`      : Multiply
 - `modulo` : Modulo
 - `min`    : Minimum of lvalue or rvalue;
 - `max`    : Maximum of lvalue or rvalue;

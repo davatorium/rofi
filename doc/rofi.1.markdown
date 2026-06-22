@@ -305,7 +305,7 @@ Specify the directory where **rofi** should look for plugins.
 
 `-show-icons`
 
-Show application icons in `drun` and `window` modes.
+Load and show icons in the default theme.
 
 `-icon-theme`
 
@@ -931,6 +931,9 @@ replaced at runtime:
 - `{ssh-client}`: the configured ssh client (see -ssh-client)
 - `{cmd}`: the command to execute
 - `{window}`: the window ID of the selected window (in `window-command`)
+  - Under Wayland, this is a compositor-specific ["stable
+    identifier"](https://wayland.app/protocols/ext-foreign-toplevel-list-v1#ext_foreign_toplevel_handle_v1:event:identifier)
+    for the window. Check your compositor's documentation for usage.
 
 It processes the string as follows: `{key}`
 is replaced by its value, if `{key}` is not set it is removed. If the `{key}`
@@ -982,21 +985,25 @@ configuration {
 
 ### window
 
-Show a list of all the windows and allow switching between them. Pressing the
-`delete-entry` binding (`shift-delete`) will close the window. Pressing the
-`accept-custom` binding (`control-enter` or `shift-enter`) will run a command
-on the window. (See option `window-command` );
+Show a list of all the windows and allow switching between them.
+Pressing the `delete-entry` binding (`shift-delete`) will close the window.
+Pressing the `accept-alt` binding (`shift-enter`) will run a command on the
+window. (See option `window-command` );
 
-If there is no match, it will try to launch the input.
+If there is no match, or if `accept-custom` (`control-enter`) is pressed, it
+will try to launch the input.
 
 ### windowcd
 
+Same as the **window** mode, but lists only windows on the current desktop.
 Shows a list of the windows on the current desktop and allows switching between
-them. Pressing the `delete-entry` binding (`shift-delete`) will kill the
-window. Pressing the `accept-custom` binding (`control-enter` or `shift-enter`)
-will run a command on the window. (See option `window-command` );
+them.
+Pressing the `delete-entry` binding (`shift-delete`) will kill the window.
+Pressing the `accept-alt` binding (`shift-enter`) will run a command on the
+window. (See option `window-command` );
 
-If there is no match, it will try to launch the input.
+If there is no match, or if `accept-custom` (`control-enter`) is pressed, it
+will try to launch the input.
 
 ### run
 
