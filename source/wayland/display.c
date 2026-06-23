@@ -117,6 +117,32 @@ static const cairo_user_data_key_t wayland_cairo_surface_user_data;
 
 static const struct zwp_text_input_v3_listener text_input_listener;
 
+static void update_cursor_rectangle(struct zwp_text_input_v3 *text_input) {
+  textbox *tb = rofi_view_get_active_text();
+  if (tb == NULL) {
+    return;
+  }
+
+  int menu_x = 0, menu_y = 0;
+  rofi_view_get_menu_rect(&menu_x, &menu_y, NULL, NULL);
+
+  widget *tb_widget = WIDGET(tb);
+  int x = textbox_get_cursor_x_pos(tb);
+  int y = 0;
+
+  for (widget *iter = tb_widget; iter != NULL; iter = iter->parent) {
+    x += iter->x;
+    y += iter->y;
+  }
+
+  x += menu_x;
+  y += menu_y;
+
+  int w = 1;
+  int h = widget_get_height(tb_widget);
+  zwp_text_input_v3_set_cursor_rectangle(text_input, x, y, w, h);
+}
+
 static const struct _view_proxy *wayland_display_view_proxy(void);
 
 static void wayland_buffer_cleanup(wayland_buffer_pool *self) {
@@ -511,6 +537,10 @@ static void wayland_keyboard_modifiers(void *data, struct wl_keyboard *keyboard,
   RofiViewState *state = rofi_view_get_active();
   if (state != NULL) {
     rofi_view_maybe_update(state);
+    if (self->text_input) {
+      update_cursor_rectangle(self->text_input);
+      zwp_text_input_v3_commit(self->text_input);
+    }
   }
 }
 
@@ -698,6 +728,10 @@ static void wayland_pointer_send_events(wayland_seat *self) {
   self->wheel_continuous.horizontal = 0;
 
   rofi_view_maybe_update(state);
+  if (self->text_input) {
+    update_cursor_rectangle(self->text_input);
+    zwp_text_input_v3_commit(self->text_input);
+  }
 }
 
 static struct wl_cursor *
@@ -1231,20 +1265,6 @@ static const struct wl_seat_listener wayland_seat_listener = {
     .name = wayland_seat_name,
 };
 
-static void update_cursor_rectangle(struct zwp_text_input_v3 *text_input) {
-  textbox *tb = rofi_view_get_active_text();
-  if (tb == NULL) {
-    return;
-  }
-
-  widget *tb_widget = WIDGET(tb);
-  int x = widget_get_x_pos(tb_widget) + textbox_get_cursor_x_pos(tb);
-  int y = widget_get_y_pos(tb_widget);
-  int w = 1;
-  int h = widget_get_height(tb_widget);
-  zwp_text_input_v3_set_cursor_rectangle(text_input, x, y, w, h);
-}
-
 static void text_input_enter(void *data, struct zwp_text_input_v3 *text_input,
                              struct wl_surface *surface) {
   zwp_text_input_v3_enable(text_input);
@@ -1264,6 +1284,10 @@ static void text_input_preedit_string(void *data,
                                       struct zwp_text_input_v3 *text_input,
                                       const char *text, int32_t cursor_begin,
                                       int32_t cursor_end) {
+  RofiViewState *state = rofi_view_get_active();
+  if (state) {
+    rofi_view_maybe_update(state);
+  }
   update_cursor_rectangle(text_input);
   zwp_text_input_v3_commit(text_input);
 }
@@ -1278,7 +1302,10 @@ static void text_input_commit_string(void *data,
   RofiViewState *state = rofi_view_get_active();
   if (state) {
     rofi_view_handle_text(state, text);
+    rofi_view_maybe_update(state);
   }
+  update_cursor_rectangle(text_input);
+  zwp_text_input_v3_commit(text_input);
 }
 
 static void text_input_delete_surrounding_text(
@@ -1286,7 +1313,12 @@ static void text_input_delete_surrounding_text(
     uint32_t after_length) {}
 
 static void text_input_done(void *data, struct zwp_text_input_v3 *text_input,
-                            uint32_t serial) {}
+                            uint32_t serial) {
+  RofiViewState *state = rofi_view_get_active();
+  if (state) {
+    rofi_view_maybe_update(state);
+  }
+}
 
 static const struct zwp_text_input_v3_listener text_input_listener = {
     .enter = text_input_enter,
