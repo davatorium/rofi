@@ -1058,9 +1058,10 @@ int rofi_scorer_fuzzy_evaluate(const char *pattern, glong plen, const char *str,
 /** Bonus for a match on a non-word character. */
 #define FZF_V2_BONUS_NON_WORD 8
 /** Bonus for a camelCase / letter-to-digit boundary. */
-#define FZF_V2_BONUS_CAMEL_123 (FZF_V2_BONUS_BOUNDARY + FZF_V2_SCORE_GAP_EXTENSION)
+#define FZF_V2_BONUS_CAMEL_123                                                 \
+  (FZF_V2_BONUS_BOUNDARY + FZF_V2_SCORE_GAP_EXTENSION)
 /** Bonus for a consecutive match. */
-#define FZF_V2_BONUS_CONSECUTIVE                                                  \
+#define FZF_V2_BONUS_CONSECUTIVE                                               \
   (-(FZF_V2_SCORE_GAP_START + FZF_V2_SCORE_GAP_EXTENSION))
 /** Multiplier applied to the bonus of the first matched character. */
 #define FZF_V2_BONUS_FIRST_CHAR_MULTIPLIER 2
@@ -1106,7 +1107,7 @@ static enum FzfV2CharClass rofi_scorer_fzf_v2_char_class(gunichar c) {
 }
 
 static int rofi_scorer_fzf_v2_bonus_for(enum FzfV2CharClass prev,
-                                     enum FzfV2CharClass cur) {
+                                        enum FzfV2CharClass cur) {
   if (cur >= FZF_V2_CHAR_NON_WORD) {
     switch (prev) {
     case FZF_V2_CHAR_WHITE:
@@ -1146,8 +1147,8 @@ static int rofi_scorer_fzf_v2_bonus_for(enum FzfV2CharClass prev,
  * @param N     Text length.
  * @param case_sensitive Whether case is significant.
  *
- * @returns the fzf score for this term, or FZF_V2_MIN_SCORE if the term is not a
- * subsequence of the text.
+ * @returns the fzf score for this term, or FZF_V2_MIN_SCORE if the term is not
+ * a subsequence of the text.
  */
 static int rofi_scorer_fzf_v2_term(const gunichar *pat, glong M,
                                    const gunichar *tmatch, const int *B,
@@ -1159,7 +1160,7 @@ static int rofi_scorer_fzf_v2_term(const gunichar *pat, glong M,
     return FZF_V2_MIN_SCORE;
   }
 
-  int result = FZF_V2_MIN_SCORE;
+  int result;
   int *H = g_malloc0_n((gsize)M * N, sizeof(int));
   int *C = g_malloc0_n((gsize)M * N, sizeof(int));
   glong *F = g_malloc_n(M, sizeof(glong));
@@ -1198,7 +1199,8 @@ static int rofi_scorer_fzf_v2_term(const gunichar *pat, glong M,
       }
       in_gap = FALSE;
     } else {
-      int v = prev_h0 + (in_gap ? FZF_V2_SCORE_GAP_EXTENSION : FZF_V2_SCORE_GAP_START);
+      int v = prev_h0 +
+              (in_gap ? FZF_V2_SCORE_GAP_EXTENSION : FZF_V2_SCORE_GAP_START);
       H[off] = MAX(v, 0);
       C[off] = 0;
       in_gap = TRUE;
@@ -1206,58 +1208,57 @@ static int rofi_scorer_fzf_v2_term(const gunichar *pat, glong M,
     prev_h0 = H[off];
   }
   if (pidx != M) {
-    goto cleanup; /* not a subsequence */
-  }
-  if (M == 1) {
+    /* pattern is not a subsequence of the text */
+    result = FZF_V2_MIN_SCORE;
+  } else if (M == 1) {
     result = max_score;
-    goto cleanup;
-  }
-
-  /* Phase 2: fill the rest of the score matrix. Each row i only spans
-   * [F[i], last_idx]; cells outside stay 0. */
-  for (glong i = 1; i < M; i++) {
-    gunichar pchar = case_sensitive ? pat[i] : g_unichar_tolower(pat[i]);
-    glong f = F[i];
-    in_gap = FALSE;
-    int *row = H + i * N;
-    int *crow = C + i * N;
-    int *diag = H + (i - 1) * N;
-    int *cdiag = C + (i - 1) * N;
-    for (glong j = f; j <= last_idx; j++) {
-      int s1 = 0, s2, consecutive = 0;
-      int hleft = (j > f) ? row[j - 1] : 0;
-      s2 = hleft + (in_gap ? FZF_V2_SCORE_GAP_EXTENSION : FZF_V2_SCORE_GAP_START);
-      if (pchar == tmatch[j]) {
-        int b = B[j];
-        s1 = diag[j - 1] + FZF_V2_SCORE_MATCH;
-        consecutive = cdiag[j - 1] + 1;
-        if (consecutive > 1) {
-          int fb = B[j - consecutive + 1];
-          if (b >= FZF_V2_BONUS_BOUNDARY && b > fb) {
-            consecutive = 1;
+  } else {
+    /* Phase 2: fill the rest of the score matrix. Each row i only spans
+     * [F[i], last_idx]; cells outside stay 0. */
+    for (glong i = 1; i < M; i++) {
+      gunichar pchar = case_sensitive ? pat[i] : g_unichar_tolower(pat[i]);
+      glong f = F[i];
+      in_gap = FALSE;
+      int *row = H + i * N;
+      int *crow = C + i * N;
+      int *diag = H + (i - 1) * N;
+      int *cdiag = C + (i - 1) * N;
+      for (glong j = f; j <= last_idx; j++) {
+        int s1 = 0, s2, consecutive = 0;
+        int hleft = (j > f) ? row[j - 1] : 0;
+        s2 = hleft +
+             (in_gap ? FZF_V2_SCORE_GAP_EXTENSION : FZF_V2_SCORE_GAP_START);
+        if (pchar == tmatch[j]) {
+          int b = B[j];
+          s1 = diag[j - 1] + FZF_V2_SCORE_MATCH;
+          consecutive = cdiag[j - 1] + 1;
+          if (consecutive > 1) {
+            int fb = B[j - consecutive + 1];
+            if (b >= FZF_V2_BONUS_BOUNDARY && b > fb) {
+              consecutive = 1;
+            } else {
+              b = MAX(b, MAX(FZF_V2_BONUS_CONSECUTIVE, fb));
+            }
+          }
+          if (s1 + b < s2) {
+            s1 += B[j];
+            consecutive = 0;
           } else {
-            b = MAX(b, MAX(FZF_V2_BONUS_CONSECUTIVE, fb));
+            s1 += b;
           }
         }
-        if (s1 + b < s2) {
-          s1 += B[j];
-          consecutive = 0;
-        } else {
-          s1 += b;
+        crow[j] = consecutive;
+        in_gap = s1 < s2;
+        int sc = MAX(MAX(s1, s2), 0);
+        if (i == M - 1 && sc > max_score) {
+          max_score = sc;
         }
+        row[j] = sc;
       }
-      crow[j] = consecutive;
-      in_gap = s1 < s2;
-      int sc = MAX(MAX(s1, s2), 0);
-      if (i == M - 1 && sc > max_score) {
-        max_score = sc;
-      }
-      row[j] = sc;
     }
+    result = max_score;
   }
-  result = max_score;
 
-cleanup:
   g_free(H);
   g_free(C);
   g_free(F);
