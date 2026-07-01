@@ -238,6 +238,37 @@ int main(int argc, char **argv) {
                                          12, 0),
              202);
   }
+  {
+    /* Cases taken from fzf's own algo_test.go (TestFuzzyMatch), verifying the
+     * port reproduces fzf's exact scores. The expected values are fzf's score
+     * expressions evaluated with its constants (scoreMatch=16, gap -3/-1,
+     * boundary=8, camel123=7, consecutive=4, first-char x2, boundary-white=10,
+     * boundary-delimiter=9). */
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("oBZ", 3, "fooBarbaz1", 10, 0), 49);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("rdoc", 4, "/AutomatorDocument.icns",
+                                         23, 0),
+             79);
+    TASSERTL(
+        rofi_scorer_fzf_v2_evaluate("zshc", 4, "/man1/zshcompctl.1", 18, 0),
+        109);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("zshc", 4, "/.oh-my-zsh/cache", 17, 0),
+             102);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate(".vimrc", 6, "a.vimrc", 7, 0), 152);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("12356", 5, "abc123 456", 10, 0), 108);
+    /* These exercise the "last occurrence of the final pattern char extends the
+     * search region" behaviour, i.e. a later/better match must win over an
+     * earlier scattered one. */
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("fbb", 3, "foo bar baz", 11, 0), 78);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("fbb", 3, "foo/bar/baz", 11, 0), 76);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("fbb", 3, "fooBarBaz", 9, 0), 74);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("foo-b", 5, "xFoo-Bar Baz", 12, 0),
+             124);
+    /* Case-sensitive matches. */
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("FBB", 3, "FooBarBaz", 9, 1), 74);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("oBz", 3, "fooBarbaz", 9, 1), 49);
+    TASSERTL(rofi_scorer_fzf_v2_evaluate("oBZ", 3, "fooBarbaz", 9, 1),
+             G_MININT / 2);
+  }
 
   /**
    * Case sensitivity

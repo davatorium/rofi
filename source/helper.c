@@ -1177,11 +1177,16 @@ static int rofi_scorer_fzf_v2_term(const gunichar *pat, glong M,
   for (glong off = 0; off < N; off++) {
     int bonus = B[off];
 
-    if (pidx < M && tmatch[off] == pchar_adv) {
-      F[pidx] = off;
-      pidx++;
-      pchar_adv = case_sensitive ? pat[MIN(pidx, M - 1)]
-                                 : g_unichar_tolower(pat[MIN(pidx, M - 1)]);
+    if (tmatch[off] == pchar_adv) {
+      /* pchar_adv sticks at the last pattern char once the whole pattern has
+       * been seen, so last_idx tracks the final occurrence of that char and
+       * the DP region below covers later (possibly better) matches too. */
+      if (pidx < M) {
+        F[pidx] = off;
+        pidx++;
+        pchar_adv = case_sensitive ? pat[MIN(pidx, M - 1)]
+                                   : g_unichar_tolower(pat[MIN(pidx, M - 1)]);
+      }
       last_idx = off;
     }
 
