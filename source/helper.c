@@ -1175,8 +1175,6 @@ static int rofi_scorer_fzf_v2_term(const gunichar *pat, glong M,
   gunichar pchar_adv = pchar0;
   int max_score = 0;
   for (glong off = 0; off < N; off++) {
-    int bonus = B[off];
-
     if (tmatch[off] == pchar_adv) {
       /* pchar_adv sticks at the last pattern char once the whole pattern has
        * been seen, so last_idx tracks the final occurrence of that char and
@@ -1191,6 +1189,7 @@ static int rofi_scorer_fzf_v2_term(const gunichar *pat, glong M,
     }
 
     if (tmatch[off] == pchar0) {
+      int bonus = B[off];
       int sc = FZF_V2_SCORE_MATCH + bonus * FZF_V2_BONUS_FIRST_CHAR_MULTIPLIER;
       H[off] = sc;
       C[off] = 1;
@@ -1198,7 +1197,6 @@ static int rofi_scorer_fzf_v2_term(const gunichar *pat, glong M,
         max_score = sc;
         if (bonus >= FZF_V2_BONUS_BOUNDARY) {
           /* Forward search: a boundary match of a 1-char pattern is optimal. */
-          prev_h0 = H[off];
           break;
         }
       }
