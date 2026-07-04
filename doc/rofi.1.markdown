@@ -469,10 +469,16 @@ This setting can be changed at runtime (see `-kb-toggle-sort`).
 
 `-sorting-method` 'method' to specify the sort method.
 
-There are 2 methods:
+There are 3 methods:
 
 - **levenshtein** (Default)
-- **fzf**
+- **fzf** a fuzzy scorer loosely inspired by fzf.
+- **fzf-v2** a port of fzf's default fuzzy scoring algorithm (FuzzyMatchV2)
+  that aims to match fzf's ranking. Prefers contiguous matches and
+  word-boundary/camelCase starts using fzf's own weights.
+  Whitespace-separated terms are scored independently and summed, like fzf.
+  When `-normalize-match` is enabled, scoring is done on the normalized
+  (accent-stripped) text, mirroring fzf's rune normalization.
 
 ### Layout and Theming
 
