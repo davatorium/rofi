@@ -205,7 +205,7 @@ static SshEntry *read_known_hosts_file(const char *path, SshEntry *retv,
           char *strend = strchr(start, ']');
           if (strend == NULL)
           {
-            // If strend is NULL, then the entry is malformd. So it should be
+            // If strend is NULL, then the entry is malformed. So it should be
             // skipped.
             start = strsep(&sep, ", ");
             continue;
