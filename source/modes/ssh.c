@@ -502,7 +502,7 @@ static SshEntry *get_ssh(SSHModePrivateData *pd, unsigned int *length) {
   path = g_build_filename(cache_dir, SSH_CACHE_FILE, NULL);
   char **h = history_get_list(path, length);
 
-  retv = malloc((*length) * sizeof(SshEntry));
+  retv = g_malloc0((*length) * sizeof(SshEntry));
   for (unsigned int i = 0; i < (*length); i++) {
     int port = 0;
     char **ssplit = g_strsplit(h[i], "\x1F", -1);
