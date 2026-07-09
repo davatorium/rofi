@@ -203,7 +203,15 @@ static SshEntry *read_known_hosts_file(const char *path, SshEntry *retv,
         if (start[0] == '[') {
           start++;
           char *strend = strchr(start, ']');
-          if (strend[1] == ':') {
+          if (strend == NULL)
+          {
+            // If strend is NULL, then the entry is malformed. So it should be
+            // skipped.
+            start = strsep(&sep, ", ");
+            continue;
+          }
+          if (strend[1] == ':')
+          {
             *strend = '\0';
             errno = 0;
             gchar *endptr = NULL;
