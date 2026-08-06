@@ -190,7 +190,7 @@ Set ellipsize mode to start. So, the end of the string is visible.
 
 `-display-columns`
 
-A comma seperated list of columns to show.
+A comma separated list of columns to show.
 
 `-display-column-separator`
 
