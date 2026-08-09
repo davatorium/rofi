@@ -291,6 +291,9 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
             retv[(*length)].icon_fetch_uid = 0;
             retv[(*length)].icon_fetch_size = 0;
             retv[(*length)].icon_fetch_scale = 0;
+            /* The memset below only clears the next slot, leaving the
+             * first entry uninitialized. */
+            retv[(*length)].icon_fallback_index = 0;
             retv[(*length)].nonselectable = FALSE;
             retv[(*length)].permanent = FALSE;
             if (buf_length > 0 && (read_length > (ssize_t)buf_length)) {
