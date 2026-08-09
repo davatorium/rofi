@@ -567,8 +567,11 @@ static cairo_surface_t *script_get_icon(const Mode *sw,
     return NULL;
   }
 
-  if (dr->icon_fetch_uid > 0) {
-    cairo_surface_t *surface = NULL;
+  /* A row icon and icon-current-entry ask for the same entry at different
+   * sizes; one cached uid cannot serve both. */
+  cairo_surface_t *surface = NULL;
+  if (dr->icon_fetch_uid > 0 && dr->icon_fetch_size == height &&
+      dr->icon_fetch_scale == scale) {
     gboolean query_done =
         rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
 
@@ -593,11 +596,13 @@ static cairo_surface_t *script_get_icon(const Mode *sw,
     dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
     dr->icon_fetch_size = height;
     dr->icon_fetch_scale = scale;
-
-  } else {
-    dr->icon_fetch_uid = 0;
+    /* The sizes alternate, so returning NULL would blank the icon on every
+     * frame, not just the first. */
+    rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
+    return surface;
   }
 
+  dr->icon_fetch_uid = 0;
   return NULL;
 }
 
