@@ -203,7 +203,15 @@ static SshEntry *read_known_hosts_file(const char *path, SshEntry *retv,
         if (start[0] == '[') {
           start++;
           char *strend = strchr(start, ']');
-          if (strend[1] == ':') {
+          if (strend == NULL)
+          {
+            // If strend is NULL, then the entry is malformed. So it should be
+            // skipped.
+            start = strsep(&sep, ", ");
+            continue;
+          }
+          if (strend[1] == ':')
+          {
             *strend = '\0';
             errno = 0;
             gchar *endptr = NULL;
@@ -494,7 +502,7 @@ static SshEntry *get_ssh(SSHModePrivateData *pd, unsigned int *length) {
   path = g_build_filename(cache_dir, SSH_CACHE_FILE, NULL);
   char **h = history_get_list(path, length);
 
-  retv = malloc((*length) * sizeof(SshEntry));
+  retv = g_malloc0((*length) * sizeof(SshEntry));
   for (unsigned int i = 0; i < (*length); i++) {
     int port = 0;
     char **ssplit = g_strsplit(h[i], "\x1F", -1);
