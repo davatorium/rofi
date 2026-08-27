@@ -101,6 +101,7 @@ static void rofi_icon_fetch_entry_free(gpointer data);
  * The icon fetcher internal state.
  */
 IconFetcher *rofi_icon_fetcher_data = NULL;
+char **icon_fallback_themes = NULL;
 
 static void rofi_icon_fetcher_load_thumbnailers(const gchar *path) {
   gchar *thumb_path = g_build_filename(path, "thumbnailers", NULL);
@@ -273,13 +274,16 @@ static void rofi_icon_fetch_entry_free(gpointer data) {
 void rofi_icon_fetcher_init(void) {
   g_assert(rofi_icon_fetcher_data == NULL);
 
-  static const gchar *const icon_fallback_themes[] = {"Adwaita", "gnome", NULL};
+  //  static const gchar *const icon_fallback_themes[] = {"Adwaita", "gnome",
+  //  NULL};
+  icon_fallback_themes = g_strsplit(config.fallback_icon_themes, ",", 0);
+
   const char *themes[2] = {config.icon_theme, NULL};
 
   rofi_icon_fetcher_data = g_malloc0(sizeof(IconFetcher));
 
-  rofi_icon_fetcher_data->xdg_context =
-      nk_xdg_theme_context_new(icon_fallback_themes, NULL);
+  rofi_icon_fetcher_data->xdg_context = nk_xdg_theme_context_new(
+      (const gchar *const *)icon_fallback_themes, NULL);
   nk_xdg_theme_preload_themes_icon(rofi_icon_fetcher_data->xdg_context, themes);
 
   rofi_icon_fetcher_data->icon_cache_uid =
@@ -338,6 +342,7 @@ void rofi_icon_fetcher_destroy(void) {
                  NULL);
   g_list_free(rofi_icon_fetcher_data->supported_extensions);
   g_free(rofi_icon_fetcher_data);
+  g_strfreev(icon_fallback_themes);
 }
 
 /*

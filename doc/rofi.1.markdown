@@ -312,6 +312,12 @@ Load and show icons in the default theme.
 Specify icon theme to be used. If not specified default theme from DE is used,
 *Adwaita* and *gnome* themes act as fallback themes.
 
+
+`-fallback-icon-themes`
+
+Specify one or more fallback icon themes to be used. 
+*Adwaita* and *gnome* themes are set as default fallback themes.
+
 `-markup`
 
 Use Pango markup to format output wherever possible.
