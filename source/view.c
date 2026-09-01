@@ -1552,6 +1552,9 @@ WidgetTriggerActionResult textbox_button_trigger_action(
   switch (action) {
   case MOUSE_CLICK_DOWN: {
     const char *type = rofi_theme_get_string(wid, "action", NULL);
+    const char *command = rofi_theme_get_string(wid, "exec", NULL);
+    const int exit_after = rofi_theme_get_boolean(wid, "exit-after-command", FALSE);
+
     if (type) {
       if (state->list_view) {
         (state->selected_line) =
@@ -1565,12 +1568,11 @@ WidgetTriggerActionResult textbox_button_trigger_action(
       }
       state->skip_absorb = TRUE;
       return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
-    } else {
-      const char *command = rofi_theme_get_string(wid, "exec", NULL);
-      const int exit_after = rofi_theme_get_boolean(wid, "exit-after-command", FALSE);
-      system(command);
-      if (exit_after) {
-	      rofi_quit_main_loop();
+    } else if (command) {
+      if (helper_execute_command(NULL, command, FALSE, NULL)) {
+        if (exit_after) {
+          rofi_quit_main_loop();
+        }
       }
     }
   }
