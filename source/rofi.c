@@ -198,7 +198,96 @@ static void teardown(int pfd) {
   // Cleanup pid file.
   remove_pid_file(pfd);
 }
+/**
+ * Asynchronous startup prefetch.
+ *
+ * Mode initialization (scanning .desktop files, $PATH, history files, ...) and
+ * the icon-theme setup are filesystem bound and touch neither X nor pango. We
+ * run them on a background thread, started right after the modes are set up, so
+ * they overlap the (latency bound) X server setup and the pango/font setup that
+ * run afterwards on the main thread. The thread is joined right before the data
+ * is consumed in run_mode_index() (and, as a safety net, in cleanup()).
+ */
+static GThread *startup_prefetch_thread = NULL;
+static struct {
+  Mode **modes;
+  unsigned int num_modes;
+  gboolean prefetch_icons;
+} startup_prefetch = {NULL, 0, FALSE};
+
+static gpointer startup_prefetch_worker(G_GNUC_UNUSED gpointer data) {
+  for (unsigned int i = 0; i < startup_prefetch.num_modes; i++) {
+    mode_init(startup_prefetch.modes[i]);
+  }
+  if (startup_prefetch.prefetch_icons) {
+    rofi_icon_fetcher_init();
+  }
+  return NULL;
+}
+
+/**
+ * A mode's _init may only be prefetched on the worker thread if it touches just
+ * the filesystem and its own private data -- never X (xcb), pango, or shared
+ * state the main thread mutates while the worker runs. Default-deny, because:
+ *  - 'window' calls xcb_ewmh_* in its _init and would race the X setup;
+ *  - 'combi' has no X calls itself, but its _init initializes its sub-modes, so
+ *    it is only as safe as they are -- and they may include 'window'.
+ * The listed modes only read rofi_configuration (via rofi_config_find_widget),
+ * which is fully parsed before the worker starts and is not mutated afterwards;
+ * they do not read rofi_theme, which the main thread is still resolving
+ * (process_conditionals/links) -- a different tree, so there is no race.
+ */
+static gboolean mode_init_is_prefetch_safe(const Mode *mode) {
+  static const char *const safe[] = {"drun", "run", "ssh", "filebrowser", NULL};
+  const char *name = mode_get_name(mode);
+  for (unsigned int i = 0; safe[i] != NULL; i++) {
+    if (g_strcmp0(name, safe[i]) == 0) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/** Spawn the prefetch thread. Main thread only. */
+static void start_startup_prefetch(void) {
+  // Snapshot only the prefetch-safe modes, so a later add_mode() (which may grow
+  // the global modes array) cannot race with the worker, and the unsafe modes
+  // are left to be initialized on the main thread in run_mode_index().
+  Mode **safe = g_new(Mode *, num_modes);
+  unsigned int n = 0;
+  for (unsigned int i = 0; i < num_modes; i++) {
+    if (mode_init_is_prefetch_safe(modes[i])) {
+      safe[n++] = modes[i];
+    }
+  }
+  startup_prefetch.modes = safe;
+  startup_prefetch.num_modes = n;
+  startup_prefetch.prefetch_icons = config.show_icons;
+  // Nothing to do off-thread: skip the thread entirely.
+  if (n == 0 && !startup_prefetch.prefetch_icons) {
+    g_free(safe);
+    startup_prefetch.modes = NULL;
+    return;
+  }
+  startup_prefetch_thread =
+      g_thread_new("rofi-prefetch", startup_prefetch_worker, NULL);
+}
+
+/** Join the prefetch thread if running. Idempotent; main thread only. */
+static void join_startup_prefetch(void) {
+  if (startup_prefetch_thread == NULL) {
+    return;
+  }
+  g_thread_join(startup_prefetch_thread);
+  startup_prefetch_thread = NULL;
+  g_free(startup_prefetch.modes);
+  startup_prefetch.modes = NULL;
+}
+
 static void run_mode_index(ModeMode mode) {
+  // Mode data may have been prefetched on a background thread; ensure it has
+  // finished before we initialize and display the modes.
+  join_startup_prefetch();
   // Otherwise check if requested mode is enabled.
   for (unsigned int i = 0; i < num_modes; i++) {
     if (!mode_init(modes[i])) {
@@ -598,6 +687,9 @@ static void help_print_no_arguments(void) {
  * Cleanup globally allocated memory.
  */
 static void cleanup(void) {
+  // The prefetch worker touches the modes; make sure it is done before we
+  // start destroying them.
+  join_startup_prefetch();
   for (unsigned int i = 0; i < num_modes; i++) {
     mode_destroy(modes[i]);
   }
@@ -1244,6 +1336,9 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
     TICK_N("Setup Modes");
+    // Kick off filesystem-bound startup work (mode data, icon theme) on a
+    // background thread so it overlaps the X and pango setup that follow.
+    start_startup_prefetch();
   } else {
     // Hack for dmenu compatibility.
     if (find_arg_str("-w", &windowid) == TRUE) {
@@ -1342,8 +1437,10 @@ int main(int argc, char *argv[]) {
 
   rofi_view_workers_initialize();
   TICK_N("Workers initialize");
-  rofi_icon_fetcher_init();
-  TICK_N("Icon fetcher initialize");
+  /* The icon fetcher is initialized lazily on its first query (see
+   * rofi_icon_fetcher_init), so modes that show no icons (and the path to the
+   * first paint) do not pay to load icon themes, pixbuf loaders and
+   * thumbnailers. */
 
   gboolean kill_running = FALSE;
   if (find_arg("-replace") >= 0) {
