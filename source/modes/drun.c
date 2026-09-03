@@ -144,6 +144,8 @@ typedef struct {
   uint32_t icon_fetch_uid;
   uint32_t icon_fetch_size;
   guint icon_fetch_scale;
+  gboolean is_action;
+  char *action_name;
   /* Type of desktop file */
   DRunDesktopEntryType type;
 } DRunModeEntry;
@@ -428,7 +430,12 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
         GFile *file = g_file_new_for_path(path);
         files = g_list_append(files, (void *)file);
       }
-      launched = g_app_info_launch(G_APP_INFO(gdai), files, NULL, &ai_error);
+      if ( e->is_action ) {
+            g_desktop_app_info_launch_action(gdai, e->action_name, NULL);
+            launched = TRUE;
+      } else {
+            launched = g_app_info_launch(G_APP_INFO(gdai), files, NULL, &ai_error);
+      }
       if (ai_error) {
         g_warning("Failed to launch application using GAppInfo::Launch: %s",
                   ai_error->message);
@@ -494,7 +501,7 @@ static gboolean rofi_strv_contains(const char *const *categories,
  */
 static void read_desktop_file(DRunModePrivateData *pd, const char *root,
                               const char *path, const gchar *basename,
-                              const char *action) {
+                              const char *action, const char *action_name) {
   DRunDesktopEntryType desktop_entry_type =
       DRUN_DESKTOP_ENTRY_TYPE_UNDETERMINED;
   int parse_action = (config.drun_show_actions && action != DRUN_GROUP_NAME);
@@ -715,6 +722,8 @@ static void read_desktop_file(DRunModePrivateData *pd, const char *root,
   pd->entry_list[pd->cmd_list_length].root = g_strdup(root);
   pd->entry_list[pd->cmd_list_length].path = g_strdup(path);
   pd->entry_list[pd->cmd_list_length].desktop_id = g_strdup(id);
+  pd->entry_list[pd->cmd_list_length].is_action = parse_action;
+  pd->entry_list[pd->cmd_list_length].action_name = g_strdup(action_name);
   pd->entry_list[pd->cmd_list_length].app_id =
       g_strndup(basename, strlen(basename) - strlen(".desktop"));
   gchar *n =
@@ -795,7 +804,7 @@ static void read_desktop_file(DRunModePrivateData *pd, const char *root,
                                                 &actions_length, NULL);
     for (gsize iter = 0; iter < actions_length; iter++) {
       char *new_action = g_strdup_printf("Desktop Action %s", actions[iter]);
-      read_desktop_file(pd, root, path, basename, new_action);
+      read_desktop_file(pd, root, path, basename, new_action, actions[iter]);
       g_free(new_action);
     }
     g_strfreev(actions);
@@ -851,7 +860,7 @@ static void walk_dir(DRunModePrivateData *pd, const char *root,
     case DT_REG:
       // Skip files not ending on .desktop.
       if (g_str_has_suffix(file->d_name, ".desktop")) {
-        read_desktop_file(pd, root, filename, file->d_name, DRUN_GROUP_NAME);
+        read_desktop_file(pd, root, filename, file->d_name, DRUN_GROUP_NAME, NULL);
       }
       break;
     case DT_DIR:
@@ -1340,6 +1349,7 @@ static void drun_entry_clear(DRunModeEntry *e) {
   if (e->action != DRUN_GROUP_NAME) {
     g_free(e->action);
   }
+  g_free(e->action_name);
   g_strfreev(e->categories);
   g_strfreev(e->keywords);
   if (e->key_file) {
