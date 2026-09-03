@@ -2,8 +2,59 @@
 
 ## GIO launch
 
+
+## Authors
+
+Thanks to all the people making this release possible:
+
+ * SardemF77
+ * Alex190291
+ * Benny
+ * Bjoernab
+ * Colin
+ * E-tho
+ * Hanssen0
+ * Hanssen
+ * Istvan Petres
+ * Jakob
+ * Justin Faber
+ * Killertofus
+ * Lbonn
+ * Lucas Ritzdorf
+ * Milad Alizadeh
+ * Mtoon
+ * Nick H
+ * Prithveerarya345
+ * Ruedoux
+ * Tomoron
+ * Zebra2711
+
+
 ## Changelog
 
+* Fix row icons and previews that fail to render (#2323)
+* [Info] Dump used XDG directories in the '-info' command.
+* [Display] Add some checks so we do not resolve NULL ptr. (#2320)
+* [DOC] fix minor spelling typos (defintions, seperated, layed) (#2319)
+* replace malloc and realloc with corresponding glib functions (#2316)
+* Fix null pointer deref and skip misformed entry (#2315)
+* Add fzf-v2 sorting method (#2306)
+* [DOC] Minor spelling fixes (#2311)
+* [DOC] fixing docs typo
+* [Wayland] Fix IME positioning and display refresh
+* [DOC] Describe `{window}` placeholder behavior under Wayland
+* [WaylandWindow] Map ext to wlr toplevels; support window-command
+* [WaylandWindow] Add protocol skeleton for ext-foreign-toplevel-list-v1
+* [WaylandWindow] Rename wlr toplevel stuff in prep for ext toplevel
+* [DOC] Update keybind descriptions for window, windowcd modes
+* [WaylandWindow] Support accept-custom action to run entered commands
+* [WaylandWindow] Honor window.close-on-delete config option
+* [Listview] Remove weird x-offset (#2301)
+* [Wayland] fix: sigbus with shm file (#2292)
+* [Theme] Try to detect recursive importing and skip file (#2294)
+* [rofi] Print warning messages using g_warning
+* [DOC] Clarify that -show-icons applies to default theme.
+* [Combi] makes combi compatible with `mode_preprocess_input` (#2288)
 * Add transparent theme  (#2115)
 * [Icon] Fix drawing size of icon.
 * [DRUN] Change dbus to gio launch (#2275)
