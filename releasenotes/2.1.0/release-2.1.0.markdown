@@ -1,34 +1,19 @@
 # 2.1.0
 
+This release mainly includes small improvements and bug fixes.
+
 ## GIO launch
 
+## Wayland: click-to-exit
 
-## Authors
+Click-to-exit is finally enabled in Wayland by default.
+Due to the way it is implemented, it has some side-effects in multi-monitor setup: rofi windows will not spill into other screens but be cropped out.
 
-Thanks to all the people making this release possible:
+Thanks to @benny-e for helping out with this feature!
 
- * SardemF77
- * Alex190291
- * Benny
- * Bjoernab
- * Colin
- * E-tho
- * Hanssen0
- * Hanssen
- * Istvan Petres
- * Jakob
- * Justin Faber
- * Killertofus
- * Lbonn
- * Lucas Ritzdorf
- * Milad Alizadeh
- * Mtoon
- * Nick H
- * Prithveerarya345
- * Ruedoux
- * Tomoron
- * Zebra2711
+## Wayland: improved wayland window mode
 
+TODO
 
 ## Changelog
 
