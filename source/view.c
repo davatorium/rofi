@@ -470,12 +470,17 @@ static void filter_elements(thread_state *ts,
     if (match) {
       t->state->line_map[t->start + t->count] = i;
       if (config.sort) {
-        // This is inefficient, need to fix it.
         char *str = mode_get_completion(t->state->sw, i);
         glong slen = g_utf8_strlen(str, -1);
         switch (config.sorting_method_enum) {
         case SORT_FZF:
           t->state->distance[i] = rofi_scorer_fuzzy_evaluate(
+              t->pattern, t->plen, str, slen, t->state->case_sensitive);
+          break;
+        case SORT_FZF_V2:
+          /* The scorer returns a higher-is-better score; the sort orders by
+           * ascending distance, so negate it. */
+          t->state->distance[i] = -rofi_scorer_fzf_v2_evaluate(
               t->pattern, t->plen, str, slen, t->state->case_sensitive);
           break;
         case SORT_NORMAL:

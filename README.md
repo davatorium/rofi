@@ -55,7 +55,7 @@ Rofi is not:
 
 - An application that can support every possible use-case. It tries to be
     generic enough to be usable by everybody.
-  - Specific functionality can be added using scripts or plugins, many exists.
+  - Specific functionality can be added using scripts or plugins, many exist.
 
 - Just a dmenu replacement. The dmenu functionality is a nice 'extra' to
     **rofi**, not its main purpose.
@@ -96,7 +96,7 @@ Its main features are:
 - Built-in modes:
   - Window switcher mode
     - EWMH compatible WM
-    - Work arounds for i3,bspwm
+    - Workarounds for i3,bspwm
     - Wayland based WMs that follow the wlr family
 
   - Application launcher
@@ -156,7 +156,7 @@ Please follow the [build instructions](INSTALL.md) to build rofi.
 
 Wayland support is enabled by default, along with X11/xcb.
 
-rofi can also be built *without* X11/xcb or wayland, but atleast one backend
+rofi can also be built *without* X11/xcb or wayland, but at least one backend
 should be enabled:
 
     meson build -Dxcb=disabled
@@ -186,7 +186,7 @@ Due to the different architecture and available APIs in Wayland mode, some origi
 
 On wayland, the output is only known after the first surface is shown. This makes sizing
 rofi windows in absolute size (mm) very difficult, a problem unique for rofi,
-as the actual DPI is unknown before hand. This can be worked around by manually
+as the actual DPI is unknown beforehand. This can be worked around by manually
 passing the right DPI via configuration system. If the `dpi` config option is
 set to `0` and only one monitor is connected rofi will use the DPI of the only
 connected monitor or if you have multiple monitors and you specify a monitor
@@ -196,7 +196,7 @@ name, it will use the DPI of that monitor.
 
 For more up to date information, please see the manpages. The other sections
 and links might have outdated information as they have relatively less
-maintainance than the manpages. So, if you come across any issues please
+maintenance than the manpages. So, if you come across any issues please
 consult manpages, [discussion](https://github.com/davatorium/rofi/discussions)
 and [issue tracker](https://github.com/davatorium/rofi/issues?q=) before filing
 new issue.

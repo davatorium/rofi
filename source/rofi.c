@@ -27,6 +27,7 @@
  */
 
 /** Log domain */
+#include "glib.h"
 #define G_LOG_DOMAIN "Rofi"
 
 #include "config.h"
@@ -382,6 +383,8 @@ static void print_backend_info(void) {
 
 static void help(G_GNUC_UNUSED int argc, char **argv, const gboolean compact) {
   int is_term = isatty(fileno(stdout));
+  const char *color_bold_str = is_term ? color_bold : "";
+  const char *color_reset_str = is_term ? color_reset : "";
   if (!compact) {
     printf("%s usage:\n", argv[0]);
     printf("\t%s [-options ...]\n\n", argv[0]);
@@ -421,72 +424,111 @@ static void help(G_GNUC_UNUSED int argc, char **argv, const gboolean compact) {
   printf("\t• Pango   version %s\n", pango_version_string());
 #ifdef WINDOW_MODE
   printf("\t• window  %senabled%s\n", is_term ? color_green : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #else
   printf("\t• window  %sdisabled%s\n", is_term ? color_red : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #endif
 #ifdef ENABLE_DRUN
   printf("\t• drun    %senabled%s\n", is_term ? color_green : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #else
   printf("\t• drun    %sdisabled%s\n", is_term ? color_red : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #endif
 #ifdef ENABLE_ASAN
   printf("\t• asan    %senabled%s\n", is_term ? color_green : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #else
   printf("\t• asan    %sdisabled%s\n", is_term ? color_red : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #endif
 #ifdef XCB_IMDKIT
   printf("\t• imdkit  %senabled%s\n", is_term ? color_green : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #else
   printf("\t• imdkit  %sdisabled%s\n", is_term ? color_red : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #endif
 #ifdef ENABLE_XCB
   printf("\t• xcb     %senabled%s\n", is_term ? color_green : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #else
   printf("\t• xcb     %sdisabled%s\n", is_term ? color_red : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #endif
 #ifdef ENABLE_WAYLAND
   printf("\t• wayland %senabled%s (%s)\n", is_term ? color_green : "",
-         is_term ? color_reset : "", WAYLAND_VERSION);
+         color_reset_str, WAYLAND_VERSION);
 #else
   printf("\t• wayland %sdisabled%s\n", is_term ? color_red : "",
-         is_term ? color_reset : "");
+         color_reset_str);
 #endif
   printf("\n");
-  printf("For more information see: %sman rofi%s\n", is_term ? color_bold : "",
-         is_term ? color_reset : "");
+  printf("For more information see: %sman rofi%s\n", color_bold_str,
+         color_reset_str);
 #ifdef GIT_VERSION
-  printf("                 Version: %s" GIT_VERSION "%s\n",
-         is_term ? color_bold : "", is_term ? color_reset : "");
+  printf("                 Version: %s" GIT_VERSION "%s\n", color_bold_str,
+         color_reset_str);
 #else
-  printf("                 Version: %s" VERSION "%s\n",
-         is_term ? color_bold : "", is_term ? color_reset : "");
+  printf("                 Version: %s" VERSION "%s\n", color_bold_str,
+         color_reset_str);
 #endif
   printf("              Bugreports: %s" PACKAGE_BUGREPORT "%s\n",
-         is_term ? color_bold : "", is_term ? color_reset : "");
-  printf("                 Support: %s" PACKAGE_URL "%s\n",
-         is_term ? color_bold : "", is_term ? color_reset : "");
-  printf("                          %s#rofi @ libera.chat%s\n",
-         is_term ? color_bold : "", is_term ? color_reset : "");
+         color_bold_str, color_reset_str);
+  printf("                 Support: %s" PACKAGE_URL "%s\n", color_bold_str,
+         color_reset_str);
+  printf("                          %s#rofi @ libera.chat%s\n", color_bold_str,
+         color_reset_str);
   if (find_arg("-no-config") < 0) {
     if (config_path) {
-      printf("      Configuration file: %s%s%s\n", is_term ? color_bold : "",
-             config_path, is_term ? color_reset : "");
+      printf("      Configuration file: %s%s%s\n", color_bold_str, config_path,
+             color_reset_str);
     }
   } else {
-    printf("      Configuration file: %sDisabled%s\n",
-           is_term ? color_bold : "", is_term ? color_reset : "");
+    printf("      Configuration file: %sDisabled%s\n", color_bold_str,
+           color_reset_str);
   }
   rofi_theme_print_parsed_files(is_term);
+
+  /** Print files. */
+  printf("\nXDG Data directories\n");
+  printf("\tUser:\n");
+  const char *udd = g_get_user_data_dir();
+  printf("\t• %sXDG_DATA_HOME=%s\'%s\'\n", color_bold_str, color_reset_str,
+         udd);
+  const char *ucd = g_get_user_config_dir();
+  printf("\t• %sXDG_CONFIG_HOME=%s\'%s\'\n", color_bold_str, color_reset_str,
+         ucd);
+  const char *ucad = g_get_user_cache_dir();
+  printf("\t• %sXDG_CACHE_HOME=%s\'%s\'\n", color_bold_str, color_reset_str,
+         ucad);
+
+  const char *udesktopd = g_get_user_special_dir(G_USER_DIRECTORY_DESKTOP);
+  printf("\t• %sDesktop=%s\'%s\'\n", color_bold_str, color_reset_str,
+         udesktopd);
+  const char *upicturesd = g_get_user_special_dir(G_USER_DIRECTORY_PICTURES);
+  printf("\t• %spictures=%s\'%s\'\n", color_bold_str, color_reset_str,
+         upicturesd);
+  printf("\n\tSystem:\n");
+  const char *const *sdd = g_get_system_data_dirs();
+  printf("\t• %sXDG_DATA_DIRS=%s[", color_bold_str, color_reset_str);
+  for (int i = 0; sdd && sdd[i]; i++) {
+    printf("\'%s\'", sdd[i]);
+    if (sdd[i + 1]) {
+      printf(",");
+    }
+  }
+  printf("]\n");
+  const char *const *scd = g_get_system_config_dirs();
+  printf("\t• %sXDG_CONFIG_DIRS=%s[", color_bold_str, color_reset_str);
+  for (int i = 0; scd && scd[i]; i++) {
+    printf("\'%s\'", scd[i]);
+    if (scd[i + 1]) {
+      printf(",");
+    }
+  }
+  printf("]\n");
 }
 
 static void help_print_disabled_mode(const char *mode) {
@@ -844,8 +886,9 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
   if (list_of_warning_msgs != NULL) {
     for (GList *iter = g_list_first(list_of_warning_msgs); iter != NULL;
          iter = g_list_next(iter)) {
-      fputs(((GString *)iter->data)->str, stderr);
-      fputs("\n", stderr);
+      g_warning(((GString *)iter->data)->str, NULL);
+      // fputs(((GString *)iter->data)->str, stderr);
+      // fputs("\n", stderr);
     }
   }
   // Dmenu mode.
@@ -867,14 +910,14 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
     if (g_strcmp0(msg, "-") == 0) {
       size_t index = 0, i = 0;
       size_t length = 1024;
-      msg = malloc(length * sizeof(char));
+      msg = g_malloc(length * sizeof(char));
       while ((i = fread(&msg[index], 1, 1024, stdin)) > 0) {
         index += i;
         length += i;
         if (length >= ROFI_MAX_DMENU_INPUT) {
           break;
         }
-        msg = realloc(msg, length * sizeof(char));
+        msg = g_realloc(msg, length * sizeof(char));
       }
 
       msg[index] = 0;
