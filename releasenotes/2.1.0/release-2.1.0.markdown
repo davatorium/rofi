@@ -2,7 +2,23 @@
 
 This release mainly includes small improvements and bug fixes.
 
+Some highlights:
+
 ## GIO launch
+
+This version tries to launch a desktop applications using glib's built-in
+launching method. This should improve launching of applications and should
+handle multiple methods transparently.
+
+TODO: actions are currently not correctly handled.
+
+Issue: #2275
+
+
+## FZF-V2
+
+Milad Alizadeh added an improved of version of the fzf sorting method. This
+should closer match fzf's FuzzyMatchV2 scorer. The sorter is called `fzf-v2`.
 
 ## Wayland: click-to-exit
 
@@ -13,7 +29,9 @@ Thanks to @benny-e for helping out with this feature!
 
 ## Wayland: improved wayland window mode
 
-TODO
+Thanks to Lucas Ritzdorf the window mode for wayland has improved to closer
+match the functionality offered by the X11 version. It adds 'accept-custom',
+'window-command' and the 'close-on-delete' option.
 
 ## Changelog
 
