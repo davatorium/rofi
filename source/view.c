@@ -1552,6 +1552,9 @@ WidgetTriggerActionResult textbox_button_trigger_action(
   switch (action) {
   case MOUSE_CLICK_DOWN: {
     const char *type = rofi_theme_get_string(wid, "action", NULL);
+    const char *command = rofi_theme_get_string(wid, "exec", NULL);
+    const int exit_after = rofi_theme_get_boolean(wid, "exit-after-command", FALSE);
+
     if (type) {
       if (state->list_view) {
         (state->selected_line) =
@@ -1565,6 +1568,12 @@ WidgetTriggerActionResult textbox_button_trigger_action(
       }
       state->skip_absorb = TRUE;
       return WIDGET_TRIGGER_ACTION_RESULT_HANDLED;
+    } else if (command) {
+      if (helper_execute_command(NULL, command, FALSE, NULL)) {
+        if (exit_after) {
+          rofi_quit_main_loop();
+        }
+      }
     }
   }
   case MOUSE_CLICK_UP:
@@ -1790,7 +1799,8 @@ static void rofi_view_add_widget(RofiViewState *state, widget *parent_widget,
     icon *t = icon_create(parent_widget, name);
     /* small hack to make it clickable */
     const char *type = rofi_theme_get_string(WIDGET(t), "action", NULL);
-    if (type) {
+    const char *command = rofi_theme_get_string(WIDGET(t), "exec", NULL);
+    if (type || command) {
       WIDGET(t)->type = WIDGET_TYPE_EDITBOX;
     }
     box_add((box *)parent_widget, WIDGET(t), TRUE);
