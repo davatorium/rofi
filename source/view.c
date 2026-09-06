@@ -344,20 +344,38 @@ void rofi_view_set_active(RofiViewState *state) {
   rofi_view_queue_redraw();
 }
 
+/**
+ * @param state The current RofiViewState
+ * @param line The line (in the unfiltered list) to move the selection to
+ *
+ * Move the selection to `line`, if it is part of the loaded content.
+ *
+ * @returns TRUE when the line was found.
+ */
+static gboolean rofi_view_select_line(RofiViewState *state, unsigned int line) {
+  if (line == UINT32_MAX) {
+    return FALSE;
+  }
+  for (unsigned int i = 0; i < state->filtered_lines; i++) {
+    if (state->line_map[i] == line) {
+      listview_set_selected(state->list_view, i);
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 void rofi_view_set_selected_line(RofiViewState *state,
                                  unsigned int selected_line) {
   state->selected_line = selected_line;
-  // Find the line.
-  unsigned int selected = 0;
-  for (unsigned int i = 0; ((state->selected_line)) < UINT32_MAX && !selected &&
-                           i < state->filtered_lines;
-       i++) {
-    if (state->line_map[i] == (state->selected_line)) {
-      selected = i;
-      break;
-    }
+  /* line_map only describes content the view has already loaded; a reload
+   * rebuilds it later, in rofi_view_refilter_real(). Record what cannot be
+   * resolved yet instead of falling back to row 0, which would show the wrong
+   * selection until that reload lands. */
+  state->pending_selected_line = selected_line;
+  if (rofi_view_select_line(state, selected_line)) {
+    state->pending_selected_line = UINT32_MAX;
   }
-  listview_set_selected(state->list_view, selected);
 #ifdef ENABLE_XCB
   if (config.backend == DISPLAY_XCB) {
     // Clear the window and force an expose event resulting in a redraw.
@@ -419,7 +437,10 @@ const char *rofi_view_get_user_input(const RofiViewState *state) {
  * @returns a new 0 initialized RofiViewState
  */
 static RofiViewState *__rofi_view_state_create(void) {
-  return g_malloc0(sizeof(RofiViewState));
+  RofiViewState *state = g_malloc0(sizeof(RofiViewState));
+  // 0 is a valid line, so the sentinel has to be set explicitly.
+  state->pending_selected_line = UINT32_MAX;
+  return state;
 }
 
 /**
@@ -784,9 +805,11 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
   }
   GTimer *timer = g_timer_new();
   TICK_N("Filter start");
+  gboolean content_reloaded = FALSE;
   if (state->reload) {
     _rofi_view_reload_row(state);
     state->reload = FALSE;
+    content_reloaded = TRUE;
   }
   TICK_N("Filter reload rows");
   if (state->tokens) {
@@ -881,6 +904,18 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
   }
   TICK_N("Filter matching done");
   listview_set_num_elements(state->list_view, state->filtered_lines);
+
+  /* line_map now describes the content this pass installed, so a selection
+   * requested before it existed can be resolved. Doing so before the
+   * rofi_view_update() below keeps the wrong row off the first frame. Only on
+   * the reload path: a plain refilter would consume the request and drop it. */
+  if (content_reloaded && state->pending_selected_line != UINT32_MAX) {
+    unsigned int pending = state->pending_selected_line;
+    state->pending_selected_line = UINT32_MAX;
+    if (rofi_view_select_line(state, pending)) {
+      state->selected_line = pending;
+    }
+  }
 
   if (state->tb_filtered_rows) {
     char *r = g_strdup_printf("%u", state->filtered_lines);

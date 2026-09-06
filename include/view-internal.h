@@ -101,6 +101,9 @@ struct RofiViewState {
   int skip_absorb;
   /** The selected line (in the unfiltered list) */
   unsigned int selected_line;
+  /** Selection requested before the content it refers to was loaded, applied
+   * on the next reload. UINT32_MAX when there is none. */
+  unsigned int pending_selected_line;
   /** The previously selected line (in the unfiltered list) */
   unsigned int previous_line;
   /** The return state of the view */
