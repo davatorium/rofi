@@ -115,6 +115,12 @@ void listview_set_selection_changed_callback(
 
 /**
  * @param lv The listview handle
+ * @param hover_select Enable hover select mode (disables scroll-to-selection)
+ */
+void listview_set_hover_select(listview *lv, gboolean hover_select);
+
+/**
+ * @param lv The listview handle
  * @param rows Number of elements
  *
  * Set the maximum number of elements to display.
@@ -128,6 +134,16 @@ void listview_set_num_elements(listview *lv, unsigned int rows);
  * Select the row, if selected > the number of rows, it selects the last one.
  */
 void listview_set_selected(listview *lv, unsigned int selected);
+
+/**
+ * @param lv The listview handle
+ * @param line The line index to scroll to
+ *
+ * Handle scrollbar scroll action. In normal mode this is equivalent to
+ * listview_set_selected. In hover-select mode this scrolls the viewport
+ * to the given line and updates the hover selection from mouse position.
+ */
+void listview_scrollbar_scroll_to(listview *lv, unsigned int line);
 
 /**
  * @param lv The listview handle
