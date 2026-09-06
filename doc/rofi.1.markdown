@@ -315,7 +315,7 @@ Specify icon theme to be used. If not specified default theme from DE is used,
 
 `-fallback-icon-themes`
 
-Specify one or more fallback icon themes to be used. 
+Specify one or more fallback icon themes to be used.
 *Adwaita* and *gnome* themes are set as default fallback themes.
 
 `-markup`
@@ -523,7 +523,7 @@ Open in sidebar-mode. In this mode, a list of all enabled modes is shown at the
 bottom (See `-modes` option). To show sidebar, use:
 
 ```bash
-    rofi -show run -sidebar-mode 
+    rofi -show run -sidebar-mode
 ```
 
 `-hover-select`

@@ -274,8 +274,6 @@ static void rofi_icon_fetch_entry_free(gpointer data) {
 void rofi_icon_fetcher_init(void) {
   g_assert(rofi_icon_fetcher_data == NULL);
 
-  //  static const gchar *const icon_fallback_themes[] = {"Adwaita", "gnome",
-  //  NULL};
   icon_fallback_themes = g_strsplit(config.fallback_icon_themes, ",", 0);
 
   const char *themes[2] = {config.icon_theme, NULL};
@@ -342,6 +340,8 @@ void rofi_icon_fetcher_destroy(void) {
                  NULL);
   g_list_free(rofi_icon_fetcher_data->supported_extensions);
   g_free(rofi_icon_fetcher_data);
+
+  // Context is free'ed above, so it should be save to deallocate.
   g_strfreev(icon_fallback_themes);
 }
 
