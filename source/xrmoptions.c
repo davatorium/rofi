@@ -668,6 +668,12 @@ static XrmOption xrmOptions[] = {
      {.snum = &config.enable_imdkit},
      NULL,
      "Whether to enable imdkit"},
+    {xrm_String,
+     CONFIG_DEFAULT,
+     "fallback-icon-themes",
+     {.str = &config.fallback_icon_themes},
+     NULL,
+     "List of fallback icon themes"},
 };
 
 /** Dynamic array of extra options */

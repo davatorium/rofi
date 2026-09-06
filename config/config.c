@@ -187,4 +187,5 @@ Settings config = {
     .completer_mode = "filebrowser",
     /** Whether to enable imdkit, see #2123 */
     .enable_imdkit = TRUE,
+    .fallback_icon_themes = "Adwaita,gnome",
 };
