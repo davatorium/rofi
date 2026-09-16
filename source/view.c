@@ -885,10 +885,13 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
       j += states[i].count;
     }
     if (config.sort) {
-      g_qsort_with_data(state->line_map, j, sizeof(int),
-                        config.sorting_method_enum == SORT_FZF_V2 ? fzf_v2_sort
-                                                                  : lev_sort,
-                        state->distance);
+      if (config.sorting_method_enum == SORT_FZF_V2) {
+        g_qsort_with_data(state->line_map, j, sizeof(int), fzf_v2_sort,
+                          state->distance);
+      } else {
+        g_qsort_with_data(state->line_map, j, sizeof(int), lev_sort,
+                          state->distance);
+      }
     }
 
     // Cleanup + bookkeeping.
