@@ -1353,25 +1353,19 @@ static guint16 rofi_scorer_fzf_v2_as_uint16(int val) {
 
 /** Code points in `str` ignoring surrounding whitespace; fzf's TrimLength(). */
 static guint16 rofi_scorer_fzf_v2_trim_length(const char *str) {
-  glong len;
-  gunichar *txt = g_utf8_to_ucs4_fast(str, -1, &len);
-  glong last, first;
-  for (last = len - 1; last >= 0; last--) {
-    if (!g_unichar_isspace(txt[last])) {
+  const char *first = str;
+  while (*first != '\0' && g_unichar_isspace(g_utf8_get_char(first))) {
+    first = g_utf8_next_char(first);
+  }
+  const char *last = first + strlen(first);
+  while (last > first) {
+    const char *prev = g_utf8_prev_char(last);
+    if (!g_unichar_isspace(g_utf8_get_char(prev))) {
       break;
     }
+    last = prev;
   }
-  if (last < 0) {
-    g_free(txt);
-    return 0;
-  }
-  for (first = 0; first < len; first++) {
-    if (!g_unichar_isspace(txt[first])) {
-      break;
-    }
-  }
-  g_free(txt);
-  return rofi_scorer_fzf_v2_as_uint16((int)(last - first + 1));
+  return rofi_scorer_fzf_v2_as_uint16((int)g_utf8_strlen(first, last - first));
 }
 
 int rofi_scorer_fzf_v2_sort_key(int score, const char *str) {
