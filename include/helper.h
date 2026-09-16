@@ -299,17 +299,13 @@ int rofi_scorer_fzf_v2_evaluate(const char *pattern, glong plen,
  * @param score  A score as returned by rofi_scorer_fzf_v2_evaluate.
  * @param str    The string that was scored.
  *
- * Builds the sort key fzf orders its results by, so that rows whose scores tie
- * are broken the way fzf breaks them. fzf compares a [4]uint16 tuple
- * (Result.points) from the most significant element down and falls back to the
- * input order; for its default scoring scheme the tuple holds the inverted,
- * uint16-clamped score followed by the whitespace-trimmed length in code
- * points. Both are packed here into one integer, so comparing keys numerically
- * reproduces fzf's ordering. Rows tying on both still compare equal here; the
- * caller breaks those on the input order, as fzf does.
+ * Builds the key fzf orders results by, so rows with equal scores break the
+ * way fzf breaks them: on length, ignoring surrounding whitespace. Rows equal
+ * on both compare equal here, leaving the caller to break them on the input
+ * position.
  *
  * Only meaningful for scores from rofi_scorer_fzf_v2_evaluate. The key is
- * always between 0 and G_MAXINT, so differences between keys do not overflow.
+ * between 0 and G_MAXINT, so differences between keys do not overflow.
  *
  * @returns the sort key (lower is better).
  */

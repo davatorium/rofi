@@ -67,19 +67,14 @@ static int test = 0;
 
 #include "widgets/textbox.h"
 
-/**
- * Build the fzf-v2 sort key for `str` under `pattern`, the way
- * filter_elements() in view.c does.
- */
+/** The fzf-v2 sort key for `str`, as filter_elements() builds it. */
 static int fzf_v2_key(const char *pattern, const char *str) {
   int score = rofi_scorer_fzf_v2_evaluate(
       pattern, g_utf8_strlen(pattern, -1), str, g_utf8_strlen(str, -1), 0);
   return rofi_scorer_fzf_v2_sort_key(score, str);
 }
 
-/**
- * fzf_v2_sort() from view.c: ascending key, then ascending input position.
- */
+/** Copy of fzf_v2_sort() from view.c, which is static there. */
 static int test_fzf_v2_sort(const void *p1, const void *p2, void *arg) {
   const unsigned int *a = p1;
   const unsigned int *b = p2;
@@ -298,62 +293,45 @@ int main(int argc, char **argv) {
              G_MININT / 2);
   }
   {
-    /* fzf-v2 sort key: ties on score are broken by the whitespace-trimmed
-     * length in code points, so the key is (inverted score, trim length). */
-    /* Same score, shorter line sorts first. */
+    /* Same score, shorter line first. */
     TASSERT(fzf_v2_key("apple", "apple") <
             fzf_v2_key("apple", "baked apple pie"));
-    /* The score still dominates the length: a better match on a longer line
-     * beats a worse match on a shorter one. */
+    /* Score outranks length. */
     TASSERT(fzf_v2_key("fbb", "foo bar baz") < fzf_v2_key("fbb", "fooBarBaz"));
-    /* Identical score and identical trimmed length -> identical key, leaving
-     * the input position to break the tie. */
+    /* Equal score and length -> equal key. */
     TASSERTL(fzf_v2_key("ab", "ab cd") == fzf_v2_key("ab", "ab ef"), 1);
-    /* Leading and trailing whitespace is excluded from the length, so it does
-     * not affect the ordering. */
+    /* Surrounding whitespace is not counted. */
     TASSERTL(fzf_v2_key("ab", "  ab  ") == fzf_v2_key("ab", "ab"), 1);
-    /* Multi-byte characters count once each, not per byte. */
+    /* Code points, not bytes. */
     TASSERTL(fzf_v2_key("ab", "ab\xE4\xBD\xA0") ==
                  fzf_v2_key("ab", "abx"),
              1);
-    /* Non-matches all collapse into the worst score bucket (fzf clamps the
-     * score to the uint16 range), and are then ordered by length. */
+    /* Non-matches share a bucket (clamped score), then order by length. */
     TASSERT(fzf_v2_key("zz", "aa") == fzf_v2_key("zz", "bb"));
     TASSERT(fzf_v2_key("zz", "aa") < fzf_v2_key("zz", "aaa"));
-    /* Every match sorts ahead of every non-match. */
+    /* Any match beats any non-match. */
     TASSERT(fzf_v2_key("ab", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxab") <
             fzf_v2_key("ab", "a"));
-    /* The key stays non-negative, and the widest value the packing can produce
-     * is exactly G_MAXINT, so lev_sort() subtracting any two keys cannot
-     * overflow. */
+    /* Widest key is G_MAXINT, so subtracting two keys cannot overflow. */
     TASSERT(fzf_v2_key("ab", "ab") >= 0);
     TASSERT(fzf_v2_key("zz", "aa") >= 0);
     TASSERTL((int)(((guint32)G_MAXUINT16 << 15) | 0x7FFF), G_MAXINT);
-    /* Worst score bucket, shortest line: the largest key reachable for an
-     * empty line. */
+    /* Worst bucket, empty line. */
     TASSERTL(fzf_v2_key("zz", ""), (int)((guint32)G_MAXUINT16 << 15));
   }
   {
-    /* End-to-end ordering, compared against the output of
-     *   fzf --filter=apple --scheme=default
-     * on the same input (fzf 0.74.4).
-     *
-     * The line that is obviously wanted is last in the input and every other
-     * line matches "apple" at a word boundary too, so all but one score
-     * identically and the tiebreak decides the ordering. Without it the sort
-     * leaves "apple" in fourth place. */
+    /* Ordering as produced by `fzf --filter=apple --scheme=default` (0.74.4).
+     * "apple" is last in the input and the other lines also match at a word
+     * boundary, so all but one score alike and the tiebreak decides; without
+     * it "apple" comes fourth. */
     const char *const lines[] = {
         "baked apple pie",  "green apple tart", "candy apple cake",
         "pine-apple juice", "apple",
     };
-    /* Indices into lines[], in the order fzf returns them:
-     *  - "apple" first: same score as the rest, shortest line.
-     *  - "green apple tart" before "candy apple cake": these tie on score and
-     *    on length, so they keep their input order, as they do in fzf.
-     *  - "pine-apple juice" last: "apple" follows a '-' there, which scores
-     *    the BONUS_BOUNDARY of a non-word character rather than the higher
-     *    BONUS_BOUNDARY_WHITE. It is no longer than the two lines above it, so
-     *    this also checks the score still outweighs the length. */
+    /* Indices into lines[], in fzf's order. The two 16-char lines tie on both
+     * criteria and so keep their input order. "pine-apple juice" scores lower
+     * because '-' gives BONUS_BOUNDARY rather than BONUS_BOUNDARY_WHITE, and
+     * is no longer than those two, so it also pins score above length. */
     const int expected[] = {4, 0, 1, 2, 3};
     const int scores[] = {140, 140, 140, 128, 140};
     const unsigned int n = G_N_ELEMENTS(lines);
@@ -361,9 +339,8 @@ int main(int argc, char **argv) {
     int keys[G_N_ELEMENTS(lines)];
 
     for (unsigned int i = 0; i < n; i++) {
-      /* Seeded in reverse, so that the two rows tying on both criteria only
-       * end up in input order if the comparison really does fall back to the
-       * input position. A stable sort alone would keep them reversed. */
+      /* Reversed, so the tied pair only lands in input order if the
+       * comparison really falls back to it; a stable sort would not. */
       order[i] = n - 1 - i;
       keys[i] = fzf_v2_key("apple", lines[i]);
       TASSERTL(rofi_scorer_fzf_v2_evaluate("apple", 5, lines[i],

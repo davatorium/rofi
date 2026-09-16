@@ -115,14 +115,11 @@ static int lev_sort(const void *p1, const void *p2, void *arg) {
 }
 
 /**
- * Sorting for the fzf-v2 method: by sort key, then by input order.
- *
- * fzf compares the original row index when a result ties on every other
- * criterion, and rows tying on both the score and the length it breaks ties
- * with are common. Leaving that to the sort would not do: g_qsort_with_data()
- * is only guaranteed stable from glib 2.82, below the version rofi builds
- * against. The values being sorted are indices into the unfiltered list, so
- * they are the input positions and can be compared directly.
+ * fzf-v2 sorting: by key, then by input position, which is what fzf compares
+ * last (compareRanks in src/result_others.go). The sort cannot be relied on
+ * for that, being stable only from glib 2.82. Kept out of lev_sort() so the
+ * other methods resolve their ties as before. The values sorted are indices
+ * into the unfiltered list, hence already the input positions.
  */
 static int fzf_v2_sort(const void *p1, const void *p2, void *arg) {
   const unsigned int *a = p1;
@@ -503,10 +500,8 @@ static void filter_elements(thread_state *ts,
               t->pattern, t->plen, str, slen, t->state->case_sensitive);
           break;
         case SORT_FZF_V2:
-          /* The scorer returns a higher-is-better score, and rows whose scores
-           * tie are common. Sort on fzf's own key instead, which inverts the
-           * score and appends a length tiebreak, so ties resolve the way fzf
-           * resolves them. */
+          /* Scores tie constantly, so sort on fzf's key (inverted score plus
+           * a length tiebreak) rather than on the score alone. */
           t->state->distance[i] = rofi_scorer_fzf_v2_sort_key(
               rofi_scorer_fzf_v2_evaluate(t->pattern, t->plen, str, slen,
                                           t->state->case_sensitive),

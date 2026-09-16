@@ -1340,9 +1340,7 @@ int rofi_scorer_fzf_v2_evaluate(const char *pattern, glong plen,
   return result;
 }
 
-/**
- * Clamp to the uint16 range, like fzf's util.AsUint16.
- */
+/** fzf's util.AsUint16. */
 static guint16 rofi_scorer_fzf_v2_as_uint16(int val) {
   if (val > G_MAXUINT16) {
     return G_MAXUINT16;
@@ -1353,11 +1351,7 @@ static guint16 rofi_scorer_fzf_v2_as_uint16(int val) {
   return (guint16)val;
 }
 
-/**
- * Number of code points in `str` ignoring leading and trailing whitespace.
- * Mirrors fzf's Chars.TrimLength(), including the uint16 clamp and the 0
- * returned for an all-whitespace string.
- */
+/** Code points in `str` ignoring surrounding whitespace; fzf's TrimLength(). */
 static guint16 rofi_scorer_fzf_v2_trim_length(const char *str) {
   glong len;
   gunichar *txt = g_utf8_to_ucs4_fast(str, -1, &len);
@@ -1368,7 +1362,6 @@ static guint16 rofi_scorer_fzf_v2_trim_length(const char *str) {
     }
   }
   if (last < 0) {
-    /* completely empty */
     g_free(txt);
     return 0;
   }
@@ -1382,26 +1375,16 @@ static guint16 rofi_scorer_fzf_v2_trim_length(const char *str) {
 }
 
 int rofi_scorer_fzf_v2_sort_key(int score, const char *str) {
-  /* fzf builds a [4]uint16 tuple (Result.points in src/result.go) and compares
-   * it from the most significant element down, so packing the elements into a
-   * single integer and comparing numerically gives the same order. The default
-   * scoring scheme is {byScore, byLength} (parseScheme in src/options.go),
-   * which fills the top two elements:
+  /* fzf compares a [4]uint16 tuple (Result.points in src/result.go) from the
+   * most significant element down; its default scheme fills the top two with
+   * MaxUint16 - AsUint16(score) and TrimLength() ({byScore, byLength} in
+   * parseScheme, src/options.go), and leaves the rest zero. Packing those two
+   * into one integer compares the same.
    *
-   *   byScore:  MaxUint16 - AsUint16(score)   (inverted; higher score is better)
-   *   byLength: TrimLength()
-   *
-   * The remaining two elements stay zero for every row, so they never affect
-   * the comparison and are left out of the key.
-   *
-   * The length is given 15 bits rather than fzf's 16 so that the key fits in
-   * the int the sorting weight is stored in: the largest key is then exactly
-   * G_MAXINT, and the difference between any two keys stays representable. The
-   * narrower field costs nothing in practice, because rofi_scorer_fzf_v2_evaluate
-   * rejects anything longer than FUZZY_SCORER_MAX_LENGTH outright, so every row
-   * that matches at all is far below the cap.
-   *
-   * Lower is better, matching the ascending order fzf_v2_sort() applies. */
+   * The length gets 15 bits rather than fzf's 16 to keep the widest key at
+   * G_MAXINT: it then fits the int the weight is stored in, and no difference
+   * between keys overflows. Nothing is lost, as the scorer rejects anything
+   * over FUZZY_SCORER_MAX_LENGTH. */
   guint32 by_score = G_MAXUINT16 - rofi_scorer_fzf_v2_as_uint16(score);
   guint32 by_length = MIN(rofi_scorer_fzf_v2_trim_length(str), 0x7FFF);
   return (int)((by_score << 15) | by_length);
