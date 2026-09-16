@@ -478,10 +478,14 @@ static void filter_elements(thread_state *ts,
               t->pattern, t->plen, str, slen, t->state->case_sensitive);
           break;
         case SORT_FZF_V2:
-          /* The scorer returns a higher-is-better score; the sort orders by
-           * ascending distance, so negate it. */
-          t->state->distance[i] = -rofi_scorer_fzf_v2_evaluate(
-              t->pattern, t->plen, str, slen, t->state->case_sensitive);
+          /* The scorer returns a higher-is-better score, and rows whose scores
+           * tie are common. Sort on fzf's own key instead, which inverts the
+           * score and appends a length tiebreak, so ties resolve the way fzf
+           * resolves them. */
+          t->state->distance[i] = rofi_scorer_fzf_v2_sort_key(
+              rofi_scorer_fzf_v2_evaluate(t->pattern, t->plen, str, slen,
+                                          t->state->case_sensitive),
+              str);
           break;
         case SORT_NORMAL:
         default:
