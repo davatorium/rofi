@@ -114,6 +114,31 @@ static int lev_sort(const void *p1, const void *p2, void *arg) {
   return distances[*a] - distances[*b];
 }
 
+/**
+ * Sorting for the fzf-v2 method: by sort key, then by input order.
+ *
+ * fzf compares the original row index when a result ties on every other
+ * criterion, and rows tying on both the score and the length it breaks ties
+ * with are common. Leaving that to the sort would not do: g_qsort_with_data()
+ * is only guaranteed stable from glib 2.82, below the version rofi builds
+ * against. The values being sorted are indices into the unfiltered list, so
+ * they are the input positions and can be compared directly.
+ */
+static int fzf_v2_sort(const void *p1, const void *p2, void *arg) {
+  const unsigned int *a = p1;
+  const unsigned int *b = p2;
+  int *distances = arg;
+  int d = distances[*a] - distances[*b];
+
+  if (d != 0) {
+    return d;
+  }
+  if (*a != *b) {
+    return *a < *b ? -1 : 1;
+  }
+  return 0;
+}
+
 static void screenshot_taken_user_callback(const char *path) {
   if (config.on_screenshot_taken == NULL)
     return;
@@ -865,7 +890,9 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
       j += states[i].count;
     }
     if (config.sort) {
-      g_qsort_with_data(state->line_map, j, sizeof(int), lev_sort,
+      g_qsort_with_data(state->line_map, j, sizeof(int),
+                        config.sorting_method_enum == SORT_FZF_V2 ? fzf_v2_sort
+                                                                  : lev_sort,
                         state->distance);
     }
 

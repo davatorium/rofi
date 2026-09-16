@@ -78,14 +78,21 @@ static int fzf_v2_key(const char *pattern, const char *str) {
 }
 
 /**
- * lev_sort() from view.c, which orders by ascending key.
+ * fzf_v2_sort() from view.c: ascending key, then ascending input position.
  */
-static int test_lev_sort(const void *p1, const void *p2, void *arg) {
-  const int *a = p1;
-  const int *b = p2;
+static int test_fzf_v2_sort(const void *p1, const void *p2, void *arg) {
+  const unsigned int *a = p1;
+  const unsigned int *b = p2;
   int *distances = arg;
+  int d = distances[*a] - distances[*b];
 
-  return distances[*a] - distances[*b];
+  if (d != 0) {
+    return d;
+  }
+  if (*a != *b) {
+    return *a < *b ? -1 : 1;
+  }
+  return 0;
 }
 
 ThemeWidget *rofi_theme = NULL;
@@ -300,7 +307,7 @@ int main(int argc, char **argv) {
      * beats a worse match on a shorter one. */
     TASSERT(fzf_v2_key("fbb", "foo bar baz") < fzf_v2_key("fbb", "fooBarBaz"));
     /* Identical score and identical trimmed length -> identical key, leaving
-     * the input order to break the tie. */
+     * the input position to break the tie. */
     TASSERTL(fzf_v2_key("ab", "ab cd") == fzf_v2_key("ab", "ab ef"), 1);
     /* Leading and trailing whitespace is excluded from the length, so it does
      * not affect the ordering. */
@@ -350,19 +357,22 @@ int main(int argc, char **argv) {
     const int expected[] = {4, 0, 1, 2, 3};
     const int scores[] = {140, 140, 140, 128, 140};
     const unsigned int n = G_N_ELEMENTS(lines);
-    int order[G_N_ELEMENTS(lines)];
+    unsigned int order[G_N_ELEMENTS(lines)];
     int keys[G_N_ELEMENTS(lines)];
 
     for (unsigned int i = 0; i < n; i++) {
-      order[i] = i;
+      /* Seeded in reverse, so that the two rows tying on both criteria only
+       * end up in input order if the comparison really does fall back to the
+       * input position. A stable sort alone would keep them reversed. */
+      order[i] = n - 1 - i;
       keys[i] = fzf_v2_key("apple", lines[i]);
       TASSERTL(rofi_scorer_fzf_v2_evaluate("apple", 5, lines[i],
                                            g_utf8_strlen(lines[i], -1), 0),
                scores[i]);
     }
-    g_qsort_with_data(order, n, sizeof(int), test_lev_sort, keys);
+    g_qsort_with_data(order, n, sizeof(unsigned int), test_fzf_v2_sort, keys);
     for (unsigned int i = 0; i < n; i++) {
-      TASSERTL(order[i], expected[i]);
+      TASSERTL((int)order[i], expected[i]);
     }
   }
 

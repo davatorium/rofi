@@ -305,8 +305,8 @@ int rofi_scorer_fzf_v2_evaluate(const char *pattern, glong plen,
  * input order; for its default scoring scheme the tuple holds the inverted,
  * uint16-clamped score followed by the whitespace-trimmed length in code
  * points. Both are packed here into one integer, so comparing keys numerically
- * reproduces fzf's ordering. Rows that tie on both are left to the sort to
- * order, as fzf leaves them to the input order.
+ * reproduces fzf's ordering. Rows tying on both still compare equal here; the
+ * caller breaks those on the input order, as fzf does.
  *
  * Only meaningful for scores from rofi_scorer_fzf_v2_evaluate. The key is
  * always between 0 and G_MAXINT, so differences between keys do not overflow.

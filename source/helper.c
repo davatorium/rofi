@@ -1401,7 +1401,7 @@ int rofi_scorer_fzf_v2_sort_key(int score, const char *str) {
    * rejects anything longer than FUZZY_SCORER_MAX_LENGTH outright, so every row
    * that matches at all is far below the cap.
    *
-   * Lower is better, matching the ascending order lev_sort() applies. */
+   * Lower is better, matching the ascending order fzf_v2_sort() applies. */
   guint32 by_score = G_MAXUINT16 - rofi_scorer_fzf_v2_as_uint16(score);
   guint32 by_length = MIN(rofi_scorer_fzf_v2_trim_length(str), 0x7FFF);
   return (int)((by_score << 15) | by_length);
