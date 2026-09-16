@@ -499,14 +499,14 @@ static void filter_elements(thread_state *ts,
           t->state->distance[i] = rofi_scorer_fuzzy_evaluate(
               t->pattern, t->plen, str, slen, t->state->case_sensitive);
           break;
-        case SORT_FZF_V2:
+        case SORT_FZF_V2: {
           /* Scores tie constantly, so sort on fzf's key (inverted score plus
            * a length tiebreak) rather than on the score alone. */
-          t->state->distance[i] = rofi_scorer_fzf_v2_sort_key(
-              rofi_scorer_fzf_v2_evaluate(t->pattern, t->plen, str, slen,
-                                          t->state->case_sensitive),
-              str);
+          int score = rofi_scorer_fzf_v2_evaluate(
+              t->pattern, t->plen, str, slen, t->state->case_sensitive);
+          t->state->distance[i] = rofi_scorer_fzf_v2_sort_key(score, str);
           break;
+        }
         case SORT_NORMAL:
         default:
           t->state->distance[i] = levenshtein(t->pattern, t->plen, str, slen,
