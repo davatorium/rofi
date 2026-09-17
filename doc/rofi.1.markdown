@@ -477,6 +477,9 @@ There are 3 methods:
   that aims to match fzf's ranking. Prefers contiguous matches and
   word-boundary/camelCase starts using fzf's own weights.
   Whitespace-separated terms are scored independently and summed, like fzf.
+  Entries whose scores tie are ordered by length (ignoring leading and
+  trailing whitespace) and then by their order in the input, which is fzf's
+  default tie-breaking.
   When `-normalize-match` is enabled, scoring is done on the normalized
   (accent-stripped) text, mirroring fzf's rune normalization.
 

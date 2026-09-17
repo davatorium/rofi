@@ -114,6 +114,28 @@ static int lev_sort(const void *p1, const void *p2, void *arg) {
   return distances[*a] - distances[*b];
 }
 
+/**
+ * fzf-v2 sorting: by key, then by input position, which is what fzf compares
+ * last (compareRanks in src/result_others.go). The sort cannot be relied on
+ * for that, being stable only from glib 2.82. Kept out of lev_sort() so the
+ * other methods resolve their ties as before. The values sorted are indices
+ * into the unfiltered list, hence already the input positions.
+ */
+static int fzf_v2_sort(const void *p1, const void *p2, void *arg) {
+  const unsigned int *a = p1;
+  const unsigned int *b = p2;
+  int *distances = arg;
+  int d = distances[*a] - distances[*b];
+
+  if (d != 0) {
+    return d;
+  }
+  if (*a != *b) {
+    return *a < *b ? -1 : 1;
+  }
+  return 0;
+}
+
 static void screenshot_taken_user_callback(const char *path) {
   if (config.on_screenshot_taken == NULL)
     return;
@@ -477,12 +499,14 @@ static void filter_elements(thread_state *ts,
           t->state->distance[i] = rofi_scorer_fuzzy_evaluate(
               t->pattern, t->plen, str, slen, t->state->case_sensitive);
           break;
-        case SORT_FZF_V2:
-          /* The scorer returns a higher-is-better score; the sort orders by
-           * ascending distance, so negate it. */
-          t->state->distance[i] = -rofi_scorer_fzf_v2_evaluate(
+        case SORT_FZF_V2: {
+          /* Scores tie constantly, so sort on fzf's key (inverted score plus
+           * a length tiebreak) rather than on the score alone. */
+          int score = rofi_scorer_fzf_v2_evaluate(
               t->pattern, t->plen, str, slen, t->state->case_sensitive);
+          t->state->distance[i] = rofi_scorer_fzf_v2_sort_key(score, str);
           break;
+        }
         case SORT_NORMAL:
         default:
           t->state->distance[i] = levenshtein(t->pattern, t->plen, str, slen,
@@ -861,8 +885,13 @@ static gboolean rofi_view_refilter_real(RofiViewState *state) {
       j += states[i].count;
     }
     if (config.sort) {
-      g_qsort_with_data(state->line_map, j, sizeof(int), lev_sort,
-                        state->distance);
+      if (config.sorting_method_enum == SORT_FZF_V2) {
+        g_qsort_with_data(state->line_map, j, sizeof(int), fzf_v2_sort,
+                          state->distance);
+      } else {
+        g_qsort_with_data(state->line_map, j, sizeof(int), lev_sort,
+                          state->distance);
+      }
     }
 
     // Cleanup + bookkeeping.
