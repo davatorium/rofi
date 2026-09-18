@@ -30,6 +30,7 @@
 
 #include "config.h"
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include "helper.h"
 #include "rofi-icon-fetcher.h"
@@ -54,6 +55,121 @@
 #define THUMBNAILER_ENTRY_GROUP "Thumbnailer Entry"
 /** Extension used for the thumbnailer. */
 #define THUMBNAILER_EXTENSION ".thumbnailer"
+/** Raw ARGB pixel cache */
+#define ICON_CACHE_DIR "rofi-icon-cache"
+#define ICON_CACHE_MAGIC 0x696F6F72u /* "rofi" */
+
+#define ICON_CACHE_PATH_MAX 512
+typedef struct {
+  uint32_t magic;
+  uint32_t version;
+  int32_t  width;
+  int32_t  height;
+  int64_t  src_mtime;
+  int64_t  src_size;
+  char     src_path[ICON_CACHE_PATH_MAX];
+} IconCacheHeader;
+
+static char *icon_cache_path(const char *icon_path, int w, int h) {
+  uint32_t hash = 5381; // djb2
+  for (const char *p = icon_path; *p; p++) {
+    hash = ((hash << 5) + hash) ^ (uint8_t)*p;
+  }
+  hash ^= (uint32_t)(w * 10007u ^ h * 100003u);
+
+  char fname[14]; // 8 hex + ".rofi" + "\0"
+  g_snprintf(fname, 14, "%08x.rofi", hash);
+  char *path = g_build_filename(g_get_user_cache_dir(), ICON_CACHE_DIR, fname, NULL);
+  return path;
+}
+
+static cairo_surface_t *icon_cache_load(const char *cache_key, const char *src_path, int w, int h, char **resolved_path_out) {
+  if (resolved_path_out) {
+    *resolved_path_out = NULL;
+  }
+  char *cp = icon_cache_path(cache_key, w, h);
+  FILE *f = fopen(cp, "rb");
+  g_free(cp);
+  if (!f) {
+    return NULL;
+  }
+
+  IconCacheHeader hdr;
+  if (fread(&hdr, sizeof(hdr), 1, f) != 1
+      || hdr.width  <= 0 || hdr.width  > 4096
+      || hdr.height <= 0 || hdr.height  > 4096
+      || hdr.magic   != ICON_CACHE_MAGIC) {
+    fclose(f); return NULL;
+  }
+
+  const char *stat_path = (src_path && *src_path) ? src_path
+                          : (hdr.src_path[0] ? hdr.src_path : NULL);
+  if (!stat_path) {
+    fclose(f);
+    return NULL;
+  }
+
+  struct stat st;
+  if (stat(stat_path, &st) != 0
+      || (int64_t)st.st_mtime != hdr.src_mtime
+      || (int64_t)st.st_size  != hdr.src_size) {
+    fclose(f); return NULL;
+  }
+
+  cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, hdr.width, hdr.height);
+  if (cairo_surface_status(s) != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(s); fclose(f); return NULL;
+  }
+  cairo_surface_flush(s);
+  size_t stride = cairo_image_surface_get_stride(s);
+  if (fread(cairo_image_surface_get_data(s), 1,
+        stride * hdr.height, f) != stride * (size_t)hdr.height) {
+    cairo_surface_destroy(s); fclose(f); return NULL;
+  }
+  cairo_surface_mark_dirty(s);
+  fclose(f);
+  g_debug("icon cache HIT  %s [%dx%d] actual=[%dx%d]", stat_path, w, h, hdr.width, hdr.height);
+  if (resolved_path_out && hdr.src_path[0]) {
+    *resolved_path_out = g_strdup(hdr.src_path);
+  }
+  return s;
+}
+
+static void icon_cache_save(const char *cache_key, const char *src_path, int w, int h,
+                            cairo_surface_t *s) {
+  struct stat st;
+  if (stat(src_path, &st) != 0) {
+    return;
+  }
+  char *cache_dir = g_build_filename(g_get_user_cache_dir(), ICON_CACHE_DIR, NULL);
+  g_mkdir_with_parents(cache_dir, 0700);
+  g_free(cache_dir);
+
+  char *cp = icon_cache_path(cache_key, w, h);
+  FILE *f = fopen(cp, "wb");
+  g_free(cp);
+  if (!f) {
+    return;
+  }
+
+  int aw = cairo_image_surface_get_width(s);
+  int ah = cairo_image_surface_get_height(s);
+
+  IconCacheHeader hdr = {
+    .magic     = ICON_CACHE_MAGIC,
+    .width     = aw,
+    .height    = ah,
+    .src_mtime = (int64_t)st.st_mtime,
+    .src_size  = (int64_t)st.st_size,
+  };
+  g_strlcpy(hdr.src_path, src_path, ICON_CACHE_PATH_MAX);
+  fwrite(&hdr, sizeof(hdr), 1, f);
+  cairo_surface_flush(s);
+  size_t stride = cairo_image_surface_get_stride(s);
+  fwrite(cairo_image_surface_get_data(s), 1, stride * ah, f);
+  fclose(f);
+  g_debug("icon cache SAVE %s [%dx%d] actual=[%dx%d]", src_path, w, h, aw, ah);
+}
 
 typedef struct {
   // Context for icon-themes.
@@ -536,6 +652,24 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   const gchar *icon_path;
   gchar *icon_path_ = NULL;
 
+  if (!g_path_is_absolute(sentry->entry->name)
+      && !g_str_has_prefix(sentry->entry->name, "thumbnail://")
+      && sentry->wsize > 0 && sentry->hsize > 0
+      && !g_str_has_prefix(sentry->entry->name, "<span")) {
+    int fw = sentry->wsize > 0 ? sentry->wsize * sentry->scale : 0;
+    int fh = sentry->hsize > 0 ? sentry->hsize * sentry->scale : 0;
+    cairo_surface_t *cached = icon_cache_load(sentry->entry->name, NULL, fw, fh, &icon_path_);
+    if (cached != NULL) {
+      g_free(icon_path_);
+      sentry->surface = cached;
+      sentry->query_done = TRUE;
+      rofi_view_reload();
+      return;
+    }
+    g_free(icon_path_);
+    icon_path_ = NULL;
+  }
+
   if (g_str_has_prefix(sentry->entry->name, "thumbnail://")) {
     // remove uri thumbnail prefix from entry name
     gchar *entry_name = &sentry->entry->name[12];
@@ -717,30 +851,36 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
   if (height > 0)
     height *= sentry->scale;
 
-  GError *error = NULL;
-  GdkPixbuf *pb =
+
+  icon_surf = icon_cache_load(sentry->entry->name, icon_path, width, height, NULL);
+
+  if (icon_surf == NULL) {
+    GError *error = NULL;
+    GdkPixbuf *pb =
       gdk_pixbuf_new_from_file_at_scale(icon_path, width, height, TRUE, &error);
-
-  /*
-   * The GIF codec throws GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION if it's closed
-   * without decoding all the frames. Since gdk_pixbuf_new_from_file_at_scale
-   * only decodes the first frame, this specific error needs to be ignored.
-   */
-  if (error != NULL && g_error_matches(error, GDK_PIXBUF_ERROR,
-                                       GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION)) {
-    g_clear_error(&error);
-  }
-
-  if (error != NULL) {
-    g_warning("Failed to load image: |%s| %d %d %s (%p)", icon_path,
-              sentry->wsize, sentry->hsize, error->message, (void *)pb);
-    g_error_free(error);
-    if (pb) {
-      g_object_unref(pb);
+    /*
+     * The GIF codec throws GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION if it's closed
+     * without decoding all the frames. Since gdk_pixbuf_new_from_file_at_scale
+     * only decodes the first frame, this specific error needs to be ignored.
+     */
+    if (error != NULL && g_error_matches(error, GDK_PIXBUF_ERROR,
+          GDK_PIXBUF_ERROR_INCOMPLETE_ANIMATION)) {
+      g_clear_error(&error);
     }
-  } else {
-    icon_surf = rofi_icon_fetcher_get_surface_from_pixbuf(pb);
-    g_object_unref(pb);
+    if (error != NULL) {
+      g_warning("Failed to load image: |%s| %d %d %s (%p)", icon_path,
+                sentry->wsize, sentry->hsize, error->message, (void *)pb);
+      g_error_free(error);
+      if (pb) {
+        g_object_unref(pb);
+      }
+    } else {
+      icon_surf = rofi_icon_fetcher_get_surface_from_pixbuf(pb);
+      g_object_unref(pb);
+      if (icon_surf != NULL) {
+        icon_cache_save(sentry->entry->name, icon_path, width, height, icon_surf);
+      }
+    }
   }
 
   sentry->surface = icon_surf;
