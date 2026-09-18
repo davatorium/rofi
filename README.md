@@ -175,7 +175,7 @@ option can be used:
 ### Missing features in Wayland mode
 
 Due to the different architecture and available APIs in Wayland mode, some original rofi features are difficult or impossible to replicate
-
+- will not work in Gnome DE
 - `-normal-window` flag. Though it is also considered as a toy/deprecated feature in Upstream rofi. Not impossible but would require some work.
 - `-monitor -n` for fine-grained selection of monitor to display rofi on
 - some window locations parameters work partially, `x-offset` and `y-offset` are only working from screen edges
