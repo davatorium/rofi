@@ -5,7 +5,7 @@
 #ifndef ROFI_SOCKET_H
 #define ROFI_SOCKET_H
 
-void unix_socket_setup(void);
+void unix_socket_setup(const char* path);
 void unix_socket_cleanup(void);
 
 #endif //ROFI_SOCKET_H

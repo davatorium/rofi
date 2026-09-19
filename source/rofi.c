@@ -190,7 +190,9 @@ static const Mode *mode_available_lookup(const char *name) {
 static void teardown(int pfd) {
   g_debug("Teardown");
 
-  unix_socket_cleanup();
+  if (find_arg("-unix-socket") >= 0) {
+    unix_socket_cleanup();
+  }
 
   // Cleanup font setup.
   textbox_cleanup();
@@ -319,13 +321,17 @@ static void print_list_of_modes(int is_term) {
 static void print_main_application_options(int is_term) {
   print_help_msg("-config", "[file]", "Load an alternative configuration.",
                  NULL, is_term);
-  print_help_msg("-no-config", "",
+  print_help_msg("-no-config", NULL,
                  "Do not load configuration, use default values.", NULL,
                  is_term);
   print_help_msg("-v,-version", "", "Print the version number and exit.", NULL,
                  is_term);
   print_help_msg("-dmenu", "", "Start in dmenu mode.", NULL, is_term);
   print_help_msg("-display", "[string]", "X server to contact.", "${DISPLAY}",
+                 is_term);
+  print_help_msg("-unix-socket", "", "Enable unix socket.", "",
+                 is_term);
+  print_help_msg("-unix-socket-path", "", "Sets the socket path.", "User runtime directory, followed by rofi-%pid.sock, for instance, /run/user/1234/rofi-5678.sock",
                  is_term);
   print_help_msg("-h,-help", "", "This help message.", NULL, is_term);
   print_help_msg("-e", "[string]",
@@ -1382,7 +1388,11 @@ int main(int argc, char *argv[]) {
 
   g_idle_add(startup, NULL);
 
-  unix_socket_setup();
+  if (find_arg("-unix-socket") >= 0) {
+    char *unix_socket_path = NULL;
+    find_arg_str("-unix-socket-path", &unix_socket_path);
+    unix_socket_setup(unix_socket_path);
+  }
 
   // Start mainloop.
   g_main_loop_run(main_loop);

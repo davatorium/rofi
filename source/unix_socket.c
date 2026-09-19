@@ -13,6 +13,7 @@
 #include "view.h"
 
 static int server_socket_fd = -1;
+static char socket_path[108];
 
 static gboolean unix_socket_read_callback(GIOChannel *source, GIOCondition condition, gpointer data) {
   if (condition & G_IO_IN) {
@@ -37,7 +38,7 @@ static gboolean unix_socket_read_callback(GIOChannel *source, GIOCondition condi
   return TRUE;
 }
 
-void unix_socket_setup(void) {
+void unix_socket_setup(const char* path) {
   struct sockaddr_un addr;
 
   server_socket_fd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -49,8 +50,17 @@ void unix_socket_setup(void) {
   memset(&addr, 0, sizeof(struct sockaddr_un));
   addr.sun_family = AF_UNIX;
 
-  const char *runtime_dir = g_get_user_runtime_dir();
-  snprintf(addr.sun_path, sizeof(addr.sun_path), "%s/rofi-%d.sock", runtime_dir, getpid());
+  if (path == NULL) {
+    const char *runtime_dir = g_get_user_runtime_dir();
+    snprintf(socket_path, sizeof(socket_path), "%s/rofi-%d.sock", runtime_dir, getpid());
+  }
+  else {
+    snprintf(socket_path, sizeof(socket_path), "%s", path);
+  }
+  snprintf(addr.sun_path, sizeof(addr.sun_path), "%s", socket_path);
+
+  g_debug("Enabling socket on %s", addr.sun_path);
+
 
   if (bind(server_socket_fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1) {
     g_warning("Failed to bind unix socket to %s", addr.sun_path);
@@ -75,8 +85,5 @@ void unix_socket_cleanup(void) {
     return;
   }
   close(server_socket_fd);
-  const char *runtime_dir = g_get_user_runtime_dir();
-  char path[100];
-  snprintf(path, sizeof(path), "%s/rofi-%d.sock", runtime_dir, getpid());
-  unlink(path);
+  unlink(socket_path);
 }
