@@ -48,6 +48,7 @@
 #include "mode-private.h"
 
 #include "rofi-icon-fetcher.h"
+#include "view-internal.h"
 
 #include "modes/dmenuscriptshared.h"
 
@@ -229,6 +230,14 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
 
   if (input != NULL) {
     env = g_environ_setenv(env, "ROFI_INPUT", input, TRUE);
+  }
+
+  RofiViewState *state = rofi_view_get_active();
+  if (state) {
+    const char *action_name = key_binding_get_action_name_from_id(state->accept_action);
+    if (action_name) {
+      env = g_environ_setenv(env, "ROFI_ACCEPT_ACTION", action_name, true);
+    }
   }
 
   if (g_shell_parse_argv(sw->ed, &argc, &argv, &error)) {

@@ -116,6 +116,14 @@ ActionBindingEntry rofi_bindings[] = {
      .name = "kb-accept-entry",
      .binding = "Control+j,Control+m,Return,KP_Enter",
      .comment = "Accept entry"},
+    {.id = ACCEPT_ENTRY_PREV,
+     .name = "kb-accept-entry-prev",
+     .binding = "KP_Subtract", // Found using xev
+     .comment = "Accept entry, going to previous or decreasing if possible"},
+    {.id = ACCEPT_ENTRY_NEXT,
+     .name = "kb-accept-entry-next",
+     .binding = "KP_Add",
+     .comment = "Accept entry, going to next or increasing if possible"},
     {.id = ACCEPT_CUSTOM,
      .name = "kb-accept-custom",
      .binding = "Control+Return",
@@ -506,4 +514,14 @@ gboolean parse_keys_abe(NkBindings *bindings) {
 
   g_string_free(error_msg, TRUE);
   return TRUE;
+}
+
+const char *key_binding_get_action_name_from_id(const guint id) {
+  for (gsize i = 0; i < G_N_ELEMENTS(rofi_bindings); ++i) {
+    ActionBindingEntry *b = &rofi_bindings[i];
+    if (b->id == id) {
+      return b->name;
+    }
+  }
+  return NULL;
 }

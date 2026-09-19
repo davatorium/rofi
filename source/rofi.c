@@ -45,6 +45,8 @@
 
 #include <glib-unix.h>
 
+#include "unix_socket.h"
+
 #ifdef USE_NK_GIT_VERSION
 #include "nkutils-git-version.h"
 #ifdef NK_GIT_VERSION
@@ -187,6 +189,9 @@ static const Mode *mode_available_lookup(const char *name) {
  */
 static void teardown(int pfd) {
   g_debug("Teardown");
+
+  unix_socket_cleanup();
+
   // Cleanup font setup.
   textbox_cleanup();
 
@@ -1376,6 +1381,8 @@ int main(int argc, char *argv[]) {
   g_unix_signal_add(SIGINT, main_loop_signal_handler_int, NULL);
 
   g_idle_add(startup, NULL);
+
+  unix_socket_setup();
 
   // Start mainloop.
   g_main_loop_run(main_loop);
