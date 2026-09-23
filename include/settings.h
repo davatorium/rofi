@@ -47,11 +47,7 @@ typedef enum {
 /**
  * Possible sorting methods for listview.
  */
-typedef enum {
-  SORT_NORMAL = 0,
-  SORT_FZF = 1,
-  SORT_FZF_V2 = 2
-} SortingMethod;
+typedef enum { SORT_NORMAL = 0, SORT_FZF = 1, SORT_FZF_V2 = 2 } SortingMethod;
 
 typedef enum {
   DISPLAY_XCB,
@@ -70,7 +66,7 @@ typedef struct {
 
   /** Whether to load and show icons  */
   gboolean show_icons;
-  
+
   /** Custom command to generate preview icons */
   char *preview_cmd;
 
@@ -225,6 +221,8 @@ typedef struct {
   char *completer_mode;
   /** Whether to enable imdkit, see #2123 */
   gboolean enable_imdkit;
+  /** Fallback icon theme setting. */
+  char *fallback_icon_themes;
 } Settings;
 
 /** Default number of lines in the list view */
