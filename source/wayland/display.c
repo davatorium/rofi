@@ -978,6 +978,132 @@ static const struct wl_pointer_listener wayland_pointer_listener = {
     .axis_discrete = wayland_pointer_axis_discrete,
 };
 
+/* Touch sends the same events as a pointer. Only the first finger counts,
+ * until it lifts. A finger that stays in TOUCH_TAP_SLOP is a left click where
+ * it touched. The press and the release both go on the lift, so a finger that
+ * moves is not a click. Its vertical travel scrolls: one wheel step per
+ * TOUCH_SCROLL_STEP pixels, opposite to the finger, so the list moves with the
+ * finger */
+#define TOUCH_TAP_SLOP 8
+#define TOUCH_SCROLL_STEP 30
+
+static void wayland_touch_down(void *data, struct wl_touch *touch,
+                               uint32_t serial, uint32_t time,
+                               struct wl_surface *surface, int32_t id,
+                               wl_fixed_t x, wl_fixed_t y) {
+  wayland_seat *self = data;
+
+  if (self->touch_id != -1) {
+    return;
+  }
+  self->touch_id = id;
+  self->touch_x = wl_fixed_to_int(x);
+  self->touch_y = wl_fixed_to_int(y);
+  self->touch_moved = FALSE;
+  self->touch_scroll = 0;
+
+  wayland->last_seat = self;
+  self->serial = serial;
+
+  self->motion.x = self->touch_x;
+  self->motion.y = self->touch_y;
+  self->motion.time = time;
+}
+
+static void wayland_touch_up(void *data, struct wl_touch *touch,
+                             uint32_t serial, uint32_t time, int32_t id) {
+  wayland_seat *self = data;
+
+  if (id != self->touch_id) {
+    return;
+  }
+  self->touch_id = -1;
+
+  wayland->last_seat = self;
+  self->serial = serial;
+
+  if (self->touch_moved) {
+    return;
+  }
+
+  self->button.x = self->touch_x;
+  self->button.y = self->touch_y;
+  self->button.time = time;
+  self->button.button = BTN_LEFT;
+  self->button.pressed = TRUE;
+  wayland_pointer_send_events(self);
+  self->button.button = BTN_LEFT;
+  self->button.pressed = FALSE;
+}
+
+static void wayland_touch_motion(void *data, struct wl_touch *touch,
+                                 uint32_t time, int32_t id, wl_fixed_t x,
+                                 wl_fixed_t y) {
+  wayland_seat *self = data;
+  gint px, py;
+
+  if (id != self->touch_id) {
+    return;
+  }
+
+  px = wl_fixed_to_int(x);
+  py = wl_fixed_to_int(y);
+
+  if (!self->touch_moved) {
+    if (ABS(px - self->touch_x) <= TOUCH_TAP_SLOP &&
+        ABS(py - self->touch_y) <= TOUCH_TAP_SLOP) {
+      return;
+    }
+    self->touch_moved = TRUE;
+  }
+
+  self->touch_scroll += py - self->touch_y;
+  self->touch_x = px;
+  self->touch_y = py;
+
+  while (self->touch_scroll >= TOUCH_SCROLL_STEP) {
+    self->wheel.vertical -= 120;
+    self->touch_scroll -= TOUCH_SCROLL_STEP;
+  }
+  while (self->touch_scroll <= -TOUCH_SCROLL_STEP) {
+    self->wheel.vertical += 120;
+    self->touch_scroll += TOUCH_SCROLL_STEP;
+  }
+}
+
+static void wayland_touch_frame(void *data, struct wl_touch *touch) {
+  wayland_seat *self = data;
+  wayland_pointer_send_events(self);
+}
+
+/* The compositor took the touch sequence for its own gesture. Thus the finger
+ * is not a click or a scroll */
+static void wayland_touch_cancel(void *data, struct wl_touch *touch) {
+  wayland_seat *self = data;
+
+  self->touch_id = -1;
+  self->touch_moved = FALSE;
+  self->touch_scroll = 0;
+  self->motion.x = -1;
+  self->motion.y = -1;
+}
+
+static void wayland_touch_shape(void *data, struct wl_touch *touch, int32_t id,
+                                wl_fixed_t major, wl_fixed_t minor) {}
+
+static void wayland_touch_orientation(void *data, struct wl_touch *touch,
+                                      int32_t id, wl_fixed_t orientation) {}
+
+static const struct wl_touch_listener wayland_touch_listener = {
+    .down = wayland_touch_down,
+    .up = wayland_touch_up,
+    .motion = wayland_touch_motion,
+    .frame = wayland_touch_frame,
+    .cancel = wayland_touch_cancel,
+    .shape = wayland_touch_shape,
+    .orientation = wayland_touch_orientation,
+};
+
 static void wayland_keyboard_release(wayland_seat *self) {
   if (self->keyboard == NULL) {
     return;
@@ -1191,6 +1317,17 @@ static void wayland_pointer_release(wayland_seat *self) {
   self->pointer = NULL;
 }
 
+static void wayland_touch_release(wayland_seat *self) {
+  if (self->touch == NULL) {
+    return;
+  }
+
+  wl_touch_release(self->touch);
+
+  self->touch = NULL;
+  self->touch_id = -1;
+}
+
 static void wayland_seat_release(wayland_seat *self) {
   if (self->text_input) {
     zwp_text_input_v3_destroy(self->text_input);
@@ -1198,6 +1335,7 @@ static void wayland_seat_release(wayland_seat *self) {
   }
   wayland_keyboard_release(self);
   wayland_pointer_release(self);
+  wayland_touch_release(self);
 
   wl_seat_release(self->seat);
 
@@ -1231,6 +1369,14 @@ static void wayland_seat_capabilities(void *data, struct wl_seat *seat,
   } else if ((!(capabilities & WL_SEAT_CAPABILITY_POINTER)) &&
              (self->pointer != NULL)) {
     wayland_pointer_release(self);
+  }
+
+  if ((capabilities & WL_SEAT_CAPABILITY_TOUCH) && (self->touch == NULL)) {
+    self->touch = wl_seat_get_touch(self->seat);
+    wl_touch_add_listener(self->touch, &wayland_touch_listener, self);
+  } else if ((!(capabilities & WL_SEAT_CAPABILITY_TOUCH)) &&
+             (self->touch != NULL)) {
+    wayland_touch_release(self);
   }
 
   if (wayland->data_device_manager != NULL) {
@@ -1496,6 +1642,7 @@ static void wayland_registry_handle_global(void *data,
     wayland_seat *seat = g_new0(wayland_seat, 1);
     seat->context = wayland;
     seat->global_name = name;
+    seat->touch_id = -1;
     seat->seat = wl_registry_bind(registry, name, &wl_seat_interface, version);
     g_hash_table_insert(wayland->seats, seat->seat, seat);
 
