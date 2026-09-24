@@ -983,6 +983,11 @@ static void wayland_keyboard_release(wayland_seat *self) {
     return;
   }
 
+  if (self->text_input) {
+    zwp_text_input_v3_destroy(self->text_input);
+    self->text_input = NULL;
+  }
+
   wl_keyboard_release(self->keyboard);
 
   self->repeat.key = 0;
@@ -1192,10 +1197,6 @@ static void wayland_pointer_release(wayland_seat *self) {
 }
 
 static void wayland_seat_release(wayland_seat *self) {
-  if (self->text_input) {
-    zwp_text_input_v3_destroy(self->text_input);
-    self->text_input = NULL;
-  }
   wayland_keyboard_release(self);
   wayland_pointer_release(self);
 
@@ -1220,7 +1221,7 @@ static void wayland_seat_capabilities(void *data, struct wl_seat *seat,
       zwp_text_input_v3_add_listener(self->text_input, &text_input_listener,
                                      self);
     }
-  } else if ((!(capabilities & WL_SEAT_CAPABILITY_POINTER)) &&
+  } else if ((!(capabilities & WL_SEAT_CAPABILITY_KEYBOARD)) &&
              (self->keyboard != NULL)) {
     wayland_keyboard_release(self);
   }
