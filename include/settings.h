@@ -180,6 +180,8 @@ typedef struct {
   char *window_format;
   /** Click outside the window to exit */
   int click_to_exit;
+  /** Touch travel in pixels per scroll step, 0 for one list element */
+  int touch_scroll_step;
 
   /** Try to take over compositor's global bindings (on Wayland) */
   gboolean global_kb;

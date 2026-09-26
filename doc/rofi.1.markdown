@@ -915,6 +915,16 @@ Click the mouse outside the **rofi** window to exit.
 
 Default: *enabled*
 
+`-touch-scroll-step` *number*
+
+(wayland) The distance in pixels that a touch swipe travels for one scroll
+step. With `0`, the step is the size of one list element along the swipe, so
+the selection moves one element for each element the finger travels, in a list
+and in a grid. See the **rofi-keys(5)** manpage for how touch uses the mouse
+bindings.
+
+Default: *0*
+
 `-global-kb`
 `-no-global-kb`
 
