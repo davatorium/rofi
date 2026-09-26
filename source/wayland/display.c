@@ -981,10 +981,12 @@ static const struct wl_pointer_listener wayland_pointer_listener = {
 /* Touch sends the same events as a pointer. Only the first finger counts,
  * until it lifts. A finger that stays in TOUCH_TAP_SLOP is a left click where
  * it touched. The press and the release both go on the lift, so a finger that
- * moves is not a click. Its vertical travel scrolls: one wheel step per
- * TOUCH_SCROLL_STEP pixels, opposite to the finger, so the list moves with the
- * finger */
+ * moves is not a click. It scrolls along the axis on which it first leaves
+ * TOUCH_AXIS_LOCK, which stays fixed until the lift, so a vertical swipe that
+ * drifts sideways does not jump a column: one wheel step per TOUCH_SCROLL_STEP
+ * pixels, opposite to the finger, so the list moves with the finger */
 #define TOUCH_TAP_SLOP 8
+#define TOUCH_AXIS_LOCK (2 * TOUCH_TAP_SLOP)
 #define TOUCH_SCROLL_STEP 30
 
 static void wayland_touch_down(void *data, struct wl_touch *touch,
@@ -999,7 +1001,7 @@ static void wayland_touch_down(void *data, struct wl_touch *touch,
   self->touch_id = id;
   self->touch_x = wl_fixed_to_int(x);
   self->touch_y = wl_fixed_to_int(y);
-  self->touch_moved = FALSE;
+  self->touch_axis = WAYLAND_TOUCH_AXIS_NONE;
   self->touch_scroll = 0;
 
   wayland->last_seat = self;
@@ -1022,7 +1024,7 @@ static void wayland_touch_up(void *data, struct wl_touch *touch,
   wayland->last_seat = self;
   self->serial = serial;
 
-  if (self->touch_moved) {
+  if (self->touch_axis != WAYLAND_TOUCH_AXIS_NONE) {
     return;
   }
 
@@ -1040,7 +1042,8 @@ static void wayland_touch_motion(void *data, struct wl_touch *touch,
                                  uint32_t time, int32_t id, wl_fixed_t x,
                                  wl_fixed_t y) {
   wayland_seat *self = data;
-  gint px, py;
+  gint px, py, dx, dy;
+  gint *wheel;
 
   if (id != self->touch_id) {
     return;
@@ -1048,25 +1051,39 @@ static void wayland_touch_motion(void *data, struct wl_touch *touch,
 
   px = wl_fixed_to_int(x);
   py = wl_fixed_to_int(y);
+  dx = px - self->touch_x;
+  dy = py - self->touch_y;
 
-  if (!self->touch_moved) {
-    if (ABS(px - self->touch_x) <= TOUCH_TAP_SLOP &&
-        ABS(py - self->touch_y) <= TOUCH_TAP_SLOP) {
+  if (self->touch_axis == WAYLAND_TOUCH_AXIS_NONE) {
+    if (ABS(dx) <= TOUCH_TAP_SLOP && ABS(dy) <= TOUCH_TAP_SLOP) {
       return;
     }
-    self->touch_moved = TRUE;
+    self->touch_axis = WAYLAND_TOUCH_AXIS_UNDECIDED;
+  }
+  if (self->touch_axis == WAYLAND_TOUCH_AXIS_UNDECIDED) {
+    if (ABS(dx) <= TOUCH_AXIS_LOCK && ABS(dy) <= TOUCH_AXIS_LOCK) {
+      return;
+    }
+    self->touch_axis = ABS(dx) > ABS(dy) ? WAYLAND_TOUCH_AXIS_HORIZONTAL
+                                         : WAYLAND_TOUCH_AXIS_VERTICAL;
   }
 
-  self->touch_scroll += py - self->touch_y;
+  if (self->touch_axis == WAYLAND_TOUCH_AXIS_HORIZONTAL) {
+    self->touch_scroll += dx;
+    wheel = &self->wheel.horizontal;
+  } else {
+    self->touch_scroll += dy;
+    wheel = &self->wheel.vertical;
+  }
   self->touch_x = px;
   self->touch_y = py;
 
   while (self->touch_scroll >= TOUCH_SCROLL_STEP) {
-    self->wheel.vertical -= 120;
+    *wheel -= 120;
     self->touch_scroll -= TOUCH_SCROLL_STEP;
   }
   while (self->touch_scroll <= -TOUCH_SCROLL_STEP) {
-    self->wheel.vertical += 120;
+    *wheel += 120;
     self->touch_scroll += TOUCH_SCROLL_STEP;
   }
 }
@@ -1082,7 +1099,7 @@ static void wayland_touch_cancel(void *data, struct wl_touch *touch) {
   wayland_seat *self = data;
 
   self->touch_id = -1;
-  self->touch_moved = FALSE;
+  self->touch_axis = WAYLAND_TOUCH_AXIS_NONE;
   self->touch_scroll = 0;
   self->motion.x = -1;
   self->motion.y = -1;
