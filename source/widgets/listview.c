@@ -635,6 +635,19 @@ unsigned int listview_get_selected(listview *lv) {
   return 0;
 }
 
+unsigned int listview_get_element_pitch(listview *lv,
+                                        RofiOrientation orientation) {
+  if (lv == NULL || lv->boxes == NULL || lv->cur_elements == 0) {
+    return 0;
+  }
+  if (orientation == ROFI_ORIENTATION_HORIZONTAL) {
+    return widget_get_width(WIDGET(lv->boxes[0].box)) +
+           distance_get_pixel(lv->spacing, ROFI_ORIENTATION_HORIZONTAL);
+  }
+  return lv->element_height +
+         distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
+}
+
 void listview_set_selected(listview *lv, unsigned int selected) {
   if (lv == NULL) {
     return;

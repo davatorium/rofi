@@ -140,6 +140,18 @@ unsigned int listview_get_selected(listview *lv);
 
 /**
  * @param lv The listview handle
+ * @param orientation The axis to measure along
+ *
+ * The distance from one element to the next along the axis: the element size
+ * plus the spacing.
+ *
+ * @returns the distance in pixels, or 0 if the listview shows no elements.
+ */
+unsigned int listview_get_element_pitch(listview *lv,
+                                        RofiOrientation orientation);
+
+/**
+ * @param lv The listview handle
  *
  * Move the selection next element.
  * - Wrap around.

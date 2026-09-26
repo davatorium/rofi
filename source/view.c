@@ -415,6 +415,14 @@ unsigned int rofi_view_get_selected_line(const RofiViewState *state) {
   return state->selected_line;
 }
 
+unsigned int rofi_view_get_element_pitch(const RofiViewState *state,
+                                         RofiOrientation orientation) {
+  if (state == NULL) {
+    return 0;
+  }
+  return listview_get_element_pitch(state->list_view, orientation);
+}
+
 unsigned int rofi_view_get_next_position(const RofiViewState *state) {
   unsigned int next_pos = state->selected_line;
   unsigned int selected = listview_get_selected(state->list_view);

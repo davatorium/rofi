@@ -154,6 +154,7 @@ Settings config = {
     .scroll_method = 0,
     .window_format = "{w}    {c}   {t}",
     .click_to_exit = TRUE,
+    .touch_scroll_step = 0,
     .global_kb = FALSE,
     .theme = NULL,
     .plugin_path = PLUGIN_PATH,
