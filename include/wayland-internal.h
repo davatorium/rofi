@@ -32,6 +32,13 @@ typedef struct {
   guint32 time;
 } widget_motion_event;
 
+typedef enum {
+  WAYLAND_TOUCH_AXIS_NONE,
+  WAYLAND_TOUCH_AXIS_UNDECIDED,
+  WAYLAND_TOUCH_AXIS_VERTICAL,
+  WAYLAND_TOUCH_AXIS_HORIZONTAL,
+} wayland_touch_axis;
+
 typedef struct _wayland_seat wayland_seat;
 
 typedef struct {
@@ -105,12 +112,13 @@ struct _wayland_seat {
   struct wl_keyboard *keyboard;
   struct wl_pointer *pointer;
   struct wl_touch *touch;
-  /* The finger that acts as the pointer, or -1. Its last position, whether it
-   * left the tap slop, and the travel that is not yet a full scroll step */
+  /* The finger that acts as the pointer, or -1. Its last position, the axis it
+   * scrolls once it leaves the tap slop, and the travel that is not yet a full
+   * scroll step */
   int32_t touch_id;
   gint touch_x;
   gint touch_y;
-  gboolean touch_moved;
+  wayland_touch_axis touch_axis;
   gint touch_scroll;
 
 #ifdef HAVE_WAYLAND_CURSOR_SHAPE
