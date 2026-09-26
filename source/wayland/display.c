@@ -987,11 +987,22 @@ static const struct wl_pointer_listener wayland_pointer_listener = {
  * it touched. The press and the release both go on the lift, so a finger that
  * moves is not a click. It scrolls along the axis on which it first leaves
  * TOUCH_AXIS_LOCK, which stays fixed until the lift, so a vertical swipe that
- * drifts sideways does not jump a column: one wheel step per TOUCH_SCROLL_STEP
- * pixels, opposite to the finger, so the list moves with the finger */
+ * drifts sideways does not jump a column: one wheel step per scroll step,
+ * opposite to the finger, so the list moves with the finger. The step is the
+ * touch-scroll-step option, or else one list element, or else
+ * TOUCH_SCROLL_STEP when the menu shows no list */
 #define TOUCH_TAP_SLOP 8
 #define TOUCH_AXIS_LOCK (2 * TOUCH_TAP_SLOP)
 #define TOUCH_SCROLL_STEP 30
+
+static gint wayland_touch_scroll_step(RofiOrientation orientation) {
+  gint step = config.touch_scroll_step;
+
+  if (step <= 0) {
+    step = rofi_view_get_element_pitch(rofi_view_get_active(), orientation);
+  }
+  return step > 0 ? step : TOUCH_SCROLL_STEP;
+}
 
 static void wayland_touch_down(void *data, struct wl_touch *touch,
                                uint32_t serial, uint32_t time,
@@ -1046,7 +1057,7 @@ static void wayland_touch_motion(void *data, struct wl_touch *touch,
                                  uint32_t time, int32_t id, wl_fixed_t x,
                                  wl_fixed_t y) {
   wayland_seat *self = data;
-  gint px, py, dx, dy;
+  gint px, py, dx, dy, step;
   gint *wheel;
 
   if (id != self->touch_id) {
@@ -1075,20 +1086,22 @@ static void wayland_touch_motion(void *data, struct wl_touch *touch,
   if (self->touch_axis == WAYLAND_TOUCH_AXIS_HORIZONTAL) {
     self->touch_scroll += dx;
     wheel = &self->wheel.horizontal;
+    step = wayland_touch_scroll_step(ROFI_ORIENTATION_HORIZONTAL);
   } else {
     self->touch_scroll += dy;
     wheel = &self->wheel.vertical;
+    step = wayland_touch_scroll_step(ROFI_ORIENTATION_VERTICAL);
   }
   self->touch_x = px;
   self->touch_y = py;
 
-  while (self->touch_scroll >= TOUCH_SCROLL_STEP) {
+  while (self->touch_scroll >= step) {
     *wheel -= WHEEL_DETENT;
-    self->touch_scroll -= TOUCH_SCROLL_STEP;
+    self->touch_scroll -= step;
   }
-  while (self->touch_scroll <= -TOUCH_SCROLL_STEP) {
+  while (self->touch_scroll <= -step) {
     *wheel += WHEEL_DETENT;
-    self->touch_scroll += TOUCH_SCROLL_STEP;
+    self->touch_scroll += step;
   }
 }
 

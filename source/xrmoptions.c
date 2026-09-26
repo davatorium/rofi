@@ -532,6 +532,15 @@ static XrmOption xrmOptions[] = {
         "Click outside the window to exit",
     },
     {
+        xrm_SNumber,
+        CONFIG_DEFAULT,
+        "touch-scroll-step",
+        {.snum = &config.touch_scroll_step},
+        NULL,
+        "Touch swipe in pixels per scroll step, 0 for one list element "
+        "(wayland)",
+    },
+    {
         xrm_Boolean,
         CONFIG_DEFAULT,
         "global-kb",
