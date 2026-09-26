@@ -74,6 +74,10 @@
                (output)->current.physical_##dimension)                         \
        : 0)
 
+/* One wheel detent in the units of wl_pointer.axis_value120. The wheel fields
+ * of a seat hold this unit, and each whole multiple is one scroll step */
+#define WHEEL_DETENT 120
+
 typedef struct _display_buffer_pool wayland_buffer_pool;
 typedef struct {
   wayland_stuff *context;
@@ -699,27 +703,27 @@ static void wayland_pointer_send_events(wayland_seat *self) {
     self->wheel.horizontal += 20 * self->wheel_continuous.horizontal;
   }
 
-  if (abs(self->wheel.vertical) >= 120) {
+  if (abs(self->wheel.vertical) >= WHEEL_DETENT) {
     gint v120 = self->wheel.vertical;
     nk_bindings_seat_handle_scroll(wayland->bindings_seat, NULL,
                                    NK_BINDINGS_SCROLL_AXIS_VERTICAL,
-                                   v120 / 120);
+                                   v120 / WHEEL_DETENT);
     if (v120 > 0) {
-      self->wheel.vertical = v120 % 120;
+      self->wheel.vertical = v120 % WHEEL_DETENT;
     } else {
-      self->wheel.vertical = -((-v120) % 120);
+      self->wheel.vertical = -((-v120) % WHEEL_DETENT);
     }
   }
 
-  if (abs(self->wheel.horizontal) >= 120) {
+  if (abs(self->wheel.horizontal) >= WHEEL_DETENT) {
     gint v120 = self->wheel.horizontal;
     nk_bindings_seat_handle_scroll(wayland->bindings_seat, NULL,
                                    NK_BINDINGS_SCROLL_AXIS_HORIZONTAL,
-                                   v120 / 120);
+                                   v120 / WHEEL_DETENT);
     if (v120 > 0) {
-      self->wheel.horizontal = v120 % 120;
+      self->wheel.horizontal = v120 % WHEEL_DETENT;
     } else {
-      self->wheel.horizontal = -((-v120) % 120);
+      self->wheel.horizontal = -((-v120) % WHEEL_DETENT);
     }
   }
 
@@ -934,14 +938,14 @@ static void wayland_pointer_axis_discrete(void *data,
                                           int32_t discrete) {
   wayland_seat *self = data;
 
-  // values are multiplied by 120 for compatibility with the
+  // values are multiplied by WHEEL_DETENT for compatibility with the
   // new high-resolution events
   switch (axis) {
   case WL_POINTER_AXIS_VERTICAL_SCROLL:
-    self->wheel.vertical += discrete * 120;
+    self->wheel.vertical += discrete * WHEEL_DETENT;
     break;
   case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
-    self->wheel.horizontal += discrete * 120;
+    self->wheel.horizontal += discrete * WHEEL_DETENT;
     break;
   }
 }
@@ -1079,11 +1083,11 @@ static void wayland_touch_motion(void *data, struct wl_touch *touch,
   self->touch_y = py;
 
   while (self->touch_scroll >= TOUCH_SCROLL_STEP) {
-    *wheel -= 120;
+    *wheel -= WHEEL_DETENT;
     self->touch_scroll -= TOUCH_SCROLL_STEP;
   }
   while (self->touch_scroll <= -TOUCH_SCROLL_STEP) {
-    *wheel += 120;
+    *wheel += WHEEL_DETENT;
     self->touch_scroll += TOUCH_SCROLL_STEP;
   }
 }
