@@ -294,6 +294,22 @@ int rofi_scorer_fuzzy_evaluate(const char *pattern, glong plen, const char *str,
 int rofi_scorer_fzf_v2_evaluate(const char *pattern, glong plen,
                                 const char *str, glong slen,
                                 int case_sensitive);
+
+/**
+ * @param score  A score as returned by rofi_scorer_fzf_v2_evaluate.
+ * @param str    The string that was scored.
+ *
+ * Builds the key fzf orders results by, so rows with equal scores break the
+ * way fzf breaks them: on length, ignoring surrounding whitespace. Rows equal
+ * on both compare equal here, leaving the caller to break them on the input
+ * position.
+ *
+ * Only meaningful for scores from rofi_scorer_fzf_v2_evaluate. The key is
+ * between 0 and G_MAXINT, so differences between keys do not overflow.
+ *
+ * @returns the sort key (lower is better).
+ */
+int rofi_scorer_fzf_v2_sort_key(int score, const char *str);
 /*@}*/
 
 /**

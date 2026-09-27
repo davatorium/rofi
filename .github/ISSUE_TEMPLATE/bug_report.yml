@@ -31,6 +31,8 @@ body:
         If you have a problem that only occurs when launching rofi from a keybinding.
         First check that the environment the keybinding passes to rofi is correct.
 
+        This report needs to be written in English.
+
   - type: input
     attributes:
       label: "Rofi version (rofi -v or git commit in case of build issue)"

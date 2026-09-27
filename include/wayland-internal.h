@@ -104,6 +104,14 @@ struct _wayland_seat {
   uint32_t pointer_serial;
   struct wl_keyboard *keyboard;
   struct wl_pointer *pointer;
+  struct wl_touch *touch;
+  /* The finger that acts as the pointer, or -1. Its last position, whether it
+   * left the tap slop, and the travel that is not yet a full scroll step */
+  int32_t touch_id;
+  gint touch_x;
+  gint touch_y;
+  gboolean touch_moved;
+  gint touch_scroll;
 
 #ifdef HAVE_WAYLAND_CURSOR_SHAPE
   struct wp_cursor_shape_device_v1 *cursor_shape_device;
