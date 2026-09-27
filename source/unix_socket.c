@@ -27,6 +27,8 @@ static gboolean unix_socket_read_callback(GIOChannel *source, GIOCondition condi
         guint action_id = key_binding_get_action_from_name(buffer);
         if (action_id != UINT32_MAX) {
           rofi_view_trigger_action(NULL, SCOPE_GLOBAL, action_id);
+          RofiViewState *state = rofi_view_get_active();
+          rofi_view_maybe_update(state);
         }
         else {
           g_print("Received unknown command via socket: %s\n", buffer);
