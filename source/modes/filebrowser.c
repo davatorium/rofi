@@ -506,9 +506,11 @@ static ModeMode file_browser_mode_result(Mode *sw, int mretv, char **input,
           get_file_browser(sw);
           return RESET_DIALOG;
         }
-      } else if ((pd->array[selected_line].type == RFILE) ||
-                 (pd->array[selected_line].type == DIRECTORY &&
-                  special_command)) {
+      } else if (pd->array[selected_line].type == RFILE) {
+        char *filepath = pd->array[selected_line].path;
+        helper_launch_default(filepath);
+        return MODE_EXIT;
+      } else if (pd->array[selected_line].type == DIRECTORY && special_command) {
         char *d_esc = g_shell_quote(pd->array[selected_line].path);
         char *cmd = g_strdup_printf("%s %s", pd->command, d_esc);
         g_free(d_esc);

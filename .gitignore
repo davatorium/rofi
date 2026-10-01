@@ -1,6 +1,7 @@
 /build*/
 /.cache/
 /.vscode/
+tags
 
 # I want to ignore log files
 *.log
