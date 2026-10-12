@@ -272,7 +272,11 @@ static void rofi_icon_fetch_entry_free(gpointer data) {
 }
 
 void rofi_icon_fetcher_init(void) {
-  g_assert(rofi_icon_fetcher_data == NULL);
+  // Lazily initialized on the first icon query; calling it again from the
+  // various query entry points is a cheap no-op.
+  if (rofi_icon_fetcher_data != NULL) {
+    return;
+  }
 
   icon_fallback_themes = g_strsplit(config.fallback_icon_themes, ",", 0);
 
@@ -449,6 +453,7 @@ gboolean rofi_icon_fetcher_file_is_image(const char *const path) {
   if (path == NULL) {
     return FALSE;
   }
+  rofi_icon_fetcher_init();
   const char *suf = strrchr(path, '.');
   if (suf == NULL) {
     return FALSE;
@@ -756,6 +761,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
 
 uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
                                           const int hsize) {
+  rofi_icon_fetcher_init();
   g_debug("Query: %s(%dx%d)", name, wsize, hsize);
   IconFetcherNameEntry *entry =
       g_hash_table_lookup(rofi_icon_fetcher_data->icon_cache, name);
@@ -802,6 +808,7 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
   return sentry->uid;
 }
 uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
+  rofi_icon_fetcher_init();
   g_debug("Query: %s(%d)", name, size);
   IconFetcherNameEntry *entry =
       g_hash_table_lookup(rofi_icon_fetcher_data->icon_cache, name);
@@ -849,6 +856,9 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
 }
 
 cairo_surface_t *rofi_icon_fetcher_get(const uint32_t uid) {
+  if (rofi_icon_fetcher_data == NULL) {
+    return NULL;
+  }
   IconFetcherEntry *sentry = g_hash_table_lookup(
       rofi_icon_fetcher_data->icon_cache_uid, GINT_TO_POINTER(uid));
   if (sentry) {
@@ -860,9 +870,12 @@ cairo_surface_t *rofi_icon_fetcher_get(const uint32_t uid) {
 
 gboolean rofi_icon_fetcher_get_ex(const uint32_t uid,
                                   cairo_surface_t **surface) {
+  *surface = NULL;
+  if (rofi_icon_fetcher_data == NULL) {
+    return FALSE;
+  }
   IconFetcherEntry *sentry = g_hash_table_lookup(
       rofi_icon_fetcher_data->icon_cache_uid, GINT_TO_POINTER(uid));
-  *surface = NULL;
   if (sentry) {
     *surface = sentry->surface;
     return sentry->query_done;
