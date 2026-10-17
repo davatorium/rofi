@@ -266,7 +266,13 @@ textbox *textbox_create(widget *parent, WidgetType type, const char *name,
   tb->blink = 1;
   if ((tb->flags & TB_EDITABLE) == TB_EDITABLE) {
     if (rofi_theme_get_boolean(WIDGET(tb), "blink", TRUE)) {
-      tb->blink_timeout = g_timeout_add(1200, textbox_blink, tb);
+      // Time between showing and hiding the cursor, in milliseconds.
+      int interval =
+          rofi_theme_get_integer(WIDGET(tb), "blink-interval", 1200);
+      if (interval <= 0) {
+        interval = 1200;
+      }
+      tb->blink_timeout = g_timeout_add(interval, textbox_blink, tb);
     }
     tb->widget.trigger_action = textbox_editable_trigger_action;
   }
