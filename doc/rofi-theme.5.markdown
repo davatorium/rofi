@@ -1062,6 +1062,10 @@ The following properties are currently supported:
 - **blink**:             Enable/Disable blinking on an input textbox
     (Boolean).
 
+- **blink-interval**:    The time in milliseconds between the cursor of an
+    input textbox showing and hiding while it blinks (Integer, default 1200).
+    For example `entry { blink-interval: 600; }` blinks twice as fast.
+
 - **markup**:            Force markup on, beware that only valid pango markup
     strings are shown.
 
