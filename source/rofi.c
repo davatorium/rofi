@@ -321,7 +321,7 @@ static void print_list_of_modes(int is_term) {
 static void print_main_application_options(int is_term) {
   print_help_msg("-config", "[file]", "Load an alternative configuration.",
                  NULL, is_term);
-  print_help_msg("-no-config", NULL,
+  print_help_msg("-no-config", "",
                  "Do not load configuration, use default values.", NULL,
                  is_term);
   print_help_msg("-v,-version", "", "Print the version number and exit.", NULL,
