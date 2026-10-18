@@ -2253,3 +2253,13 @@ void rofi_view_pool_refresh(void) { proxy->pool_refresh(); }
 void rofi_view_get_menu_rect(int *x, int *y, int *w, int *h) {
   proxy->get_menu_rect(x, y, w, h);
 }
+
+KeyBindingAction rofi_view_get_accept_action(void)
+{
+  RofiViewState *state = rofi_view_get_active();
+
+  if (state) {
+    return state->accept_action;
+  }
+  return ACCEPT_ENTRY;
+}
