@@ -1340,6 +1340,50 @@ int rofi_scorer_fzf_v2_evaluate(const char *pattern, glong plen,
   return result;
 }
 
+/** fzf's util.AsUint16. */
+static guint16 rofi_scorer_fzf_v2_as_uint16(int val) {
+  if (val > G_MAXUINT16) {
+    return G_MAXUINT16;
+  }
+  if (val < 0) {
+    return 0;
+  }
+  return (guint16)val;
+}
+
+/** Code points in `str` ignoring surrounding whitespace; fzf's TrimLength(). */
+static guint16 rofi_scorer_fzf_v2_trim_length(const char *str) {
+  const char *first = str;
+  while (*first != '\0' && g_unichar_isspace(g_utf8_get_char(first))) {
+    first = g_utf8_next_char(first);
+  }
+  const char *last = first + strlen(first);
+  while (last > first) {
+    const char *prev = g_utf8_prev_char(last);
+    if (!g_unichar_isspace(g_utf8_get_char(prev))) {
+      break;
+    }
+    last = prev;
+  }
+  return rofi_scorer_fzf_v2_as_uint16((int)g_utf8_strlen(first, last - first));
+}
+
+int rofi_scorer_fzf_v2_sort_key(int score, const char *str) {
+  /* fzf compares a [4]uint16 tuple (Result.points in src/result.go) from the
+   * most significant element down; its default scheme fills the top two with
+   * MaxUint16 - AsUint16(score) and TrimLength() ({byScore, byLength} in
+   * parseScheme, src/options.go), and leaves the rest zero. Packing those two
+   * into one integer compares the same.
+   *
+   * The length gets 15 bits rather than fzf's 16 to keep the widest key at
+   * G_MAXINT: it then fits the int the weight is stored in, and no difference
+   * between keys overflows. Nothing is lost, as the scorer rejects anything
+   * over FUZZY_SCORER_MAX_LENGTH. */
+  guint32 by_score = G_MAXUINT16 - rofi_scorer_fzf_v2_as_uint16(score);
+  guint32 by_length = MIN(rofi_scorer_fzf_v2_trim_length(str), 0x7FFF);
+  return (int)((by_score << 15) | by_length);
+}
+
 /**
  * @param a    UTF-8 string to compare
  * @param b    UTF-8 string to compare

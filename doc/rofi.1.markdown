@@ -312,6 +312,12 @@ Load and show icons in the default theme.
 Specify icon theme to be used. If not specified default theme from DE is used,
 *Adwaita* and *gnome* themes act as fallback themes.
 
+
+`-fallback-icon-themes`
+
+Specify one or more fallback icon themes to be used.
+*Adwaita* and *gnome* themes are set as default fallback themes.
+
 `-markup`
 
 Use Pango markup to format output wherever possible.
@@ -477,6 +483,9 @@ There are 3 methods:
   that aims to match fzf's ranking. Prefers contiguous matches and
   word-boundary/camelCase starts using fzf's own weights.
   Whitespace-separated terms are scored independently and summed, like fzf.
+  Entries whose scores tie are ordered by length (ignoring leading and
+  trailing whitespace) and then by their order in the input, which is fzf's
+  default tie-breaking.
   When `-normalize-match` is enabled, scoring is done on the normalized
   (accent-stripped) text, mirroring fzf's rune normalization.
 
@@ -517,7 +526,7 @@ Open in sidebar-mode. In this mode, a list of all enabled modes is shown at the
 bottom (See `-modes` option). To show sidebar, use:
 
 ```bash
-    rofi -show run -sidebar-mode 
+    rofi -show run -sidebar-mode
 ```
 
 `-hover-select`
@@ -911,6 +920,16 @@ configuration {
 Click the mouse outside the **rofi** window to exit.
 
 Default: *enabled*
+
+`-touch-scroll-step` *number*
+
+(wayland) The distance in pixels that a touch swipe travels for one scroll
+step. With `0`, the step is the size of one list element along the swipe, so
+the selection moves one element for each element the finger travels, in a list
+and in a grid. See the **rofi-keys(5)** manpage for how touch uses the mouse
+bindings.
+
+Default: *0*
 
 `-global-kb`
 `-no-global-kb`

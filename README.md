@@ -323,4 +323,6 @@ preferred location for discussions.
 
 ### Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/davatorium/rofi.svg)](https://starchart.cc/davatorium/rofi)
+## Star History
+
+[![Star History Chart](https://star-history.dera.page/svg?repos=davatorium/rofi&legend=bottom-right)](https://star-history.dera.page/davatorium/rofi?legend=bottom-right)
