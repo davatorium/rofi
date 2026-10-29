@@ -1396,10 +1396,24 @@ int rofi_scorer_fzf_v2_sort_key(int score, const char *str) {
  * match, or be greater than the first `n` characters (not bytes) of `b`.
  */
 int utf8_strncmp(const char *a, const char *b, size_t n) {
+  size_t la = g_utf8_strlen(a, -1);
+  size_t lb = g_utf8_strlen(b, -1);
   char *na = g_utf8_normalize(a, -1, G_NORMALIZE_ALL_COMPOSE);
   char *nb = g_utf8_normalize(b, -1, G_NORMALIZE_ALL_COMPOSE);
-  *g_utf8_offset_to_pointer(na, n) = '\0';
-  *g_utf8_offset_to_pointer(nb, n) = '\0';
+  if (na == NULL && nb == NULL)
+    return 0;
+  if (na == NULL) {
+    g_free(nb);
+    return -1;
+  }
+  if (nb == NULL) {
+    g_free(na);
+    return 1;
+  }
+  la = MIN(la, n);
+  lb = MIN(lb, n);
+  *g_utf8_offset_to_pointer(na, la) = '\0';
+  *g_utf8_offset_to_pointer(nb, lb) = '\0';
   int r = g_utf8_collate(na, nb);
   g_free(na);
   g_free(nb);

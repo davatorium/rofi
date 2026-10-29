@@ -25,6 +25,7 @@
  *
  */
 
+#include <stdint.h>
 #define G_LOG_DOMAIN "Modes.DRun"
 #include "config.h"
 /** The log domain of this dialog. */
@@ -430,11 +431,11 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
         GFile *file = g_file_new_for_path(path);
         files = g_list_append(files, (void *)file);
       }
-      if ( e->is_action ) {
-            g_desktop_app_info_launch_action(gdai, e->action_name, NULL);
-            launched = TRUE;
+      if (e->is_action) {
+        g_desktop_app_info_launch_action(gdai, e->action_name, NULL);
+        launched = TRUE;
       } else {
-            launched = g_app_info_launch(G_APP_INFO(gdai), files, NULL, &ai_error);
+        launched = g_app_info_launch(G_APP_INFO(gdai), files, NULL, &ai_error);
       }
       if (ai_error) {
         g_warning("Failed to launch application using GAppInfo::Launch: %s",
@@ -860,7 +861,8 @@ static void walk_dir(DRunModePrivateData *pd, const char *root,
     case DT_REG:
       // Skip files not ending on .desktop.
       if (g_str_has_suffix(file->d_name, ".desktop")) {
-        read_desktop_file(pd, root, filename, file->d_name, DRUN_GROUP_NAME, NULL);
+        read_desktop_file(pd, root, filename, file->d_name, DRUN_GROUP_NAME,
+                          NULL);
       }
       break;
     case DT_DIR:
@@ -993,11 +995,11 @@ static gboolean drun_read_stringv(FILE *fd, char ***str) {
   if (vl == 0) {
     return FALSE;
   }
-  size_t ss = sizeof(char **) * (vl + 1);
-  if (ss >= (sizeof(char **) * (UINT16_MAX))) {
-    g_warning("Array of string vector is to long: %u", vl);
+  if (vl >= UINT16_MAX) {
+    g_warning("Array of strings vector is to long.");
     return FALSE;
   }
+  size_t ss = sizeof(char **) * (vl + 1);
   // Include terminating NULL entry.
   (*str) = g_malloc0(ss);
   for (guint index = 0; index < vl; index++) {

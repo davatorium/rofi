@@ -154,7 +154,6 @@ static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
   }
   char *utfstr = rofi_force_utf8(data, data_len);
   (*block)->values[(*block)->length].entry = utfstr;
-  (*block)->values[(*block)->length + 1].entry = NULL;
 
   (*block)->length++;
 }
@@ -368,7 +367,8 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
                                          gboolean multi_select) {
   if (pd->columns == NULL) {
     if (multi_select) {
-      if (index < pd->num_selected_list && bitget(pd->selected_list, index) == TRUE) {
+      if (index < pd->num_selected_list &&
+          bitget(pd->selected_list, index) == TRUE) {
         return g_strdup_printf("%s%s", pd->ballot_selected, input);
       } else {
         return g_strdup_printf("%s%s", pd->ballot_unselected, input);
@@ -386,7 +386,8 @@ static gchar *dmenu_format_output_string(const DmenuModePrivateData *pd,
   GString *str_retv = g_string_new("");
 
   if (multi_select) {
-    if (index < pd->num_selected_list && bitget(pd->selected_list, index) == TRUE) {
+    if (index < pd->num_selected_list &&
+        bitget(pd->selected_list, index) == TRUE) {
       g_string_append(str_retv, pd->ballot_selected);
     } else {
       g_string_append(str_retv, pd->ballot_unselected);
@@ -453,7 +454,8 @@ static char *get_display_data(const Mode *data, unsigned int index, int *state,
       *state |= URGENT;
     }
   }
-  if (index < pd->num_selected_list && bitget(pd->selected_list, index) == TRUE) {
+  if (index < pd->num_selected_list &&
+      bitget(pd->selected_list, index) == TRUE) {
     *state |= SELECTED;
   }
   if (pd->do_markup) {
@@ -731,7 +733,8 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
   cairo_surface_t *surface = NULL;
   if (dr->icon_fetch_uid > 0 && dr->icon_fetch_size == height &&
       dr->icon_fetch_scale == scale) {
-    gboolean query_done = rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
+    gboolean query_done =
+        rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
 
     if (surface != NULL) {
       return surface;
@@ -745,12 +748,12 @@ static cairo_surface_t *dmenu_get_icon(const Mode *sw,
 
   char *current_icon = NULL;
   if (dr->icon_name && dr->icon_fallback_index >= 0) {
-      int icon_count = g_strv_length(dr->icon_name);
-      if (dr->icon_fallback_index < icon_count) {
-          current_icon = dr->icon_name[dr->icon_fallback_index];
-      }
+    int icon_count = g_strv_length(dr->icon_name);
+    if (dr->icon_fallback_index < icon_count) {
+      current_icon = dr->icon_name[dr->icon_fallback_index];
+    }
   }
-  if ( current_icon ){
+  if (current_icon) {
     dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
     dr->icon_fetch_size = height;
     dr->icon_fetch_scale = scale;
@@ -809,7 +812,7 @@ static void dmenu_print_results(DmenuModePrivateData *pd, const char *input) {
   DmenuScriptEntry *cmd_list = pd->cmd_list;
   int seen = FALSE;
   for (unsigned int st = 0; st < pd->num_selected_list; st++) {
-    if ( bitget(pd->selected_list, st)) {
+    if (bitget(pd->selected_list, st)) {
       seen = TRUE;
       rofi_output_formatted_line(pd->format, cmd_list[st].entry, st, input);
     }
@@ -854,14 +857,15 @@ static void dmenu_finalize(RofiViewState *state) {
         restart = TRUE;
         pd->loading = FALSE;
         if (pd->num_selected_list != pd->cmd_list_length) {
-          size_t new_length = pd->cmd_list_length/32+1;
+          size_t new_length = pd->cmd_list_length / 32 + 1;
           pd->selected_list =
-              g_realloc(pd->selected_list,sizeof(uint32_t) * (new_length));
-          if ( pd->num_selected_list == 0 ){
-            memset(pd->selected_list, 0, new_length*sizeof(uint32_t));
+              g_realloc(pd->selected_list, sizeof(uint32_t) * (new_length));
+          if (pd->num_selected_list == 0) {
+            memset(pd->selected_list, 0, new_length * sizeof(uint32_t));
           } else {
-            size_t old_length = pd->num_selected_list/32+1;
-            memset(&pd->selected_list[old_length], 0, (new_length-old_length)*sizeof(uint32_t));
+            size_t old_length = pd->num_selected_list / 32 + 1;
+            memset(&pd->selected_list[old_length], 0,
+                   (new_length - old_length) * sizeof(uint32_t));
           }
           pd->num_selected_list = pd->cmd_list_length;
         }
@@ -917,16 +921,17 @@ static void dmenu_finalize(RofiViewState *state) {
     if ((mretv & MENU_CUSTOM_ACTION) && pd->multi_select) {
       restart = TRUE;
       if (pd->num_selected_list != pd->cmd_list_length) {
-          size_t new_length = pd->cmd_list_length/32+1;
-          pd->selected_list =
-              g_realloc(pd->selected_list,sizeof(uint32_t) * (new_length));
-          if ( pd->num_selected_list == 0 ){
-            memset(pd->selected_list, 0, new_length*sizeof(uint32_t));
-          } else {
-            size_t old_length = pd->num_selected_list/32+1;
-            memset(&pd->selected_list[old_length], 0, (new_length-old_length)*sizeof(uint32_t));
-          }
-          pd->num_selected_list = pd->cmd_list_length;
+        size_t new_length = pd->cmd_list_length / 32 + 1;
+        pd->selected_list =
+            g_realloc(pd->selected_list, sizeof(uint32_t) * (new_length));
+        if (pd->num_selected_list == 0) {
+          memset(pd->selected_list, 0, new_length * sizeof(uint32_t));
+        } else {
+          size_t old_length = pd->num_selected_list / 32 + 1;
+          memset(&pd->selected_list[old_length], 0,
+                 (new_length - old_length) * sizeof(uint32_t));
+        }
+        pd->num_selected_list = pd->cmd_list_length;
       }
       pd->selected_count +=
           (bitget(pd->selected_list, pd->selected_line) ? (-1) : (1));

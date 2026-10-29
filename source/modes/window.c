@@ -637,7 +637,9 @@ static void _window_mode_load_data(Mode *sw, unsigned int cd) {
         r = xcb_get_property_reply(xcb->connection, cookie, NULL);
         if (r) {
           if (r->type == XCB_ATOM_CARDINAL) {
-            winclient->wmdesktop = *((uint32_t *)xcb_get_property_value(r));
+            if (r->format == 32 && r->value_len >= 1) {
+              winclient->wmdesktop = *((uint32_t *)xcb_get_property_value(r));
+            }
           }
           free(r);
         }

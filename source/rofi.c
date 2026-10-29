@@ -909,7 +909,8 @@ static gboolean startup(G_GNUC_UNUSED gpointer data) {
     // When we pass -, we read from stdin.
     if (g_strcmp0(msg, "-") == 0) {
       size_t index = 0, i = 0;
-      size_t length = 1024;
+      // Include the 1 extra byte for the closing msg[index]
+      size_t length = 1025;
       msg = g_malloc(length * sizeof(char));
       while ((i = fread(&msg[index], 1, 1024, stdin)) > 0) {
         index += i;

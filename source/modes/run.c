@@ -190,12 +190,12 @@ static RunEntry *get_apps_external(RunEntry *retv, unsigned int *length,
     if (inp) {
       char *buffer = NULL;
       size_t buffer_length = 0;
-
-      while (getline(&buffer, &buffer_length, inp) > 0) {
+      ssize_t l = 0;
+      while ((l = getline(&buffer, &buffer_length, inp)) > 0) {
         int found = 0;
         // Filter out line-end.
-        if (buffer[strlen(buffer) - 1] == '\n') {
-          buffer[strlen(buffer) - 1] = '\0';
+        if (buffer[l - 1] == '\n') {
+          buffer[l - 1] = '\0';
         }
 
         // This is a nice little penalty, but doable? time will tell.

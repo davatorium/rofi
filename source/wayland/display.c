@@ -22,6 +22,7 @@
  *   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "helper.h"
 #define G_LOG_DOMAIN "Wayland"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -1199,7 +1200,9 @@ static gboolean clipboard_read_glib_callback(GIOChannel *channel,
   default:
     info->buffer[info->size] = '\0';
     if (status == G_IO_STATUS_EOF) {
+      char *str = rofi_force_utf8(info->buffer, info->size);
       info->callback(info->buffer, info->user_data);
+      g_free(str);
     } else { // G_IO_STATUS_ERROR
       g_warning("Could not read data from clipboard");
       g_free(info->buffer);
