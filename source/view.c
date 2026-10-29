@@ -1027,7 +1027,7 @@ static void rofi_view_input_changed(void) {
 }
 
 #ifdef ENABLE_WAYLAND
-static void rofi_view_clipboard_callback(char *clipboard_data,
+static void rofi_view_clipboard_callback(const char *clipboard_data,
                                          G_GNUC_UNUSED void *user_data) {
   RofiViewState *state = rofi_view_get_active();
   if (clipboard_data != NULL) {

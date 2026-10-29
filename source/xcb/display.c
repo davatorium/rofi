@@ -191,6 +191,15 @@ void cairo_image_surface_blur(cairo_surface_t *surface, int radius,
   const int width = cairo_image_surface_get_width(surface);
   const int height = cairo_image_surface_get_height(surface);
   const int stride = cairo_image_surface_get_stride(surface);
+  if (radius > (height / 2)) {
+    radius = height / 2 - 1;
+  }
+  if (radius > (width / 2)) {
+    radius = width / 2 - 1;
+  }
+  if (radius < 1) {
+    return;
+  }
 
   if (format == CAIRO_FORMAT_ARGB32) {
     channels = 4;

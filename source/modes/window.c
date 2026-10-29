@@ -375,8 +375,12 @@ static client *window_client(WindowModePrivateData *pd, xcb_window_t win) {
   cky = xcb_icccm_get_wm_class(xcb->connection, c->window);
   xcb_icccm_get_wm_class_reply_t wcr;
   if (xcb_icccm_get_wm_class_reply(xcb->connection, cky, &wcr, NULL)) {
-    c->class = g_markup_escape_text(wcr.class_name, -1);
-    c->name = g_markup_escape_text(wcr.instance_name, -1);
+    char *cs = rofi_force_utf8(wcr.class_name, -1);
+    char *nm = rofi_force_utf8(wcr.instance_name, -1);
+    c->class = g_markup_escape_text(cs, -1);
+    c->name = g_markup_escape_text(nm, -1);
+    g_free(cs);
+    g_free(nm);
     pd->name_len = MAX(c->name ? g_utf8_strlen(c->name, -1) : 0, pd->name_len);
     xcb_icccm_get_wm_class_reply_wipe(&wcr);
   }

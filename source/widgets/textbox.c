@@ -37,6 +37,7 @@
 #include <ctype.h>
 #include <glib.h>
 #include <math.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "theme.h"
@@ -347,12 +348,20 @@ static void __textbox_update_pango_text(textbox *tb) {
   if ((tb->flags & TB_PASSWORD) == TB_PASSWORD) {
     size_t text_len = g_utf8_strlen(tb->text, -1);
     size_t mask_len = strlen(tb->password_mask_char);
-    char string[text_len * mask_len + 1];
-    for (size_t offset = 0; offset < text_len * mask_len; offset += mask_len) {
-      memcpy(string + offset, tb->password_mask_char, mask_len);
+    if (text_len > ((SIZE_MAX - 1) / mask_len)) {
+      text_len = ((SIZE_MAX - 1) / mask_len);
     }
-    string[text_len * mask_len] = '\0';
-    pango_layout_set_text(tb->layout, string, -1);
+
+    char *string = g_malloc(text_len * mask_len + 1);
+    if (string) {
+      for (size_t offset = 0; offset < text_len * mask_len;
+           offset += mask_len) {
+        memcpy(string + offset, tb->password_mask_char, mask_len);
+      }
+      string[text_len * mask_len] = '\0';
+      pango_layout_set_text(tb->layout, string, -1);
+      g_free(string);
+    }
   } else if (tb->flags & TB_MARKUP || tb->tbft & MARKUP) {
     pango_layout_set_markup(tb->layout, tb->text, -1);
   } else {
