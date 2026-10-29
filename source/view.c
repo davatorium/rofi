@@ -2059,10 +2059,9 @@ void rofi_view_workers_initialize(void) {
   if (config.threads == 0) {
     config.threads = 1;
     long procs = sysconf(_SC_NPROCESSORS_CONF);
-    if (procs > 0) {
-      config.threads = MIN(procs, 128l);
-    }
+    config.threads = procs;
   }
+  config.threads = MIN(config.threads, 128l);
   // Create thread pool
   GError *error = NULL;
   tpool = g_thread_pool_new_full(rofi_view_call_thread, NULL,
