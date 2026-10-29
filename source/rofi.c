@@ -45,6 +45,8 @@
 
 #include <glib-unix.h>
 
+#include "unix_socket.h"
+
 #ifdef USE_NK_GIT_VERSION
 #include "nkutils-git-version.h"
 #ifdef NK_GIT_VERSION
@@ -187,6 +189,11 @@ static const Mode *mode_available_lookup(const char *name) {
  */
 static void teardown(int pfd) {
   g_debug("Teardown");
+
+  if (find_arg("-unix-socket") >= 0) {
+    unix_socket_cleanup();
+  }
+
   // Cleanup font setup.
   textbox_cleanup();
 
@@ -321,6 +328,10 @@ static void print_main_application_options(int is_term) {
                  is_term);
   print_help_msg("-dmenu", "", "Start in dmenu mode.", NULL, is_term);
   print_help_msg("-display", "[string]", "X server to contact.", "${DISPLAY}",
+                 is_term);
+  print_help_msg("-unix-socket", "", "Enable unix socket.", "",
+                 is_term);
+  print_help_msg("-unix-socket-path", "", "Sets the socket path.", "User runtime directory, followed by rofi-%pid.sock, for instance, /run/user/1234/rofi-5678.sock",
                  is_term);
   print_help_msg("-h,-help", "", "This help message.", NULL, is_term);
   print_help_msg("-e", "[string]",
@@ -1377,6 +1388,12 @@ int main(int argc, char *argv[]) {
   g_unix_signal_add(SIGINT, main_loop_signal_handler_int, NULL);
 
   g_idle_add(startup, NULL);
+
+  if (find_arg("-unix-socket") >= 0) {
+    char *unix_socket_path = NULL;
+    find_arg_str("-unix-socket-path", &unix_socket_path);
+    unix_socket_setup(unix_socket_path);
+  }
 
   // Start mainloop.
   g_main_loop_run(main_loop);

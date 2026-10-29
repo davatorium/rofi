@@ -1277,6 +1277,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ACCEPT_ALT: {
+    state->accept_action = action;
     rofi_view_refilter_force(state);
     unsigned int selected = listview_get_selected(state->list_view);
     state->selected_line = UINT32_MAX;
@@ -1292,6 +1293,7 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ACCEPT_CUSTOM: {
+    state->accept_action = action;
     rofi_view_refilter_force(state);
     state->selected_line = UINT32_MAX;
     state->retv = MENU_CUSTOM_INPUT;
@@ -1299,13 +1301,17 @@ static void rofi_view_trigger_global_action(KeyBindingAction action) {
     break;
   }
   case ACCEPT_CUSTOM_ALT: {
+    state->accept_action = action;
     rofi_view_refilter_force(state);
     state->selected_line = UINT32_MAX;
     state->retv = MENU_CUSTOM_INPUT | MENU_CUSTOM_ACTION;
     state->quit = TRUE;
     break;
   }
+  case ACCEPT_ENTRY_PREV:
+  case ACCEPT_ENTRY_NEXT:
   case ACCEPT_ENTRY: {
+    state->accept_action = action;
     rofi_view_refilter_force(state);
     // If a valid item is selected, return that..
     unsigned int selected = listview_get_selected(state->list_view);
@@ -2245,4 +2251,14 @@ void rofi_view_pool_refresh(void) { proxy->pool_refresh(); }
 
 void rofi_view_get_menu_rect(int *x, int *y, int *w, int *h) {
   proxy->get_menu_rect(x, y, w, h);
+}
+
+KeyBindingAction rofi_view_get_accept_action(void)
+{
+  RofiViewState *state = rofi_view_get_active();
+
+  if (state) {
+    return state->accept_action;
+  }
+  return ACCEPT_ENTRY;
 }
