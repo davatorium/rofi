@@ -1210,6 +1210,9 @@ static gboolean clipboard_read_glib_callback(GIOChannel *channel,
     g_io_channel_shutdown(channel, FALSE, NULL);
     g_io_channel_unref(channel);
     close(info->fd);
+    if (info->buffer != NULL) {
+      g_free(info->buffer);
+    }
     g_free(info);
     return FALSE;
   }

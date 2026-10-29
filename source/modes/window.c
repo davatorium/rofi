@@ -806,7 +806,9 @@ static ModeMode window_mode_result(Mode *sw, int mretv,
             xcb->ewmh._NET_WM_DESKTOP, XCB_ATOM_CARDINAL, 0, 1);
         r = xcb_get_property_reply(xcb->connection, cookie, NULL);
         if (r && r->type == XCB_ATOM_CARDINAL) {
-          wmdesktop = *((uint32_t *)xcb_get_property_value(r));
+          if (r->format == 32 && r->value_len >= 1) {
+            wmdesktop = *((uint32_t *)xcb_get_property_value(r));
+          }
         }
         if (r && r->type != XCB_ATOM_CARDINAL) {
           // Assume the client is on all desktops.

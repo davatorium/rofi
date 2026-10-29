@@ -1034,7 +1034,6 @@ static void rofi_view_clipboard_callback(char *clipboard_data,
     if (state != NULL) {
       rofi_view_handle_text(state, clipboard_data);
     }
-    g_free(clipboard_data);
   }
 }
 #endif

@@ -965,11 +965,11 @@ static gboolean drun_read_string(FILE *fd, char **str) {
   }
   (*str) = NULL;
   if (l > 0) {
-    // Include \0
-    l++;
     if (l > DRUN_MAX_STRING_LENGTH) {
       return TRUE;
     }
+    // Include \0
+    l++;
     (*str) = g_malloc(l);
     if (fread((*str), 1, l, fd) != l) {
       g_warning("Failed to read entry, cache corrupt?");
