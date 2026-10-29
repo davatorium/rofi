@@ -1201,7 +1201,7 @@ static gboolean clipboard_read_glib_callback(GIOChannel *channel,
     info->buffer[info->size] = '\0';
     if (status == G_IO_STATUS_EOF) {
       char *str = rofi_force_utf8(info->buffer, info->size);
-      info->callback(info->buffer, info->user_data);
+      info->callback(str, info->user_data);
       g_free(str);
     } else { // G_IO_STATUS_ERROR
       g_warning("Could not read data from clipboard");

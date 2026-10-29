@@ -863,11 +863,14 @@ char *rofi_force_utf8(const gchar *data, ssize_t length) {
   if (data == NULL) {
     return NULL;
   }
+  if (length < 0) {
+    length = strlen(data);
+  }
   const char *end;
   GString *string;
 
   if (g_utf8_validate(data, length, &end)) {
-    return g_memdup2(data, length + 1);
+    return g_strndup(data, length);
   }
   string = g_string_sized_new(length + 16);
 
@@ -1396,8 +1399,6 @@ int rofi_scorer_fzf_v2_sort_key(int score, const char *str) {
  * match, or be greater than the first `n` characters (not bytes) of `b`.
  */
 int utf8_strncmp(const char *a, const char *b, size_t n) {
-  size_t la = g_utf8_strlen(a, -1);
-  size_t lb = g_utf8_strlen(b, -1);
   char *na = g_utf8_normalize(a, -1, G_NORMALIZE_ALL_COMPOSE);
   char *nb = g_utf8_normalize(b, -1, G_NORMALIZE_ALL_COMPOSE);
   if (na == NULL && nb == NULL)
@@ -1410,8 +1411,8 @@ int utf8_strncmp(const char *a, const char *b, size_t n) {
     g_free(na);
     return 1;
   }
-  la = MIN(la, n);
-  lb = MIN(lb, n);
+  size_t la = MIN(n, (size_t)g_utf8_strlen(na, -1));
+  size_t lb = MIN(n, (size_t)g_utf8_strlen(nb, -1));
   *g_utf8_offset_to_pointer(na, la) = '\0';
   *g_utf8_offset_to_pointer(nb, lb) = '\0';
   int r = g_utf8_collate(na, nb);
