@@ -1322,6 +1322,20 @@ icon-paste {
 }
 ```
 
+Alternatively, the property `exec` can be set to be a command such as a program or shell script instead of `action`. The optional property `exit-after-command` (default **false**) can be set so Rofi exits upon completion of that command.
+
+For example, the following configuration would create an icon widget that, when clicked, opens an XTerm session and closes Rofi:
+
+```css
+icon-xterm {
+    expand: false;
+    filename: "/usr/share/pixmaps/mini.xterm_48x48.xpm";
+    size: 24;
+    exec: "xterm";
+    exit-after-command: true;
+}
+```
+
 #### button
 
 This is a textbox widget that can have a 'clickable' action. The `action` can
@@ -1334,6 +1348,18 @@ button-paste {
     content: "My Clickable Message";
     vertical-align: 0.5;
     action: "kb-primary-paste";
+}
+```
+
+As with icon widgets, the button widget can alternatively be set to run a command when clicked with the `exec` property and Rofi can be set to exit upon the command's completion by setting the `exit-after-command` property to **true**.
+
+```css
+button-xterm {
+    expand: false;
+    content: "Launch XTerm";
+    vertical-align: 0.5;
+    exec: "xterm";
+    exit-after-command: true;
 }
 ```
 
