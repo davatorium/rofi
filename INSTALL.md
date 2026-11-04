@@ -256,6 +256,26 @@ On both openSUSE Leap and openSUSE Tumbleweed rofi can be installed using:
     sudo zypper install rofi
 ```
 
+### NixOS
+
+Rofi can be installed either as a system package or via Home Manager.
+
+As a system package:
+```nix
+environment.systemPackages = [
+    pkgs.rofi
+];
+```
+
+Via Home Manager:
+```nix
+programs.rofi = {
+    enable = true;
+};
+```
+
+For more Home Manager config information for Rofi, please see [the documentation](https://nix-community.github.io/home-manager/options.xhtml#opt-programs.rofi.enable).
+
 ### FreeBSD
 
 ```bash
