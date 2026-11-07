@@ -52,7 +52,7 @@ function find_defs(doc)
     local idx = 0
     local def = Def:new()
 
-    -- find defintions:
+    -- find definitions:
     -- * start at paragraphs with `word` ...
     -- * stop at next definition or next header
     local filter = {

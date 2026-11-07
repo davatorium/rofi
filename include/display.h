@@ -127,8 +127,9 @@ enum clipboard_type {
   CLIPBOARD_PRIMARY,
 };
 
-typedef void (* ClipboardCb)(char *clipboard_data, void *user_data);
-void display_get_clipboard_data(enum clipboard_type, ClipboardCb callback, void* user_data);
+typedef void (*ClipboardCb)(const char *clipboard_data, void *user_data);
+void display_get_clipboard_data(enum clipboard_type, ClipboardCb callback,
+                                void *user_data);
 
 void display_set_fullscreen_mode(void);
 

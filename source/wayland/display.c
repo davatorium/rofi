@@ -22,6 +22,7 @@
  *   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "helper.h"
 #define G_LOG_DOMAIN "Wayland"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -74,6 +75,10 @@
                (output)->current.physical_##dimension)                         \
        : 0)
 
+/* One wheel detent in the units of wl_pointer.axis_value120. The wheel fields
+ * of a seat hold this unit, and each whole multiple is one scroll step */
+#define WHEEL_DETENT 120
+
 typedef struct _display_buffer_pool wayland_buffer_pool;
 typedef struct {
   wayland_stuff *context;
@@ -116,6 +121,32 @@ wayland_stuff *wayland = &wayland_;
 static const cairo_user_data_key_t wayland_cairo_surface_user_data;
 
 static const struct zwp_text_input_v3_listener text_input_listener;
+
+static void update_cursor_rectangle(struct zwp_text_input_v3 *text_input) {
+  textbox *tb = rofi_view_get_active_text();
+  if (tb == NULL) {
+    return;
+  }
+
+  int menu_x = 0, menu_y = 0;
+  rofi_view_get_menu_rect(&menu_x, &menu_y, NULL, NULL);
+
+  widget *tb_widget = WIDGET(tb);
+  int x = textbox_get_cursor_x_pos(tb);
+  int y = 0;
+
+  for (widget *iter = tb_widget; iter != NULL; iter = iter->parent) {
+    x += iter->x;
+    y += iter->y;
+  }
+
+  x += menu_x;
+  y += menu_y;
+
+  int w = 1;
+  int h = widget_get_height(tb_widget);
+  zwp_text_input_v3_set_cursor_rectangle(text_input, x, y, w, h);
+}
 
 static const struct _view_proxy *wayland_display_view_proxy(void);
 
@@ -511,6 +542,10 @@ static void wayland_keyboard_modifiers(void *data, struct wl_keyboard *keyboard,
   RofiViewState *state = rofi_view_get_active();
   if (state != NULL) {
     rofi_view_maybe_update(state);
+    if (self->text_input) {
+      update_cursor_rectangle(self->text_input);
+      zwp_text_input_v3_commit(self->text_input);
+    }
   }
 }
 
@@ -669,27 +704,27 @@ static void wayland_pointer_send_events(wayland_seat *self) {
     self->wheel.horizontal += 20 * self->wheel_continuous.horizontal;
   }
 
-  if (abs(self->wheel.vertical) >= 120) {
+  if (abs(self->wheel.vertical) >= WHEEL_DETENT) {
     gint v120 = self->wheel.vertical;
     nk_bindings_seat_handle_scroll(wayland->bindings_seat, NULL,
                                    NK_BINDINGS_SCROLL_AXIS_VERTICAL,
-                                   v120 / 120);
+                                   v120 / WHEEL_DETENT);
     if (v120 > 0) {
-      self->wheel.vertical = v120 % 120;
+      self->wheel.vertical = v120 % WHEEL_DETENT;
     } else {
-      self->wheel.vertical = -((-v120) % 120);
+      self->wheel.vertical = -((-v120) % WHEEL_DETENT);
     }
   }
 
-  if (abs(self->wheel.horizontal) >= 120) {
+  if (abs(self->wheel.horizontal) >= WHEEL_DETENT) {
     gint v120 = self->wheel.horizontal;
     nk_bindings_seat_handle_scroll(wayland->bindings_seat, NULL,
                                    NK_BINDINGS_SCROLL_AXIS_HORIZONTAL,
-                                   v120 / 120);
+                                   v120 / WHEEL_DETENT);
     if (v120 > 0) {
-      self->wheel.horizontal = v120 % 120;
+      self->wheel.horizontal = v120 % WHEEL_DETENT;
     } else {
-      self->wheel.horizontal = -((-v120) % 120);
+      self->wheel.horizontal = -((-v120) % WHEEL_DETENT);
     }
   }
 
@@ -698,6 +733,10 @@ static void wayland_pointer_send_events(wayland_seat *self) {
   self->wheel_continuous.horizontal = 0;
 
   rofi_view_maybe_update(state);
+  if (self->text_input) {
+    update_cursor_rectangle(self->text_input);
+    zwp_text_input_v3_commit(self->text_input);
+  }
 }
 
 static struct wl_cursor *
@@ -900,14 +939,14 @@ static void wayland_pointer_axis_discrete(void *data,
                                           int32_t discrete) {
   wayland_seat *self = data;
 
-  // values are multiplied by 120 for compatibility with the
+  // values are multiplied by WHEEL_DETENT for compatibility with the
   // new high-resolution events
   switch (axis) {
   case WL_POINTER_AXIS_VERTICAL_SCROLL:
-    self->wheel.vertical += discrete * 120;
+    self->wheel.vertical += discrete * WHEEL_DETENT;
     break;
   case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
-    self->wheel.horizontal += discrete * 120;
+    self->wheel.horizontal += discrete * WHEEL_DETENT;
     break;
   }
 }
@@ -944,9 +983,170 @@ static const struct wl_pointer_listener wayland_pointer_listener = {
     .axis_discrete = wayland_pointer_axis_discrete,
 };
 
+/* Touch sends the same events as a pointer. Only the first finger counts,
+ * until it lifts. A finger that stays in TOUCH_TAP_SLOP is a left click where
+ * it touched. The press and the release both go on the lift, so a finger that
+ * moves is not a click. It scrolls along the axis on which it first leaves
+ * TOUCH_AXIS_LOCK, which stays fixed until the lift, so a vertical swipe that
+ * drifts sideways does not jump a column: one wheel step per scroll step,
+ * opposite to the finger, so the list moves with the finger. The step is the
+ * touch-scroll-step option, or else one list element, or else
+ * TOUCH_SCROLL_STEP when the menu shows no list */
+#define TOUCH_TAP_SLOP 8
+#define TOUCH_AXIS_LOCK (2 * TOUCH_TAP_SLOP)
+#define TOUCH_SCROLL_STEP 30
+
+static gint wayland_touch_scroll_step(RofiOrientation orientation) {
+  gint step = config.touch_scroll_step;
+
+  if (step <= 0) {
+    step = rofi_view_get_element_pitch(rofi_view_get_active(), orientation);
+  }
+  return step > 0 ? step : TOUCH_SCROLL_STEP;
+}
+
+static void wayland_touch_down(void *data, struct wl_touch *touch,
+                               uint32_t serial, uint32_t time,
+                               struct wl_surface *surface, int32_t id,
+                               wl_fixed_t x, wl_fixed_t y) {
+  wayland_seat *self = data;
+
+  if (self->touch_id != -1) {
+    return;
+  }
+  self->touch_id = id;
+  self->touch_x = wl_fixed_to_int(x);
+  self->touch_y = wl_fixed_to_int(y);
+  self->touch_axis = WAYLAND_TOUCH_AXIS_NONE;
+  self->touch_scroll = 0;
+
+  wayland->last_seat = self;
+  self->serial = serial;
+
+  self->motion.x = self->touch_x;
+  self->motion.y = self->touch_y;
+  self->motion.time = time;
+}
+
+static void wayland_touch_up(void *data, struct wl_touch *touch,
+                             uint32_t serial, uint32_t time, int32_t id) {
+  wayland_seat *self = data;
+
+  if (id != self->touch_id) {
+    return;
+  }
+  self->touch_id = -1;
+
+  wayland->last_seat = self;
+  self->serial = serial;
+
+  if (self->touch_axis != WAYLAND_TOUCH_AXIS_NONE) {
+    return;
+  }
+
+  self->button.x = self->touch_x;
+  self->button.y = self->touch_y;
+  self->button.time = time;
+  self->button.button = BTN_LEFT;
+  self->button.pressed = TRUE;
+  wayland_pointer_send_events(self);
+  self->button.button = BTN_LEFT;
+  self->button.pressed = FALSE;
+}
+
+static void wayland_touch_motion(void *data, struct wl_touch *touch,
+                                 uint32_t time, int32_t id, wl_fixed_t x,
+                                 wl_fixed_t y) {
+  wayland_seat *self = data;
+  gint px, py, dx, dy, step;
+  gint *wheel;
+
+  if (id != self->touch_id) {
+    return;
+  }
+
+  px = wl_fixed_to_int(x);
+  py = wl_fixed_to_int(y);
+  dx = px - self->touch_x;
+  dy = py - self->touch_y;
+
+  if (self->touch_axis == WAYLAND_TOUCH_AXIS_NONE) {
+    if (ABS(dx) <= TOUCH_TAP_SLOP && ABS(dy) <= TOUCH_TAP_SLOP) {
+      return;
+    }
+    self->touch_axis = WAYLAND_TOUCH_AXIS_UNDECIDED;
+  }
+  if (self->touch_axis == WAYLAND_TOUCH_AXIS_UNDECIDED) {
+    if (ABS(dx) <= TOUCH_AXIS_LOCK && ABS(dy) <= TOUCH_AXIS_LOCK) {
+      return;
+    }
+    self->touch_axis = ABS(dx) > ABS(dy) ? WAYLAND_TOUCH_AXIS_HORIZONTAL
+                                         : WAYLAND_TOUCH_AXIS_VERTICAL;
+  }
+
+  if (self->touch_axis == WAYLAND_TOUCH_AXIS_HORIZONTAL) {
+    self->touch_scroll += dx;
+    wheel = &self->wheel.horizontal;
+    step = wayland_touch_scroll_step(ROFI_ORIENTATION_HORIZONTAL);
+  } else {
+    self->touch_scroll += dy;
+    wheel = &self->wheel.vertical;
+    step = wayland_touch_scroll_step(ROFI_ORIENTATION_VERTICAL);
+  }
+  self->touch_x = px;
+  self->touch_y = py;
+
+  while (self->touch_scroll >= step) {
+    *wheel -= WHEEL_DETENT;
+    self->touch_scroll -= step;
+  }
+  while (self->touch_scroll <= -step) {
+    *wheel += WHEEL_DETENT;
+    self->touch_scroll += step;
+  }
+}
+
+static void wayland_touch_frame(void *data, struct wl_touch *touch) {
+  wayland_seat *self = data;
+  wayland_pointer_send_events(self);
+}
+
+/* The compositor took the touch sequence for its own gesture. Thus the finger
+ * is not a click or a scroll */
+static void wayland_touch_cancel(void *data, struct wl_touch *touch) {
+  wayland_seat *self = data;
+
+  self->touch_id = -1;
+  self->touch_axis = WAYLAND_TOUCH_AXIS_NONE;
+  self->touch_scroll = 0;
+  self->motion.x = -1;
+  self->motion.y = -1;
+}
+
+static void wayland_touch_shape(void *data, struct wl_touch *touch, int32_t id,
+                                wl_fixed_t major, wl_fixed_t minor) {}
+
+static void wayland_touch_orientation(void *data, struct wl_touch *touch,
+                                      int32_t id, wl_fixed_t orientation) {}
+
+static const struct wl_touch_listener wayland_touch_listener = {
+    .down = wayland_touch_down,
+    .up = wayland_touch_up,
+    .motion = wayland_touch_motion,
+    .frame = wayland_touch_frame,
+    .cancel = wayland_touch_cancel,
+    .shape = wayland_touch_shape,
+    .orientation = wayland_touch_orientation,
+};
+
 static void wayland_keyboard_release(wayland_seat *self) {
   if (self->keyboard == NULL) {
     return;
+  }
+
+  if (self->text_input) {
+    zwp_text_input_v3_destroy(self->text_input);
+    self->text_input = NULL;
   }
 
   wl_keyboard_release(self->keyboard);
@@ -985,29 +1185,38 @@ static gboolean clipboard_read_glib_callback(GIOChannel *channel,
 
   case G_IO_STATUS_NORMAL: {
     info->size += read;
-    info->buffer =
+    char *buffer =
         g_realloc(info->buffer, info->size + CLIPBOARD_READ_INCREMENT);
-    if (!info->buffer) {
+    if (buffer == NULL) {
+
       g_io_channel_shutdown(channel, FALSE, NULL);
       g_io_channel_unref(channel);
+      if (info->buffer) {
+        g_free(info->buffer);
+      }
       close(info->fd);
       g_free(info);
       return FALSE;
     }
+    info->buffer = buffer;
     return TRUE;
   }
 
   default:
     info->buffer[info->size] = '\0';
     if (status == G_IO_STATUS_EOF) {
-      info->callback(info->buffer, info->user_data);
+      char *str = rofi_force_utf8(info->buffer, info->size);
+      info->callback(str, info->user_data);
+      g_free(str);
     } else { // G_IO_STATUS_ERROR
       g_warning("Could not read data from clipboard");
-      g_free(info->buffer);
     }
     g_io_channel_shutdown(channel, FALSE, NULL);
     g_io_channel_unref(channel);
     close(info->fd);
+    if (info->buffer != NULL) {
+      g_free(info->buffer);
+    }
     g_free(info);
     return FALSE;
   }
@@ -1157,13 +1366,21 @@ static void wayland_pointer_release(wayland_seat *self) {
   self->pointer = NULL;
 }
 
-static void wayland_seat_release(wayland_seat *self) {
-  if (self->text_input) {
-    zwp_text_input_v3_destroy(self->text_input);
-    self->text_input = NULL;
+static void wayland_touch_release(wayland_seat *self) {
+  if (self->touch == NULL) {
+    return;
   }
+
+  wl_touch_release(self->touch);
+
+  self->touch = NULL;
+  self->touch_id = -1;
+}
+
+static void wayland_seat_release(wayland_seat *self) {
   wayland_keyboard_release(self);
   wayland_pointer_release(self);
+  wayland_touch_release(self);
 
   wl_seat_release(self->seat);
 
@@ -1186,7 +1403,7 @@ static void wayland_seat_capabilities(void *data, struct wl_seat *seat,
       zwp_text_input_v3_add_listener(self->text_input, &text_input_listener,
                                      self);
     }
-  } else if ((!(capabilities & WL_SEAT_CAPABILITY_POINTER)) &&
+  } else if ((!(capabilities & WL_SEAT_CAPABILITY_KEYBOARD)) &&
              (self->keyboard != NULL)) {
     wayland_keyboard_release(self);
   }
@@ -1197,6 +1414,14 @@ static void wayland_seat_capabilities(void *data, struct wl_seat *seat,
   } else if ((!(capabilities & WL_SEAT_CAPABILITY_POINTER)) &&
              (self->pointer != NULL)) {
     wayland_pointer_release(self);
+  }
+
+  if ((capabilities & WL_SEAT_CAPABILITY_TOUCH) && (self->touch == NULL)) {
+    self->touch = wl_seat_get_touch(self->seat);
+    wl_touch_add_listener(self->touch, &wayland_touch_listener, self);
+  } else if ((!(capabilities & WL_SEAT_CAPABILITY_TOUCH)) &&
+             (self->touch != NULL)) {
+    wayland_touch_release(self);
   }
 
   if (wayland->data_device_manager != NULL) {
@@ -1231,20 +1456,6 @@ static const struct wl_seat_listener wayland_seat_listener = {
     .name = wayland_seat_name,
 };
 
-static void update_cursor_rectangle(struct zwp_text_input_v3 *text_input) {
-  textbox *tb = rofi_view_get_active_text();
-  if (tb == NULL) {
-    return;
-  }
-
-  widget *tb_widget = WIDGET(tb);
-  int x = widget_get_x_pos(tb_widget) + textbox_get_cursor_x_pos(tb);
-  int y = widget_get_y_pos(tb_widget);
-  int w = 1;
-  int h = widget_get_height(tb_widget);
-  zwp_text_input_v3_set_cursor_rectangle(text_input, x, y, w, h);
-}
-
 static void text_input_enter(void *data, struct zwp_text_input_v3 *text_input,
                              struct wl_surface *surface) {
   zwp_text_input_v3_enable(text_input);
@@ -1264,6 +1475,10 @@ static void text_input_preedit_string(void *data,
                                       struct zwp_text_input_v3 *text_input,
                                       const char *text, int32_t cursor_begin,
                                       int32_t cursor_end) {
+  RofiViewState *state = rofi_view_get_active();
+  if (state) {
+    rofi_view_maybe_update(state);
+  }
   update_cursor_rectangle(text_input);
   zwp_text_input_v3_commit(text_input);
 }
@@ -1278,7 +1493,10 @@ static void text_input_commit_string(void *data,
   RofiViewState *state = rofi_view_get_active();
   if (state) {
     rofi_view_handle_text(state, text);
+    rofi_view_maybe_update(state);
   }
+  update_cursor_rectangle(text_input);
+  zwp_text_input_v3_commit(text_input);
 }
 
 static void text_input_delete_surrounding_text(
@@ -1286,7 +1504,12 @@ static void text_input_delete_surrounding_text(
     uint32_t after_length) {}
 
 static void text_input_done(void *data, struct zwp_text_input_v3 *text_input,
-                            uint32_t serial) {}
+                            uint32_t serial) {
+  RofiViewState *state = rofi_view_get_active();
+  if (state) {
+    rofi_view_maybe_update(state);
+  }
+}
 
 static const struct zwp_text_input_v3_listener text_input_listener = {
     .enter = text_input_enter,
@@ -1464,6 +1687,7 @@ static void wayland_registry_handle_global(void *data,
     wayland_seat *seat = g_new0(wayland_seat, 1);
     seat->context = wayland;
     seat->global_name = name;
+    seat->touch_id = -1;
     seat->seat = wl_registry_bind(registry, name, &wl_seat_interface, version);
     g_hash_table_insert(wayland->seats, seat->seat, seat);
 

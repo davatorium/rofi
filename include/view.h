@@ -162,6 +162,17 @@ void rofi_view_set_selected_line(RofiViewState *state,
  * @returns the selected line or UINT32_MAX if none selected.
  */
 unsigned int rofi_view_get_selected_line(const RofiViewState *state);
+
+/**
+ * @param state The Menu Handle
+ * @param orientation The axis to measure along
+ *
+ * The distance from one list element to the next along the axis.
+ *
+ * @returns the distance in pixels, or 0 if the menu shows no list elements.
+ */
+unsigned int rofi_view_get_element_pitch(const RofiViewState *state,
+                                         RofiOrientation orientation);
 /**
  * @param state The Menu Handle
  *

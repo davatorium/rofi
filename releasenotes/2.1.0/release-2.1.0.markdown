@@ -1,0 +1,129 @@
+# 2.1.0
+
+This release mainly includes small improvements and bug fixes.
+
+Some highlights:
+
+## GIO launch
+
+This version tries to launch a desktop applications using glib's built-in
+launching method. This should improve launching of applications and should
+handle multiple methods transparently.
+
+TODO: actions are currently not correctly handled.
+
+Issue: #2275
+
+## FZF-V2
+
+Milad Alizadeh added an improved of version of the fzf sorting method. This
+should closer match fzf's FuzzyMatchV2 scorer. The sorter is called `fzf-v2`.
+
+## Wayland: click-to-exit
+
+Click-to-exit is finally enabled in Wayland by default.
+Due to the way it is implemented, it has some side-effects in multi-monitor setup: rofi windows will not spill into other screens but be cropped out.
+
+Thanks to @benny-e for helping out with this feature!
+
+## Wayland: improved wayland window mode
+
+Thanks to Lucas Ritzdorf the window mode for wayland has improved to closer
+match the functionality offered by the X11 version. It adds 'accept-custom',
+'window-command' and the 'close-on-delete' option.
+
+## Contributors
+
+Big thanks to everybody contributing to this release.
+
+* SardemFF
+* Lbonn
+* Rasi
+* Zebra2711
+* Tomoron
+* Ruedoux
+* Rokokol
+* Prithveerarya345
+* Nick H
+* MToon
+* Milad Alizadeh
+* Lucas Ritzdorf
+* Killertofus
+* Justin Faber
+* Jakob
+* Istvan Petres
+* Hanssen
+* e-tho
+* Bjoernab
+* Benny
+* Alex190291
+* Ortango
+
+## Changelog
+
+* Fixes of some possible memory bound issues. (#2347)
+* [DRUN] Support GIO launching with desktop file actions.
+* [IconFetcher] Allow fallback icon theme to be set (#2333).
+* [Wayland] Support touch input.
+* Add length tie-breaker for fzf-v2 (#2335)
+* Fix row icons and previews that fail to render (#2323)
+* [Info] Dump used XDG directories in the '-info' command.
+* [Display] Add some checks so we do not resolve NULL ptr. (#2320)
+* [DOC] fix minor spelling typos (defintions, seperated, layed) (#2319)
+* replace malloc and realloc with corresponding glib functions (#2316)
+* Fix null pointer deref and skip misformed entry (#2315)
+* Add fzf-v2 sorting method (#2306)
+* [DOC] Minor spelling fixes (#2311)
+* [DOC] fixing docs typo
+* [Wayland] Fix IME positioning and display refresh
+* [DOC] Describe `{window}` placeholder behavior under Wayland
+* [WaylandWindow] Map ext to wlr toplevels; support window-command
+* [WaylandWindow] Add protocol skeleton for ext-foreign-toplevel-list-v1
+* [WaylandWindow] Rename wlr toplevel stuff in prep for ext toplevel
+* [DOC] Update keybind descriptions for window, windowcd modes
+* [WaylandWindow] Support accept-custom action to run entered commands
+* [WaylandWindow] Honor window.close-on-delete config option
+* [Listview] Remove weird x-offset (#2301)
+* [Wayland] fix: sigbus with shm file (#2292)
+* [Theme] Try to detect recursive importing and skip file (#2294)
+* [rofi] Print warning messages using g_warning
+* [DOC] Clarify that -show-icons applies to default theme.
+* [Combi] makes combi compatible with `mode_preprocess_input` (#2288)
+* Add transparent theme  (#2115)
+* [Icon] Fix drawing size of icon.
+* [DRUN] Change dbus to gio launch (#2275)
+* [Wayland] Add click-to-exit
+* [Wayland] Fix memory leak buffer pools
+* [doc] Indicate smart-case is disabled by default.
+* Add right-click cancel binding (#2244)
+* [SSH] Updates to the SSH mode history saving/restoring (#2253)
+* [DOC] fixup! use 'match:namespace' instead of 'match:class' for layerrules (#2251)
+* [Script] Add extra checks for safety
+* [xrmoptions] Re-structure struct to have less padding
+* [XCB] Remove unreachable code.
+* [Theme] Remove unreachable code.
+* [ROFI] Put a (very high) limit on read from stdin
+* [History] Check for buffer, not buffer_length
+* [DRUN] Do some extra boundary checking.
+* [SSH] Don't make new entries for aliases, put them on a single line. (#2240)
+* [Help] Indicate that a plugin is 'external' in overview.
+* Fix global_kb option description
+* [Test] Add explicit rounding, making it behave same on 64/32
+* [Doc] Clarify 'tokenize' option. (#2218)
+* [Script] fix missing and wrong free
+* [Helper] do NULL check on rofi_expand_path
+* [filebrowser] sort based on natural ordering (#2201)
+* [Script] add switch-mode option to the script mode (#2196)
+* [Dmenu][Script] Add support for fallback icons (#2122)
+* [XCB] Re-add signals for substructure notifications (#2194)
+* [icon] Allow icons to be greyscaled and tinted with color (#2193, #2175)
+* [dmenu] Fix async mode for multi-select (#2191)
+* [Textbox] Add transpose keybinding (#2189)
+* [Wayland] Request utf-8 charset on paste (#2190)
+* [Wayland] wayland layer config option
+* [Wayland] enables input method support for Rofi under Wayland.
+* [View] Fix constness of rofi_view_handle_text.
+* [script]: `ROFI_INPUT` for custom scripts to read the user input (#2187)
+* [drun]: history not recorded for dbus-launched entries.
+* [recursivebrowser] Add check for visited directory (#2181)
+* Fixed -transient-window (#2178)

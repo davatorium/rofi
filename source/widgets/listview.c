@@ -497,7 +497,6 @@ static void listview_draw(widget *wid, cairo_t *draw) {
         int diff = d / (lv->cur_columns - 1);
         if (diff >= 1) {
           spacing_hori += 1;
-          d -= lv->cur_columns - 1;
         }
       }
       for (unsigned int i = 0; i < max; i++) {
@@ -512,16 +511,9 @@ static void listview_draw(widget *wid, cairo_t *draw) {
                       (lv->element_height + spacing_vert)) -
                  lv->element_height;
 
-            if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
-              ex += d;
-            }
           } else {
             ey = top_offset +
                  ((i) / lv->cur_columns) * (lv->element_height + spacing_vert);
-
-            if ((i) / lv->cur_columns == (lv->cur_columns - 1)) {
-              ex += d;
-            }
           }
           widget_move(WIDGET(lv->boxes[i].box), ex, ey);
           widget_resize(WIDGET(lv->boxes[i].box), element_width,
@@ -643,6 +635,19 @@ unsigned int listview_get_selected(listview *lv) {
     return lv->selected;
   }
   return 0;
+}
+
+unsigned int listview_get_element_pitch(listview *lv,
+                                        RofiOrientation orientation) {
+  if (lv == NULL || lv->boxes == NULL || lv->cur_elements == 0) {
+    return 0;
+  }
+  if (orientation == ROFI_ORIENTATION_HORIZONTAL) {
+    return widget_get_width(WIDGET(lv->boxes[0].box)) +
+           distance_get_pixel(lv->spacing, ROFI_ORIENTATION_HORIZONTAL);
+  }
+  return lv->element_height +
+         distance_get_pixel(lv->spacing, ROFI_ORIENTATION_VERTICAL);
 }
 
 void listview_set_selected(listview *lv, unsigned int selected) {
@@ -797,7 +802,9 @@ listview *listview_create(widget *parent, const char *name,
   lv->widget.find_mouse_target = listview_find_mouse_target;
   lv->widget.trigger_action = listview_trigger_action;
   lv->widget.get_desired_height = listview_get_desired_height;
-  lv->eh = eh;
+  // Maximum of 128 'line height'. To stop passing huge numbers, causing large
+  // stack size.
+  lv->eh = MIN(eh, 128);
 
   lv->emode = PANGO_ELLIPSIZE_END;
   lv->scrollbar = scrollbar_create(WIDGET(lv), "scrollbar");

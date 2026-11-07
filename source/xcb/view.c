@@ -438,6 +438,10 @@ static void xcb_rofi_view_ping_mouse(RofiViewState *state) {
 static gboolean xcb_rofi_view_reload_idle(G_GNUC_UNUSED gpointer data) {
   RofiViewState *state = rofi_view_get_active();
 
+  /* Clear before redrawing: a reload signalled during the pass would
+   * otherwise coalesce into it and be lost. */
+  XcbState.idle_timeout = 0;
+
   if (state) {
     // For UI update on this.
     if (state->tb_total_rows) {
@@ -449,7 +453,6 @@ static gboolean xcb_rofi_view_reload_idle(G_GNUC_UNUSED gpointer data) {
     state->refilter = TRUE;
     xcb_rofi_view_queue_redraw();
   }
-  XcbState.idle_timeout = 0;
   return G_SOURCE_REMOVE;
 }
 

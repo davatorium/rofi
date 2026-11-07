@@ -28,6 +28,8 @@ body:
         [here](https://github.com/DaveDavenport/rofi/wiki/Wayland) for more
         information.**
 
+        This report needs to be written in English.
+
   - type: input
     attributes:
       label: "Rofi version (rofi -v)"

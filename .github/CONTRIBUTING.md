@@ -60,6 +60,8 @@ Please create a new issue, if it is similar it will be marked duplicate.
 
 # Creating a feature request
 
+Please write your feature request in clear English.
+
 Before creating a feature request:
 
 * First check the *next* branch, to see if the feature has already been
