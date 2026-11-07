@@ -22,6 +22,7 @@
  *   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "helper.h"
 #define G_LOG_DOMAIN "Wayland"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -1184,29 +1185,38 @@ static gboolean clipboard_read_glib_callback(GIOChannel *channel,
 
   case G_IO_STATUS_NORMAL: {
     info->size += read;
-    info->buffer =
+    char *buffer =
         g_realloc(info->buffer, info->size + CLIPBOARD_READ_INCREMENT);
-    if (!info->buffer) {
+    if (buffer == NULL) {
+
       g_io_channel_shutdown(channel, FALSE, NULL);
       g_io_channel_unref(channel);
+      if (info->buffer) {
+        g_free(info->buffer);
+      }
       close(info->fd);
       g_free(info);
       return FALSE;
     }
+    info->buffer = buffer;
     return TRUE;
   }
 
   default:
     info->buffer[info->size] = '\0';
     if (status == G_IO_STATUS_EOF) {
-      info->callback(info->buffer, info->user_data);
+      char *str = rofi_force_utf8(info->buffer, info->size);
+      info->callback(str, info->user_data);
+      g_free(str);
     } else { // G_IO_STATUS_ERROR
       g_warning("Could not read data from clipboard");
-      g_free(info->buffer);
     }
     g_io_channel_shutdown(channel, FALSE, NULL);
     g_io_channel_unref(channel);
     close(info->fd);
+    if (info->buffer != NULL) {
+      g_free(info->buffer);
+    }
     g_free(info);
     return FALSE;
   }

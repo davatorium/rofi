@@ -276,12 +276,8 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
             retv = retvn;
           }
           if (retv) {
-            size_t buf_length = strlen(buffer) + 1;
-#if GLIB_CHECK_VERSION(2, 68, 0)
-            retv[(*length)].entry = g_memdup2(buffer, buf_length);
-#else
-            retv[(*length)].entry = g_memdup(buffer, buf_length);
-#endif
+            size_t buf_length = strlen(buffer);
+            retv[(*length)].entry = rofi_force_utf8(buffer, buf_length);
             retv[(*length)].icon_name = NULL;
             retv[(*length)].display = NULL;
             retv[(*length)].meta = NULL;
@@ -296,6 +292,9 @@ static DmenuScriptEntry *execute_executor(Mode *sw, char *arg,
             retv[(*length)].icon_fallback_index = 0;
             retv[(*length)].nonselectable = FALSE;
             retv[(*length)].permanent = FALSE;
+
+            // Skip the '\0'
+            buf_length++;
             if (buf_length > 0 && (read_length > (ssize_t)buf_length)) {
               dmenuscript_parse_entry_extras(sw, &(retv[(*length)]),
                                              buffer + buf_length,

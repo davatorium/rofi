@@ -799,7 +799,9 @@ listview *listview_create(widget *parent, const char *name,
   lv->widget.find_mouse_target = listview_find_mouse_target;
   lv->widget.trigger_action = listview_trigger_action;
   lv->widget.get_desired_height = listview_get_desired_height;
-  lv->eh = eh;
+  // Maximum of 128 'line height'. To stop passing huge numbers, causing large
+  // stack size.
+  lv->eh = MIN(eh, 128);
 
   lv->emode = PANGO_ELLIPSIZE_END;
   lv->scrollbar = scrollbar_create(WIDGET(lv), "scrollbar");

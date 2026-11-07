@@ -1027,14 +1027,13 @@ static void rofi_view_input_changed(void) {
 }
 
 #ifdef ENABLE_WAYLAND
-static void rofi_view_clipboard_callback(char *clipboard_data,
+static void rofi_view_clipboard_callback(const char *clipboard_data,
                                          G_GNUC_UNUSED void *user_data) {
   RofiViewState *state = rofi_view_get_active();
   if (clipboard_data != NULL) {
     if (state != NULL) {
       rofi_view_handle_text(state, clipboard_data);
     }
-    g_free(clipboard_data);
   }
 }
 #endif
@@ -2060,10 +2059,9 @@ void rofi_view_workers_initialize(void) {
   if (config.threads == 0) {
     config.threads = 1;
     long procs = sysconf(_SC_NPROCESSORS_CONF);
-    if (procs > 0) {
-      config.threads = MIN(procs, 128l);
-    }
+    config.threads = procs;
   }
+  config.threads = MIN(config.threads, 128l);
   // Create thread pool
   GError *error = NULL;
   tpool = g_thread_pool_new_full(rofi_view_call_thread, NULL,
