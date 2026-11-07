@@ -14,7 +14,6 @@ TODO: actions are currently not correctly handled.
 
 Issue: #2275
 
-
 ## FZF-V2
 
 Milad Alizadeh added an improved of version of the fzf sorting method. This
@@ -33,35 +32,36 @@ Thanks to Lucas Ritzdorf the window mode for wayland has improved to closer
 match the functionality offered by the X11 version. It adds 'accept-custom',
 'window-command' and the 'close-on-delete' option.
 
-
 ## Contributors
 
 Big thanks to everybody contributing to this release.
 
- * SardemFF
- * Lbonn
- * Rasi
- * Zebra2711
- * Tomoron
- * Ruedoux
- * Rokokol
- * Prithveerarya345
- * Nick H
- * MToon
- * Milad Alizadeh
- * Lucas Ritzdorf
- * Killertofus
- * Justin Faber
- * Jakob
- * Istvan Petres
- * Hanssen
- * e-tho
- * Bjoernab
- * Benny
- * Alex190291
+* SardemFF
+* Lbonn
+* Rasi
+* Zebra2711
+* Tomoron
+* Ruedoux
+* Rokokol
+* Prithveerarya345
+* Nick H
+* MToon
+* Milad Alizadeh
+* Lucas Ritzdorf
+* Killertofus
+* Justin Faber
+* Jakob
+* Istvan Petres
+* Hanssen
+* e-tho
+* Bjoernab
+* Benny
+* Alex190291
+* Ortango
 
 ## Changelog
 
+* Fixes of some possible memory bound issues. (#2347)
 * [DRUN] Support GIO launching with desktop file actions.
 * [IconFetcher] Allow fallback icon theme to be set (#2333).
 * [Wayland] Support touch input.
