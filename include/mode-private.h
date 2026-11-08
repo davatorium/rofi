@@ -72,16 +72,13 @@ typedef char *(*_mode_get_display_value)(const Mode *sw,
 /**
  * @param sw The #Mode pointer
  * @param selected_line The selected line
- * @param height The height of the icon
  *
  * Obtains the icon if available
  *
- * @return Get the icon
+ * @return Get an array of icon names
  */
-typedef cairo_surface_t *(*_mode_get_icon)(const Mode *sw,
-                                           unsigned int selected_line,
-                                           unsigned int height);
-
+typedef char **(*_mode_get_icon_names)(const Mode *sw,
+                                       unsigned int selected_line);
 /**
  * @param sw The #Mode pointer
  * @param selected_line The selected line
@@ -215,7 +212,7 @@ struct rofi_mode {
   /** Get the string to display for the entry. */
   _mode_get_display_value _get_display_value;
   /** Get the icon for the entry. */
-  _mode_get_icon _get_icon;
+  _mode_get_icon_names _get_icon_names;
   /** Get the 'completed' entry. */
   _mode_get_completion _get_completion;
 
@@ -249,12 +246,11 @@ struct rofi_mode {
   /** Module */
   GModule *module;
 
-  /** Fallack icon.*/
-  uint32_t fallback_icon_fetch_uid;
-  uint32_t fallback_icon_not_found;
-
   /** type */
   ModeType type;
+
+  /** fallback icon */
+  const char *fallback_icon;
 };
 G_END_DECLS
 #endif // ROFI_MODE_PRIVATE_H

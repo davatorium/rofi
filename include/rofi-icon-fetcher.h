@@ -4,6 +4,7 @@
 #include <cairo.h>
 #include <glib.h>
 #include <stdint.h>
+#include <widgets/widget.h>
 
 /**
  * @defgroup ICONFETCHER IconFetcher
@@ -25,22 +26,9 @@ void rofi_icon_fetcher_destroy(void);
 
 /**
  * @param name The name of the icon to fetch.
- * @param size The size of the icon to fetch.
- *
- * Query the icon-theme for icon with name and size.
- * The returned icon will be the best match for the requested size, it should
- * still be resized to the actual size.
- *
- * name can also be a full path, if prefixed with file://.
- *
- * @returns the uid identifying the request.
- */
-uint32_t rofi_icon_fetcher_query(const char *name, const int size);
-
-/**
- * @param name The name of the icon to fetch.
  * @param wsize The width of the icon to fetch.
  * @param hsize The height of the icon to fetch.
+ * @param widget The widget to update.
  *
  * Query the icon-theme for icon with name and size.
  * The returned icon will be the best match for the requested size, it should
@@ -51,9 +39,8 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size);
  *
  * @returns the uid identifying the request.
  */
-uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
-                                          const int hsize);
-
+uint32_t rofi_icon_fetcher_query(const char *name, const int wsize,
+                                 const int hsize, widget *widget);
 /**
  * @param uid The unique id representing the matching request.
  *
@@ -81,5 +68,13 @@ gboolean rofi_icon_fetcher_get_ex(const uint32_t uid,
  * @returns true if image, false otherwise.
  */
 gboolean rofi_icon_fetcher_file_is_image(const char *const path);
+
+/**
+ * @param uid The unique id representing the query.
+ * @param wid The widget to remove from the notification list
+ *
+ * Removes `wid` from the notification list for the request: `uid`.
+ */
+void rofi_icon_fetcher_remove_widget(const uint32_t uid, widget *wid);
 /** @} */
 #endif // ROFI_ICON_FETCHER_H

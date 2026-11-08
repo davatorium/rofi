@@ -441,9 +441,11 @@ static void int_rofi_theme_print_property(Property *p) {
     }
     break;
   }
-  case P_STRING:
-    printf("\"%s\"", p->value.s);
+  case P_STRING: {
+    char *str = g_strescape(p->value.s, NULL);
+    printf("\"%s\"", str);
     break;
+  }
   case P_INTEGER:
     printf("%d", p->value.i);
     break;
@@ -1104,8 +1106,16 @@ static gboolean rofi_theme_get_image_inside(Property *p, const widget *wid,
       }
       // FIXME: cache when hsize, wsize and scale do not change without
       // modifying RofiImage (for ABI compatibility)
-      p->value.image.surface_id =
-          rofi_icon_fetcher_query_advanced(p->value.image.url, wsize, hsize);
+      if (p->value.image.surface_wsize != wsize ||
+          p->value.image.surface_hsize != hsize ||
+          p->value.image.surface_scale != scale) {
+
+        p->value.image.surface_id =
+            rofi_icon_fetcher_query(p->value.image.url, wsize, hsize, NULL);
+        p->value.image.surface_wsize = wsize;
+        p->value.image.surface_hsize = hsize;
+        p->value.image.surface_scale = scale;
+      }
       cairo_surface_t *img = rofi_icon_fetcher_get(p->value.image.surface_id);
 
       if (img != NULL) {

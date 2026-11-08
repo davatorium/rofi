@@ -198,6 +198,9 @@ typedef struct {
 
   /** cached image */
   uint32_t surface_id;
+  int surface_wsize;
+  int surface_hsize;
+  unsigned int surface_scale;
 
 } RofiImage;
 

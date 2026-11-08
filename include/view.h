@@ -292,6 +292,16 @@ void rofi_view_hide(void);
 void rofi_view_reload(void);
 
 /**
+ * @param widget The widget that needs to be reloaded.
+ *
+ * Indicate the current view needs to reload its data.
+ * This can only be done when *more* information is available.
+ *
+ * The reloading happens 'lazy', multiple calls might be handled at once.
+ */
+void rofi_view_reload_widget(widget *widget);
+
+/**
  * @param state The handle to the view
  * @param mode The new mode to display
  *

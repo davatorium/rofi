@@ -58,8 +58,7 @@
 static int dmenu_mode_init(Mode *sw);
 static int dmenu_token_match(const Mode *sw, rofi_int_matcher **tokens,
                              unsigned int index);
-static cairo_surface_t *
-dmenu_get_icon(const Mode *sw, unsigned int selected_line, unsigned int height);
+static char **dmenu_get_icon_names(const Mode *sw, unsigned int selected_line);
 static char *dmenu_get_message(const Mode *sw);
 
 static inline unsigned int bitget(uint32_t const *const array,
@@ -134,10 +133,6 @@ static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
   }
   gsize data_len = len;
   // Init.
-  (*block)->values[(*block)->length].icon_fetch_uid = 0;
-  (*block)->values[(*block)->length].icon_fetch_size = 0;
-  (*block)->values[(*block)->length].icon_fetch_scale = 0;
-  (*block)->values[(*block)->length].icon_fallback_index = 0;
   (*block)->values[(*block)->length].icon_name = NULL;
   (*block)->values[(*block)->length].meta = NULL;
   (*block)->values[(*block)->length].info = NULL;
@@ -154,6 +149,7 @@ static void read_add_block(DmenuModePrivateData *pd, Block **block, char *data,
   }
   char *utfstr = rofi_force_utf8(data, data_len);
   (*block)->values[(*block)->length].entry = utfstr;
+  (*block)->values[(*block)->length + 1].entry = NULL;
 
   (*block)->length++;
 }
@@ -166,10 +162,6 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
                                                sizeof(DmenuScriptEntry));
   }
   // Init.
-  pd->cmd_list[pd->cmd_list_length].icon_fetch_uid = 0;
-  pd->cmd_list[pd->cmd_list_length].icon_fetch_size = 0;
-  pd->cmd_list[pd->cmd_list_length].icon_fetch_scale = 0;
-  pd->cmd_list[pd->cmd_list_length].icon_fallback_index = 0;
   pd->cmd_list[pd->cmd_list_length].icon_name = NULL;
   pd->cmd_list[pd->cmd_list_length].display = NULL;
   pd->cmd_list[pd->cmd_list_length].meta = NULL;
@@ -516,7 +508,7 @@ Mode dmenu_mode = {.name = "dmenu",
                    ._destroy = dmenu_mode_free,
                    ._token_match = dmenu_token_match,
                    ._get_display_value = get_display_data,
-                   ._get_icon = dmenu_get_icon,
+                   ._get_icon_names = dmenu_get_icon_names,
                    ._get_completion = dmenu_get_completion_data,
                    ._preprocess_input = NULL,
                    ._get_message = dmenu_get_message,
@@ -716,55 +708,13 @@ static char *dmenu_get_message(const Mode *sw) {
   }
   return NULL;
 }
-static cairo_surface_t *dmenu_get_icon(const Mode *sw,
-                                       unsigned int selected_line,
-                                       unsigned int height) {
+
+static char **dmenu_get_icon_names(const Mode *sw, unsigned int selected_line) {
   DmenuModePrivateData *pd = (DmenuModePrivateData *)mode_get_private_data(sw);
-  const guint scale = display_scale();
 
   g_return_val_if_fail(pd->cmd_list != NULL, NULL);
   DmenuScriptEntry *dr = &(pd->cmd_list[selected_line]);
-  if (dr->icon_name == NULL) {
-    return NULL;
-  }
-
-  /* A row icon and icon-current-entry ask for the same entry at different
-   * sizes; one cached uid cannot serve both. */
-  cairo_surface_t *surface = NULL;
-  if (dr->icon_fetch_uid > 0 && dr->icon_fetch_size == height &&
-      dr->icon_fetch_scale == scale) {
-    gboolean query_done =
-        rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
-
-    if (surface != NULL) {
-      return surface;
-    } else if (query_done) {
-      dr->icon_fallback_index++;
-      dr->icon_fetch_uid = 0;
-    } else {
-      return NULL;
-    }
-  }
-
-  char *current_icon = NULL;
-  if (dr->icon_name && dr->icon_fallback_index >= 0) {
-    int icon_count = g_strv_length(dr->icon_name);
-    if (dr->icon_fallback_index < icon_count) {
-      current_icon = dr->icon_name[dr->icon_fallback_index];
-    }
-  }
-  if (current_icon) {
-    dr->icon_fetch_uid = rofi_icon_fetcher_query(current_icon, height);
-    dr->icon_fetch_size = height;
-    dr->icon_fetch_scale = scale;
-    /* The sizes alternate, so returning NULL would blank the icon on every
-     * frame, not just the first. */
-    rofi_icon_fetcher_get_ex(dr->icon_fetch_uid, &surface);
-    return surface;
-  }
-
-  dr->icon_fetch_uid = 0;
-  return NULL;
+  return g_strdupv(dr->icon_name);
 }
 
 static void dmenu_finish(DmenuModePrivateData *pd, RofiViewState *state,
@@ -838,7 +788,7 @@ static void dmenu_finalize(RofiViewState *state) {
 
   char *input = g_strdup(rofi_view_get_user_input(state));
   pd->selected_line = rofi_view_get_selected_line(state);
-  ;
+
   MenuReturn mretv = rofi_view_get_return_value(state);
   unsigned int next_pos = rofi_view_get_next_position(state);
   int restart = 0;

@@ -249,7 +249,8 @@ static void wayland_rofi_view_window_update_size(RofiViewState *state) {
   int offset_x = rofi_get_offset_px(state, ROFI_ORIENTATION_HORIZONTAL);
   int offset_y = rofi_get_offset_px(state, ROFI_ORIENTATION_VERTICAL);
 
-  widget_resize(WIDGET(state->main_window), state->width, state->height);
+  guint scale = display_scale();
+  widget_resize(WIDGET(state->main_window), state->width, state->height, scale);
 
   WlState.menu_width = state->width;
   WlState.menu_height = state->height;
@@ -442,7 +443,7 @@ static void wayland_rofi_view_update(RofiViewState *state, gboolean qr) {
   cairo_set_operator(d, CAIRO_OPERATOR_SOURCE);
 
   // Paint the background transparent.
-  cairo_set_source_rgba(d, 0, 0, 0, 0);
+  cairo_set_source_rgba(d, 0, 0, 0, 0.0);
   guint scale = display_scale();
   cairo_surface_set_device_scale(surface, scale, scale);
   cairo_paint(d);
@@ -470,6 +471,13 @@ static void wayland_rofi_view_update(RofiViewState *state, gboolean qr) {
     wayland_rofi_view_queue_redraw();
   }
 }
+
+/**
+ * @param state The Menu Handle
+ *
+ * Check if a finalize function is set, and if sets executes it.
+ */
+void process_result(RofiViewState *state);
 
 static void wayland_rofi_view_frame_callback(void) {
   if (WlState.repaint_source == 0) {

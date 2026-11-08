@@ -39,7 +39,6 @@
 #define DEFAULT_SCROLLBAR_WIDTH 8
 
 static void scrollbar_draw(widget *, cairo_t *);
-static void scrollbar_free(widget *);
 
 static int scrollbar_get_desired_height(widget *wid,
                                         G_GNUC_UNUSED const int width) {
@@ -102,7 +101,7 @@ static gboolean scrollbar_motion_notify(widget *wid, G_GNUC_UNUSED gint x,
 }
 
 scrollbar *scrollbar_create(widget *parent, const char *name) {
-  scrollbar *sb = g_malloc0(sizeof(scrollbar));
+  scrollbar *sb = g_atomic_rc_box_new0(scrollbar);
   widget_init(WIDGET(sb), parent, WIDGET_TYPE_SCROLLBAR, name);
   sb->widget.x = 0;
   sb->widget.y = 0;
@@ -113,7 +112,6 @@ scrollbar *scrollbar_create(widget *parent, const char *name) {
   sb->widget.h = widget_padding_get_padding_height(WIDGET(sb));
 
   sb->widget.draw = scrollbar_draw;
-  sb->widget.free = scrollbar_free;
   sb->widget.trigger_action = scrollbar_trigger_action;
   sb->widget.motion_notify = scrollbar_motion_notify;
   sb->widget.get_desired_height = scrollbar_get_desired_height;
@@ -123,11 +121,6 @@ scrollbar *scrollbar_create(widget *parent, const char *name) {
   sb->pos_length = 4;
 
   return sb;
-}
-
-static void scrollbar_free(widget *wid) {
-  scrollbar *sb = (scrollbar *)wid;
-  g_free(sb);
 }
 
 void scrollbar_set_max_value(scrollbar *sb, unsigned int max) {

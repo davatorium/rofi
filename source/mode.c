@@ -55,9 +55,16 @@ int mode_init(Mode *mode) {
           mode->name);
     }
   }
-  // to make sure this is initialized correctly.
-  mode->fallback_icon_fetch_uid = 0;
-  mode->fallback_icon_not_found = FALSE;
+  mode->fallback_icon = NULL;
+  ThemeWidget *wid = rofi_config_find_widget(mode->name, NULL, TRUE);
+  if (wid) {
+    /** Load user entries */
+    Property *p =
+        rofi_theme_find_property(wid, P_STRING, "fallback-icon", TRUE);
+    if (p != NULL && (p->type == P_STRING && p->value.s)) {
+      mode->fallback_icon = p->value.s;
+    }
+  }
   return mode->_init(mode);
 }
 
@@ -84,38 +91,25 @@ char *mode_get_display_value(const Mode *mode, unsigned int selected_line,
                                   get_entry);
 }
 
-cairo_surface_t *mode_get_icon(Mode *mode, unsigned int selected_line,
-                               unsigned int height) {
+char **mode_get_icon_names(Mode *mode, unsigned int selected_line) {
   g_assert(mode != NULL);
+  char **retv = NULL;
 
-  if (mode->_get_icon != NULL) {
-    cairo_surface_t *icon = mode->_get_icon(mode, selected_line, height);
-    if (icon) {
-      return icon;
+  if (mode->_get_icon_names != NULL) {
+    retv = mode->_get_icon_names(mode, selected_line);
+  }
+  if (mode->fallback_icon) {
+    if (retv == NULL) {
+      retv = g_malloc0(2 * sizeof(char *));
+      retv[0] = g_strdup(mode->fallback_icon);
+    } else {
+      guint l = g_strv_length(retv);
+      retv = g_realloc(retv, (l + 2) * sizeof(char *));
+      retv[l] = g_strdup(mode->fallback_icon);
+      retv[l + 1] = NULL;
     }
   }
-
-  if (mode->fallback_icon_not_found == TRUE) {
-    return NULL;
-  }
-  if (mode->fallback_icon_fetch_uid > 0) {
-    cairo_surface_t *icon =
-        rofi_icon_fetcher_get(mode->fallback_icon_fetch_uid);
-    return icon;
-  }
-  ThemeWidget *wid = rofi_config_find_widget(mode->name, NULL, TRUE);
-  if (wid) {
-    /** Load user entires */
-    Property *p =
-        rofi_theme_find_property(wid, P_STRING, "fallback-icon", TRUE);
-    if (p != NULL && (p->type == P_STRING && p->value.s)) {
-      mode->fallback_icon_fetch_uid =
-          rofi_icon_fetcher_query(p->value.s, height);
-      return NULL;
-    }
-  }
-  mode->fallback_icon_not_found = TRUE;
-  return NULL;
+  return retv;
 }
 
 char *mode_get_completion(const Mode *mode, unsigned int selected_line) {
@@ -250,10 +244,6 @@ gboolean mode_is_completer(const Mode *mode) {
   return FALSE;
 }
 
-void mode_plugin_set_module(Mode *mode, GModule *mod){
-  mode->module = mod;
-}
-GModule *mode_plugin_get_module(Mode *mode){
-  return mode->module;
-}
+void mode_plugin_set_module(Mode *mode, GModule *mod) { mode->module = mod; }
+GModule *mode_plugin_get_module(Mode *mode) { return mode->module; }
 /**@}*/

@@ -73,7 +73,8 @@ listview {
 
 
 element {
-    border:  0;
+  border:       5px;
+  border-color: transparent;
     padding:      10px;
     font:         "Mono 8";
     orientation: vertical;

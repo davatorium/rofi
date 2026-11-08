@@ -62,7 +62,6 @@ static void container_free(widget *wid) {
   container *b = (container *)wid;
 
   widget_free(b->child);
-  g_free(b);
 }
 
 void container_add(container *cont, widget *child) {
@@ -74,11 +73,12 @@ void container_add(container *cont, widget *child) {
   widget_update(WIDGET(cont));
 }
 
-static void container_resize(widget *wid, short w, short h) {
+static void container_resize(widget *wid, const short w, const short h, const unsigned int scale) {
   container *b = (container *)wid;
   if (b->widget.w != w || b->widget.h != h) {
     b->widget.w = w;
     b->widget.h = h;
+    b->widget.scale = scale;
     widget_update(wid);
   }
 }
@@ -101,7 +101,7 @@ static void container_set_state(widget *wid, const char *state) {
 }
 
 container *container_create(widget *parent, const char *name) {
-  container *b = g_malloc0(sizeof(container));
+  container *b = g_atomic_rc_box_new0(container);
   // Initialize widget.
   widget_init(WIDGET(b), parent, WIDGET_TYPE_UNKNOWN, name);
   b->widget.draw = container_draw;
@@ -119,7 +119,8 @@ static void container_update(widget *wid) {
   if (b->child && b->child->enabled) {
     widget_resize(WIDGET(b->child),
                   widget_padding_get_remaining_width(WIDGET(b)),
-                  widget_padding_get_remaining_height(WIDGET(b)));
+                  widget_padding_get_remaining_height(WIDGET(b)),
+                  wid->scale);
     widget_move(WIDGET(b->child), widget_padding_get_left(WIDGET(b)),
                 widget_padding_get_top(WIDGET(b)));
   }
