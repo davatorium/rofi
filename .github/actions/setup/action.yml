@@ -42,7 +42,8 @@ runs:
           xdotool \
           xfonts-base \
           xterm \
-          xutils-dev
+          xutils-dev\
+          check
       shell: bash
     - id: doxy
       run: git clone https://github.com/davatorium/doxy-coverage
@@ -68,13 +69,4 @@ runs:
           libxcb-xrm-dev \
           libxcb-cursor-dev \
           libxcb-imdkit-dev
-      shell: bash
-    - id: check
-      run: |
-        curl -L https://github.com/libcheck/check/releases/download/0.15.2/check-0.15.2.tar.gz | tar xzf -
-        cd check-0.15.2
-        ./configure
-        make
-        sudo make install
-        sudo ldconfig
       shell: bash
