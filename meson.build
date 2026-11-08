@@ -165,8 +165,10 @@ header_conf.set('GLIB_VERSION_MIN_REQUIRED', '(G_ENCODE_VERSION(@0@,@1@))'.forma
 header_conf.set('GLIB_VERSION_MAX_ALLOWED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
 
 header_conf.set('ENABLE_DRUN', get_option('drun'))
-header_conf.set('HAVE_GDESKTOPAPPINFO_H',
-    c_compiler.has_header('gio/gdesktopappinfo.h', dependencies: dep_gio_unix))
+if ( get_option('giolaunch') )
+  header_conf.set('HAVE_GDESKTOPAPPINFO_H',
+      c_compiler.has_header('gio/gdesktopappinfo.h', dependencies: dep_gio_unix))
+endif
 header_conf.set('WINDOW_MODE', get_option('window'))
 
 header_conf.set('ENABLE_WAYLAND', wayland_enabled)
