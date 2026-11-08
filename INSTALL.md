@@ -46,6 +46,9 @@ or [x11](#disable-x11-support) backend.
   - gmodule-2.0
   - gio-unix-2.0
 
+  If GLib does not provide `GDesktopAppInfo` (for example, with its macOS
+  Cocoa backend), drun uses its command-execution launcher instead.
+
 - libgdk-pixbuf-2.0
 
 - libstartup-notification-1.0

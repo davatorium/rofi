@@ -61,7 +61,9 @@
 
 #include "rofi-icon-fetcher.h"
 
-#include <gio-unix-2.0/gio/gdesktopappinfo.h>
+#ifdef HAVE_GDESKTOPAPPINFO_H
+#include <gio/gdesktopappinfo.h>
+#endif
 
 /** The filename of the history cache file. */
 #define DRUN_CACHE_FILE "rofi3.druncache"
@@ -421,6 +423,7 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
 
   gboolean launched = FALSE;
 
+#ifdef HAVE_GDESKTOPAPPINFO_H
   if (pd->disable_giolaunch == FALSE) {
     GDesktopAppInfo *gdai = g_desktop_app_info_new_from_keyfile(e->key_file);
 
@@ -450,6 +453,7 @@ static void exec_cmd_entry(DRunModePrivateData *pd, DRunModeEntry *e,
       g_warning("Failed to create GDesktopAppInfo for: %s", e->path);
     }
   }
+#endif
 
   if (launched == FALSE) {
     gchar **envp = g_get_environ();

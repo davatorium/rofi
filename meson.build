@@ -55,10 +55,11 @@ plugins_deps = [
 ]
 
 dep_lm = c_compiler.find_library('m', required : false)
+dep_gio_unix = dependency('gio-unix-2.0')
 
 deps = [
     plugins_deps,
-    dependency('gio-unix-2.0'),
+    dep_gio_unix,
     dependency('pango'),
     dependency('pangocairo'),
     dependency('xkbcommon'),
@@ -164,6 +165,8 @@ header_conf.set('GLIB_VERSION_MIN_REQUIRED', '(G_ENCODE_VERSION(@0@,@1@))'.forma
 header_conf.set('GLIB_VERSION_MAX_ALLOWED', '(G_ENCODE_VERSION(@0@,@1@))'.format(glib_min_major, glib_min_minor))
 
 header_conf.set('ENABLE_DRUN', get_option('drun'))
+header_conf.set('HAVE_GDESKTOPAPPINFO_H',
+    c_compiler.has_header('gio/gdesktopappinfo.h', dependencies: dep_gio_unix))
 header_conf.set('WINDOW_MODE', get_option('window'))
 
 header_conf.set('ENABLE_WAYLAND', wayland_enabled)
