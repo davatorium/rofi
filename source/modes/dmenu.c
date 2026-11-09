@@ -177,6 +177,7 @@ static void read_add(DmenuModePrivateData *pd, char *data, gsize len) {
   pd->cmd_list[pd->cmd_list_length].active = FALSE;
   pd->cmd_list[pd->cmd_list_length].urgent = FALSE;
   pd->cmd_list[pd->cmd_list_length].nonselectable = FALSE;
+  pd->cmd_list[pd->cmd_list_length].permanent = FALSE;
   char *end = data;
   while (end < data + len && *end != '\0') {
     end++;
