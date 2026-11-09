@@ -68,6 +68,7 @@
 #include "view.h"
 
 #include "rofi-icon-fetcher.h"
+#include "rofi-rust.h"
 #include "theme.h"
 
 #include "timings.h"
@@ -441,6 +442,13 @@ static void help(G_GNUC_UNUSED int argc, char **argv, const gboolean compact) {
          color_reset_str);
 #else
   printf("\t• asan    %sdisabled%s\n", is_term ? color_red : "",
+         color_reset_str);
+#endif
+#ifdef ENABLE_RUST
+  printf("\t• rust    %senabled%s (%s)\n", is_term ? color_green : "",
+         color_reset_str, rofi_rust_version());
+#else
+  printf("\t• rust    %sdisabled%s\n", is_term ? color_red : "",
          color_reset_str);
 #endif
 #ifdef XCB_IMDKIT

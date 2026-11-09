@@ -5,3 +5,4 @@ option('check', type: 'feature', description: 'Build and run libcheck-based test
 option('imdkit', type: 'boolean', value: true, description: 'IMDKit support')
 option('wayland', type: 'feature', value: 'auto', description: 'Build with wayland support')
 option('xcb', type: 'feature', value: 'auto', description: 'Build with X11/xcb support')
+option('rust', type: 'feature', value: 'auto', description: 'Build and link Rust components (requires rustc)')

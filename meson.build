@@ -4,11 +4,27 @@ project('rofi', 'c',
     license: [ 'MIT' ],
     default_options: [
         'c_std=c99',
+        'rust_std=2018',
         'warning_level=3'
     ],
 )
 
 c_compiler = meson.get_compiler('c')
+
+##
+# Optional Rust components. Rust is a first-class Meson language: the Rust
+# sources are compiled into a static library and linked into the rofi binary,
+# so the result is still a single executable.
+##
+rust_opt = get_option('rust')
+rust_enabled = false
+if rust_opt.allowed()
+  rustc = find_program('rustc', required: rust_opt.enabled())
+  rust_enabled = rustc.found()
+endif
+if rust_enabled
+  add_languages('rust', required: true, native: false)
+endif
 
 add_project_arguments(
     '-I@0@'.format(meson.project_build_root()),
@@ -173,6 +189,7 @@ header_conf.set('WINDOW_MODE', get_option('window'))
 
 header_conf.set('ENABLE_WAYLAND', wayland_enabled)
 header_conf.set('ENABLE_XCB', xcb_enabled)
+header_conf.set('ENABLE_RUST', rust_enabled)
 
 header_conf.set_quoted('MANPAGE_PATH', join_paths(get_option('prefix'), get_option('mandir')))
 header_conf.set_quoted('SYSCONFDIR', join_paths(get_option('prefix'), get_option('sysconfdir')))
@@ -278,6 +295,7 @@ rofi_sources = files(
         'include/history.h',
         'include/theme.h',
         'include/rofi-types.h',
+        'include/rofi-rust.h',
         'include/css-colors.h',
         'include/widgets/box.h',
         'include/widgets/icon.h',
@@ -369,12 +387,36 @@ endif
 gnome = import('gnome')
 default_theme = gnome.compile_resources('resources', files('resources/resources.xml'))
 
+##
+# Build the Rust static library. `rust_abi: 'c'` selects a C-ABI staticlib on
+# Meson >= 1.3; older supported versions use the equivalent rust_crate_type.
+##
+rofi_link_with = []
+if rust_enabled
+  rust_sources = files(
+      'rust/lib.rs',
+  )
+  if meson.version().version_compare('>=1.3.0')
+    rofi_rust_lib = static_library('rofi_rust', rust_sources,
+        rust_abi: 'c',
+        install: false,
+    )
+  else
+    rofi_rust_lib = static_library('rofi_rust', rust_sources,
+        rust_crate_type: 'staticlib',
+        install: false,
+    )
+  endif
+  rofi_link_with += rofi_rust_lib
+endif
+
 rofi = executable('rofi', rofi_sources + [
         theme_lexer,
         theme_parser,
         default_theme,
     ],
     dependencies: deps,
+    link_with: rofi_link_with,
     install: true,
 )
 

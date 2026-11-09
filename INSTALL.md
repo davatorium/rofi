@@ -28,6 +28,8 @@ or [x11](#disable-x11-support) backend.
 - check (Can be disabled using the `--disable-check` configure flag)
     check is used for build-time tests and does not affect functionality.
 
+- rustc (optional, for components written in Rust; Rust 2018 edition)
+
 - Developer packages of the external libraries
 
 - glib-compile-resources
@@ -165,6 +167,23 @@ meson setup build -Dxcb=disabled
 ```bash
 meson setup build -Dwayland=disabled
 ```
+
+### Rust support
+
+Rust components are compiled with Meson's native Rust support and linked into
+the `rofi` executable as a static library. The default is `-Drust=auto`, which
+enables Rust when `rustc` is available:
+
+```bash
+# Require Rust; configure fails if rustc is missing
+meson setup build -Drust=enabled
+
+# Do not compile any Rust code
+meson setup build -Drust=disabled
+```
+
+Rust code lives in `rust/` and exports a C ABI declared in
+`include/rofi-rust.h`. See `rust/README.md` for details and limitations.
 
 ### Install locally
 
