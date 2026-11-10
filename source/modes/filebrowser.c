@@ -321,6 +321,7 @@ static void get_file_browser(Mode *sw) {
         pd->array[pd->array_length].icon_fetch_uid = 0;
         pd->array[pd->array_length].icon_fetch_size = 0;
         pd->array[pd->array_length].icon_fetch_scale = 0;
+        pd->array[pd->array_length].collate_key = NULL;
         pd->array[pd->array_length].link = TRUE;
         // Default to file.
         pd->array[pd->array_length].type = RFILE;
