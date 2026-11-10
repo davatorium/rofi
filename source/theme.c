@@ -1599,7 +1599,9 @@ void rofi_theme_parse_process_links(void) {
 }
 
 void rofi_theme_parse_process_conditionals(void) {
-  workarea mon;
+  workarea mon = {
+      0,
+  };
   monitor_active(&mon);
   rofi_theme_parse_process_conditionals_int(mon, rofi_theme);
 }

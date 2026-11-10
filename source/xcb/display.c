@@ -929,6 +929,10 @@ static int monitor_active_from_id_focused(int mon_id, workarea *mon) {
   return retv;
 }
 static int monitor_active_from_id(int mon_id, workarea *mon) {
+  if (xcb == NULL || xcb->screen == NULL) {
+    g_warning("XCB structure is uninitialized, monitor info not available.");
+    return FALSE;
+  }
   xcb_window_t root = xcb->screen->root;
   int x, y;
   if (mon == NULL) {
@@ -1313,8 +1317,7 @@ static void main_loop_x11_event_handler_view(xcb_generic_event_t *event) {
           .requestor = req->requestor,
           .selection = req->selection,
           .target = req->target,
-          .property = XCB_ATOM_NONE,
-      };
+          .property = XCB_ATOM_NONE};
       // If no clipboard, we return NONE.
       if (xcb->clipboard) {
         // Request for UTF-8

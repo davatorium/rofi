@@ -297,6 +297,8 @@ static void get_file_browser(Mode *sw) {
         pd->array[pd->array_length].icon_fetch_size = 0;
         pd->array[pd->array_length].icon_fetch_scale = 0;
         pd->array[pd->array_length].link = FALSE;
+        pd->array[pd->array_length].collate_key = NULL;
+        pd->array[pd->array_length].time = -1;
 
         if (file_browser_config.sorting_method == FB_SORT_NAME) {
           set_collate_key(&pd->array[pd->array_length]);
@@ -627,7 +629,7 @@ static cairo_surface_t *_get_icon(const Mode *sw, unsigned int selected_line,
   if (rofi_icon_fetcher_file_is_image(dr->path)) {
     dr->icon_fetch_uid = rofi_icon_fetcher_query(dr->path, height);
   } else if (dr->type == RFILE) {
-    gchar* _path = g_strconcat("thumbnail://", dr->path, NULL);
+    gchar *_path = g_strconcat("thumbnail://", dr->path, NULL);
     dr->icon_fetch_uid = rofi_icon_fetcher_query(_path, height);
     g_free(_path);
   } else {

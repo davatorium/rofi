@@ -105,7 +105,6 @@ typedef enum {
  * Currently the executable and if it should run in terminal.
  */
 typedef struct {
-  DRunModePrivateData *pd;
   /* category */
   char *action;
   /* Root */

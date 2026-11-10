@@ -218,6 +218,7 @@ static RunEntry *get_apps_external(RunEntry *retv, unsigned int *length,
         retv[(*length)].icon = NULL;
         retv[(*length)].icon_fetch_uid = 0;
         retv[(*length)].icon_fetch_size = 0;
+        retv[(*length)].icon_fetch_scale = 0;
 
         (*length)++;
       }
@@ -236,6 +237,7 @@ static RunEntry *get_apps_external(RunEntry *retv, unsigned int *length,
   retv[(*length)].icon = NULL;
   retv[(*length)].icon_fetch_uid = 0;
   retv[(*length)].icon_fetch_size = 0;
+  retv[(*length)].icon_fetch_scale = 0;
   return retv;
 }
 
@@ -357,12 +359,14 @@ static RunEntry *get_apps(unsigned int *length) {
         retv[(*length)].icon = NULL;
         retv[(*length)].icon_fetch_uid = 0;
         retv[(*length)].icon_fetch_size = 0;
+        retv[(*length)].icon_fetch_scale = 0;
         retv[(*length) + 1].entry = NULL;
         retv[(*length) + 1].exec = NULL;
         retv[(*length) + 1].from_history = FALSE;
         retv[(*length) + 1].icon = NULL;
         retv[(*length) + 1].icon_fetch_uid = 0;
         retv[(*length) + 1].icon_fetch_size = 0;
+        retv[(*length) + 1].icon_fetch_scale = 0;
         (*length)++;
       }
 
