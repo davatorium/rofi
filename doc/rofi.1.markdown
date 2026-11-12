@@ -1090,6 +1090,17 @@ configuration {
 }
 ```
 
+
+By default DRUN mode uses GIO for launching applications, this should ensure conformity between rofi's behaviour and launching from f.e. gnome,xfce,etc.
+If launching fails using GIO, or the user disabled this, it falls back to using
+the `run` mode settings for launching applications. This also allows the user to customize the launch process.  It sets the following environment variables when launching:
+
+* DESKTOP_ENTRY_ID
+* DESKTOP_ENTRY_PATH
+* DESKTOP_ENTRY_NAME
+* DESKTOP_ENTRY_NAME_L
+* DESKTOP_ENTRY_GENERICNAME_L
+
 ### ssh
 
 Shows a list of SSH targets based on your `ssh` config file, and allows to
