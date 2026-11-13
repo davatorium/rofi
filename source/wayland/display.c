@@ -22,7 +22,6 @@
  *   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "helper.h"
 #define G_LOG_DOMAIN "Wayland"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -51,6 +50,7 @@
 
 #include <rofi.h>
 
+#include "helper.h"
 #include "input-codes.h"
 #include "keyb.h"
 #include "rofi-types.h"

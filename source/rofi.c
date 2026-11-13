@@ -27,10 +27,9 @@
  */
 
 /** Log domain */
-#include "glib.h"
+#include "config.h"
 #define G_LOG_DOMAIN "Rofi"
 
-#include "config.h"
 #include <errno.h>
 #include <gmodule.h>
 #include <locale.h>
@@ -43,6 +42,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <glib.h>
 #include <glib-unix.h>
 
 #ifdef USE_NK_GIT_VERSION
@@ -207,7 +207,7 @@ static void run_mode_index(ModeMode mode) {
       g_string_append(str, "\n");
 
       rofi_view_error_dialog(str->str, ERROR_MSG_MARKUP);
-      g_string_free(str, FALSE);
+      g_string_free(str, TRUE);
       break;
     }
   }
