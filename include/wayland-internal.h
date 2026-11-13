@@ -92,6 +92,7 @@ typedef struct {
 
   uint32_t layer_width;
   uint32_t layer_height;
+  gboolean layer_configured;
 
   struct zwp_text_input_manager_v3 *text_input_manager;
 } wayland_stuff;
