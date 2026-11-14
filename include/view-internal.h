@@ -92,6 +92,10 @@ struct RofiViewState {
 
   /** Previously called key action. */
   KeyBindingAction prev_action;
+
+  /** Action that trigger result */
+  KeyBindingAction accept_action;
+
   /** Time previous key action was executed. */
   xcb_timestamp_t last_button_press;
 
