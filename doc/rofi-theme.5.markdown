@@ -1560,7 +1560,7 @@ to the theme designer to make sure the theme handles this correctly.
 
 ## Font Parsing
 
-Rofi uses [pango](https://pango.gnome.org/) for font rendering. The font should
+Rofi uses [pango](https://www.gtk.org/docs/architecture/pango) for font rendering. The font should
 be specified in a format that pango understands. This normally is the font name
 followed by the font size. For example:
 
