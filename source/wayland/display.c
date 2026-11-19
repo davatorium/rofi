@@ -22,7 +22,6 @@
  *   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "helper.h"
 #define G_LOG_DOMAIN "Wayland"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -51,6 +50,7 @@
 
 #include <rofi.h>
 
+#include "helper.h"
 #include "input-codes.h"
 #include "keyb.h"
 #include "rofi-types.h"
@@ -1825,6 +1825,7 @@ static void wayland_layer_shell_surface_configure(
     uint32_t width, uint32_t height) {
   wayland->layer_width = width;
   wayland->layer_height = height;
+  wayland->layer_configured = TRUE;
   zwlr_layer_surface_v1_ack_configure(surface, serial);
 }
 
@@ -2010,8 +2011,18 @@ static gboolean wayland_display_late_setup(void) {
 
   wl_surface_add_listener(wayland->surface, &wayland_surface_interface,
                           wayland);
+  wayland->layer_configured = FALSE;
   wl_surface_commit(wayland->surface);
-  wl_display_roundtrip(wayland->display);
+
+  // The contract is that layer shell configure callback should be called before
+  // we return and the view is started.
+  // As late_setup is assumed to be synchronous, we run the loop until the
+  // condition is reached.
+  while (!wayland->layer_configured) {
+    if (wl_display_dispatch(wayland->display) < 0) {
+      return FALSE;
+    }
+  }
   wayland_frame_callback(wayland, wayland->frame_cb, 0);
 
   return TRUE;

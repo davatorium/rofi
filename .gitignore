@@ -16,3 +16,5 @@ core
 *.*~
 *.unc-backup~
 *.unc-backup.md5~
+
+subprojects/.wraplock

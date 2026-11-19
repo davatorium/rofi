@@ -29,14 +29,7 @@
 #define G_LOG_DOMAIN "View"
 
 #include <config.h>
-#include <errno.h>
-#include <locale.h>
-#include <signal.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include <unistd.h>
 
 #include <cairo.h>
@@ -47,9 +40,7 @@
 
 #include "display.h"
 #include "helper-theme.h"
-#include "helper.h"
 #include "mode.h"
-#include "modes/modes.h"
 
 #include "view-internal.h"
 #include "view.h"
@@ -430,6 +421,9 @@ static void wayland_rofi_view_update(RofiViewState *state, gboolean qr) {
 
   if (state->pool == NULL) {
     state->pool = display_buffer_pool_new(buffer_width, buffer_height);
+    if (state->pool == NULL) {
+      return;
+    }
   }
 
   cairo_surface_t *surface = display_buffer_pool_get_next_buffer(state->pool);
