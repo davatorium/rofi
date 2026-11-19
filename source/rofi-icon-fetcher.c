@@ -547,7 +547,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     gchar *entry_name = &sentry->entry->name[12];
 
     if (strcmp(entry_name, "") == 0) {
-      sentry->query_done = TRUE;
+      g_atomic_int_set(&sentry->query_done, TRUE);
       rofi_view_reload();
       return;
     }
@@ -697,7 +697,7 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
             helper_get_theme_path(sentry->entry->name, exts2, NULL);
       }
       if (icon_path_ == NULL) {
-        sentry->query_done = TRUE;
+        g_atomic_int_set(&sentry->query_done, TRUE);
         rofi_view_reload();
         return;
       }
@@ -872,6 +872,12 @@ gboolean rofi_icon_fetcher_get_ex(const uint32_t uid,
     if (g_atomic_int_get(&sentry->query_done)) {
       *surface = g_atomic_pointer_get(&sentry->surface);
       return TRUE;
+    }
+    // If query not started, re-start it.
+    if (!g_atomic_int_get(&sentry->query_started)) {
+      g_info("Restart query: %u", uid);
+      g_atomic_int_set(&sentry->query_started, TRUE);
+      g_thread_pool_push(tpool, sentry, NULL);
     }
     *surface = g_atomic_pointer_get(&sentry->surface);
     return FALSE;
