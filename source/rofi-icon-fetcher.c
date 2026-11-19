@@ -26,6 +26,7 @@
  */
 
 /** The log domain of this Helper. */
+#include "glib.h"
 #define G_LOG_DOMAIN "Helpers.IconFetcher"
 
 #include "config.h"
@@ -250,7 +251,7 @@ static gboolean rofi_icon_fetcher_create_thumbnail(const gchar *mime_type,
 static void rofi_icon_fetch_thread_pool_entry_remove(gpointer data) {
   IconFetcherEntry *entry = (IconFetcherEntry *)data;
   // Mark it in a way it should be re-fetched on next query?
-  entry->query_started = FALSE;
+  g_atomic_int_set(&entry->query_started, FALSE);
 }
 
 static void rofi_icon_fetch_entry_free(gpointer data) {
@@ -675,8 +676,9 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     pango_cairo_show_layout(cr, layout);
     g_object_unref(layout);
     cairo_destroy(cr);
-    sentry->surface = surface;
-    sentry->query_done = TRUE;
+    // force ordering.
+    g_atomic_pointer_set(&sentry->surface, surface);
+    g_atomic_int_set(&sentry->query_done, TRUE);
     rofi_view_reload();
     return;
 
@@ -748,9 +750,10 @@ static void rofi_icon_fetcher_worker(thread_state *sdata,
     g_object_unref(pb);
   }
 
-  sentry->surface = icon_surf;
+  // Force ordering.
+  g_atomic_pointer_set(&sentry->surface, icon_surf);
+  g_atomic_int_set(&sentry->query_done, TRUE);
   g_free(icon_path_);
-  sentry->query_done = TRUE;
   rofi_view_reload();
 }
 
@@ -771,7 +774,8 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
     sentry = iter->data;
     if (sentry->wsize == wsize && sentry->hsize == hsize &&
         sentry->scale == scale) {
-      if (!sentry->query_started) {
+      if (!g_atomic_int_get(&sentry->query_started)) {
+        g_atomic_int_set(&sentry->query_started, TRUE);
         g_thread_pool_push(tpool, sentry, NULL);
       }
       return sentry->uid;
@@ -786,7 +790,7 @@ uint32_t rofi_icon_fetcher_query_advanced(const char *name, const int wsize,
   sentry->scale = scale;
   sentry->entry = entry;
   sentry->query_done = FALSE;
-  sentry->query_started = TRUE;
+  g_atomic_int_set(&sentry->query_started, TRUE);
   sentry->surface = NULL;
 
   entry->sizes = g_list_prepend(entry->sizes, sentry);
@@ -817,7 +821,8 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
     sentry = iter->data;
     if (sentry->wsize == size && sentry->hsize == size &&
         sentry->scale == scale) {
-      if (!sentry->query_started) {
+      if (!g_atomic_int_get(&sentry->query_started)) {
+        g_atomic_int_set(&sentry->query_started, TRUE);
         g_thread_pool_push(tpool, sentry, NULL);
       }
       return sentry->uid;
@@ -832,7 +837,7 @@ uint32_t rofi_icon_fetcher_query(const char *name, const int size) {
   sentry->scale = scale;
   sentry->entry = entry;
   sentry->query_done = FALSE;
-  sentry->query_started = TRUE;
+  g_atomic_int_set(&sentry->query_started, TRUE);
   sentry->surface = NULL;
 
   entry->sizes = g_list_prepend(entry->sizes, sentry);
@@ -864,8 +869,12 @@ gboolean rofi_icon_fetcher_get_ex(const uint32_t uid,
       rofi_icon_fetcher_data->icon_cache_uid, GINT_TO_POINTER(uid));
   *surface = NULL;
   if (sentry) {
-    *surface = sentry->surface;
-    return sentry->query_done;
+    if (g_atomic_int_get(&sentry->query_done)) {
+      *surface = g_atomic_pointer_get(&sentry->surface);
+      return TRUE;
+    }
+    *surface = g_atomic_pointer_get(&sentry->surface);
+    return FALSE;
   }
   g_warning("Querying an non-existing uid");
   return FALSE;
