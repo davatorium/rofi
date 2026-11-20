@@ -484,6 +484,10 @@ some of CSS 4)
 
 - Format: `{named-color} [ / {PERCENTAGE} ]`
 
+- Format: `#{HEX} [ / {PERCENTAGE} ]`
+
+- Format: `@{color-reference} [ / {PERCENTAGE} ]`
+
 The white-space format proposed in CSS4 is also supported.
 
 The different values are:

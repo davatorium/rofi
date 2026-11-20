@@ -570,6 +570,13 @@ t_property_element
         $$ = rofi_theme_property_create ( P_LINK );
         $$->value.link.name = $1;
     }
+ /** @color_reference / 0-100% */
+|   T_LINK T_FORWARD_SLASH t_property_color_value_unit {
+	$$ = rofi_theme_property_create ( P_COLOR );
+	$$->value.link.name = $1;
+	$$->value.color.alpha = $3;
+	$$->value.link.modified = TRUE;
+    }
 |   T_BOOLEAN {
         $$ = rofi_theme_property_create ( P_BOOLEAN );
         $$->value.b = $1;
@@ -999,8 +1006,10 @@ t_property_color
     $$.alpha = $8;
 }
 /** Hex colors parsed by lexer. */
-| T_COLOR {
+| T_COLOR t_property_color_opt_alpha_ws {
     $$ = $1;
+	if ($2 != 1.0)
+		$$.alpha = $2;
 }
 | T_COLOR_TRANSPARENT {
     $$.alpha = 0.0;
@@ -1008,7 +1017,7 @@ t_property_color
 }
 | T_COLOR_NAME t_property_color_opt_alpha_ws {
     $$ = $1;
-    $$.alpha  = $2;
+    $$.alpha = $2;
 }
 ;
 t_property_color_opt_alpha_c
