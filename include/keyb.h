@@ -95,6 +95,8 @@ typedef enum {
   ACCEPT_ALT,
   ACCEPT_CUSTOM,
   ACCEPT_CUSTOM_ALT,
+  ACCEPT_ENTRY_PREV,
+  ACCEPT_ENTRY_NEXT,
   MODE_NEXT,
   MODE_COMPLETE,
   MODE_PREVIOUS,
@@ -202,5 +204,15 @@ void abe_list_all_bindings(gboolean is_term);
  * @returns id, or UINT32_MAX if not found.
  */
 guint key_binding_get_action_from_name(const char *name);
+
+/**
+ * Given an action ID, return the matching name if there's one
+ * @param id Action ID.
+ *
+ * @returns name, or NULL if not found.
+ */
+const char *key_binding_get_action_name_from_id(const guint id);
+
 /**@}*/
+
 #endif // ROFI_KEYB_H

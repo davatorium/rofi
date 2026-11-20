@@ -440,5 +440,9 @@ WidgetTriggerActionResult textbox_button_trigger_action(
     widget *wid, MouseBindingMouseDefaultAction action, G_GNUC_UNUSED gint x,
     G_GNUC_UNUSED gint y, G_GNUC_UNUSED void *user_data);
 
+
+KeyBindingAction rofi_view_get_accept_action(void);
+
+
 /** @} */
 #endif
