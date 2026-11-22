@@ -901,10 +901,13 @@ static void dmenu_finalize(RofiViewState *state) {
         pd->selected_line = next_pos - 1;
       }
     }
-    // Restart
-    rofi_view_restart(state);
-    rofi_view_set_selected_line(state, pd->selected_line);
-    if (!restart) {
+    // Restart, or finish without touching the view first: selecting a line
+    // of a menu that is about to close runs -on-selection-changed for it
+    // (f.e. for the first row when canceling).
+    if (restart) {
+      rofi_view_restart(state);
+      rofi_view_set_selected_line(state, pd->selected_line);
+    } else {
       dmenu_finish(pd, state, retv);
     }
     return;
