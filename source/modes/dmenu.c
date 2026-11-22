@@ -901,11 +901,12 @@ static void dmenu_finalize(RofiViewState *state) {
         pd->selected_line = next_pos - 1;
       }
     }
-    // Restart
-    rofi_view_restart(state);
-    rofi_view_set_selected_line(state, pd->selected_line);
     if (!restart) {
       dmenu_finish(pd, state, retv);
+    } else {
+      // Restart
+      rofi_view_restart(state);
+      rofi_view_set_selected_line(state, pd->selected_line);
     }
     return;
   }
