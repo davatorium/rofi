@@ -1549,13 +1549,13 @@ static void rofi_quit_user_callback(RofiViewState *state) {
   } else if (state->retv & MENU_CANCEL) {
     if (config.on_menu_canceled == NULL)
       return;
-    helper_execute_command(NULL, config.on_menu_canceled, FALSE, NULL);
+    rofi_view_user_command(config.on_menu_canceled, NULL, NULL);
   } else if (state->retv & MENU_NEXT || state->retv & MENU_PREVIOUS ||
              state->retv & MENU_QUICK_SWITCH || state->retv & MENU_COMPLETE) {
     if (config.on_mode_changed == NULL)
       return;
     // TODO: pass mode name to custom command
-    helper_execute_command(NULL, config.on_mode_changed, FALSE, NULL);
+    rofi_view_user_command(config.on_mode_changed, NULL, NULL);
   }
 }
 
