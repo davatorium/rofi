@@ -136,16 +136,28 @@ static int fzf_v2_sort(const void *p1, const void *p2, void *arg) {
   return 0;
 }
 
+/**
+ * @param cmd   The user command (one of the -on-* options).
+ * @param key   The pattern to replace, f.e. "{entry}", or NULL.
+ * @param value The text to replace the pattern with.
+ *
+ * Runs a user command. The value is passed as is: whatever quotes or spaces
+ * it contains, it stays inside the argument the pattern is written in.
+ */
+static void rofi_view_user_command(char *cmd, const char *key,
+                                   const char *value) {
+  char **args = NULL;
+  int argc = 0;
+  helper_parse_setup_args(cmd, &args, &argc, key, value, (char *)0);
+  if (args != NULL)
+    helper_execute(NULL, args, "", cmd, NULL);
+}
+
 static void screenshot_taken_user_callback(const char *path) {
   if (config.on_screenshot_taken == NULL)
     return;
 
-  char **args = NULL;
-  int argv = 0;
-  helper_parse_setup(config.on_screenshot_taken, &args, &argv, "{path}", path,
-                     (char *)0);
-  if (args != NULL)
-    helper_execute(NULL, args, "", config.on_screenshot_taken, NULL);
+  rofi_view_user_command(config.on_screenshot_taken, "{path}", path);
 }
 
 /**
@@ -697,12 +709,7 @@ static void selection_changed_user_callback(unsigned int index,
   int fstate = 0;
   char *text = mode_get_display_value(state->sw, state->line_map[index],
                                       &fstate, NULL, TRUE);
-  char **args = NULL;
-  int argv = 0;
-  helper_parse_setup(config.on_selection_changed, &args, &argv, "{entry}", text,
-                     (char *)0);
-  if (args != NULL)
-    helper_execute(NULL, args, "", config.on_selection_changed, NULL);
+  rofi_view_user_command(config.on_selection_changed, "{entry}", text);
   g_free(text);
 }
 static void selection_changed_callback(G_GNUC_UNUSED listview *lv,
@@ -1537,12 +1544,7 @@ static void rofi_quit_user_callback(RofiViewState *state) {
     // Pass selected text to custom command
     char *text = mode_get_display_value(state->sw, state->line_map[selected],
                                         &fstate, NULL, TRUE);
-    char **args = NULL;
-    int argv = 0;
-    helper_parse_setup(config.on_entry_accepted, &args, &argv, "{entry}", text,
-                       (char *)0);
-    if (args != NULL)
-      helper_execute(NULL, args, "", config.on_entry_accepted, NULL);
+    rofi_view_user_command(config.on_entry_accepted, "{entry}", text);
     g_free(text);
   } else if (state->retv & MENU_CANCEL) {
     if (config.on_menu_canceled == NULL)
@@ -1969,12 +1971,7 @@ static void rofi_error_user_callback(const char *msg) {
   if (config.on_menu_error == NULL)
     return;
 
-  char **args = NULL;
-  int argv = 0;
-  helper_parse_setup(config.on_menu_error, &args, &argv, "{error}", msg,
-                     (char *)0);
-  if (args != NULL)
-    helper_execute(NULL, args, "", config.on_menu_error, NULL);
+  rofi_view_user_command(config.on_menu_error, "{error}", msg);
 }
 
 int rofi_view_error_dialog(const char *msg, int markup) {

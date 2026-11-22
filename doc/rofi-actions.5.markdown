@@ -38,6 +38,8 @@ Command or script to run when an error menu is shown (e.g. `rofi -e "error messa
 
 Command or script to run when a screenshot of rofi is taken. Screenshot path is forwarded to the command replacing the pattern *{path}*.
 
+The command is split into arguments first; then the pattern is replaced with the text as is, inside the argument it is written in. The text is not split on spaces and quotes in it are not interpreted, so `/path/to/select.sh {entry}` always gets the whole entry as one argument. To use the text in a shell script, pass it as an argument rather than writing the pattern inside the script: `sh -c 'notify-send "$1"' sh {entry}`.
+
 ### Example usage
 
 Rofi command line:

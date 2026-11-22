@@ -145,4 +145,22 @@ int main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv) {
   TASSERT(d == -3);
 
   g_strfreev(list);
+
+  // Values stay inside the argument of their key, as is.
+  const char *entry = "it's \"a b\" {host} $(c) \\";
+  list = NULL;
+  TASSERT(helper_parse_setup_args("select.sh {entry} '{entry}' \"x {entry}\" "
+                                  "sh -c 'echo {entry}' {host}",
+                                  &list, &llength, "{entry}", entry, "{host}",
+                                  "chuck", NULL) == TRUE);
+  TASSERT(llength == 8);
+  TASSERT(strcmp(list[0], "select.sh") == 0);
+  TASSERT(strcmp(list[1], entry) == 0);
+  TASSERT(strcmp(list[2], entry) == 0);
+  TASSERT(strcmp(list[3], "x it's \"a b\" {host} $(c) \\") == 0);
+  TASSERT(strcmp(list[4], "sh") == 0);
+  TASSERT(strcmp(list[5], "-c") == 0);
+  TASSERT(strcmp(list[6], "echo it's \"a b\" {host} $(c) \\") == 0);
+  TASSERT(strcmp(list[7], "chuck") == 0);
+  g_strfreev(list);
 }
