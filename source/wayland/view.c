@@ -188,26 +188,26 @@ static void window_update_size_with_outside_click(RofiViewState *state,
     WlState.menu_y = offset_y;
     break;
   case WL_NORTH_EAST:
-    WlState.menu_x = WlState.surface_width - WlState.menu_width - offset_x;
+    WlState.menu_x = WlState.surface_width - WlState.menu_width + offset_x;
     WlState.menu_y = offset_y;
     break;
   case WL_EAST:
-    WlState.menu_x = WlState.surface_width - WlState.menu_width - offset_x;
+    WlState.menu_x = WlState.surface_width - WlState.menu_width + offset_x;
     WlState.menu_y =
         (WlState.surface_height - WlState.menu_height) / 2 + offset_y;
     break;
   case WL_SOUTH_EAST:
-    WlState.menu_x = WlState.surface_width - WlState.menu_width - offset_x;
-    WlState.menu_y = WlState.surface_height - WlState.menu_height - offset_y;
+    WlState.menu_x = WlState.surface_width - WlState.menu_width + offset_x;
+    WlState.menu_y = WlState.surface_height - WlState.menu_height + offset_y;
     break;
   case WL_SOUTH:
     WlState.menu_x =
         (WlState.surface_width - WlState.menu_width) / 2 + offset_x;
-    WlState.menu_y = WlState.surface_height - WlState.menu_height - offset_y;
+    WlState.menu_y = WlState.surface_height - WlState.menu_height + offset_y;
     break;
   case WL_SOUTH_WEST:
     WlState.menu_x = offset_x;
-    WlState.menu_y = WlState.surface_height - WlState.menu_height - offset_y;
+    WlState.menu_y = WlState.surface_height - WlState.menu_height + offset_y;
     break;
   case WL_WEST:
     WlState.menu_x = offset_x;
