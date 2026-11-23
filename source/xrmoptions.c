@@ -676,7 +676,7 @@ static XrmOption xrmOptions[] = {
      "imdkit",
      {.snum = &config.enable_imdkit},
      NULL,
-     "Whether to enable imdkit"},
+     "Enable input methods (X11 imdkit, Wayland text-input-v3)"},
     {xrm_String,
      CONFIG_DEFAULT,
      "fallback-icon-themes",

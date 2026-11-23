@@ -938,6 +938,15 @@ Default: *0*
 
 Default: *disabled*
 
+`-[no-]imdkit`
+
+Enable input method support. On X11 this uses xcb-imdkit (XIM), on Wayland the
+text-input-v3 protocol. Disabling it stops input methods such as fcitx5 or ibus
+from attaching to **rofi**, so key presses always reach **rofi** directly,
+regardless of the input method state of the previously focused window.
+
+Default: *enabled*
+
 `-xserver-i300-workaround`
 
 Workaround for bug in Xserver. See issue #611 and #1642 on the rofi issue

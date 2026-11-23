@@ -1397,7 +1397,7 @@ static void wayland_seat_capabilities(void *data, struct wl_seat *seat,
       (self->keyboard == NULL)) {
     self->keyboard = wl_seat_get_keyboard(self->seat);
     wl_keyboard_add_listener(self->keyboard, &wayland_keyboard_listener, self);
-    if (wayland->text_input_manager) {
+    if (wayland->text_input_manager && config.enable_imdkit) {
       self->text_input = zwp_text_input_manager_v3_get_text_input(
           wayland->text_input_manager, seat);
       zwp_text_input_v3_add_listener(self->text_input, &text_input_listener,
