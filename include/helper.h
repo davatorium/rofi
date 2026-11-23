@@ -54,6 +54,21 @@ G_BEGIN_DECLS
 int helper_parse_setup(char *string, char ***output, int *length, ...);
 
 /**
+ * @param string The input string.
+ * @param output Pointer to 2 dimensional array with parsed string.
+ * @param length Length of 2 dimensional array.
+ * @param ...    Key, value parse. Replaces the string Key with value.
+ *
+ * Like helper_parse_setup(), but splits the string into arguments before
+ * replacing the keys: a value always ends up inside the argument its key is
+ * written in, as is. It is not split on spaces and its quotes are not parsed,
+ * so it can be any text, f.e. an entry passed to a user command.
+ *
+ * @returns TRUE when successful, FALSE when failed.
+ */
+int helper_parse_setup_args(char *string, char ***output, int *length, ...);
+
+/**
  * @param input The input string.
  * @param case_sensitive Whether case is significant.
  *

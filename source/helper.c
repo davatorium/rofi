@@ -99,16 +99,17 @@ void cmd_set_arguments(int argc, char **argv) {
   stored_argv = argv;
 }
 
-int helper_parse_setup(char *string, char ***output, int *length, ...) {
-  GError *error = NULL;
-  GHashTable *h;
-  h = g_hash_table_new(g_str_hash, g_str_equal);
+/**
+ * @param ap Key, value pairs, terminated by NULL.
+ *
+ * @returns the keys to replace: {terminal}, {ssh-client} and the pairs.
+ */
+static GHashTable *helper_parse_setup_keys(va_list ap) {
+  GHashTable *h = g_hash_table_new(g_str_hash, g_str_equal);
   // By default, we insert terminal and ssh-client
   g_hash_table_insert(h, "{terminal}", config.terminal_emulator);
   g_hash_table_insert(h, "{ssh-client}", config.ssh_client);
   // Add list from variable arguments.
-  va_list ap;
-  va_start(ap, length);
   while (1) {
     char *key = va_arg(ap, char *);
     if (key == (char *)0) {
@@ -120,6 +121,14 @@ int helper_parse_setup(char *string, char ***output, int *length, ...) {
     }
     g_hash_table_insert(h, key, value);
   }
+  return h;
+}
+
+int helper_parse_setup(char *string, char ***output, int *length, ...) {
+  GError *error = NULL;
+  va_list ap;
+  va_start(ap, length);
+  GHashTable *h = helper_parse_setup_keys(ap);
   va_end(ap);
 
   char *res = helper_string_replace_if_exists_v(string, h);
@@ -141,6 +150,44 @@ int helper_parse_setup(char *string, char ***output, int *length, ...) {
     g_error_free(error);
   }
   return FALSE;
+}
+
+int helper_parse_setup_args(char *string, char ***output, int *length, ...) {
+  GError *error = NULL;
+  // Split into arguments before replacing the keys, so a value always stays
+  // inside the argument its key is written in.
+  if (!g_shell_parse_argv(string, length, output, &error)) {
+    if (error) {
+      char *msg = g_strdup_printf("Failed to parse: '%s'\nError: '%s'", string,
+                                  error->message);
+      rofi_view_error_dialog(msg, FALSE);
+      g_free(msg);
+      g_error_free(error);
+    }
+    return FALSE;
+  }
+  va_list ap;
+  va_start(ap, length);
+  GHashTable *h = helper_parse_setup_keys(ap);
+  va_end(ap);
+
+  gboolean retv = TRUE;
+  for (int i = 0; i < *length; i++) {
+    char *arg = helper_string_replace_if_exists_v((*output)[i], h);
+    if (arg == NULL) {
+      retv = FALSE;
+      break;
+    }
+    g_free((*output)[i]);
+    (*output)[i] = arg;
+  }
+  g_hash_table_destroy(h);
+  if (!retv) {
+    g_strfreev(*output);
+    *output = NULL;
+    *length = 0;
+  }
+  return retv;
 }
 
 void helper_tokenize_free(rofi_int_matcher **tokens) {
